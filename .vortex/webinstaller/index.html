@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vortex Installer</title>
+    <link rel="stylesheet" href="dist/styles.css" />
+  </head>
+  <body x-data="installerData()">
+    <div class="container">
+      <div class="installer-header">
+        <h1>🌀 Vortex Installer</h1>
+      </div>
+
+      <div class="installer-layout">
+        <!-- Vertical Tabs Navigation -->
+        <nav class="vertical-tabs">
+          <ul class="tab-list">
+            <li>
+              <button class="tab-button active" onclick="switchTab('general')">
+                <span class="tab-icon">📋</span>
+                <span>General Information</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('repository')">
+                <span class="tab-icon">📦</span>
+                <span>Repository</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('drupal')">
+                <span class="tab-icon">🏗️</span>
+                <span>Drupal</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('services')">
+                <span class="tab-icon">⚙️</span>
+                <span>Services</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('hosting')">
+                <span class="tab-icon">☁️</span>
+                <span>Hosting</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('workflow')">
+                <span class="tab-icon">🔄</span>
+                <span>Workflow</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('ci')">
+                <span class="tab-icon">🚀</span>
+                <span>CI/CD</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('deployment')">
+                <span class="tab-icon">📡</span>
+                <span>Deployment</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('dependencies')">
+                <span class="tab-icon">🔧</span>
+                <span>Dependencies</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('database')">
+                <span class="tab-icon">💾</span>
+                <span>Database</span>
+              </button>
+            </li>
+            <li>
+              <button class="tab-button" onclick="switchTab('advanced')">
+                <span class="tab-icon">⚡</span>
+                <span>Advanced</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-layout">
+          <div class="form-content">
+            <!-- General Information Panel -->
+            <div id="general-panel" class="tab-panel" style="display: block">
+              <div class="panel-header">
+                <h2 class="panel-title">General Information</h2>
+              </div>
+
+              <div class="form-group">
+                <label for="site-name">
+                  Site Name
+                  <button
+                    class="help-icon"
+                    onclick="showHelp(this)"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="site-name"
+                  x-model="siteName"
+                  @input="updateMachineNames(); validateField('site-name', siteName)"
+                  @blur="validateField('site-name', siteName)"
+                  placeholder="My Awesome Site"
+                  data-validation="required|min:2|max:100"
+                />
+                <div
+                  class="validation-error"
+                  id="site-name-error"
+                  style="display: none"
+                ></div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Site Name</h4>
+                  <p>
+                    The human-readable name for your Drupal site that will
+                    appear in the site header, admin interface, and other
+                    locations.
+                  </p>
+                  <p>
+                    Examples: "My Company Website", "Blog Platform", "E-commerce
+                    Store"
+                  </p>
+                  <p>
+                    This can be changed later in the Drupal admin interface
+                    under Configuration > System > Site information.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="site-machine-name">
+                  Site Machine Name
+                  <button
+                    class="help-icon"
+                    onclick="showHelp(this)"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="site-machine-name"
+                  x-model="siteMachineName"
+                  @input="validateField('site-machine-name', $event.target.value)"
+                  @blur="validateField('site-machine-name', $event.target.value)"
+                  placeholder="my_awesome_site"
+                  data-validation="required|machine_name"
+                />
+                <div class="help-text auto-generated">
+                  Auto-generated from site name
+                </div>
+                <div
+                  class="validation-error"
+                  id="site-machine-name-error"
+                  style="display: none"
+                ></div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Site Machine Name</h4>
+                  <p>
+                    A machine-readable identifier for your site used in file
+                    paths, database names, and configuration.
+                  </p>
+                  <p>
+                    Must contain only lowercase letters, numbers, and
+                    underscores. No spaces or special characters.
+                  </p>
+                  <p>
+                    Examples: "my_company_site", "blog_platform",
+                    "ecommerce_store"
+                  </p>
+                  <p>
+                    This value is automatically generated from your site name
+                    but can be customized.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="org-name">
+                  Organization Name
+                  <button
+                    class="help-icon"
+                    onclick="showHelp(this)"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="org-name"
+                  x-model="orgName"
+                  @input="updateMachineNames(); validateField('org-name', orgName)"
+                  @blur="validateField('org-name', orgName)"
+                  placeholder="My Organization"
+                  data-validation="required|min:2|max:100"
+                />
+                <div
+                  class="validation-error"
+                  id="org-name-error"
+                  style="display: none"
+                ></div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Organization Name</h4>
+                  <p>
+                    The name of your organization or company. Used for
+                    repository naming, container images, and project
+                    organization.
+                  </p>
+                  <p>
+                    Examples: "My Company", "Development Agency", "Personal
+                    Projects"
+                  </p>
+                  <p>
+                    This helps organize multiple projects under a common
+                    namespace in version control and deployment systems.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="public-domain">
+                  Public Domain
+                  <button
+                    class="help-icon"
+                    onclick="showHelp(this)"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="public-domain"
+                  x-model="publicDomain"
+                  @input="validateField('public-domain', publicDomain)"
+                  @blur="validateField('public-domain', publicDomain)"
+                  placeholder="mysite.com"
+                  data-validation="domain"
+                />
+                <div class="help-text auto-generated">
+                  Auto-generated from site name
+                </div>
+                <div
+                  class="validation-error"
+                  id="public-domain-error"
+                  style="display: none"
+                ></div>
+                <div class="field-help-extended" style="display: none">
+                  <h4>Public Domain</h4>
+                  <p>The domain where your site will be publicly accessible.</p>
+                  <p>
+                    Examples: "mysite.com", "blog.company.com",
+                    "dev.example.org"
+                  </p>
+                  <p>Used for:</p>
+                  <ul>
+                    <li>SSL certificate configuration</li>
+                    <li>Environment-specific settings</li>
+                    <li>Email and notification URLs</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Repository Panel -->
+            <div id="repository-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Repository Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Repository Provider
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('repo-provider')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="repo-provider"
+                      value="github"
+                      x-model="repoProvider"
+                      @change="updateGitHubRepo()"
+                    />
+                    <span>GitHub</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('repo-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="repo-provider"
+                      value="gitlab"
+                      x-model="repoProvider"
+                    />
+                    <span>GitLab</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('repo-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="repo-provider"
+                      value="bitbucket"
+                      x-model="repoProvider"
+                    />
+                    <span>Bitbucket</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('repo-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="repo-provider"
+                      value="none"
+                      x-model="repoProvider"
+                    />
+                    <span>None</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('repo-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+
+              <!-- GitHub conditional fields -->
+              <div
+                x-show="repoProvider === 'github'"
+                x-transition:enter="height-enter"
+                x-transition:enter-start="height-enter-start"
+                x-transition:enter-end="height-enter-end"
+                x-transition:leave="height-leave"
+                x-transition:leave-start="height-leave-start"
+                x-transition:leave-end="height-leave-end"
+                class="conditional-field"
+                :class="{ 'active': repoProvider === 'github' }"
+              >
+                <div class="form-group">
+                  <label for="github-token">
+                    GitHub Personal Access Token
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('github-token')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <input
+                    type="password"
+                    id="github-token"
+                    x-model="githubToken"
+                    placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="github-repository">
+                    GitHub Repository
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('github-repository')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <input
+                    type="text"
+                    id="github-repository"
+                    x-model="githubRepository"
+                    placeholder="organization/repository"
+                  />
+                  <div class="help-text auto-generated">
+                    Auto-generated from organization and site name
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drupal Panel -->
+            <div id="drupal-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Drupal Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Installation Profile
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('drupal-profile')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="drupal-profile"
+                      value="standard"
+                      x-model="drupalProfile"
+                    />
+                    <span>Standard</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('drupal-profile')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="drupal-profile"
+                      value="minimal"
+                      x-model="drupalProfile"
+                    />
+                    <span>Minimal</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('drupal-profile')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="drupal-profile"
+                      value="demo_umami"
+                      x-model="drupalProfile"
+                    />
+                    <span>Demo Umami</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('drupal-profile')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="drupal-profile"
+                      value="custom"
+                      x-model="drupalProfile"
+                    />
+                    <span>Custom</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('drupal-profile')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Custom profile conditional field -->
+              <div
+                x-show="drupalProfile === 'custom'"
+                x-transition:enter="height-enter"
+                x-transition:enter-start="height-enter-start"
+                x-transition:enter-end="height-enter-end"
+                x-transition:leave="height-leave"
+                x-transition:leave-start="height-leave-start"
+                x-transition:leave-end="height-leave-end"
+                class="conditional-field"
+                :class="{ 'active': drupalProfile === 'custom' }"
+              >
+                <div class="form-group">
+                  <label for="custom-profile-name">
+                    Custom Profile Name
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('custom-profile-name')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <input
+                    type="text"
+                    id="custom-profile-name"
+                    x-model="customProfileName"
+                    placeholder="my_custom_profile"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="module-prefix">
+                  Module Prefix
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('module-prefix')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="module-prefix"
+                  x-model="modulePrefix"
+                  placeholder="mysite"
+                  maxlength="4"
+                />
+                <div class="help-text auto-generated">
+                  Auto-generated from site name
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="theme-machine-name">
+                  Theme Machine Name
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('theme-machine-name')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="theme-machine-name"
+                  x-model="themeMachineName"
+                  placeholder="my_theme"
+                />
+              </div>
+            </div>
+
+            <!-- Services Panel -->
+            <div id="services-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Additional Services</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Select Services
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('services')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item">
+                    <input type="checkbox" value="solr" x-model="services" />
+                    <span>Apache Solr (Search)</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('services')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" value="valkey" x-model="services" />
+                    <span>Valkey (Redis-compatible Cache)</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('services')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" value="clamav" x-model="services" />
+                    <span>ClamAV (Virus Scanning)</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('services')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hosting Panel -->
+            <div id="hosting-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Hosting Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Hosting Provider
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('hosting-provider')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="hosting-provider"
+                      value="acquia"
+                      x-model="hostingProvider"
+                      @change="updateWebRoot()"
+                    />
+                    <span>Acquia</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('hosting-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="hosting-provider"
+                      value="lagoon"
+                      x-model="hostingProvider"
+                      @change="updateWebRoot()"
+                    />
+                    <span>Lagoon</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('hosting-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="hosting-provider"
+                      value="other"
+                      x-model="hostingProvider"
+                      @change="updateWebRoot()"
+                    />
+                    <span>Other</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('hosting-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="hosting-provider"
+                      value="none"
+                      x-model="hostingProvider"
+                      @change="updateWebRoot()"
+                    />
+                    <span>None</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('hosting-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="web-root-directory">
+                  Web Root Directory
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('web-root-directory')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="web-root-directory"
+                  x-model="webRootDirectory"
+                  placeholder="docroot"
+                  :disabled="hostingProvider !== 'other'"
+                />
+                <div
+                  class="help-text auto-generated"
+                  x-show="hostingProvider !== 'other'"
+                >
+                  Set automatically based on hosting provider
+                </div>
+              </div>
+            </div>
+
+            <!-- Workflow Panel -->
+            <div id="workflow-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Site Provisioning Workflow</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Provision Type
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('provision-type')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="provision-type"
+                      value="database_import"
+                      x-model="provisionType"
+                      @change="updateDatabaseSource()"
+                    />
+                    <span>Database Import</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('provision-type')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="provision-type"
+                      value="profile_install"
+                      x-model="provisionType"
+                      @change="updateDatabaseSource()"
+                    />
+                    <span>Profile Install</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('provision-type')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Database import conditional fields -->
+              <div
+                x-show="provisionType === 'database_import'"
+                x-transition:enter="height-enter"
+                x-transition:enter-start="height-enter-start"
+                x-transition:enter-end="height-enter-end"
+                x-transition:leave="height-leave"
+                x-transition:leave-start="height-leave-start"
+                x-transition:leave-end="height-leave-end"
+                class="conditional-field"
+                :class="{ 'active': provisionType === 'database_import' }"
+              >
+                <div class="form-group">
+                  <label>
+                    Database Source
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('database-source')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <div class="radio-group">
+                    <label class="radio-item">
+                      <input
+                        type="radio"
+                        name="database-source"
+                        value="url"
+                        x-model="databaseSource"
+                      />
+                      <span>URL</span>
+                      <button
+                        class="help-icon"
+                        onclick="showHelp('database-source')"
+                        type="button"
+                      >
+                        ?
+                      </button>
+                    </label>
+                    <label class="radio-item">
+                      <input
+                        type="radio"
+                        name="database-source"
+                        value="ftp"
+                        x-model="databaseSource"
+                      />
+                      <span>FTP</span>
+                      <button
+                        class="help-icon"
+                        onclick="showHelp('database-source')"
+                        type="button"
+                      >
+                        ?
+                      </button>
+                    </label>
+                    <template x-if="isDbSourceAvailable('acquia')">
+                      <label class="radio-item">
+                        <input
+                          type="radio"
+                          name="database-source"
+                          value="acquia"
+                          x-model="databaseSource"
+                        />
+                        <span>Acquia</span>
+                        <button
+                          class="help-icon"
+                          onclick="showHelp('database-source')"
+                          type="button"
+                        >
+                          ?
+                        </button>
+                      </label>
+                    </template>
+                    <template x-if="isDbSourceAvailable('lagoon')">
+                      <label class="radio-item">
+                        <input
+                          type="radio"
+                          name="database-source"
+                          value="lagoon"
+                          x-model="databaseSource"
+                        />
+                        <span>Lagoon</span>
+                        <button
+                          class="help-icon"
+                          onclick="showHelp('database-source')"
+                          type="button"
+                        >
+                          ?
+                        </button>
+                      </label>
+                    </template>
+                    <label class="radio-item">
+                      <input
+                        type="radio"
+                        name="database-source"
+                        value="container_image"
+                        x-model="databaseSource"
+                      />
+                      <span>Container Image</span>
+                      <button
+                        class="help-icon"
+                        onclick="showHelp('database-source')"
+                        type="button"
+                      >
+                        ?
+                      </button>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Container image conditional field (nested deeper) -->
+                <div
+                  x-show="databaseSource === 'container_image'"
+                  x-transition:enter="height-enter"
+                  x-transition:enter-start="height-enter-start"
+                  x-transition:enter-end="height-enter-end"
+                  x-transition:leave="height-leave"
+                  x-transition:leave-start="height-leave-start"
+                  x-transition:leave-end="height-leave-end"
+                  class="conditional-field"
+                  :class="{ 'active': databaseSource === 'container_image' }"
+                >
+                  <div class="form-group">
+                    <label for="database-container-image">
+                      Database Container Image
+                      <button
+                        class="help-icon"
+                        onclick="showHelp('database-container-image')"
+                        type="button"
+                      >
+                        ?
+                      </button>
+                    </label>
+                    <input
+                      type="text"
+                      id="database-container-image"
+                      x-model="databaseContainerImage"
+                      placeholder="organization/project-data:latest"
+                    />
+                    <div class="help-text auto-generated">
+                      Auto-generated from organization and site name
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CI/CD Panel -->
+            <div id="ci-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Continuous Integration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  CI/CD Provider
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('ci-provider')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="ci-provider"
+                      value="github_actions"
+                      x-model="ciProvider"
+                    />
+                    <span>GitHub Actions</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('ci-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="ci-provider"
+                      value="circleci"
+                      x-model="ciProvider"
+                    />
+                    <span>CircleCI</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('ci-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="ci-provider"
+                      value="none"
+                      x-model="ciProvider"
+                    />
+                    <span>None</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('ci-provider')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Deployment Panel -->
+            <div id="deployment-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Deployment Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Deployment Type
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('deployment-type')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="deployment-type"
+                      value="container_registry"
+                      x-model="deploymentType"
+                    />
+                    <span>Container Registry</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('deployment-type')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="deployment-type"
+                      value="artifact"
+                      x-model="deploymentType"
+                    />
+                    <span>Artifact</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('deployment-type')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="deployment-type"
+                      value="webhook"
+                      x-model="deploymentType"
+                    />
+                    <span>Webhook</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('deployment-type')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dependencies Panel -->
+            <div
+              id="dependencies-panel"
+              class="tab-panel"
+              style="display: none"
+            >
+              <div class="panel-header">
+                <h2 class="panel-title">Dependency Management</h2>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  Automated Updates
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('dependency-updates')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="dependency-updates"
+                      value="renovatebot"
+                      x-model="dependencyUpdates"
+                    />
+                    <span>RenovateBot</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('dependency-updates')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="dependency-updates"
+                      value="none"
+                      x-model="dependencyUpdates"
+                    />
+                    <span>None</span>
+                    <button
+                      class="help-icon"
+                      onclick="showHelp('dependency-updates')"
+                      type="button"
+                    >
+                      ?
+                    </button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Database Panel -->
+            <div id="database-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Database Configuration</h2>
+              </div>
+
+              <div class="form-group">
+                <label for="database-name">
+                  Database Name
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('database-name')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="database-name"
+                  x-model="databaseName"
+                  placeholder="drupal"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="database-host">
+                  Database Host
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('database-host')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  id="database-host"
+                  x-model="databaseHost"
+                  placeholder="mariadb"
+                />
+              </div>
+            </div>
+
+            <!-- Advanced Panel -->
+            <div id="advanced-panel" class="tab-panel" style="display: none">
+              <div class="panel-header">
+                <h2 class="panel-title">Advanced Settings</h2>
+              </div>
+
+              <div class="form-group">
+                <label for="debug-mode">
+                  <input type="checkbox" id="debug-mode" x-model="debugMode" />
+                  Enable Debug Mode
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('debug-mode')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label for="skip-tests">
+                  <input type="checkbox" id="skip-tests" x-model="skipTests" />
+                  Skip Initial Tests
+                  <button
+                    class="help-icon"
+                    onclick="showHelp('skip-tests')"
+                    type="button"
+                  >
+                    ?
+                  </button>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Help Sidebar -->
+          <div id="helpSidebar" class="help-sidebar">
+            <div class="help-header">
+              <h3 class="help-title">Field Help</h3>
+              <button
+                class="help-close"
+                onclick="closeHelpSidebar()"
+                type="button"
+              >
+                ×
+              </button>
+            </div>
+            <div class="help-content" id="helpContent">
+              <div class="help-placeholder">
+                Select a field to view help information.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Overlay -->
+        <div id="formOverlay" class="form-overlay"></div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/joi@17.13.3/dist/joi-browser.min.js"
+      defer
+    ></script>
+    <script src="dist/scripts.js"></script>
+  </body>
+</html>

@@ -15,6 +15,7 @@ vortex/
 ├── .vortex/                    # Test harness and development tools
 │   ├── docs/                   # Documentation for Vortex
 │   ├── installer/              # Self-contained Symfony console installer
+│   ├── webinstaller/           # Web-based installer frontend
 │   ├── tests/                  # Unit and functional tests
 │   └── CLAUDE.md              # This maintenance guide
 └── [root files]                # The actual Drupal template
@@ -37,6 +38,13 @@ vortex/
 - Handles Vortex installation and customization
 - **Fixture System**: Uses baseline + diff architecture
 
+### .vortex/webinstaller/
+- **Frontend for Vortex installation** using modern web technologies
+- **Technology Stack**: Vanilla JavaScript (ES6+), SCSS, esbuild bundling
+- **Interactive installation interface** with form validation and help system
+- **Testing**: Cypress E2E tests for user workflows
+- **Quality tools**: ESLint, Stylelint, Prettier for code quality
+
 ### .vortex/tests/
 - Unit and functional tests for Vortex
 - Uses both **PHPUnit** (functional workflows) and **BATS** (shell script unit tests)
@@ -57,6 +65,15 @@ vortex/
 - **Key Files**:
   - `Functional/WorkflowTest.php` - Main workflow testing
   - `Functional/FunctionalTestCase.php` - Base test case
+
+### Web Installer Testing (.vortex/webinstaller/)
+- **Purpose**: End-to-end testing of web installer user interface
+- **Technology**: Cypress for browser automation and testing
+- **Location**: `.vortex/webinstaller/tests/`
+- **Key Files**:
+  - `e2e/smoke.cy.js` - Basic functionality tests
+  - `support/e2e.js` - Test support utilities
+- **Test Coverage**: Form validation, navigation, UI interactions
 
 ### BATS Tests (.vortex/tests/bats/)
 - **Purpose**: Unit testing of shell scripts with coverage
@@ -121,6 +138,27 @@ yarn spellcheck
 # Code quality checks
 yarn lint
 yarn lint-fix
+```
+
+**Web Installer Tests** (`.vortex/webinstaller/`):
+```bash
+cd .vortex/webinstaller
+
+# Install dependencies
+npm install
+
+# Development workflow
+npm run dev                    # Start development server with live reload
+npm run build                  # Build production assets
+npm run serve                  # Serve production build
+
+# Code quality
+npm run lint                   # Run all linting (JS, CSS, format)
+npm run lint-fix               # Auto-fix linting issues
+
+# Testing
+npm run test                   # Run Cypress tests headlessly
+npm run test:open              # Open Cypress interactive test runner
 ```
 
 **Template Tests** (`.vortex/tests/`):
@@ -289,6 +327,18 @@ yarn lint-fix       # Auto-fix code quality issues
 # Testing workflow
 yarn test           # Run all tests
 yarn test:watch     # Watch mode for development
+```
+
+**Web Installer Workflow** (`.vortex/webinstaller/`):
+```bash
+# Development workflow
+npm run dev          # Live development server
+npm run build        # Production build
+npm run lint-fix     # Auto-fix code quality issues
+
+# Testing workflow
+npm run test         # Run E2E tests
+npm run test:open    # Interactive test runner
 ```
 
 **Template Testing** (`.vortex/tests/`):
@@ -461,6 +511,14 @@ Conditional tokens are tested through the installer fixture system:
 │   ├── src/                    # Installer source code
 │   ├── tests/Fixtures/         # Installation test fixtures
 │   └── tests/Functional/       # Installer functional tests
+├── webinstaller/               # Web-based installer frontend
+│   ├── src/                    # Source code (JS, SCSS)
+│   ├── tests/                  # Cypress E2E tests
+│   ├── dist/                   # Built assets
+│   ├── package.json            # Dependencies and scripts
+│   ├── eslint.config.js        # ESLint configuration
+│   ├── cypress.config.js       # Cypress test configuration
+│   └── index.html              # Main HTML file
 └── tests/
     ├── bats/                   # Shell script unit tests
     └── phpunit/                # Workflow functional tests

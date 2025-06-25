@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+yarn.lock
+package-lock.json
+*.md
+*.mdx
+cypress/screenshots/
+cypress/videos/
+**/*.min.js

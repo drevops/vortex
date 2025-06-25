@@ -1,0 +1,47 @@
+// CSS Custom Properties
+:root {
+  // Colors
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  // Responsive sizing variables
+  --scale-factor: 1;
+  --base-font-size: 1rem;
+  --base-padding: 1rem;
+  --base-margin: 1rem;
+}
+
+// SCSS Variables for easier usage
+$primary: var(--primary-color);
+$primary-hover: var(--primary-hover);
+$gray-50: var(--gray-50);
+$gray-100: var(--gray-100);
+$gray-200: var(--gray-200);
+$gray-300: var(--gray-300);
+$gray-400: var(--gray-400);
+$gray-500: var(--gray-500);
+$gray-600: var(--gray-600);
+$gray-700: var(--gray-700);
+$gray-800: var(--gray-800);
+
+// Transitions
+$transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-enter: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+$transition-leave: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+
+// Breakpoints
+$tablet: 768px;
+$desktop: 1024px;
