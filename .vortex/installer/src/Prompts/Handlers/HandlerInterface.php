@@ -59,10 +59,10 @@ interface HandlerInterface {
    *
    * @param array $responses *
    *
-   * @return callable|null
+   * @return bool
    *   The condition callback, or null if not conditional.
    */
-  public function condition(array $responses): ?callable;
+  public function condition(array $responses): bool;
 
   /**
    * The default value for the handler.

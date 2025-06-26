@@ -114,15 +114,6 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): mixed {
-    $discovered = $this->discover();
-    if (!empty($discovered)) {
-      // If we discovered a standard profile, return it
-      if (in_array($discovered, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI])) {
-        return $discovered;
-      }
-      // If we discovered a custom profile, select "Custom" option
-      return self::CUSTOM;
-    }
     return self::STANDARD;
   }
 

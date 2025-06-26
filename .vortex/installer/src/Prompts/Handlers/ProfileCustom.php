@@ -80,9 +80,8 @@ class ProfileCustom extends AbstractHandler {
    * {@inheritdoc}
    * @param array $responses
    */
-  public function condition(array $responses): ?callable {
-    return fn(array $responses): bool => isset($responses[Profile::id()]) &&
-      $responses[Profile::id()] === Profile::CUSTOM;
+  public function condition(array $responses): bool {
+    return isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM;
   }
 
 }

@@ -122,11 +122,11 @@ class PromptManager {
       ->intro('Code repository')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
       ->addIf(
-          fn($r): bool => $this->handlers[GithubToken::id()]->condition()($r),
-          fn($r, $pr, $n) => Tui::note('<info>' . (string)GithubToken::explanation() . '</info>')
+          fn($r): bool => $this->handlers[GithubToken::id()]->condition($r),
+          fn($r, $pr, $n) => Tui::note('<info>' . (string)GithubToken::explanation($r) . '</info>')
         )
       ->addIf(
-          fn($r): bool => $this->handlers[GithubToken::id()]->condition()($r),
+          fn($r): bool => $this->handlers[GithubToken::id()]->condition($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[GithubToken::id()];
             $resolved_value = $handler->resolved($r);
@@ -140,7 +140,7 @@ class PromptManager {
           GithubToken::id()
         )
         ->addIf(
-            fn($r): bool => $this->handlers[GithubRepo::id()]->condition()($r),
+            fn($r): bool => $this->handlers[GithubRepo::id()]->condition($r),
             fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n, NULL, $r)),
             GithubRepo::id()
           )
@@ -149,13 +149,13 @@ class PromptManager {
       ->add(
           function ($r, $pr, $n): int|string {
             $args = $this->args(Profile::class, $n);
-            $args['default'] = $this->handlers[Profile::id()]->default();
+            $args['default'] = $this->handlers[Profile::id()]->default($r);
             return select(...$args);
           },
           Profile::id()
         )
       ->addIf(
-          fn($r): bool => $this->handlers[ProfileCustom::id()]->condition()($r),
+          fn($r): bool => $this->handlers[ProfileCustom::id()]->condition($r),
           fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class, $n)),
           ProfileCustom::id()
         )
@@ -188,12 +188,12 @@ class PromptManager {
       ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class, $n)), ProvisionType::id())
       ->addIf(
-          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->condition()($r),
+          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->condition($r),
           fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, $n, NULL, $r)),
           DatabaseDownloadSource::id()
         )
       ->addIf(
-          fn($r): bool => $this->handlers[DatabaseImage::id()]->condition()($r),
+          fn($r): bool => $this->handlers[DatabaseImage::id()]->condition($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[DatabaseImage::id()];
             $args = $this->args(DatabaseImage::class, $n, NULL, $r);

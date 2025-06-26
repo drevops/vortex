@@ -65,8 +65,8 @@ class GithubToken extends AbstractHandler {
    * {@inheritdoc}
    * @param array $responses
    */
-  public function condition(array $responses): ?callable {
-    return fn(array $responses): bool => $responses[CodeProvider::id()] === CodeProvider::GITHUB;
+  public function condition(array $responses): bool {
+    return $responses[CodeProvider::id()] === CodeProvider::GITHUB;
   }
 
   /**

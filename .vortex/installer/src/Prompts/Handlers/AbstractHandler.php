@@ -96,8 +96,8 @@ abstract class AbstractHandler implements HandlerInterface {
    * {@inheritdoc}
    * @param array $responses
    */
-  public function condition(array $responses): ?callable {
-    return NULL;
+  public function condition(array $responses): bool {
+    return FALSE;
   }
 
   /**
