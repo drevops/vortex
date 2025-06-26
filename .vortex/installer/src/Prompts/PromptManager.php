@@ -114,10 +114,10 @@ class PromptManager {
     $responses = form()
       ->intro('General information')
       ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class, $n)), Name::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n, null, $r)), MachineName::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, $n, null, $r)), Org::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n, null, $r)), OrgMachineName::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n, null, $r)), Domain::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, $n, NULL, $r)), MachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, $n, NULL, $r)), Org::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, $n, NULL, $r)), OrgMachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, $n, NULL, $r)), Domain::id())
 
       ->intro('Code repository')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
@@ -141,7 +141,7 @@ class PromptManager {
         )
         ->addIf(
             fn($r): bool => $this->handlers[GithubRepo::id()]->condition()($r),
-            fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n, null, $r)),
+            fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, $n, NULL, $r)),
             GithubRepo::id()
           )
 
@@ -159,8 +159,8 @@ class PromptManager {
           fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class, $n)),
           ProfileCustom::id()
         )
-      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, null, $r)), ModulePrefix::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, $n, null, $r)), Theme::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, $n, NULL, $r)), ModulePrefix::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, $n, NULL, $r)), Theme::id())
 
       ->intro('Services')
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class, $n)), Services::id())
@@ -175,28 +175,28 @@ class PromptManager {
               info($handler->resolvedMessage($r));
               return $resolved;
             } else {
-              return text(...$this->args(Webroot::class, $n, null, $r));
+              return text(...$this->args(Webroot::class, $n, NULL, $r));
             }
           },
           Webroot::id()
         )
 
       ->intro('Deployment')
-      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, $n, null, $r)), DeployType::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, $n, NULL, $r)), DeployType::id())
 
       ->intro('Workflow')
       ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class, $n)), ProvisionType::id())
       ->addIf(
           fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->condition()($r),
-          fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, $n, null, $r)),
+          fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, $n, NULL, $r)),
           DatabaseDownloadSource::id()
         )
       ->addIf(
           fn($r): bool => $this->handlers[DatabaseImage::id()]->condition()($r),
           function ($r, $pr, $n): string {
             $handler = $this->handlers[DatabaseImage::id()];
-            $args = $this->args(DatabaseImage::class, $n, null, $r);
+            $args = $this->args(DatabaseImage::class, $n, NULL, $r);
             $args['placeholder'] = $handler->getPlaceholderForContext($r);
             return text(...$args);
           },
@@ -204,7 +204,7 @@ class PromptManager {
         )
 
       ->intro('Continuous Integration')
-      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, $n, null, $r)), CiProvider::id())
+      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, $n, NULL, $r)), CiProvider::id())
 
       ->intro('Automations')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(DependencyUpdatesProvider::class, $n)), DependencyUpdatesProvider::id())
@@ -404,14 +404,14 @@ class PromptManager {
    *
    * @param string $text
    *   The text to display in the label.
-   * @param string|null $suffix
+   * @param string|NULL $suffix
    *   An optional suffix to display in the label.
    *
    * @return string
    *   The formatted label text.
    */
   protected function label(string $text, ?string $suffix = NULL): string {
-    if (is_null($suffix)) {
+    if (is_NULL($suffix)) {
       $this->currentResponse++;
     }
 
@@ -442,7 +442,7 @@ class PromptManager {
 
     $discovered = $this->handlers[$id]->discover();
 
-    return is_null($discovered) ? $default : $discovered;
+    return is_NULL($discovered) ? $default : $discovered;
   }
 
   /**
@@ -525,7 +525,7 @@ class PromptManager {
       $args['required'] = TRUE;
     }
 
-    // Filter out null values
+    // Filter out NULL values
     return array_filter($args, fn($value) => $value !== NULL);
   }
 
