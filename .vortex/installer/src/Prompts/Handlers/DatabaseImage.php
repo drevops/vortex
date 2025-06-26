@@ -41,8 +41,9 @@ class DatabaseImage extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Use "latest" tag for the latest version. CI will be building this image overnight.';
   }
 
@@ -71,26 +72,27 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    * @param mixed &$default
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
-    // Generate default from OrgMachineName and MachineName if available
+  public function default(array $responses): mixed {
     if (
       isset($responses[OrgMachineName::id()]) &&
       isset($responses[MachineName::id()]) &&
       !empty($responses[OrgMachineName::id()]) &&
       !empty($responses[MachineName::id()])
     ) {
-      $default = sprintf(
+      return sprintf(
         '%s/%s-data:latest',
         Converter::phpNamespace($responses[OrgMachineName::id()]),
         Converter::phpNamespace($responses[MachineName::id()])
       );
     }
+
+    return NULL;
   }
 
   /**
-   * Get placeholder text based on response context.
+   * {@inheritdoc}
    */
-  public function getPlaceholderForContext(array $responses): ?string {
+  public function placeholder(array $responses): ?string {
     // Generate placeholder from OrgMachineName and MachineName if available
     if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
       && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {

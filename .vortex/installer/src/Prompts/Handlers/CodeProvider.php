@@ -43,8 +43,9 @@ class CodeProvider extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
   }
 

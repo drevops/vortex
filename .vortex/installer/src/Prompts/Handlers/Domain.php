@@ -14,6 +14,17 @@ class Domain extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function default(array $responses): mixed {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::kebab($responses[MachineName::id()]) . '.com';
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     $origin = Env::getFromDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN', $this->dstDir);
 
@@ -42,8 +53,9 @@ class Domain extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Domain name without protocol and trailing slash.';
   }
 
@@ -73,16 +85,6 @@ class Domain extends AbstractHandler {
    */
   public function validate(): ?callable {
     return fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.';
-  }
-
-  /**
-   * {@inheritdoc}
-   * @param mixed &$default
-   */
-  public function defaultAlter(mixed &$default, array $responses): void {
-    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
-      $default = Converter::kebab($responses[MachineName::id()]) . '.com';
-    }
   }
 
 }

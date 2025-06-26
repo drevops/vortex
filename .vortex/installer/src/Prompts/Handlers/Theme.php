@@ -143,8 +143,9 @@ class Theme extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.';
   }
 
@@ -172,10 +173,12 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
-      $default = Converter::machine($responses[MachineName::id()]);
+      return Converter::machine($responses[MachineName::id()]);
     }
+
+    return NULL;
   }
 
 }

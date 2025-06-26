@@ -64,21 +64,23 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  public function placeholder(): ?string {
+  public function placeholder(array $responses): ?string {
     return NULL;
   }
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return NULL;
   }
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function explanation(): ?string {
+  public function explanation(array $responses): ?string {
     return NULL;
   }
 
@@ -101,14 +103,7 @@ abstract class AbstractHandler implements HandlerInterface {
    * {@inheritdoc}
    */
   public function default(): mixed {
-    return $this->discover();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultAlter(mixed &$default, array $responses): void {
-    // noop
+    return NULL;
   }
 
   /**

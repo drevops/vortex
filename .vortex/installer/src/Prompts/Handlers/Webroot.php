@@ -66,8 +66,9 @@ class Webroot extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Custom directory where the web server serves the site.';
   }
 
@@ -102,30 +103,24 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? self::WEB;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     // Auto-select webroot based on hosting provider.
     if (isset($responses[HostingProvider::id()])) {
-      $default = match ($responses[HostingProvider::id()]) {
+      return match ($responses[HostingProvider::id()]) {
         HostingProvider::ACQUIA => self::DOCROOT,
         HostingProvider::LAGOON => self::WEB,
-        default => $this->default()
+        default => self::WEB,
       };
     }
+
+    return NULL;
   }
 
   /**
    * Check if webroot should show as auto-selected info instead of input.
    */
   public function shouldShowAsInfo(array $responses): bool {
-    return isset($responses[HostingProvider::id()]) &&
-      $responses[HostingProvider::id()] !== HostingProvider::OTHER;
+
   }
 
   /**
@@ -140,9 +135,6 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function resolved(array $responses): null|string|bool|array {
-    if ($this->shouldShowAsInfo($responses)) {
-      return $this->defaultAlter($responses, $responses);
-    }
     return NULL;
   }
 
@@ -150,10 +142,14 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function resolvedMessage(array $responses): ?string {
-    if ($this->shouldShowAsInfo($responses)) {
-      $webroot = $this->defaultAlter($responses, $responses);
+    if (
+      isset($responses[HostingProvider::id()]) &&
+      $responses[HostingProvider::id()] !== HostingProvider::OTHER
+    ) {
+      $webroot = $this->resolved($responses);
       return sprintf('Web root will be set to "%s".', $webroot);
     }
+
     return NULL;
   }
 

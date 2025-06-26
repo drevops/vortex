@@ -42,8 +42,9 @@ class Name extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name in the project and in the documentation.';
   }
 

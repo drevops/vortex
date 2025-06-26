@@ -39,8 +39,9 @@ class PreserveDocsProject extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Helps to maintain the project documentation within the repository.';
   }
 

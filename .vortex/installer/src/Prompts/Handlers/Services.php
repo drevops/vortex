@@ -128,8 +128,9 @@ class Services extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Select the services you want to use in the project.';
   }
 

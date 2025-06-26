@@ -89,8 +89,9 @@ class CiProvider extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Both providers support equivalent workflow.';
   }
 

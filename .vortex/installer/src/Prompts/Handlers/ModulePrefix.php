@@ -59,8 +59,9 @@ class ModulePrefix extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name for custom modules.';
   }
 
@@ -95,10 +96,12 @@ class ModulePrefix extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
-      $default = Converter::abbreviation(Converter::machine($responses[MachineName::id()]), 4, ['_']);
+      return Converter::abbreviation(Converter::machine($responses[MachineName::id()]), 4, ['_']);
     }
+
+    return NULL;
   }
 
 }

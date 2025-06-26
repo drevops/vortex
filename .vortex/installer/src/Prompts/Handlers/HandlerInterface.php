@@ -63,12 +63,12 @@ interface HandlerInterface {
   /**
    * The default value for the handler.
    *
+   * @param \DrevOps\VortexInstaller\handlers\Handlers\aray $responses *
+   *
    * @return mixed
    *   The default value for the handler.
    */
-  public function default(): mixed;
-
-  public function defaultAlter(mixed &$default, array $responses): void;
+  public function default(aray $responses): mixed;
 
   /**
    * Get whether the handler's value is required.

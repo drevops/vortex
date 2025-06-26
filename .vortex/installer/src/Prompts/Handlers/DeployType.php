@@ -71,8 +71,9 @@ class DeployType extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'You can deploy code using one or more methods.';
   }
 
@@ -100,7 +101,7 @@ class DeployType extends AbstractHandler {
    * {@inheritdoc}
    * @param mixed &$default
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     $defaults = [];
 
     if (isset($responses[HostingProvider::id()])) {
@@ -118,6 +119,8 @@ class DeployType extends AbstractHandler {
     }
 
     $default = $defaults;
+
+    return $default;
   }
 
 }

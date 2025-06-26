@@ -46,8 +46,9 @@ class AiCodeInstructions extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Helps AI coding assistants to understand the project better.';
   }
 

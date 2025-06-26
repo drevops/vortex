@@ -48,8 +48,9 @@ class MachineName extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name for the project directory and in the code.';
   }
 
@@ -85,10 +86,12 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    * @param mixed &$default
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
-      $default = Converter::machineExtended($responses[Name::id()]);
+      return Converter::machineExtended($responses[Name::id()]);
     }
+
+    return NULL;
   }
 
 }

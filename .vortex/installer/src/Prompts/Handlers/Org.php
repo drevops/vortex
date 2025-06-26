@@ -40,8 +40,9 @@ class Org extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name in the project and in the documentation.';
   }
 
@@ -76,10 +77,12 @@ class Org extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
-      $default = Converter::label($responses[Name::id()]) . ' Org';
+      return Converter::label($responses[Name::id()]) . ' Org';
     }
+
+    return NULL;
   }
 
 }

@@ -82,8 +82,9 @@ class HostingProvider extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.';
   }
 

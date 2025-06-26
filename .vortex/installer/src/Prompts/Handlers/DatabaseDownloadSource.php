@@ -64,8 +64,9 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'The database can be downloaded as an exported dump file or pre-packaged in a container image.';
   }
 
@@ -74,7 +75,7 @@ class DatabaseDownloadSource extends AbstractHandler {
    * @param array $responses
    */
   public function options(array $responses): ?array {
-    $options =  [
+    $options = [
       self::URL => '🌍 URL download',
       self::FTP => '📂 FTP download',
       self::ACQUIA => '💧 Acquia backup',
@@ -98,18 +99,17 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   /**
    * {@inheritdoc}
-   * @param mixed &$default
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (isset($responses[HostingProvider::id()])) {
-      $default = match ($responses[HostingProvider::id()]) {
+      return match ($responses[HostingProvider::id()]) {
         HostingProvider::ACQUIA => self::ACQUIA,
         HostingProvider::LAGOON => self::LAGOON,
         default => self::URL,
       };
     }
 
-    $default = $this->discover() ?? self::URL;
+    return self::URL;
   }
 
   /**

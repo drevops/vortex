@@ -42,8 +42,9 @@ class OrgMachineName extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name for the project directory and in the code.';
   }
 
@@ -78,10 +79,12 @@ class OrgMachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (isset($responses[Org::id()]) && !empty($responses[Org::id()])) {
-      $default = Converter::machineExtended($responses[Org::id()]);
+      return Converter::machineExtended($responses[Org::id()]);
     }
+
+    return NULL;
   }
 
 }

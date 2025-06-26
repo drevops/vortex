@@ -45,8 +45,9 @@ class GithubRepo extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return 'We will use this name to create new or find an existing repository.';
   }
 
@@ -81,15 +82,17 @@ class GithubRepo extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function defaultAlter(mixed &$default, array $responses): void {
+  public function default(array $responses): mixed {
     if (
       isset($responses[OrgMachineName::id()]) &&
       isset($responses[MachineName::id()]) &&
       !empty($responses[OrgMachineName::id()]) &&
       !empty($responses[MachineName::id()])
     ) {
-      $default = $responses[OrgMachineName::id()] . '/' . $responses[MachineName::id()];
+      return $responses[OrgMachineName::id()] . '/' . $responses[MachineName::id()];
     }
+
+    return NULL;
   }
 
 }

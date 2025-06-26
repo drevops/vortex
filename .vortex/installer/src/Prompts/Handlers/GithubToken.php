@@ -34,8 +34,9 @@ class GithubToken extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function hint(): ?string {
+  public function hint(array $responses): ?string {
     return Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new';
   }
 
@@ -76,8 +77,9 @@ class GithubToken extends AbstractHandler {
 
   /**
    * Get the informational note for GitHub token requirement.
-   */
-  public static function explanation(): ?string {
+   *
+   * @param array $responses*/
+  public static function explanation(array $responses): ?string {
     return "We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.";
   }
 
