@@ -40,14 +40,14 @@ class AiCodeInstructions extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🤖 AI code assistant instructions';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Helps AI coding assistants to understand the project better.';
   }
 
@@ -64,7 +64,7 @@ class AiCodeInstructions extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? self::NONE;
   }
 

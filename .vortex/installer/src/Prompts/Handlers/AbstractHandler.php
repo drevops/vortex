@@ -162,47 +162,47 @@ abstract class AbstractHandler implements HandlerInterface {
    *
    * Abstract method that must be implemented by each handler.
    */
-  abstract public function getLabel(): string;
+  abstract public function label(): string;
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return null;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return null;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return null;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return null;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
+  public function isRequired(): bool {
     return false;
   }
 
@@ -210,13 +210,6 @@ abstract class AbstractHandler implements HandlerInterface {
    * {@inheritdoc}
    */
   public function getOptions(): ?array {
-    return null;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getIntro(): ?string {
     return null;
   }
 
@@ -261,7 +254,7 @@ abstract class AbstractHandler implements HandlerInterface {
    */
   public function getDefaultForContext(array $responses): mixed {
     // Default implementation: just return static default
-    return $this->getDefault();
+    return $this->default();
   }
 
 }

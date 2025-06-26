@@ -36,42 +36,42 @@ class Domain extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🌐 Public domain';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Domain name without protocol and trailing slash.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return 'E.g. example.com';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
+  public function isRequired(): bool {
     return true;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn(string $v): string => Converter::domain($v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return fn($v): ?string => Validator::domain($v) ? null : 'Please enter a valid domain name.';
   }
 
@@ -83,8 +83,8 @@ class Domain extends AbstractHandler {
     if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
       return Converter::kebab($responses[MachineName::id()]) . '.com';
     }
-    
-    return $this->getDefault();
+
+    return $this->default();
   }
 
 }

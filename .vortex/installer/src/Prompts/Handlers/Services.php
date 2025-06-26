@@ -122,14 +122,14 @@ class Services extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🔌 Services';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Select the services you want to use in the project.';
   }
 
@@ -147,7 +147,7 @@ class Services extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? [self::CLAMAV, self::SOLR, self::VALKEY];
   }
 

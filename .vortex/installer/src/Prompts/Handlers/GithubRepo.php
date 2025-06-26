@@ -39,35 +39,35 @@ class GithubRepo extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🏷️ What is your GitHub project name?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'We will use this name to create new or find an existing repository.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return 'E.g. myorg/myproject';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn(string $v): string => trim($v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : null;
   }
 
@@ -95,7 +95,7 @@ class GithubRepo extends AbstractHandler {
       return $responses[OrgMachineName::id()] . '/' . $responses[MachineName::id()];
     }
 
-    return $this->getDefault();
+    return $this->default();
   }
 
 }

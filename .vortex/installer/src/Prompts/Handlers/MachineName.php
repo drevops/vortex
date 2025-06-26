@@ -42,42 +42,42 @@ class MachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🏷️ Site machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'We will use this name for the project directory and in the code.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return 'E.g. my_site';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
+  public function isRequired(): bool {
     return true;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn(string $v): string => trim($v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
@@ -89,8 +89,8 @@ class MachineName extends AbstractHandler {
     if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
       return Converter::machineExtended($responses[Name::id()]);
     }
-    
-    return $this->getDefault();
+
+    return $this->default();
   }
 
 }

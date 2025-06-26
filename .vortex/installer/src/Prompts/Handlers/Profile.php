@@ -50,12 +50,12 @@ class Profile extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
-    
+
     // If user selected 'custom', use the ProfileCustom response instead
     if ($v === self::CUSTOM && isset($this->responses['profile_custom'])) {
       $v = $this->responses['profile_custom'];
     }
-    
+
     $t = $this->tmpDir;
     $w = $this->webroot;
 
@@ -79,14 +79,14 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🧾 Profile';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Select which profile to use';
   }
 
@@ -105,14 +105,14 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
+  public function isRequired(): bool {
     return true;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     $discovered = $this->discover();
     if (!empty($discovered)) {
       // If we discovered a standard profile, return it

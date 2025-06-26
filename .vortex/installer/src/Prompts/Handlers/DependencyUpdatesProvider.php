@@ -64,14 +64,14 @@ class DependencyUpdatesProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '⬆️ Dependency updates provider';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Use a self-hosted service if you cannot install a GitHub app.';
   }
 
@@ -89,7 +89,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? self::RENOVATEBOT_CI;
   }
 

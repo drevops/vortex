@@ -34,28 +34,28 @@ class DatabaseImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🏷️ What is your database container image name and a tag?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Use "latest" tag for the latest version. CI will be building this image overnight.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn($v): string => trim($v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return fn($v): ?string => Validator::containerImage($v) ? null : 'Please enter a valid container image name with an optional tag.';
   }
 
@@ -76,7 +76,7 @@ class DatabaseImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     // This will be dynamically set based on responses via getPlaceholderForContext
     return null;
   }
@@ -94,7 +94,7 @@ class DatabaseImage extends AbstractHandler {
       );
     }
 
-    return $this->getDefault();
+    return $this->default();
   }
 
   /**
@@ -110,7 +110,7 @@ class DatabaseImage extends AbstractHandler {
       );
     }
 
-    return $this->getPlaceholder();
+    return $this->placeholder();
   }
 
 }

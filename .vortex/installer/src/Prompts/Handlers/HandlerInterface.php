@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\VortexInstaller\Prompts\Handlers;
+namespace DrevOps\VortexInstaller\handlers\Handlers;
 
 /**
  * Interface HandlerInterface.
  *
- * The interface for the prompt handlers.
+ * The interface for the handler handlers.
  *
- * @package DrevOps\VortexInstaller\Prompts\Handlers
+ * @package DrevOps\VortexInstaller\handlers\Handlers
  */
 interface HandlerInterface {
 
@@ -17,6 +17,14 @@ interface HandlerInterface {
    * The unique identifier of the handler.
    */
   public static function id(): string;
+
+  /**
+   * Label for of the handler.
+   *
+   * @return string
+   *   The label for the handler.
+   */
+  public function label(): string;
 
   /**
    * Discover the value from the environment.
@@ -51,79 +59,61 @@ interface HandlerInterface {
    */
   public function setWebroot(string $webroot): static;
 
-  // New prompt property methods - handlers provide values/callbacks
-
   /**
-   * Get the prompt label.
-   *
-   * @return string
-   *   The label for the prompt.
-   */
-  public function getLabel(): string;
-
-  /**
-   * Get the prompt hint.
+   * Get the hint for the handler.
    *
    * @return string|null
-   *   The hint text for the prompt, or null if none.
+   *   The hint text for the handler, or NULL if none.
    */
-  public function getHint(): ?string;
+  public function hint(): ?string;
 
   /**
-   * Get the prompt placeholder.
+   * Get the placeholder for the handler.
    *
    * @return string|null
-   *   The placeholder text for the prompt, or null if none.
+   *   The placeholder text for the handler, or NULL if none.
    */
-  public function getPlaceholder(): ?string;
+  public function placeholder(): ?string;
 
   /**
-   * Get the default value for the prompt.
+   * Get the default value for the handler.
    *
    * @return mixed
-   *   The default value for the prompt.
+   *   The default value for the handler.
    */
-  public function getDefault(): mixed;
+  public function default(): mixed;
 
   /**
-   * Get the transform callback for the prompt.
+   * Get the transform callback for the handler.
    *
    * @return callable|null
    *   The transform callback, or null if none.
    */
-  public function getTransform(): ?callable;
+  public function transform(): ?callable;
 
   /**
-   * Get the validate callback for the prompt.
+   * Get the validate callback for the handler.
    *
    * @return callable|null
    *   The validate callback, or null if none.
    */
-  public function getValidate(): ?callable;
+  public function validate(): ?callable;
 
   /**
-   * Get whether the prompt is required.
+   * Get whether the handler's value is required.
    *
    * @return bool
-   *   TRUE if the prompt is required, FALSE otherwise.
+   *   TRUE if the handler is required, FALSE otherwise.
    */
-  public function getRequired(): bool;
+  public function isRequired(): bool;
 
   /**
-   * Get the options for select/multiselect prompts.
+   * Get the options for select/multiselect handlers.
    *
    * @return array|null
    *   The options array, or null if not applicable.
    */
-  public function getOptions(): ?array;
-
-  /**
-   * Get the intro text for section grouping.
-   *
-   * @return string|null
-   *   The intro text, or null if none.
-   */
-  public function getIntro(): ?string;
+  public function options(): ?array;
 
   /**
    * Check if this handler is conditional.
@@ -134,7 +124,7 @@ interface HandlerInterface {
   public function isConditional(): bool;
 
   /**
-   * Get the condition callback for conditional prompts.
+   * Get the condition callback for conditional handlers.
    *
    * @return callable|null
    *   The condition callback, or null if not conditional.
@@ -144,8 +134,8 @@ interface HandlerInterface {
   /**
    * Get a resolved value if this handler's value is already determined.
    *
-   * If this returns a non-empty value, the PromptManager should use this value
-   * instead of prompting the user for input. This allows handlers to
+   * If this returns a non-empty value, the handlerManager should use this value
+   * instead of handlering the user for input. This allows handlers to
    * encapsulate logic for when values are discovered from environment,
    * auto-selected based on other responses, or otherwise pre-determined.
    *
@@ -160,8 +150,8 @@ interface HandlerInterface {
   /**
    * Get a message to display when showing the resolved value.
    *
-   * This is used by PromptManager to show an appropriate message (via info(), ok(), etc.)
-   * when using a resolved value instead of prompting for input.
+   * This is used by handlerManager to show an appropriate message (via info(), ok(), etc.)
+   * when using a resolved value instead of handlering for input.
    *
    * @param array $responses
    *   Current form responses for context-aware message generation.
@@ -175,7 +165,7 @@ interface HandlerInterface {
    * Context-aware options that can be filtered based on current responses.
    *
    * This allows handlers to encapsulate business logic for filtering options
-   * based on other responses, rather than PromptManager making these decisions.
+   * based on other responses, rather than handlerManager making these decisions.
    *
    * @param array $responses Current form responses
    * @return array|null Filtered options based on current context
@@ -186,7 +176,7 @@ interface HandlerInterface {
    * Context-aware default that can be calculated based on current responses.
    *
    * This allows handlers to encapsulate business logic for determining defaults
-   * based on other responses, rather than PromptManager making these decisions.
+   * based on other responses, rather than handlerManager making these decisions.
    *
    * @param array $responses Current form responses
    * @return mixed Default value based on current context

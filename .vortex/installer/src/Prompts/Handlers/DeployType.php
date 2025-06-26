@@ -65,14 +65,14 @@ class DeployType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🚚 Deployment types';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'You can deploy code using one or more methods.';
   }
 
@@ -93,12 +93,12 @@ class DeployType extends AbstractHandler {
    */
   public function getOptionsForContext(array $responses): ?array {
     $options = $this->getOptions();
-    
+
     // Remove Lagoon option for Acquia hosting
     if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
       unset($options[self::LAGOON]);
     }
-    
+
     return $options;
   }
 
@@ -107,21 +107,21 @@ class DeployType extends AbstractHandler {
    */
   public function getDefaultForContext(array $responses): mixed {
     $defaults = [];
-    
+
     if (isset($responses[HostingProvider::id()])) {
       if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
         $defaults[] = self::LAGOON;
       }
-      
+
       if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
         $defaults[] = self::ARTIFACT;
       }
     }
-    
+
     if (empty($defaults)) {
       $defaults[] = self::WEBHOOK;
     }
-    
+
     return $defaults;
   }
 

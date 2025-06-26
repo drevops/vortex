@@ -33,21 +33,21 @@ class PreserveDocsOnboarding extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '📋 Preserve onboarding checklist?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Helps to track onboarding to Vortex within the repository.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? true;
   }
 

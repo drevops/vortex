@@ -60,49 +60,49 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '📁 Custom web root directory';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Custom directory where the web server serves the site.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return 'E.g. ' . implode(', ', [self::WEB, self::DOCROOT]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
-    return true;
+  public function isRequired(): bool {
+    return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
-    return fn($v): ?string => Validator::dirname($v) ? null : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
+  public function validate(): ?callable {
+    return fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? self::WEB;
   }
 
@@ -115,12 +115,12 @@ class Webroot extends AbstractHandler {
       $webroot = match ($responses[HostingProvider::id()]) {
         HostingProvider::ACQUIA => self::DOCROOT,
         HostingProvider::LAGOON => self::WEB,
-        default => $this->getDefault()
+        default => $this->default()
       };
       return $webroot;
     }
 
-    return $this->getDefault();
+    return $this->default();
   }
 
   /**
@@ -128,7 +128,7 @@ class Webroot extends AbstractHandler {
    */
   public function shouldShowAsInfo(array $responses): bool {
     return isset($responses[HostingProvider::id()]) &&
-           $responses[HostingProvider::id()] !== HostingProvider::OTHER;
+      $responses[HostingProvider::id()] !== HostingProvider::OTHER;
   }
 
   /**
@@ -144,7 +144,7 @@ class Webroot extends AbstractHandler {
    */
   public function isConditional(): bool {
     // Webroot has two modes: auto-select (info display) or text input
-    return false; // Always shown, but behavior changes based on hosting provider
+    return FALSE; // Always shown, but behavior changes based on hosting provider
   }
 
   /**
@@ -152,16 +152,7 @@ class Webroot extends AbstractHandler {
    */
   public function shouldUseTextInput(array $responses): bool {
     return isset($responses[HostingProvider::id()]) &&
-           $responses[HostingProvider::id()] === HostingProvider::OTHER;
-  }
-
-  /**
-   * Display info message and return the auto-selected webroot value.
-   */
-  public function showInfoAndReturnValue(array $responses): string {
-    $webroot = $this->getDefaultForContext($responses);
-    \Laravel\Prompts\info($this->getInfoMessage($responses));
-    return $webroot;
+      $responses[HostingProvider::id()] === HostingProvider::OTHER;
   }
 
   /**
@@ -171,7 +162,7 @@ class Webroot extends AbstractHandler {
     if ($this->shouldShowAsInfo($responses)) {
       return $this->getDefaultForContext($responses);
     }
-    return null;
+    return NULL;
   }
 
   /**
@@ -181,7 +172,7 @@ class Webroot extends AbstractHandler {
     if ($this->shouldShowAsInfo($responses)) {
       return $this->getInfoMessage($responses);
     }
-    return null;
+    return NULL;
   }
 
 }

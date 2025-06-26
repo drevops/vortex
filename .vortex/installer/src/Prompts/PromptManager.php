@@ -149,7 +149,7 @@ class PromptManager {
       ->add(
           function ($r, $pr, $n): int|string {
             $args = $this->args(Profile::class, $n);
-            $args['default'] = $this->handlers[Profile::id()]->getDefault();
+            $args['default'] = $this->handlers[Profile::id()]->default();
             return select(...$args);
           },
           Profile::id()
@@ -506,22 +506,22 @@ class PromptManager {
 
     // Use context-aware methods when responses are available, otherwise fall back to static methods
     $defaultValue = $defaultOverride !== NULL ? $defaultOverride :
-      (!empty($currentResponses) ? $handler->getDefaultForContext($currentResponses) : $handler->getDefault());
+      (!empty($currentResponses) ? $handler->getDefaultForContext($currentResponses) : $handler->default());
 
     $options = !empty($currentResponses) ? $handler->getOptionsForContext($currentResponses) : $handler->getOptions();
 
     $args = [
-      'label' => $this->label($handler->getLabel()),
-      'hint' => $handler->getHint(),
-      'placeholder' => $handler->getPlaceholder(),
+      'label' => $this->label($handler->label()),
+      'hint' => $handler->hint(),
+      'placeholder' => $handler->placeholder(),
       'default' => $this->default($n, $defaultValue ?? ''),
-      'transform' => $handler->getTransform(),
-      'validate' => $handler->getValidate(),
+      'transform' => $handler->transform(),
+      'validate' => $handler->validate(),
       'options' => $options, // Context-aware options for select/multiselect
     ];
 
     // Only include 'required' if it's true (Laravel prompts expects true or omit it)
-    if ($handler->getRequired()) {
+    if ($handler->isRequired()) {
       $args['required'] = TRUE;
     }
 

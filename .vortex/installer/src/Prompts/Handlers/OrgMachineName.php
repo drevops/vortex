@@ -36,42 +36,42 @@ class OrgMachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🏢 Organization machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'We will use this name for the project directory and in the code.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return 'E.g. my_org';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
+  public function isRequired(): bool {
     return true;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn(string $v): string => trim($v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
@@ -83,8 +83,8 @@ class OrgMachineName extends AbstractHandler {
     if (isset($responses[Org::id()]) && !empty($responses[Org::id()])) {
       return Converter::machineExtended($responses[Org::id()]);
     }
-    
-    return $this->getDefault();
+
+    return $this->default();
   }
 
 }

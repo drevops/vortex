@@ -129,7 +129,7 @@ class Internal extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return 'Internal processing';
   }
 

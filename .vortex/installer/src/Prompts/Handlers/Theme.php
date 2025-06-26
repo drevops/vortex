@@ -137,35 +137,35 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🎨 Theme machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlaceholder(): ?string {
+  public function placeholder(): ?string {
     return 'E.g. mytheme';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTransform(): ?callable {
+  public function transform(): ?callable {
     return fn(string $v): string => trim($v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValidate(): ?callable {
+  public function validate(): ?callable {
     return fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
   }
 
@@ -177,8 +177,8 @@ class Theme extends AbstractHandler {
     if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
       return Converter::machine($responses[MachineName::id()]);
     }
-    
-    return $this->getDefault();
+
+    return $this->default();
   }
 
 }

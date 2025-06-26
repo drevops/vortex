@@ -58,14 +58,14 @@ class DatabaseDownloadSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '📡 Database source';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'The database can be downloaded as an exported dump file or pre-packaged in a container image.';
   }
 

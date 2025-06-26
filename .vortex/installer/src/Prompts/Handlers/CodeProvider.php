@@ -37,14 +37,14 @@ class CodeProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '🗄️ Repository provider';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
   }
 
@@ -61,7 +61,7 @@ class CodeProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? 'github';
   }
 

@@ -76,14 +76,14 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getLabel(): string {
+  public function label(): string {
     return '☁️ Hosting provider';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHint(): ?string {
+  public function hint(): ?string {
     return 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.';
   }
 
@@ -102,14 +102,14 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getRequired(): bool {
+  public function isRequired(): bool {
     return true;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefault(): mixed {
+  public function default(): mixed {
     return $this->discover() ?? 'none';
   }
 
