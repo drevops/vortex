@@ -54,7 +54,7 @@ class AiCodeInstructions extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::CLAUDE => 'Anthropic Claude',
       self::NONE => 'None',

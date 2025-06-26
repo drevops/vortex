@@ -168,14 +168,14 @@ abstract class AbstractHandler implements HandlerInterface {
    * {@inheritdoc}
    */
   public function hint(): ?string {
-    return null;
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function placeholder(): ?string {
-    return null;
+    return NULL;
   }
 
   /**
@@ -188,73 +188,72 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
+  public function defaultAlter(mixed &$default, array $responses): void {
+    // noop
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function transform(): ?callable {
-    return null;
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return null;
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return false;
+    return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
-    return null;
+  public function options(): ?array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array &$options
+   */
+  public function optionsAlter(array &$options, array $responses): void {
+    //noop
   }
 
   /**
    * {@inheritdoc}
    */
   public function isConditional(): bool {
-    return false;
+    return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function condition(): ?callable {
-    return null;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOptionsForContext(array $responses): ?array {
-    // Default implementation: just return static options
-    return $this->getOptions();
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function resolved(array $responses): null|string|bool|array {
-    return null;
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function resolvedMessage(array $responses): ?string {
-    return null;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultForContext(array $responses): mixed {
-    // Default implementation: just return static default
-    return $this->default();
+    return NULL;
   }
 
 }

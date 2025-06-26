@@ -136,7 +136,7 @@ class Services extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::CLAMAV => '🦠 ClamAV',
       self::SOLR => '🔍 Solr',

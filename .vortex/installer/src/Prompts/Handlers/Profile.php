@@ -93,7 +93,7 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::STANDARD => 'Standard',
       self::MINIMAL => 'Minimal',

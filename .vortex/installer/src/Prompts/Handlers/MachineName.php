@@ -64,7 +64,7 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -78,19 +78,17 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
   }
 
   /**
    * {@inheritdoc}
+   * @param mixed &$default
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Generate default from Name if available
+  public function defaultAlter(mixed &$default, array $responses): void {
     if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
-      return Converter::machineExtended($responses[Name::id()]);
+      $default = Converter::machineExtended($responses[Name::id()]);
     }
-
-    return $this->default();
   }
 
 }

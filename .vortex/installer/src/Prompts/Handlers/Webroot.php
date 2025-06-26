@@ -109,18 +109,15 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Auto-select webroot based on hosting provider
+  public function defaultAlter(mixed &$default, array $responses): void {
+    // Auto-select webroot based on hosting provider.
     if (isset($responses[HostingProvider::id()])) {
-      $webroot = match ($responses[HostingProvider::id()]) {
+      $default = match ($responses[HostingProvider::id()]) {
         HostingProvider::ACQUIA => self::DOCROOT,
         HostingProvider::LAGOON => self::WEB,
         default => $this->default()
       };
-      return $webroot;
     }
-
-    return $this->default();
   }
 
   /**
@@ -135,7 +132,7 @@ class Webroot extends AbstractHandler {
    * Get the info message for auto-selected webroot.
    */
   public function getInfoMessage(array $responses): string {
-    $webroot = $this->getDefaultForContext($responses);
+    $webroot = $this->defaultAlter($responses, $responses);
     return sprintf('Web root will be set to "%s".', $webroot);
   }
 
@@ -160,7 +157,7 @@ class Webroot extends AbstractHandler {
    */
   public function resolved(array $responses): null|string|bool|array {
     if ($this->shouldShowAsInfo($responses)) {
-      return $this->getDefaultForContext($responses);
+      return $this->defaultAlter($responses, $responses);
     }
     return NULL;
   }

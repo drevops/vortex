@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Validator;
@@ -56,14 +57,14 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Validator::containerImage($v) ? null : 'Please enter a valid container image name with an optional tag.';
+    return fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.';
   }
 
   /**
    * {@inheritdoc}
    */
   public function isConditional(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -78,23 +79,27 @@ class DatabaseImage extends AbstractHandler {
    */
   public function placeholder(): ?string {
     // This will be dynamically set based on responses via getPlaceholderForContext
-    return null;
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
+   * @param mixed &$default
    */
-  public function getDefaultForContext(array $responses): mixed {
+  public function defaultAlter(mixed &$default, array $responses): void {
     // Generate default from OrgMachineName and MachineName if available
-    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
-        && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
-      return sprintf('%s/%s-data:latest',
-        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]),
-        \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[MachineName::id()])
+    if (
+      isset($responses[OrgMachineName::id()]) &&
+      isset($responses[MachineName::id()]) &&
+      !empty($responses[OrgMachineName::id()]) &&
+      !empty($responses[MachineName::id()])
+    ) {
+      $default = sprintf(
+        '%s/%s-data:latest',
+        Converter::phpNamespace($responses[OrgMachineName::id()]),
+        Converter::phpNamespace($responses[MachineName::id()])
       );
     }
-
-    return $this->default();
   }
 
   /**
@@ -103,7 +108,7 @@ class DatabaseImage extends AbstractHandler {
   public function getPlaceholderForContext(array $responses): ?string {
     // Generate placeholder from OrgMachineName and MachineName if available
     if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
-        && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
+      && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
       return sprintf('E.g. %s/%s-data:latest',
         \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[OrgMachineName::id()]),
         \DrevOps\VortexInstaller\Utils\Converter::phpNamespace($responses[MachineName::id()])

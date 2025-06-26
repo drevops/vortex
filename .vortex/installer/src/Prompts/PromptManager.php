@@ -489,32 +489,37 @@ class PromptManager {
   /**
    * Helper function that converts handler properties to Laravel prompt arguments.
    *
-   * @param string $handlerClass
+   * @param string $handler_class
    *   The handler class name.
-   * @param string $n
+   * @param string $name
    *   The prompt name/key for default handling.
-   * @param mixed $defaultOverride
+   * @param mixed $default
    *   Optional override for the default value (for response dependencies).
-   * @param array $currentResponses
+   * @param array $responses
    *   Current form responses for context-aware methods.
    *
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  private function args(string $handlerClass, string $n, mixed $defaultOverride = NULL, array $currentResponses = []): array {
-    $handler = $this->handlers[$handlerClass::id()];
+  private function args(string $handler_class, string $name, mixed $default_override = NULL, array $responses = []): array {
+    $handler = $this->handlers[$handler_class::id()];
 
-    // Use context-aware methods when responses are available, otherwise fall back to static methods
-    $defaultValue = $defaultOverride !== NULL ? $defaultOverride :
-      (!empty($currentResponses) ? $handler->getDefaultForContext($currentResponses) : $handler->default());
+    if (!is_null($default_override)) {
+      $default = $default_override;
+    }
+    else {
+      $default = $handler->default();
+      $handler->defaultAlter($default, $responses);
+    }
 
-    $options = !empty($currentResponses) ? $handler->getOptionsForContext($currentResponses) : $handler->getOptions();
+    $options = $handler->options();
+    $handler->optionsAlter($options, $responses);
 
     $args = [
       'label' => $this->label($handler->label()),
       'hint' => $handler->hint(),
       'placeholder' => $handler->placeholder(),
-      'default' => $this->default($n, $defaultValue ?? ''),
+      'default' => $this->default($name, $default ?? ''),
       'transform' => $handler->transform(),
       'validate' => $handler->validate(),
       'options' => $options, // Context-aware options for select/multiselect

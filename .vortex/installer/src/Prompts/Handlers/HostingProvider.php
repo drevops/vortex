@@ -90,7 +90,7 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::ACQUIA => '💧 Acquia Cloud',
       self::LAGOON => '🌊 Lagoon',

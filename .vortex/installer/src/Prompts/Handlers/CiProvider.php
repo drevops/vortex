@@ -97,7 +97,7 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::NONE => 'None',
       self::GITHUB_ACTIONS => 'GitHub Actions',
@@ -107,16 +107,12 @@ class CiProvider extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array &$options
    */
-  public function getOptionsForContext(array $responses): ?array {
-    // Encapsulate the business logic for filtering options based on code provider
-    $options = $this->getOptions();
-
+  public function optionsAlter(array &$options, array $responses): void {
     if (isset($responses[CodeProvider::id()]) && $responses[CodeProvider::id()] !== CodeProvider::GITHUB) {
       unset($options[self::GITHUB_ACTIONS]);
     }
-
-    return $options;
   }
 
   /**

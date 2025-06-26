@@ -78,7 +78,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::RENOVATEBOT_CI => '🤖 +  🔄 Renovate self-hosted in CI',
       self::RENOVATEBOT_APP => '🤖 Renovate GitHub app',

@@ -58,7 +58,7 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -72,19 +72,16 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : null;
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Generate default from Org if available
+  public function defaultAlter(mixed &$default, array $responses): void {
     if (isset($responses[Org::id()]) && !empty($responses[Org::id()])) {
-      return Converter::machineExtended($responses[Org::id()]);
+      $default = Converter::machineExtended($responses[Org::id()]);
     }
-
-    return $this->default();
   }
 
 }

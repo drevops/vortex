@@ -72,7 +72,7 @@ class DatabaseDownloadSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::URL => '🌍 URL download',
       self::FTP => '📂 FTP download',
@@ -85,11 +85,9 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array &$options
    */
-  public function getOptionsForContext(array $responses): ?array {
-    // Encapsulate the business logic for filtering options based on hosting provider
-    $options = $this->getOptions();
-
+  public function optionsAlter(array &$options, array $responses): void {
     if (isset($responses[HostingProvider::id()])) {
       if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
         unset($options[self::LAGOON]);
@@ -99,39 +97,36 @@ class DatabaseDownloadSource extends AbstractHandler {
         unset($options[self::ACQUIA]);
       }
     }
-
-    return $options;
   }
 
   /**
    * {@inheritdoc}
+   * @param mixed &$default
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Encapsulate the business logic for determining default based on hosting provider
+  public function defaultAlter(mixed &$default, array $responses): void {
     if (isset($responses[HostingProvider::id()])) {
-      return match ($responses[HostingProvider::id()]) {
+      $default = match ($responses[HostingProvider::id()]) {
         HostingProvider::ACQUIA => self::ACQUIA,
         HostingProvider::LAGOON => self::LAGOON,
         default => self::URL,
       };
     }
 
-    return $this->discover() ?? self::URL;
+    $default = $this->discover() ?? self::URL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function isConditional(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function condition(): ?callable {
-    return fn(array $responses): bool =>
-      isset($responses[ProvisionType::id()]) &&
+    return fn(array $responses): bool => isset($responses[ProvisionType::id()]) &&
       $responses[ProvisionType::id()] !== ProvisionType::PROFILE;
   }
 

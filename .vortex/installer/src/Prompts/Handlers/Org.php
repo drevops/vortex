@@ -56,7 +56,7 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -70,19 +70,16 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => \DrevOps\VortexInstaller\Utils\Converter::label($v) !== $v ? 'Please enter a valid organization name.' : null;
+    return fn($v): ?string => \DrevOps\VortexInstaller\Utils\Converter::label($v) !== $v ? 'Please enter a valid organization name.' : NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Generate default from Name if available
+  public function defaultAlter(mixed &$default, array $responses): void {
     if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
-      return \DrevOps\VortexInstaller\Utils\Converter::label($responses[Name::id()]) . ' Org';
+      $default = Converter::label($responses[Name::id()]) . ' Org';
     }
-
-    return $this->default();
   }
 
 }

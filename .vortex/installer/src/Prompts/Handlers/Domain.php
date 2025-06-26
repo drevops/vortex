@@ -58,7 +58,7 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -72,19 +72,17 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Validator::domain($v) ? null : 'Please enter a valid domain name.';
+    return fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.';
   }
 
   /**
    * {@inheritdoc}
+   * @param mixed &$default
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Generate default from MachineName if available
+  public function defaultAlter(mixed &$default, array $responses): void {
     if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
-      return Converter::kebab($responses[MachineName::id()]) . '.com';
+      $default = Converter::kebab($responses[MachineName::id()]) . '.com';
     }
-
-    return $this->default();
   }
 
 }

@@ -68,14 +68,14 @@ class GithubRepo extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : null;
+    return fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function isConditional(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -88,14 +88,15 @@ class GithubRepo extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultForContext(array $responses): mixed {
-    // Generate default from OrgMachineName and MachineName if available
-    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
-        && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
-      return $responses[OrgMachineName::id()] . '/' . $responses[MachineName::id()];
+  public function defaultAlter(mixed &$default, array $responses): void {
+    if (
+      isset($responses[OrgMachineName::id()]) &&
+      isset($responses[MachineName::id()]) &&
+      !empty($responses[OrgMachineName::id()]) &&
+      !empty($responses[MachineName::id()])
+    ) {
+      $default = $responses[OrgMachineName::id()] . '/' . $responses[MachineName::id()];
     }
-
-    return $this->default();
   }
 
 }

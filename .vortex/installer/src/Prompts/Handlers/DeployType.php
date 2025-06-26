@@ -79,7 +79,7 @@ class DeployType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function getOptions(): ?array {
+  public function options(): ?array {
     return [
       self::ARTIFACT => '📦 Code artifact',
       self::LAGOON => '🌊 Lagoon webhook',
@@ -90,22 +90,20 @@ class DeployType extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array &$options
    */
-  public function getOptionsForContext(array $responses): ?array {
-    $options = $this->getOptions();
-
-    // Remove Lagoon option for Acquia hosting
+  public function optionsAlter(array &$options, array $responses): void {
+    // Remove Lagoon option for Acquia hosting.
     if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
       unset($options[self::LAGOON]);
     }
-
-    return $options;
   }
 
   /**
    * {@inheritdoc}
+   * @param mixed &$default
    */
-  public function getDefaultForContext(array $responses): mixed {
+  public function defaultAlter(mixed &$default, array $responses): void {
     $defaults = [];
 
     if (isset($responses[HostingProvider::id()])) {
@@ -122,7 +120,7 @@ class DeployType extends AbstractHandler {
       $defaults[] = self::WEBHOOK;
     }
 
-    return $defaults;
+    $default = $defaults;
   }
 
 }
