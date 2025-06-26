@@ -513,8 +513,8 @@ class PromptManager {
 
     $args = [
       'label' => $this->label($handler->label()),
-      'hint' => $handler->hint(),
-      'placeholder' => $handler->placeholder(),
+      'hint' => $handler->hint($responses),
+      'placeholder' => $handler->placeholder($responses),
       'default' => $this->default($name, $default ?? ''),
       'transform' => $handler->transform(),
       'validate' => $handler->validate(),
