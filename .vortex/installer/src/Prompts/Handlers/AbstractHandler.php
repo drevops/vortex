@@ -46,11 +46,110 @@ abstract class AbstractHandler implements HandlerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * Automatically generate the handler ID based on the class name.
    */
-  public function setWebroot(string $webroot): static {
-    $this->webroot = $webroot;
+  public static function id(): string {
+    $reflector = new \ReflectionClass(static::class);
 
-    return $this;
+    $filename = $reflector->getFileName();
+
+    if ($filename === FALSE) {
+      throw new \RuntimeException(sprintf('Could not determine the filename of the handler class %s.', static::class));
+    }
+
+    return Converter::machine(Converter::pascal2snake(str_replace('Handler', '', basename($filename, '.php'))));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function explanation(): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(): ?array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function optionsAlter(array &$options, array $responses): void {
+    // noop
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function condition(): ?callable {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(): mixed {
+    return $this->discover();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultAlter(mixed &$default, array $responses): void {
+    // noop
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolved(array $responses): null|string|bool|array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    return NULL;
   }
 
   /**
@@ -70,30 +169,12 @@ abstract class AbstractHandler implements HandlerInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * Automatically generate the handler ID based on the class name.
    */
-  public static function id(): string {
-    $reflector = new \ReflectionClass(static::class);
+  public function setWebroot(string $webroot): static {
+    $this->webroot = $webroot;
 
-    $filename = $reflector->getFileName();
-
-    if ($filename === FALSE) {
-      throw new \RuntimeException(sprintf('Could not determine the filename of the handler class %s.', static::class));
-    }
-
-    return Converter::machine(Converter::pascal2snake(str_replace('Handler', '', basename($filename, '.php'))));
+    return $this;
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  abstract public function discover(): null|string|bool|array;
-
-  /**
-   * {@inheritdoc}
-   */
-  abstract public function process(): void;
 
   /**
    * Check that Vortex is installed for this project.
@@ -153,99 +234,6 @@ abstract class AbstractHandler implements HandlerInterface {
     }
 
     return $this->response;
-  }
-
-  // Default implementations for prompt property methods
-
-  /**
-   * {@inheritdoc}
-   *
-   * Abstract method that must be implemented by each handler.
-   */
-  abstract public function label(): string;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function hint(): ?string {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function placeholder(): ?string {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function default(): mixed {
-    return $this->discover();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultAlter(mixed &$default, array $responses): void {
-    // noop
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function transform(): ?callable {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validate(): ?callable {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isRequired(): bool {
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function options(): ?array {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function optionsAlter(array &$options, array $responses): void {
-    // noop
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function condition(): ?callable {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function resolved(array $responses): null|string|bool|array {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function resolvedMessage(array $responses): ?string {
-    return NULL;
   }
 
 }
