@@ -222,17 +222,9 @@ abstract class AbstractHandler implements HandlerInterface {
 
   /**
    * {@inheritdoc}
-   * @param array &$options
    */
   public function optionsAlter(array &$options, array $responses): void {
-    //noop
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isConditional(): bool {
-    return FALSE;
+    // noop
   }
 
   /**

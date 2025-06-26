@@ -58,7 +58,7 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -79,7 +79,7 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid project name.' : null;
+    return fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid project name.' : NULL;
   }
 
 }

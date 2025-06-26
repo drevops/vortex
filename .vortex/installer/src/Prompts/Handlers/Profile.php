@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
@@ -106,7 +105,7 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -124,6 +123,5 @@ class Profile extends AbstractHandler {
     }
     return self::STANDARD;
   }
-
 
 }

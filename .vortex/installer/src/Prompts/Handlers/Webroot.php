@@ -129,22 +129,6 @@ class Webroot extends AbstractHandler {
   }
 
   /**
-   * Get the info message for auto-selected webroot.
-   */
-  public function getInfoMessage(array $responses): string {
-    $webroot = $this->defaultAlter($responses, $responses);
-    return sprintf('Web root will be set to "%s".', $webroot);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isConditional(): bool {
-    // Webroot has two modes: auto-select (info display) or text input
-    return FALSE; // Always shown, but behavior changes based on hosting provider
-  }
-
-  /**
    * Check if this prompt should use text input instead of auto-selection.
    */
   public function shouldUseTextInput(array $responses): bool {
@@ -167,7 +151,8 @@ class Webroot extends AbstractHandler {
    */
   public function resolvedMessage(array $responses): ?string {
     if ($this->shouldShowAsInfo($responses)) {
-      return $this->getInfoMessage($responses);
+      $webroot = $this->defaultAlter($responses, $responses);
+      return sprintf('Web root will be set to "%s".', $webroot);
     }
     return NULL;
   }

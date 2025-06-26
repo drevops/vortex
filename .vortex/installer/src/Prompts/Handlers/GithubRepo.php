@@ -74,13 +74,6 @@ class GithubRepo extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function isConditional(): bool {
-    return TRUE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function condition(): ?callable {
     return fn(array $responses): bool => !empty($responses[GithubToken::id()]);
   }

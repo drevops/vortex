@@ -48,7 +48,7 @@ class PreserveDocsOnboarding extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(): mixed {
-    return $this->discover() ?? true;
+    return $this->discover() ?? TRUE;
   }
 
 }

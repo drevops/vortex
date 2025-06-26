@@ -57,14 +57,7 @@ class GithubToken extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : null;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isConditional(): bool {
-    return true;
+    return fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL;
   }
 
   /**
@@ -84,8 +77,8 @@ class GithubToken extends AbstractHandler {
   /**
    * Get the informational note for GitHub token requirement.
    */
-  public static function explanation(): string {
-    return "<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>";
+  public static function explanation(): ?string {
+    return "We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.";
   }
 
   /**
@@ -103,7 +96,7 @@ class GithubToken extends AbstractHandler {
     if (!empty($discovered)) {
       return $discovered;
     }
-    return null;
+    return NULL;
   }
 
   /**
@@ -113,7 +106,7 @@ class GithubToken extends AbstractHandler {
     if (!empty($this->discover())) {
       return 'GitHub access token is already set in the environment.';
     }
-    return null;
+    return NULL;
   }
 
 }

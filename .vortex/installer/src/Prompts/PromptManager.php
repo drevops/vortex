@@ -123,7 +123,7 @@ class PromptManager {
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class, $n)), CodeProvider::id())
       ->addIf(
           fn($r): bool => $this->handlers[GithubToken::id()]->condition()($r),
-          fn($r, $pr, $n) => Tui::note(GithubToken::explanation()),
+          fn($r, $pr, $n) => Tui::note('<info>' . (string)GithubToken::explanation() . '</info>')
         )
       ->addIf(
           fn($r): bool => $this->handlers[GithubToken::id()]->condition()($r),

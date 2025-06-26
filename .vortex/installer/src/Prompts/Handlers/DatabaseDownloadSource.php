@@ -118,13 +118,6 @@ class DatabaseDownloadSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function isConditional(): bool {
-    return TRUE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function condition(): ?callable {
     return fn(array $responses): bool => isset($responses[ProvisionType::id()]) &&
       $responses[ProvisionType::id()] !== ProvisionType::PROFILE;

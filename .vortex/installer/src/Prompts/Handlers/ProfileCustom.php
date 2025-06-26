@@ -22,7 +22,7 @@ class ProfileCustom extends AbstractHandler {
       return $discovered;
     }
 
-    return null;
+    return NULL;
   }
 
   /**
@@ -43,7 +43,7 @@ class ProfileCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(): ?string {
-    return null;
+    return NULL;
   }
 
   /**
@@ -57,7 +57,7 @@ class ProfileCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
@@ -72,22 +72,14 @@ class ProfileCustom extends AbstractHandler {
    */
   public function validate(): ?callable {
     return fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ?
-      'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : null;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isConditional(): bool {
-    return true;
+      'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function condition(): ?callable {
-    return fn(array $responses): bool =>
-      isset($responses[Profile::id()]) &&
+    return fn(array $responses): bool => isset($responses[Profile::id()]) &&
       $responses[Profile::id()] === Profile::CUSTOM;
   }
 

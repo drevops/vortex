@@ -103,7 +103,7 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function isRequired(): bool {
-    return true;
+    return TRUE;
   }
 
   /**
