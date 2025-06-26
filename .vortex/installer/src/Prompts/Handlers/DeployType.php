@@ -82,7 +82,7 @@ class DeployType extends AbstractHandler {
    * @param array $responses
    */
   public function options(array $responses): ?array {
-    $options =  [
+    $options = [
       self::ARTIFACT => '📦 Code artifact',
       self::LAGOON => '🌊 Lagoon webhook',
       self::CONTAINER_IMAGE => '🐳 Container image',

@@ -113,7 +113,7 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
+  public function default(array $responses): mixed {
     $discovered = $this->discover();
     if (!empty($discovered)) {
       // If we discovered a standard profile, return it

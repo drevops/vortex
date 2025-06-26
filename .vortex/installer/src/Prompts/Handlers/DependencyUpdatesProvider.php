@@ -91,8 +91,8 @@ class DependencyUpdatesProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? self::RENOVATEBOT_CI;
+  public function default(array $responses): mixed {
+    return self::RENOVATEBOT_CI;
   }
 
 }

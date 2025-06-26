@@ -66,8 +66,8 @@ class AiCodeInstructions extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? self::NONE;
+  public function default(array $responses): mixed {
+    return self::NONE;
   }
 
 }

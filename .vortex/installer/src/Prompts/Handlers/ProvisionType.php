@@ -75,8 +75,8 @@ class ProvisionType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? self::DATABASE;
+  public function default(array $responses): mixed {
+    return self::DATABASE;
   }
 
 }

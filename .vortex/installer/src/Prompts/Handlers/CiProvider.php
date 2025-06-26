@@ -116,8 +116,8 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? self::GITHUB_ACTIONS;
+  public function default(array $responses): mixed {
+    return self::GITHUB_ACTIONS;
   }
 
 }

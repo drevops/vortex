@@ -51,7 +51,7 @@ class Name extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function placeholder(): ?string {
+  public function placeholder(array $responses): ?string {
     return 'E.g. My Site';
   }
 
@@ -65,8 +65,8 @@ class Name extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? Converter::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())));
+  public function default(array $responses): mixed {
+    return Converter::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())));
   }
 
   /**

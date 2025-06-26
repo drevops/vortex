@@ -42,8 +42,8 @@ class LabelMergeConflictsPr extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? TRUE;
+  public function default(array $responses): mixed {
+    return TRUE;
   }
 
 }

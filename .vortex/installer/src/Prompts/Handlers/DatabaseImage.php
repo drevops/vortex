@@ -63,8 +63,9 @@ class DatabaseImage extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function condition(): ?callable {
+  public function condition(array $responses): ?callable {
     return fn(array $responses): bool => $responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY;
   }
 

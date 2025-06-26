@@ -54,7 +54,7 @@ class GithubRepo extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function placeholder(): ?string {
+  public function placeholder(array $responses): ?string {
     return 'E.g. myorg/myproject';
   }
 
@@ -74,8 +74,9 @@ class GithubRepo extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function condition(): ?callable {
+  public function condition(array $responses): ?callable {
     return fn(array $responses): bool => !empty($responses[GithubToken::id()]);
   }
 

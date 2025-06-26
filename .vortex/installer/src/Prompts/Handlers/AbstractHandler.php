@@ -80,7 +80,7 @@ abstract class AbstractHandler implements HandlerInterface {
    * {@inheritdoc}
    * @param array $responses
    */
-  public function explanation(array $responses): ?string {
+  public static function explanation(array $responses): ?string {
     return NULL;
   }
 
@@ -94,15 +94,16 @@ abstract class AbstractHandler implements HandlerInterface {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function condition(): ?callable {
+  public function condition(array $responses): ?callable {
     return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
+  public function default(array $responses): mixed {
     return NULL;
   }
 

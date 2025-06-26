@@ -43,7 +43,7 @@ class GithubToken extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function placeholder(): ?string {
+  public function placeholder(array $responses): ?string {
     return 'E.g. ghp_1234567890';
   }
 
@@ -63,8 +63,9 @@ class GithubToken extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function condition(): ?callable {
+  public function condition(array $responses): ?callable {
     return fn(array $responses): bool => $responses[CodeProvider::id()] === CodeProvider::GITHUB;
   }
 
@@ -78,7 +79,8 @@ class GithubToken extends AbstractHandler {
   /**
    * Get the informational note for GitHub token requirement.
    *
-   * @param array $responses*/
+   * @param array $responses
+   */
   public static function explanation(array $responses): ?string {
     return "We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.";
   }
@@ -87,7 +89,7 @@ class GithubToken extends AbstractHandler {
    * Get the discovered value for display.
    */
   public function getDiscoveredValue(): string {
-    return $this->discover() ?? '';
+    return '';
   }
 
   /**

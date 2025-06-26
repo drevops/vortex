@@ -149,8 +149,8 @@ class Services extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? [self::CLAMAV, self::SOLR, self::VALKEY];
+  public function default(array $responses): mixed {
+    return [self::CLAMAV, self::SOLR, self::VALKEY];
   }
 
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\VortexInstaller\handlers\Handlers;
+namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 /**
  * Interface HandlerInterface.
@@ -32,7 +32,7 @@ interface HandlerInterface {
    * @return string|null
    *   The placeholder text for the handler, or NULL if none.
    */
-  public function placeholder(): ?string;
+  public function placeholder(array $responses): ?string;
 
   /**
    * Optional hint for the handler.
@@ -40,25 +40,29 @@ interface HandlerInterface {
    * @return string|null
    *   The hint text for the handler, or NULL if none.
    */
-  public function hint(): ?string;
+  public function hint(array $responses): ?string;
 
-  public static function explanation(): ?string;
+  public static function explanation(array $responses): ?string;
 
   /**
    * Get the options for select/multiselect handlers.
    *
+   * @param array $responses *
+   *
    * @return array|null
    *   The options array, or null if not applicable.
    */
-  public function options(): ?array;
+  public function options(array $responses): ?array;
 
   /**
    * Get the condition callback for conditional handlers.
    *
+   * @param array $responses *
+   *
    * @return callable|null
    *   The condition callback, or null if not conditional.
    */
-  public function condition(): ?callable;
+  public function condition(array $responses): ?callable;
 
   /**
    * The default value for the handler.
@@ -68,7 +72,7 @@ interface HandlerInterface {
    * @return mixed
    *   The default value for the handler.
    */
-  public function default(aray $responses): mixed;
+  public function default(array $responses): mixed;
 
   /**
    * Get whether the handler's value is required.

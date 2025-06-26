@@ -50,7 +50,7 @@ class ProfileCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function placeholder(): ?string {
+  public function placeholder(array $responses): ?string {
     return 'E.g. my_profile';
   }
 
@@ -78,8 +78,9 @@ class ProfileCustom extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function condition(): ?callable {
+  public function condition(array $responses): ?callable {
     return fn(array $responses): bool => isset($responses[Profile::id()]) &&
       $responses[Profile::id()] === Profile::CUSTOM;
   }

@@ -62,7 +62,7 @@ class Domain extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function placeholder(): ?string {
+  public function placeholder(array $responses): ?string {
     return 'E.g. example.com';
   }
 

@@ -111,8 +111,8 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(): mixed {
-    return $this->discover() ?? 'none';
+  public function default(array $responses): mixed {
+    return 'none';
   }
 
 }
