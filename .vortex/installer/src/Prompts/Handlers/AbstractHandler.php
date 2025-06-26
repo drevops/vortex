@@ -84,16 +84,10 @@ abstract class AbstractHandler implements HandlerInterface {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function options(): ?array {
+  public function options(array $responses): ?array {
     return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function optionsAlter(array &$options, array $responses): void {
-    // noop
   }
 
   /**
@@ -158,7 +152,8 @@ abstract class AbstractHandler implements HandlerInterface {
   public function setResponses(array $responses): static {
     $this->responses = $responses;
     $this->setWebroot($responses[Webroot::id()] ?? Webroot::WEB);
-    // Set the response for current handler as a shorthand.
+
+    // Set the response for the current handler as a shorthand.
     // Some handlers may want to perform an action on the empty responses, so
     // it is up to the handler's processor to check for the presence of the
     // value in a set response.

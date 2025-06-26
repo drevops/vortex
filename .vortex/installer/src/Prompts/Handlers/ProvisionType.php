@@ -62,8 +62,9 @@ class ProvisionType extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function options(): ?array {
+  public function options(array $responses): ?array {
     return [
       self::DATABASE => 'Import from database dump',
       self::PROFILE => 'Install from profile',

@@ -69,14 +69,6 @@ class DatabaseImage extends AbstractHandler {
 
   /**
    * {@inheritdoc}
-   */
-  public function placeholder(): ?string {
-    // This will be dynamically set based on responses via getPlaceholderForContext
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
    * @param mixed &$default
    */
   public function defaultAlter(mixed &$default, array $responses): void {

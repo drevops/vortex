@@ -71,9 +71,10 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function options(): ?array {
-    return [
+  public function options(array $responses): ?array {
+    $options =  [
       self::URL => '🌍 URL download',
       self::FTP => '📂 FTP download',
       self::ACQUIA => '💧 Acquia backup',
@@ -81,13 +82,7 @@ class DatabaseDownloadSource extends AbstractHandler {
       self::CONTAINER_REGISTRY => '🐳 Container registry',
       self::NONE => '🚫 None',
     ];
-  }
 
-  /**
-   * {@inheritdoc}
-   * @param array &$options
-   */
-  public function optionsAlter(array &$options, array $responses): void {
     if (isset($responses[HostingProvider::id()])) {
       if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
         unset($options[self::LAGOON]);
@@ -97,6 +92,8 @@ class DatabaseDownloadSource extends AbstractHandler {
         unset($options[self::ACQUIA]);
       }
     }
+
+    return $options;
   }
 
   /**

@@ -411,7 +411,7 @@ class PromptManager {
    *   The formatted label text.
    */
   protected function label(string $text, ?string $suffix = NULL): string {
-    if (is_NULL($suffix)) {
+    if (is_null($suffix)) {
       $this->currentResponse++;
     }
 
@@ -442,7 +442,7 @@ class PromptManager {
 
     $discovered = $this->handlers[$id]->discover();
 
-    return is_NULL($discovered) ? $default : $discovered;
+    return is_null($discovered) ? $default : $discovered;
   }
 
   /**
@@ -508,12 +508,8 @@ class PromptManager {
       $default = $default_override;
     }
     else {
-      $default = $handler->default();
-      $handler->defaultAlter($default, $responses);
+      $default = $handler->default($responses);
     }
-
-    $options = $handler->options();
-    $handler->optionsAlter($options, $responses);
 
     $args = [
       'label' => $this->label($handler->label()),
@@ -522,15 +518,17 @@ class PromptManager {
       'default' => $this->default($name, $default ?? ''),
       'transform' => $handler->transform(),
       'validate' => $handler->validate(),
-      'options' => $options, // Context-aware options for select/multiselect
     ];
 
-    // Only include 'required' if it's true (Laravel prompts expects true or omit it)
+    $options = $handler->options($responses);
+    if ($options !== []) {
+      $args['options'] = $options;
+    }
+
     if ($handler->isRequired()) {
       $args['required'] = TRUE;
     }
 
-    // Filter out NULL values
     return array_filter($args, fn($value) => $value !== NULL);
   }
 

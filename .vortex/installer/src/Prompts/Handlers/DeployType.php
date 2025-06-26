@@ -78,25 +78,22 @@ class DeployType extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function options(): ?array {
-    return [
+  public function options(array $responses): ?array {
+    $options =  [
       self::ARTIFACT => '📦 Code artifact',
       self::LAGOON => '🌊 Lagoon webhook',
       self::CONTAINER_IMAGE => '🐳 Container image',
       self::WEBHOOK => '🌐 Custom webhook',
     ];
-  }
 
-  /**
-   * {@inheritdoc}
-   * @param array &$options
-   */
-  public function optionsAlter(array &$options, array $responses): void {
     // Remove Lagoon option for Acquia hosting.
     if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
       unset($options[self::LAGOON]);
     }
+
+    return $options;
   }
 
   /**

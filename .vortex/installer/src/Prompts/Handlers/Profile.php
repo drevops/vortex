@@ -91,8 +91,9 @@ class Profile extends AbstractHandler {
 
   /**
    * {@inheritdoc}
+   * @param array $responses
    */
-  public function options(): ?array {
+  public function options(array $responses): ?array {
     return [
       self::STANDARD => 'Standard',
       self::MINIMAL => 'Minimal',

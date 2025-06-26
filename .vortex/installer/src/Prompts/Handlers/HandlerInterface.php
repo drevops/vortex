@@ -52,8 +52,6 @@ interface HandlerInterface {
    */
   public function options(): ?array;
 
-  public function optionsAlter(array &$options, array $responses): void;
-
   /**
    * Get the condition callback for conditional handlers.
    *
