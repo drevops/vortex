@@ -12,6 +12,11 @@ jobs:
         uses: actions/checkout@__VERSION__
 
       - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@__VERSION__
+        with:
+          node-version: __VERSION__        
 
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@__VERSION__
