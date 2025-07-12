@@ -51,6 +51,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       '/([\w.-]+\/[\w.-]+:)canary$/m' => '${1}__VERSION__',
       // GHAs.
       '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
+      '/(node-version:\s)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
     ];
 
     foreach ($regexes as $regex => $replace) {
