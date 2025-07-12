@@ -46,7 +46,7 @@ jobs:
 
       - uses: actions/setup-node@__VERSION__
         with:
-          node-version: 22.16.0
+          node-version: __VERSION__
 
       - name: Process manual trigger
         if: github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false
