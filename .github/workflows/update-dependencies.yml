@@ -46,7 +46,7 @@ jobs:
 
       - uses: actions/setup-node@v4.4.0
         with:
-          node-version: 22.16.0
+          node-version: 22.17.0
 
       - name: Process manual trigger
         if: github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false
@@ -60,7 +60,7 @@ jobs:
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'
-        uses: renovatebot/github-action@v43.0.1
+        uses: renovatebot/github-action@v43.0.2
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
