@@ -515,10 +515,13 @@ class PromptManager {
       'label' => $this->label($handler->label()),
       'hint' => $handler->hint($responses),
       'placeholder' => $handler->placeholder($responses),
-      'default' => $this->default($name, $default ?? ''),
       'transform' => $handler->transform(),
       'validate' => $handler->validate(),
     ];
+
+    if (!is_null($default)) {
+      $args['default'] = $this->default($name, $default);
+    }
 
     $options = $handler->options($responses);
     if ($options !== []) {
