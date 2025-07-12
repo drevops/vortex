@@ -62,4 +62,65 @@ class DeployType extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '🚚 Deployment types';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'You can deploy code using one or more methods.';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::ARTIFACT => '📦 Code artifact',
+      self::LAGOON => '🌊 Lagoon webhook',
+      self::CONTAINER_IMAGE => '🐳 Container image',
+      self::WEBHOOK => '🌐 Custom webhook',
+    ];
+
+    // Remove Lagoon option for Acquia hosting.
+    if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+      unset($options[self::LAGOON]);
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param mixed &$default
+   */
+  public function default(array $responses): mixed {
+    $defaults = [];
+
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        $defaults[] = self::LAGOON;
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        $defaults[] = self::ARTIFACT;
+      }
+    }
+
+    if (empty($defaults)) {
+      $defaults[] = self::WEBHOOK;
+    }
+
+    $default = $defaults;
+
+    return $default;
+  }
+
 }

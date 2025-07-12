@@ -134,4 +134,51 @@ class Theme extends AbstractHandler {
     return $c1 && $c2 && $c3 && $c4;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '🎨 Theme machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    return 'E.g. mytheme';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return fn(string $v): string => trim($v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::machine($responses[MachineName::id()]);
+    }
+
+    return NULL;
+  }
+
 }

@@ -46,4 +46,37 @@ class ProvisionType extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '🦋 Provision type';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'Selecting "Profile" will install site from a profile rather than a database dump.';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::DATABASE => 'Import from database dump',
+      self::PROFILE => 'Install from profile',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    return self::DATABASE;
+  }
+
 }

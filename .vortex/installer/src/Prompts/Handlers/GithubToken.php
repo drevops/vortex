@@ -22,4 +22,95 @@ class GithubToken extends AbstractHandler {
     // @todo Implement this.
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    if (!empty($this->discover())) {
+      return 'GitHub access token is already set in the environment.';
+    }
+    return '🔑 GitHub access token (optional)';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    return 'E.g. ghp_1234567890';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return fn(string $v): string => trim($v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function condition(array $responses): bool {
+    return $responses[CodeProvider::id()] === CodeProvider::GITHUB;
+  }
+
+  /**
+   * Helper method to check if token should be shown as note instead of input.
+   */
+  public function shouldShowAsNote(): bool {
+    return !empty($this->discover());
+  }
+
+  /**
+   * Get the informational note for GitHub token requirement.
+   *
+   * @param array $responses
+   */
+  public static function explanation(array $responses): ?string {
+    return "We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.";
+  }
+
+  /**
+   * Get the discovered value for display.
+   */
+  public function getDiscoveredValue(): string {
+    return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolved(array $responses): null|string|bool|array {
+    $discovered = $this->discover();
+    if (!empty($discovered)) {
+      return $discovered;
+    }
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    if (!empty($this->discover())) {
+      return 'GitHub access token is already set in the environment.';
+    }
+    return NULL;
+  }
+
 }

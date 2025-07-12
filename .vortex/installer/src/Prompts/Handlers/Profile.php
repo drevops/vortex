@@ -49,6 +49,12 @@ class Profile extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+
+    // If user selected 'custom', use the ProfileCustom response instead
+    if ($v === self::CUSTOM && isset($this->responses['profile_custom'])) {
+      $v = $this->responses['profile_custom'];
+    }
+
     $t = $this->tmpDir;
     $w = $this->webroot;
 
@@ -67,6 +73,48 @@ class Profile extends AbstractHandler {
       File::replaceContentAsync('your_site_profile', $v);
       File::renameInDir($t, 'your_site_profile', $v);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '🧾 Profile';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'Select which profile to use';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::STANDARD => 'Standard',
+      self::MINIMAL => 'Minimal',
+      self::DEMO_UMAMI => 'Demo Umami',
+      self::CUSTOM => 'Custom',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    return self::STANDARD;
   }
 
 }

@@ -22,4 +22,26 @@ class AssignAuthorPr extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '👤 Auto-assign the author to their PR?';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'Helps to keep the PRs organized.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    return TRUE;
+  }
+
 }

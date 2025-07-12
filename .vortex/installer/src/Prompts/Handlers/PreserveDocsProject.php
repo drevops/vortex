@@ -30,4 +30,26 @@ class PreserveDocsProject extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '📚 Preserve project documentation?';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'Helps to maintain the project documentation within the repository.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    return TRUE;
+  }
+
 }

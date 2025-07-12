@@ -126,4 +126,11 @@ class Internal extends AbstractHandler {
     $this->config->set(Config::IS_DEMO, $is_demo);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return 'Internal processing';
+  }
+
 }

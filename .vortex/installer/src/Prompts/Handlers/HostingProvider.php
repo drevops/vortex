@@ -73,4 +73,46 @@ class HostingProvider extends AbstractHandler {
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '☁️ Hosting provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::ACQUIA => '💧 Acquia Cloud',
+      self::LAGOON => '🌊 Lagoon',
+      self::OTHER => '🧩 Other',
+      self::NONE => '🚫 None',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    return 'none';
+  }
+
 }

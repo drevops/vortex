@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 use DrevOps\VortexInstaller\Utils\Composer;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Validator;
 
 class Webroot extends AbstractHandler {
 
@@ -54,6 +55,102 @@ class Webroot extends AbstractHandler {
     ]);
 
     rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '📁 Custom web root directory';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'Custom directory where the web server serves the site.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    return 'E.g. ' . implode(', ', [self::WEB, self::DOCROOT]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    // Auto-select webroot based on hosting provider.
+    if (isset($responses[HostingProvider::id()])) {
+      return match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::DOCROOT,
+        HostingProvider::LAGOON => self::WEB,
+        default => self::WEB,
+      };
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Check if webroot should show as auto-selected info instead of input.
+   */
+  public function shouldShowAsInfo(array $responses): bool {
+
+  }
+
+  /**
+   * Check if this prompt should use text input instead of auto-selection.
+   */
+  public function shouldUseTextInput(array $responses): bool {
+    return isset($responses[HostingProvider::id()]) &&
+      $responses[HostingProvider::id()] === HostingProvider::OTHER;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolved(array $responses): null|string|bool|array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    if (
+      isset($responses[HostingProvider::id()]) &&
+      $responses[HostingProvider::id()] !== HostingProvider::OTHER
+    ) {
+      $webroot = $this->resolved($responses);
+      return sprintf('Web root will be set to "%s".', $webroot);
+    }
+
+    return NULL;
   }
 
 }

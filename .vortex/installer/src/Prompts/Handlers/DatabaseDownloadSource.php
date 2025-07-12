@@ -55,4 +55,69 @@ class DatabaseDownloadSource extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return '📡 Database source';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function hint(array $responses): ?string {
+    return 'The database can be downloaded as an exported dump file or pre-packaged in a container image.';
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::URL => '🌍 URL download',
+      self::FTP => '📂 FTP download',
+      self::ACQUIA => '💧 Acquia backup',
+      self::LAGOON => '🌊 Lagoon environment',
+      self::CONTAINER_REGISTRY => '🐳 Container registry',
+      self::NONE => '🚫 None',
+    ];
+
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        unset($options[self::LAGOON]);
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        unset($options[self::ACQUIA]);
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): mixed {
+    if (isset($responses[HostingProvider::id()])) {
+      return match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::ACQUIA,
+        HostingProvider::LAGOON => self::LAGOON,
+        default => self::URL,
+      };
+    }
+
+    return self::URL;
+  }
+
+  /**
+   * {@inheritdoc}
+   * @param array $responses
+   */
+  public function condition(array $responses): bool {
+    return isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] !== ProvisionType::PROFILE;
+  }
+
 }
