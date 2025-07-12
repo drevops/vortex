@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -135,36 +133,6 @@
+@@ -139,38 +137,6 @@
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -20,6 +20,8 @@
 -      dockerfile: .docker/solr.dockerfile
 -      args:
 -        CLI_IMAGE: *cli-image
+-      additional_contexts:
+-        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    depends_on:
@@ -44,7 +46,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -183,8 +151,7 @@
+@@ -189,8 +155,7 @@
      depends_on:
        - cli
        - database
@@ -54,7 +56,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -193,4 +160,3 @@
+@@ -199,4 +164,3 @@
  volumes:
    app: {}
    files: {}
