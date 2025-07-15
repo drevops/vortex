@@ -21,6 +21,62 @@ class DeployType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '🚚 Deployment types';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'You can deploy code using one or more methods.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::ARTIFACT => '📦 Code artifact',
+      self::LAGOON => '🌊 Lagoon webhook',
+      self::CONTAINER_IMAGE => '🐳 Container image',
+      self::WEBHOOK => '🌐 Custom webhook',
+    ];
+
+    // Remove Lagoon option for Acquia hosting.
+    if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+      unset($options[self::LAGOON]);
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    $defaults = [];
+
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        $defaults[] = self::LAGOON;
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        $defaults[] = self::ARTIFACT;
+      }
+    }
+
+    if (empty($defaults)) {
+      $defaults[] = self::WEBHOOK;
+    }
+
+    return $defaults;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     $types = Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
 

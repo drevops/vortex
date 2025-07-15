@@ -17,6 +17,38 @@ class DependencyUpdatesProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '⬆️ Dependency updates provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use a self-hosted service if you cannot install a GitHub app.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::RENOVATEBOT_CI => '🤖 +  🔄 Renovate self-hosted in CI',
+      self::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
+      self::NONE => '🚫 None',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return self::RENOVATEBOT_CI;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     if (!$this->isInstalled()) {
       return NULL;

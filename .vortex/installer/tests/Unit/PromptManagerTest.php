@@ -110,11 +110,11 @@ class PromptManagerTest extends UnitTestCase {
    * Test responses.
    *
    * @code
-   * composer test -- --filter=testPrompt@"name of the data provider"
+   * composer test -- --filter=testRunPrompts@"name of the data provider"
    * @endcode
    */
-  #[DataProvider('dataProviderPrompt')]
-  public function testPrompt(
+  #[DataProvider('dataProviderRunPrompts')]
+  public function testRunPrompts(
     array $answers,
     array|string $expected,
     ?callable $before = NULL,
@@ -133,12 +133,12 @@ class PromptManagerTest extends UnitTestCase {
       $before($this, $config);
     }
 
-    $answers = array_replace(static::defaultAnswers(), $answers);
+    $answers = array_replace(static::defaultTuiAnswers(), $answers);
     $keystrokes = static::tuiKeystrokes($answers, 40);
     Prompt::fake($keystrokes);
 
     $pm = new PromptManager($config);
-    $pm->prompt();
+    $pm->runPrompts();
 
     if (!$exception) {
       $actual = $pm->getResponses();
@@ -146,7 +146,13 @@ class PromptManagerTest extends UnitTestCase {
     }
   }
 
-  public static function defaultAnswers(): array {
+  /**
+   * The default answers for TUI prompts used in tests.
+   *
+   * @return array<string, string>
+   *   An associative array of prompt IDs and their default values.
+   */
+  public static function defaultTuiAnswers(): array {
     return [
       Name::id() => static::TUI_DEFAULT,
       MachineName::id() => static::TUI_DEFAULT,
@@ -175,7 +181,8 @@ class PromptManagerTest extends UnitTestCase {
     ];
   }
 
-  public static function dataProviderPrompt(): array {
+  public static function dataProviderRunPrompts(): array {
+    // Expected defaults for a new project.
     $expected_defaults = [
       Name::id() => 'myproject',
       MachineName::id() => 'myproject',
@@ -204,6 +211,7 @@ class PromptManagerTest extends UnitTestCase {
       AiCodeInstructions::id() => AiCodeInstructions::NONE,
     ];
 
+    // Expected values for a pre-installed project.
     $expected_installed = [
       CiProvider::id() => CiProvider::NONE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
@@ -213,7 +221,8 @@ class PromptManagerTest extends UnitTestCase {
       PreserveDocsOnboarding::id() => FALSE,
     ] + $expected_defaults;
 
-    $expected_discovered = [
+    // Expected values for a custom project. Used for testing discovery.
+    $expected_custom = [
       Name::id() => 'Discovered project',
       MachineName::id() => 'discovered_project',
       Org::id() => 'Discovered project Org',
@@ -232,9 +241,9 @@ class PromptManagerTest extends UnitTestCase {
 
       'project name - discovery' => [
         [],
-        $expected_discovered,
+        $expected_custom,
         function (PromptManagerTest $test): void {
-          $test->stubComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
       'invalid project name' => [
@@ -248,7 +257,7 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $expected_discovered,
+        ] + $expected_custom,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
@@ -260,7 +269,7 @@ class PromptManagerTest extends UnitTestCase {
           MachineName::id() => 'discovered-project',
           Org::id() => 'myproject Org',
           GithubRepo::id() => 'discovered_project_org/discovered-project',
-        ] + $expected_discovered,
+        ] + $expected_custom,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
         },
@@ -272,9 +281,9 @@ class PromptManagerTest extends UnitTestCase {
 
       'org name - discovery' => [
         [],
-        $expected_discovered,
+        $expected_custom,
         function (PromptManagerTest $test): void {
-          $test->stubComposerJsonValue('description', 'Drupal 10 Standard installation of Discovered project for Discovered project Org');
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
       'org name - invalid' => [
@@ -288,7 +297,7 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $expected_discovered,
+        ] + $expected_custom,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
@@ -301,7 +310,7 @@ class PromptManagerTest extends UnitTestCase {
           Org::id() => 'myproject Org',
           OrgMachineName::id() => 'discovered-project-org',
           GithubRepo::id() => 'discovered-project-org/discovered_project',
-        ] + $expected_discovered,
+        ] + $expected_custom,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
@@ -415,7 +424,6 @@ class PromptManagerTest extends UnitTestCase {
         [Profile::id() => Key::DOWN . Key::ENTER],
         [Profile::id() => 'minimal'] + $expected_defaults,
       ],
-
       'profile - custom' => [
         [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
         [Profile::id() => 'myprofile'] + $expected_defaults,
@@ -647,7 +655,6 @@ YAML
 
       'database image - discovery' => [
         [
-          GithubRepo::id() => static::TUI_SKIP,
           DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
         ],
         [
@@ -660,7 +667,6 @@ YAML
       ],
       'database image - valid' => [
         [
-          GithubRepo::id() => static::TUI_SKIP,
           DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           DatabaseImage::id() => 'myregistry/myimage:mytag',
         ],
@@ -668,7 +674,6 @@ YAML
       ],
       'database image - invalid' => [
         [
-          GithubRepo::id() => static::TUI_SKIP,
           DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           DatabaseImage::id() => 'myregistry:myimage:mytag',
         ],
@@ -676,7 +681,6 @@ YAML
       ],
       'database image - invalid - capitalization' => [
         [
-          GithubRepo::id() => static::TUI_SKIP,
           DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           DatabaseImage::id() => 'MyRegistry/MyImage:mytag',
         ],
