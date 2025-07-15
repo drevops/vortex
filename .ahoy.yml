@@ -23,7 +23,9 @@ commands:
       ahoy up --build --force-recreate    # Start the stack.
       ahoy composer install               # Install Composer dependencies.
       ahoy fei                            # Install front-end dependencies.
+      #;< DRUPAL_THEME
       ahoy fe                             # Build front-end assets.
+      #;> DRUPAL_THEME
       ahoy provision                      # Provision the site.
       VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
 
@@ -160,11 +162,15 @@ commands:
       ahoy confirm "All containers and build files will be removed. Proceed?" &&
       AHOY_CONFIRM_RESPONSE=y ahoy down && ./scripts/vortex/reset.sh "$@"
 
-  #;< DRUPAL_THEME
   fei:
     usage: Install front-end assets.
-    cmd: ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
+    cmd: |
+      ahoy cli "yarn install --frozen-lockfile"
+      #;< DRUPAL_THEME
+      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lock"
+      #;> DRUPAL_THEME
 
+  #;< DRUPAL_THEME
   fe:
     usage: Build front-end assets.
     cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
@@ -192,13 +198,14 @@ commands:
       ahoy cli vendor/bin/rector --clear-cache --dry-run
       ahoy cli vendor/bin/phpmd . text phpmd.xml
 
-  #;< DRUPAL_THEME
   lint-fe:
     usage: Lint front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
+      ahoy cli "yarn run lint"
+      #;< DRUPAL_THEME
       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
-  #;> DRUPAL_THEME
+      #;> DRUPAL_THEME
 
   lint-tests:
     usage: Lint tests code.
@@ -215,13 +222,14 @@ commands:
       ahoy cli vendor/bin/rector --clear-cache
       ahoy cli vendor/bin/phpcbf
 
-  #;< DRUPAL_THEME
   lint-fe-fix:
     usage: Fix lint issues of front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint --fix
+      ahoy cli "yarn run lint-fix"
+      #;< DRUPAL_THEME
       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
-  #;> DRUPAL_THEME
+      #;> DRUPAL_THEME
 
   test:
     usage: Run all tests.

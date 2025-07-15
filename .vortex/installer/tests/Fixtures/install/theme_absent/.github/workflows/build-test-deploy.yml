@@ -1,8 +1,8 @@
-@@ -267,10 +267,6 @@
-         run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
-         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
+@@ -272,10 +272,6 @@
+         run: docker compose exec -T cli bash -c "yarn run lint"
+         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
--      - name: Lint code with NodeJS linters
+-      - name: Lint theme code with NodeJS linters
 -        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 -
