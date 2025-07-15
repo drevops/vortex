@@ -14,8 +14,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
@@ -42,7 +40,6 @@ use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
-use function Laravel\Prompts\password;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
@@ -60,7 +57,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 21;
+  const TOTAL_RESPONSES = 22;
 
   /**
    * Array of responses.
@@ -122,30 +119,6 @@ class PromptManager {
 
       ->intro('Code repository')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
-      ->addIf(
-          fn($r): bool => $this->handlers[GithubToken::id()]->shouldRun($r),
-          fn($r, $pr, $n) => Tui::note('<info>' . GithubToken::description($r) . '</info>')
-        )
-      ->addIf(
-          fn($r): bool => $this->handlers[GithubToken::id()]->shouldRun($r),
-          function ($r, $pr, $n): string {
-            $handler = $this->handlers[GithubToken::id()];
-            $resolved_value = $handler->resolvedValue($r);
-            if (!empty($resolved_value)) {
-              Tui::ok($this->label((string) $handler->resolvedMessage($r), 'a'));
-              return is_string($resolved_value) ? $resolved_value : '';
-            }
-            else {
-              return password(...$this->args(GithubToken::class));
-            }
-          },
-          GithubToken::id()
-        )
-        ->addIf(
-            fn($r): bool => $this->handlers[GithubRepo::id()]->shouldRun($r),
-            fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, NULL, $r)),
-            GithubRepo::id()
-          )
 
       ->intro('Drupal')
       ->add(
@@ -289,8 +262,6 @@ class PromptManager {
       DeployType::id(),
       HostingProvider::id(),
       Services::id(),
-      GithubRepo::id(),
-      GithubToken::id(),
       CodeProvider::id(),
       ProfileCustom::id(),
       Profile::id(),
@@ -354,11 +325,6 @@ class PromptManager {
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;
     $values['🗄 Code provider'] = $responses[CodeProvider::id()];
-
-    if (!empty($responses[GithubToken::id()])) {
-      $values['🔑 GitHub access token'] = 'valid';
-    }
-    $values['🏷️ GitHub repository'] = $responses[GithubRepo::id()] ?? '<empty>';
 
     $values['Drupal'] = Tui::LIST_SECTION_TITLE;
     $values['📁 Webroot'] = $responses[Webroot::id()];

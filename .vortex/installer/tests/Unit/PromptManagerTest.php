@@ -14,8 +14,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -58,8 +56,6 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(DeployType::class)]
 #[CoversClass(Domain::class)]
 #[CoversClass(Env::class)]
-#[CoversClass(GithubRepo::class)]
-#[CoversClass(GithubToken::class)]
 #[CoversClass(HostingProvider::class)]
 #[CoversClass(Internal::class)]
 #[CoversClass(LabelMergeConflictsPr::class)]
@@ -82,8 +78,6 @@ class PromptManagerTest extends UnitTestCase {
   use UpstreamTuiTrait;
   use TuiTrait;
 
-  const FIXTURE_GITHUB_TOKEN = 'ghp_1234567890';
-
   /**
    * {@inheritdoc}
    */
@@ -91,8 +85,6 @@ class PromptManagerTest extends UnitTestCase {
     parent::setUp();
 
     static::tuiSetUp();
-
-    putenv('GITHUB_TOKEN=' . self::FIXTURE_GITHUB_TOKEN);
 
     static::$sut = File::mkdir(static::$sut . DIRECTORY_SEPARATOR . 'myproject');
   }
@@ -160,8 +152,6 @@ class PromptManagerTest extends UnitTestCase {
       OrgMachineName::id() => static::TUI_DEFAULT,
       Domain::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
-      GithubToken::id() => static::TUI_SKIP,
-      GithubRepo::id() => static::TUI_DEFAULT,
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
@@ -190,8 +180,6 @@ class PromptManagerTest extends UnitTestCase {
       OrgMachineName::id() => 'myproject_org',
       Domain::id() => 'myproject.com',
       CodeProvider::id() => CodeProvider::GITHUB,
-      GithubToken::id() => self::FIXTURE_GITHUB_TOKEN,
-      GithubRepo::id() => 'myproject_org/myproject',
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
@@ -228,7 +216,6 @@ class PromptManagerTest extends UnitTestCase {
       Org::id() => 'Discovered project Org',
       OrgMachineName::id() => 'discovered_project_org',
       Domain::id() => 'discovered-project.com',
-      GithubRepo::id() => 'discovered_project_org/discovered_project',
       ModulePrefix::id() => 'dp',
       Theme::id() => 'discovered_project',
     ] + $expected_defaults;
@@ -268,7 +255,6 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered-project',
           Org::id() => 'myproject Org',
-          GithubRepo::id() => 'discovered_project_org/discovered-project',
         ] + $expected_custom,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
@@ -309,7 +295,6 @@ class PromptManagerTest extends UnitTestCase {
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
           OrgMachineName::id() => 'discovered-project-org',
-          GithubRepo::id() => 'discovered-project-org/discovered_project',
         ] + $expected_custom,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
@@ -364,45 +349,11 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [
           CodeProvider::id() => CodeProvider::OTHER,
-          GithubRepo::id() => NULL,
-          GithubToken::id() => NULL,
         ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
           Git::init(static::$sut);
         },
-      ],
-
-      'github repo - discovery' => [
-        [],
-        [GithubRepo::id() => 'discovered-project-org/discovered-project'] + $expected_defaults,
-        function (PromptManagerTest $test): void {
-          Git::init(static::$sut)->addRemote('origin', 'git@github.com:discovered-project-org/discovered-project.git');
-        },
-      ],
-      'github repo - discovery - missing remote' => [
-        [],
-        $expected_defaults,
-        function (PromptManagerTest $test): void {
-          Git::init(static::$sut);
-        },
-      ],
-      'github repo - valid name' => [
-        [GithubRepo::id() => 'custom_org/custom_project'],
-        // self::tuiFill(6, 'custom_org/custom_project'),.
-        [GithubRepo::id() => 'custom_org/custom_project'] + $expected_defaults,
-      ],
-      'github repo - valid name - hyphenated' => [
-        [GithubRepo::id() => 'custom-org/custom-project'],
-        [GithubRepo::id() => 'custom-org/custom-project'] + $expected_defaults,
-      ],
-      'github repo - empty' => [
-        [GithubRepo::id() => ''],
-        [GithubRepo::id() => ''] + $expected_defaults,
-      ],
-      'github repo - invalid name' => [
-        [GithubRepo::id() => 'custom_org-custom_project'],
-        'Please enter a valid project name in the format "myorg/myproject"',
       ],
 
       'profile - discovery' => [
