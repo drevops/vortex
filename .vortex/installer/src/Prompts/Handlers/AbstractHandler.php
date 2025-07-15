@@ -20,7 +20,7 @@ abstract class AbstractHandler implements HandlerInterface {
   protected string $tmpDir;
 
   /**
-   * The webroot directory name.
+   * The webroot directory.
    */
   protected string $webroot;
 
@@ -37,41 +37,17 @@ abstract class AbstractHandler implements HandlerInterface {
   protected array $responses;
 
   /**
-   * The configuration object.
+   * Constructor.
    */
-  public function __construct(protected Config $config) {
+  public function __construct(
+    protected Config $config,
+  ) {
     $this->dstDir = $this->config->getDst();
     $this->tmpDir = $this->config->get(Config::TMP);
   }
 
   /**
    * {@inheritdoc}
-   */
-  public function setWebroot(string $webroot): static {
-    $this->webroot = $webroot;
-
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setResponses(array $responses): static {
-    $this->responses = $responses;
-    $this->setWebroot($responses[Webroot::id()] ?? Webroot::WEB);
-    // Set the response for current handler as a shorthand.
-    // Some handlers may want to perform an action on the empty responses, so
-    // it is up to the handler's processor to check for the presence of the
-    // value in a set response.
-    $this->response = $this->responses[static::id()] ?? NULL;
-
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * Automatically generate the handler ID based on the class name.
    */
   public static function id(): string {
     $reflector = new \ReflectionClass(static::class);
@@ -88,12 +64,104 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  abstract public function discover(): null|string|bool|array;
+  public static function description(array $responses): ?string {
+    return NULL;
+  }
 
   /**
    * {@inheritdoc}
    */
-  abstract public function process(): void;
+  public function hint(array $responses): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldRun(array $responses): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedValue(array $responses): null|string|bool|array {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setResponses(array $responses): static {
+    $this->responses = $responses;
+    $this->setWebroot($responses[Webroot::id()] ?? Webroot::WEB);
+
+    // Set the response for the current handler as a shorthand.
+    // Some handlers may want to perform an action on the empty responses, so
+    // it is up to the handler's processor to check for the presence of the
+    // value in a set response.
+    $this->response = $this->responses[static::id()] ?? NULL;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWebroot(string $webroot): static {
+    $this->webroot = $webroot;
+
+    return $this;
+  }
 
   /**
    * Check that Vortex is installed for this project.

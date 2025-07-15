@@ -18,6 +18,38 @@ class Services extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '🔌 Services';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Select the services you want to use in the project.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::CLAMAV => '🦠 ClamAV',
+      self::SOLR => '🔍 Solr',
+      self::VALKEY => '🗃️ Valkey',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return [self::CLAMAV, self::SOLR, self::VALKEY];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     if (!$this->isInstalled()) {
       return NULL;

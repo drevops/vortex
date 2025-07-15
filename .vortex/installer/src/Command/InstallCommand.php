@@ -102,7 +102,7 @@ EOF
 
       static::header();
 
-      $pm->prompt();
+      $pm->runPrompts();
 
       Tui::list($pm->getResponsesSummary(), 'Installation summary');
 
@@ -116,36 +116,36 @@ EOF
 
       Tui::action(
         label: '⬇️ Downloading Vortex',
-        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
-        success: 'Vortex downloaded',
         action: function (): void {
           $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
         },
+        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
+        success: 'Vortex downloaded',
       );
 
       Tui::action(
         label: '⚙️ Customizing Vortex for your project',
+        action: fn() => $pm->runProcessors(),
         success: 'Vortex was customized for your project',
-        action: fn() => $pm->process(),
       );
 
       Tui::action(
         label: '🥣 Preparing destination directory',
-        success: 'Destination directory is ready',
         action: fn(): array => $this->prepareDestination(),
+        success: 'Destination directory is ready',
       );
 
       Tui::action(
         label: '➡️ Copying files to the destination directory',
-        success: 'Files copied to destination directory',
         action: fn() => $this->copyFiles(),
+        success: 'Files copied to destination directory',
       );
 
       Tui::action(
         label: '🎬 Preparing demo content',
-        success: 'Demo content prepared',
         action: fn(): string|array => $this->handleDemo(),
+        success: 'Demo content prepared',
       );
 
       // @todo Implement the demo mode.

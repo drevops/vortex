@@ -61,7 +61,7 @@ class EnvTest extends UnitTestCase {
       ['VAR', 'VAL1', NULL, 'VAL1'],
       ['VAR', 'VAL1', 'VAL2', 'VAL1'],
       ['VAR', '', 'DEF1', 'DEF1'],
-      ['VAR', '', NULL, NULL],
+      ['VAR', '', NULL, ''],
       ['VAR', '', 'VAL2', 'VAL2'],
     ];
   }

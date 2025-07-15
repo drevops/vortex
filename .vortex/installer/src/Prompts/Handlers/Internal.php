@@ -11,6 +11,13 @@ use DrevOps\VortexInstaller\Utils\File;
 
 class Internal extends AbstractHandler {
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return 'Internal processing';
+  }
+
   public function discover(): null|string|bool|array {
     // Noop.
     return NULL;

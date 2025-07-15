@@ -28,6 +28,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
+use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
@@ -36,7 +37,6 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\Tui;
-use DrevOps\VortexInstaller\Utils\Validator;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
@@ -56,23 +56,23 @@ use function Laravel\Prompts\text;
 class PromptManager {
 
   /**
+   * Total number of top-level responses.
+   *
+   * Used to display the progress of the prompts.
+   */
+  const TOTAL_RESPONSES = 21;
+
+  /**
    * Array of responses.
    */
   protected array $responses = [];
 
   /**
-   * Total number of top-level responses.
+   * Current response index.
    *
    * Used to display the progress of the prompts.
    */
-  protected int $totalResponses = 21;
-
-  /**
-   * Current response number.
-   *
-   * Used to display the progress of the prompts.
-   */
-  protected int $currentResponse = 0;
+  protected int $currentResponseIndex = 0;
 
   /**
    * Array of handlers.
@@ -94,12 +94,14 @@ class PromptManager {
   }
 
   /**
-   * Prompt for responses.
+   * Run prompts to get responses.
    *
    * If non-interactive mode is used, the values provided by $this->default()
    * method, including discovery from the existing codebase, will be used.
    */
-  public function prompt(): void {
+  public function runPrompts(): void {
+    // Set verbosity for TUI output based on the config. This will be reset
+    // after the prompt is completed.
     $original_verbosity = Tui::output()->getVerbosity();
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
@@ -112,368 +114,112 @@ class PromptManager {
     // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
     $responses = form()
       ->intro('General information')
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏷️ Site name'),
-        hint: 'We will use this name in the project and in the documentation.',
-        placeholder: 'E.g. My Site',
-        required: TRUE,
-        default: $this->default($n, Converter::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())))),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid project name.' : NULL,
-      ), Name::id())
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏷️ Site machine name'),
-        hint: 'We will use this name for the project directory and in the code.',
-        placeholder: 'E.g. my_site',
-        required: TRUE,
-        default: $this->default($n, Converter::machineExtended($r[Name::id()])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), MachineName::id())
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏢 Organization name'),
-        hint: 'We will use this name in the project and in the documentation.',
-        placeholder: 'E.g. My Org',
-        required: TRUE,
-        default: $this->default('org', Converter::label($r[Name::id()]) . ' Org'),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid organization name.' : NULL,
-      ), Org::id())
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🏢 Organization machine name'),
-        hint: 'We will use this name for the project directory and in the code.',
-        placeholder: 'E.g. my_org',
-        required: TRUE,
-        default: $this->default($n, Converter::machineExtended($r[Org::id()])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), OrgMachineName::id())
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🌐 Public domain'),
-        hint: 'Domain name without protocol and trailing slash.',
-        placeholder: 'E.g. example.com',
-        required: TRUE,
-        default: $this->default($n, Converter::kebab($r[MachineName::id()]) . '.com'),
-        transform: fn(string $v): string => Converter::domain($v),
-        validate: fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.',
-      ), Domain::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class)), Name::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, NULL, $r)), Org::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
 
       ->intro('Code repository')
-
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🗄️ Repository provider'),
-        hint: 'Vortex offers full automation with GitHub, while support for other providers is limited.',
-        options: [
-          CodeProvider::GITHUB => 'GitHub',
-          CodeProvider::OTHER => 'Other',
-        ],
-        default: $this->default($n, 'github'),
-      ), CodeProvider::id())
-
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
       ->addIf(
-          fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
-          fn($r, $pr, $n) => Tui::note("<info>We need a token to create repositories and manage webhooks.\nIt won't be saved anywhere in the file system.\nYou may skip entering the token, but then Vortex will have to skip several operations.</info>"),
+          fn($r): bool => $this->handlers[GithubToken::id()]->shouldRun($r),
+          fn($r, $pr, $n) => Tui::note('<info>' . GithubToken::description($r) . '</info>')
         )
-
       ->addIf(
-          fn($r): bool => $r[CodeProvider::id()] === CodeProvider::GITHUB,
+          fn($r): bool => $this->handlers[GithubToken::id()]->shouldRun($r),
           function ($r, $pr, $n): string {
-            $value = $this->default($n);
-            if (!empty($value)) {
-              Tui::ok($this->label('GitHub access token is already set in the environment.', 'a'));
-
-              return $value;
+            $handler = $this->handlers[GithubToken::id()];
+            $resolved_value = $handler->resolvedValue($r);
+            if (!empty($resolved_value)) {
+              Tui::ok($this->label((string) $handler->resolvedMessage($r), 'a'));
+              return is_string($resolved_value) ? $resolved_value : '';
             }
-
-            return password(
-              label: $this->label('🔑 GitHub access token (optional)', 'a'),
-              hint: Env::get('GITHUB_TOKEN') ? 'Read from GITHUB_TOKEN environment variable.' : 'Create a new token with "repo" scopes at https://github.com/settings/tokens/new',
-              placeholder: 'E.g. ghp_1234567890',
-              transform: fn(string $v): string => trim($v),
-              validate: fn($v): ?string => !empty($v) && !str_starts_with($v, 'ghp_') ? 'Please enter a valid token starting with "ghp_"' : NULL,
-            );
-          }, GithubToken::id())
-
+            else {
+              return password(...$this->args(GithubToken::class));
+            }
+          },
+          GithubToken::id()
+        )
         ->addIf(
-            fn($r): bool => !empty($r[GithubToken::id()]),
-            fn($r, $pr, $n): string => text(
-              label: $this->label('🏷️ What is your GitHub project name?', 'b'),
-              hint: 'We will use this name to create new or find an existing repository.',
-              placeholder: 'E.g. myorg/myproject',
-              default: $this->default($n, $r[OrgMachineName::id()] . '/' . $r[MachineName::id()]),
-              transform: fn(string $v): string => trim($v),
-              validate: fn(string $v): ?string => !empty($v) && !Validator::githubProject($v) ? 'Please enter a valid project name in the format "myorg/myproject"' : NULL,
-            ), GithubRepo::id())
+            fn($r): bool => $this->handlers[GithubRepo::id()]->shouldRun($r),
+            fn($r, $pr, $n): string => text(...$this->args(GithubRepo::class, NULL, $r)),
+            GithubRepo::id()
+          )
 
       ->intro('Drupal')
-
-      ->add(function ($r, $pr, $n): int|string {
-          $profile = select(
-            label: $this->label('🧾 Profile'),
-            hint: 'Select which profile to use',
-            options: [
-              Profile::STANDARD => 'Standard',
-              Profile::MINIMAL => 'Minimal',
-              Profile::DEMO_UMAMI => 'Demo Umami',
-              Profile::CUSTOM => 'Custom',
-            ],
-            required: TRUE,
-            default: empty($this->default($n)) ? Profile::STANDARD : Profile::CUSTOM,
-          );
-
-        if ($profile === Profile::CUSTOM) {
-          $profile = text(
-            label: $this->label('🧾 Custom profile machine name', 'a'),
-            placeholder: 'E.g. my_profile',
-            required: TRUE,
-            default: $this->default($n),
-            transform: fn(string $v): string => trim($v),
-            validate: fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-          );
-        }
-
-          return $profile;
-      }, Profile::id())
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🧩 Module prefix'),
-        hint: 'We will use this name for custom modules.',
-        placeholder: 'E.g. ms (for My Site)',
-        required: TRUE,
-        default: $this->default($n, Converter::abbreviation(Converter::machine($r[MachineName::id()]), 4, ['_'])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), ModulePrefix::id())
-
-      ->add(fn($r, $pr, $n): string => text(
-        label: $this->label('🎨 Theme machine name'),
-        hint: 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.',
-        placeholder: 'E.g. mytheme',
-        default: $this->default($n, Converter::machine($r[MachineName::id()])),
-        transform: fn(string $v): string => trim($v),
-        validate: fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL,
-      ), Theme::id())
+      ->add(
+          fn($r, $pr, $n): int|string => select(...$this->args(Profile::class)),
+          Profile::id()
+        )
+        ->addIf(
+            fn($r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
+            fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class)),
+            ProfileCustom::id()
+          )
+      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
+      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, NULL, $r)), Theme::id())
 
       ->intro('Services')
-
-      ->add(fn($r, $pr, $n): array => multiselect(
-        label: $this->label('🔌 Services'),
-        hint: 'Select the services you want to use in the project.',
-        options: [
-          Services::CLAMAV => '🦠 ClamAV',
-          Services::SOLR => '🔍 Solr',
-          Services::VALKEY => '🗃️ Valkey',
-        ],
-        default: $this->default($n, [Services::CLAMAV, Services::SOLR, Services::VALKEY]),
-      ), Services::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class)), Services::id())
 
       ->intro('Hosting')
-
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('☁️ Hosting provider'),
-        hint: 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.',
-        options: [
-          HostingProvider::ACQUIA => '💧 Acquia Cloud',
-          HostingProvider::LAGOON => '🌊 Lagoon',
-          HostingProvider::OTHER => '🧩 Other',
-          HostingProvider::NONE => '🚫 None',
-        ],
-        required: TRUE,
-        default: $this->default($n, 'none'),
-      ), HostingProvider::id())
-
-      ->add(function (array $r, $pr, $n): string|bool|array {
-        if ($r[HostingProvider::id()] !== HostingProvider::OTHER) {
-          $webroot = match ($r[HostingProvider::id()]) {
-            HostingProvider::ACQUIA => Webroot::DOCROOT,
-            HostingProvider::LAGOON => Webroot::WEB,
-            default => $this->default($n, Webroot::WEB)
-          };
-
-            info(sprintf('Web root will be set to "%s".', $webroot));
-        }
-        else {
-          $webroot = text(
-            label: $this->label('📁 Custom web root directory', 'a'),
-            hint: 'Custom directory where the web server serves the site.',
-            placeholder: 'E.g. ' . implode(', ', [Webroot::WEB, Webroot::DOCROOT]),
-            required: TRUE,
-            default: $this->default($n, Webroot::WEB),
-            transform: fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR),
-            validate: fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
-          );
-        }
-          return $webroot;
-      }, Webroot::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
+      ->add(
+          function (array $r, $pr, $n): string {
+            $handler = $this->handlers[Webroot::id()];
+            $resolved = $handler->resolvedValue($r);
+            if (!is_null($resolved)) {
+              info($handler->resolvedMessage($r));
+              return match (TRUE) {
+                is_string($resolved) => $resolved,
+                is_array($resolved) => json_encode($resolved) ?: 'array',
+                default => 'true',
+              };
+            }
+            else {
+              return text(...$this->args(Webroot::class, NULL, $r));
+            }
+          },
+          Webroot::id()
+        )
 
       ->intro('Deployment')
-
-      ->add(function (array $r, $pr, $n): array {
-          $defaults = [];
-
-          $options = [
-            DeployType::ARTIFACT => '📦 Code artifact',
-            DeployType::LAGOON => '🌊 Lagoon webhook',
-            DeployType::CONTAINER_IMAGE => '🐳 Container image',
-            DeployType::WEBHOOK => '🌐 Custom webhook',
-          ];
-
-          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-            $defaults[] = DeployType::LAGOON;
-          }
-
-          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-            $defaults[] = DeployType::ARTIFACT;
-            unset($options[DeployType::LAGOON]);
-          }
-
-          if (empty($defaults)) {
-            $defaults[] = DeployType::WEBHOOK;
-          }
-
-          return multiselect(
-            label: $this->label('🚚 Deployment types'),
-            hint: 'You can deploy code using one or more methods.',
-            options: $options,
-            default: $this->default($n, $defaults),
-          );
-      }, DeployType::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, NULL, $r)), DeployType::id())
 
       ->intro('Workflow')
-
       ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
-
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🦋 Provision type'),
-        hint: 'Selecting "Profile" will install site from a profile rather than a database dump.',
-        options: [
-          ProvisionType::DATABASE => 'Import from database dump',
-          ProvisionType::PROFILE => 'Install from profile',
-        ],
-        default: $this->default($n, ProvisionType::DATABASE),
-      ), ProvisionType::id())
-
-      ->add(function (array $r, $pr, $n): int|string {
-          if ($r[ProvisionType::id()] === ProvisionType::PROFILE) {
-            return DatabaseDownloadSource::NONE;
-          }
-
-          $options = [
-            DatabaseDownloadSource::URL => '🌍 URL download',
-            DatabaseDownloadSource::FTP => '📂 FTP download',
-            DatabaseDownloadSource::ACQUIA => '💧 Acquia backup',
-            DatabaseDownloadSource::LAGOON => '🌊 Lagoon environment',
-            DatabaseDownloadSource::CONTAINER_REGISTRY => '🐳 Container registry',
-            DatabaseDownloadSource::NONE => '🚫 None',
-          ];
-
-          if ($r[HostingProvider::id()] === HostingProvider::ACQUIA) {
-            unset($options[DatabaseDownloadSource::LAGOON]);
-          }
-
-          if ($r[HostingProvider::id()] === HostingProvider::LAGOON) {
-            unset($options[DatabaseDownloadSource::ACQUIA]);
-          }
-
-          return select(
-            label: $this->label('📡 Database source', 'a'),
-            hint: 'The database can be downloaded as an exported dump file or pre-packaged in a container image.',
-            options: $options,
-            default: $this->default($n, match ($r[HostingProvider::id()]) {
-              HostingProvider::ACQUIA => DatabaseDownloadSource::ACQUIA,
-              HostingProvider::LAGOON => DatabaseDownloadSource::LAGOON,
-              default => DatabaseDownloadSource::URL,
-            }),
-          );
-      }, DatabaseDownloadSource::id())
-
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class)), ProvisionType::id())
       ->addIf(
-          fn($r): bool => $r[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY,
-          fn($r, $pr, $n): string => text(
-            label: $this->label('🏷️ What is your database container image name and a tag?', 'a'),
-            hint: 'Use "latest" tag for the latest version. CI will be building this image overnight.',
-            placeholder: sprintf('E.g. %s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()])),
-            default: $this->default($n, sprintf('%s/%s-data:latest', Converter::phpNamespace($r[OrgMachineName::id()]), Converter::phpNamespace($r[MachineName::id()]))),
-            transform: fn($v): string => trim($v),
-            validate: fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.',
-        ), DatabaseImage::id())
+          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
+          fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, NULL, $r)),
+          DatabaseDownloadSource::id()
+        )
+        ->addIf(
+            fn($r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
+            function ($r, $pr, $n): string {
+              $handler = $this->handlers[DatabaseImage::id()];
+              $args = $this->args(DatabaseImage::class, NULL, $r);
+              $args['placeholder'] = $handler->placeholder($r);
+              return text(...$args);
+            },
+            DatabaseImage::id()
+          )
 
       ->intro('Continuous Integration')
-
-      ->add(function (array $r, $pr, $n): int|string {
-          $options = [
-            CiProvider::NONE => 'None',
-            CiProvider::GITHUB_ACTIONS => 'GitHub Actions',
-            CiProvider::CIRCLECI => 'CircleCI',
-          ];
-
-          if ($r[CodeProvider::id()] !== CodeProvider::GITHUB) {
-            unset($options[CiProvider::GITHUB_ACTIONS]);
-          }
-
-          return select(
-            label: $this->label('🔄 Continuous Integration provider'),
-            hint: 'Both providers support equivalent workflow.',
-            options: $options,
-            default: $this->default($n, CiProvider::GITHUB_ACTIONS),
-          );
-      }, CiProvider::id())
+      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, NULL, $r)), CiProvider::id())
 
       ->intro('Automations')
-
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('⬆️ Dependency updates provider'),
-        hint: 'Use a self-hosted service if you can’t install a GitHub app.',
-        options: [
-          DependencyUpdatesProvider::RENOVATEBOT_CI  => '🤖 +  🔄 Renovate self-hosted in CI',
-          DependencyUpdatesProvider::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
-          DependencyUpdatesProvider::NONE => '🚫 None',
-        ],
-        default: $this->default($n, DependencyUpdatesProvider::RENOVATEBOT_CI),
-      ), DependencyUpdatesProvider::id())
-
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('👤 Auto-assign the author to their PR?'),
-        hint: 'Helps to keep the PRs organized.',
-        default: $this->default($n, TRUE),
-      ), AssignAuthorPr::id())
-
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('🎫 Auto-add a <info>CONFLICT</info> label to a PR when conflicts occur?'),
-        hint: 'Helps to keep quickly identify PRs that need attention.',
-        default: $this->default($n, TRUE),
-      ), LabelMergeConflictsPr::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(DependencyUpdatesProvider::class)), DependencyUpdatesProvider::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(AssignAuthorPr::class)), AssignAuthorPr::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(LabelMergeConflictsPr::class)), LabelMergeConflictsPr::id())
 
       ->intro('Documentation')
-
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('📚 Preserve project documentation?'),
-        hint: 'Helps to maintain the project documentation within the repository.',
-        default: $this->default($n, TRUE),
-      ), PreserveDocsProject::id())
-
-      ->add(fn($r, $pr, $n): bool => confirm(
-        label: $this->label('📋 Preserve onboarding checklist?'),
-        hint: 'Helps to track onboarding to Vortex within the repository.',
-        default: $this->default($n, TRUE),
-      ), PreserveDocsOnboarding::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class)), PreserveDocsProject::id())
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsOnboarding::class)), PreserveDocsOnboarding::id())
 
       ->intro('AI')
-
-      ->add(fn($r, $pr, $n): int|string => select(
-        label: $this->label('🤖 AI code assistant instructions'),
-        hint: 'Helps AI coding assistants to understand the project better.',
-        options: [
-          AiCodeInstructions::CLAUDE  => 'Anthropic Claude',
-          AiCodeInstructions::NONE => 'None',
-        ],
-        default: $this->default($n, AiCodeInstructions::NONE),
-      ), AiCodeInstructions::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id())
 
       ->submit();
 
@@ -488,6 +234,19 @@ class PromptManager {
       return !is_numeric($key);
     }, ARRAY_FILTER_USE_KEY);
 
+    // Handle Profile custom name merging.
+    if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
+      $responses[Profile::id()] = $responses[ProfileCustom::id()];
+    }
+
+    // Always remove ProfileCustom key (it's only used for internal merging)
+    unset($responses[ProfileCustom::id()]);
+
+    // Handle DatabaseDownloadSource when ProvisionType is PROFILE.
+    if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
+      $responses[DatabaseDownloadSource::id()] = DatabaseDownloadSource::NONE;
+    }
+
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity($original_verbosity);
     }
@@ -497,6 +256,12 @@ class PromptManager {
 
   /**
    * Get all received responses.
+   *
+   * Used to provide direct access to the responses values.
+   *
+   * @return array
+   *   An associative array of responses, where keys are handler IDs and values
+   *   are the responses provided by the user or discovered by handlers.
    */
   public function getResponses(): array {
     return $this->responses;
@@ -505,9 +270,9 @@ class PromptManager {
   /**
    * Run all processors.
    */
-  public function process(): void {
+  public function runProcessors(): void {
     // Run processors in the reverse order of how they are defined in the
-    // PromptManager to ensure that the handlers for string replacements process
+    // runPrompts() to ensure that the handlers for string replacements process
     // more specific values first, and the more generic ones last.
     $ids = [
       Webroot::id(),
@@ -525,7 +290,9 @@ class PromptManager {
       HostingProvider::id(),
       Services::id(),
       GithubRepo::id(),
+      GithubToken::id(),
       CodeProvider::id(),
+      ProfileCustom::id(),
       Profile::id(),
       Domain::id(),
       ModulePrefix::id(),
@@ -547,6 +314,15 @@ class PromptManager {
     }
   }
 
+  /**
+   * Check if the installation should proceed.
+   *
+   * This method checks the configuration for the no-interaction mode and
+   * prompts the user for confirmation if not in no-interaction mode.
+   *
+   * @return bool
+   *   TRUE if the installation should proceed, FALSE otherwise.
+   */
   public function shouldProceed(): bool {
     $proceed = TRUE;
 
@@ -557,7 +333,7 @@ class PromptManager {
       );
     }
 
-    // Kill-switch to not proceed with install. If false, the installer will not
+    // Kill-switch to not proceed with install. If FALSE, the installer will not
     // proceed despite the answer received above.
     if (!$this->config->get(Config::PROCEED)) {
       $proceed = FALSE;
@@ -566,12 +342,8 @@ class PromptManager {
     return $proceed;
   }
 
-  public static function makeEnvName(string $id): string {
-    return Converter::constant('VORTEX_INSTALL_PROMPT_' . $id);
-  }
-
   public function getResponsesSummary(): array {
-    $responses = $this->getResponses();
+    $responses = $this->responses;
 
     $values['General information'] = Tui::LIST_SECTION_TITLE;
     $values['🏷️ Site name'] = $responses[Name::id()];
@@ -642,6 +414,19 @@ class PromptManager {
   }
 
   /**
+   * Generate an environment variable name for a prompt.
+   *
+   * @param string $id
+   *   The prompt ID.
+   *
+   * @return string
+   *   The environment variable name.
+   */
+  public static function makeEnvName(string $id): string {
+    return Converter::constant('VORTEX_INSTALL_PROMPT_' . $id);
+  }
+
+  /**
    * Generate a label for a prompt.
    *
    * @param string $text
@@ -654,37 +439,12 @@ class PromptManager {
    */
   protected function label(string $text, ?string $suffix = NULL): string {
     if (is_null($suffix)) {
-      $this->currentResponse++;
+      $this->currentResponseIndex++;
     }
 
-    $suffix = $suffix !== NULL ? $this->currentResponse . '.' . $suffix : $this->currentResponse;
+    $suffix = $suffix !== NULL ? $this->currentResponseIndex . '.' . $suffix : $this->currentResponseIndex;
 
-    return $text . ' ' . Tui::dim('(' . $suffix . '/' . $this->totalResponses . ')');
-  }
-
-  /**
-   * Get a default value for a response.
-   *
-   * @param string $id
-   *   The response name.
-   * @param string $default
-   *   The default value to return.
-   */
-  protected function default(string $id, string|bool|array $default = ''): mixed {
-    // Allow to set the value from the environment variable.
-    $env_var = static::makeEnvName($id);
-    $env_val = getenv($env_var);
-    if (is_string($env_val)) {
-      return Env::toValue($env_val);
-    }
-
-    if (!array_key_exists($id, $this->handlers)) {
-      return $default;
-    }
-
-    $discovered = $this->handlers[$id]->discover();
-
-    return is_null($discovered) ? $default : $discovered;
+    return $text . ' ' . Tui::dim('(' . $suffix . '/' . static::TOTAL_RESPONSES . ')');
   }
 
   /**
@@ -714,11 +474,11 @@ class PromptManager {
       $classes[] = $class;
     }
 
-    // Discover webroot and set for all handlers to help with paths resolution.
+    // Discover web root and set for all handlers to help with paths resolution.
     $webroot = (new Webroot($this->config))->discover() ?: Webroot::WEB;
 
     if (!is_string($webroot)) {
-      throw new \RuntimeException('Webroot could not be discovered.');
+      throw new \RuntimeException('Web root could not be discovered.');
     }
 
     foreach ($classes as $class) {
@@ -726,6 +486,77 @@ class PromptManager {
       $handler->setWebroot($webroot);
       $this->handlers[$handler::id()] = $handler;
     }
+  }
+
+  /**
+   * Convert handler properties to Laravel prompts.
+   *
+   * Do not optimize this method to ease debugging and future changes.
+   *
+   * @param string $handler_class
+   *   The handler class name.
+   *   The handler id.
+   * @param mixed $default_override
+   *   Optional override for the default value (for response dependencies).
+   * @param array $responses
+   *   Current form responses for context-aware methods.
+   *
+   * @return array
+   *   Array of prompt arguments suitable for Laravel prompts.
+   */
+  private function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
+    $id = $handler_class::id();
+
+    if (!array_key_exists($id, $this->handlers)) {
+      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
+    }
+
+    $handler = $this->handlers[$handler_class::id()];
+
+    $args = [
+      'label' => $this->label($handler->label()),
+      'hint' => $handler->hint($responses),
+      'placeholder' => $handler->placeholder($responses),
+      'transform' => $handler->transform(),
+      'validate' => $handler->validate(),
+    ];
+
+    if ($handler->isRequired()) {
+      $args['required'] = TRUE;
+    }
+
+    $options = $handler->options($responses);
+    if (is_array($options) && $options !== []) {
+      $args['options'] = $options;
+    }
+
+    // Find appropriate default value.
+    $default_from_handler = $handler->default($responses);
+
+    $env_var = static::makeEnvName($id);
+    $env_val = Env::get($env_var);
+    $default_from_env = is_null($env_val) ? NULL : Env::toValue($env_val);
+
+    $default_from_discovery = $this->handlers[$id]->discover();
+
+    if (!is_null($default_from_env)) {
+      $default = $default_from_env;
+    }
+    elseif (!is_null($default_from_discovery)) {
+      $default = $default_from_discovery;
+    }
+    elseif (!is_null($default_override)) {
+      $default = $default_override;
+    }
+    else {
+      $default = $default_from_handler;
+    }
+
+    if (!is_null($default) && $default !== '') {
+      $args['default'] = $default;
+    }
+
+    return array_filter($args, fn($value): bool => $value !== NULL);
   }
 
 }

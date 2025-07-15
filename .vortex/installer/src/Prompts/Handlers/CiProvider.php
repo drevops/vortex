@@ -17,6 +17,44 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '🔄 Continuous Integration provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Both providers support equivalent workflow.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::NONE => 'None',
+      self::GITHUB_ACTIONS => 'GitHub Actions',
+      self::CIRCLECI => 'CircleCI',
+    ];
+
+    if (isset($responses[CodeProvider::id()]) && $responses[CodeProvider::id()] !== CodeProvider::GITHUB) {
+      unset($options[self::GITHUB_ACTIONS]);
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return self::GITHUB_ACTIONS;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     if (!$this->isInstalled()) {
       return NULL;
