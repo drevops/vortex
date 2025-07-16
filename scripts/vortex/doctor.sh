@@ -215,6 +215,22 @@ main() {
   echo
 }
 
+#
+# Sanitize system information output to remove PII data.
+#
+sanitize_system_info() {
+  local username
+  username="$(whoami)"
+
+  sed \
+    -e "s|/Users/${username}/|/Users/[USERNAME_REDACTED]/|g" \
+    -e "s|/home/${username}/|/home/[USERNAME_REDACTED]/|g" \
+    -e "s|${username}|[USERNAME_REDACTED]|g" \
+    -e 's|ID: [a-f0-9-]\{36\}|ID: [REDACTED]|g' \
+    -e 's|[a-f0-9]\{40,\}|[HASH_REDACTED]|g' \
+    -e 's|[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}|[IP_REDACTED]|g'
+}
+
 system_info() {
   echo "System information report"
   echo
@@ -228,28 +244,32 @@ system_info() {
   echo
 
   echo "DOCKER"
-  echo "Path to binary: $(which docker)"
+  echo "Path to binary: $(which docker | sanitize_system_info)"
   docker -v
-  docker info
+  docker info 2>/dev/null | sanitize_system_info || echo "Docker is not running or not installed."
   echo
 
   echo "DOCKER COMPOSE V2"
-  docker compose version || true
+  echo -n "Version: "
+  docker compose version 2>/dev/null || echo "Docker Compose V2 is not installed."
   echo
 
   echo "DOCKER-COMPOSE V1"
-  echo "Path to binary: $(which docker-compose)"
-  docker-compose version || true
+  echo "Path to binary: $(which docker-compose | sanitize_system_info)"
+  echo -n "Version: "
+  docker-compose version 2>/dev/null || echo "Docker Compose V1 is not installed."
   echo
 
   echo "PYGMY"
-  echo "Path to binary: $(which pygmy)"
-  pygmy version
+  echo "Path to binary: $(which pygmy | sanitize_system_info)"
+  echo -n "Version: "
+  pygmy version 2>/dev/null || echo "Pygmy is not installed."
   echo
 
   echo "AHOY"
-  echo "Path to binary: $(which ahoy)"
-  ahoy --version
+  echo "Path to binary: $(which ahoy | sanitize_system_info)"
+  echo -n "Version: "
+  ahoy --version 2>/dev/null || echo "Ahoy is not installed."
   echo
 }
 
