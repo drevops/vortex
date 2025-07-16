@@ -1405,7 +1405,7 @@ download_installer() {
 
 
 
-  composer install --no-progress --no-suggest > /dev/null 2>&1
+  composer install --no-progress > /dev/null 2>&1
   composer build > /dev/null 2>&1
 
   cp .build/installer "install.php" > /dev/null
