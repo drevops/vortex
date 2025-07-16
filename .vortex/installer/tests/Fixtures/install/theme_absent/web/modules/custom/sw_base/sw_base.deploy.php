@@ -1,7 +1,7 @@
-@@ -8,14 +8,3 @@
-  */
+@@ -44,14 +44,3 @@
  
- declare(strict_types=1);
+   return 'Counter block placed in the "content" region';
+ }
 -
 -/**
 - * Installs custom theme.

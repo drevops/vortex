@@ -1,11 +1,17 @@
-@@ -153,27 +153,9 @@
-       ahoy confirm "All containers and build files will be removed. Proceed?" &&
-       AHOY_CONFIRM_RESPONSE=y ahoy down && ./scripts/vortex/reset.sh "$@"
+@@ -20,7 +20,6 @@
+       ahoy up --build --force-recreate    # Start the stack.
+       ahoy composer install               # Install Composer dependencies.
+       ahoy fei                            # Install front-end dependencies.
+-      ahoy fe                             # Build front-end assets.
+       ahoy provision                      # Provision the site.
+       VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
--  fei:
--    usage: Install front-end assets.
--    cmd: ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install"
--
+@@ -157,25 +156,10 @@
+     usage: Install front-end assets.
+     cmd: |
+       ahoy cli "yarn install --frozen-lockfile"
+-      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lock"
+ 
 -  fe:
 -    usage: Build front-end assets.
 -    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
@@ -27,20 +33,15 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -183,12 +165,6 @@
-       ahoy cli vendor/bin/rector --clear-cache --dry-run
-       ahoy cli vendor/bin/phpmd . text phpmd.xml
- 
--  lint-fe:
--    usage: Lint front-end code.
--    cmd: |
--      ahoy cli vendor/bin/twig-cs-fixer lint
+@@ -190,7 +174,6 @@
+     cmd: |
+       ahoy cli vendor/bin/twig-cs-fixer lint
+       ahoy cli "yarn run lint"
 -      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
--
+ 
    lint-tests:
      usage: Lint tests code.
-     cmd: |
-@@ -196,7 +172,7 @@
+@@ -199,7 +182,7 @@
  
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
@@ -49,15 +50,10 @@
  
    lint-be-fix:
      usage: Fix lint issues of back-end code.
-@@ -203,12 +179,6 @@
+@@ -212,7 +195,6 @@
      cmd: |
-       ahoy cli vendor/bin/rector --clear-cache
-       ahoy cli vendor/bin/phpcbf
--
--  lint-fe-fix:
--    usage: Fix lint issues of front-end code.
--    cmd: |
--      ahoy cli vendor/bin/twig-cs-fixer lint --fix
+       ahoy cli vendor/bin/twig-cs-fixer lint --fix
+       ahoy cli "yarn run lint-fix"
 -      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
    test:

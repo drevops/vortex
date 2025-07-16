@@ -29,7 +29,9 @@ drush/contrib/
 !.docker/scripts
 !.env
 !.eslintrc.json
+!.eslintignore
 !.sass-lint.yml
+!.stylelintrc.js
 !.twig-cs-fixer.php
 !gherkinlint.json
 !Gruntfile.js

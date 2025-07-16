@@ -1,0 +1,9 @@
+counter:
+  version: 1.x
+  css:
+    theme:
+      css/ys_base.css: {}
+  js:
+    js/ys_base.js: {}
+  dependencies:
+    - core/drupal

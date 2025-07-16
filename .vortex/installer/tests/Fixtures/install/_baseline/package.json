@@ -1,0 +1,27 @@
+{
+  "name": "star_wars",
+  "description": "Drupal 11 implementation of star wars for star wars Org",
+  "license": "proprietary",
+  "private": true,
+  "engines": {
+    "yarn": ">= 1.22.22",
+    "node": ">= 20.0"
+  },
+  "scripts": {
+    "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0",
+    "lint-css": "stylelint \"web/modules/custom/**/*.css\"",
+    "lint": "npm run lint-js && npm run lint-css",
+    "lint-fix-js": "eslint web/modules/custom --ext .js --fix",
+    "lint-fix-css": "stylelint \"web/modules/custom/**/*.css\" --fix",
+    "lint-fix": "npm run lint-fix-js && npm run lint-fix-css"
+  },
+  "devDependencies": {
+    "eslint": "__VERSION__",
+    "eslint-config-airbnb-base": "__VERSION__",
+    "eslint-plugin-import": "__VERSION__",
+    "eslint-plugin-yml": "__VERSION__",
+    "stylelint": "__VERSION__",
+    "stylelint-config-standard": "__VERSION__",
+    "stylelint-order": "__VERSION__"
+  }
+}
