@@ -133,8 +133,17 @@ class Downloader {
     $path = ltrim($path, '/');
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
+
+    $headers = ['User-Agent: PHP'];
+
+    // Add GitHub token authentication if available.
+    $github_token = Env::get('GITHUB_TOKEN');
+    if ($github_token) {
+      $headers[] = sprintf('Authorization: Bearer %s', $github_token);
+    }
+
     $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
-      'http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']],
+      'http' => ['method' => 'GET', 'header' => $headers],
     ]));
 
     if (!$release_contents) {

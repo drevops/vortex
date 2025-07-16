@@ -55,11 +55,12 @@ setup() {
   ## Phase 2: Pre-flight checks.
   ##
 
-  # Set test secrets.
-  # For local test development, export these variables in your shell.
-  export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
-  export TEST_VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER:-}"
-  export TEST_VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS:-}"
+  # Override real secrets with test secrets.
+  # For the development of the tests locally, export `TEST_` variables in your
+  # shell before running the tests.
+  export GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
+  export VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER:-}"
+  export VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS:-}"
 
   # The installer reference to use for tests.
   export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-main}"
@@ -118,10 +119,6 @@ setup() {
   unset VORTEX_DB_DOWNLOAD_SOURCE
   unset VORTEX_DB_IMAGE
   unset VORTEX_DB_DOWNLOAD_FORCE
-  # Tokens required for tests are set explicitly within each tests with a TEST_ prefix.
-  unset GITHUB_TOKEN
-  unset VORTEX_CONTAINER_REGISTRY_USER
-  unset VORTEX_CONTAINER_REGISTRY_PASS
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
