@@ -14,8 +14,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -60,8 +58,6 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(DependencyUpdatesProvider::class)]
 #[CoversClass(DeployType::class)]
 #[CoversClass(Domain::class)]
-#[CoversClass(GithubRepo::class)]
-#[CoversClass(GithubToken::class)]
 #[CoversClass(HostingProvider::class)]
 #[CoversClass(Internal::class)]
 #[CoversClass(LabelMergeConflictsPr::class)]
