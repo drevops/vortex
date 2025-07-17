@@ -142,8 +142,6 @@ class Theme extends AbstractHandler {
 
         File::removeLine($t . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
         File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
-
-        return;
       }
     }
 
