@@ -843,6 +843,10 @@ YAML
         },
       ],
 
+      'ci provider - prompt' => [
+        [CiProvider::id() => Key::ENTER],
+        [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_defaults,
+      ],
       'ci provider - discovery - gha' => [
         [],
         [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_installed,
@@ -864,6 +868,13 @@ YAML
         [CiProvider::id() => CiProvider::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
+        },
+      ],
+      'ci provider - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No CI files and not installed - should fall back to default
         },
       ],
 
