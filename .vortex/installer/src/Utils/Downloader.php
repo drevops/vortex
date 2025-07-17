@@ -74,6 +74,11 @@ class Downloader {
     $version = $ref;
     if ($ref === Downloader::REF_STABLE) {
       $ref = $this->discoverLatestReleaseRemote($repo_url);
+
+      if ($ref === NULL) {
+        throw new \RuntimeException(sprintf('Unable to discover the latest release for "%s".', $repo_url));
+      }
+
       $version = $ref;
     }
     elseif ($ref === Downloader::REF_HEAD) {
@@ -99,6 +104,7 @@ class Downloader {
     if ($destination === NULL) {
       throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
     }
+
     // Local download does not support version discovery.
     $ref = $ref === Downloader::REF_STABLE ? Downloader::REF_HEAD : $ref;
     $version = $ref;
@@ -152,13 +158,11 @@ class Downloader {
 
     $records = json_decode($release_contents, TRUE);
 
-    if (!$release_prefix) {
-      return is_scalar($records[0]['tag_name']) ? strval($records[0]['tag_name']) : NULL;
-    }
-
     foreach ($records as $record) {
       $tag_name = is_scalar($record['tag_name']) ? strval($record['tag_name']) : '';
-      if (str_contains($tag_name, $release_prefix)) {
+      $is_draft = $record['draft'] ?? FALSE;
+
+      if (!$is_draft && (!$release_prefix || str_starts_with($tag_name, $release_prefix))) {
         return $tag_name;
       }
     }
