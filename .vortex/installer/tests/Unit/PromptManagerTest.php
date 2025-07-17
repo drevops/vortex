@@ -764,6 +764,10 @@ YAML
         },
       ],
 
+      'provision type - prompt' => [
+        [ProvisionType::id() => Key::ENTER],
+        [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
+      ],
       'provision type - discovery - database' => [
         [],
         [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
@@ -776,6 +780,32 @@ YAML
         [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
+        },
+      ],
+      'provision type - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No VORTEX_PROVISION_TYPE in .env - should fall back to default
+        },
+      ],
+
+      'database download source - prompt' => [
+        [DatabaseDownloadSource::id() => Key::ENTER],
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::URL] + $expected_defaults,
+      ],
+      'database download source - discovery' => [
+        [],
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::FTP] + $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::FTP);
+        },
+      ],
+      'database download source - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', 'invalid_source');
         },
       ],
 

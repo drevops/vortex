@@ -24,8 +24,8 @@ Each prompt type should have these 4 test case categories:
 ✅ **HostingProvider** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ✅ **Webroot** - Complete (6 test cases) - All 4 categories covered
 ✅ **DeployType** - Complete (3 test cases) - All 4 categories covered (no invalid prompt validation needed)
-⚠️ **ProvisionType** - Partial (2 test cases) - Missing: prompt, invalid prompt, invalid discovery
-❌ **DatabaseDownloadSource** - No test cases - Missing: all 4 categories
+✅ **ProvisionType** - Complete (4 test cases) - All 4 categories covered
+✅ **DatabaseDownloadSource** - Complete (3 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ⚠️ **DatabaseImage** - Nearly complete (4 test cases) - Missing: invalid discovery
 ⚠️ **CiProvider** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
 ⚠️ **DependencyUpdatesProvider** - Partial (4 test cases) - Missing: prompt, invalid prompt, invalid discovery
