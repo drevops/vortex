@@ -168,6 +168,7 @@ class PromptManagerTest extends UnitTestCase {
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
       PreserveDocsOnboarding::id() => static::TUI_DEFAULT,
+      AiCodeInstructions::id() => static::TUI_DEFAULT,
     ];
   }
 
@@ -209,8 +210,19 @@ class PromptManagerTest extends UnitTestCase {
       PreserveDocsOnboarding::id() => FALSE,
     ] + $expected_defaults;
 
-    // Expected values for a custom project. Used for testing discovery.
-    $expected_custom = [
+    // Expected values for responses entered via a prompt.
+    $expected_prompted = [
+      Name::id() => 'Prompted project',
+      MachineName::id() => 'prompted_project',
+      Org::id() => 'Prompted project Org',
+      OrgMachineName::id() => 'prompted_project_org',
+      Domain::id() => 'prompted-project.com',
+      ModulePrefix::id() => 'pp',
+      Theme::id() => 'prompted_project',
+    ] + $expected_defaults;
+
+    // Expected values for a responses discovered from the env.
+    $expected_discovered = [
       Name::id() => 'Discovered project',
       MachineName::id() => 'discovered_project',
       Org::id() => 'Discovered project Org',
@@ -226,16 +238,42 @@ class PromptManagerTest extends UnitTestCase {
         $expected_defaults,
       ],
 
-      'project name - discovery' => [
+      'project name - prompt' => [
+        [Name::id() => 'Prompted project'],
+        $expected_prompted,
+      ],
+      'project name - prompt - invalid' => [
+        [Name::id() => 'a_word'],
+        'Please enter a valid project name.',
+      ],
+      'project name - discovery - dotenv' => [
         [],
-        $expected_custom,
+        $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('VORTEX_PROJECT', 'discovered_project');
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
+        },
+      ],
+      'project name - discovery - description' => [
+        [],
+        $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
-      'invalid project name' => [
-        [Name::id() => 'a_word'],
-        'Please enter a valid project name.',
+      'project name - discovery - description short' => [
+        [],
+        $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project.');
+        },
+      ],
+      'project name - discovery - description unmatched' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Some other description');
+        },
       ],
 
       'project machine name - discovery' => [
@@ -244,7 +282,7 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
@@ -255,7 +293,7 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered-project',
           Org::id() => 'myproject Org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
         },
@@ -267,7 +305,7 @@ class PromptManagerTest extends UnitTestCase {
 
       'org name - discovery' => [
         [],
-        $expected_custom,
+        $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
@@ -283,7 +321,7 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
@@ -295,7 +333,7 @@ class PromptManagerTest extends UnitTestCase {
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
           OrgMachineName::id() => 'discovered-project-org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
@@ -391,11 +429,25 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/web/modules/custom/dp_base/dp_base.info');
         },
       ],
+      'module prefix - discovery - core' => [
+        [],
+        [ModulePrefix::id() => 'dp'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/web/modules/custom/dp_core/dp_core.info');
+        },
+      ],
       'module prefix - discovery - within profile' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
+        },
+      ],
+      'module prefix - discovery - within profile - core' => [
+        [],
+        [ModulePrefix::id() => 'dp'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
         },
       ],
       'module prefix' => [
@@ -409,6 +461,13 @@ class PromptManagerTest extends UnitTestCase {
       'module prefix - invalid - capitalization' => [
         [ModulePrefix::id() => 'MyPrefix'],
         'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'module prefix - override' => [
+        [ModulePrefix::id() => 'myprefix'],
+        [ModulePrefix::id() => 'myprefix'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
+        },
       ],
 
       'theme - discovery' => [
