@@ -161,7 +161,7 @@ jobs:
 
     strategy:
       matrix:
-        instance: [0, 1]
+        instance: [0]
       fail-fast: false
 
     container:
