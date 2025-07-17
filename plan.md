@@ -42,7 +42,7 @@ Each prompt type should have these 4 test case categories:
 
 #### DatabaseDownloadSource
 - **Prompt**: Test user selecting database download source through prompt
-- **Invalid Prompt**: Test invalid database download source selection  
+- **Invalid Prompt**: Test invalid database download source selection
 - **Discovery**: Test automatic discovery from environment/files
 - **Invalid Discovery**: Test discovery scenarios that should fail
 
@@ -54,7 +54,7 @@ Each prompt type should have these 4 test case categories:
 
 ### Priority 2: Handlers Missing 3 Categories
 
-#### CodeProvider  
+#### CodeProvider
 - **Prompt**: Test user selecting GitHub/other through prompt
 - **Invalid Prompt**: Test invalid code provider selection
 - **Invalid Discovery**: Test scenarios where discovery fails
@@ -65,7 +65,7 @@ Each prompt type should have these 4 test case categories:
 - **Invalid Discovery**: Test scenarios where discovery fails
 
 #### ProvisionType
-- **Prompt**: Test user selecting provision type through prompt  
+- **Prompt**: Test user selecting provision type through prompt
 - **Invalid Prompt**: Test invalid provision type selection
 - **Invalid Discovery**: Test scenarios where discovery fails
 
@@ -172,7 +172,7 @@ For each missing test case:
 ## Test Case Naming Convention
 Follow the existing pattern:
 - `'[handler name] - prompt'`
-- `'[handler name] - prompt - invalid'` 
+- `'[handler name] - prompt - invalid'`
 - `'[handler name] - discovery'` (with descriptive suffix if multiple)
 - `'[handler name] - discovery - invalid'` (with descriptive suffix if multiple)
 
@@ -188,11 +188,6 @@ Each test case should follow this structure:
 ],
 ```
 
-## Priority Order
-1. **High Priority**: Handlers missing all 4 test categories
-2. **Medium Priority**: Handlers missing 2-3 test categories  
-3. **Low Priority**: Handlers missing only 1 test category (usually invalid prompt/discovery)
-
 ## Notes
 - Some handlers may not support all 4 test categories (e.g., boolean handlers may not have invalid prompt tests)
 - Discovery tests should use realistic file/environment scenarios
@@ -202,6 +197,5 @@ Each test case should follow this structure:
 ## Success Criteria
 - All prompt handlers have comprehensive test coverage
 - Test cases follow consistent naming and structure conventions
-- All tests pass when run with `composer test`
-- Code coverage remains high or improves
+- All tests pass when run with `composer test -- --filter=PromptManagerTest`
 - Test cases accurately reflect real-world usage scenarios
