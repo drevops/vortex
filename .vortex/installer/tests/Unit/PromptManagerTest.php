@@ -1028,12 +1028,37 @@ YAML
         },
       ],
 
+      'preserve onboarding checklist - prompt' => [
+        [PreserveDocsOnboarding::id() => Key::ENTER],
+        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
+      ],
       'preserve onboarding checklist - discovery' => [
         [],
         [PreserveDocsOnboarding::id() => TRUE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docs/onboarding.md');
+        },
+      ],
+      'preserve onboarding checklist - discovery - removed' => [
+        [],
+        [PreserveDocsOnboarding::id() => FALSE] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+        },
+      ],
+      'preserve onboarding checklist - discovery - non-Vortex' => [
+        [],
+        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/docs/onboarding.md');
+        },
+      ],
+      'preserve onboarding checklist - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No docs/onboarding.md and not installed - should fall back to default
         },
       ],
 
