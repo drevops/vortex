@@ -328,6 +328,14 @@ class PromptManagerTest extends UnitTestCase {
         'Please enter a valid organization name.',
       ],
 
+      'org machine name - prompt' => [
+        [OrgMachineName::id() => 'prompted_org'],
+        [OrgMachineName::id() => 'prompted_org'] + $expected_defaults,
+      ],
+      'org machine name - invalid ' => [
+        [OrgMachineName::id() => 'a word'],
+        'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'org machine name - discovery' => [
         [],
         [
@@ -351,9 +359,12 @@ class PromptManagerTest extends UnitTestCase {
           $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
       ],
-      'org machine name - invalid ' => [
-        [OrgMachineName::id() => 'a word'],
-        'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
+      'org machine name - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'invalid_format');
+        },
       ],
 
       'domain - discovery' => [
