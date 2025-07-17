@@ -926,6 +926,10 @@ YAML
         },
       ],
 
+      'auto assign pr - prompt' => [
+        [AssignAuthorPr::id() => Key::ENTER],
+        [AssignAuthorPr::id() => TRUE] + $expected_defaults,
+      ],
       'auto assign pr - discovery' => [
         [],
         [AssignAuthorPr::id() => TRUE] + $expected_installed,
@@ -946,6 +950,13 @@ YAML
         [AssignAuthorPr::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
+        },
+      ],
+      'auto assign pr - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No assign-author.yml workflow and not installed - should fall back to default
         },
       ],
 
