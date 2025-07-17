@@ -47,15 +47,22 @@ class Internal extends AbstractHandler {
       // Enable commented out code.
       $content = File::replaceContent($content, '##### ', '');
 
-      // Process empty lines, but exclude specific files that should not have
-      // empty line processing.
+      // Process empty lines, but exclude specific files and directories.
       $ignore_empty_line_processing = [
         '/web/sites/default/default.settings.php',
         '/web/sites/default/default.services.yml',
         '/.docker/config/solr/config-set/',
       ];
       $relative_path = str_replace($t, '', $file->getPathname());
-      if (!in_array($relative_path, $ignore_empty_line_processing)) {
+      $should_ignore = FALSE;
+      foreach ($ignore_empty_line_processing as $item_path) {
+        if (str_starts_with($relative_path, $item_path)) {
+          $should_ignore = TRUE;
+          break;
+        }
+      }
+
+      if (!$should_ignore) {
         $content = File::collapseRepeatedEmptyLines($content);
         $content = File::collapseYamlEmptyLinesInLiteralBlocks($content);
       }
