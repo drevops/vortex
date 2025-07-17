@@ -316,6 +316,17 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
+      'org name - prompt' => [
+        [Org::id() => 'Prompted Org'],
+        [
+          Org::id() => 'Prompted Org',
+          OrgMachineName::id() => 'prompted_org',
+        ] + $expected_defaults,
+      ],
+      'org name - invalid' => [
+        [Org::id() => 'a_word'],
+        'Please enter a valid organization name.',
+      ],
       'org name - discovery' => [
         [],
         $expected_discovered,
@@ -323,9 +334,12 @@ class PromptManagerTest extends UnitTestCase {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
-      'org name - invalid' => [
-        [Org::id() => 'a_word'],
-        'Please enter a valid organization name.',
+      'org name - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Some other description that does not match the expected pattern');
+        },
       ],
 
       'org machine name - prompt' => [
