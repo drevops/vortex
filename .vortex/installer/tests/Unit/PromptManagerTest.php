@@ -381,26 +381,19 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
-      'domain - discovery' => [
-        [],
-        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
-        function (PromptManagerTest $test): void {
-          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
-        },
-      ],
-      'domain - no protocol' => [
+      'domain - prompt' => [
         [Domain::id() => 'myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
-      'domain - www prefix' => [
+      'domain - prompt - www prefix' => [
         [Domain::id() => 'www.myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
-      'domain - secure protocol' => [
+      'domain - prompt - secure protocol' => [
         [Domain::id() => 'https://www.myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
-      'domain - unsecure protocol' => [
+      'domain - prompt - unsecure protocol' => [
         [Domain::id() => 'http://www.myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
@@ -411,6 +404,20 @@ class PromptManagerTest extends UnitTestCase {
       'domain - invalid - incorrect protocol' => [
         [Domain::id() => 'htt://myproject.com'],
         'Please enter a valid domain name.',
+      ],
+      'domain - discovery' => [
+        [],
+        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
+        },
+      ],
+      'domain - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', '');
+        },
       ],
 
       'code repo - discovery' => [

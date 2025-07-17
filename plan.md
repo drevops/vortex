@@ -15,7 +15,7 @@ Each prompt type should have these 4 test case categories:
 ✅ **MachineName** - Complete (5 test cases) - All 4 categories covered
 ✅ **Org** - Complete (4 test cases) - All 4 categories covered
 ✅ **OrgMachineName** - Complete (5 test cases) - All 4 categories covered
-⚠️ **Domain** - Nearly complete (7 test cases) - Missing: invalid discovery
+✅ **Domain** - Complete (8 test cases) - All 4 categories covered
 ⚠️ **CodeProvider** - Partial (2 test cases) - Missing: prompt, invalid prompt, invalid discovery
 ⚠️ **Profile** - Nearly complete (5 test cases) - Missing: invalid discovery
 ⚠️ **ModulePrefix** - Nearly complete (8 test cases) - Missing: invalid discovery
