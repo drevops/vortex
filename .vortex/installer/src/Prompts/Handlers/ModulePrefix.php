@@ -54,16 +54,22 @@ class ModulePrefix extends AbstractHandler {
   public function discover(): null|string|bool|array {
     $locations = [
       $this->dstDir . sprintf('/%s/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
       $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
       $this->dstDir . sprintf('/%s/profiles/*/modules/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/*_core', $this->webroot),
       $this->dstDir . sprintf('/%s/profiles/*/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/custom/*_core', $this->webroot),
       $this->dstDir . sprintf('/%s/profiles/custom/*/modules/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/*_core', $this->webroot),
       $this->dstDir . sprintf('/%s/profiles/custom/*/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $this->webroot),
     ];
 
     $path = File::findMatchingPath($locations);
 
-    return empty($path) ? NULL : str_replace('_base', '', basename($path));
+    return empty($path) ? NULL : str_replace(['_base', '_core'], '', basename($path));
   }
 
   /**

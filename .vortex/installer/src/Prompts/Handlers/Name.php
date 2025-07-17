@@ -43,17 +43,23 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return Converter::label(Env::get('VORTEX_PROJECT', basename((string) $this->config->getDst())));
+    // Discover the name from the project directory.
+    return Converter::label(basename((string) $this->config->getDst()));
   }
 
   /**
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
+    $value = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
+    if ($value) {
+      return Converter::label(ucfirst($value));
+    }
+
     $value = Composer::getJsonValue('description', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
 
-    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[1])) {
-      return $matches[1];
+    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+)(\s?\.|for)/', (string) $value, $matches) && !empty($matches[1])) {
+      return trim($matches[1]);
     }
 
     return NULL;

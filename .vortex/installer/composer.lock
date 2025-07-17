@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "366f4bcc82030310c1d7b9ada4ba025a",
+    "content-hash": "e0253331e283cd7c7639c97cd7fca715",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -1208,16 +1208,16 @@
     "packages-dev": [
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.8.1",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "09a5d7bc628834398393d98defe235ccaf242018"
+                "reference": "876906e32a5078a53e7d6d94019061eb6a3c486b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/09a5d7bc628834398393d98defe235ccaf242018",
-                "reference": "09a5d7bc628834398393d98defe235ccaf242018",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/876906e32a5078a53e7d6d94019061eb6a3c486b",
+                "reference": "876906e32a5078a53e7d6d94019061eb6a3c486b",
                 "shasum": ""
             },
             "require": {
@@ -1271,7 +1271,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-05-28T01:20:30+00:00"
+            "time": "2025-07-17T03:30:52+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",

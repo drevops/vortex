@@ -168,6 +168,7 @@ class PromptManagerTest extends UnitTestCase {
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
       PreserveDocsOnboarding::id() => static::TUI_DEFAULT,
+      AiCodeInstructions::id() => static::TUI_DEFAULT,
     ];
   }
 
@@ -209,8 +210,8 @@ class PromptManagerTest extends UnitTestCase {
       PreserveDocsOnboarding::id() => FALSE,
     ] + $expected_defaults;
 
-    // Expected values for a custom project. Used for testing discovery.
-    $expected_custom = [
+    // Expected values for a responses discovered from the env.
+    $expected_discovered = [
       Name::id() => 'Discovered project',
       MachineName::id() => 'discovered_project',
       Org::id() => 'Discovered project Org',
@@ -226,25 +227,72 @@ class PromptManagerTest extends UnitTestCase {
         $expected_defaults,
       ],
 
-      'project name - discovery' => [
+      'project name - prompt' => [
+        [Name::id() => 'Prompted project'],
+        [
+          Name::id() => 'Prompted project',
+          MachineName::id() => 'prompted_project',
+          Org::id() => 'Prompted project Org',
+          OrgMachineName::id() => 'prompted_project_org',
+          Domain::id() => 'prompted-project.com',
+          ModulePrefix::id() => 'pp',
+          Theme::id() => 'prompted_project',
+        ] + $expected_defaults,
+      ],
+      'project name - prompt - invalid' => [
+        [Name::id() => 'a_word'],
+        'Please enter a valid project name.',
+      ],
+      'project name - discovery - dotenv' => [
         [],
-        $expected_custom,
+        $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('VORTEX_PROJECT', 'discovered_project');
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
+        },
+      ],
+      'project name - discovery - description' => [
+        [],
+        $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
-      'invalid project name' => [
-        [Name::id() => 'a_word'],
-        'Please enter a valid project name.',
+      'project name - discovery - description short' => [
+        [],
+        $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project.');
+        },
+      ],
+      'project name - discovery - description unmatched' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Some other description');
+        },
       ],
 
+      'project machine name - prompt' => [
+        [MachineName::id() => 'prompted_project'],
+        [
+          MachineName::id() => 'prompted_project',
+          Domain::id() => 'prompted-project.com',
+          ModulePrefix::id() => 'pp',
+          Theme::id() => 'prompted_project',
+        ] + $expected_defaults,
+      ],
+      'project machine name - prompt - invalid' => [
+        [MachineName::id() => 'a word'],
+        'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'project machine name - discovery' => [
         [],
         [
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
@@ -255,35 +303,60 @@ class PromptManagerTest extends UnitTestCase {
           Name::id() => 'myproject',
           MachineName::id() => 'discovered-project',
           Org::id() => 'myproject Org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
         },
       ],
-      'project machine name - invalid' => [
-        [MachineName::id() => 'a word'],
-        'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+      'project machine name - discovery - unmatched' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'invalid_composer_name_format');
+        },
       ],
 
-      'org name - discovery' => [
-        [],
-        $expected_custom,
-        function (PromptManagerTest $test): void {
-          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
-        },
+      'org name - prompt' => [
+        [Org::id() => 'Prompted Org'],
+        [
+          Org::id() => 'Prompted Org',
+          OrgMachineName::id() => 'prompted_org',
+        ] + $expected_defaults,
       ],
       'org name - invalid' => [
         [Org::id() => 'a_word'],
         'Please enter a valid organization name.',
       ],
+      'org name - discovery' => [
+        [],
+        $expected_discovered,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
+        },
+      ],
+      'org name - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('description', 'Some other description that does not match the expected pattern');
+        },
+      ],
 
+      'org machine name - prompt' => [
+        [OrgMachineName::id() => 'prompted_org'],
+        [OrgMachineName::id() => 'prompted_org'] + $expected_defaults,
+      ],
+      'org machine name - invalid ' => [
+        [OrgMachineName::id() => 'a word'],
+        'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'org machine name - discovery' => [
         [],
         [
           Name::id() => 'myproject',
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
@@ -295,36 +368,32 @@ class PromptManagerTest extends UnitTestCase {
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
           OrgMachineName::id() => 'discovered-project-org',
-        ] + $expected_custom,
+        ] + $expected_discovered,
         function (PromptManagerTest $test): void {
           $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
       ],
-      'org machine name - invalid ' => [
-        [OrgMachineName::id() => 'a word'],
-        'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.',
-      ],
-
-      'domain - discovery' => [
+      'org machine name - discovery - invalid' => [
         [],
-        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
+        $expected_defaults,
         function (PromptManagerTest $test): void {
-          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
+          $test->stubComposerJsonValue('name', 'invalid_format');
         },
       ],
-      'domain - no protocol' => [
+
+      'domain - prompt' => [
         [Domain::id() => 'myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
-      'domain - www prefix' => [
+      'domain - prompt - www prefix' => [
         [Domain::id() => 'www.myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
-      'domain - secure protocol' => [
+      'domain - prompt - secure protocol' => [
         [Domain::id() => 'https://www.myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
-      'domain - unsecure protocol' => [
+      'domain - prompt - unsecure protocol' => [
         [Domain::id() => 'http://www.myproject.com'],
         [Domain::id() => 'myproject.com'] + $expected_defaults,
       ],
@@ -336,7 +405,39 @@ class PromptManagerTest extends UnitTestCase {
         [Domain::id() => 'htt://myproject.com'],
         'Please enter a valid domain name.',
       ],
+      'domain - discovery' => [
+        [],
+        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'https://discovered-project-dotenv.com');
+        },
+      ],
+      'domain - discovery - www' => [
+        [],
+        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'https://www.discovered-project-dotenv.com');
+        },
+      ],
+      'domain - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', '');
+        },
+      ],
 
+      'code repo - prompt' => [
+        [CodeProvider::id() => Key::ENTER],
+        [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
+      ],
+      'code repo - prompt - other' => [
+        [CodeProvider::id() => Key::DOWN . Key::ENTER],
+        [
+          CodeProvider::id() => CodeProvider::OTHER,
+          CiProvider::id() => CiProvider::NONE,
+        ] + $expected_defaults,
+      ],
       'code repo - discovery' => [
         [],
         [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
@@ -344,7 +445,6 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/.github/workflows/ci.yml');
         },
       ],
-
       'code repo - discovery - other' => [
         [],
         [
@@ -355,7 +455,26 @@ class PromptManagerTest extends UnitTestCase {
           Git::init(static::$sut);
         },
       ],
+      'code repo - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No .github directory and no .git directory - fall back to default.
+        },
+      ],
 
+      'profile - prompt' => [
+        [Profile::id() => Key::DOWN . Key::ENTER],
+        [Profile::id() => 'minimal'] + $expected_defaults,
+      ],
+      'profile - prompt - custom' => [
+        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
+        [Profile::id() => 'myprofile'] + $expected_defaults,
+      ],
+      'profile - prompt - invalid' => [
+        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
+        'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'profile - discovery' => [
         [],
         [Profile::id() => Profile::MINIMAL] + $expected_installed,
@@ -371,24 +490,45 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/web/profiles/discovered_profile/discovered_profile.info');
         },
       ],
-      'profile - minimal' => [
-        [Profile::id() => Key::DOWN . Key::ENTER],
-        [Profile::id() => 'minimal'] + $expected_defaults,
-      ],
-      'profile - custom' => [
-        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
-        [Profile::id() => 'myprofile'] + $expected_defaults,
-      ],
-      'profile - custom - invalid' => [
-        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
-        'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
+      'profile - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No .env file and no profile info files - fall back to default.
+        },
       ],
 
+      'module prefix - prompt' => [
+        [ModulePrefix::id() => 'myprefix'],
+        [ModulePrefix::id() => 'myprefix'] + $expected_defaults,
+      ],
+      'module prefix - prompt - override' => [
+        [ModulePrefix::id() => 'myprefix'],
+        [ModulePrefix::id() => 'myprefix'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
+        },
+      ],
+      'module prefix - prompt - invalid' => [
+        [ModulePrefix::id() => 'my prefix'],
+        'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'module prefix - prompt - invalid - capitalization' => [
+        [ModulePrefix::id() => 'MyPrefix'],
+        'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'module prefix - discovery' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/web/modules/custom/dp_base/dp_base.info');
+        },
+      ],
+      'module prefix - discovery - core' => [
+        [],
+        [ModulePrefix::id() => 'dp'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/web/modules/custom/dp_core/dp_core.info');
         },
       ],
       'module prefix - discovery - within profile' => [
@@ -398,19 +538,33 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
         },
       ],
-      'module prefix' => [
-        [ModulePrefix::id() => 'myprefix'],
-        [ModulePrefix::id() => 'myprefix'] + $expected_defaults,
+      'module prefix - discovery - within profile - core' => [
+        [],
+        [ModulePrefix::id() => 'dp'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
+        },
       ],
-      'module prefix - invalid' => [
-        [ModulePrefix::id() => 'my prefix'],
-        'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
-      ],
-      'module prefix - invalid - capitalization' => [
-        [ModulePrefix::id() => 'MyPrefix'],
-        'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.',
+      'module prefix - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No *_base or *_core modules exist - should fall back to default.
+        },
       ],
 
+      'theme - prompt' => [
+        [Theme::id() => 'mytheme'],
+        [Theme::id() => 'mytheme'] + $expected_defaults,
+      ],
+      'theme - prompt - invalid' => [
+        [Theme::id() => 'my theme'],
+        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'theme - prompt - invalid - capitalization' => [
+        [Theme::id() => 'MyTheme'],
+        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'theme - discovery' => [
         [],
         [Theme::id() => 'discovered_project'] + $expected_installed,
@@ -426,17 +580,17 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/web/themes/custom/discovered_project/discovered_project.info');
         },
       ],
-      'theme' => [
-        [Theme::id() => 'mytheme'],
-        [Theme::id() => 'mytheme'] + $expected_defaults,
+      'theme - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No theme files exist and no DRUPAL_THEME in .env - fall back.
+        },
       ],
-      'theme - invalid' => [
-        [Theme::id() => 'my theme'],
-        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
-      ],
-      'theme - invalid - capitalization' => [
-        [Theme::id() => 'MyTheme'],
-        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+
+      'services - prompt' => [
+        [Services::id() => Key::ENTER],
+        [Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY]] + $expected_defaults,
       ],
 
       'services - discovery - solr' => [
@@ -473,20 +627,6 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]));
         },
       ],
-      'services - discovery - invalid yaml - all' => [
-        [],
-        [
-          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
-        ] + $expected_installed,
-        function (PromptManagerTest $test, Config $config): void {
-          $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
-- !text |
-  first line
-YAML
-          );
-        },
-      ],
       'services - discovery - none' => [
         [],
         [Services::id() => []] + $expected_installed,
@@ -495,12 +635,29 @@ YAML
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['other_service' => []]));
         },
       ],
+      'services - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // Invalid YAML causes discovery to fail and fall back to defaults.
+          File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
+- !text |
+  first line
+YAML
+          );
+        },
+      ],
       'services - discovery - non-Vortex project' => [
         [],
         $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]));
         },
+      ],
+
+      'hosting provider - prompt' => [
+        [HostingProvider::id() => Key::ENTER],
+        [HostingProvider::id() => HostingProvider::NONE] + $expected_defaults,
       ],
 
       'hosting provider - discovery - Acquia' => [
@@ -538,22 +695,15 @@ YAML
           File::dump(static::$sut . '/.lagoon.yml');
         },
       ],
+      'hosting provider - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No hooks, .lagoon.yml, or ACQUIA env var - fall back to default.
+        },
+      ],
 
-      'webroot - custom - discovery' => [
-        [],
-        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
-        function (PromptManagerTest $test, Config $config): void {
-          $test->stubDotenvValue('WEBROOT', 'discovered_webroot');
-        },
-      ],
-      'webroot - custom - discovery no dotenv' => [
-        [],
-        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
-        function (PromptManagerTest $test, Config $config): void {
-          $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
-        },
-      ],
-      'webroot - custom' => [
+      'webroot - prompt' => [
         [
           HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           Webroot::id() => 'my_webroot',
@@ -563,7 +713,7 @@ YAML
           Webroot::id() => 'my_webroot',
         ] + $expected_defaults,
       ],
-      'webroot - custom - capitalization' => [
+      'webroot - prompt - capitalization' => [
         [
           HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           Webroot::id() => 'MyWebroot',
@@ -573,14 +723,39 @@ YAML
           Webroot::id() => 'MyWebroot',
         ] + $expected_defaults,
       ],
-      'webroot - custom - invalid' => [
+      'webroot - prompt - invalid' => [
         [
           HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           Webroot::id() => 'my webroot',
         ],
         'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
       ],
+      'webroot - discovery' => [
+        [],
+        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubDotenvValue('WEBROOT', 'discovered_webroot');
+        },
+      ],
+      'webroot - discovery - composer' => [
+        [],
+        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
+        },
+      ],
+      'webroot - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No WEBROOT in .env and no composer.json scaffold - fall back.
+        },
+      ],
 
+      'deploy type - prompt' => [
+        [DeployType::id() => Key::ENTER],
+        [DeployType::id() => [DeployType::WEBHOOK]] + $expected_defaults,
+      ],
       'deploy type - discovery' => [
         [],
         [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $expected_defaults,
@@ -588,7 +763,25 @@ YAML
           $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
         },
       ],
+      'deploy type - discovery - order' => [
+        [],
+        [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::WEBHOOK, DeployType::ARTIFACT]));
+        },
+      ],
+      'deploy type - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No VORTEX_DEPLOY_TYPES in .env - should fall back to default.
+        },
+      ],
 
+      'provision type - prompt' => [
+        [ProvisionType::id() => Key::ENTER],
+        [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
+      ],
       'provision type - discovery - database' => [
         [],
         [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
@@ -603,20 +796,34 @@ YAML
           $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
         },
       ],
-
-      'database image - discovery' => [
-        [
-          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-        ],
-        [
-          DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
-          DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
-        ] + $expected_defaults,
-        function (PromptManagerTest $test, Config $config): void {
-          $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
+      'provision type - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No VORTEX_PROVISION_TYPE in .env - should fall back to default.
         },
       ],
-      'database image - valid' => [
+
+      'database download source - prompt' => [
+        [DatabaseDownloadSource::id() => Key::ENTER],
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::URL] + $expected_defaults,
+      ],
+      'database download source - discovery' => [
+        [],
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::FTP] + $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::FTP);
+        },
+      ],
+      'database download source - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', 'invalid_source');
+        },
+      ],
+
+      'database image - prompt' => [
         [
           DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           DatabaseImage::id() => 'myregistry/myimage:mytag',
@@ -637,7 +844,23 @@ YAML
         ],
         'Please enter a valid container image name with an optional tag.',
       ],
+      'database image - discovery' => [
+        [
+          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        ],
+        [
+          DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
+          DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
+        ] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
+        },
+      ],
 
+      'ci provider - prompt' => [
+        [CiProvider::id() => Key::ENTER],
+        [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_defaults,
+      ],
       'ci provider - discovery - gha' => [
         [],
         [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_installed,
@@ -661,7 +884,18 @@ YAML
           $test->stubVortexProject($config);
         },
       ],
+      'ci provider - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No CI files and not installed - should fall back to default.
+        },
+      ],
 
+      'dependency updates provider - prompt' => [
+        [DependencyUpdatesProvider::id() => Key::ENTER],
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_defaults,
+      ],
       'dependency updates provider - discovery - renovate self-hosted - gha' => [
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_installed,
@@ -698,7 +932,18 @@ YAML
           $test->stubVortexProject($config);
         },
       ],
+      'dependency updates provider - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No renovate.json and not installed - should fall back to default.
+        },
+      ],
 
+      'auto assign pr - prompt' => [
+        [AssignAuthorPr::id() => Key::ENTER],
+        [AssignAuthorPr::id() => TRUE] + $expected_defaults,
+      ],
       'auto assign pr - discovery' => [
         [],
         [AssignAuthorPr::id() => TRUE] + $expected_installed,
@@ -721,7 +966,18 @@ YAML
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
         },
       ],
+      'auto assign pr - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No assign-author.yml workflow and not installed - fall back.
+        },
+      ],
 
+      'label merge conflicts - prompt' => [
+        [LabelMergeConflictsPr::id() => Key::ENTER],
+        [LabelMergeConflictsPr::id() => TRUE] + $expected_defaults,
+      ],
       'label merge conflicts - discovery' => [
         [],
         [LabelMergeConflictsPr::id() => TRUE] + $expected_installed,
@@ -744,7 +1000,18 @@ YAML
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
         },
       ],
+      'label merge conflicts - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No label-merge-conflict.yml workflow and not installed - fall back.
+        },
+      ],
 
+      'preserve project documentation - prompt' => [
+        [PreserveDocsProject::id() => Key::ENTER],
+        [PreserveDocsProject::id() => TRUE] + $expected_defaults,
+      ],
       'preserve project documentation - discovery' => [
         [],
         [PreserveDocsProject::id() => TRUE] + $expected_installed,
@@ -767,7 +1034,18 @@ YAML
           File::dump(static::$sut . '/docs/README.md');
         },
       ],
+      'preserve project documentation - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No docs/README.md and not installed - should fall back to default.
+        },
+      ],
 
+      'preserve onboarding checklist - prompt' => [
+        [PreserveDocsOnboarding::id() => Key::ENTER],
+        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
+      ],
       'preserve onboarding checklist - discovery' => [
         [],
         [PreserveDocsOnboarding::id() => TRUE] + $expected_installed,
@@ -776,7 +1054,32 @@ YAML
           File::dump(static::$sut . '/docs/onboarding.md');
         },
       ],
+      'preserve onboarding checklist - discovery - removed' => [
+        [],
+        [PreserveDocsOnboarding::id() => FALSE] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+        },
+      ],
+      'preserve onboarding checklist - discovery - non-Vortex' => [
+        [],
+        [PreserveDocsOnboarding::id() => TRUE] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          File::dump(static::$sut . '/docs/onboarding.md');
+        },
+      ],
+      'preserve onboarding checklist - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No docs/onboarding.md and not installed - fall back to default.
+        },
+      ],
 
+      'ai instructions - prompt' => [
+        [AiCodeInstructions::id() => Key::ENTER],
+        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
+      ],
       'ai instructions - discovery' => [
         [],
         [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_installed,
@@ -797,6 +1100,13 @@ YAML
         [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/CLAUDE.md');
+        },
+      ],
+      'ai instructions - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No CLAUDE.md and not installed - should fall back to default.
         },
       ],
 
