@@ -210,17 +210,6 @@ class PromptManagerTest extends UnitTestCase {
       PreserveDocsOnboarding::id() => FALSE,
     ] + $expected_defaults;
 
-    // Expected values for responses entered via a prompt.
-    $expected_prompted = [
-      Name::id() => 'Prompted project',
-      MachineName::id() => 'prompted_project',
-      Org::id() => 'Prompted project Org',
-      OrgMachineName::id() => 'prompted_project_org',
-      Domain::id() => 'prompted-project.com',
-      ModulePrefix::id() => 'pp',
-      Theme::id() => 'prompted_project',
-    ] + $expected_defaults;
-
     // Expected values for a responses discovered from the env.
     $expected_discovered = [
       Name::id() => 'Discovered project',
@@ -240,7 +229,15 @@ class PromptManagerTest extends UnitTestCase {
 
       'project name - prompt' => [
         [Name::id() => 'Prompted project'],
-        $expected_prompted,
+        [
+          Name::id() => 'Prompted project',
+          MachineName::id() => 'prompted_project',
+          Org::id() => 'Prompted project Org',
+          OrgMachineName::id() => 'prompted_project_org',
+          Domain::id() => 'prompted-project.com',
+          ModulePrefix::id() => 'pp',
+          Theme::id() => 'prompted_project',
+        ] + $expected_defaults,
       ],
       'project name - prompt - invalid' => [
         [Name::id() => 'a_word'],
@@ -276,6 +273,19 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
+      'project machine name - prompt' => [
+        [MachineName::id() => 'prompted_project'],
+        [
+          MachineName::id() => 'prompted_project',
+          Domain::id() => 'prompted-project.com',
+          ModulePrefix::id() => 'pp',
+          Theme::id() => 'prompted_project',
+        ] + $expected_defaults,
+      ],
+      'project machine name - prompt - invalid' => [
+        [MachineName::id() => 'a word'],
+        'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'project machine name - discovery' => [
         [],
         [
@@ -298,9 +308,12 @@ class PromptManagerTest extends UnitTestCase {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
         },
       ],
-      'project machine name - invalid' => [
-        [MachineName::id() => 'a word'],
-        'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.',
+      'project machine name - discovery - unmatched' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubComposerJsonValue('name', 'invalid_composer_name_format');
+        },
       ],
 
       'org name - discovery' => [
