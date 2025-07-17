@@ -33,7 +33,7 @@ Each prompt type should have these 4 test case categories:
 ✅ **LabelMergeConflictsPr** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ✅ **PreserveDocsProject** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ✅ **PreserveDocsOnboarding** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
-⚠️ **AiCodeInstructions** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+✅ **AiCodeInstructions** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ❌ **Internal** - No test cases - Missing: all 4 categories
 
 ## Missing Test Cases to Add

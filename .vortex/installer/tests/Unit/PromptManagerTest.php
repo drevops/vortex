@@ -1062,6 +1062,10 @@ YAML
         },
       ],
 
+      'ai instructions - prompt' => [
+        [AiCodeInstructions::id() => Key::ENTER],
+        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
+      ],
       'ai instructions - discovery' => [
         [],
         [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_installed,
@@ -1082,6 +1086,13 @@ YAML
         [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/CLAUDE.md');
+        },
+      ],
+      'ai instructions - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No CLAUDE.md and not installed - should fall back to default
         },
       ],
 
