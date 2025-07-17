@@ -456,6 +456,18 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
+      'profile - prompt' => [
+        [Profile::id() => Key::DOWN . Key::ENTER],
+        [Profile::id() => 'minimal'] + $expected_defaults,
+      ],
+      'profile - prompt - custom' => [
+        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
+        [Profile::id() => 'myprofile'] + $expected_defaults,
+      ],
+      'profile - prompt - invalid' => [
+        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
+        'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'profile - discovery' => [
         [],
         [Profile::id() => Profile::MINIMAL] + $expected_installed,
@@ -471,17 +483,12 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/web/profiles/discovered_profile/discovered_profile.info');
         },
       ],
-      'profile - minimal' => [
-        [Profile::id() => Key::DOWN . Key::ENTER],
-        [Profile::id() => 'minimal'] + $expected_defaults,
-      ],
-      'profile - custom' => [
-        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
-        [Profile::id() => 'myprofile'] + $expected_defaults,
-      ],
-      'profile - custom - invalid' => [
-        [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
-        'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
+      'profile - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No .env file and no profile info files - should fall back to default
+        },
       ],
 
       'module prefix - discovery' => [
