@@ -10,10 +10,10 @@
   "scripts": {
     "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0",
     "lint-css": "stylelint \"web/modules/custom/**/*.css\"",
-    "lint": "npm run lint-js && npm run lint-css",
+    "lint": "yarn run lint-js && yarn run lint-css",
     "lint-fix-js": "eslint web/modules/custom --ext .js --fix",
     "lint-fix-css": "stylelint \"web/modules/custom/**/*.css\" --fix",
-    "lint-fix": "npm run lint-fix-js && npm run lint-fix-css"
+    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
