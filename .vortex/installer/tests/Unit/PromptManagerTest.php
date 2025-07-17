@@ -994,6 +994,10 @@ YAML
         },
       ],
 
+      'preserve project documentation - prompt' => [
+        [PreserveDocsProject::id() => Key::ENTER],
+        [PreserveDocsProject::id() => TRUE] + $expected_defaults,
+      ],
       'preserve project documentation - discovery' => [
         [],
         [PreserveDocsProject::id() => TRUE] + $expected_installed,
@@ -1014,6 +1018,13 @@ YAML
         [PreserveDocsProject::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/docs/README.md');
+        },
+      ],
+      'preserve project documentation - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No docs/README.md and not installed - should fall back to default
         },
       ],
 
