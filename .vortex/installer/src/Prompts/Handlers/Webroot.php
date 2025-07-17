@@ -94,7 +94,7 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function resolvedValue(array $responses): null|string|bool|array {
-    return NULL;
+    return $this->discover();
   }
 
   /**

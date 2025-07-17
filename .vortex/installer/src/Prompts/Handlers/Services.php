@@ -64,15 +64,15 @@ class Services extends AbstractHandler {
 
     $services = [];
 
-    if (isset($dc['clamav'])) {
+    if (isset($dc['services']['clamav'])) {
       $services[] = self::CLAMAV;
     }
 
-    if (isset($dc['solr'])) {
+    if (isset($dc['services']['solr'])) {
       $services[] = self::SOLR;
     }
 
-    if (isset($dc['valkey'])) {
+    if (isset($dc['services']['valkey'])) {
       $services[] = self::VALKEY;
     }
 
