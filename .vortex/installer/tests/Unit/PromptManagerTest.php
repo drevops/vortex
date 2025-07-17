@@ -28,6 +28,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
@@ -71,6 +72,7 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
+#[CoversClass(Timezone::class)]
 #[CoversClass(Tui::class)]
 #[CoversClass(Webroot::class)]
 class PromptManagerTest extends UnitTestCase {
@@ -155,6 +157,7 @@ class PromptManagerTest extends UnitTestCase {
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
+      Timezone::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
       HostingProvider::id() => static::TUI_DEFAULT,
       Webroot::id() => static::TUI_DEFAULT,
@@ -184,6 +187,7 @@ class PromptManagerTest extends UnitTestCase {
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
+      Timezone::id() => 'UTC',
       Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
@@ -585,6 +589,26 @@ class PromptManagerTest extends UnitTestCase {
         $expected_defaults,
         function (PromptManagerTest $test): void {
           // No theme files exist and no DRUPAL_THEME in .env - fall back.
+        },
+      ],
+
+      'timezone - prompt' => [
+        [Timezone::id() => 'America/New_York'],
+        [Timezone::id() => 'America/New_York'] + $expected_defaults,
+      ],
+      'timezone - discovery' => [
+        [],
+        [Timezone::id() => 'Europe/London'] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubDotenvValue('TZ', 'Europe/London');
+        },
+      ],
+      'timezone - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No TZ in .env - should fall back to default.
         },
       ],
 

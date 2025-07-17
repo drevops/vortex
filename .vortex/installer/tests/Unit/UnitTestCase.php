@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
+use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use DrevOps\VortexInstaller\Utils\File;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
@@ -21,6 +22,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
 
   use SerializableClosureTrait;
   use DirectoryAssertionsTrait;
+  use FileAssertionsTrait;
 
   /**
    * {@inheritdoc}

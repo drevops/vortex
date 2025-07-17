@@ -28,6 +28,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
@@ -72,6 +73,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
+#[CoversClass(Timezone::class)]
 #[CoversClass(Webroot::class)]
 #[CoversClass(PromptManager::class)]
 #[CoversClass(Downloader::class)]
@@ -183,6 +185,41 @@ class InstallTest extends FunctionalTestCase {
       'theme, custom' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('your_site_theme', static::$sut)),
+      ],
+
+      'timezone, gha' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Timezone::id()), 'America/New_York');
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+        }),
+        static::cw(function (FunctionalTestCase $test): void {
+          // Timezone should be replaced in .env file.
+          $test->assertFileContainsString('TZ=America/New_York', static::$sut . '/.env');
+          $test->assertFileNotContainsString('UTC', static::$sut . '/.env');
+
+          // Timezone should be replaced in Renovate config.
+          $test->assertFileContainsString('"timezone": "America/New_York"', static::$sut . '/renovate.json');
+          $test->assertFileNotContainsString('UTC', static::$sut . '/renovate.json');
+
+          // Timezone should not be replaced in GHA config in code as it should
+          // be overridden via UI.
+          $test->assertFileNotContainsString('America/New_York', static::$sut . '/.github/workflows/build-test-deploy.yml');
+
+          // Timezone should not be replaced in Docker Compose config.
+          $test->assertFileNotContainsString('America/New_York', static::$sut . '/docker-compose.yml');
+        }),
+      ],
+      'timezone, circleci' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Timezone::id()), 'America/New_York');
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+        }),
+        static::cw(function (FunctionalTestCase $test): void {
+          // Timezone should not be replaced in CircleCI config in code as it
+          // should be overridden via UI.
+          $test->assertFileContainsString('TZ: UTC', static::$sut . '/.circleci/config.yml');
+          $test->assertFileNotContainsString('TZ: America/New_York', static::$sut . '/.circleci/config.yml');
+        }),
       ],
 
       'services, no clamav' => [
