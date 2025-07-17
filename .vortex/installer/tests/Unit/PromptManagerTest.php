@@ -546,6 +546,18 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
+      'theme - prompt' => [
+        [Theme::id() => 'mytheme'],
+        [Theme::id() => 'mytheme'] + $expected_defaults,
+      ],
+      'theme - prompt - invalid' => [
+        [Theme::id() => 'my theme'],
+        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'theme - prompt - invalid - capitalization' => [
+        [Theme::id() => 'MyTheme'],
+        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
       'theme - discovery' => [
         [],
         [Theme::id() => 'discovered_project'] + $expected_installed,
@@ -561,17 +573,12 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/web/themes/custom/discovered_project/discovered_project.info');
         },
       ],
-      'theme' => [
-        [Theme::id() => 'mytheme'],
-        [Theme::id() => 'mytheme'] + $expected_defaults,
-      ],
-      'theme - invalid' => [
-        [Theme::id() => 'my theme'],
-        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
-      ],
-      'theme - invalid - capitalization' => [
-        [Theme::id() => 'MyTheme'],
-        'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
+      'theme - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No theme files exist and no DRUPAL_THEME in .env - should fall back to default
+        },
       ],
 
       'services - discovery - solr' => [
