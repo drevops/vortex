@@ -452,7 +452,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No .github directory and no .git directory - should fall back to default
+          // No .github directory and no .git directory - fall back to default.
         },
       ],
 
@@ -487,7 +487,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No .env file and no profile info files - should fall back to default
+          // No .env file and no profile info files - fall back to default.
         },
       ],
 
@@ -542,7 +542,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No *_base or *_core modules exist - should fall back to default
+          // No *_base or *_core modules exist - should fall back to default.
         },
       ],
 
@@ -577,7 +577,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No theme files exist and no DRUPAL_THEME in .env - should fall back to default
+          // No theme files exist and no DRUPAL_THEME in .env - fall back.
         },
       ],
 
@@ -632,7 +632,7 @@ class PromptManagerTest extends UnitTestCase {
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // Invalid YAML should cause discovery to fail and fall back to defaults
+          // Invalid YAML causes discovery to fail and fall back to defaults.
           File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
 - !text |
   first line
@@ -692,7 +692,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No hooks directory, no .lagoon.yml, and no ACQUIA env var - should fall back to default
+          // No hooks, .lagoon.yml, or ACQUIA env var - fall back to default.
         },
       ],
 
@@ -741,7 +741,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No WEBROOT in .env and no composer.json drupal-scaffold config - should fall back to default
+          // No WEBROOT in .env and no composer.json scaffold - fall back.
         },
       ],
 
@@ -760,7 +760,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No VORTEX_DEPLOY_TYPES in .env - should fall back to default
+          // No VORTEX_DEPLOY_TYPES in .env - should fall back to default.
         },
       ],
 
@@ -786,7 +786,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No VORTEX_PROVISION_TYPE in .env - should fall back to default
+          // No VORTEX_PROVISION_TYPE in .env - should fall back to default.
         },
       ],
 
@@ -874,7 +874,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No CI files and not installed - should fall back to default
+          // No CI files and not installed - should fall back to default.
         },
       ],
 
@@ -922,7 +922,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No renovate.json and not installed - should fall back to default
+          // No renovate.json and not installed - should fall back to default.
         },
       ],
 
@@ -956,7 +956,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No assign-author.yml workflow and not installed - should fall back to default
+          // No assign-author.yml workflow and not installed - fall back.
         },
       ],
 
@@ -990,7 +990,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No label-merge-conflict.yml workflow and not installed - should fall back to default
+          // No label-merge-conflict.yml workflow and not installed - fall back.
         },
       ],
 
@@ -1024,7 +1024,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No docs/README.md and not installed - should fall back to default
+          // No docs/README.md and not installed - should fall back to default.
         },
       ],
 
@@ -1058,7 +1058,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No docs/onboarding.md and not installed - should fall back to default
+          // No docs/onboarding.md and not installed - fall back to default.
         },
       ],
 
@@ -1092,7 +1092,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test): void {
-          // No CLAUDE.md and not installed - should fall back to default
+          // No CLAUDE.md and not installed - should fall back to default.
         },
       ],
 
