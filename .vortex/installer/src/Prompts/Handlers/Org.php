@@ -53,13 +53,14 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $value = Composer::getJsonValue('description', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
+    $value = NULL;
 
-    if ($value && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $value, $matches) && !empty($matches[2])) {
-      return $matches[2];
+    $description = Composer::getJsonValue('description', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
+    if ($description && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $description, $matches) && !empty($matches[2])) {
+      $value = $matches[2];
     }
 
-    return NULL;
+    return $value;
   }
 
   /**

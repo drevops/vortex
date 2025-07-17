@@ -598,7 +598,7 @@ class PromptManagerTest extends UnitTestCase {
         [Services::id() => [Services::SOLR]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::SOLR => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::SOLR => []]]));
         },
       ],
       'services - discovery - valkey' => [
@@ -606,7 +606,7 @@ class PromptManagerTest extends UnitTestCase {
         [Services::id() => [Services::VALKEY]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::VALKEY => []]]));
         },
       ],
       'services - discovery - clamav' => [
@@ -614,7 +614,7 @@ class PromptManagerTest extends UnitTestCase {
         [Services::id() => [Services::CLAMAV]] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => []]]));
         },
       ],
       'services - discovery - all' => [
@@ -624,7 +624,7 @@ class PromptManagerTest extends UnitTestCase {
         ] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]]));
         },
       ],
       'services - discovery - none' => [
@@ -632,7 +632,7 @@ class PromptManagerTest extends UnitTestCase {
         [Services::id() => []] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['other_service' => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['other_service' => []]]));
         },
       ],
       'services - discovery - invalid' => [
@@ -651,7 +651,7 @@ YAML
         [],
         $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]]));
         },
       ],
 

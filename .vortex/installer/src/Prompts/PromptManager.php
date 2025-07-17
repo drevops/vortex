@@ -142,13 +142,9 @@ class PromptManager {
           function (array $r, $pr, $n): string {
             $handler = $this->handlers[Webroot::id()];
             $resolved = $handler->resolvedValue($r);
-            if (!is_null($resolved)) {
+            if (is_string($resolved)) {
               info($handler->resolvedMessage($r));
-              return match (TRUE) {
-                is_string($resolved) => $resolved,
-                is_array($resolved) => json_encode($resolved) ?: 'array',
-                default => 'true',
-              };
+              return $resolved;
             }
             else {
               return text(...$this->args(Webroot::class, NULL, $r));

@@ -53,13 +53,14 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $value = Composer::getJsonValue('name', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
+    $value = NULL;
 
-    if ($value && preg_match('/([^\/]+)\/(.+)/', (string) $value, $matches) && !empty($matches[1])) {
-      return $matches[1];
+    $from_composerjson = Composer::getJsonValue('name', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
+    if ($from_composerjson && preg_match('/([^\/]+)\/(.+)/', (string) $from_composerjson, $matches) && !empty($matches[1])) {
+      $value = $matches[1];
     }
 
-    return NULL;
+    return $value;
   }
 
   /**
