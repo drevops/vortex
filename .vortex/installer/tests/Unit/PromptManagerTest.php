@@ -809,19 +809,7 @@ YAML
         },
       ],
 
-      'database image - discovery' => [
-        [
-          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-        ],
-        [
-          DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
-          DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
-        ] + $expected_defaults,
-        function (PromptManagerTest $test, Config $config): void {
-          $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
-        },
-      ],
-      'database image - valid' => [
+      'database image - prompt' => [
         [
           DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
           DatabaseImage::id() => 'myregistry/myimage:mytag',
@@ -841,6 +829,18 @@ YAML
           DatabaseImage::id() => 'MyRegistry/MyImage:mytag',
         ],
         'Please enter a valid container image name with an optional tag.',
+      ],
+      'database image - discovery' => [
+        [
+          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        ],
+        [
+          DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
+          DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
+        ] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
+        },
       ],
 
       'ci provider - discovery - gha' => [
