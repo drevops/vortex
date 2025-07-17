@@ -878,6 +878,10 @@ YAML
         },
       ],
 
+      'dependency updates provider - prompt' => [
+        [DependencyUpdatesProvider::id() => Key::ENTER],
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_defaults,
+      ],
       'dependency updates provider - discovery - renovate self-hosted - gha' => [
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_installed,
@@ -912,6 +916,13 @@ YAML
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
+        },
+      ],
+      'dependency updates provider - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No renovate.json and not installed - should fall back to default
         },
       ],
 

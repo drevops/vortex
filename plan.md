@@ -28,7 +28,7 @@ Each prompt type should have these 4 test case categories:
 ✅ **DatabaseDownloadSource** - Complete (3 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ✅ **DatabaseImage** - Complete (4 test cases) - All 4 categories covered (no invalid discovery test needed)
 ✅ **CiProvider** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
-⚠️ **DependencyUpdatesProvider** - Partial (4 test cases) - Missing: prompt, invalid prompt, invalid discovery
+✅ **DependencyUpdatesProvider** - Complete (6 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ⚠️ **AssignAuthorPr** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
 ⚠️ **LabelMergeConflictsPr** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
 ⚠️ **PreserveDocsProject** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
