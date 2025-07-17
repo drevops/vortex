@@ -581,6 +581,11 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
+      'services - prompt' => [
+        [Services::id() => Key::ENTER],
+        [Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY]] + $expected_defaults,
+      ],
+
       'services - discovery - solr' => [
         [],
         [Services::id() => [Services::SOLR]] + $expected_installed,
@@ -615,26 +620,24 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump([Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]));
         },
       ],
-      'services - discovery - invalid yaml - all' => [
-        [],
-        [
-          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
-        ] + $expected_installed,
-        function (PromptManagerTest $test, Config $config): void {
-          $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
-- !text |
-  first line
-YAML
-          );
-        },
-      ],
       'services - discovery - none' => [
         [],
         [Services::id() => []] + $expected_installed,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['other_service' => []]));
+        },
+      ],
+      'services - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // Invalid YAML should cause discovery to fail and fall back to defaults
+          File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
+- !text |
+  first line
+YAML
+          );
         },
       ],
       'services - discovery - non-Vortex project' => [
