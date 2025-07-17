@@ -46,9 +46,9 @@ aliases:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
         environment:
-          # Set runner timezone to ensure that executed operations use correct timestamps.
+          # Set runner timezone via UI to ensure that executed operations use correct timestamps.
           # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-          TZ: "UTC"
+          TZ: UTC
           # Set runner terminal capabilities.
           TERM: xterm-256color
           # Disable strict host key checking for SSH connections.

@@ -1,0 +1,9 @@
+@@ -11,7 +11,7 @@
+         ":prHourlyLimit2"
+     ],
+     "rangeStrategy": "update-lockfile",
+-    "timezone": "UTC",
++    "timezone": "America/New_York",
+     "configMigration": true,
+     "enabledManagers": [
+         "composer",

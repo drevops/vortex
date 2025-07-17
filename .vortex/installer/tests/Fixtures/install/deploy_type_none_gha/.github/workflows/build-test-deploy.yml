@@ -11,7 +11,7 @@
 -    container:
 -      image: drevops/ci-runner:__VERSION__
 -      env:
--        TZ: UTC
+-        TZ: ${{ vars.TZ || 'UTC' }}
 -        TERM: xterm-256color
 -        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
 -        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}

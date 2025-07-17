@@ -30,6 +30,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
@@ -41,6 +42,7 @@ use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\select;
+use function Laravel\Prompts\suggest;
 use function Laravel\Prompts\text;
 
 /**
@@ -57,7 +59,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 22;
+  const TOTAL_RESPONSES = 23;
 
   /**
    * Array of responses.
@@ -133,7 +135,8 @@ class PromptManager {
       ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
       ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, NULL, $r)), Theme::id())
 
-      ->intro('Services')
+      ->intro('Environment')
+      ->add(fn($r, $pr, $n): string => suggest(...$this->args(Timezone::class)), Timezone::id())
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class)), Services::id())
 
       ->intro('Hosting')
@@ -253,6 +256,7 @@ class PromptManager {
       DeployType::id(),
       HostingProvider::id(),
       Services::id(),
+      Timezone::id(),
       CodeProvider::id(),
       ProfileCustom::id(),
       Profile::id(),
@@ -324,7 +328,8 @@ class PromptManager {
     $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
     $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
-    $values['Services'] = Tui::LIST_SECTION_TITLE;
+    $values['Environment'] = Tui::LIST_SECTION_TITLE;
+    $values['🌍 Timezone'] = $responses[Timezone::id()];
     $values['🦠 ClamAV'] = Converter::bool(in_array(Services::CLAMAV, $responses[Services::id()]));
     $values['🔍 Solr'] = Converter::bool(in_array(Services::SOLR, $responses[Services::id()]));
     $values['🗃️ Valkey'] = Converter::bool(in_array(Services::VALKEY, $responses[Services::id()]));
