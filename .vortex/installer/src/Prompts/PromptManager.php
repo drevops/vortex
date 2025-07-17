@@ -109,7 +109,7 @@ class PromptManager {
     // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
     // phpcs:disable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
     // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
-    $responses = form()
+    $form = form()
       ->intro('General information')
       ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class)), Name::id())
       ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
@@ -192,15 +192,15 @@ class PromptManager {
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsOnboarding::class)), PreserveDocsOnboarding::id())
 
       ->intro('AI')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id())
-
-      ->submit();
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id());
 
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
     // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
     // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
     // phpcs:enable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
+
+    $responses = $form->submit();
 
     // Filter out elements with numeric keys returned from intro()'s.
     $responses = array_filter($responses, function ($key): bool {
