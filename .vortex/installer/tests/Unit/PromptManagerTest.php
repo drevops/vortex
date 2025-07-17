@@ -745,11 +745,22 @@ YAML
         },
       ],
 
+      'deploy type - prompt' => [
+        [DeployType::id() => Key::ENTER],
+        [DeployType::id() => [DeployType::WEBHOOK]] + $expected_defaults,
+      ],
       'deploy type - discovery' => [
         [],
         [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
+        },
+      ],
+      'deploy type - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No VORTEX_DEPLOY_TYPES in .env - should fall back to default
         },
       ],
 
