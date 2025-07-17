@@ -166,12 +166,7 @@ class PromptManager {
         )
         ->addIf(
             fn($r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
-            function ($r, $pr, $n): string {
-              $handler = $this->handlers[DatabaseImage::id()];
-              $args = $this->args(DatabaseImage::class, NULL, $r);
-              $args['placeholder'] = $handler->placeholder($r);
-              return text(...$args);
-            },
+            fn($r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
             DatabaseImage::id()
           )
 
