@@ -409,7 +409,14 @@ class PromptManagerTest extends UnitTestCase {
         [],
         [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
         function (PromptManagerTest $test): void {
-          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'discovered-project-dotenv.com');
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'https://discovered-project-dotenv.com');
+        },
+      ],
+      'domain - discovery - www' => [
+        [],
+        [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
+        function (PromptManagerTest $test): void {
+          $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'https://www.discovered-project-dotenv.com');
         },
       ],
       'domain - discovery - invalid' => [
