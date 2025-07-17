@@ -11,78 +11,140 @@ Each prompt type should have these 4 test case categories:
 4. **Invalid Discovery** - Discovery scenarios that should fail or not match
 
 ## Current Status
-✅ **Name** - Complete (4 test cases)
-✅ **MachineName** - Complete (3 test cases) - missing invalid discovery
-✅ **Org** - Complete (3 test cases) - missing invalid discovery  
-✅ **OrgMachineName** - Complete (3 test cases) - missing invalid discovery
-✅ **Domain** - Complete (7 test cases) - has additional variations
-✅ **CodeProvider** - Partial (2 test cases) - missing prompt and invalid prompt
-✅ **Profile** - Complete (4 test cases)
-✅ **ModulePrefix** - Complete (6 test cases) - has additional variations
-✅ **Theme** - Complete (4 test cases)
-✅ **Services** - Complete (7 test cases) - has additional variations
-✅ **HostingProvider** - Complete (4 test cases) - has additional variations
-✅ **Webroot** - Complete (4 test cases) - has additional variations
-✅ **DeployType** - Partial (1 test case) - missing prompt, invalid prompt, invalid discovery
-✅ **ProvisionType** - Partial (2 test cases) - missing prompt and invalid prompt
-✅ **DatabaseDownloadSource** - Missing all test cases
-✅ **DatabaseImage** - Complete (4 test cases)
-✅ **CiProvider** - Complete (3 test cases) - missing invalid prompt
-✅ **DependencyUpdatesProvider** - Complete (4 test cases)
-✅ **AssignAuthorPr** - Complete (3 test cases) - missing invalid prompt
-✅ **LabelMergeConflictsPr** - Complete (3 test cases) - missing invalid prompt
-✅ **PreserveDocsProject** - Complete (3 test cases) - missing invalid prompt
-✅ **PreserveDocsOnboarding** - Partial (1 test case) - missing prompt, invalid prompt, invalid discovery
-✅ **AiCodeInstructions** - Complete (3 test cases) - missing invalid prompt
+✅ **Name** - Complete (6 test cases) - All 4 categories covered
+⚠️ **MachineName** - Partial (3 test cases) - Missing: prompt, invalid discovery
+⚠️ **Org** - Partial (2 test cases) - Missing: prompt, invalid discovery
+⚠️ **OrgMachineName** - Partial (3 test cases) - Missing: prompt, invalid discovery
+⚠️ **Domain** - Nearly complete (7 test cases) - Missing: invalid discovery
+⚠️ **CodeProvider** - Partial (2 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **Profile** - Nearly complete (5 test cases) - Missing: invalid discovery
+⚠️ **ModulePrefix** - Nearly complete (8 test cases) - Missing: invalid discovery
+⚠️ **Theme** - Nearly complete (5 test cases) - Missing: invalid discovery
+⚠️ **Services** - Partial (7 test cases) - Missing: prompt, invalid prompt
+⚠️ **HostingProvider** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **Webroot** - Nearly complete (5 test cases) - Missing: invalid discovery
+⚠️ **DeployType** - Minimal (1 test case) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **ProvisionType** - Partial (2 test cases) - Missing: prompt, invalid prompt, invalid discovery
+❌ **DatabaseDownloadSource** - No test cases - Missing: all 4 categories
+⚠️ **DatabaseImage** - Nearly complete (4 test cases) - Missing: invalid discovery
+⚠️ **CiProvider** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **DependencyUpdatesProvider** - Partial (4 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **AssignAuthorPr** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **LabelMergeConflictsPr** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **PreserveDocsProject** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **PreserveDocsOnboarding** - Minimal (1 test case) - Missing: prompt, invalid prompt, invalid discovery
+⚠️ **AiCodeInstructions** - Partial (3 test cases) - Missing: prompt, invalid prompt, invalid discovery
+❌ **Internal** - No test cases - Missing: all 4 categories
 
 ## Missing Test Cases to Add
 
-### 1. CodeProvider
-- **Prompt**: Test user selecting GitHub/other through prompt
-- **Invalid Prompt**: Test invalid selection (if applicable)
+### Priority 1: Handlers Missing All 4 Categories
 
-### 2. DeployType  
-- **Prompt**: Test user selecting deployment types through prompt
-- **Invalid Prompt**: Test invalid deployment type selection
-- **Invalid Discovery**: Test scenarios where discovery fails
-
-### 3. ProvisionType
-- **Prompt**: Test user selecting provision type through prompt  
-- **Invalid Prompt**: Test invalid provision type selection
-
-### 4. DatabaseDownloadSource
+#### DatabaseDownloadSource
 - **Prompt**: Test user selecting database download source through prompt
 - **Invalid Prompt**: Test invalid database download source selection  
 - **Discovery**: Test automatic discovery from environment/files
 - **Invalid Discovery**: Test discovery scenarios that should fail
 
-### 5. CiProvider
-- **Invalid Prompt**: Test invalid CI provider selection (if applicable)
+#### Internal
+- **Prompt**: Test internal prompts (if applicable)
+- **Invalid Prompt**: Test invalid internal prompts
+- **Discovery**: Test internal discovery
+- **Invalid Discovery**: Test invalid internal discovery
 
-### 6. PreserveDocsOnboarding
+### Priority 2: Handlers Missing 3 Categories
+
+#### CodeProvider  
+- **Prompt**: Test user selecting GitHub/other through prompt
+- **Invalid Prompt**: Test invalid code provider selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### DeployType
+- **Prompt**: Test user selecting deployment types through prompt
+- **Invalid Prompt**: Test invalid deployment type selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### ProvisionType
+- **Prompt**: Test user selecting provision type through prompt  
+- **Invalid Prompt**: Test invalid provision type selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### HostingProvider
+- **Prompt**: Test user selecting hosting provider through prompt
+- **Invalid Prompt**: Test invalid hosting provider selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### CiProvider
+- **Prompt**: Test user selecting CI provider through prompt
+- **Invalid Prompt**: Test invalid CI provider selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### DependencyUpdatesProvider
+- **Prompt**: Test user selecting dependency updates provider through prompt
+- **Invalid Prompt**: Test invalid dependency updates provider selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### AssignAuthorPr
+- **Prompt**: Test user selecting assign author PR through prompt
+- **Invalid Prompt**: Test invalid assign author PR selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### LabelMergeConflictsPr
+- **Prompt**: Test user selecting label merge conflicts through prompt
+- **Invalid Prompt**: Test invalid label merge conflicts selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### PreserveDocsProject
+- **Prompt**: Test user selecting preserve docs project through prompt
+- **Invalid Prompt**: Test invalid preserve docs project selection
+- **Invalid Discovery**: Test scenarios where discovery fails
+
+#### PreserveDocsOnboarding
 - **Prompt**: Test user selecting preserve docs onboarding through prompt
-- **Invalid Prompt**: Test invalid selection (if applicable)
-- **Invalid Discovery**: Test discovery scenarios that should fail
+- **Invalid Prompt**: Test invalid preserve docs onboarding selection
+- **Invalid Discovery**: Test scenarios where discovery fails
 
-### 7. AiCodeInstructions
-- **Invalid Prompt**: Test invalid AI code instructions selection (if applicable)
+#### AiCodeInstructions
+- **Prompt**: Test user selecting AI code instructions through prompt
+- **Invalid Prompt**: Test invalid AI code instructions selection
+- **Invalid Discovery**: Test scenarios where discovery fails
 
-### 8. AssignAuthorPr
-- **Invalid Prompt**: Test invalid assign author PR selection (if applicable)
+### Priority 3: Handlers Missing 2 Categories
 
-### 9. LabelMergeConflictsPr  
-- **Invalid Prompt**: Test invalid label merge conflicts PR selection (if applicable)
-
-### 10. PreserveDocsProject
-- **Invalid Prompt**: Test invalid preserve docs project selection (if applicable)
-
-### 11. MachineName
+#### MachineName
+- **Prompt**: Test user providing valid machine name via prompt
 - **Invalid Discovery**: Test discovery scenarios that should fail or not match
 
-### 12. Org
+#### Org
+- **Prompt**: Test user providing valid org name via prompt
 - **Invalid Discovery**: Test discovery scenarios that should fail or not match
 
-### 13. OrgMachineName
+#### OrgMachineName
+- **Prompt**: Test user providing valid org machine name via prompt
+- **Invalid Discovery**: Test discovery scenarios that should fail or not match
+
+#### Services
+- **Prompt**: Test user selecting services via prompt
+- **Invalid Prompt**: Test invalid service selection
+
+### Priority 4: Handlers Missing 1 Category
+
+#### Domain
+- **Invalid Discovery**: Test discovery scenarios that should fail or not match
+
+#### Profile
+- **Invalid Discovery**: Test discovery scenarios that should fail or not match
+
+#### ModulePrefix
+- **Invalid Discovery**: Test discovery scenarios that should fail or not match
+
+#### Theme
+- **Invalid Discovery**: Test discovery scenarios that should fail or not match
+
+#### Webroot
+- **Invalid Discovery**: Test discovery scenarios that should fail or not match
+
+#### DatabaseImage
 - **Invalid Discovery**: Test discovery scenarios that should fail or not match
 
 ## Implementation Strategy
