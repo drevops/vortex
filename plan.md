@@ -22,7 +22,7 @@ Each prompt type should have these 4 test case categories:
 ✅ **Theme** - Complete (6 test cases) - All 4 categories covered
 ✅ **Services** - Complete (8 test cases) - All 4 categories covered (no invalid prompt validation needed)
 ✅ **HostingProvider** - Complete (5 test cases) - All 4 categories covered (no invalid prompt validation needed)
-⚠️ **Webroot** - Nearly complete (5 test cases) - Missing: invalid discovery
+✅ **Webroot** - Complete (6 test cases) - All 4 categories covered
 ⚠️ **DeployType** - Minimal (1 test case) - Missing: prompt, invalid prompt, invalid discovery
 ⚠️ **ProvisionType** - Partial (2 test cases) - Missing: prompt, invalid prompt, invalid discovery
 ❌ **DatabaseDownloadSource** - No test cases - Missing: all 4 categories

@@ -696,46 +696,53 @@ YAML
         },
       ],
 
-      'webroot - custom - discovery' => [
+      'webroot - prompt' => [
+        [
+          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          Webroot::id() => 'my_webroot',
+        ],
+        [
+          HostingProvider::id() => HostingProvider::OTHER,
+          Webroot::id() => 'my_webroot',
+        ] + $expected_defaults,
+      ],
+      'webroot - prompt - capitalization' => [
+        [
+          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          Webroot::id() => 'MyWebroot',
+        ],
+        [
+          HostingProvider::id() => HostingProvider::OTHER,
+          Webroot::id() => 'MyWebroot',
+        ] + $expected_defaults,
+      ],
+      'webroot - prompt - invalid' => [
+        [
+          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+          Webroot::id() => 'my webroot',
+        ],
+        'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
+      ],
+      'webroot - discovery' => [
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubDotenvValue('WEBROOT', 'discovered_webroot');
         },
       ],
-      'webroot - custom - discovery no dotenv' => [
+      'webroot - discovery - composer' => [
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
         },
       ],
-      'webroot - custom' => [
-        [
-          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-          Webroot::id() => 'my_webroot',
-        ],
-        [
-          HostingProvider::id() => HostingProvider::OTHER,
-          Webroot::id() => 'my_webroot',
-        ] + $expected_defaults,
-      ],
-      'webroot - custom - capitalization' => [
-        [
-          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-          Webroot::id() => 'MyWebroot',
-        ],
-        [
-          HostingProvider::id() => HostingProvider::OTHER,
-          Webroot::id() => 'MyWebroot',
-        ] + $expected_defaults,
-      ],
-      'webroot - custom - invalid' => [
-        [
-          HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-          Webroot::id() => 'my webroot',
-        ],
-        'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',
+      'webroot - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No WEBROOT in .env and no composer.json drupal-scaffold config - should fall back to default
+        },
       ],
 
       'deploy type - discovery' => [
