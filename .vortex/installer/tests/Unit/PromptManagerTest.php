@@ -960,6 +960,10 @@ YAML
         },
       ],
 
+      'label merge conflicts - prompt' => [
+        [LabelMergeConflictsPr::id() => Key::ENTER],
+        [LabelMergeConflictsPr::id() => TRUE] + $expected_defaults,
+      ],
       'label merge conflicts - discovery' => [
         [],
         [LabelMergeConflictsPr::id() => TRUE] + $expected_installed,
@@ -980,6 +984,13 @@ YAML
         [LabelMergeConflictsPr::id() => TRUE] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
+        },
+      ],
+      'label merge conflicts - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No label-merge-conflict.yml workflow and not installed - should fall back to default
         },
       ],
 
