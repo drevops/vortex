@@ -420,6 +420,17 @@ class PromptManagerTest extends UnitTestCase {
         },
       ],
 
+      'code repo - prompt' => [
+        [CodeProvider::id() => Key::ENTER],
+        [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
+      ],
+      'code repo - prompt - other' => [
+        [CodeProvider::id() => Key::DOWN . Key::ENTER],
+        [
+          CodeProvider::id() => CodeProvider::OTHER,
+          CiProvider::id() => CiProvider::NONE,
+        ] + $expected_defaults,
+      ],
       'code repo - discovery' => [
         [],
         [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
@@ -427,7 +438,6 @@ class PromptManagerTest extends UnitTestCase {
           File::dump(static::$sut . '/.github/workflows/ci.yml');
         },
       ],
-
       'code repo - discovery - other' => [
         [],
         [
@@ -436,6 +446,13 @@ class PromptManagerTest extends UnitTestCase {
         function (PromptManagerTest $test, Config $config): void {
           $test->stubVortexProject($config);
           Git::init(static::$sut);
+        },
+      ],
+      'code repo - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No .github directory and no .git directory - should fall back to default
         },
       ],
 
