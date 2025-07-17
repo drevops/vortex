@@ -12,7 +12,7 @@ Each prompt type should have these 4 test case categories:
 
 ## Current Status
 ✅ **Name** - Complete (6 test cases) - All 4 categories covered
-⚠️ **MachineName** - Partial (3 test cases) - Missing: prompt, invalid discovery
+✅ **MachineName** - Complete (5 test cases) - All 4 categories covered
 ⚠️ **Org** - Partial (2 test cases) - Missing: prompt, invalid discovery
 ⚠️ **OrgMachineName** - Partial (3 test cases) - Missing: prompt, invalid discovery
 ⚠️ **Domain** - Nearly complete (7 test cases) - Missing: invalid discovery
@@ -188,11 +188,28 @@ Each test case should follow this structure:
 ],
 ```
 
+## Key Learnings from Implementation
+
+### MachineName Handler Implementation
+- **Individual field changes**: When only **MachineName** changes via prompt, only the machine_name and its derived fields (domain, module_prefix, theme) update, while name and org remain at defaults
+- **Proper expected values**: For machine name prompt tests, must specify only the fields that actually change:
+  ```php
+  [
+    MachineName::id() => 'prompted_project',
+    Domain::id() => 'prompted-project.com',
+    ModulePrefix::id() => 'pp',
+    Theme::id() => 'prompted_project',
+  ] + $expected_defaults
+  ```
+- **Order matters**: Must follow exact order: prompt → invalid prompt → discovery → invalid discovery
+- **Naming convention**: Use descriptive suffixes for invalid discovery (e.g., "unmatched", "invalid") to match existing patterns
+
 ## Notes
 - Some handlers may not support all 4 test categories (e.g., boolean handlers may not have invalid prompt tests)
 - Discovery tests should use realistic file/environment scenarios
 - Invalid discovery tests should verify that discovery doesn't match inappropriate scenarios
 - All test cases should be thoroughly tested after implementation
+- **Critical**: Each handler affects different derived fields - cannot reuse expected value arrays across handlers
 
 ## Success Criteria
 - All prompt handlers have comprehensive test coverage
