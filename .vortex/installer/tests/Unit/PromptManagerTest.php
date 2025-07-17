@@ -756,6 +756,13 @@ YAML
           $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::ARTIFACT, DeployType::WEBHOOK]));
         },
       ],
+      'deploy type - discovery - order' => [
+        [],
+        [DeployType::id() => [DeployType::ARTIFACT, DeployType::WEBHOOK]] + $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployType::WEBHOOK, DeployType::ARTIFACT]));
+        },
+      ],
       'deploy type - discovery - invalid' => [
         [],
         $expected_defaults,
