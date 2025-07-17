@@ -648,6 +648,11 @@ YAML
         },
       ],
 
+      'hosting provider - prompt' => [
+        [HostingProvider::id() => Key::ENTER],
+        [HostingProvider::id() => HostingProvider::NONE] + $expected_defaults,
+      ],
+
       'hosting provider - discovery - Acquia' => [
         [],
         [
@@ -681,6 +686,13 @@ YAML
         ] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/.lagoon.yml');
+        },
+      ],
+      'hosting provider - discovery - invalid' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test): void {
+          // No hooks directory, no .lagoon.yml, and no ACQUIA env var - should fall back to default
         },
       ],
 
