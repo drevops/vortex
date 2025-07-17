@@ -33,8 +33,8 @@ class DatabaseImage extends AbstractHandler {
     if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
       && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
       return sprintf('E.g. %s/%s-data:latest',
-        Converter::phpNamespace($responses[OrgMachineName::id()]),
-        Converter::phpNamespace($responses[MachineName::id()])
+        strtolower(Converter::phpNamespace($responses[OrgMachineName::id()])),
+        strtolower(Converter::phpNamespace($responses[MachineName::id()]))
       );
     }
 
@@ -60,8 +60,8 @@ class DatabaseImage extends AbstractHandler {
     ) {
       return sprintf(
         '%s/%s-data:latest',
-        Converter::phpNamespace($responses[OrgMachineName::id()]),
-        Converter::phpNamespace($responses[MachineName::id()])
+        strtolower(Converter::phpNamespace($responses[OrgMachineName::id()])),
+        strtolower(Converter::phpNamespace($responses[MachineName::id()]))
       );
     }
 
