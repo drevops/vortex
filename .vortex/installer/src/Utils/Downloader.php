@@ -140,7 +140,10 @@ class Downloader {
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 
-    $headers = ['User-Agent: PHP'];
+    $headers = [
+      'User-Agent: Vortex-Installer',
+      'Accept: application/vnd.github.v3+json',
+    ];
 
     // Add GitHub token authentication if available.
     $github_token = Env::get('GITHUB_TOKEN');
@@ -149,11 +152,16 @@ class Downloader {
     }
 
     $release_contents = file_get_contents($release_url, FALSE, stream_context_create([
-      'http' => ['method' => 'GET', 'header' => $headers],
+      'http' => [
+        'method' => 'GET',
+        'header' => implode("\r\n", $headers),
+      ],
     ]));
 
     if (!$release_contents) {
-      throw new \RuntimeException(sprintf('Unable to download release information from "%s".', $release_url));
+      $message = sprintf('Unable to download release information from "%s"%s.', $release_url, $github_token ? ' (GitHub token was used)' : '');
+
+      throw new \RuntimeException($message);
     }
 
     $records = json_decode($release_contents, TRUE);

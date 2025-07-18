@@ -116,12 +116,15 @@ EOF
 
       Tui::action(
         label: '⬇️ Downloading Vortex',
-        action: function (): void {
+        action: function (): string {
           $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
+          return $version;
         },
         hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
-        success: 'Vortex downloaded',
+        success: function (string $return): string {
+          return sprintf('Vortex downloaded (%s)', $return);
+        }
       );
 
       Tui::action(
