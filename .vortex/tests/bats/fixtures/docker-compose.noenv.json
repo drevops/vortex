@@ -121,6 +121,7 @@
                     "DRUPAL_TEMPORARY_FILES": "/tmp",
                     "DRUPAL_THEME": "",
                     "GITHUB_TOKEN": "",
+                    "VORTEX_FRONTEND_BUILD_SKIP": "",
                     "WEBROOT": "web"
                 },
                 "context": "FIXTURE_CUR_DIR",
