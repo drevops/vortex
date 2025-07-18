@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -139,38 +137,6 @@
+@@ -140,38 +138,6 @@
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -46,7 +46,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -189,8 +155,7 @@
+@@ -190,8 +156,7 @@
      depends_on:
        - cli
        - database
@@ -56,7 +56,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -199,4 +164,3 @@
+@@ -200,4 +165,3 @@
  volumes:
    app: {}
    files: {}

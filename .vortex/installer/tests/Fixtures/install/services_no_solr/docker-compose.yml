@@ -1,4 +1,4 @@
-@@ -142,23 +142,6 @@
+@@ -143,23 +143,6 @@
    valkey:
      image: uselagoon/valkey-8:__VERSION__
  
@@ -22,7 +22,7 @@
    clamav:
      build:
        context: .
-@@ -199,4 +182,3 @@
+@@ -200,4 +183,3 @@
  volumes:
    app: {}
    files: {}
