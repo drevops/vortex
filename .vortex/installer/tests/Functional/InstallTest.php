@@ -157,9 +157,16 @@ class InstallTest extends FunctionalTestCase {
 
       'code provider, github' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileDoesNotExist(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.dist.md');
+          $test->assertFileContainsString('Checklist before requesting a review', static::$sut . '/.github/PULL_REQUEST_TEMPLATE.md');
+        }),
       ],
       'code provider, other' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::OTHER)),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.github');
+        }),
       ],
 
       'profile, minimal' => [
