@@ -80,6 +80,9 @@ jobs:
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
+      - name: Update Docker permissions
+        run: chmod 777 /root/.docker
+
       - name: Check out code
         uses: actions/checkout@v4
         with:
@@ -192,6 +195,9 @@ jobs:
     steps:
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+
+      - name: Update Docker permissions
+        run: chmod 777 /root/.docker
 
       - name: Check out code
         uses: actions/checkout@v4
@@ -391,6 +397,9 @@ jobs:
     steps:
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+
+      - name: Update Docker permissions
+        run: chmod 777 /root/.docker
 
       - name: Checkout code
         uses: actions/checkout@v4
