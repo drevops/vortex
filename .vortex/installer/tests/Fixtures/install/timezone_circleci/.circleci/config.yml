@@ -187,7 +187,7 @@ jobs:
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
       # Do not build the Drupal front-end.
-      DRUPAL_THEME: ""
+      VORTEX_FRONTEND_BUILD_SKIP: 1
 
   # Build and test is a second step of the build. The testing is performed
   # within the same job to save time on provisioning during the job.
@@ -303,7 +303,7 @@ jobs:
       - run:
           name: Lint theme code with NodeJS linters
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            { [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ]; } || [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:

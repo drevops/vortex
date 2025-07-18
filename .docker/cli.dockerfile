@@ -32,9 +32,12 @@ ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
 ENV DRUPAL_TEMPORARY_FILES=${DRUPAL_TEMPORARY_FILES}
 
 #;< DRUPAL_THEME
-ARG DRUPAL_THEME=""
+ARG DRUPAL_THEME="your_site_theme"
 ENV DRUPAL_THEME=${DRUPAL_THEME}
 #;> DRUPAL_THEME
+
+ARG VORTEX_FRONTEND_BUILD_SKIP="0"
+ENV VORTEX_FRONTEND_BUILD_SKIP=${VORTEX_FRONTEND_BUILD_SKIP}
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache \
@@ -83,7 +86,7 @@ RUN mkdir -p "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_
     chmod 0770 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 #;< DRUPAL_THEME
-RUN if [ -n "${DRUPAL_THEME}" ]; then \
+RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
       theme_path="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}"; \
       yarn --cwd="${theme_path}" install --frozen-lockfile --no-progress && \
       yarn --cwd="${theme_path}" run build && \
