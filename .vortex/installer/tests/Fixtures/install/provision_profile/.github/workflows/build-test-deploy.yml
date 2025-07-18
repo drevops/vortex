@@ -7,7 +7,7 @@
  
  defaults:
    run:
-@@ -46,109 +44,10 @@
+@@ -46,111 +44,10 @@
      shell: bash
  
  jobs:
@@ -61,6 +61,8 @@
 -        if: github.event_name == 'schedule'
 -        run: |
 -          echo "VORTEX_CI_DB_CACHE_FALLBACK=no" >> "$GITHUB_ENV"
+-          # Do not build the Drupal front-end.
+-          echo "DRUPAL_THEME=\"\"" >> "$GITHUB_ENV"
 -
 -      - name: Create cache keys files for database caching
 -        run: |
@@ -117,7 +119,7 @@
  
      strategy:
        matrix:
-@@ -167,14 +66,6 @@
+@@ -169,14 +66,6 @@
          VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
          VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -132,7 +134,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -190,29 +81,6 @@
+@@ -192,29 +81,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -162,7 +164,7 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -358,7 +226,6 @@
+@@ -360,7 +226,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: build
