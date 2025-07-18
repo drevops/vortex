@@ -103,7 +103,7 @@ jobs:
         run: |
           echo "VORTEX_CI_DB_CACHE_FALLBACK=no" >> "$GITHUB_ENV"
           # Do not build the Drupal front-end.
-          echo "DRUPAL_THEME=\"\"" >> "$GITHUB_ENV"
+          echo "DRUPAL_THEME=" >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
         run: |
@@ -298,7 +298,7 @@ jobs:
 
       #;< DRUPAL_THEME
       - name: Lint theme code with NodeJS linters
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.DRUPAL_THEME != '' }}
         run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
