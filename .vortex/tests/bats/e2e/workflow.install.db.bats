@@ -73,3 +73,29 @@ load ../_helper.workflow.bash
 
   assert_ahoy_provision
 }
+
+@test "Workflow: DB-driven, no frontend build" {
+  prepare_sut "Starting DB-driven, no frontend build WORKFLOW tests in build directory ${BUILD_DIR}"
+
+  assert_ahoy_download_db
+
+  local webroot="${1:-web}"
+
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER?Test container registry user is not set}"
+  export VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS?Test container registry pass is not set}"
+
+  export VORTEX_FRONTEND_BUILD_SKIP=1
+
+  substep "Assert frontend build assets do not exist before build"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/build"
+
+  substep "Started project build"
+  process_ahoyyml
+  run ahoy build
+  assert_success
+  run sync_to_host
+
+  substep "Assert frontend build assets do not exist after build"
+  assert_dir_not_exists "${webroot}/themes/custom/star_wars/build"
+}
