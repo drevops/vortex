@@ -21,7 +21,8 @@ RUN apk add --no-cache tzdata
 
 COPY .docker/config/clamav/clamav.conf /tmp/clamav.conf
 
-RUN cat /tmp/clamav.conf >> /etc/clamav/clamd.conf && rm /tmp/clamav.conf && \
+RUN cat /tmp/clamav.conf >> /etc/clamav/clamd.conf && \
+    rm /tmp/clamav.conf && \
     sed -i "s/^LogFile /# LogFile /g" /etc/clamav/clamd.conf && \
     sed -i "s/^#LogSyslog /LogSyslog /g" /etc/clamav/clamd.conf && \
     sed -i "s/^UpdateLogFile /# UpdateLogFile /g" /etc/clamav/freshclam.conf && \
