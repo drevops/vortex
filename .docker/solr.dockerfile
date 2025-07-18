@@ -17,9 +17,9 @@ COPY .docker/config/solr/config-set /solr-conf/conf/
 
 USER root
 
-RUN sed -i -e "s#<dataDir>\${solr.data.dir:}#<dataDir>/var/solr/\${solr.core.name}#g" /solr-conf/conf/solrconfig.xml \
-    && sed -i -e "s#solr.lock.type:native#solr.lock.type:none#g" /solr-conf/conf/solrconfig.xml \
-    && sed -i -e "s#solr.autoSoftCommit.MaxTime=5000#solr.autoSoftCommit.MaxTime=-1#g" /solr-conf/conf/solrcore.properties
+RUN sed -i -e "s#<dataDir>\${solr.data.dir:}#<dataDir>/var/solr/\${solr.core.name}#g" /solr-conf/conf/solrconfig.xml && \
+    sed -i -e "s#solr.lock.type:native#solr.lock.type:none#g" /solr-conf/conf/solrconfig.xml && \
+    sed -i -e "s#solr.autoSoftCommit.MaxTime=5000#solr.autoSoftCommit.MaxTime=-1#g" /solr-conf/conf/solrcore.properties
 
 USER solr
 

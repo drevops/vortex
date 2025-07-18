@@ -47,11 +47,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 # earlier in the build process (near the top of this file).
 
 # Add more tools.
-RUN apk add --no-cache ncurses pv tzdata autoconf g++ make \
-  && pecl install pcov \
-  && docker-php-ext-enable pcov \
-  && docker-php-ext-install pcntl \
-  && apk del g++ make autoconf
+RUN apk add --no-cache ncurses pv tzdata autoconf g++ make && \
+    pecl install pcov && \
+    docker-php-ext-enable pcov && \
+    docker-php-ext-install pcntl && \
+    apk del g++ make autoconf
 
 # Add patches and scripts.
 COPY patches /app/patches
@@ -78,7 +78,7 @@ COPY . /app
 
 # Create file directories and set correct permissions.
 RUN mkdir -p "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
- chmod 0770 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
+    chmod 0770 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 RUN if [ -n "${DRUPAL_THEME}" ]; then \
       theme_path="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}"; \
