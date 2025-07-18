@@ -60,7 +60,16 @@ class CodeProvider extends AbstractHandler {
   public function process(): void {
     $v = $this->getResponseAsString();
 
-    if ($v !== self::GITHUB) {
+    if ($v === self::GITHUB) {
+      if (file_exists($this->tmpDir . '/.github/PULL_REQUEST_TEMPLATE.md')) {
+        @unlink($this->tmpDir . '/.github/PULL_REQUEST_TEMPLATE.md');
+      }
+
+      if (file_exists($this->tmpDir . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
+        rename($this->tmpDir . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $this->tmpDir . '/.github/PULL_REQUEST_TEMPLATE.md');
+      }
+    }
+    else {
       File::rmdir($this->tmpDir . '/.github');
     }
   }
