@@ -85,6 +85,7 @@ services:
         DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
         DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+        DRUPAL_THEME: ${DRUPAL_THEME:-}
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root
     <<: *default-volumes

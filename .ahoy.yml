@@ -167,7 +167,7 @@ commands:
     cmd: |
       ahoy cli "yarn install --frozen-lockfile"
       #;< DRUPAL_THEME
-      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lock"
+      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
       #;> DRUPAL_THEME
 
   #;< DRUPAL_THEME
