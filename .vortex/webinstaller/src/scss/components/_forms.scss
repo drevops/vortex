@@ -1,0 +1,290 @@
+@use '../variables';
+@use '../mixins';
+
+.form-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.panel-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid variables.$gray-100;
+}
+
+.panel-title {
+  font-size: calc(1.5rem * var(--scale-factor));
+  font-weight: 600;
+  color: variables.$gray-800;
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: calc(var(--base-margin) * var(--scale-factor) * 1.5);
+
+  label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: variables.$gray-700;
+    margin-bottom: calc(0.5rem * var(--scale-factor));
+    font-size: calc(0.95rem * var(--scale-factor));
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: calc(0.75rem * var(--scale-factor))
+      calc(1rem * var(--scale-factor));
+    border: 2px solid variables.$gray-200;
+    border-radius: 8px;
+    font-size: calc(var(--base-font-size) * var(--scale-factor));
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: variables.$primary;
+      box-shadow: 0 0 0 3px rgb(variables.$primary, 0.1);
+    }
+
+    &.valid {
+      border-color: variables.$success;
+      box-shadow: 0 0 0 3px rgb(variables.$success, 0.1);
+    }
+
+    &.invalid {
+      border-color: variables.$error;
+      box-shadow: 0 0 0 3px rgb(variables.$error, 0.1);
+    }
+  }
+}
+
+.help-text {
+  font-size: 0.875rem;
+  color: variables.$gray-500;
+  margin-top: 4px;
+
+  &.auto-generated {
+    font-style: italic;
+  }
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(0.5rem * var(--scale-factor))
+    calc(0.75rem * var(--scale-factor));
+  border: 2px solid variables.$gray-200;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: calc(var(--base-font-size) * var(--scale-factor));
+
+  &:hover {
+    border-color: variables.$primary;
+    background: variables.$gray-50;
+  }
+
+  input[type='radio'] {
+    width: auto;
+    margin-right: 12px;
+  }
+
+  .help-icon {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+.checkbox-group {
+  margin-bottom: 15px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(0.5rem * var(--scale-factor))
+    calc(0.75rem * var(--scale-factor));
+  border: 2px solid variables.$gray-200;
+  border-radius: 8px;
+  margin-bottom: calc(0.375rem * var(--scale-factor));
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: calc(var(--base-font-size) * var(--scale-factor));
+
+  &:hover {
+    border-color: variables.$primary;
+    background: variables.$gray-50;
+  }
+
+  input[type='checkbox'] {
+    width: auto;
+    margin-right: 12px;
+  }
+
+  .help-icon {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+.validation-error {
+  color: variables.$error;
+  font-size: calc(0.875rem * var(--scale-factor));
+  margin-top: calc(0.25rem * var(--scale-factor));
+  padding: calc(0.25rem * var(--scale-factor))
+    calc(0.5rem * var(--scale-factor));
+  background: rgb(variables.$error, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid variables.$error;
+  animation: slide-down 0.3s ease;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  to {
+    opacity: 1;
+    max-height: 100px;
+    padding-top: calc(0.25rem * var(--scale-factor));
+    padding-bottom: calc(0.25rem * var(--scale-factor));
+  }
+}
+
+.form-content {
+  @include mixins.mobile {
+    padding: 15px;
+  }
+}
+
+.form-group {
+  @include mixins.mobile {
+    margin-bottom: calc(var(--base-margin) * var(--scale-factor) * 1.2);
+  }
+}
+
+.conditional-field {
+  margin-left: 24px;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  padding-left: 20px;
+  border-left: 3px solid variables.$gray-200;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.active {
+    border-left-color: variables.$primary;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(
+      135deg,
+      variables.$primary,
+      variables.$primary-hover
+    );
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.4s 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.active::before {
+    transform: scaleY(1);
+  }
+
+  .form-group {
+    margin-bottom: calc(var(--base-margin) * var(--scale-factor) * 1.2);
+  }
+
+  @include mixins.mobile {
+    margin-left: 16px;
+    padding-left: 16px;
+  }
+}
+
+.height-enter {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+}
+
+.height-enter-start {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+}
+
+.height-enter-end {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(0);
+  transition:
+    max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    margin 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    padding 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.height-leave {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  margin-bottom: 0;
+  transform: translateY(0);
+}
+
+.height-leave-start {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: calc(var(--base-margin) * var(--scale-factor) * 0.75);
+  margin-bottom: 0;
+  transform: translateY(0);
+}
+
+.height-leave-end {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+  transition:
+    max-height 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    opacity 0.3s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    margin 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    padding 0.2s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+    transform 0.3s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}

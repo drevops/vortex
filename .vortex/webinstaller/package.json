@@ -1,0 +1,39 @@
+{
+  "name": "vortex-installer",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm:watch:js\" \"npm:watch:scss\" \"npm:serve\"",
+    "build": "npm run build:js && npm run build:scss",
+    "build:js": "npx esbuild src/js/installer.js --bundle --outfile=dist/scripts.js --minify",
+    "build:scss": "npx sass src/scss/styles.scss dist/styles.css --style=compressed",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:format",
+    "lint-fix": "npm run lint-fix:js && npm run lint-fix:css && npm run lint-fix:format",
+    "lint-fix:css": "stylelint \"src/**/*.scss\" --fix",
+    "lint-fix:format": "prettier --write .",
+    "lint-fix:js": "eslint . --fix",
+    "lint:css": "stylelint \"src/**/*.scss\"",
+    "lint:format": "prettier --check .",
+    "lint:js": "eslint .",
+    "serve": "live-server --port=3000 --watch=dist --open=index.html",
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "watch:js": "npx esbuild src/js/installer.js --bundle --outfile=dist/scripts.js --watch",
+    "watch:scss": "npx sass --watch src/scss/styles.scss dist/styles.css"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "concurrently": "^9.2.0",
+    "cypress": "^13.17.0",
+    "esbuild": "^0.25.5",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-cypress": "^5.1.0",
+    "live-server": "^1.2.2",
+    "prettier": "^3.6.0",
+    "sass": "^1.69.0",
+    "stylelint": "^16.21.0",
+    "stylelint-config-prettier-scss": "^1.0.0",
+    "stylelint-config-standard-scss": "^15.0.1"
+  }
+}
