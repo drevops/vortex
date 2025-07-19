@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -140,38 +138,6 @@
+@@ -140,37 +138,6 @@
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -35,7 +35,6 @@
 -    build:
 -      context: .
 -      dockerfile: .docker/clamav.dockerfile
--    platform: linux/amd64
 -    ports:
 -      - "3310" # Find port on host with `docker compose port clamav 3310`.
 -    environment:
@@ -46,7 +45,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -190,8 +156,7 @@
+@@ -189,8 +156,7 @@
      depends_on:
        - cli
        - database
@@ -56,7 +55,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -200,4 +165,3 @@
+@@ -199,4 +165,3 @@
  volumes:
    app: {}
    files: {}
