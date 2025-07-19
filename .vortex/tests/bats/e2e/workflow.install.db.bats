@@ -10,6 +10,7 @@ load ../_helper.workflow.bash
 
 @test "Workflow: Build Docker Compose stack with frontend build" {
   export VORTEX_DEV_VOLUMES_SKIP_MOUNT=1
+  export COMPOSE_PROJECT_NAME="test_frontend_build_$$_$RANDOM"
 
   prepare_sut "Starting DB-driven, with frontend build WORKFLOW tests in build directory ${BUILD_DIR}"
 
@@ -20,16 +21,15 @@ load ../_helper.workflow.bash
   substep "Assert frontend build assets do not exist before build"
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/build"
 
-  substep "Building CLI image with frontend build"
-  run docker compose build --no-cache cli
-  assert_success
+  substep "Building CLI image"
+  docker compose build --no-cache cli >&3
 
-  substep "Copy files from built image to host"
-  run docker create --name temp_cli "$(docker compose images -q cli)"
+  substep "Start temporary container and copy files"
+  run docker compose up -d --no-build cli
   assert_success
-  run docker cp temp_cli:/app/. .
+  run docker compose cp cli:/app/. .
   assert_success
-  run docker rm temp_cli
+  run docker compose down
   assert_success
 
   substep "Assert frontend build assets exist after build"
@@ -39,10 +39,12 @@ load ../_helper.workflow.bash
   assert_success
 }
 
+
 @test "Workflow: Build Docker Compose stack without frontend build" {
   export VORTEX_DEV_VOLUMES_SKIP_MOUNT=1
+  export COMPOSE_PROJECT_NAME="test_frontend_build_$$_$RANDOM"
 
-  prepare_sut "Starting DB-driven, no frontend build WORKFLOW tests in build directory ${BUILD_DIR}"
+  prepare_sut "Starting DB-driven, with frontend build WORKFLOW tests in build directory ${BUILD_DIR}"
 
   export VORTEX_FRONTEND_BUILD_SKIP=1
 
@@ -53,19 +55,18 @@ load ../_helper.workflow.bash
   substep "Assert frontend build assets do not exist before build"
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/build"
 
-  substep "Building CLI image without frontend build"
-  run docker compose build --no-cache cli
+  substep "Building CLI image"
+  docker compose build --no-cache cli >&3
+
+  substep "Start temporary container and copy files"
+  run docker compose up -d --no-build cli
+  assert_success
+  run docker compose cp cli:/app/. .
+  assert_success
+  run docker compose down
   assert_success
 
-  substep "Copy files from built image to host"
-  run docker create --name temp_cli "$(docker compose images -q cli)"
-  assert_success
-  run docker cp temp_cli:/app/. .
-  assert_success
-  run docker rm temp_cli
-  assert_success
-
-  substep "Assert frontend build assets do not exist after build"
+  substep "Assert frontend build not assets exist after build"
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/build"
 
   run docker compose down --remove-orphans
