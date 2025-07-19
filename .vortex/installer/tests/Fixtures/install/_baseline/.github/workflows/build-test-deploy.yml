@@ -96,8 +96,7 @@ jobs:
         if: github.event_name == 'schedule'
         run: |
           echo "VORTEX_CI_DB_CACHE_FALLBACK=no" >> "$GITHUB_ENV"
-          # Do not build the Drupal front-end.
-          echo "DRUPAL_THEME=" >> "$GITHUB_ENV"
+          echo "VORTEX_FRONTEND_BUILD_SKIP=1" >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
         run: |
