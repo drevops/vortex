@@ -5,19 +5,21 @@
 # Allow running ClamAV in rootless mode.
 # @see https://github.com/Cisco-Talos/clamav/issues/478
 #
-# hadolint global ignore=DL3018
+# hadolint global ignore=DL3008,DL3018
 #
 # @see https://hub.docker.com/r/uselagoon/commons/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/commons
 
 FROM uselagoon/commons:__VERSION__ AS commons
 
-FROM clamav/clamav:__VERSION__
+FROM clamav/clamav-debian:__VERSION__
 
 COPY --from=commons /lagoon /lagoon
 COPY --from=commons /bin/fix-permissions /bin/ep /bin/docker-sleep /bin/wait-for /bin/
 
-RUN apk add --no-cache tzdata
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY .docker/config/clamav/clamav.conf /tmp/clamav.conf
 

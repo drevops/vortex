@@ -64,7 +64,7 @@
  
    clamav:
      build:
-@@ -171,6 +192,10 @@
+@@ -170,6 +191,10 @@
        << : *default-environment
      networks:
        - default
@@ -75,7 +75,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -183,6 +208,8 @@
+@@ -182,6 +207,8 @@
        <<: *default-environment
      depends_on:
        - cli
@@ -84,7 +84,7 @@
  
    # Helper container to wait for services to become available.
    wait_dependencies:
-@@ -192,6 +219,8 @@
+@@ -191,6 +218,8 @@
        - database
        - clamav
      command: database:3306 clamav:3310

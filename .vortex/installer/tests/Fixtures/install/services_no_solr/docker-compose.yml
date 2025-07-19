@@ -22,7 +22,7 @@
    clamav:
      build:
        context: .
-@@ -200,4 +183,3 @@
+@@ -199,4 +182,3 @@
  volumes:
    app: {}
    files: {}
