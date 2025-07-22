@@ -24,7 +24,7 @@
         "czproject/git-php": "^4.3",
         "laravel/prompts": "^0.3.5",
         "sebastian/diff": "*",
-        "symfony/console": "^7.2.1",
+        "symfony/console": "^7.3",
         "symfony/filesystem": "^7.2",
         "symfony/yaml": "^7.2"
     },
