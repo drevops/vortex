@@ -917,6 +917,14 @@ Default value: `${VORTEX_CONTAINER_REGISTRY_USER}`
 
 Defined in: `scripts/vortex/deploy-container-registry.sh`
 
+### `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED`
+
+Flag to control failure behavior when Lagoon environment limits are exceeded.<br/>When set to `0`, the deployment will exit with success instead of failure.<br/>When set to `1`, the deployment will fail.
+
+Default value: `0`
+
+Defined in: `scripts/vortex/deploy-lagoon.sh`
+
 ### `VORTEX_DEPLOY_LAGOON_INSTANCE`
 
 The Lagoon instance name to interact with.

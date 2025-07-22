@@ -310,3 +310,110 @@ load ../_helper.deployment.bash
   popd >/dev/null
 }
 
+@test "Branch: Environment limit exceeded with FAIL flag set to 0 (continue successfully)" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  setup_ssh_key_fixture
+  provision_default_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED="0"
+
+  # Mock lagoon command to return environment limit exceeded error
+  local limit_error="Error: graphql: 'test-branch' would exceed the configured limit of 5 development environments for project test_project"
+
+  declare -a STEPS=(
+    "Started LAGOON deployment."
+    "Configuring Lagoon instance."
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Discovering existing environments for branch deployments."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "Deploying environment: project test_project, branch: test-branch."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
+    "Lagoon environment limit exceeded."
+    "Finished LAGOON deployment."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run scripts/vortex/deploy-lagoon.sh
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "Branch: Environment limit exceeded with FAIL flag set to 1 (fail deployment)" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  setup_ssh_key_fixture
+  provision_default_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED="1"
+
+  # Mock lagoon command to return environment limit exceeded error
+  local limit_error="Error: graphql: 'test-branch' would exceed the configured limit of 5 development environments for project test_project"
+
+  declare -a STEPS=(
+    "Started LAGOON deployment."
+    "Configuring Lagoon instance."
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Discovering existing environments for branch deployments."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "Deploying environment: project test_project, branch: test-branch."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
+    "Lagoon environment limit exceeded."
+    "[FAIL] LAGOON deployment completed with errors."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run scripts/vortex/deploy-lagoon.sh
+  assert_failure
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "PR: Environment limit exceeded with FAIL flag set to 0 (continue successfully)" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  setup_ssh_key_fixture
+  provision_default_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_PR="133"
+  export VORTEX_DEPLOY_BRANCH="feature-branch"
+  export VORTEX_DEPLOY_PR_HEAD="origin/feature-branch"
+  export VORTEX_DEPLOY_PR_BASE_BRANCH="develop"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED="0"
+
+  # Mock lagoon command to return environment limit exceeded error
+  local limit_error="Error: graphql: 'pr-133' would exceed the configured limit of 5 development environments for project website"
+
+  declare -a STEPS=(
+    "Started LAGOON deployment."
+    "Configuring Lagoon instance."
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Discovering existing environments for PR deployments."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "Deploying environment: project test_project, PR: 133."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 133 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-133 # 1 # ${limit_error}"
+    "Lagoon environment limit exceeded."
+    "Finished LAGOON deployment."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run scripts/vortex/deploy-lagoon.sh
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
