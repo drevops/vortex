@@ -89,16 +89,18 @@ export VORTEX_SSH_PREFIX="DEPLOY" && . ./scripts/vortex/setup-ssh.sh
 if ! command -v lagoon >/dev/null || [ -n "${VORTEX_LAGOONCLI_FORCE_INSTALL}" ]; then
   task "Installing Lagoon CLI."
 
-  lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/latest"
+  platform=$(uname -s | tr '[:upper:]' '[:lower:]')
+  arch_suffix=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+
+  download_url="https://github.com/uselagoon/lagoon-cli/releases/latest/download/lagoon-cli-${platform}-${arch_suffix}"
   if [ "${VORTEX_LAGOONCLI_VERSION}" != "latest" ]; then
-    lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/tags/${VORTEX_LAGOONCLI_VERSION}"
+    download_url="https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}/lagoon-cli-${platform}-${arch_suffix}"
   fi
 
-  curl -sL "${lagooncli_download_url}" |
-    grep "browser_download_url" |
-    grep -i "$(uname -s)-amd64\"$" |
-    cut -d '"' -f 4 |
-    xargs curl -L -o "${VORTEX_LAGOONCLI_PATH}/lagoon"
+  note "Downloading Lagoon CLI from ${download_url}."
+  curl -L -o "${VORTEX_LAGOONCLI_PATH}/lagoon" "${download_url}"
+
+  note "Installing Lagoon CLI to ${VORTEX_LAGOONCLI_PATH}/lagoon."
   chmod +x "${VORTEX_LAGOONCLI_PATH}/lagoon"
   export PATH="${PATH}:${VORTEX_LAGOONCLI_PATH}"
 fi
