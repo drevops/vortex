@@ -96,7 +96,7 @@ load ../_helper.bash
 prepare_docker_compose() {
   cp "${ROOT_DIR}/docker-compose.yml" docker-compose.yml
 
-  unset GITHUB_TOKEN
+  unset PACKAGE_TOKEN
 
   # In order for tests to pass locally and in CI, we need to replicate the
   # environment locally to be the same as in CI.

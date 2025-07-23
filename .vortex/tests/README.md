@@ -89,5 +89,5 @@ customize test execution:
 - `TEST_VORTEX_DEBUG=1` - Enable debug output
 - `TEST_NODE_INDEX` - CI runner index for parallel execution
 - `VORTEX_DEV_TEST_COVERAGE_DIR` - Coverage output directory
-- `TEST_GITHUB_TOKEN` - GitHub token used for integration tests
+- `TEST_PACKAGE_TOKEN` - GitHub token used for integration tests
 - `TEST_VORTEX_CONTAINER_REGISTRY_USER/PASS` - Container registry credentials used for integration tests

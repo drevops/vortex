@@ -95,7 +95,7 @@ commands:
     usage: Run Composer commands in the CLI service container.
     cmd: |
       ahoy cli " \
-        if [ -n \"${GITHUB_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${GITHUB_TOKEN-}\"}}'; fi && \
+        if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
         COMPOSER_MEMORY_LIMIT=-1 composer --ansi $@"
 
   drush:

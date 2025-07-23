@@ -86,7 +86,7 @@ services:
       dockerfile: .docker/cli.dockerfile
       args:
         WEBROOT: "${WEBROOT:-web}"
-        GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
+        PACKAGE_TOKEN: "${PACKAGE_TOKEN:-}"
 
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root

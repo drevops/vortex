@@ -120,7 +120,7 @@
                     "DRUPAL_PUBLIC_FILES": "sites/default/files",
                     "DRUPAL_TEMPORARY_FILES": "/tmp",
                     "DRUPAL_THEME": "",
-                    "GITHUB_TOKEN": "",
+                    "PACKAGE_TOKEN": "",
                     "VORTEX_FRONTEND_BUILD_SKIP": "",
                     "WEBROOT": "web"
                 },
