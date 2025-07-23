@@ -19,4 +19,6 @@ ENV WEBROOT=${WEBROOT}
 
 RUN apk add --no-cache tzdata
 
+COPY ./.docker/config/nginx/redirects-map.conf /etc/nginx/redirects-map.conf
+
 COPY --from=cli /app /app
