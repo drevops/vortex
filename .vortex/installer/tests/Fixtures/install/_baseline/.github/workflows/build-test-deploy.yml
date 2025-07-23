@@ -53,14 +53,14 @@ jobs:
       image: drevops/ci-runner:__VERSION__
 
       env:
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
         VORTEX_SSH_REMOVE_ALL_KEYS: "1"
-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         # How often to refresh the cache of the DB dump. Refer to `date` command.
         VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
         # Use previous database caches on this branch as a fallback if the above cache
@@ -160,13 +160,14 @@ jobs:
       image: drevops/ci-runner:__VERSION__
 
       env:
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
         # Disable strict host key checking for SSH connections.
         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
         VORTEX_SSH_REMOVE_ALL_KEYS: "1"
-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
         # How often to refresh the cache of the DB dump. Refer to `date` command.
         VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
@@ -227,8 +228,6 @@ jobs:
 
       - name: Build stack
         run: docker compose up -d
-        env:
-          PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Export built codebase
         if: matrix.instance == 0
@@ -243,8 +242,6 @@ jobs:
             if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-        env:
-          PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Validate Composer configuration is normalized
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}

@@ -69,10 +69,12 @@ COPY scripts /app/scripts
 # may be needed by Composer scripts to access additional variables.
 COPY composer.json composer.* .env* auth* /app/
 
-# Install PHP dependencies without development packages.
-# This is crucial to avoid exposing potential security vulnerabilities
-# in the production environment.
-RUN if [ -n "${PACKAGE_TOKEN}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN}\"}}"; fi && \
+# Install PHP dependencies without development packages to avoid exposing
+# potential security vulnerabilities in the production environment.
+# hadolint ignore=SC2155
+RUN --mount=type=secret,id=package_token \
+    token=$(if [ -s /run/secrets/package_token ]; then cat /run/secrets/package_token; else echo "${PACKAGE_TOKEN}"; fi) && \
+    if [ -n "${token}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${token}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
 # Copy all files into the application source directory. Existing files are

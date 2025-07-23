@@ -18,14 +18,14 @@
 -      image: drevops/ci-runner:__VERSION__
 -
 -      env:
+-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
 -        TZ: ${{ vars.TZ || 'UTC' }}
 -        TERM: xterm-256color
 -        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
 -        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
--        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
--        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
 -        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
--        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 -        # How often to refresh the cache of the DB dump. Refer to `date` command.
 -        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
 -        # Use previous database caches on this branch as a fallback if the above cache
@@ -118,9 +118,9 @@
  
      strategy:
        matrix:
-@@ -168,14 +66,6 @@
-         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-         VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+@@ -169,14 +67,6 @@
+         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+         VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 -        # How often to refresh the cache of the DB dump. Refer to `date` command.
 -        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
@@ -133,7 +133,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -191,29 +81,6 @@
+@@ -192,29 +82,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -163,7 +163,7 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -363,7 +230,6 @@
+@@ -360,7 +227,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: build
