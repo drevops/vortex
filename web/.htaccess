@@ -103,7 +103,7 @@ AddEncoding gzip svgz
   # (http://example.com/foo will be redirected to http://www.example.com/foo)
   # uncomment the following:
 
-  # Redirect all non-ww requests to www.
+  # Redirect all non-www requests to www.
   RewriteCond %{HTTP_HOST} .
   #;< HOSTING_ACQUIA
   RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]

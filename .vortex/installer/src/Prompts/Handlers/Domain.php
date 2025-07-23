@@ -83,6 +83,10 @@ class Domain extends AbstractHandler {
   public function process(): void {
     $v = $this->getResponseAsString();
 
+    // Replace in regular expressions.
+    File::replaceContentAsync(preg_quote('your-site-domain.example'), preg_quote($v));
+
+    // Replace scalar values.
     File::replaceContentAsync('your-site-domain.example', $v);
   }
 
