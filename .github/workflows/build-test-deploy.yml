@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0
 
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
@@ -166,7 +166,7 @@ jobs:
       fail-fast: false
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0
 
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
@@ -381,7 +381,7 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0
       env:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
