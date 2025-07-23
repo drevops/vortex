@@ -82,7 +82,7 @@ services:
       dockerfile: .docker/cli.dockerfile
       args:
         WEBROOT: "${WEBROOT:-web}"
-        GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
+        PACKAGE_TOKEN: "${PACKAGE_TOKEN:-}"
         DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
         DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}

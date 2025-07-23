@@ -91,6 +91,26 @@ class Internal extends AbstractHandler {
       }
     }
 
+    // Remove private package from composer.json.
+    $composer_json_path = $t . DIRECTORY_SEPARATOR . 'composer.json';
+    if (file_exists($composer_json_path)) {
+      $content = file_get_contents($composer_json_path);
+      $composer_json = json_decode((string) $content, FALSE);
+      if ($composer_json !== NULL) {
+        if (isset($composer_json->require->{'drevops/generic-private-package'})) {
+          unset($composer_json->require->{'drevops/generic-private-package'});
+        }
+
+        if (isset($composer_json->repositories)) {
+          $composer_json->repositories = array_values(array_filter($composer_json->repositories, function ($repo): bool {
+            return !isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package');
+          }));
+        }
+
+        file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+      }
+    }
+
     // Execute all queued batch tasks from all handlers.
     File::runTaskDirectory($this->config->get(Config::TMP));
   }

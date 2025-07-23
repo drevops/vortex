@@ -58,7 +58,7 @@ setup() {
   # Override real secrets with test secrets.
   # For the development of the tests locally, export `TEST_` variables in your
   # shell before running the tests.
-  export GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
+  export PACKAGE_TOKEN="${TEST_PACKAGE_TOKEN:-}"
   export VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER:-}"
   export VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS:-}"
 
