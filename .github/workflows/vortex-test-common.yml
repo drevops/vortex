@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -80,6 +80,13 @@ jobs:
       - name: Validate Renovate configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
 
+      - name: Install Ahoy
+        run: |
+          version=2.4.0 && \
+          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          chmod +x /usr/local/bin/ahoy && \
+          ahoy --version
+
       - name: Run tests
         run: ./tests/test.common.sh
         working-directory: .vortex
@@ -109,7 +116,7 @@ jobs:
         batch: [0, 1, 2, 3]
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -140,6 +147,13 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
 
+      - name: Install Ahoy
+        run: |
+          version=2.4.0 && \
+          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          chmod +x /usr/local/bin/ahoy && \
+          ahoy --version
+
       - name: Run tests
         run: ./tests/test.workflow.sh
         working-directory: .vortex
@@ -169,7 +183,7 @@ jobs:
         batch: [0, 1]
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -206,6 +220,13 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
+
+      - name: Install Ahoy
+        run: |
+          version=2.4.0 && \
+          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          chmod +x /usr/local/bin/ahoy && \
+          ahoy --version
 
       - name: Run tests
         run: ./tests/test.deployment.sh

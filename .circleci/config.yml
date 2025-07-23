@@ -41,7 +41,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # https://github.com/drevops/ci-runner
       # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:25.7.0
+      - image: drevops/ci-runner:25.8.0
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
@@ -490,6 +490,14 @@ jobs:
       - checkout
       - *step_process_codebase_for_ci
       - *step_setup_remote_docker
+
+      - run:
+          name:  Install Ahoy
+          command: |
+            version=2.4.0 && \
+            set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+            chmod +x /usr/local/bin/ahoy && \
+            ahoy --version
 
       - run:
           name: Run CircleCI tests (long)
