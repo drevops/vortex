@@ -6,6 +6,12 @@
             "name": "star_wars_default"
         }
     },
+    "secrets": {
+        "package_token": {
+            "environment": "PACKAGE_TOKEN",
+            "name": "star_wars_package_token"
+        }
+    },
     "services": {
         "chrome": {
             "command": null,
@@ -125,7 +131,12 @@
                     "WEBROOT": "web"
                 },
                 "context": "FIXTURE_CUR_DIR",
-                "dockerfile": ".docker/cli.dockerfile"
+                "dockerfile": ".docker/cli.dockerfile",
+                "secrets": [
+                    {
+                        "source": "package_token"
+                    }
+                ]
             },
             "command": null,
             "entrypoint": null,
