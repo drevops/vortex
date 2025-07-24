@@ -37,6 +37,8 @@ class InstallCommand extends Command {
 
   const OPTION_URI = 'uri';
 
+  const OPTION_NO_CLEANUP = 'no-cleanup';
+
   /**
    * Defines default command name.
    *
@@ -62,7 +64,7 @@ class InstallCommand extends Command {
   Non-interactively install Vortex from the latest stable release into the specified directory:
   php install --no-interaction destination
 
-  Install Vortex from a stable release into the specified directory:
+  Install Vortex from the stable branch into the specified directory:
   php install --uri=https://github.com/drevops/vortex.git@stable destination
 
   Install Vortex from a specific release into the specified directory:
@@ -78,6 +80,7 @@ EOF
     $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
+    $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
   }
 
   /**
@@ -163,6 +166,10 @@ EOF
 
     static::footer();
 
+    // Cleanup should take place only in case of the successful installation.
+    // Otherwise, the user should be able to re-run the installer.
+    register_shutdown_function([$this, 'cleanup']);
+
     return Command::SUCCESS;
   }
 
@@ -242,6 +249,9 @@ EOF
 
     // Internal flag to skip processing of the demo mode.
     $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
+
+    // Set no-cleanup flag.
+    $this->config->set(Config::NO_CLEANUP, (bool) $options[static::OPTION_NO_CLEANUP]);
   }
 
   protected function prepareDestination(): array {
@@ -441,6 +451,21 @@ EOT;
     }
 
     Tui::box($output, $title);
+  }
+
+  /**
+   * Clean up installer artifacts.
+   */
+  public function cleanup(): void {
+    // Skip cleanup if the no-cleanup flag is set.
+    if ($this->config->get(Config::NO_CLEANUP, FALSE)) {
+      return;
+    }
+
+    $phar_path = \Phar::running(FALSE);
+    if (!empty($phar_path) && file_exists($phar_path)) {
+      @unlink($phar_path);
+    }
   }
 
 }

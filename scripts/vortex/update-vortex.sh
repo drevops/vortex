@@ -48,4 +48,3 @@ for cmd in php curl; do command -v ${cmd} >/dev/null || {
 
 curl -L "${VORTEX_INSTALLER_URL}"?"$(date +%s)" >/tmp/install
 php /tmp/install --no-interaction
-rm /tmp/install >/dev/null

@@ -37,6 +37,8 @@ final class Config {
 
   const QUIET = 'VORTEX_INSTALL_QUIET';
 
+  const NO_CLEANUP = 'VORTEX_INSTALL_NO_CLEANUP';
+
   /**
    * Store of configuration values.
    *

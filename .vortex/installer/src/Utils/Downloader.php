@@ -87,15 +87,11 @@ class Downloader {
 
     // @todo Handle Downloader::REF_HEAD.
     $url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
-    $command = sprintf(
-      'curl -sS -L "%s" | tar xzf - -C "%s" --strip 1',
-      $url,
-      $destination
-    );
 
-    if (passthru($command) === FALSE) {
-      throw new \RuntimeException(sprintf('Failed to download the remote archive: %s', $command));
-    }
+    $archive_path = $this->downloadArchive($url);
+    $this->validateArchive($archive_path);
+    $this->extractArchive($archive_path, $destination, TRUE);
+    unlink($archive_path);
 
     return $version;
   }
@@ -115,17 +111,10 @@ class Downloader {
       $version = 'develop';
     }
 
-    $command = sprintf(
-      'git --git-dir="%s/.git" --work-tree="%s" archive --format=tar "%s" | tar xf - -C "%s"',
-      $repo,
-      $repo,
-      $ref,
-      $destination
-    );
-
-    if (passthru($command) === FALSE) {
-      throw new \RuntimeException(sprintf('Failed to download the local archive: %s', $command));
-    }
+    $archive_path = $this->archiveFromLocal($repo, $ref);
+    $this->validateArchive($archive_path);
+    $this->extractArchive($archive_path, $destination, FALSE);
+    unlink($archive_path);
 
     return $version;
   }
@@ -176,6 +165,191 @@ class Downloader {
     }
 
     return NULL;
+  }
+
+  /**
+   * Download archive from URL to a temporary file.
+   *
+   * @param string $url
+   *   The URL to download from.
+   *
+   * @return string
+   *   Path to the downloaded temporary file.
+   *
+   * @throws \RuntimeException
+   *   If download fails.
+   */
+  protected function downloadArchive(string $url): string {
+    $temp_file = tempnam(sys_get_temp_dir(), 'vortex_archive_');
+    if ($temp_file === FALSE) {
+      throw new \RuntimeException('Unable to create temporary file for archive download.');
+    }
+
+    // Build curl command with headers.
+    $headers = [
+      'User-Agent: Vortex-Installer',
+    ];
+
+    $github_token = Env::get('GITHUB_TOKEN');
+    if ($github_token) {
+      $headers[] = sprintf('Authorization: Bearer %s', $github_token);
+    }
+
+    $header_args = '';
+    foreach ($headers as $header) {
+      $header_args .= sprintf(' -H %s', escapeshellarg($header));
+    }
+
+    $command = sprintf(
+      'curl -sS -L%s -o %s %s',
+      $header_args,
+      escapeshellarg($temp_file),
+      escapeshellarg($url)
+    );
+
+    if (passthru($command) === FALSE) {
+      unlink($temp_file);
+      throw new \RuntimeException(sprintf('Failed to download archive from: %s', $url));
+    }
+
+    return $temp_file;
+  }
+
+  /**
+   * Validate archive file (supports both gzip and tar formats).
+   *
+   * @param string $archive_path
+   *   Path to the archive file.
+   *
+   * @throws \RuntimeException
+   *   If validation fails.
+   */
+  protected function validateArchive(string $archive_path): void {
+    if (!file_exists($archive_path)) {
+      throw new \RuntimeException(sprintf('Archive file does not exist: %s', $archive_path));
+    }
+
+    if (filesize($archive_path) === 0) {
+      throw new \RuntimeException('Archive is empty.');
+    }
+
+    $file_handle = fopen($archive_path, 'rb');
+    if ($file_handle === FALSE) {
+      throw new \RuntimeException(sprintf('Unable to read archive file: %s', $archive_path));
+    }
+
+    // Read first few bytes to determine format.
+    $header = fread($file_handle, 512);
+    fclose($file_handle);
+    if ($header === FALSE) {
+      throw new \RuntimeException(sprintf('Failed to read archive file: %s', $archive_path));
+    }
+
+    // Check for gzip format (remote archives)
+    if (strlen($header) >= 2) {
+      $gzip_magic = substr($header, 0, 2);
+      if ($gzip_magic === "\x1f\x8b") {
+        // Valid gzip archive.
+        return;
+      }
+    }
+
+    // Check for tar format (local archives)
+    if (strlen($header) >= 512) {
+      $tar_magic = substr($header, 257, 5);
+      if ($tar_magic === "ustar" || $tar_magic === "00000") {
+        // Valid tar archive.
+        return;
+      }
+    }
+
+    throw new \RuntimeException('File does not appear to be a valid gzip or tar archive.');
+  }
+
+  /**
+   * Extract archive to destination directory.
+   *
+   * @param string $archive_path
+   *   Path to the archive file.
+   * @param string $destination
+   *   Destination directory.
+   * @param bool $is_remote
+   *   Whether this is a remote archive (affects extraction options).
+   *
+   * @throws \RuntimeException
+   *   If extraction fails.
+   */
+  protected function extractArchive(string $archive_path, string $destination, bool $is_remote = TRUE): void {
+    // Detect archive format.
+    $file_handle = fopen($archive_path, 'rb');
+    if ($file_handle === FALSE) {
+      throw new \RuntimeException(sprintf('Unable to read archive file: %s', $archive_path));
+    }
+
+    $header = fread($file_handle, 512);
+    fclose($file_handle);
+    if ($header === FALSE) {
+      throw new \RuntimeException(sprintf('Failed to read archive file: %s', $archive_path));
+    }
+
+    $is_gzipped = FALSE;
+    if (strlen($header) >= 2) {
+      $gzip_magic = substr($header, 0, 2);
+      $is_gzipped = ($gzip_magic === "\x1f\x8b");
+    }
+
+    // Build tar command based on format and source.
+    $tar_flags = 'xf';
+    if ($is_gzipped) {
+      $tar_flags = 'xzf';
+    }
+
+    $command = sprintf('tar %s %s -C %s', $tar_flags, escapeshellarg($archive_path), escapeshellarg($destination));
+
+    // Add --strip 1 for remote archives (they have extra directory level)
+    if ($is_remote) {
+      $command .= ' --strip 1';
+    }
+
+    if (passthru($command) === FALSE) {
+      throw new \RuntimeException(sprintf('Failed to extract archive to: %s', $destination));
+    }
+  }
+
+  /**
+   * Create archive from local Git repository.
+   *
+   * @param string $repo
+   *   Path to the local repository.
+   * @param string $ref
+   *   Git reference to archive.
+   *
+   * @return string
+   *   Path to the created temporary archive file.
+   *
+   * @throws \RuntimeException
+   *   If archive creation fails.
+   */
+  protected function archiveFromLocal(string $repo, string $ref): string {
+    $temp_file = tempnam(sys_get_temp_dir(), 'vortex_local_archive_');
+    if ($temp_file === FALSE) {
+      throw new \RuntimeException('Unable to create temporary file for local archive.');
+    }
+
+    $command = sprintf(
+      'git --git-dir=%s --work-tree=%s archive --format=tar %s -o %s',
+      escapeshellarg($repo . '/.git'),
+      escapeshellarg($repo),
+      escapeshellarg($ref),
+      escapeshellarg($temp_file)
+    );
+
+    if (passthru($command) === FALSE) {
+      unlink($temp_file);
+      throw new \RuntimeException(sprintf('Failed to create archive from local repository: %s', $repo));
+    }
+
+    return $temp_file;
   }
 
 }
