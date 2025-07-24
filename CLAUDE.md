@@ -101,7 +101,7 @@ When creating or updating Behat feature files, follow these conventions:
 - **Example**:
   ```gherkin
   Feature: Homepage
-  
+
     As a site visitor
     I want to access the homepage
     So that I can view the main landing page and navigate the site
@@ -159,7 +159,7 @@ ahoy drush config:import --source=../config/stage
 # Navigate to custom theme
 cd web/themes/custom/your_site_theme
 
-# Install theme dependencies (if using npm/yarn)
+# Install theme dependencies
 yarn install
 
 # Build theme assets
@@ -280,7 +280,7 @@ ahoy composer require --dev drupal/devel
 ### Add theme build tools
 
 ```bash
-cd web/themes/custom/your_site_theme && npm install [package]
+cd web/themes/custom/your_site_theme && yarn install [package]
 ```
 
 [//]: # (#;> DRUPAL_THEME)

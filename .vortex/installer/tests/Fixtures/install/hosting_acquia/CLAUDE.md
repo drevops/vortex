@@ -145,7 +145,7 @@ ahoy drush config:import --source=../config/stage
 # Navigate to custom theme
 cd docroot/themes/custom/star_wars
 
-# Install theme dependencies (if using npm/yarn)
+# Install theme dependencies
 yarn install
 
 # Build theme assets
@@ -224,7 +224,7 @@ ahoy composer require --dev drupal/devel
 ### Add theme build tools
 
 ```bash
-cd docroot/themes/custom/star_wars && npm install [package]
+cd docroot/themes/custom/star_wars && yarn install [package]
 ```
 
 ### Dependency Management
