@@ -44,6 +44,8 @@ jobs:
       - name: Run tests
         run: composer test-coverage
         working-directory: .vortex/installer
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Upload coverage reports as an artifact
         uses: actions/upload-artifact@v4
@@ -69,4 +71,4 @@ jobs:
         run: ./build/installer --no-interaction example || exit 1
         working-directory: .vortex/installer
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
