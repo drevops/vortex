@@ -7,11 +7,15 @@ on:
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
+    
+    container:
+      image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.1
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@c22827f47f4f4a5364bdba19e1fe36907ef1318e # v1.1.1
         
       - name: Setup Node.js
         uses: actions/setup-node@v4

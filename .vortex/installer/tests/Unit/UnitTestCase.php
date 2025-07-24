@@ -48,9 +48,14 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     $regexes = [
       // composer.json and package.json.
       '/":\s*"(?:\^|~|>=?|<=?)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?"/' => '": "__VERSION__"',
+      // Docker images with digests. Must come before regular docker image
+      // pattern.
+      '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?@sha256:[a-f0-9]{64}/' => '${1}__VERSION__',
       // docker-compose.yml.
       '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
       '/([\w.-]+\/[\w.-]+:)canary$/m' => '${1}__VERSION__',
+      // GitHub Actions with digests (with optional version comments).
+      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}(\s*#\s*v[\d.]+)?/' => '${1}@__VERSION__',
       // GHAs.
       '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
       '/(node-version:\s)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',

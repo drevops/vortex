@@ -7,6 +7,10 @@ on:
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
+    
+    container:
+      image: drevops/ci-runner:__VERSION__
+
     steps:
       - name: Checkout
         uses: actions/checkout@__VERSION__
