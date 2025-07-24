@@ -15,7 +15,6 @@
     "grunt-contrib-watch": "__VERSION__",
     "grunt-exec": "__VERSION__",
     "grunt-sass": "__VERSION__",
-    "grunt-sass-globbing": "__VERSION__",
     "grunt-stylelint": "__VERSION__",
     "gruntify-eslint": "__VERSION__",
     "patch-package": "__VERSION__",
