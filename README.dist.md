@@ -1,7 +1,7 @@
+<div align="center">
+
 # YOURSITE
 Drupal 11 implementation of YOURSITE for YOURORG
-
-<div align="center">
 
 [//]: # (#;< CI_PROVIDER_CIRCLECI)
 

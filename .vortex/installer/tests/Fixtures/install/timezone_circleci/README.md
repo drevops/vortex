@@ -1,6 +1,6 @@
 @@ -3,7 +3,7 @@
- 
- <div align="center">
+ # star wars
+ Drupal 11 implementation of star wars for star wars Org
  
 -[![Database, Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
 +[![CircleCI](https://circleci.com/gh/star_wars_org/star_wars.svg?style=shield)](https://circleci.com/gh/star_wars_org/star_wars)

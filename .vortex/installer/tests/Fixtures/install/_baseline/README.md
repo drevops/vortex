@@ -1,7 +1,7 @@
+<div align="center">
+
 # star wars
 Drupal 11 implementation of star wars for star wars Org
-
-<div align="center">
 
 [![Database, Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
 
