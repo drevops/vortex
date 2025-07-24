@@ -86,7 +86,7 @@
         },
         "discard-changes": true,
         "platform": {
-            "php": "8.3.12"
+            "php": "8.3.23"
         },
         "sort-packages": true
     },
