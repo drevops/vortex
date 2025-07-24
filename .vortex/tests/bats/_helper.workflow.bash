@@ -764,7 +764,7 @@ assert_ahoy_fe() {
   sync_to_container
   ahoy fe
   sync_to_host
-  assert_file_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background: #7e57e2"
 
   substep "Build FE assets for development"
   assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"

@@ -1,14 +1,16 @@
+@use "../variables";
+
 // Example to override a header component.
 .site-header {
   &__initial {
-    background: $color-primary;
+    background: variables.$color-primary;
   }
 
   .site-branding {
-    background: $color-primary;
+    background: variables.$color-primary;
   }
 
   .sticky-header-toggle {
-    background: $color-primary;
+    background: variables.$color-primary;
   }
 }
