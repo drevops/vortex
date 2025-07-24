@@ -9,7 +9,7 @@ ARG CLI_IMAGE
 # hadolint ignore=DL3006
 FROM ${CLI_IMAGE:-cli} AS cli
 
-FROM uselagoon/solr-8:25.6.0
+FROM uselagoon/solr-8:25.7.0
 
 # Solr jump-start config needs to be manually copied from the search_api_solr
 # Drupal module to .docker/config/solr/config-set.
