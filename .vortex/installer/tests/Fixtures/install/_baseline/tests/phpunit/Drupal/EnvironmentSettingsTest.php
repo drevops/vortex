@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Class EnvironmentSettingsTest.
  *
@@ -12,20 +15,18 @@ namespace Drupal;
  * The main purpose of these tests is to ensure that the settings and configs
  * appear in every environment as expected.
  *
- * @group drupal_settings
- *
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.Before
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.After
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.AfterLast
  * phpcs:disable Drupal.Classes.ClassDeclaration.CloseBraceAfterBody
  */
+#[Group('drupal_settings')]
 class EnvironmentSettingsTest extends SettingsTestCase {
 
   /**
    * Test the detection of the resulting environment type.
-   *
-   * @dataProvider dataProviderEnvironmentTypeDetection
    */
+  #[DataProvider('dataProviderEnvironmentTypeDetection')]
   public function testEnvironmentTypeDetection(array $vars, string $expected_env): void {
     $this->setEnvVars($vars);
 

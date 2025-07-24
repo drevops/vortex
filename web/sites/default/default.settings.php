@@ -67,10 +67,10 @@
  * during the same request.
  *
  * One example of the simplest connection array is shown below. To use the
- * sample settings, copy and uncomment the code below between the @code and
- * @endcode lines and paste it after the $databases declaration. You will need
- * to replace the database username and password and possibly the host and port
- * with the appropriate credentials for your database system.
+ * sample settings, copy and uncomment the code below and paste it after the
+ * $databases declaration. You will need to replace the database username and
+ * password and possibly the host and port with the appropriate credentials for
+ * your database system.
  *
  * The next section describes how to customize the $databases array for more
  * specific needs.
@@ -312,7 +312,7 @@ $settings['hash_salt'] = '';
 $settings['update_free_access'] = FALSE;
 
 /**
- * Fallback to HTTP for Update Manager and for fetching security advisories.
+ * Fallback to HTTP for Update Status and for fetching security advisories.
  *
  * If your site fails to connect to updates.drupal.org over HTTPS (either when
  * fetching data on available updates, or when fetching the feed of critical
@@ -474,30 +474,6 @@ $settings['update_free_access'] = FALSE;
  * @see https://getcomposer.org/doc/articles/autoloader-optimization.md
  */
 # $settings['class_loader_auto_detect'] = FALSE;
-
-/**
- * Authorized file system operations:
- *
- * The Update Manager module included with Drupal provides a mechanism for
- * site administrators to securely install missing updates for the site
- * directly through the web user interface. On securely-configured servers,
- * the Update manager will require the administrator to provide SSH or FTP
- * credentials before allowing the installation to proceed; this allows the
- * site to update the new files as the user who owns all the Drupal files,
- * instead of as the user the webserver is running as. On servers where the
- * webserver user is itself the owner of the Drupal files, the administrator
- * will not be prompted for SSH or FTP credentials (note that these server
- * setups are common on shared hosting, but are inherently insecure).
- *
- * Some sites might wish to disable the above functionality, and only update
- * the code directly via SSH or FTP themselves. This setting completely
- * disables all functionality related to these authorized file operations.
- *
- * @see https://www.drupal.org/node/244924
- *
- * Remove the leading hash signs to disable.
- */
-# $settings['allow_authorize_operations'] = FALSE;
 
 /**
  * Default mode for directories and files written by Drupal.

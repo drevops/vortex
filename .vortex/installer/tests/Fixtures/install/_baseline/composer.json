@@ -43,7 +43,9 @@
         "phpmd/phpmd": "__VERSION__",
         "phpspec/prophecy-phpunit": "__VERSION__",
         "phpstan/extension-installer": "__VERSION__",
+        "phpstan/phpstan": "__VERSION__",
         "pyrech/composer-changelogs": "__VERSION__",
+        "rector/rector": "__VERSION__",
         "vincentlanglet/twig-cs-fixer": "__VERSION__"
     },
     "conflict": {

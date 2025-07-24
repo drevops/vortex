@@ -12,11 +12,12 @@
 
 declare(strict_types=1);
 
-if (!empty(getenv('VORTEX_LOCALDEV_URL'))) {
+$vortex_localdev_url = getenv('VORTEX_LOCALDEV_URL');
+if (!empty($vortex_localdev_url)) {
   // Local development URL.
   $patterns = str_replace(['.', 'https://', 'http://', ','], [
     '\.', '', '', '|',
-  ], getenv('VORTEX_LOCALDEV_URL'));
+  ], $vortex_localdev_url);
   $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
 
   // URL when accessed from Behat tests.

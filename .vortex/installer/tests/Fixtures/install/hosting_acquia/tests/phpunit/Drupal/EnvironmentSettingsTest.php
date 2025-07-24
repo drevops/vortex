@@ -1,4 +1,4 @@
-@@ -58,6 +58,50 @@
+@@ -59,6 +59,50 @@
          static::ENVIRONMENT_LOCAL,
        ],
  
@@ -49,7 +49,7 @@
      ];
    }
  
-@@ -299,6 +343,166 @@
+@@ -300,6 +344,166 @@
      $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['suspend_mail_send'] = TRUE;

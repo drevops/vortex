@@ -1,4 +1,4 @@
-@@ -18,62 +18,6 @@
+@@ -20,62 +20,6 @@
  class SwitchableSettingsTest extends SettingsTestCase {
  
    /**
@@ -59,8 +59,8 @@
 -
 -  /**
     * Test Config Split config.
-    *
-    * @dataProvider dataProviderConfigSplit
+    */
+   #[DataProvider('dataProviderConfigSplit')]
 @@ -225,105 +169,6 @@
          ],
        ],
