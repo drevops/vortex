@@ -51,12 +51,12 @@ class WorkflowTest extends FunctionalTestCase {
   }
 
   /**
-   * Test GitHub token handling during build.
+   * Test Package token handling during build.
    *
    * Make sure to run with TEST_PACKAGE_TOKEN=working_test_token or this test
    * will fail.
    */
-  public function testGitHubToken(): void {
+  public function testPackageToken(): void {
     $package_token = getenv('TEST_PACKAGE_TOKEN');
     $this->assertNotEmpty($package_token, 'TEST_PACKAGE_TOKEN environment variable must be set');
 
