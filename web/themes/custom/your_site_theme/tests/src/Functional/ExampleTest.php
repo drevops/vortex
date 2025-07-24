@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_site_theme\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Class ExampleTest.
  *
  * Example functional test case class.
  *
- * @group YourSiteTheme
- *
  * @package Drupal\your_site_theme\Tests
  */
+#[Group('YourSiteTheme')]
 class ExampleTest extends YourSiteThemeFunctionalTestBase {
 
   /**
@@ -31,9 +32,8 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
 
   /**
    * Temporary test stub.
-   *
-   * @group addition
    */
+  #[Group('addition')]
   public function testAddition(): void {
     $this->assertEquals(2, 1 + 1);
     // DrevOps does not support Functional tests due to permission issues.
@@ -43,9 +43,8 @@ class ExampleTest extends YourSiteThemeFunctionalTestBase {
 
   /**
    * Temporary test stub.
-   *
-   * @group functional:subtraction
    */
+  #[Group('functional:subtraction')]
   public function testSubtraction(): void {
     $this->assertEquals(1, 2 - 1);
     // DrevOps does not support Functional tests due to permission issues.

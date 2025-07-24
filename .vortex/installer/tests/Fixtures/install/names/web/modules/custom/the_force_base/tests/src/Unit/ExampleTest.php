@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\the_force_base\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Class ExampleTest.
  *
  * Example unit test case class.
  *
- * @group TheForceBase
- *
  * @package Drupal\the_force_base\Tests
  */
+#[Group('TheForceBase')]
 class ExampleTest extends TheForceBaseUnitTestBase {
 
   /**
    * Tests addition.
-   *
-   * @dataProvider dataProviderAdd
-   * @group addition
    */
+  #[DataProvider('dataProviderAdd')]
+  #[Group('addition')]
   public function testAdd(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
@@ -45,10 +46,9 @@ class ExampleTest extends TheForceBaseUnitTestBase {
 
   /**
    * Tests subtraction.
-   *
-   * @dataProvider dataProviderSubtract
-   * @group unit:subtraction
    */
+  #[DataProvider('dataProviderSubtract')]
+  #[Group('unit:subtraction')]
   public function testSubtract(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
@@ -74,11 +74,10 @@ class ExampleTest extends TheForceBaseUnitTestBase {
 
   /**
    * Tests multiplication.
-   *
-   * @dataProvider dataProviderMultiplication
-   * @group multiplication
-   * @group skipped
    */
+  #[DataProvider('dataProviderMultiplication')]
+  #[Group('multiplication')]
+  #[Group('skipped')]
   public function testMultiplication(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);

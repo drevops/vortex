@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Drupal;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Class DatabaseSettingsTest.
  *
  * Tests for Drupal database settings.
- *
- * @group drupal_settings
  */
+#[Group('drupal_settings')]
 class DatabaseSettingsTest extends SettingsTestCase {
 
   /**
    * Test resulting database settings based on environment variables.
-   *
-   * @dataProvider dataProviderDatabases
    */
+  #[DataProvider('dataProviderDatabases')]
   public function testDatabases(array $vars, array $expected): void {
     $this->setEnvVars($vars);
 

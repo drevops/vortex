@@ -1,4 +1,4 @@
-@@ -58,6 +58,186 @@
+@@ -59,6 +59,186 @@
          static::ENVIRONMENT_LOCAL,
        ],
  
@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -301,6 +481,207 @@
+@@ -302,6 +482,207 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',

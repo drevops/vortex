@@ -21,6 +21,7 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Include Acquia environment settings.
   if (file_exists('/var/www/site-php/your_site/your_site-settings.inc')) {
     // @codeCoverageIgnoreStart
+    // @phpstan-ignore-next-line
     require '/var/www/site-php/your_site/your_site-settings.inc';
     // @codeCoverageIgnoreEnd
   }

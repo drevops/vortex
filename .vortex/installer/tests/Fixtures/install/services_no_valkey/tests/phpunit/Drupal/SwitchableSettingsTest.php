@@ -102,5 +102,5 @@
 -
 -  /**
     * Test Shield config.
-    *
-    * @dataProvider dataProviderShield
+    */
+   #[DataProvider('dataProviderShield')]

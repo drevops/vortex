@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Drupal\Component\Serialization\Yaml;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class CircleCiConfigTest.
  *
  * Tests for CircleCI configurations.
- *
- * @group ci
  *
  * @SuppressWarnings(PHPMD)
  *
@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.Before
  * phpcs:disable Squiz.WhiteSpace.FunctionSpacing.After
  */
+#[Group('ci')]
 class CircleCiConfigTest extends TestCase {
 
   /**
@@ -44,9 +45,8 @@ class CircleCiConfigTest extends TestCase {
    * Tests for deploy branch regex.
    *
    * @see https://semver.org/
-   *
-   * @dataProvider dataProviderDeployBranchRegex
    */
+  #[DataProvider('dataProviderDeployBranchRegex')]
   public function testDeployBranchRegex(string $branch, bool $expected = TRUE): void {
     $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][2]['deploy']['filters']['branches']['only'], $branch));
   }
@@ -219,9 +219,8 @@ class CircleCiConfigTest extends TestCase {
    * Tests for deploy tag regex.
    *
    * @see https://semver.org/
-   *
-   * @dataProvider dataProviderDeployTagRegex
    */
+  #[DataProvider('dataProviderDeployTagRegex')]
   public function testDeployTagRegex(string $branch, bool $expected = TRUE): void {
     $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][3]['deploy-tags']['filters']['tags']['only'], $branch));
   }

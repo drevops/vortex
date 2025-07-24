@@ -21,6 +21,7 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Include Acquia environment settings.
   if (file_exists('/var/www/site-php/star_wars/star_wars-settings.inc')) {
     // @codeCoverageIgnoreStart
+    // @phpstan-ignore-next-line
     require '/var/www/site-php/star_wars/star_wars-settings.inc';
     // @codeCoverageIgnoreEnd
   }

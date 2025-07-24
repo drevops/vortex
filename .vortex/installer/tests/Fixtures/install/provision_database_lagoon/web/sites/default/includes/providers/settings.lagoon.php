@@ -32,8 +32,11 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
     }
     // Test environment based on a branch prefix for release and
     // hotfix branches.
-    elseif (!empty(getenv('LAGOON_GIT_BRANCH')) && (str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'release/') || str_starts_with(getenv('LAGOON_GIT_BRANCH'), 'hotfix/'))) {
-      $settings['environment'] = ENVIRONMENT_STAGE;
+    elseif (!empty(getenv('LAGOON_GIT_BRANCH'))) {
+      $lagoon_git_branch = getenv('LAGOON_GIT_BRANCH');
+      if ($lagoon_git_branch && (str_starts_with($lagoon_git_branch, 'release/') || str_starts_with($lagoon_git_branch, 'hotfix/'))) {
+        $settings['environment'] = ENVIRONMENT_STAGE;
+      }
     }
   }
 
@@ -58,10 +61,11 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
   // Lagoon URL.
   $settings['trusted_host_patterns'][] = '^.+\.au\.amazee\.io$';
   // Lagoon routes.
-  if (getenv('LAGOON_ROUTES')) {
+  $lagoon_routes = getenv('LAGOON_ROUTES');
+  if ($lagoon_routes) {
     $patterns = str_replace(['.', 'https://', 'http://', ','], [
       '\.', '', '', '|',
-    ], getenv('LAGOON_ROUTES'));
+    ], $lagoon_routes);
     $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
   }
 }

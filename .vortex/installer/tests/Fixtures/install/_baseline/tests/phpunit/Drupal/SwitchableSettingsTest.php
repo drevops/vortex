@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Class ToggleableSettingsTest.
  *
@@ -12,9 +15,8 @@ namespace Drupal;
  *
  * Tests appear in the alphabetical order as per files
  * in "sites/default/includes".
- *
- * @group drupal_settings
  */
+#[Group('drupal_settings')]
 class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
@@ -75,9 +77,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test Config Split config.
-   *
-   * @dataProvider dataProviderConfigSplit
    */
+  #[DataProvider('dataProviderConfigSplit')]
   public function testConfigSplit(string $env, array $expected_present, array $expected_absent): void {
     $this->setEnvVars([
       'DRUPAL_ENVIRONMENT' => $env,
@@ -163,9 +164,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test Environment Indicator config.
-   *
-   * @dataProvider dataProviderEnvironmentIndicator
    */
+  #[DataProvider('dataProviderEnvironmentIndicator')]
   public function testEnvironmentIndicator(string $env, array $expected_present, array $expected_absent = []): void {
     $this->setEnvVars([
       'DRUPAL_ENVIRONMENT' => $env,
@@ -328,9 +328,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test Shield config.
-   *
-   * @dataProvider dataProviderShield
    */
+  #[DataProvider('dataProviderShield')]
   public function testShield(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
     $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
 
@@ -561,9 +560,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test Stage File Proxy config.
-   *
-   * @dataProvider dataProviderStageFileProxy
    */
+  #[DataProvider('dataProviderStageFileProxy')]
   public function testStageFileProxy(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
     $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
 
