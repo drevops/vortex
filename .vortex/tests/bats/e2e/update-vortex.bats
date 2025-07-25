@@ -37,7 +37,7 @@ load ../_helper.bash
   assert_git_clean
 
   substep "Releasing new version of Vortex"
-  # Installing from the local tag is not supported in .vortex/installer/installer.
+  # Installing from the local tag is not supported in .vortex/installer/installer.php.
   # Only commit is supported.
   echo "# Some change to docker-compose.yml" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
@@ -51,12 +51,12 @@ load ../_helper.bash
   substep "Building Vortex installer"
   composer --working-dir="${ROOT_DIR}/.vortex/installer" install >/dev/null
   composer --working-dir="${ROOT_DIR}/.vortex/installer" build >/dev/null
-  assert_file_exists "${ROOT_DIR}/.vortex/installer/build/installer"
-  substep "Built Vortex installer: $(php ${ROOT_DIR}/.vortex/installer/build/installer --version)"
+  assert_file_exists "${ROOT_DIR}/.vortex/installer/build/installer.phar"
+  substep "Built Vortex installer: $(php ${ROOT_DIR}/.vortex/installer/build/installer.phar --version)"
 
   # Override install script with the currently tested one to be called
   # from ./scripts/vortex/update-vortex.sh
-  export VORTEX_INSTALLER_URL="file://${ROOT_DIR}/.vortex/installer/build/installer"
+  export VORTEX_INSTALLER_URL="file://${ROOT_DIR}/.vortex/installer/build/installer.phar"
 
   substep "Update Vortex from the template repository"
   # shellcheck disable=SC2059

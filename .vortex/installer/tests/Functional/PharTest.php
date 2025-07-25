@@ -30,7 +30,7 @@ class PharTest extends FunctionalTestCase {
   public static function setUpBeforeClass(): void {
     parent::setUpBeforeClass();
 
-    static::buildPhar('build/installer');
+    static::buildPhar('build/installer.phar');
   }
 
   protected function setUp(): void {
@@ -42,7 +42,7 @@ class PharTest extends FunctionalTestCase {
 
     // Copy the PHAR file to the SUT directory.
     $this->pharFile = static::$sut . DIRECTORY_SEPARATOR . 'installer';
-    File::copy(getcwd() . '/build/installer', $this->pharFile);
+    File::copy(getcwd() . '/build/installer.phar', $this->pharFile);
 
     // Change the current working directory to the 'system under test'.
     chdir(static::$sut);
@@ -76,7 +76,7 @@ class PharTest extends FunctionalTestCase {
     $this->runInstallationWithPhar($this->pharFile, ['help' => TRUE]);
 
     $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Vortex CLI installer');
+    $this->assertProcessOutputContains('Vortex Installer');
     $this->assertProcessOutputNotContains('Welcome to the Vortex non-interactive installer');
     $this->assertFileDoesNotExist(static::$sut . DIRECTORY_SEPARATOR . 'composer.json', 'Composer file should NOT be created when --help flag is used');
     $this->assertFileExists($this->pharFile, 'PHAR file should NOT be removed when --help option is used');

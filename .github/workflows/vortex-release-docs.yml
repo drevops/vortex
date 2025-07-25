@@ -56,14 +56,14 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer --no-interaction test || exit 1
+        run: ./build/installer.phar --no-interaction test || exit 1
         working-directory: .vortex/installer
 
       - name: Upload artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: vortex-installer
-          path: .vortex/installer/build/installer
+          path: .vortex/installer/build/installer.phar
           if-no-files-found: error
 
   vortex-release-docs:
@@ -99,7 +99,7 @@ jobs:
 
       - name: Copy installer to docs
         run: |
-          cp ../installer ../.vortex/docs/static/install
+          cp ../installer.phar ../.vortex/docs/static/install
           php ../.vortex/docs/static/install --version
 
       - name: Check docs up-to-date

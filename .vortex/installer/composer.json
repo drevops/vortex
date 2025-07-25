@@ -56,7 +56,7 @@
         ]
     },
     "bin": [
-        "installer"
+        "installer.php"
     ],
     "config": {
         "allow-plugins": {

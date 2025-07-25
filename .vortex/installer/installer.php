@@ -1,8 +1,9 @@
+#!/usr/bin/env php
 <?php
 
 /**
  * @file
- * Main entry point for the application.
+ * Vortex Installer entry point.
  */
 
 declare(strict_types=1);
@@ -10,7 +11,9 @@ declare(strict_types=1);
 use DrevOps\VortexInstaller\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('Vortex CLI installer', '@git-tag-ci@');
+require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.php';
+
+$application = new Application('Vortex Installer', '@git-tag-ci@');
 
 $command = new InstallCommand();
 $application->add($command);
