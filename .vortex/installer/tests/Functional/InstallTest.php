@@ -114,7 +114,7 @@ class InstallTest extends FunctionalTestCase {
 
     $this->runNonInteractiveInstall();
 
-    $expected = empty($expected) ? ['Welcome to Vortex non-interactive installer'] : $expected;
+    $expected = empty($expected) ? ['Welcome to the Vortex non-interactive installer'] : $expected;
     $this->assertApplicationOutputContains($expected);
 
     $baseline = File::dir(static::$fixtures . '/../' . self::BASELINE_DIR);
@@ -134,13 +134,13 @@ class InstallTest extends FunctionalTestCase {
       static::BASELINE_DATASET => [
         NULL,
         NULL,
-        ['Welcome to Vortex non-interactive installer'],
+        ['Welcome to the Vortex non-interactive installer'],
       ],
 
       'non-interactive' => [
         NULL,
         NULL,
-        ['Welcome to Vortex non-interactive installer'],
+        ['Welcome to the Vortex non-interactive installer'],
       ],
 
       'names' => [

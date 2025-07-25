@@ -58,7 +58,7 @@ class PharTest extends FunctionalTestCase {
     $this->runInstallationWithPhar($this->pharFile);
 
     $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Welcome to Vortex non-interactive installer');
+    $this->assertProcessOutputContains('Welcome to the Vortex non-interactive installer');
     $this->assertFileExists(static::$sut . DIRECTORY_SEPARATOR . 'composer.json', 'Composer file should be created after successful installation');
     $this->assertFileDoesNotExist($this->pharFile, 'PHAR file should be removed after successful installation');
   }
@@ -67,7 +67,7 @@ class PharTest extends FunctionalTestCase {
     $this->runInstallationWithPhar($this->pharFile, ['no-cleanup' => TRUE]);
 
     $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Welcome to Vortex non-interactive installer');
+    $this->assertProcessOutputContains('Welcome to the Vortex non-interactive installer');
     $this->assertFileExists(static::$sut . DIRECTORY_SEPARATOR . 'composer.json', 'Composer file should be created after successful installation');
     $this->assertFileExists($this->pharFile, 'PHAR file should NOT be removed when --no-cleanup option is used');
   }
@@ -77,7 +77,7 @@ class PharTest extends FunctionalTestCase {
 
     $this->assertProcessSuccessful();
     $this->assertProcessOutputContains('Vortex CLI installer');
-    $this->assertProcessOutputNotContains('Welcome to Vortex non-interactive installer');
+    $this->assertProcessOutputNotContains('Welcome to the Vortex non-interactive installer');
     $this->assertFileDoesNotExist(static::$sut . DIRECTORY_SEPARATOR . 'composer.json', 'Composer file should NOT be created when --help flag is used');
     $this->assertFileExists($this->pharFile, 'PHAR file should NOT be removed when --help option is used');
   }
