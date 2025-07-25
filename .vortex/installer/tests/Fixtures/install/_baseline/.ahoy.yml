@@ -39,7 +39,7 @@ commands:
     cmd: |
       uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" \
       && VORTEX_HOST_DB_PORT="$(docker port $(docker compose ps -q database 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
-      && open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      && open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@__VERSION__.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
@@ -250,10 +250,8 @@ commands:
     cmd: ./scripts/vortex/doctor.sh "$@"
 
   update-vortex:
-    usage: Update Vortex stack.
-    cmd: |
-      ahoy confirm "Some committed files may become overwritten. Proceed?" &&
-      ./scripts/vortex/update-vortex.sh $@
+    usage: Update project from the Vortex template repository.
+    cmd: ./scripts/vortex/update-vortex.sh $@
 
   local:
     usage: Custom local commands. See `ahoy local help`.

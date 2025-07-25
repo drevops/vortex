@@ -45,7 +45,7 @@ class Downloader {
     }
     elseif (str_starts_with($src, 'file://')) {
       if (!preg_match('#^file://(.+?)(?:@(.+))?$#', $src, $matches)) {
-        throw new \RuntimeException(sprintf('Invalid remote repository format: "%s".', $src));
+        throw new \RuntimeException(sprintf('Invalid local repository format: "%s".', $src));
       }
       $repo = $matches[1];
       $ref = $matches[2] ?? static::REF_HEAD;

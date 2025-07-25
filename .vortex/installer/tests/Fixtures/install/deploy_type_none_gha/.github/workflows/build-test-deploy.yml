@@ -21,7 +21,7 @@
 -        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 -
 -      - name: Checkout code
--        uses: actions/checkout@__VERSION__
+-        uses: actions/checkout@__HASH__ # v4
 -        with:
 -          # Fetch all history for git repository.
 -          fetch-depth: 0
@@ -31,7 +31,7 @@
 -          ref: ${{ github.head_ref || github.ref_name }}
 -
 -      - name: Download exported codebase as an artifact
--        uses: actions/download-artifact@__VERSION__
+-        uses: actions/download-artifact@__HASH__ # v4
 -        with:
 -          name: code-artifact
 -          path: "/tmp/workspace/code"

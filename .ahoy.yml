@@ -267,10 +267,8 @@ commands:
     cmd: ./scripts/vortex/doctor.sh "$@"
 
   update-vortex:
-    usage: Update Vortex stack.
-    cmd: |
-      ahoy confirm "Some committed files may become overwritten. Proceed?" &&
-      ./scripts/vortex/update-vortex.sh $@
+    usage: Update project from the Vortex template repository.
+    cmd: ./scripts/vortex/update-vortex.sh $@
 
   local:
     usage: Custom local commands. See `ahoy local help`.

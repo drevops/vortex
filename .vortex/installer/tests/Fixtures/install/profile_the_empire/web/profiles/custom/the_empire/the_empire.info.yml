@@ -2,7 +2,7 @@ name: 'star wars Profile'
 description: 'star wars profile'
 type: profile
 package: star_wars
-version: 1.0.0
+version: __VERSION__
 core_version_requirement: ^10
 dependencies:
   - block_content

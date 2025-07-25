@@ -4,7 +4,7 @@
   "license": "proprietary",
   "private": true,
   "engines": {
-    "yarn": ">= 1.22.22",
+    "yarn": ">= __VERSION__",
     "node": ">= 20.0"
   },
   "scripts": {
