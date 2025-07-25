@@ -137,7 +137,7 @@ EOF
       );
 
       Tui::action(
-        label: '🥣 Preparing destination directory',
+        label: '📁 Preparing destination directory',
         action: fn(): array => $this->prepareDestination(),
         success: 'Destination directory is ready',
       );
@@ -149,7 +149,7 @@ EOF
       );
 
       Tui::action(
-        label: '🎬 Preparing demo content',
+        label: '🎭 Preparing demo content',
         action: fn(): string|array => $this->handleDemo(),
         success: 'Demo content prepared',
       );
@@ -374,7 +374,6 @@ EOF
                Drupal project template
 
                                               by DrevOps
-
 EOT;
 
     $logo_small = <<<EOT
@@ -390,20 +389,25 @@ EOT;
 
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
     $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
+
+    $version = $this->getApplication()->getVersion();
+    $version = str_replace('@git-tag-ci@', 'development', $version);
+    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), min(Tui::terminalWidth(), 80) - 2, ' ', STR_PAD_LEFT));
+
     Tui::note($logo);
 
-    $title = 'Welcome to Vortex interactive installer';
+    $title = 'Welcome to the Vortex interactive installer';
     $content = '';
 
     $ref = $this->config->get(Config::REF);
     if ($ref == Downloader::REF_STABLE) {
-      $content .= 'This tool will guide you through installing the latest version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('stable') . ' version of Vortex into your project.' . PHP_EOL;
     }
     elseif ($ref == Downloader::REF_HEAD) {
-      $content .= 'This tool will guide you through installing the latest development version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('development') . ' version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This tool will guide you through installing the version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+      $content .= sprintf('This tool will guide you through installing a ' . Tui::underscore('custom') . ' version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -416,18 +420,18 @@ EOT;
     if ($this->config->getNoInteraction()) {
       $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
+      $content .= 'Existing committed files may be modified. You may need to resolve some of the changes manually.' . PHP_EOL;
 
-      $title = 'Welcome to Vortex non-interactive installer';
+      $title = 'Welcome to the Vortex non-interactive installer';
     }
     else {
-      $content .= 'You’ll be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
+      $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
       $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve any changes manually.' . PHP_EOL;
+      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Press Ctrl+C at any time to exit the installer.' . PHP_EOL;
-      $content .= 'Press Ctrl+U at any time to go back to the previous step.' . PHP_EOL;
+      $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
+      $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
     }
 
     Tui::box($content, $title);
@@ -442,12 +446,18 @@ EOT;
     else {
       $title = 'Finished installing Vortex 🚀🚀🚀';
       $output .= 'Next steps:' . PHP_EOL;
-      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
-      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
-      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
-      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
       $output .= PHP_EOL;
-      $output .= '  See https://www.vortextemplate.com/docs/quickstart';
+      $output .= '  Add and commit all files:' . PHP_EOL;
+      $output .= '    cd ' . $this->config->getDst() . PHP_EOL;
+      $output .= '    git add -A' . PHP_EOL;
+      $output .= '    git commit -m "Initial commit."' . PHP_EOL;
+      $output .= PHP_EOL;
+      $output .= '  Build project locally:' . PHP_EOL;
+      $output .= '    ahoy build' . PHP_EOL;
+      $output .= PHP_EOL;
+      $output .= '  Setup integration with your CI/CD system and hosting:' . PHP_EOL;
+      $output .= '    See https://www.vortextemplate.com/docs/quickstart';
+      $output .= PHP_EOL;
     }
 
     Tui::box($output, $title);

@@ -191,6 +191,10 @@ class Tui {
     return static::escapeMultiline($text, 1, 22);
   }
 
+  public static function underscore(string $text): string {
+    return static::escapeMultiline($text, 4, 0);
+  }
+
   public static function dim(string $text): string {
     return static::escapeMultiline($text, 2, 22);
   }
