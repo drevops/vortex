@@ -66,7 +66,7 @@ VORTEX_LAGOONCLI_PATH="${VORTEX_LAGOONCLI_PATH:-/tmp}"
 VORTEX_LAGOONCLI_FORCE_INSTALL="${VORTEX_LAGOONCLI_FORCE_INSTALL:-}"
 
 # Lagoon CLI version to use.
-VORTEX_LAGOONCLI_VERSION="${VORTEX_LAGOONCLI_VERSION:-latest}"
+VORTEX_LAGOONCLI_VERSION="${VORTEX_LAGOONCLI_VERSION:-v0.32.0}"
 
 # Flag to control failure behavior when Lagoon environment limits are exceeded.
 # When set to 0, the deployment will exit with success instead of failure.
@@ -106,14 +106,10 @@ if ! command -v lagoon >/dev/null || [ -n "${VORTEX_LAGOONCLI_FORCE_INSTALL}" ];
 
   platform=$(uname -s | tr '[:upper:]' '[:lower:]')
   arch_suffix=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
-
-  download_url="https://github.com/uselagoon/lagoon-cli/releases/latest/download/lagoon-cli-${platform}-${arch_suffix}"
-  if [ "${VORTEX_LAGOONCLI_VERSION}" != "latest" ]; then
-    download_url="https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}/lagoon-cli-${platform}-${arch_suffix}"
-  fi
+  download_url="https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}/lagoon-cli-${VORTEX_LAGOONCLI_VERSION}-${platform}-${arch_suffix}"
 
   note "Downloading Lagoon CLI from ${download_url}."
-  curl -L -o "${VORTEX_LAGOONCLI_PATH}/lagoon" "${download_url}"
+  curl -fSLs -o "${VORTEX_LAGOONCLI_PATH}/lagoon" "${download_url}"
 
   note "Installing Lagoon CLI to ${VORTEX_LAGOONCLI_PATH}/lagoon."
   chmod +x "${VORTEX_LAGOONCLI_PATH}/lagoon"
