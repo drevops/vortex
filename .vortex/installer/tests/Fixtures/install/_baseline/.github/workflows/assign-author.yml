@@ -15,4 +15,4 @@ jobs:
 
     steps:
       - name: Assign author
-        uses: toshimaru/auto-author-assign@__VERSION__
+        uses: toshimaru/auto-author-assign@__HASH__ # __VERSION__

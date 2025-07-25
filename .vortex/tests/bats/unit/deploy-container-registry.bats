@@ -33,7 +33,7 @@ load ../_helper.deployment.bash
   export DOCKER_CONFIG=/dev/null
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  provision_docker_config_file VORTEX_DEPLOY_CONTAINER_REGISTRY
+  create_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1,service2=image2,service3=image3"
@@ -87,7 +87,7 @@ load ../_helper.deployment.bash
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  provision_docker_config_file VORTEX_DEPLOY_CONTAINER_REGISTRY
+  create_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1"
 

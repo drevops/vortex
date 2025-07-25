@@ -5,4 +5,4 @@
 -        "drupal/clamav": "__VERSION__",
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
-         "drupal/config_update": "^2@alpha",
+         "drupal/config_update": "__VERSION__",

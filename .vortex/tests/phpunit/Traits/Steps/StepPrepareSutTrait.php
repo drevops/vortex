@@ -50,7 +50,7 @@ trait StepPrepareSutTrait {
     $this->processRun('php .vortex/installer/install --no-interaction ' . static::locationsSut(), $arguments, env: [
       // Force the installer script to be downloaded from the local repo for
       // testing.
-      'VORTEX_INSTALL_REPO' => static::locationsRoot(),
+      'VORTEX_INSTALL_TEMPLATE_REPO' => static::locationsRoot(),
       // Tests are using demo database and 'ahoy download-db' command, so we
       // need
       // to set the CURL DB to test DB.

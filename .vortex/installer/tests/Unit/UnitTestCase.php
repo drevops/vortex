@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit;
 
+use AlexSkrypnyk\File\ExtendedSplFileInfo;
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
-use DrevOps\VortexInstaller\Utils\File;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
+use DrevOps\VortexInstaller\Utils\File;
 
 /**
  * Class UnitTestCase.
@@ -45,9 +46,28 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   protected static function replaceVersions(string $directory): void {
-    $regexes = [
+    File::replaceContentAsync(function (string $content, ExtendedSplFileInfo $file): string {
+      // Skip processing files that are not relevant for version replacement.
+      $extension = $file->getExtension();
+      if (!in_array($extension, ['json', 'yml', 'yaml', 'dockerfile'], TRUE)) {
+        return $content;
+      }
+
+      return static::replaceVersionsInLine($content);
+    });
+
+    // Execute all queued async operations.
+    File::runTaskDirectory($directory);
+  }
+
+  protected static function replaceVersionsInLine(string $content): string {
+    $patterns = [
+      '/sha512\-[A-Za-z0-9+\/]{86}={0,2}/' => '__INTEGRITY__',
+      '/#[a-fA-F0-9]{39,40}/' => '#__HASH__',
+      '/@[a-fA-F0-9]{39,40}/' => '@__HASH__',
+
       // composer.json and package.json.
-      '/":\s*"(?:\^|~|>=?|<=?)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?"/' => '": "__VERSION__"',
+      '/": "(?:\^|~|>=|<=)?\d+(?:\.\d+){0,2}(?:(?:-|@)[\w.-]+)?"/' => '": "__VERSION__"',
       // Docker images with digests. Must come before regular docker image
       // pattern.
       '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?@sha256:[a-f0-9]{64}/' => '${1}__VERSION__',
@@ -59,11 +79,33 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       // GHAs.
       '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
       '/(node-version:\s)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
+
+      // Catch all.
+      '/(?:\^|~)?v?\d+\.\d+\.\d+(?:(?:-|@)[\w.-]+)?/' => '__VERSION__',
     ];
 
-    foreach ($regexes as $regex => $replace) {
-      File::replaceContentInDir($directory, $regex, $replace);
+    // Apply patterns based on file name regex matches.
+    $replaced = 0;
+    foreach ($patterns as $pattern => $replacement) {
+      $original_content = $content;
+
+      $content = preg_replace($pattern, $replacement, $content);
+
+      if ($content !== $original_content) {
+        $replaced++;
+      }
+
+      // Early exit after 4 pattern replacements to prevent excessive
+      // replacements and optimize performance. The threshold of 4 was chosen
+      // based on typical file modification patterns - most files require 1-3
+      // replacements, so 4 provides a reasonable safety margin while preventing
+      // runaway operations.
+      if ($replaced > 4) {
+        break;
+      }
     }
+
+    return $content;
   }
 
 }

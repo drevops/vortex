@@ -40,7 +40,7 @@
 -        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 -
 -      - name: Check out code
--        uses: actions/checkout@__VERSION__
+-        uses: actions/checkout@__HASH__ # v4
 -        with:
 -          # Do not keep SSH credentials after checkout to allow custom.
 -          persist-credentials: false
@@ -75,14 +75,14 @@
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
--        uses: actions/cache/restore@__VERSION__
+-        uses: actions/cache/restore@__HASH__ # v4
 -        with:
 -          path: .data
--          key: v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
 -          # Fallback to caching by default branch name only. Allows to use
 -          # cache from the branch build on the previous day.
 -          restore-keys: |
--            v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+-            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 -
 -      - name: Download DB
 -        run: |
@@ -105,11 +105,11 @@
 -      # Note that the cache fallback flag is enabled for this case in order
 -      # to save cache even if the fallback is not used when restoring it.
 -      - name: Save DB cache
--        uses: actions/cache/save@__VERSION__
+-        uses: actions/cache/save@__HASH__ # v4
 -        if: env.db_hash != hashFiles('.data')
 -        with:
 -          path: .data
--          key: v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -
    build:
      runs-on: ubuntu-latest
@@ -144,21 +144,21 @@
 -          date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 -
 -      - name: Show cache key for database caching
--        run: echo 'v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+-        run: echo '__VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 -
 -      # Restore DB cache based on the cache strategy set by the cache keys below.
 -      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
--        uses: actions/cache/restore@__VERSION__
+-        uses: actions/cache/restore@__HASH__ # v4
 -        with:
 -          path: .data
 -          fail-on-cache-miss: true
 -          # Use cached database from previous builds of this branch.
--          key: v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -          restore-keys: |
--            v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+-            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 -
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh

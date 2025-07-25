@@ -25,22 +25,22 @@ load ../_helper.deployment.bash
   popd >/dev/null
 }
 
-@test "Docker configuration present" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1\
+@test "User is already logged in to the container registry" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
   export VORTEX_CONTAINER_REGISTRY_USER="test_user"
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
-  export DOCKER_CONFIG=/dev/null
+  export VORTEX_CONTAINER_REGISTRY="https://www.example.com"
 
   # Mock the Docker configuration file.
-  export VORTEX_CONTAINER_REGISTRY="https://www.example.com"
-  provision_docker_config_file "${VORTEX_CONTAINER_REGISTRY}"
+  create_docker_config_file "${VORTEX_CONTAINER_REGISTRY}"
   export DOCKER_CONFIG="${BUILD_DIR}/.docker"
 
   run scripts/vortex/login-container-registry.sh
   assert_success
-  assert_output_contains "Already logged in to the registry \"https://www.example.com\""
+
+  assert_output_contains "Already logged in to the registry \"https://www.example.com\"."
 
   popd >/dev/null
 }
@@ -48,9 +48,6 @@ load ../_helper.deployment.bash
 @test "VORTEX_CONTAINER_REGISTRY_USER and VORTEX_CONTAINER_REGISTRY_PASS must be set" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  # Override any existing values in the current environment.
-  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
-  export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
 
   # Unset the variables to test the error handling.
@@ -71,15 +68,17 @@ load ../_helper.deployment.bash
   export VORTEX_CONTAINER_REGISTRY_USER="test_user"
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
-
-  mock_docker=$(mock_command "docker")
-  mock_set_output "${mock_docker}" "Login Succeeded" 1
   export VORTEX_CONTAINER_REGISTRY="https://www.example.com"
 
+  declare -a STEPS=(
+    "@docker login --username test_user --password-stdin https://www.example.com # 0 # Login Succeeded"
+    "Logging in to registry \"https://www.example.com\"."
+  )
+
+  mocks="$(run_steps "setup")"
   run scripts/vortex/login-container-registry.sh
   assert_success
-  assert_equal "1" "$(mock_get_call_num "${mock_docker}" 1)"
-  assert_output_contains "Logging in to registry \"https://www.example.com\"."
+  run_steps "assert" "${mocks}"
 
   popd >/dev/null
 }

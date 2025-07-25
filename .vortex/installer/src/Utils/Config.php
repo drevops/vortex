@@ -19,9 +19,9 @@ final class Config {
 
   const TMP = 'VORTEX_INSTALL_TMP_DIR';
 
-  const REPO = 'VORTEX_INSTALL_REPO';
+  const REPO = 'VORTEX_INSTALL_TEMPLATE_REPO';
 
-  const REF = 'VORTEX_INSTALL_REF';
+  const REF = 'VORTEX_INSTALL_TEMPLATE_REF';
 
   const PROCEED = 'VORTEX_INSTALL_PROCEED';
 

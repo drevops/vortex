@@ -52,7 +52,7 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 
 [ -z "$(echo "${VORTEX_CONTAINER_REGISTRY}" | xargs)" ] && fail "VORTEX_CONTAINER_REGISTRY should not be empty." && exit 1
 
-if [ -f "${DOCKER_CONFIG}" ] && grep -q "${VORTEX_CONTAINER_REGISTRY}" "${DOCKER_CONFIG}/config.json"; then
+if [ -f "${DOCKER_CONFIG}/config.json" ] && grep -q "${VORTEX_CONTAINER_REGISTRY}" "${DOCKER_CONFIG}/config.json"; then
   note "Already logged in to the registry \"${VORTEX_CONTAINER_REGISTRY}\"."
 elif [ -n "${VORTEX_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_CONTAINER_REGISTRY_PASS}" ]; then
   task "Logging in to registry \"${VORTEX_CONTAINER_REGISTRY}\"."
