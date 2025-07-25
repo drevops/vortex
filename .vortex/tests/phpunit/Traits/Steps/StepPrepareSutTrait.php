@@ -47,7 +47,7 @@ trait StepPrepareSutTrait {
       $this->processRun('composer --working-dir=.vortex/installer install');
     }
 
-    $this->processRun('php .vortex/installer/install --no-interaction ' . static::locationsSut(), $arguments, env: [
+    $this->processRun('php .vortex/installer/installer --no-interaction ' . static::locationsSut(), $arguments, env: [
       // Force the installer script to be downloaded from the local repo for
       // testing.
       'VORTEX_INSTALL_TEMPLATE_REPO' => static::locationsRoot(),

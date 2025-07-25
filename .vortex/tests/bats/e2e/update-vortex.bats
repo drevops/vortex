@@ -37,7 +37,7 @@ load ../_helper.bash
   assert_git_clean
 
   substep "Releasing new version of Vortex"
-  # Installing from the local tag is not supported in .vortex/installer/install.
+  # Installing from the local tag is not supported in .vortex/installer/installer.
   # Only commit is supported.
   echo "# Some change to docker-compose.yml" >>"${LOCAL_REPO_DIR}/docker-compose.yml"
   git_add "docker-compose.yml" "${LOCAL_REPO_DIR}"
