@@ -73,7 +73,7 @@ extract_json_value() {
 
 # Pre-flight checks.
 #shellcheck disable=SC2043
-for cmd in curl; do command -v ${cmd} >/dev/null || {
+for cmd in curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done

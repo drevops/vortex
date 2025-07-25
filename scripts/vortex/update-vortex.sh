@@ -41,7 +41,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 export VORTEX_INSTALL_REPO
 export VORTEX_INSTALLER_URL
 
-for cmd in php curl; do command -v ${cmd} >/dev/null || {
+for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
