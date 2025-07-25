@@ -19,8 +19,9 @@ ENV LAGOON_PR_HEAD_SHA=${LAGOON_PR_HEAD_SHA}
 ARG WEBROOT=web
 ENV WEBROOT=${WEBROOT}
 
+# Token is used to access private repositories. Not exposed as an environment
+# variable within an image to avoid baking it into the image.
 ARG PACKAGE_TOKEN=""
-ENV PACKAGE_TOKEN=${PACKAGE_TOKEN}
 
 ARG DRUPAL_PUBLIC_FILES="sites/default/files"
 ENV DRUPAL_PUBLIC_FILES=${DRUPAL_PUBLIC_FILES}
