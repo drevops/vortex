@@ -120,7 +120,7 @@ if ! command -v lagoon >/dev/null || [ -n "${VORTEX_LAGOONCLI_FORCE_INSTALL}" ];
   export PATH="${PATH}:${VORTEX_LAGOONCLI_PATH}"
 fi
 
-for cmd in lagoon curl; do command -v ${cmd} >/dev/null || {
+for cmd in lagoon curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
