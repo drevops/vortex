@@ -27,6 +27,7 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $config): void {
   $config->paths([
+    __DIR__ . '/installer.php',
     __DIR__ . '/src',
     __DIR__ . '/tests/Functional',
     __DIR__ . '/tests/Unit',

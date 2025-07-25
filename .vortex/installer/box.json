@@ -1,11 +1,11 @@
 {
-    "output": "build/installer",
+    "output": "build/installer.phar",
     "banner": [
         "@file",
-        "Vortex CLI installer.",
+        "Vortex CLI Installer.",
         "",
         "<!-- -->",
-        "CLI installer for <a href=\"https://github.com/drevops/vortex\">Vortex</a> project.<br/>",
+        "CLI Installer for <a href=\"https://github.com/drevops/vortex\">Vortex</a> project.<br/>",
         "Run in your terminal:<br/>",
         "<code>curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php</code><br/>",
         "More details: <a href=\"https://www.vortextemplate.com\">https://www.vortextemplate.com</a>",
