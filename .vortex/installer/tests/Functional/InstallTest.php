@@ -95,7 +95,7 @@ class InstallTest extends FunctionalTestCase {
   public function testHelp(): void {
     static::runNonInteractiveInstall(options: ['help' => NULL]);
     $this->assertApplicationSuccessful();
-    $this->assertApplicationOutputContains('php install destination');
+    $this->assertApplicationOutputContains('php installer destination');
   }
 
   #[DataProvider('dataProviderInstall')]

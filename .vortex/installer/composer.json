@@ -56,7 +56,7 @@
         ]
     },
     "bin": [
-        "install"
+        "installer"
     ],
     "config": {
         "allow-plugins": {

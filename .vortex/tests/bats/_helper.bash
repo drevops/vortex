@@ -1109,7 +1109,7 @@ run_installer_quiet() {
   [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
 
   # Run the installer script from the local repository to allow debugging.
-  run php "${ROOT_DIR}/.vortex/installer/install" "${opt_no_interaction}" "$@"
+  run php "${ROOT_DIR}/.vortex/installer/installer" "${opt_no_interaction}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1133,7 +1133,7 @@ install_dependencies_stub() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  mktouch "${webroot}/core/.vortex/installer/install"
+  mktouch "${webroot}/core/.vortex/installer/installer"
   mktouch "${webroot}/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "${webroot}/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "${webroot}/profiles/contrib/someprofile/someprofile.info.yml"
@@ -1348,8 +1348,8 @@ sync_to_container() {
 
 # Special treatment for cases where volumes are not mounted from the host.
 fix_host_dependencies() {
-  # Replicate behavior of .vortex/installer/install script to extract destination directory
-  # passed as an argument.
+  # Replicate behavior of .vortex/installer/installer script to extract
+  # destination directory passed as an argument.
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.

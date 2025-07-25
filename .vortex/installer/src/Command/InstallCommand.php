@@ -59,19 +59,19 @@ class InstallCommand extends Command {
     $this->setDescription('Install Vortex CLI from remote or local repository.');
     $this->setHelp(<<<EOF
   Interactively install Vortex from the latest stable release into the current directory:
-  php install destination
+  php installer destination
 
   Non-interactively install Vortex from the latest stable release into the specified directory:
-  php install --no-interaction destination
+  php installer --no-interaction destination
 
   Install Vortex from the stable branch into the specified directory:
-  php install --uri=https://github.com/drevops/vortex.git@stable destination
+  php installer --uri=https://github.com/drevops/vortex.git@stable destination
 
   Install Vortex from a specific release into the specified directory:
-  php install --uri=https://github.com/drevops/vortex.git@1.2.3 destination
+  php installer --uri=https://github.com/drevops/vortex.git@1.2.3 destination
 
   Install Vortex from a specific commit into the specified directory:
-  php install --uri=https://github.com/drevops/vortex.git@abcd123 destination
+  php installer --uri=https://github.com/drevops/vortex.git@abcd123 destination
 EOF
     );
     $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
