@@ -65,6 +65,7 @@ abstract class SettingsTestCase extends TestCase {
     'VALKEY_',
     'COMPOSE_',
     'GITHUB_',
+    'PACKAGE_',
     'DOCKER_',
     // Vortex and Drupal variables.
     'VORTEX_',
