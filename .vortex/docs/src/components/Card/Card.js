@@ -8,7 +8,10 @@ function Card({ icon, title, description, link, className = '' }) {
     <>
       {icon && <span className={styles['card-icon']}>{icon}</span>}
       <h3 className={styles['card-title']}>{title}</h3>
-      <p className={styles['card-description']}>{description}</p>
+      <p
+        className={styles['card-description']}
+        dangerouslySetInnerHTML={{ __html: description }}
+      />
     </>
   );
 
