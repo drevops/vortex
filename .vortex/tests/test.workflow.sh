@@ -69,16 +69,20 @@ case ${index} in
     ;;
 
   3)
+    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     ;;
 
   *)
     phpunit "${TEST_DIR}"/phpunit
     bats "${TEST_DIR}"/bats/e2e/workflow.install.db.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
