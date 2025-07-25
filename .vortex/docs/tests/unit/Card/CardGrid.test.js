@@ -428,12 +428,7 @@ describe('CardGrid Component', () => {
           <Card
             icon="🏗️"
             title="Complex Card"
-            description={
-              <>
-                Complex content with <strong>bold text</strong>,{' '}
-                <em>italic text</em>, and <code>code snippets</code>
-              </>
-            }
+            description="Complex content with <strong>bold text</strong>, <em>italic text</em>, and <code>code snippets</code>"
             link="/complex"
           />
         </CardGrid>

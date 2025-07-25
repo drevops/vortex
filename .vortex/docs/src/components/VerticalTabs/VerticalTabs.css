@@ -96,7 +96,7 @@
 .tab-content p {
   margin: 0;
   font-size: 0.85rem;
-  color: var(--ifm-color-emphasis-700);
+  color: var(--ifm-color-emphasis-800);
   line-height: 1.3;
 }
 
@@ -130,14 +130,14 @@
 
 .content-header h1 {
   margin: 0 0 0.5rem 0;
-  color: var(--ifm-color-primary-darkest);
+  color: var(--ifm-font-color-base);
   font-size: 2rem;
 }
 
 .content-subtitle {
   margin: 0 0 1rem 0;
   font-size: 1.1rem;
-  color: var(--ifm-color-emphasis-700);
+  color: var(--ifm-color-emphasis-800);
   line-height: 1.4;
   font-weight: 500;
 }
@@ -145,7 +145,7 @@
 .content-description {
   margin: 0 0 1rem 0;
   font-size: 1.1rem;
-  color: var(--ifm-color-emphasis-700);
+  color: var(--ifm-color-emphasis-800);
   line-height: 1.5;
 }
 
