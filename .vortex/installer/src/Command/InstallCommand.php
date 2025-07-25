@@ -389,7 +389,7 @@ EOT;
 EOT;
 
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
-    $logo = Tui::center($logo, Tui::terminalWidth(), '─');
+    $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
     Tui::note($logo);
 
     $title = 'Welcome to Vortex interactive installer';
