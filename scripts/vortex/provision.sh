@@ -78,6 +78,8 @@ yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
 
 info "Started site provisioning."
 
+start_time=$(date +%s)
+
 if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
   pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
   info "Finished site provisioning."
@@ -240,7 +242,8 @@ echo
 if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
   info "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
   echo
-  info "Finished site provisioning."
+  duration=$(($(date +%s) - start_time))
+  info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
   exit 0
 fi
 
@@ -324,4 +327,5 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-info "Finished site provisioning."
+duration=$(($(date +%s) - start_time))
+info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
