@@ -13,20 +13,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 <Tabs>
-  <TabItem value="apple" label="Direct" default>
-    ```shell
-    vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
-
-    vendor/bin/phpunit --testsuite=unit          # Run Unit tests
-
-    vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
-
-    vendor/bin/phpunit --testsuite=functional    # Run Functional tests
-
-    vendor/bin/behat                             # Run BDD tests
-    ```
-  </TabItem>
-  <TabItem value="orange" label="Ahoy">
+  <TabItem value="ahoy" label="Ahoy" default>
     ```shell
     ahoy test               # Run Unit, Kernel and Functional tests
 
@@ -37,6 +24,21 @@ import TabItem from '@theme/TabItem';
     ahoy test-functional    # Run Functional tests
 
     ahoy test-bdd           # Run BDD tests
+    ```
+  </TabItem>
+  <TabItem value="direct" label="Direct">
+    These commands can be run directly from within the container:
+
+    ```shell
+    vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
+
+    vendor/bin/phpunit --testsuite=unit          # Run Unit tests
+
+    vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
+
+    vendor/bin/phpunit --testsuite=functional    # Run Functional tests
+
+    vendor/bin/behat                             # Run BDD tests
     ```
   </TabItem>
 </Tabs>
@@ -168,7 +170,7 @@ Test reports are stored in `.logs/behat` directory.
 Continuous integration pipeline usually uses them to track test performance and
 stability.
 
-### Boilerplate
+### Boilerplate test features
 
 **Vortex** provides BDD tests boilerplate for [homepage](https://github.com/drevops/vortex/blob/develop/tests/behat/features/homepage.feature)
 and [login](https://github.com/drevops/vortex/blob/develop/tests/behat/features/login.feature)

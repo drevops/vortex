@@ -16,5 +16,36 @@ We support the following hosting providers:
 
 :::note "More integrations coming soon"
 
-    We will be adding more hosting providers integration in the future.
+    We will be adding more hosting provider integrations in the future.
 :::
+
+## Hosting providers vs environments
+
+Understanding the distinction between **hosting providers** and **environments**
+is crucial for properly configuring and deploying your website.
+
+### Hosting providers
+
+**Hosting providers** are the platforms where your environments actually run.
+They can be cloud-based or on-premises solutions that provide the infrastructure
+to run the webserver, database, and other services required for your site.
+
+Multiple environments can exist on the same hosting provider.
+
+### Environments
+
+**Environments** refer to the contained "bundles" of infrastructure services
+that allow to "run" your website.
+
+An environment represents a specific logical stage of your website deployment
+and releasing lifecycle: from local development to production.
+
+Hosting providers typically provide DEV, STAGE, and PROD environments.
+
+Some providers also support additional short-lived ephemeral environments also
+called "preview", "on-demand", or "feature" environments. These help to test
+new features or changes in isolation before merging them into the main codebase.
+
+**Vortex** provides a mechanism to detect the environment type and allows you to
+configure your website behavior based on this environment type. Read more about
+[Environment type detection](../drupal/settings#environment-type-detection).

@@ -1,0 +1,71 @@
+---
+sidebar_position: 4
+---
+
+# Update hooks
+
+Update hooks in Drupal are essential for managing database schema changes,
+data migrations, and environment-specific deployment tasks. They are
+irreplaceable mechanisms to automate changes to take place during deployments.
+
+Drupal provides several types of hooks for database updates. Understanding these
+different hook types helps you choose the right approach for your deployment needs.
+
+## Hook Types Overview
+
+| Hook Type                 | Use Case                                   | Execution                        | File Location            |
+|---------------------------|--------------------------------------------|----------------------------------|--------------------------|
+| `hook_update_n()`         | Database schema changes, data migrations   | <code>drush&nbsp;updatedb</code> | `MODULE.install`         |
+| `hook_post_update_NAME()` | Entity updates and other module operations | <code>drush&nbsp;updatedb</code> | `MODULE.post_update.php` |
+| `hook_deploy_NAME()`      | Environment-specific deployment tasks      | <code>drush&nbsp;deploy</code>   | `MODULE.deploy.php`      |
+
+All of these hooks run automatically during the
+[provisioning process](./provision) using `drush`.
+
+To automate changes during site deployments, we advise to use **deploy hooks**.
+Note that deploy hooks run only once: Drupal tracks which hooks have been
+executed by name.
+
+## Example deploy hook
+
+###
+```php
+function ys_base_deploy_create_about_page(): string {
+  $environment = \Drupal\Core\Site\Settings::get('environment');
+
+  // Conditional execution based on environment.
+  if ($environment === ENVIRONMENT_PROD) {
+    return 'Skipped in production environment';
+  }
+
+  // Check if the About Us page already exists.
+  $node = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->loadByProperties(['type' => 'page']);
+  if (!empty($node)) {
+    return 'About Us page already exists';
+  }
+
+  $node = \Drupal\node\Entity\Node::create([
+    'type' => 'page',
+    'title' => 'About Us',
+    'body' => [
+      'value' => 'This is the About Us page content.',
+      'format' => 'basic_html',
+    ],
+  ]);
+
+  $node->save();
+
+  return 'Created About Us page';
+}
+```
+
+### Debugging Commands
+```bash
+# List available deploy hooks
+drush deploy:hook --list
+
+# Run deploy hooks manually (for testing)
+drush deploy:hook
+```

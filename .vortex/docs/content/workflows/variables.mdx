@@ -4,7 +4,19 @@ sidebar_position: 8
 
 # Variables
 
-Environment variables allow to configure workflows.
+**Vortex** uses environment variables to configure workflows without code
+changes.
+
+There are two main types of variables:
+
+**Project Configuration Variables** are set once during project setup and
+remain constant throughout the project lifecycle. These are typically
+configured in the `.env` file, or within the CI or hosting provider
+environments.
+
+**Workflow Control Variables** can be changed during the project lifecycle
+to alter workflow behavior. For example, changing how deployment behaves
+or skipping a certain code branch deployment within CI.
 
 ## Override order (bottom values win):
 
