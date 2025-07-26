@@ -13,7 +13,7 @@ use Symfony\Component\Console\Application;
 
 require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.php';
 
-$application = new Application('Vortex Installer', '@git-tag-ci@');
+$application = new Application('Vortex Installer', '@vortex-installer-version@');
 
 $command = new InstallCommand();
 $application->add($command);

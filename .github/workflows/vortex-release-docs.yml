@@ -59,7 +59,7 @@ jobs:
             SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
             VERSION="${TAG:-${SHA}}"
           fi
-          sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${VERSION}\"/g" box.json
+          sed -i "s/\"vortex-installer-version\": \"dev\"/\"vortex-installer-version\": \"${VERSION}\"/g" box.json
         working-directory: .vortex/installer
 
       - name: Build PHAR
@@ -68,6 +68,10 @@ jobs:
 
       - name: Test PHAR
         run: ./build/installer.phar --no-interaction --no-cleanup test || exit 1
+        working-directory: .vortex/installer
+
+      - name: Test PHAR version
+        run: ./build/installer.phar --version || exit 1
         working-directory: .vortex/installer
 
       - name: Upload artifact
