@@ -1147,6 +1147,16 @@ Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/update-vortex.sh`
 
+### `VORTEX_INSTALLER_TEMPLATE_REPO`
+
+Vortex remote or local template repo URI, optionally including reference.
+
+Examples:<br/>https://github.com/drevops/vortex.git          # Will auto-discover the latest stable tag from remote repo.<br/>https://github.com/drevops/vortex.git@stable   # Will auto-discover the latest stable tag from remote repo.<br/>https://github.com/drevops/vortex.git@`1`.`2`.`3`    # Will use specific release from remote repo.<br/>https://github.com/drevops/vortex.git@abcd123  # Will use specific commit from remote repo.<br/>file:///local/path/to/vortex.git               # Will auto-discover the latest stable tag from local repo.<br/>file:///local/path/to/vortex.git@stable        # Will auto-discover the latest stable tag from local repo.<br/>file:///local/path/to/vortex.git@`1`.`2`.`3`         # Will use specific release from local repo.<br/>file:///local/path/to/vortex.git@abcd123       # Will use specific commit from local repo.<br/>/local/path/to/vortex.git                      # Will auto-discover the latest stable tag from local repo.<br/>/local/path/to/vortex.git@stable               # Will auto-discover the latest stable tag from local repo.<br/>/local/path/to/vortex.git@`1`.`2`.`3`                # Will use specific release from local repo.<br/>/local/path/to/vortex.git@abcd123              # Will use specific commit from local repo.
+
+Default value: `https://github.com/drevops/vortex.git@stable`
+
+Defined in: `scripts/vortex/update-vortex.sh`
+
 ### `VORTEX_INSTALLER_URL`
 
 The URL of the installer script.
@@ -1160,16 +1170,6 @@ Defined in: `scripts/vortex/update-vortex.sh`
 Cache busting parameter for the installer URL.
 
 Default value: `$(date +%s)`
-
-Defined in: `scripts/vortex/update-vortex.sh`
-
-### `VORTEX_INSTALL_TEMPLATE_REPO`
-
-Vortex remote or local template repo URI, optionally including reference.
-
-Examples:<br/>https://github.com/drevops/vortex.git          # Will auto-discover the latest stable tag from remote repo.<br/>https://github.com/drevops/vortex.git@stable   # Will auto-discover the latest stable tag from remote repo.<br/>https://github.com/drevops/vortex.git@`1`.`2`.`3`    # Will use specific release from remote repo.<br/>https://github.com/drevops/vortex.git@abcd123  # Will use specific commit from remote repo.<br/>file:///local/path/to/vortex.git               # Will auto-discover the latest stable tag from local repo.<br/>file:///local/path/to/vortex.git@stable        # Will auto-discover the latest stable tag from local repo.<br/>file:///local/path/to/vortex.git@`1`.`2`.`3`         # Will use specific release from local repo.<br/>file:///local/path/to/vortex.git@abcd123       # Will use specific commit from local repo.<br/>/local/path/to/vortex.git                      # Will auto-discover the latest stable tag from local repo.<br/>/local/path/to/vortex.git@stable               # Will auto-discover the latest stable tag from local repo.<br/>/local/path/to/vortex.git@`1`.`2`.`3`                # Will use specific release from local repo.<br/>/local/path/to/vortex.git@abcd123              # Will use specific commit from local repo.
-
-Default value: `https://github.com/drevops/vortex.git@stable`
 
 Defined in: `scripts/vortex/update-vortex.sh`
 

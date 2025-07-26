@@ -28,7 +28,7 @@ load ../_helper.workflow.bash
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
 
   # Do not use demo database - testing demo database discovery is another test.
-  export VORTEX_INSTALL_IS_DEMO_DB_DOWNLOAD_SKIP=1
+  export VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP=1
 
   # Explicitly specify that we do not want to login into the public registry
   # to use test image.
@@ -44,7 +44,7 @@ load ../_helper.workflow.bash
 
   prepare_sut "Starting download from image, storage in container image, use cached image WORKFLOW tests in build directory ${BUILD_DIR}"
 
-  # Assert that the database was not downloaded because VORTEX_INSTALL_IS_DEMO_DB_DOWNLOAD_SKIP was set.
+  # Assert that the database was not downloaded because VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP was set.
   assert_file_not_exists .data/db.sql
   # Remove .env.local added by the installer script.
   rm .env.local >/dev/null

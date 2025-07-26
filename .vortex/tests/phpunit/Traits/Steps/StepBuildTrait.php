@@ -91,7 +91,7 @@ trait StepBuildTrait {
       //
       // Ahoy will load environment variable, and it will take precedence over
       // the value in .env file.
-      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       // Credentials for the test container registry to allow fetching public
       // images to overcome the throttle limit of Docker Hub, and also used
       // for pushing images during the build.

@@ -50,7 +50,7 @@ trait StepPrepareSutTrait {
     $this->processRun('php .vortex/installer/installer.php --no-interaction ' . static::locationsSut(), $arguments, env: [
       // Force the installer script to be downloaded from the local repo for
       // testing.
-      'VORTEX_INSTALL_TEMPLATE_REPO' => static::locationsRoot(),
+      'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
       // Tests are using demo database and 'ahoy download-db' command, so we
       // need
       // to set the CURL DB to test DB.
@@ -62,10 +62,10 @@ trait StepPrepareSutTrait {
       // Installer will load environment variable and it will take precedence
       // over
       // the value in .env file.
-      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       // Use unique installer temporary directory for each run. This is where
       // the installer script downloads the Vortex codebase for processing.
-      'VORTEX_INSTALL_TMP_DIR' => static::locationsTmp(),
+      'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
     ]);
     $this->assertProcessSuccessful();
 

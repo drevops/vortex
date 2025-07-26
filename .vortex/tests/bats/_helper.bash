@@ -140,7 +140,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
+  export VORTEX_INSTALLER_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -1085,13 +1085,13 @@ run_installer_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force the installer script to be downloaded from the local repo for testing.
-  export VORTEX_INSTALL_TEMPLATE_REPO="${VORTEX_INSTALL_TEMPLATE_REPO:-${LOCAL_REPO_DIR}}"
+  export VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-${LOCAL_REPO_DIR}}"
 
   # Use unique installer temporary directory for each run. This is where
   # the installer script downloads the Vortex codebase for processing.
-  VORTEX_INSTALL_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
-  fixture_prepare_dir "${VORTEX_INSTALL_TMP_DIR}"
-  export VORTEX_INSTALL_TMP_DIR
+  VORTEX_INSTALLER_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  fixture_prepare_dir "${VORTEX_INSTALLER_TMP_DIR}"
+  export VORTEX_INSTALLER_TMP_DIR
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
   # to set the CURL DB to test DB.
@@ -1101,7 +1101,7 @@ run_installer_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALLER_DEMO_DB_TEST}"
 
   opt_no_interaction="--no-interaction"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_no_interaction=""
@@ -1353,10 +1353,10 @@ fix_host_dependencies() {
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
-  VORTEX_INSTALL_DST_DIR="${VORTEX_INSTALL_DST_DIR:-$(pwd)}"
-  VORTEX_INSTALL_DST_DIR=${1:-${VORTEX_INSTALL_DST_DIR}}
+  VORTEX_INSTALLER_DST_DIR="${VORTEX_INSTALLER_DST_DIR:-$(pwd)}"
+  VORTEX_INSTALLER_DST_DIR=${1:-${VORTEX_INSTALLER_DST_DIR}}
 
-  pushd "${VORTEX_INSTALL_DST_DIR}" >/dev/null || exit 1
+  pushd "${VORTEX_INSTALLER_DST_DIR}" >/dev/null || exit 1
 
   if [ -f docker-compose.yml ] && [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" = "1" ]; then
     sed -i -e "/###/d" docker-compose.yml

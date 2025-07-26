@@ -17,7 +17,7 @@ trait StepDownloadDbTrait {
    * Tests use demo database and 'ahoy download-db' command, so we need
    * to set the CURL DB to test DB.
    */
-  const VORTEX_INSTALL_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql';
+  const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql';
 
   protected function stepDownloadDb(): void {
     $this->logStepStart();
@@ -25,9 +25,9 @@ trait StepDownloadDbTrait {
     File::remove('.data/db.sql');
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
 
-    $this->logSubstep('Downloading demo database from ' . static::VORTEX_INSTALL_DEMO_DB_TEST);
+    $this->logSubstep('Downloading demo database from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST);
     $this->processRun('ahoy download-db', env: [
-      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
     ]);
     $this->assertProcessSuccessful();
 
