@@ -164,7 +164,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -295,7 +295,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -435,7 +435,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -580,7 +580,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -720,7 +720,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -854,7 +854,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -995,7 +995,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   mocks="$(run_steps "setup")"
@@ -1114,7 +1114,7 @@ assert_provision_info() {
     "Disabled maintenance mode."
 
     # Installation completion.
-    "Finished site provisioning."
+    "Finished site provisioning"
   )
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
