@@ -23,7 +23,7 @@ commands:
     name: Serve built documentation.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      yarn --cwd=docs run serve
+      yarn --cwd=docs run start
 
   build-docs:
     name: Build documentation.
