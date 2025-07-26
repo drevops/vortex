@@ -838,35 +838,35 @@ assert_solr() {
 }
 
 assert_valkey() {
-  step "Valkey - skipped until https://github.com/drush-ops/drush/issues/6306 is fixed and Drush version is updated"
-  #
-  # substep "Valkey service is running"
-  # run docker compose exec valkey valkey-cli FLUSHALL
-  # assert_output_contains "OK"
-  #
-  # substep "Valkey integration is disabled"
-  # ahoy drush cr
-  # ahoy cli curl -L -s "http://nginx:8080" >/dev/null
-  # run docker compose exec valkey valkey-cli --scan
-  # assert_output_not_contains "config"
-  # # Valkey is reported in Drupal as not connected.
-  # run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
-  # assert_output_contains "Warning"
-  #
-  # substep "Restart with environment variable"
-  # add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
-  # sync_to_container
-  # DRUPAL_REDIS_ENABLED=1 ahoy up cli
-  # sleep 10
-  # ahoy drush cr
-  # ahoy cli curl -L -s "http://nginx:8080" >/dev/null
-  # run docker compose exec valkey valkey-cli --scan
-  # assert_output_contains "config"
-  # # Valkey is reported in Drupal as connected.
-  # run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
-  # assert_output_contains "OK"
-  #
-  # ahoy up cli
+  step "Valkey"
+
+  substep "Valkey service is running"
+  run docker compose exec valkey valkey-cli FLUSHALL
+  assert_output_contains "OK"
+
+  substep "Valkey integration is disabled"
+  ahoy drush cr
+  ahoy cli curl -L -s "http://nginx:8080" >/dev/null
+  run docker compose exec valkey valkey-cli --scan
+  assert_output_not_contains "config"
+  # Valkey is reported in Drupal as not connected.
+  run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
+  assert_output_contains "Warning"
+
+  substep "Restart with environment variable"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
+  sync_to_container
+  DRUPAL_REDIS_ENABLED=1 ahoy up cli
+  sleep 10
+  ahoy drush cr
+  ahoy cli curl -L -s "http://nginx:8080" >/dev/null
+  run docker compose exec valkey valkey-cli --scan
+  assert_output_contains "config"
+  # Valkey is reported in Drupal as connected.
+  run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
+  assert_output_contains "OK"
+
+  ahoy up cli
 }
 
 assert_ahoy_reset() {
