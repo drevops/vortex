@@ -59,7 +59,7 @@ jobs:
             SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
             VERSION="${TAG:-${SHA}}"
           fi
-          sed -i "s/\"vortex-installer-version\": \"dev\"/\"vortex-installer-version\": \"${VERSION}\"/g" box.json
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"${VERSION}\"/g" box.json
         working-directory: .vortex/installer
 
       - name: Build PHAR
