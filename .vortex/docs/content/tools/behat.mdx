@@ -125,6 +125,14 @@ if there are any violations.
 Set `VORTEX_CI_BEHAT_IGNORE_FAILURE` environment variable to `1` to ignore
 failures. The tool will still run and report violations, if any.
 
+:::note
+
+Based on the size of your website and continuous integration runner resources,
+Behat test may fail intermittently. To avoid task failure in the continuous
+integration pipeline, the failed Behat test will run again.
+
+:::
+
 ## Writing tests
 
 When writing tests, it is recommended to use the following structure:

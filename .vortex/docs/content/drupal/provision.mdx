@@ -36,6 +36,38 @@ In short, `provision.sh` wraps `drush deploy` in a consistent, repeatable, and
 configurable process — turning a manual setup step into a reliable automation
 layer.
 
+## Database Import vs Full Provisioning
+
+Vortex provides two main approaches for setting up your database:
+
+### Full Provisioning (`ahoy provision`)
+
+Runs the complete provisioning process including:
+- Database import (from dump or profile installation)
+- Configuration import (`drush config:import`)
+- Database updates (`drush updatedb`)
+- Post-provisioning custom scripts
+- Cache rebuilds
+
+Use this when you want a fully configured site ready for development or deployment.
+
+### Database Import Only (`ahoy import-db`)
+Imports only the database dump without running deployment scripts:
+- Imports the database dump
+- Skips configuration imports
+- Skips database updates
+- Skips post-provisioning scripts
+
+```bash
+# Import database only
+ahoy import-db path/to/dump.sql
+
+# Full provisioning (recommended for most cases)
+ahoy provision
+```
+
+Use `ahoy import-db` when you only need the raw database data without any configuration changes or updates.
+
 ## Provisioning flow
 
 <picture style={{ display: 'block', textAlign: 'center' }}>
@@ -154,3 +186,7 @@ import ProvisionScriptExample from '!!raw-loader!./provision-example.sh';
 <CodeBlock language="bash">{ProvisionScriptExample}</CodeBlock>
 
 </details>
+
+:::tip Related Documentation
+For information about different types of Drupal hooks used during deployment and updates, see [Update Hooks](./update-hooks).
+:::

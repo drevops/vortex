@@ -15,18 +15,20 @@ relevant scripts based on the type of deployment defined in `$VORTEX_DEPLOY_TYPE
 variable as a comma-separated list of one or multiple supported deployment types:
 
 - `webhook` - a webhook URL is called via CURL.
-- `artifact` - a code artifact created and sent to a remote repository.
-- `lagoon` - a special webhook URL is called via CURL to trigger a deployment in
+- `artifact` - a [code artifact is created](/docs/tools/git-artifact) and sent to a remote repository.
+- `lagoon` - a Lagoon's webhook URL is called via CURL to trigger a deployment in
   Lagoon.
-- `docker`- a container image is built and pushed to a remote registry.
+- `docker` - a container image is built and pushed to a remote registry.
 
 ## Using deployments
 
 ### Deployment action
 
-By default, an existing database will be retained during a deployment. To change
-this behavior and overwrite the database, set the `$VORTEX_DEPLOY_ACTION`
-variable to `deploy_override_db`.
+By default, an existing database will be retained during a deployment.
+
+To change this behavior and overwrite the database with a fresh copy from
+production environment, set the `$VORTEX_DEPLOY_ACTION` variable to
+`deploy_override_db`.
 
 ## Skipping all deployments
 
