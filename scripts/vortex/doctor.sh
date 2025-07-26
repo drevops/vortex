@@ -203,7 +203,7 @@ main() {
 
       if [ "${VORTEX_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
         if ! curl -L -s -N "${local_dev_url}" | grep -q -i "charset="; then
-          fail "Website is running, but cannot be bootstrapped. Try pulling latest container images with 'ahoy pull'."
+          fail "Website is running, but cannot be bootstrapped. Check web-server configuration."
           exit 1
         fi
         pass "Bootstrapped website at http://${local_dev_url}."
