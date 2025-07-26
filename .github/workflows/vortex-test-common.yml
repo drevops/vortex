@@ -90,6 +90,8 @@ jobs:
       - name: Run tests
         run: ./tests/test.common.sh
         working-directory: .vortex
+        env:
+          TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -157,6 +159,8 @@ jobs:
       - name: Run tests
         run: ./tests/test.workflow.sh
         working-directory: .vortex
+        env:
+          TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -232,6 +236,8 @@ jobs:
         run: ./tests/test.deployment.sh
         working-directory: .vortex
         timeout-minutes: 10
+        env:
+          TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

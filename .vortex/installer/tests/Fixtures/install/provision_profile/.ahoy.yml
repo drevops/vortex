@@ -1,5 +1,5 @@
 @@ -115,11 +115,6 @@
-     # Unblock user 1 and generate a one time login link.
+     usage: Unblock user 1 and generate a one time login link.
      cmd: ahoy cli ./scripts/vortex/login.sh
  
 -  download-db:

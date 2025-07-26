@@ -1,4 +1,4 @@
-@@ -102,10 +102,6 @@
+@@ -103,10 +103,6 @@
      usage: Run Drush commands in the CLI service container.
      cmd: ahoy cli "vendor/bin/drush -l \${VORTEX_LOCALDEV_URL} $*"
  
