@@ -117,7 +117,7 @@ class Tui {
     }
 
     foreach ($lines as $line) {
-      $padding = empty($line) ? '' : str_repeat(' ', (int) (($width - $max_length) / 2));
+      $padding = empty($line) ? '' : str_repeat(' ', (int) (max(0, ($width - $max_length)) / 2));
       $centered_lines[] = $padding . $line;
     }
 
