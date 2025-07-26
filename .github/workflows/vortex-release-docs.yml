@@ -56,7 +56,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer.phar --no-interaction test || exit 1
+        run: ./build/installer.phar --no-interaction --no-cleanup test || exit 1
         working-directory: .vortex/installer
 
       - name: Upload artifact
