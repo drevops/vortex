@@ -18,6 +18,7 @@ trait LoggerTrait {
     $step = $trace[1]['function'] ?? 'unknown';
 
     static::logSection('STEP START | ' . $step, $message, FALSE, 40);
+    fwrite(STDERR, PHP_EOL);
   }
 
   public static function logStepFinish(?string $message = NULL): void {
@@ -25,10 +26,11 @@ trait LoggerTrait {
     $step = $trace[1]['function'] ?? 'unknown';
 
     static::logSection('STEP DONE | ' . $step, $message, FALSE, 40);
+    fwrite(STDERR, PHP_EOL);
   }
 
   public static function logSubstep(string $message): void {
-    static::log('  --> ' . $message . PHP_EOL);
+    fwrite(STDERR, '  --> '. $message . PHP_EOL);
   }
 
 }
