@@ -47,10 +47,10 @@ trait StepPrepareSutTrait {
       $this->processRun('composer --working-dir=.vortex/installer install');
     }
 
-    $this->processRun('php .vortex/installer/install --no-interaction ' . static::locationsSut(), $arguments, env: [
+    $this->processRun('php .vortex/installer/installer.php --no-interaction ' . static::locationsSut(), $arguments, env: [
       // Force the installer script to be downloaded from the local repo for
       // testing.
-      'VORTEX_INSTALL_REPO' => static::locationsRoot(),
+      'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
       // Tests are using demo database and 'ahoy download-db' command, so we
       // need
       // to set the CURL DB to test DB.
@@ -62,10 +62,10 @@ trait StepPrepareSutTrait {
       // Installer will load environment variable and it will take precedence
       // over
       // the value in .env file.
-      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALL_DEMO_DB_TEST,
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       // Use unique installer temporary directory for each run. This is where
       // the installer script downloads the Vortex codebase for processing.
-      'VORTEX_INSTALL_TMP_DIR' => static::locationsTmp(),
+      'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
     ]);
     $this->assertProcessSuccessful();
 
@@ -103,14 +103,20 @@ trait StepPrepareSutTrait {
       $this->logSubstep('Pre-processing .ahoy.yml to copy database file to container');
 
       $this->assertFileContainsString(
-        'cmd: ahoy cli ./scripts/vortex/provision.sh',
+        'ahoy cli ./scripts/vortex/provision.sh',
         '.ahoy.yml',
         'Initial Ahoy command to provision the container should exist in .ahoy.yml'
       );
 
+      // Replace the command to provision the container with a command that
+      // checks for the database file and copies it to the container if it
+      // exists.
+      // Provision script may be called from multiple sections of the .ahoy.yml
+      // file, so we need to ensure that we only modify the one in
+      // the 'provision' section.
       File::replaceContent('.ahoy.yml',
-        'cmd: ahoy cli ./scripts/vortex/provision.sh',
-        'cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli ./scripts/vortex/provision.sh',
+        '      ahoy cli ./scripts/vortex/provision.sh',
+        '      if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli ./scripts/vortex/provision.sh',
       );
     }
   }

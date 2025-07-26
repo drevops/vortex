@@ -35,11 +35,9 @@ import { Card, CardGrid } from '../components/Card';
     <p className="hero-subtitle">Drupal Project Template</p>
 
     <div className="hero-description">
-      <p>
-        <strong>Vortex</strong> is a Drupal project template designed to
+      <p><strong>Vortex</strong> is a Drupal project template designed to
         streamline onboarding, accelerate development, and support long-term
-        maintainability
-      </p>
+        maintainability</p>
     </div>
 
     <div className="hero-cta">
@@ -51,10 +49,16 @@ import { Card, CardGrid } from '../components/Card';
 <div className="full-width-section">
   <div className="content-container">
     <h2 className="section-title">Comprehensive Feature Set</h2>
-    <p style={{ textAlign: 'center', fontSize: '1.25rem', marginBottom: '3rem', maxWidth: '800px', margin: '0 auto 3rem' }}>
-      A complete foundation for building and deploying Drupal sites with containerized environments,
-      automated testing, code quality tools, CI/CD pipelines, and hosting platform integrations
-    </p>
+    <p
+      style={{
+        textAlign: 'center',
+        fontSize: '1.25rem',
+        marginBottom: '3rem',
+        maxWidth: '800px',
+        margin: '0 auto 3rem'
+      }}
+    >A complete foundation for building and deploying Drupal sites with containerized environments,
+      automated testing, code quality tools, CI/CD pipelines, and hosting platform integrations</p>
     <CardGrid>
       <Card
         icon="💧"
@@ -64,15 +68,15 @@ import { Card, CardGrid } from '../components/Card';
       />
       <Card
         icon="☁️"
-        title="Hosting"
+        title="Hosting Integrations"
         description="Integrations with cloud hosting providers including Acquia and Lagoon with database syncing, deployment workflows, and preview environments"
         link="/features#hosting-integrations"
       />
       <Card
         icon="🏗️"
-        title="Continuous Integration"
-        description="Continuous integration pipelines with multi-provider CI/CD using GitHub Actions and CircleCI, containerized environments, and automated testing"
-        link="/features#continuous-integration"
+        title="CI/CD Configurations"
+        description="Configurations for continuous integration providers GitHub Actions and CircleCI, containerized environments, and automated testing"
+        link="/features#cicd-configurations"
       />
       <Card
         icon="💻"
@@ -84,15 +88,16 @@ import { Card, CardGrid } from '../components/Card';
         icon="🛠️"
         title="Tools"
         description="Code quality and testing tools including PHPCS, PHPStan, PHPUnit, Behat, and more - all pre-configured and ready to use"
-        link="/features#quality-tools"
+        link="/features#tools"
       />
       <Card
         icon="⚙️"
         title="Workflow"
-        description="Useful workflows and automation including standardized deployment workflows, notifications, and automated dependency updates with Renovate"
-        link="/features#workflow-automation"
+        description="Standardized development and deployment workflows, notifications, and automated dependency updates with Renovate"
+        link="/features#workflows"
       />
     </CardGrid>
+
     <div className="features-link">
       <a href="/features" className="secondary-button">Explore All Features →</a>
     </div>
@@ -108,7 +113,7 @@ import { Card, CardGrid } from '../components/Card';
         <Card
           icon="🎯"
           title="Built for Teams"
-          description="Consistent developer experience across every project. Same tools, commands, and workflows so team members can jump between projects without missing a beat"
+          description="Consistent developer experience across every project.<br/>Same tools, commands, and workflows so team members can jump between projects without missing a beat"
         />
         <Card
           icon="🔄"

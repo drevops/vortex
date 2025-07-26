@@ -28,8 +28,8 @@
     "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\Vortex\\Tests\\": "phpunit/",
-            "AlexSkrypnyk\\File\\Tests\\": "vendor/alexskrypnyk/file/tests/"
+            "AlexSkrypnyk\\File\\Tests\\": "vendor/alexskrypnyk/file/tests/",
+            "DrevOps\\Vortex\\Tests\\": "phpunit/"
         }
     },
     "config": {
@@ -38,6 +38,7 @@
             "ergebnis/composer-normalize": true
         },
         "discard-changes": true,
+        "process-timeout": 600,
         "sort-packages": true
     },
     "scripts": {

@@ -22,7 +22,7 @@
  !drush
  drush/contrib/
  
-@@ -46,3 +46,5 @@
+@@ -49,3 +49,5 @@
  !rector.php
  !scripts
  !tests

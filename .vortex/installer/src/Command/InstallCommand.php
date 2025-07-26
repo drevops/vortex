@@ -37,6 +37,8 @@ class InstallCommand extends Command {
 
   const OPTION_URI = 'uri';
 
+  const OPTION_NO_CLEANUP = 'no-cleanup';
+
   /**
    * Defines default command name.
    *
@@ -53,23 +55,23 @@ class InstallCommand extends Command {
    * {@inheritdoc}
    */
   protected function configure(): void {
-    $this->setName('Vortex CLI installer');
+    $this->setName('Vortex Installer');
     $this->setDescription('Install Vortex CLI from remote or local repository.');
     $this->setHelp(<<<EOF
   Interactively install Vortex from the latest stable release into the current directory:
-  php install destination
+  php installer destination
 
   Non-interactively install Vortex from the latest stable release into the specified directory:
-  php install --no-interaction destination
+  php installer --no-interaction destination
 
-  Install Vortex from a stable release into the specified directory:
-  php install --uri=https://github.com/drevops/vortex.git@stable destination
+  Install Vortex from the stable branch into the specified directory:
+  php installer --uri=https://github.com/drevops/vortex.git@stable destination
 
   Install Vortex from a specific release into the specified directory:
-  php install --uri=https://github.com/drevops/vortex.git@1.2.3 destination
+  php installer --uri=https://github.com/drevops/vortex.git@1.2.3 destination
 
   Install Vortex from a specific commit into the specified directory:
-  php install --uri=https://github.com/drevops/vortex.git@abcd123 destination
+  php installer --uri=https://github.com/drevops/vortex.git@abcd123 destination
 EOF
     );
     $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
@@ -78,6 +80,7 @@ EOF
     $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
+    $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
   }
 
   /**
@@ -102,7 +105,7 @@ EOF
 
       static::header();
 
-      $pm->prompt();
+      $pm->runPrompts();
 
       Tui::list($pm->getResponsesSummary(), 'Installation summary');
 
@@ -116,36 +119,39 @@ EOF
 
       Tui::action(
         label: '⬇️ Downloading Vortex',
-        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
-        success: 'Vortex downloaded',
-        action: function (): void {
+        action: function (): string {
           $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
+          return $version;
         },
+        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
+        success: function (string $return): string {
+          return sprintf('Vortex downloaded (%s)', $return);
+        }
       );
 
       Tui::action(
         label: '⚙️ Customizing Vortex for your project',
+        action: fn() => $pm->runProcessors(),
         success: 'Vortex was customized for your project',
-        action: fn() => $pm->process(),
       );
 
       Tui::action(
-        label: '🥣 Preparing destination directory',
-        success: 'Destination directory is ready',
+        label: '📁 Preparing destination directory',
         action: fn(): array => $this->prepareDestination(),
+        success: 'Destination directory is ready',
       );
 
       Tui::action(
         label: '➡️ Copying files to the destination directory',
-        success: 'Files copied to destination directory',
         action: fn() => $this->copyFiles(),
+        success: 'Files copied to destination directory',
       );
 
       Tui::action(
-        label: '🎬 Preparing demo content',
-        success: 'Demo content prepared',
+        label: '🎭 Preparing demo content',
         action: fn(): string|array => $this->handleDemo(),
+        success: 'Demo content prepared',
       );
 
       // @todo Implement the demo mode.
@@ -159,6 +165,10 @@ EOF
     }
 
     static::footer();
+
+    // Cleanup should take place only in case of the successful installation.
+    // Otherwise, the user should be able to re-run the installer.
+    register_shutdown_function([$this, 'cleanup']);
 
     return Command::SUCCESS;
   }
@@ -185,8 +195,8 @@ EOF
    * Instantiate configuration from CLI options and environment variables.
    *
    * Installer configuration is a set of internal installer variables
-   * prefixed with "VORTEX_INSTALL_" and used to control the installation. They
-   * are read from the environment variables with $this->config->get().
+   * prefixed with "VORTEX_INSTALLER_" and used to control the installation.
+   * They are read from the environment variables with $this->config->get().
    *
    * For simplicity of naming, internal installer config variables used in
    * $this->config->get() match environment variables names.
@@ -239,6 +249,9 @@ EOF
 
     // Internal flag to skip processing of the demo mode.
     $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
+
+    // Set no-cleanup flag.
+    $this->config->set(Config::NO_CLEANUP, (bool) $options[static::OPTION_NO_CLEANUP]);
   }
 
   protected function prepareDestination(): array {
@@ -361,7 +374,6 @@ EOF
                Drupal project template
 
                                               by DrevOps
-
 EOT;
 
     $logo_small = <<<EOT
@@ -376,21 +388,26 @@ EOT;
 EOT;
 
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
-    $logo = Tui::center($logo, Tui::terminalWidth(), '─');
+    $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
+
+    $version = $this->getApplication()->getVersion();
+    $version = str_replace('@git-tag-ci@', 'development', $version);
+    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), min(Tui::terminalWidth(), 80) - 2, ' ', STR_PAD_LEFT));
+
     Tui::note($logo);
 
-    $title = 'Welcome to Vortex interactive installer';
+    $title = 'Welcome to the Vortex interactive installer';
     $content = '';
 
     $ref = $this->config->get(Config::REF);
     if ($ref == Downloader::REF_STABLE) {
-      $content .= 'This tool will guide you through installing the latest version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('stable') . ' version of Vortex into your project.' . PHP_EOL;
     }
     elseif ($ref == Downloader::REF_HEAD) {
-      $content .= 'This tool will guide you through installing the latest development version of Vortex into your project.' . PHP_EOL;
+      $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('development') . ' version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This tool will guide you through installing the version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+      $content .= sprintf('This tool will guide you through installing a ' . Tui::underscore('custom') . ' version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -403,18 +420,18 @@ EOT;
     if ($this->config->getNoInteraction()) {
       $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Existing committed files may be modified. You will need to resolve any changes manually.' . PHP_EOL;
+      $content .= 'Existing committed files may be modified. You may need to resolve some of the changes manually.' . PHP_EOL;
 
-      $title = 'Welcome to Vortex non-interactive installer';
+      $title = 'Welcome to the Vortex non-interactive installer';
     }
     else {
-      $content .= 'You’ll be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
+      $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
       $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve any changes manually.' . PHP_EOL;
+      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'Press Ctrl+C at any time to exit the installer.' . PHP_EOL;
-      $content .= 'Press Ctrl+U at any time to go back to the previous step.' . PHP_EOL;
+      $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
+      $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
     }
 
     Tui::box($content, $title);
@@ -429,15 +446,36 @@ EOT;
     else {
       $title = 'Finished installing Vortex 🚀🚀🚀';
       $output .= 'Next steps:' . PHP_EOL;
-      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
-      $output .= '  git add -A                       # Add all files.' . PHP_EOL;
-      $output .= '  git commit -m "Initial commit."  # Commit all files.' . PHP_EOL;
-      $output .= '  ahoy build                       # Build site.' . PHP_EOL;
       $output .= PHP_EOL;
-      $output .= '  See https://www.vortextemplate.com/docs/quickstart';
+      $output .= '  Add and commit all files:' . PHP_EOL;
+      $output .= '    cd ' . $this->config->getDst() . PHP_EOL;
+      $output .= '    git add -A' . PHP_EOL;
+      $output .= '    git commit -m "Initial commit."' . PHP_EOL;
+      $output .= PHP_EOL;
+      $output .= '  Build project locally:' . PHP_EOL;
+      $output .= '    ahoy build' . PHP_EOL;
+      $output .= PHP_EOL;
+      $output .= '  Setup integration with your CI/CD system and hosting:' . PHP_EOL;
+      $output .= '    See https://www.vortextemplate.com/docs/quickstart';
+      $output .= PHP_EOL;
     }
 
     Tui::box($output, $title);
+  }
+
+  /**
+   * Clean up installer artifacts.
+   */
+  public function cleanup(): void {
+    // Skip cleanup if the no-cleanup flag is set.
+    if ($this->config->get(Config::NO_CLEANUP, FALSE)) {
+      return;
+    }
+
+    $phar_path = \Phar::running(FALSE);
+    if (!empty($phar_path) && file_exists($phar_path)) {
+      @unlink($phar_path);
+    }
   }
 
 }

@@ -48,7 +48,7 @@ It will integrate the latest Vortex release into your codebase, and you will
 choose which changes to commit.
 
 ```bash
-curl -SsL https://www.vortextemplate.com/install > install.php && php install.php
+curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
 ```
 
 Alternatively, clone this repository and adjust the configuration by manually

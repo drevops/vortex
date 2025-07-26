@@ -20,6 +20,46 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '☁️ Hosting provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::ACQUIA => '💧 Acquia Cloud',
+      self::LAGOON => '🌊 Lagoon',
+      self::OTHER => '🧩 Other',
+      self::NONE => '🚫 None',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return 'none';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     if (is_readable($this->dstDir . '/hooks') || Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir) === DatabaseDownloadSource::ACQUIA) {
       return self::ACQUIA;

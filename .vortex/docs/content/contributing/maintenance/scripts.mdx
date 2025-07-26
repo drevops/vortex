@@ -62,7 +62,7 @@ pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}"
 12. MUST use lowercase local variables.
 13. MUST use long options instead of short options for readability. I.e., `drush cache:rebuild` instead of `drush cr`.
 14. MUST use `VORTEX_` prefix for variables, unless it is a known 3-rd party
-    variable like `GITHUB_TOKEN` or `COMPOSER`.
+    variable like `PACKAGE_TOKEN` or `COMPOSER`.
 15. MUST use script-specific prefix. I.e., for `notify.sh`, the variable to skip
     notifications should start with `VORTEX_NOTIFY_`.
 16. MAY rely on variables from the external scripts (not prefixed with a

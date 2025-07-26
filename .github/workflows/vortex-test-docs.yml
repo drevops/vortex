@@ -14,17 +14,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 22.16.0
+          node-version: 22.17.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2
 
       - name: Check docs up-to-date
         run: |
@@ -54,7 +54,7 @@ jobs:
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v3.0
+        uses: nwtgck/actions-netlify@4cbaf4c08f1a7bfa537d6113472ef4424e4eb654 # v3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: '.vortex/docs/build'
@@ -69,7 +69,7 @@ jobs:
         timeout-minutes: 1
 
       - name: Upload coverage reports as an artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ${{github.job}}-docs-coverage-report
           path: .vortex/docs/.logs
@@ -77,7 +77,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
         with:
           files: .vortex/docs/.logs/cobertura.xml
           fail_ci_if_error: true

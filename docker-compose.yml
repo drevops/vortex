@@ -65,6 +65,7 @@ x-environment: &default-environment
   # Local database collation (variable is not used in hosting environment).
   DATABASE_COLLATION: utf8mb4_general_ci
   #;< DRUPAL_THEME
+  # Drupal theme name.
   DRUPAL_THEME: ${DRUPAL_THEME:-}
   #;> DRUPAL_THEME
   # Drupal file paths.
@@ -93,10 +94,14 @@ services:
       dockerfile: .docker/cli.dockerfile
       args:
         WEBROOT: "${WEBROOT:-web}"
-        GITHUB_TOKEN: "${GITHUB_TOKEN:-}"
+        PACKAGE_TOKEN: "${PACKAGE_TOKEN:-}"
         DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
         DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+        DRUPAL_THEME: ${DRUPAL_THEME:-}
+        VORTEX_FRONTEND_BUILD_SKIP: ${VORTEX_FRONTEND_BUILD_SKIP:-}
+      secrets:
+        - package_token
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example_site}
     user: root
     <<: *default-volumes
@@ -119,6 +124,8 @@ services:
       args:
         CLI_IMAGE: *cli-image
         WEBROOT: "${WEBROOT:-web}"
+      additional_contexts:
+        cli: "service:cli"
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -142,6 +149,8 @@ services:
       dockerfile: .docker/php.dockerfile
       args:
         CLI_IMAGE: *cli-image
+      additional_contexts:
+        cli: "service:cli"
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -160,7 +169,7 @@ services:
       context: .
       dockerfile: .docker/database.dockerfile
       args:
-        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.6.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.7.0}" # Use custom database image (if defined) or fallback to standard database image.
     <<: *default-user
     environment:
       <<: *default-environment
@@ -173,7 +182,7 @@ services:
 
   #;< SERVICE_VALKEY
   valkey:
-    image: uselagoon/valkey-8:25.6.0
+    image: uselagoon/valkey-8:25.7.0
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Valkey service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -187,6 +196,8 @@ services:
       dockerfile: .docker/solr.dockerfile
       args:
         CLI_IMAGE: *cli-image
+      additional_contexts:
+        cli: "service:cli"
     environment:
       <<: *default-environment
     depends_on:
@@ -206,7 +217,6 @@ services:
     build:
       context: .
       dockerfile: .docker/clamav.dockerfile
-    platform: linux/amd64
     ports:
       - "3310" # Find port on host with `docker compose port clamav 3310`.
     environment:
@@ -223,7 +233,7 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:137.0
+    image: selenium/standalone-chromium:138.0
     ports:
       - "7900" # Find port on host with `docker compose port chrome 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
@@ -262,3 +272,7 @@ volumes:
   #;< SERVICE_SOLR
   solr: {}
   #;> SERVICE_SOLR
+
+secrets:
+  package_token:
+    environment: PACKAGE_TOKEN

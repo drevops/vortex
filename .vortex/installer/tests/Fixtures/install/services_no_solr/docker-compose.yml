@@ -1,4 +1,4 @@
-@@ -138,21 +138,6 @@
+@@ -147,23 +147,6 @@
    valkey:
      image: uselagoon/valkey-8:__VERSION__
  
@@ -8,6 +8,8 @@
 -      dockerfile: .docker/solr.dockerfile
 -      args:
 -        CLI_IMAGE: *cli-image
+-      additional_contexts:
+-        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    depends_on:
@@ -20,8 +22,11 @@
    clamav:
      build:
        context: .
-@@ -193,4 +178,3 @@
+@@ -203,7 +186,6 @@
  volumes:
    app: {}
    files: {}
 -  solr: {}
+ 
+ secrets:
+   package_token:

@@ -1,4 +1,4 @@
-@@ -66,8 +66,6 @@
+@@ -67,8 +67,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -7,7 +7,7 @@
  
  # ------------------------------------------------------------------------------
  # Services.
-@@ -135,36 +133,6 @@
+@@ -144,37 +142,6 @@
      ports:
        - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -20,6 +20,8 @@
 -      dockerfile: .docker/solr.dockerfile
 -      args:
 -        CLI_IMAGE: *cli-image
+-      additional_contexts:
+-        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    depends_on:
@@ -33,7 +35,6 @@
 -    build:
 -      context: .
 -      dockerfile: .docker/clamav.dockerfile
--    platform: linux/amd64
 -    ports:
 -      - "3310" # Find port on host with `docker compose port clamav 3310`.
 -    environment:
@@ -44,7 +45,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -183,8 +151,7 @@
+@@ -193,8 +160,7 @@
      depends_on:
        - cli
        - database
@@ -54,8 +55,11 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -193,4 +160,3 @@
+@@ -203,7 +169,6 @@
  volumes:
    app: {}
    files: {}
 -  solr: {}
+ 
+ secrets:
+   package_token:

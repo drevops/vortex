@@ -1,4 +1,4 @@
-@@ -201,7 +201,7 @@
+@@ -202,7 +202,7 @@
     * Require settings file.
     */
    protected function requireSettingsFile(): void {

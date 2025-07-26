@@ -41,13 +41,13 @@ class FunctionalTestCase extends UnitTestCase {
   protected function setUp(): void {
     self::locationsInit(File::cwd() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..');
 
-    // We use 'Star Wars' theme for the tests, do setting up SUT directory
+    // We use 'Star Wars' theme for the tests, so setting up SUT directory
     // so that the installer can gather the answers from the directory name.
     static::$sut = static::locationsMkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
 
     $this->fixtureExportCodebase(static::$root, static::$repo);
 
-    $is_verbose = !empty(getenv('TEST_VORTEX_VERBOSE')) || static::isDebug();
+    $is_verbose = !empty(getenv('TEST_VORTEX_DEBUG')) || static::isDebug();
     $this->processStreamOutput = $is_verbose;
     $this->loggerSetVerbose(TRUE);
   }

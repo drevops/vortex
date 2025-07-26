@@ -12,7 +12,7 @@ ARG CLI_IMAGE
 # hadolint ignore=DL3006
 FROM ${CLI_IMAGE:-cli} AS cli
 
-FROM uselagoon/php-8.3-fpm:25.6.0
+FROM uselagoon/php-8.3-fpm:25.7.0
 
 RUN apk add --no-cache tzdata
 

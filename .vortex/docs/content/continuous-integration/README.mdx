@@ -44,7 +44,7 @@ The continuous integration pipeline is triggered by:
 - Runs after the `database` job
 - Uses Docker Compose to set up the environment
 - Provisions a website
-- Lints code
+- Lints code (only on the first instance)
 - Runs unit tests
 - Runs BDD tests
 - Generates code coverage reports
@@ -64,3 +64,23 @@ day uses the cached database dump.
 
 By default, the database is cached per-branch for 24 hours. If cache is not
 available, the fallback default branch is used.
+
+:::note
+
+Database caching is a very powerful feature that allows to speed up the
+continuous integration runs on large projects with a lot of data.
+
+In case of a project with a large database >1GB, the database import itself may
+take a long time, so it may be worth looking into either packaging the database
+dump into a container image (overnight) or using a sanitized database dump with
+only the required data for the tests.
+
+**Vortex** supports both creating and using a database container image with embedded
+data. You may use [MariaDB data container for Drupal with database captured as Docker layers](https://github.com/drevops/mariadb-drupal-data) to create
+an initial database image.
+
+There are other tools also available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
+that allows to remove data from the database dump during Drush database
+export command without the need for an intermediate database import step.
+
+:::

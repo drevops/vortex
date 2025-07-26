@@ -27,7 +27,6 @@ load ../_helper.bash
 
   mktouch "web/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "web/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
-  mktouch "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch ".logs/screenshots/s1.jpg"
   mktouch ".logs/screenshots/s2.jpg"
@@ -63,7 +62,6 @@ load ../_helper.bash
   assert_dir_not_exists "web/themes/custom/star_wars/node_modules"
 
   assert_dir_not_exists "web/themes/custom/star_wars/build"
-  assert_file_not_exists "web/themes/custom/star_wars/scss/_components.scss"
 
   assert_file_exists ".logs/screenshots/s1.jpg"
   assert_file_exists ".logs/screenshots/s2.jpg"
@@ -105,7 +103,6 @@ load ../_helper.bash
 
   mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js"
   mktouch "web/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage with spaces.js"
-  mktouch "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch "web/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "web/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
@@ -147,7 +144,6 @@ load ../_helper.bash
   assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/node_modules"
 
   assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/build"
-  assert_file_not_exists "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists ".logs/screenshots"
 
@@ -190,7 +186,6 @@ load ../_helper.bash
 
   mktouch "web/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js"
   mktouch "web/themes/custom/zzzsomecustomtheme/build/css/zzzsomecustomtheme.min.css"
-  mktouch "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   mktouch ".logs/screenshots/s1.jpg"
   mktouch ".logs/screenshots/s2.jpg"
@@ -236,7 +231,6 @@ load ../_helper.bash
   assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/node_modules"
 
   assert_dir_not_exists "web/themes/custom/zzzsomecustomtheme/build"
-  #assert_file_not_exists "web/themes/custom/zzzsomecustomtheme/scss/_components.scss"
 
   assert_dir_not_exists ".logs/screenshots"
 

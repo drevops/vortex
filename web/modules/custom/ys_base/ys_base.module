@@ -10,6 +10,22 @@ declare(strict_types=1);
 use Drupal\Core\Site\Settings;
 
 /**
+ * Implements hook_theme().
+ *
+ * @phpstan-ignore-next-line
+ */
+function ys_base_theme(): array {
+  return [
+    'ys_base_counter_block' => [
+      'variables' => [
+        'counter_value' => 0,
+      ],
+      'template' => 'ys-base-counter-block',
+    ],
+  ];
+}
+
+/**
  * Implements hook_mail_alter().
  */
 function ys_base_mail_alter(array &$message): void {

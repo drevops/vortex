@@ -11,7 +11,7 @@
         "drupal/clamav": "__VERSION__",
         "drupal/coffee": "__VERSION__",
         "drupal/config_split": "__VERSION__",
-        "drupal/config_update": "^2@alpha",
+        "drupal/config_update": "__VERSION__",
         "drupal/core-composer-scaffold": "__VERSION__",
         "drupal/core-recommended": "__VERSION__",
         "drupal/environment_indicator": "__VERSION__",
@@ -43,7 +43,9 @@
         "phpmd/phpmd": "__VERSION__",
         "phpspec/prophecy-phpunit": "__VERSION__",
         "phpstan/extension-installer": "__VERSION__",
+        "phpstan/phpstan": "__VERSION__",
         "pyrech/composer-changelogs": "__VERSION__",
+        "rector/rector": "__VERSION__",
         "vincentlanglet/twig-cs-fixer": "__VERSION__"
     },
     "conflict": {

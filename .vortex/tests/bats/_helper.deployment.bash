@@ -161,8 +161,8 @@ setup_robo_fixture() {
   chmod +x "${HOME}/.composer/vendor/bin/git-artifact"
 }
 
-provision_docker_config_file() {
+create_docker_config_file() {
   fixture_prepare_dir "${BUILD_DIR}/.docker"
   touch "${BUILD_DIR}/.docker/config.json"
-  echo "{$1:-docker.io}" > "${BUILD_DIR}/.docker/config.json"
+  echo "{\"auths\": {\"${1:-docker.io}\": {\"auth\": \"bXl1c2VybmFtZTpteXBhc3N3b123\"}}}" >"${BUILD_DIR}/.docker/config.json"
 }

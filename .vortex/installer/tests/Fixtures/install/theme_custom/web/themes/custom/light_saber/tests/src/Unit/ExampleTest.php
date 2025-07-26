@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\light_saber\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Class ExampleTest.
  *
  * Example unit test case class.
  *
- * @group LightSaber
- *
  * @package Drupal\light_saber\Tests
  */
+#[Group('LightSaber')]
 class ExampleTest extends LightSaberUnitTestBase {
 
   /**
    * Tests addition.
-   *
-   * @dataProvider dataProviderAdd
-   * @group addition
    */
+  #[DataProvider('dataProviderAdd')]
+  #[Group('addition')]
   public function testAdd(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
@@ -46,10 +47,9 @@ class ExampleTest extends LightSaberUnitTestBase {
 
   /**
    * Tests subtraction.
-   *
-   * @dataProvider dataProviderSubtract
-   * @group unit:subtraction
    */
+  #[DataProvider('dataProviderSubtract')]
+  #[Group('unit:subtraction')]
   public function testSubtract(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
@@ -76,11 +76,10 @@ class ExampleTest extends LightSaberUnitTestBase {
 
   /**
    * Tests multiplication.
-   *
-   * @dataProvider dataProviderMultiplication
-   * @group multiplication
-   * @group skipped
    */
+  #[DataProvider('dataProviderMultiplication')]
+  #[Group('multiplication')]
+  #[Group('skipped')]
   public function testMultiplication(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);

@@ -10,11 +10,11 @@ load ../_helper.workflow.bash
 
 @test "Workflow: profile-driven" {
   rm -f .data/db.sql
-  export VORTEX_INSTALL_IS_DEMO_DB_DOWNLOAD_SKIP=1
+  export VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP=1
   assert_file_not_exists .data/db.sql
 
   prepare_sut "Starting fresh install WORKFLOW tests in build directory ${BUILD_DIR}"
-  # Assert that the database was not downloaded because VORTEX_INSTALL_IS_DEMO_DB_DOWNLOAD_SKIP was set.
+  # Assert that the database was not downloaded because VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP was set.
   assert_file_not_exists .data/db.sql
 
   echo "VORTEX_PROVISION_TYPE=profile" >>.env

@@ -66,7 +66,12 @@ VORTEX_LAGOONCLI_PATH="${VORTEX_LAGOONCLI_PATH:-/tmp}"
 VORTEX_LAGOONCLI_FORCE_INSTALL="${VORTEX_LAGOONCLI_FORCE_INSTALL:-}"
 
 # Lagoon CLI version to use.
-VORTEX_LAGOONCLI_VERSION="${VORTEX_LAGOONCLI_VERSION:-latest}"
+VORTEX_LAGOONCLI_VERSION="${VORTEX_LAGOONCLI_VERSION:-v0.32.0}"
+
+# Flag to control failure behavior when Lagoon environment limits are exceeded.
+# When set to 0, the deployment will exit with success instead of failure.
+# When set to 1, the deployment will fail.
+VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED="${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED:-0}"
 
 # ------------------------------------------------------------------------------
 
@@ -76,7 +81,17 @@ task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+
+# Check if error output contains Lagoon environment limit exceeded message.
+# Returns 0 if limit exceeded error found, 1 otherwise.
+is_lagoon_env_limit_exceeded() {
+  local error_output="${1:-}"
+  echo "${error_output}" | grep -q "exceed"
+}
 # @formatter:on
+
+# Track exit status to return at the end.
+exit_code=0
 
 info "Started LAGOON deployment."
 
@@ -89,21 +104,19 @@ export VORTEX_SSH_PREFIX="DEPLOY" && . ./scripts/vortex/setup-ssh.sh
 if ! command -v lagoon >/dev/null || [ -n "${VORTEX_LAGOONCLI_FORCE_INSTALL}" ]; then
   task "Installing Lagoon CLI."
 
-  lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/latest"
-  if [ "${VORTEX_LAGOONCLI_VERSION}" != "latest" ]; then
-    lagooncli_download_url="https://api.github.com/repos/uselagoon/lagoon-cli/releases/tags/${VORTEX_LAGOONCLI_VERSION}"
-  fi
+  platform=$(uname -s | tr '[:upper:]' '[:lower:]')
+  arch_suffix=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+  download_url="https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}/lagoon-cli-${VORTEX_LAGOONCLI_VERSION}-${platform}-${arch_suffix}"
 
-  curl -sL "${lagooncli_download_url}" |
-    grep "browser_download_url" |
-    grep -i "$(uname -s)-amd64\"$" |
-    cut -d '"' -f 4 |
-    xargs curl -L -o "${VORTEX_LAGOONCLI_PATH}/lagoon"
+  note "Downloading Lagoon CLI from ${download_url}."
+  curl -fSLs -o "${VORTEX_LAGOONCLI_PATH}/lagoon" "${download_url}"
+
+  note "Installing Lagoon CLI to ${VORTEX_LAGOONCLI_PATH}/lagoon."
   chmod +x "${VORTEX_LAGOONCLI_PATH}/lagoon"
   export PATH="${PATH}:${VORTEX_LAGOONCLI_PATH}"
 fi
 
-for cmd in lagoon curl; do command -v ${cmd} >/dev/null || {
+for cmd in lagoon curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
@@ -156,7 +169,12 @@ else
       fi
 
       task "Redeploying environment: project ${LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_PR}."
-      lagoon deploy pullrequest --number "${VORTEX_DEPLOY_PR}" --base-branch-name "${VORTEX_DEPLOY_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_PR_HEAD}" --title "${deploy_pr_full}"
+      deploy_output=$(lagoon deploy pullrequest --number "${VORTEX_DEPLOY_PR}" --base-branch-name "${VORTEX_DEPLOY_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_PR_HEAD}" --title "${deploy_pr_full}" 2>&1) || exit_code=$?
+      exit_code=${exit_code:-0}
+      if is_lagoon_env_limit_exceeded "${deploy_output}"; then
+        note "Lagoon environment limit exceeded."
+        [ "${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED}" = "0" ] && exit_code=0
+      fi
 
       if [ "${VORTEX_DEPLOY_ACTION:-}" = "deploy_override_db" ]; then
         task "Waiting for deployment to be queued."
@@ -171,7 +189,12 @@ else
     else
       # If PR deployments are not configured in Lagoon - it will filter it out and will not deploy.
       task "Deploying environment: project ${LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_PR}."
-      lagoon deploy pullrequest --number "${VORTEX_DEPLOY_PR}" --base-branch-name "${VORTEX_DEPLOY_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_PR_HEAD}" --title "${deploy_pr_full}"
+      deploy_output=$(lagoon deploy pullrequest --number "${VORTEX_DEPLOY_PR}" --base-branch-name "${VORTEX_DEPLOY_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_PR_HEAD}" --title "${deploy_pr_full}" 2>&1) || exit_code=$?
+      exit_code=${exit_code:-0}
+      if is_lagoon_env_limit_exceeded "${deploy_output}"; then
+        note "Lagoon environment limit exceeded."
+        [ "${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED}" = "0" ] && exit_code=0
+      fi
     fi
 
   # Deploy branch.
@@ -206,7 +229,12 @@ else
       fi
 
       task "Redeploying environment: project ${LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_BRANCH}."
-      lagoon deploy latest --environment "${VORTEX_DEPLOY_BRANCH}" || true
+      deploy_output=$(lagoon deploy latest --environment "${VORTEX_DEPLOY_BRANCH}" 2>&1) || exit_code=$?
+      exit_code=${exit_code:-0}
+      if is_lagoon_env_limit_exceeded "${deploy_output}"; then
+        note "Lagoon environment limit exceeded."
+        [ "${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED}" = "0" ] && exit_code=0
+      fi
 
       if [ "${VORTEX_DEPLOY_ACTION:-}" = "deploy_override_db" ]; then
         task "Waiting for deployment to be queued."
@@ -221,9 +249,20 @@ else
     else
       # If current branch deployments does not match a regex in Lagoon - it will filter it out and will not deploy.
       task "Deploying environment: project ${LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_BRANCH}."
-      lagoon deploy branch --branch "${VORTEX_DEPLOY_BRANCH}"
+      deploy_output=$(lagoon deploy branch --branch "${VORTEX_DEPLOY_BRANCH}" 2>&1) || exit_code=$?
+      exit_code=${exit_code:-0}
+      if is_lagoon_env_limit_exceeded "${deploy_output}"; then
+        note "Lagoon environment limit exceeded."
+        [ "${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED}" = "0" ] && exit_code=0
+      fi
     fi
   fi
 fi
 
-pass "Finished LAGOON deployment."
+if [ "${exit_code}" = "0" ]; then
+  pass "Finished LAGOON deployment."
+else
+  fail "LAGOON deployment completed with errors."
+fi
+
+exit "${exit_code}"

@@ -19,7 +19,7 @@ npm install --prefix .vortex/tests
 bats .vortex/tests/bats/helpers.bats
 
 # Some tests require Composer and container registry tokens.
-TEST_GITHUB_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> bats .vortex/tests/bats/workflow.smoke.bats
+TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> bats .vortex/tests/bats/workflow.smoke.bats
 
 # To preserve test run directory.
 bats --no-tempdir-cleanup .vortex/tests/bats/helpers.bats
@@ -29,7 +29,7 @@ mkdir -p $HOME/.bats-tmp # run once
 TMPDIR=$HOME/.bats-tmp bats .vortex/tests/bats/helpers.bats
 
 # Run all tests, preserving the temporary directory.
-TEST_GITHUB_TOKEN=<yourtoken> \
+TEST_PACKAGE_TOKEN=<yourtoken> \
 TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> \
 TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> \
 TMPDIR=$HOME/.bats-tmp \
@@ -122,7 +122,7 @@ chmod +x seed.sh
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
 ```bash
 mkdir /tmp/star-wars
-VORTEX_INSTALL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --no-interaction
+VORTEX_INSTALLER_TEMPLATE_REPO="$(pwd)" .vortex/installer/installer.php /tmp/star-wars --no-interaction
 cd /tmp/star-wars
 ```
 2. Run fresh build of **Vortex** locally:
@@ -160,7 +160,7 @@ ahoy export-db db.test.sql
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
 ```bash
 mkdir /tmp/star-wars
-VORTEX_INSTALL_REPO="$(pwd)" .vortex/installer/install /tmp/star-wars --no-interaction
+VORTEX_INSTALLER_TEMPLATE_REPO="$(pwd)" .vortex/installer/installer.php /tmp/star-wars --no-interaction
 cd /tmp/star-wars
 ```
 2. Run fresh build of **Vortex** locally:
@@ -208,5 +208,3 @@ docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-
 docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
 docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
 ```
-
-

@@ -6,4 +6,4 @@
 +ARG WEBROOT=docroot
  ENV WEBROOT=${WEBROOT}
  
- ARG GITHUB_TOKEN=""
+ # Token is used to access private repositories. Not exposed as an environment

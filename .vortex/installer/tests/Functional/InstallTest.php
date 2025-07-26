@@ -14,8 +14,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubRepo;
-use DrevOps\VortexInstaller\Prompts\Handlers\GithubToken;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -30,6 +28,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
@@ -60,8 +59,6 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(DependencyUpdatesProvider::class)]
 #[CoversClass(DeployType::class)]
 #[CoversClass(Domain::class)]
-#[CoversClass(GithubRepo::class)]
-#[CoversClass(GithubToken::class)]
 #[CoversClass(HostingProvider::class)]
 #[CoversClass(Internal::class)]
 #[CoversClass(LabelMergeConflictsPr::class)]
@@ -76,6 +73,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass(ProvisionType::class)]
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
+#[CoversClass(Timezone::class)]
 #[CoversClass(Webroot::class)]
 #[CoversClass(PromptManager::class)]
 #[CoversClass(Downloader::class)]
@@ -97,7 +95,7 @@ class InstallTest extends FunctionalTestCase {
   public function testHelp(): void {
     static::runNonInteractiveInstall(options: ['help' => NULL]);
     $this->assertApplicationSuccessful();
-    $this->assertApplicationOutputContains('php install destination');
+    $this->assertApplicationOutputContains('php installer destination');
   }
 
   #[DataProvider('dataProviderInstall')]
@@ -116,7 +114,7 @@ class InstallTest extends FunctionalTestCase {
 
     $this->runNonInteractiveInstall();
 
-    $expected = empty($expected) ? ['Welcome to Vortex non-interactive installer'] : $expected;
+    $expected = empty($expected) ? ['Welcome to the Vortex non-interactive installer'] : $expected;
     $this->assertApplicationOutputContains($expected);
 
     $baseline = File::dir(static::$fixtures . '/../' . self::BASELINE_DIR);
@@ -136,13 +134,13 @@ class InstallTest extends FunctionalTestCase {
       static::BASELINE_DATASET => [
         NULL,
         NULL,
-        ['Welcome to Vortex non-interactive installer'],
+        ['Welcome to the Vortex non-interactive installer'],
       ],
 
       'non-interactive' => [
         NULL,
         NULL,
-        ['Welcome to Vortex non-interactive installer'],
+        ['Welcome to the Vortex non-interactive installer'],
       ],
 
       'names' => [
@@ -159,9 +157,16 @@ class InstallTest extends FunctionalTestCase {
 
       'code provider, github' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileDoesNotExist(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.dist.md');
+          $test->assertFileContainsString('Checklist before requesting a review', static::$sut . '/.github/PULL_REQUEST_TEMPLATE.md');
+        }),
       ],
       'code provider, other' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::OTHER)),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.github');
+        }),
       ],
 
       'profile, minimal' => [
@@ -187,6 +192,41 @@ class InstallTest extends FunctionalTestCase {
       'theme, custom' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('your_site_theme', static::$sut)),
+      ],
+
+      'timezone, gha' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Timezone::id()), 'America/New_York');
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+        }),
+        static::cw(function (FunctionalTestCase $test): void {
+          // Timezone should be replaced in .env file.
+          $test->assertFileContainsString('TZ=America/New_York', static::$sut . '/.env');
+          $test->assertFileNotContainsString('UTC', static::$sut . '/.env');
+
+          // Timezone should be replaced in Renovate config.
+          $test->assertFileContainsString('"timezone": "America/New_York"', static::$sut . '/renovate.json');
+          $test->assertFileNotContainsString('UTC', static::$sut . '/renovate.json');
+
+          // Timezone should not be replaced in GHA config in code as it should
+          // be overridden via UI.
+          $test->assertFileNotContainsString('America/New_York', static::$sut . '/.github/workflows/build-test-deploy.yml');
+
+          // Timezone should not be replaced in Docker Compose config.
+          $test->assertFileNotContainsString('America/New_York', static::$sut . '/docker-compose.yml');
+        }),
+      ],
+      'timezone, circleci' => [
+        static::cw(function (): void {
+          Env::put(PromptManager::makeEnvName(Timezone::id()), 'America/New_York');
+          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+        }),
+        static::cw(function (FunctionalTestCase $test): void {
+          // Timezone should not be replaced in CircleCI config in code as it
+          // should be overridden via UI.
+          $test->assertFileContainsString('TZ: UTC', static::$sut . '/.circleci/config.yml');
+          $test->assertFileNotContainsString('TZ: America/New_York', static::$sut . '/.circleci/config.yml');
+        }),
       ],
 
       'services, no clamav' => [

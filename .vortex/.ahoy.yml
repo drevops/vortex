@@ -23,7 +23,7 @@ commands:
     name: Serve built documentation.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      yarn --cwd=docs run serve
+      yarn --cwd=docs run start
 
   build-docs:
     name: Build documentation.
@@ -90,6 +90,7 @@ commands:
       tests/node_modules/.bin/bats tests/bats/e2e/docker-compose.bats || tests/node_modules/.bin/bats tests/e2e/bats/docker-compose.bats
       export XDEBUG_MODE=off
       export COMPOSER_PROCESS_TIMEOUT=600
+      composer --working-dir=installer test -- --filter=testInstall@baseline || composer --working-dir=installer test -- --filter=testInstall@baseline
       composer --working-dir=installer test -- --filter=testInstall || composer --working-dir=installer test -- --filter=testInstall
 
   update-fixtures-install:

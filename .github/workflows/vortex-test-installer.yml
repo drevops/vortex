@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2
         with:
           php-version: ${{ matrix.php-versions }}
           coverage: pcov
@@ -44,9 +44,11 @@ jobs:
       - name: Run tests
         run: composer test-coverage
         working-directory: .vortex/installer
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Upload coverage reports as an artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.php-versions }}
           path: .vortex/installer/.logs
@@ -54,7 +56,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
         with:
           files: .vortex/installer/.logs/cobertura.xml
           fail_ci_if_error: true
@@ -66,5 +68,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer --no-interaction example || exit 1
+        run: ./build/installer.phar --no-interaction example || exit 1
         working-directory: .vortex/installer
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}

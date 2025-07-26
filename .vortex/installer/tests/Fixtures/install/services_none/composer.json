@@ -5,7 +5,7 @@
 -        "drupal/clamav": "__VERSION__",
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
-         "drupal/config_update": "^2@alpha",
+         "drupal/config_update": "__VERSION__",
 @@ -17,9 +16,7 @@
          "drupal/environment_indicator": "__VERSION__",
          "drupal/pathauto": "__VERSION__",

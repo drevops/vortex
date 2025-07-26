@@ -4,7 +4,19 @@ sidebar_position: 8
 
 # Variables
 
-Environment variables allow to configure workflows.
+**Vortex** uses environment variables to configure workflows without code
+changes.
+
+There are two main types of variables:
+
+**Project Configuration Variables** are set once during project setup and
+remain constant throughout the project lifecycle. These are typically
+configured in the `.env` file, or within the CI or hosting provider
+environments.
+
+**Workflow Control Variables** can be changed during the project lifecycle
+to alter workflow behavior. For example, changing how deployment behaves
+or skipping a certain code branch deployment within CI.
 
 ## Override order (bottom values win):
 
@@ -134,7 +146,7 @@ Defined in: `scripts/vortex/login-container-registry.sh`
 
 Drupal admin email. May need to be reset if database was sanitized.
 
-Default value: `webmaster@your-site-domain.example`
+Default value: `UNDEFINED`
 
 Defined in: `.env`
 
@@ -246,7 +258,7 @@ Stage file proxy origin.
 
 If using Shield, the HTTP authentication credentials will be automatically<br/>added to the origin URL.
 
-Default value: `https://www.your-site-domain.example/`
+Default value: `https://www.your-site-domain.example`
 
 Defined in: `.env`
 
@@ -265,14 +277,6 @@ Drupal theme name.
 Default value: `your_site_theme`
 
 Defined in: `.env`
-
-### `GITHUB_TOKEN`
-
-GitHub token used to overcome API rate limits or access private repositories.<br/>@see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-
-Default value: `UNDEFINED`
-
-Defined in: `.env.local.example`
 
 ### `LAGOON_PROJECT`
 
@@ -301,6 +305,14 @@ Set as project-wide variable.
 Default value: `UNDEFINED`
 
 Defined in: `LAGOON ENVIRONMENT`
+
+### `PACKAGE_TOKEN`
+
+GitHub token used to overcome API rate limits or access private repositories.<br/>@see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+
+Default value: `UNDEFINED`
+
+Defined in: `.env.local.example`
 
 ### `RENOVATE_DEPENDENCY_DASHBOARD`
 
@@ -917,6 +929,14 @@ Default value: `${VORTEX_CONTAINER_REGISTRY_USER}`
 
 Defined in: `scripts/vortex/deploy-container-registry.sh`
 
+### `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED`
+
+Flag to control failure behavior when Lagoon environment limits are exceeded.<br/>When set to `0`, the deployment will exit with success instead of failure.<br/>When set to `1`, the deployment will fail.
+
+Default value: `0`
+
+Defined in: `scripts/vortex/deploy-lagoon.sh`
+
 ### `VORTEX_DEPLOY_LAGOON_INSTANCE`
 
 The Lagoon instance name to interact with.
@@ -1123,6 +1143,32 @@ Default value: `UNDEFINED`
 
 Defined in: `CI config`
 
+### `VORTEX_FRONTEND_BUILD_SKIP`
+
+Skip building of the frontend.
+
+Default value: `UNDEFINED`
+
+Defined in: `.env`
+
+### `VORTEX_INSTALLER_PATH`
+
+The path to the installer script.<br/>If set, this will override the VORTEX_INSTALLER_URL.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/update-vortex.sh`
+
+### `VORTEX_INSTALLER_TEMPLATE_REPO`
+
+Vortex remote or local template repo URI, optionally including reference.
+
+Examples:<br/>https://github.com/drevops/vortex.git          # Will auto-discover the latest stable tag from remote repo.<br/>https://github.com/drevops/vortex.git@stable   # Will auto-discover the latest stable tag from remote repo.<br/>https://github.com/drevops/vortex.git@`1`.`2`.`3`    # Will use specific release from remote repo.<br/>https://github.com/drevops/vortex.git@abcd123  # Will use specific commit from remote repo.<br/>file:///local/path/to/vortex.git               # Will auto-discover the latest stable tag from local repo.<br/>file:///local/path/to/vortex.git@stable        # Will auto-discover the latest stable tag from local repo.<br/>file:///local/path/to/vortex.git@`1`.`2`.`3`         # Will use specific release from local repo.<br/>file:///local/path/to/vortex.git@abcd123       # Will use specific commit from local repo.<br/>/local/path/to/vortex.git                      # Will auto-discover the latest stable tag from local repo.<br/>/local/path/to/vortex.git@stable               # Will auto-discover the latest stable tag from local repo.<br/>/local/path/to/vortex.git@`1`.`2`.`3`                # Will use specific release from local repo.<br/>/local/path/to/vortex.git@abcd123              # Will use specific commit from local repo.
+
+Default value: `https://github.com/drevops/vortex.git@stable`
+
+Defined in: `scripts/vortex/update-vortex.sh`
+
 ### `VORTEX_INSTALLER_URL`
 
 The URL of the installer script.
@@ -1131,13 +1177,11 @@ Default value: `https://www.vortextemplate.com/install`
 
 Defined in: `scripts/vortex/update-vortex.sh`
 
-### `VORTEX_INSTALL_REPO`
+### `VORTEX_INSTALLER_URL_CACHE_BUST`
 
-Vortex remote or local repo URI, optionally including reference.
+Cache busting parameter for the installer URL.
 
-Examples:<br/>https://github.com/drevops/vortex.git         # Will auto-discover the latest stable tag.<br/>https://github.com/drevops/vortex.git@stable  # Will auto-discover the latest stable tag.<br/>/local/path/to/vortex<br/>/local/path/to/vortex@stable<br/>/local/path/to/vortex@ref
-
-Default value: `UNDEFINED`
+Default value: `$(date +%s)`
 
 Defined in: `scripts/vortex/update-vortex.sh`
 
@@ -1161,7 +1205,7 @@ Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoo
 
 Lagoon CLI version to use.
 
-Default value: `latest`
+Default value: `v0.32.0`
 
 Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
 

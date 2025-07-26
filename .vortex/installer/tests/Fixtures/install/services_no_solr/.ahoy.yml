@@ -1,4 +1,4 @@
-@@ -29,7 +29,6 @@
+@@ -30,7 +30,6 @@
      cmd: |
        COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
        VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2) \

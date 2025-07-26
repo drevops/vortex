@@ -11,6 +11,27 @@ class PreserveDocsProject extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '📚 Preserve project documentation?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Helps to maintain the project documentation within the repository.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     return $this->isInstalled() ? file_exists($this->dstDir . '/docs/README.md') : NULL;
   }

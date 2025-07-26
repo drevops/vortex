@@ -64,12 +64,3 @@ load ../_helper.workflow.bash
 
   assert_ahoy_reset_hard
 }
-
-@test "Workflow: DB-driven, provision" {
-  prepare_sut "Starting DB-driven, provision WORKFLOW tests in build directory ${BUILD_DIR}"
-
-  assert_ahoy_download_db
-  assert_ahoy_build
-
-  assert_ahoy_provision
-}

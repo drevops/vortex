@@ -12,5 +12,6 @@ renovate --schedule= --force-cli=true drevops/vortex
 5. Update PHP version in `phpstan.neon` for `phpVersion`. Run `php -r "echo PHP_VERSION_ID . PHP_EOL;"` in the container to get the current PHP version.
 6. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`.
 7. Update minor version of dependencies in theme's `package.json`.
-8. Increment the cache version in `.circleci/config.yml`.
+8. Increment the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 9. Updated documentation with `cd .vortex && ahoy update-docs`.
+10. Create a new release notes using [release template](./release_template.md).

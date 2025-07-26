@@ -4,8 +4,8 @@
 // theme Bootstrap.
 // @see https://getbootstrap.com/docs/4.0/getting-started/theming/
 
-@import 'rem';
-@import 'variables';
-@import 'fonts';
-@import 'mixins';
-@import 'components';
+@use 'rem';
+@use 'variables';
+@use 'fonts';
+@use 'mixins';
+@use 'components';

@@ -11,6 +11,13 @@ use DrevOps\VortexInstaller\Utils\File;
 
 class Internal extends AbstractHandler {
 
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return 'Internal processing';
+  }
+
   public function discover(): null|string|bool|array {
     // Noop.
     return NULL;
@@ -40,15 +47,22 @@ class Internal extends AbstractHandler {
       // Enable commented out code.
       $content = File::replaceContent($content, '##### ', '');
 
-      // Process empty lines, but exclude specific files that should not have
-      // empty line processing.
+      // Process empty lines, but exclude specific files and directories.
       $ignore_empty_line_processing = [
         '/web/sites/default/default.settings.php',
         '/web/sites/default/default.services.yml',
         '/.docker/config/solr/config-set/',
       ];
       $relative_path = str_replace($t, '', $file->getPathname());
-      if (!in_array($relative_path, $ignore_empty_line_processing)) {
+      $should_ignore = FALSE;
+      foreach ($ignore_empty_line_processing as $item_path) {
+        if (str_starts_with($relative_path, $item_path)) {
+          $should_ignore = TRUE;
+          break;
+        }
+      }
+
+      if (!$should_ignore) {
         $content = File::collapseRepeatedEmptyLines($content);
         $content = File::collapseYamlEmptyLinesInLiteralBlocks($content);
       }
@@ -74,6 +88,26 @@ class Internal extends AbstractHandler {
     if ($files) {
       foreach ($files as $file) {
         @unlink($file);
+      }
+    }
+
+    // Remove private package from composer.json.
+    $composer_json_path = $t . DIRECTORY_SEPARATOR . 'composer.json';
+    if (file_exists($composer_json_path)) {
+      $content = file_get_contents($composer_json_path);
+      $composer_json = json_decode((string) $content, FALSE);
+      if ($composer_json !== NULL) {
+        if (isset($composer_json->require->{'drevops/generic-private-package'})) {
+          unset($composer_json->require->{'drevops/generic-private-package'});
+        }
+
+        if (isset($composer_json->repositories)) {
+          $composer_json->repositories = array_values(array_filter($composer_json->repositories, function ($repo): bool {
+            return !isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package');
+          }));
+        }
+
+        file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
       }
     }
 

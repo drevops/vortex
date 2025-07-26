@@ -1,4 +1,4 @@
-@@ -153,18 +153,6 @@
+@@ -164,17 +164,6 @@
      volumes:
        - solr:/var/solr
  
@@ -6,7 +6,6 @@
 -    build:
 -      context: .
 -      dockerfile: .docker/clamav.dockerfile
--    platform: linux/amd64
 -    ports:
 -      - "3310" # Find port on host with `docker compose port clamav 3310`.
 -    environment:
@@ -17,7 +16,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -183,8 +171,7 @@
+@@ -193,8 +182,7 @@
      depends_on:
        - cli
        - database

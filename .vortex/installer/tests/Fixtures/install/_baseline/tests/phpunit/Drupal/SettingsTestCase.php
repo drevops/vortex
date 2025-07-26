@@ -65,6 +65,7 @@ abstract class SettingsTestCase extends TestCase {
     'VALKEY_',
     'COMPOSE_',
     'GITHUB_',
+    'PACKAGE_',
     'DOCKER_',
     // Vortex and Drupal variables.
     'VORTEX_',
@@ -128,7 +129,7 @@ abstract class SettingsTestCase extends TestCase {
    * @param array $vars
    *   Array of environment variables.
    *
-   * @SuppressWarnings(PHPMD.ElseExpression)
+   * @SuppressWarnings("PHPMD.ElseExpression")
    */
   protected function setEnvVars(array $vars): void {
     // Unset the existing environment variable if not set in the test.
@@ -307,7 +308,7 @@ abstract class SettingsTestCase extends TestCase {
    * @param string $message
    *   Message to display on failure.
    *
-   * @SuppressWarnings(PHPMD.ElseExpression)
+   * @SuppressWarnings("PHPMD.ElseExpression")
    */
   protected function assertArraySubset(array $subset, array $haystack, string $message = ''): void {
     foreach ($subset as $key => $value) {

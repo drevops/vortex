@@ -30,11 +30,11 @@ trait MockTrait {
    * @return \PHPUnit\Framework\MockObject\MockObject
    *   An instance of the mock.
    *
-   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-   * @SuppressWarnings(PHPMD.ElseExpression)
+   * @SuppressWarnings("PHPMD.CyclomaticComplexity")
+   * @SuppressWarnings("PHPMD.ElseExpression")
    */
   protected function prepareMock(string $class, array $methods_map = [], array|bool $args = []): MockObject {
-    $methods = array_filter(array_keys($methods_map));
+    $methods = array_values(array_filter(array_keys($methods_map)));
 
     if (!class_exists($class)) {
       throw new \InvalidArgumentException(sprintf('Class %s does not exist', $class));

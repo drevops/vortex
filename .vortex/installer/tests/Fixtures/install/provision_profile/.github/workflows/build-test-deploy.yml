@@ -7,7 +7,7 @@
  
  defaults:
    run:
-@@ -46,109 +44,10 @@
+@@ -46,110 +44,10 @@
      shell: bash
  
  jobs:
@@ -18,14 +18,14 @@
 -      image: drevops/ci-runner:__VERSION__
 -
 -      env:
--        TZ: UTC
+-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+-        TZ: ${{ vars.TZ || 'UTC' }}
 -        TERM: xterm-256color
 -        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
 -        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
--        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
--        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
 -        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
--        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 -        # How often to refresh the cache of the DB dump. Refer to `date` command.
 -        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
 -        # Use previous database caches on this branch as a fallback if the above cache
@@ -40,7 +40,7 @@
 -        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 -
 -      - name: Check out code
--        uses: actions/checkout@__VERSION__
+-        uses: actions/checkout@__HASH__ # v4
 -        with:
 -          # Do not keep SSH credentials after checkout to allow custom.
 -          persist-credentials: false
@@ -61,6 +61,7 @@
 -        if: github.event_name == 'schedule'
 -        run: |
 -          echo "VORTEX_CI_DB_CACHE_FALLBACK=no" >> "$GITHUB_ENV"
+-          echo "VORTEX_FRONTEND_BUILD_SKIP=1" >> "$GITHUB_ENV"
 -
 -      - name: Create cache keys files for database caching
 -        run: |
@@ -74,14 +75,14 @@
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
--        uses: actions/cache/restore@__VERSION__
+-        uses: actions/cache/restore@__HASH__ # v4
 -        with:
 -          path: .data
--          key: v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
 -          # Fallback to caching by default branch name only. Allows to use
 -          # cache from the branch build on the previous day.
 -          restore-keys: |
--            v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+-            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 -
 -      - name: Download DB
 -        run: |
@@ -104,11 +105,11 @@
 -      # Note that the cache fallback flag is enabled for this case in order
 -      # to save cache even if the fallback is not used when restoring it.
 -      - name: Save DB cache
--        uses: actions/cache/save@__VERSION__
+-        uses: actions/cache/save@__HASH__ # v4
 -        if: env.db_hash != hashFiles('.data')
 -        with:
 -          path: .data
--          key: v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -
    build:
      runs-on: ubuntu-latest
@@ -117,9 +118,9 @@
  
      strategy:
        matrix:
-@@ -167,14 +66,6 @@
-         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-         VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+@@ -169,14 +67,6 @@
+         VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+         VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 -        # How often to refresh the cache of the DB dump. Refer to `date` command.
 -        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
@@ -132,7 +133,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -190,29 +81,6 @@
+@@ -192,29 +82,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -143,26 +144,26 @@
 -          date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 -
 -      - name: Show cache key for database caching
--        run: echo 'v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+-        run: echo '__VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 -
 -      # Restore DB cache based on the cache strategy set by the cache keys below.
 -      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
--        uses: actions/cache/restore@__VERSION__
+-        uses: actions/cache/restore@__HASH__ # v4
 -        with:
 -          path: .data
 -          fail-on-cache-miss: true
 -          # Use cached database from previous builds of this branch.
--          key: v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -          restore-keys: |
--            v25.5.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+-            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 -
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -343,7 +211,6 @@
+@@ -360,7 +227,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: build

@@ -16,6 +16,37 @@ class ProvisionType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '🦋 Provision type';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Selecting "Profile" will install site from a profile rather than a database dump.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::DATABASE => 'Import from database dump',
+      self::PROFILE => 'Install from profile',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return self::DATABASE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     $type = Env::getFromDotenv('VORTEX_PROVISION_TYPE', $this->dstDir);
 

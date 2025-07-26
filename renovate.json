@@ -98,7 +98,8 @@
             ],
             "matchManagers": [
                 "github-actions"
-            ]
+            ],
+            "pinDigests": true
         }
     ],
     "customManagers": [

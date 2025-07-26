@@ -56,7 +56,7 @@ assert_ahoy_download_db() {
   #
   # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALLER_DEMO_DB_TEST}"
 
   # Remove any previously downloaded DB dumps.
   rm -Rf .data/db.sql
@@ -83,7 +83,7 @@ assert_ahoy_build() {
   #
   # Ahoy will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALLER_DEMO_DB_TEST}"
 
   # Check that database file exists before build.
   db_file_exists=0
@@ -450,7 +450,35 @@ assert_ahoy_lint_fe() {
 
   step "Run FE linter checks"
 
-  substep "Assert that FE lint failure works for npm lint"
+  substep "Assert that FE lint works"
+  run ahoy lint-fe
+  assert_success
+
+  substep "Assert that FE lint failure works for NodeJs CSS lint in module"
+  echo ".abc{margin: 0px;}" >>"${webroot}/modules/custom/sw_base/css/sw_base.test.css"
+  sync_to_container
+  run ahoy lint-fe
+  assert_failure
+  rm -f "${webroot}/modules/custom/sw_base/css/sw_base.test.css"
+  ahoy cli rm -f "${webroot}/modules/custom/sw_base/css/sw_base.test.css"
+  sync_to_container
+
+  run ahoy lint-fe
+  assert_success
+
+  substep "Assert that FE lint failure works for NodeJs JS lint in module"
+  echo "console.log('abc;" >>"${webroot}/modules/custom/sw_base/js/sw_base.test.js"
+  sync_to_container
+  run ahoy lint-fe
+  assert_failure
+  rm -f "${webroot}/modules/custom/sw_base/js/sw_base.test.js"
+  ahoy cli rm -f "${webroot}/modules/custom/sw_base/js/sw_base.test.js"
+  sync_to_container
+
+  run ahoy lint-fe
+  assert_success
+
+  substep "Assert that FE lint failure works for NodeJs lint in theme"
   echo ".abc{margin: 0px;}" >>"${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   sync_to_container
   run ahoy lint-fe
@@ -458,6 +486,9 @@ assert_ahoy_lint_fe() {
   rm -f "${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   ahoy cli rm -f "${webroot}/themes/custom/star_wars/scss/components/_test.scss"
   sync_to_container
+
+  run ahoy lint-fe
+  assert_success
 
   substep "Assert that FE lint failure works for Twig CS Fixer"
   mkdir -p "${webroot}/modules/custom/sw_base/templates/block"
@@ -467,6 +498,15 @@ assert_ahoy_lint_fe() {
   sync_to_container
   run ahoy lint-fe
   assert_failure
+
+  rm -f "${webroot}/modules/custom/sw_base/templates/block/test1.twig"
+  rm -f "${webroot}/themes/custom/star_wars/templates/block/test2.twig"
+  ahoy cli rm -f "${webroot}/modules/custom/sw_base/templates/block/test1.twig"
+  ahoy cli rm -f "${webroot}/themes/custom/star_wars/templates/block/test2.twig"
+  sync_to_container
+
+  run ahoy lint-fe
+  assert_success
 }
 
 assert_ahoy_lint_test() {
@@ -724,7 +764,7 @@ assert_ahoy_fe() {
   sync_to_container
   ahoy fe
   sync_to_host
-  assert_file_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background:#7e57e2"
+  assert_file_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "background: #7e57e2"
 
   substep "Build FE assets for development"
   assert_file_not_contains "${webroot}/themes/custom/star_wars/build/css/star_wars.min.css" "#91ea5e"

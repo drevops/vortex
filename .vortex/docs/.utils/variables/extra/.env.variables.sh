@@ -15,8 +15,8 @@ VORTEX_DB_IMAGE=
 # image was provided - it will be used as a "clean slate" for the database.
 VORTEX_DB_IMAGE_BASE=
 
-# Drupal admin email. May need to be reset if database was sanitized.
-DRUPAL_ADMIN_EMAIL="webmaster@your-site-domain.example"
+# Skip building of the frontend.
+VORTEX_FRONTEND_BUILD_SKIP=
 
 # Password replacement used for sanitized database.
 VORTEX_PROVISION_SANITIZE_DB_PASSWORD="<RANDOM STRING>"
@@ -29,12 +29,12 @@ VORTEX_CONTAINER_REGISTRY="${VORTEX_CONTAINER_REGISTRY:-docker.io}"
 # Unblock admin account when logging in.
 VORTEX_UNBLOCK_ADMIN=1
 
-# Drupal admin email. May need to be reset if database was sanitized.
-DRUPAL_ADMIN_EMAIL=
-
 # Replace username with email after database sanitization. Useful when email
 # is used as username.
 VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0
+
+# Drupal admin email. May need to be reset if database was sanitized.
+DRUPAL_ADMIN_EMAIL=
 
 # Drupal site name.
 # Used only when installing from profile.

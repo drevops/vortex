@@ -178,7 +178,8 @@ describe('Card Component', () => {
       );
 
       expect(screen.getByText('Special Characters & Symbols!')).toBeInTheDocument();
-      expect(screen.getByText('Content with special chars: © ® ™ & more <em>HTML</em>')).toBeInTheDocument();
+      expect(screen.getByText('Content with special chars: © ® ™ & more', { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('HTML')).toBeInTheDocument();
     });
 
     test('handles very long content', () => {
@@ -377,19 +378,14 @@ describe('Card Component', () => {
         <Card
           icon={<span>🧩</span>}
           title={<>Fragment <em>Title</em></>}
-          description={
-            <>
-              Complex <strong>description</strong> with{' '}
-              <code>code elements</code>
-            </>
-          }
+          description="Complex <strong>description</strong> with <code>code elements</code>"
         />
       );
 
       expect(screen.getByText('🧩')).toBeInTheDocument();
       expect(screen.getByText(/Fragment/)).toBeInTheDocument();
       expect(screen.getByText('Title')).toBeInTheDocument();
-      expect(screen.getByText(/Complex/)).toBeInTheDocument();
+      expect(screen.getByText('Complex', { exact: false })).toBeInTheDocument();
       expect(screen.getByText('description')).toBeInTheDocument();
       expect(screen.getByText('code elements')).toBeInTheDocument();
     });

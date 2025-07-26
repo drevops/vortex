@@ -42,11 +42,11 @@ jobs:
           echo "should_run=true" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
-        uses: actions/checkout@__VERSION__
+        uses: actions/checkout@__HASH__ # __VERSION__
 
-      - uses: actions/setup-node@__VERSION__
+      - uses: actions/setup-node@__HASH__ # __VERSION__
         with:
-          node-version: 22.16.0
+          node-version: __VERSION__
 
       - name: Process manual trigger
         if: github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false
@@ -56,11 +56,11 @@ jobs:
         run: cat renovate.json
 
       - name: Validate Renovate configuration
-        uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@__HASH__ # __VERSION__
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'
-        uses: renovatebot/github-action@__VERSION__
+        uses: renovatebot/github-action@__HASH__ # __VERSION__
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}

@@ -25,8 +25,8 @@ docker network create amazeeio-network 2>/dev/null || true
 index="${TEST_NODE_INDEX:-*}"
 echo "==> Run workflow functional tests (${index})."
 
-[ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && yarn --cwd="${TEST_DIR}" install --frozen-lockfile
-[ ! -d "${TEST_DIR}/vendor" ] && echo "  > Install test PHP dependencies." && composer --working-dir="${TEST_DIR}" install --no-interaction --no-progress --no-suggest --optimize-autoloader
+[ ! -d "${TEST_DIR}/node_modules" ] && echo "  > Install test Node dependencies." && yarn --cwd="${TEST_DIR}" install --frozen-lockfile >/dev/null 2>&1
+[ ! -d "${TEST_DIR}/vendor" ] && echo "  > Install test PHP dependencies." && composer --working-dir="${TEST_DIR}" install --no-interaction --no-progress --optimize-autoloader >/dev/null 2>&1
 
 bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
@@ -69,16 +69,20 @@ case ${index} in
     ;;
 
   3)
+    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     ;;
 
   *)
     phpunit "${TEST_DIR}"/phpunit
     bats "${TEST_DIR}"/bats/e2e/workflow.install.db.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
+    bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # @see https://github.com/drevops/vortex/issues/893

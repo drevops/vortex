@@ -18,7 +18,7 @@ class Env {
   public static function get(string $name, mixed $default = NULL): mixed {
     $vars = getenv();
 
-    return !isset($vars[$name]) || $vars[$name] === '' ? $default : $vars[$name];
+    return $vars[$name] ?? $default;
   }
 
   public static function put(string $name, string $value): void {

@@ -47,17 +47,6 @@ module.exports = function (grunt) {
         src: ['scss/**/*.scss']
       }
     },
-    sass_globbing: {
-      dev: {
-        files: {
-          ['scss/_components.scss']: 'scss/components/**/*.scss'
-        },
-        options: {
-          useSingleQuotes: true,
-          signature: '//\n// GENERATED FILE. DO NOT MODIFY DIRECTLY.\n//'
-        }
-      }
-    },
     clean: ['build'],
     concat: {
       options: {
@@ -159,7 +148,6 @@ module.exports = function (grunt) {
   });
 
   grunt.loadNpmTasks('@lodder/grunt-postcss');
-  grunt.loadNpmTasks('grunt-sass-globbing');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -172,8 +160,8 @@ module.exports = function (grunt) {
 
   grunt.registerTask('lint', ['eslint', 'stylelint:scan']);
   grunt.registerTask('lint-fix', ['eslint:fix', 'stylelint:fix']);
-  grunt.registerTask('prod', ['sass_globbing', 'clean', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
-  grunt.registerTask('dev', ['sass_globbing', 'clean', 'concat', 'sass:dev', 'postcss:dev', 'copy']);
+  grunt.registerTask('prod', ['clean', 'concat', 'uglify:prod', 'sass:prod', 'postcss:prod', 'copy']);
+  grunt.registerTask('dev', ['clean', 'concat', 'sass:dev', 'postcss:dev', 'copy']);
   grunt.registerTask('watch_message', function() {
     grunt.log.writeln('If using Chrome, make sure that "Disable cache (while DevTools is open)" setting is selected and DevTools are opened or browser will cache assets.');
   });

@@ -86,12 +86,18 @@ class Tui {
     $rows = [];
 
     $width = min($width, static::terminalWidth());
-    $content = wordwrap($content, $width - 4, PHP_EOL, TRUE);
+
+    // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
+    $offset = 6;
+
+    $content = wordwrap($content, $width - $offset, PHP_EOL, FALSE);
 
     if ($title) {
+      $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
       $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain($title))) . PHP_EOL];
+      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, static::normalizeText($title))[0]))) . PHP_EOL];
     }
+
     $rows[] = [$content];
 
     table([], $rows);
@@ -162,35 +168,47 @@ class Tui {
   }
 
   public static function green(string $text): string {
-    return sprintf('[32m%s[39m', $text);
+    return static::escapeMultiline($text, 32);
   }
 
   public static function blue(string $text): string {
-    return sprintf('[34m%s[39m', $text);
+    return static::escapeMultiline($text, 34);
   }
 
   public static function purple(string $text): string {
-    return sprintf('[35m%s[39m', $text);
+    return static::escapeMultiline($text, 35);
   }
 
   public static function yellow(string $text): string {
-    return sprintf('[33m%s[39m', $text);
+    return static::escapeMultiline($text, 33);
   }
 
   public static function cyan(string $text): string {
-    return sprintf('[36m%s[39m', $text);
+    return static::escapeMultiline($text, 36);
   }
 
   public static function bold(string $text): string {
-    return sprintf('[1m%s[22m', $text);
+    return static::escapeMultiline($text, 1, 22);
+  }
+
+  public static function underscore(string $text): string {
+    return static::escapeMultiline($text, 4, 0);
   }
 
   public static function dim(string $text): string {
-    return sprintf('[2m%s[22m', $text);
+    return static::escapeMultiline($text, 2, 22);
   }
 
   public static function undim(string $text): string {
-    return sprintf('[22m%s[22m', $text);
+    return static::escapeMultiline($text, 22, 22);
+  }
+
+  public static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
+    $lines = explode("\n", $text);
+    $colored_lines = array_map(function ($line) use ($color_code, $end_code): string {
+      return sprintf("\033[%sm%s\033[%sm", $color_code, $line, $end_code);
+    }, $lines);
+    return implode("\n", $colored_lines);
   }
 
   public static function caretDown(): string {

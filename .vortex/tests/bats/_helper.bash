@@ -55,11 +55,12 @@ setup() {
   ## Phase 2: Pre-flight checks.
   ##
 
-  # Set test secrets.
-  # For local test development, export these variables in your shell.
-  export TEST_GITHUB_TOKEN="${TEST_GITHUB_TOKEN:-}"
-  export TEST_VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER:-}"
-  export TEST_VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS:-}"
+  # Override real secrets with test secrets.
+  # For the development of the tests locally, export `TEST_` variables in your
+  # shell before running the tests.
+  export PACKAGE_TOKEN="${TEST_PACKAGE_TOKEN:-}"
+  export VORTEX_CONTAINER_REGISTRY_USER="${TEST_VORTEX_CONTAINER_REGISTRY_USER:-}"
+  export VORTEX_CONTAINER_REGISTRY_PASS="${TEST_VORTEX_CONTAINER_REGISTRY_PASS:-}"
 
   # The installer reference to use for tests.
   export TEST_INSTALLER_REF="${TEST_INSTALLER_REF:-main}"
@@ -118,10 +119,6 @@ setup() {
   unset VORTEX_DB_DOWNLOAD_SOURCE
   unset VORTEX_DB_IMAGE
   unset VORTEX_DB_DOWNLOAD_FORCE
-  # Tokens required for tests are set explicitly within each tests with a TEST_ prefix.
-  unset GITHUB_TOKEN
-  unset VORTEX_CONTAINER_REGISTRY_USER
-  unset VORTEX_CONTAINER_REGISTRY_PASS
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
@@ -143,7 +140,7 @@ setup() {
   # Demo DB is what is being downloaded when the installer runs for the first
   # time do demonstrate downloading from CURL and importing from the DB dump
   # functionality.
-  export VORTEX_INSTALL_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
+  export VORTEX_INSTALLER_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
 
   ##
   ## Phase 5: SUT files setup.
@@ -1088,13 +1085,13 @@ run_installer_quiet() {
   pushd "${CURRENT_PROJECT_DIR}" >/dev/null || exit 1
 
   # Force the installer script to be downloaded from the local repo for testing.
-  export VORTEX_INSTALL_REPO="${VORTEX_INSTALL_REPO:-${LOCAL_REPO_DIR}}"
+  export VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-${LOCAL_REPO_DIR}}"
 
   # Use unique installer temporary directory for each run. This is where
   # the installer script downloads the Vortex codebase for processing.
-  VORTEX_INSTALL_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
-  fixture_prepare_dir "${VORTEX_INSTALL_TMP_DIR}"
-  export VORTEX_INSTALL_TMP_DIR
+  VORTEX_INSTALLER_TMP_DIR="${APP_TMP_DIR}/$(random_string)"
+  fixture_prepare_dir "${VORTEX_INSTALLER_TMP_DIR}"
+  export VORTEX_INSTALLER_TMP_DIR
 
   # Tests are using demo database and 'ahoy download-db' command, so we need
   # to set the CURL DB to test DB.
@@ -1104,7 +1101,7 @@ run_installer_quiet() {
   #
   # Installer will load environment variable and it will take precedence over
   # the value in .env file.
-  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALL_DEMO_DB_TEST}"
+  export VORTEX_DB_DOWNLOAD_URL="${VORTEX_INSTALLER_DEMO_DB_TEST}"
 
   opt_no_interaction="--no-interaction"
   [ "${TEST_RUN_INSTALL_INTERACTIVE:-}" = "1" ] && opt_no_interaction=""
@@ -1112,7 +1109,7 @@ run_installer_quiet() {
   [ ! -d "${ROOT_DIR}/.vortex/installer/vendor" ] && composer --working-dir="${ROOT_DIR}/.vortex/installer" install
 
   # Run the installer script from the local repository to allow debugging.
-  run php "${ROOT_DIR}/.vortex/installer/install" "${opt_no_interaction}" "$@"
+  run php "${ROOT_DIR}/.vortex/installer/installer.php" "${opt_no_interaction}" "$@"
 
   # Special treatment for cases where volumes are not mounted from the host.
   fix_host_dependencies "$@"
@@ -1136,7 +1133,7 @@ install_dependencies_stub() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  mktouch "${webroot}/core/.vortex/installer/install"
+  mktouch "${webroot}/core/.vortex/installer/installer.php"
   mktouch "${webroot}/modules/contrib/somemodule/somemodule.info.yml"
   mktouch "${webroot}/themes/contrib/sometheme/sometheme.info.yml"
   mktouch "${webroot}/profiles/contrib/someprofile/someprofile.info.yml"
@@ -1351,15 +1348,15 @@ sync_to_container() {
 
 # Special treatment for cases where volumes are not mounted from the host.
 fix_host_dependencies() {
-  # Replicate behavior of .vortex/installer/install script to extract destination directory
-  # passed as an argument.
+  # Replicate behavior of .vortex/installer/installer.php script to extract
+  # destination directory passed as an argument.
   # shellcheck disable=SC2235
   ([ "${1:-}" = "--quiet" ] || [ "${1:-}" = "-q" ]) && shift
   # Destination directory, that can be overridden with the first argument to this script.
-  VORTEX_INSTALL_DST_DIR="${VORTEX_INSTALL_DST_DIR:-$(pwd)}"
-  VORTEX_INSTALL_DST_DIR=${1:-${VORTEX_INSTALL_DST_DIR}}
+  VORTEX_INSTALLER_DST_DIR="${VORTEX_INSTALLER_DST_DIR:-$(pwd)}"
+  VORTEX_INSTALLER_DST_DIR=${1:-${VORTEX_INSTALLER_DST_DIR}}
 
-  pushd "${VORTEX_INSTALL_DST_DIR}" >/dev/null || exit 1
+  pushd "${VORTEX_INSTALLER_DST_DIR}" >/dev/null || exit 1
 
   if [ -f docker-compose.yml ] && [ "${VORTEX_DEV_VOLUMES_SKIP_MOUNT:-0}" = "1" ]; then
     sed -i -e "/###/d" docker-compose.yml
@@ -1408,10 +1405,10 @@ download_installer() {
 
 
 
-  composer install --no-progress --no-suggest > /dev/null 2>&1
+  composer install --no-progress > /dev/null 2>&1
   composer build > /dev/null 2>&1
 
-  cp .build/installer "install.php" > /dev/null
+  cp .build/installer.phar "install.php" > /dev/null
 
   assert_file_exists "install.php"
 
@@ -1427,7 +1424,7 @@ process_ahoyyml() {
   # when they run `ahoy build` locally.
   local sed_opts
   sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
-  sed "${sed_opts[@]}" 's|cmd: ahoy cli ./scripts/vortex/provision.sh|cmd: if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/vortex\/provision\.sh|g' .ahoy.yml
+  sed "${sed_opts[@]}" 's|      ahoy cli ./scripts/vortex/provision.sh|      if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli \.\/scripts\/vortex\/provision\.sh|g' .ahoy.yml
 }
 
 setup_ssh_key_fixture() {

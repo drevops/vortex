@@ -1,4 +1,4 @@
-@@ -16,6 +16,6 @@
+@@ -52,6 +52,6 @@
   */
  function sw_base_deploy_install_theme(): void {
    \Drupal::service('theme_installer')->install(['olivero']);

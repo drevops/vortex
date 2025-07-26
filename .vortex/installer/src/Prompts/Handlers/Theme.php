@@ -13,6 +13,38 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return '🎨 Theme machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    return 'E.g. mytheme';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::machine($responses[MachineName::id()]);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     if ($this->isInstalled()) {
       $value = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);
@@ -28,6 +60,20 @@ class Theme extends AbstractHandler {
     }
 
     return str_replace(['.info.yml', '.info'], '', basename($path));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return fn(string $v): string => trim($v);
   }
 
   /**
@@ -96,8 +142,6 @@ class Theme extends AbstractHandler {
 
         File::removeLine($t . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
         File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
-
-        return;
       }
     }
 

@@ -7,11 +7,20 @@ on:
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
+    
+    container:
+      image: drevops/ci-runner:__VERSION__
+
     steps:
       - name: Checkout
         uses: actions/checkout@__VERSION__
 
-      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__VERSION__
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__HASH__ # __VERSION__
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@__VERSION__
+        with:
+          node-version: __VERSION__        
 
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@__VERSION__

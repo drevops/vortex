@@ -51,7 +51,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 # Pre-flight checks.
-for cmd in php curl; do command -v ${cmd} >/dev/null || {
+for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done

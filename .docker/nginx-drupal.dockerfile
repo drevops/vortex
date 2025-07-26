@@ -11,12 +11,14 @@ ARG CLI_IMAGE
 # hadolint ignore=DL3006
 FROM ${CLI_IMAGE:-cli} AS cli
 
-FROM uselagoon/nginx-drupal:25.6.0
+FROM uselagoon/nginx-drupal:25.7.0
 
 # Webroot is used for Nginx web root configuration.
 ARG WEBROOT=web
 ENV WEBROOT=${WEBROOT}
 
 RUN apk add --no-cache tzdata
+
+COPY ./.docker/config/nginx/redirects-map.conf /etc/nginx/redirects-map.conf
 
 COPY --from=cli /app /app

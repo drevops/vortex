@@ -1,0 +1,9 @@
+counter:
+  version: 1.x
+  css:
+    theme:
+      css/the_force_base.css: {}
+  js:
+    js/the_force_base.js: {}
+  dependencies:
+    - core/drupal
