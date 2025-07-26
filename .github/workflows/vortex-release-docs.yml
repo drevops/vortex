@@ -8,6 +8,12 @@ on:
     branches:
       - '**release-docs**'
       - '**release-installer**'
+  workflow_dispatch:
+    inputs:
+      installer_version:
+        description: 'Override installer version (leave empty for auto-discovery)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -46,9 +52,14 @@ jobs:
 
       - name: Add version
         run: |
-          TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
-          sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${TAG:-${SHA}}\"/g" box.json
+          if [ -n "${{ inputs.installer_version }}" ]; then
+            VERSION="${{ inputs.installer_version }}"
+          else
+            TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
+            SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
+            VERSION="${TAG:-${SHA}}"
+          fi
+          sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${VERSION}\"/g" box.json
         working-directory: .vortex/installer
 
       - name: Build PHAR
