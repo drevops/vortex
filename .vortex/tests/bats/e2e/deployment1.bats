@@ -21,7 +21,7 @@ load ../_helper.deployment.bash
 
   step "Starting DEPLOYMENT tests."
 
-  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="artifact"
+  export VORTEX_INSTALLER_PROMPT_DEPLOY_TYPES="artifact"
 
   if [ ! "${SRC_DIR}" ]; then
     SRC_DIR="${BUILD_DIR}/deployment_src"
@@ -118,10 +118,10 @@ load ../_helper.deployment.bash
 
   step "Starting DEPLOYMENT tests."
 
-  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
-  export VORTEX_INSTALL_PROMPT_HOSTING_PROVIDER="lagoon"
-  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
-  export VORTEX_INSTALL_PROMPT_DATABASE_DOWNLOAD_SOURCE="lagoon"
+  export VORTEX_INSTALLER_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALLER_PROMPT_HOSTING_PROVIDER="lagoon"
+  export VORTEX_INSTALLER_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE="lagoon"
 
   SRC_DIR="${BUILD_DIR}/deployment_src"
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
@@ -206,11 +206,11 @@ load ../_helper.deployment.bash
   substep "Deployment source directory is not provided - using directory ${SRC_DIR}"
   fixture_prepare_dir "${SRC_DIR}"
 
-  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
-  export VORTEX_INSTALL_PROMPT_HOSTING_PROVIDER="lagoon"
-  export VORTEX_INSTALL_PROMPT_DEPLOY_TYPES="lagoon"
-  export VORTEX_INSTALL_PROMPT_DATABASE_DOWNLOAD_SOURCE="lagoon"
-  export VORTEX_INSTALL_PROMPT_PROVISION_TYPE="profile"
+  export VORTEX_INSTALLER_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALLER_PROMPT_HOSTING_PROVIDER="lagoon"
+  export VORTEX_INSTALLER_PROMPT_DEPLOY_TYPES="lagoon"
+  export VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE="lagoon"
+  export VORTEX_INSTALLER_PROMPT_PROVISION_TYPE="profile"
 
   # Do not build - only structure.
   install_and_assemble_site "${CURRENT_PROJECT_DIR}" 0

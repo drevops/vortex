@@ -195,8 +195,8 @@ EOF
    * Instantiate configuration from CLI options and environment variables.
    *
    * Installer configuration is a set of internal installer variables
-   * prefixed with "VORTEX_INSTALL_" and used to control the installation. They
-   * are read from the environment variables with $this->config->get().
+   * prefixed with "VORTEX_INSTALLER_" and used to control the installation.
+   * They are read from the environment variables with $this->config->get().
    *
    * For simplicity of naming, internal installer config variables used in
    * $this->config->get() match environment variables names.

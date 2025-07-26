@@ -45,7 +45,7 @@ load ../_helper.bash
   git_add "web/themes/custom/your_site_theme/.eslintrc.json" "${LOCAL_REPO_DIR}"
   latest_commit=$(git_commit "New version of Vortex" "${LOCAL_REPO_DIR}")
 
-  export VORTEX_INSTALL_TEMPLATE_REF="${latest_commit}"
+  export VORTEX_INSTALLER_TEMPLATE_REF="${latest_commit}"
   export TEST_VORTEX_VERSION="${latest_commit}"
 
   substep "Building Vortex installer"

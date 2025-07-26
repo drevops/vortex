@@ -26,7 +26,7 @@ set -eu
 # /local/path/to/vortex.git@stable               # Will auto-discover the latest stable tag from local repo.
 # /local/path/to/vortex.git@1.2.3                # Will use specific release from local repo.
 # /local/path/to/vortex.git@abcd123              # Will use specific commit from local repo.
-VORTEX_INSTALL_TEMPLATE_REPO="${VORTEX_INSTALL_TEMPLATE_REPO:-${1:-https://github.com/drevops/vortex.git@stable}}"
+VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-${1:-https://github.com/drevops/vortex.git@stable}}"
 
 # The URL of the installer script.
 VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/install}"
@@ -70,4 +70,4 @@ else
   fi
 fi
 
-php "${VORTEX_INSTALLER_PATH}" --no-interaction --uri="${VORTEX_INSTALL_TEMPLATE_REPO}"
+php "${VORTEX_INSTALLER_PATH}" --no-interaction --uri="${VORTEX_INSTALLER_TEMPLATE_REPO}"

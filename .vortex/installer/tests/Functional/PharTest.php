@@ -126,7 +126,7 @@ class PharTest extends FunctionalTestCase {
       }
     }
 
-    $this->processRun('php', $arguments, $inputs, ['VORTEX_INSTALL_IS_DEMO_DB_DOWNLOAD_SKIP' => '1'], 1200, 300);
+    $this->processRun('php', $arguments, $inputs, ['VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP' => '1'], 1200, 300);
   }
 
 }

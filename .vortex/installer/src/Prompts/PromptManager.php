@@ -385,7 +385,7 @@ class PromptManager {
    *   The environment variable name.
    */
   public static function makeEnvName(string $id): string {
-    return Converter::constant('VORTEX_INSTALL_PROMPT_' . $id);
+    return Converter::constant('VORTEX_INSTALLER_PROMPT_' . $id);
   }
 
   /**
