@@ -27,6 +27,6 @@
         "phpstan.neon"
     ],
     "replacements": {
-        "git-tag-ci": "dev"
+        "vortex-installer-version": "development"
     }
 }

@@ -391,7 +391,15 @@ EOT;
     $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
 
     $version = $this->getApplication()->getVersion();
-    $version = str_replace('@git-tag-ci@', 'development', $version);
+    // Depending on how the installer is run, the version may be set to
+    // the placeholder value or actual version (PHAR packager will replace
+    // the placeholder with the actual version).
+    // We need to fence the replacement below only if the version is still set
+    // to the placeholder value.
+    if (str_contains($version, 'vortex-installer-version')) {
+      $version = str_replace('@vortex-installer-version@', 'development', $version);
+    }
+
     $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), min(Tui::terminalWidth(), 80) - 2, ' ', STR_PAD_LEFT));
 
     Tui::note($logo);
