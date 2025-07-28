@@ -26,6 +26,9 @@ parameters:
     - ../*/vendor/*
     - ../*/node_modules/*
 
+  # Prefer type checking over docblocks, which can easily become outdated.
+  treatPhpDocTypesAsCertain: false
+
   ignoreErrors:
     -
       # Since tests and data providers do not have to have parameter docblocks,
@@ -36,6 +39,7 @@ parameters:
         - web/modules/custom/*/tests/*
         - web/themes/custom/*/tests/*
         - tests/phpunit/*
+      reportUnmatched: false
     -
       # Hook implementations do not provide docblocks for parameters, so there
       # is no way to provide this information.
@@ -43,6 +47,7 @@ parameters:
       paths:
         - web/modules/custom/*
         - web/themes/custom/*
+      reportUnmatched: false
     -
       # Included settings files are not aware about global variables.
       message: '#Variable .* might not be defined.#'
