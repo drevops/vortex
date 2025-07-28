@@ -70,7 +70,6 @@ trait AssertFilesTrait {
     Assert::assertFileDoesNotExist($webroot . '/.editorconfig');
     Assert::assertFileDoesNotExist($webroot . '/.eslintignore');
     Assert::assertFileDoesNotExist($webroot . '/.gitattributes');
-    Assert::assertFileDoesNotExist($webroot . '/.htaccess');
     Assert::assertFileDoesNotExist($webroot . '/autoload.php');
     Assert::assertFileDoesNotExist($webroot . '/index.php');
     Assert::assertFileDoesNotExist($webroot . '/robots.txt');
@@ -262,7 +261,6 @@ trait AssertFilesTrait {
     Assert::assertFileDoesNotExist($webroot . '/.eslintignore');
     Assert::assertFileDoesNotExist($webroot . '/.eslintrc.json');
     Assert::assertFileDoesNotExist($webroot . '/.gitattributes');
-    Assert::assertFileExists($webroot . '/.htaccess');
     Assert::assertFileExists($webroot . '/autoload.php');
     Assert::assertFileExists($webroot . '/index.php');
     Assert::assertFileExists($webroot . '/robots.txt');
@@ -300,7 +298,6 @@ trait AssertFilesTrait {
     }
 
     // Assert that Drupal Scaffold files were added to the git repository.
-    $this->gitAssertFilesTracked($webroot . '/.htaccess');
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
     $this->gitAssertFilesTracked($webroot . '/robots.txt');
