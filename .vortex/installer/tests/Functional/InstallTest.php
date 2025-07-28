@@ -211,9 +211,11 @@ class InstallTest extends FunctionalTestCase {
           // Timezone should not be replaced in GHA config in code as it should
           // be overridden via UI.
           $test->assertFileNotContainsString('America/New_York', static::$sut . '/.github/workflows/build-test-deploy.yml');
+          $test->assertFileContainsString('UTC', static::$sut . '/.github/workflows/build-test-deploy.yml');
 
           // Timezone should not be replaced in Docker Compose config.
           $test->assertFileNotContainsString('America/New_York', static::$sut . '/docker-compose.yml');
+          $test->assertFileContainsString('UTC', static::$sut . '/docker-compose.yml');
         }),
       ],
       'timezone, circleci' => [
@@ -224,8 +226,8 @@ class InstallTest extends FunctionalTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           // Timezone should not be replaced in CircleCI config in code as it
           // should be overridden via UI.
-          $test->assertFileContainsString('TZ: UTC', static::$sut . '/.circleci/config.yml');
           $test->assertFileNotContainsString('TZ: America/New_York', static::$sut . '/.circleci/config.yml');
+          $test->assertFileContainsString('TZ: UTC', static::$sut . '/.circleci/config.yml');
         }),
       ],
 
