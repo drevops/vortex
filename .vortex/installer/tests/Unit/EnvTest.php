@@ -134,6 +134,72 @@ class EnvTest extends UnitTestCase {
     ];
   }
 
+  public function testWriteValueDotenv(): void {
+    $fixture_dir = __DIR__ . '/Fixtures/env';
+    $actual_file = static::$sut . '/.env';
+    copy($fixture_dir . '/_baseline/.env', $actual_file);
+
+    // Apply updates to every variable to transform it to the after state.
+    Env::writeValueDotenv('SIMPLE_VAR', 'new_simple_value', $actual_file);
+    Env::writeValueDotenv('QUOTED_VAR', 'new value with spaces', $actual_file);
+    Env::writeValueDotenv('EMPTY_VAR', '', $actual_file);
+    Env::writeValueDotenv('QUOTED_CONTENT_VAR', 'new value with "quotes"', $actual_file);
+    Env::writeValueDotenv('EQUALS_VAR', 'new key=value', $actual_file);
+    Env::writeValueDotenv('SPECIAL_VAR', 'new !@#$%^&*()', $actual_file);
+    Env::writeValueDotenv('MULTILINE_VAR', "new line1\nline2", $actual_file);
+    Env::writeValueDotenv('URL_VAR', 'new https://example.com/path?param=value', $actual_file);
+    Env::writeValueDotenv('SPACE_VAR', ' new leading and trailing ', $actual_file);
+    Env::writeValueDotenv('NUMERIC_VAR', 'new_123', $actual_file);
+    Env::writeValueDotenv('BOOL_VAR', 'false', $actual_file);
+    Env::writeValueDotenv('PATH_VAR', '/path/to/new file', $actual_file);
+    Env::writeValueDotenv('EMAIL_VAR', 'new user@domain.com', $actual_file);
+    // Remove this variable.
+    Env::writeValueDotenv('REMOVE_VAR', NULL, $actual_file);
+    // Add new variable.
+    Env::writeValueDotenv('NEW_VAR', 'new_added_value', $actual_file);
+
+    $this->assertDirectoryEqualsDirectory($fixture_dir . '/after', static::$sut);
+  }
+
+  #[DataProvider('dataProviderFormatValueForDotenv')]
+  public function testFormatValueForDotenv(string $input, string $expected): void {
+    $reflection = new \ReflectionClass(Env::class);
+    $method = $reflection->getMethod('formatValueForDotenv');
+    $method->setAccessible(TRUE);
+
+    $result = $method->invoke(NULL, $input);
+    $this->assertEquals($expected, $result);
+  }
+
+  public static function dataProviderFormatValueForDotenv(): array {
+    return [
+      // Values without whitespace - should not be quoted.
+      ['simple_value', 'simple_value'],
+      ['123', '123'],
+      ['true', 'true'],
+      ['key=value', 'key=value'],
+      ['path/to/file', 'path/to/file'],
+      ['with-dashes', 'with-dashes'],
+      ['with_underscores', 'with_underscores'],
+      ['UPPERCASE', 'UPPERCASE'],
+      ['mixedCase', 'mixedCase'],
+      ['special!@#$%^&*()[]{}|;:,.<>?', 'special!@#$%^&*()[]{}|;:,.<>?'],
+      ['', ''],
+
+      // Values with whitespace - should be quoted.
+      ['value with spaces', '"value with spaces"'],
+      [' leading space', '" leading space"'],
+      ['trailing space ', '"trailing space "'],
+      [' both spaces ', '" both spaces "'],
+      ['multiple   spaces', '"multiple   spaces"'],
+      ["tab\tcharacter", "\"tab\tcharacter\""],
+      ["new\nline", "\"new\nline\""],
+      ['path with spaces/to/file', '"path with spaces/to/file"'],
+      ['sentence with multiple words', '"sentence with multiple words"'],
+      ['value with "quotes"', "\"value with \\\"quotes\\\"\""],
+    ];
+  }
+
   protected function createFixtureEnvFile(string $content): string|false {
     $filename = tempnam(sys_get_temp_dir(), '.env');
     file_put_contents($filename, $content);
