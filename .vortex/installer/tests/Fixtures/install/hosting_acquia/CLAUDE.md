@@ -221,6 +221,39 @@ ahoy composer require drupal/module_name
 ahoy composer require --dev drupal/devel
 ```
 
+### Adding JavaScript/CSS Libraries (npm packages)
+
+To install JavaScript or CSS libraries as Drupal libraries with Composer,
+they must be defined as [inline Composer packages](https://getcomposer.org/doc/04-schema.md#repositories).
+
+1. Define the package in `composer.json` under the `repositories` section:
+
+```json
+{
+    "repositories": [
+         {
+            "type": "package",
+            "package": {
+                "name": "gdsmith/jquery.easing",
+                "type": "drupal-library",
+                "version": "1.4.1",
+                "source": {
+                    "type": "git",
+                    "url": "https://github.com/gdsmith/jquery.easing",
+                    "reference": "1.4.1"
+                }
+            }
+        }
+    ]
+}
+```
+
+2. Require the package using Composer:
+
+```bash
+ahoy composer require gdsmith/jquery.easing
+```
+
 ### Add theme build tools
 
 ```bash
