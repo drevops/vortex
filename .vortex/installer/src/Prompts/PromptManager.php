@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
@@ -242,6 +243,7 @@ class PromptManager {
     // runPrompts() to ensure that the handlers for string replacements process
     // more specific values first, and the more generic ones last.
     $ids = [
+      Dotenv::id(),
       Webroot::id(),
       AiCodeInstructions::id(),
       PreserveDocsOnboarding::id(),
