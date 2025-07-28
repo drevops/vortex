@@ -656,10 +656,11 @@ class Timezone extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $timezone = $this->getResponseAsString();
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
 
-    File::replaceContentAsync('/TZ=[A-Za-z0-9\/_\-+]+/', 'TZ=' . $timezone);
-    File::replaceContentAsync('/"timezone": "[A-Za-z0-9\/_\-+]+",/', sprintf('"timezone": "%s",', $timezone));
+    File::replaceContentInFile($t . '/.env', '/TZ=[A-Za-z0-9\/_\-+]+/', 'TZ=' . $v);
+    File::replaceContentInFile($t . '/renovate.json', '/"timezone": "[A-Za-z0-9\/_\-+]+",/', sprintf('"timezone": "%s",', $v));
   }
 
 }
