@@ -22,9 +22,9 @@
 -- DEV: https://dev.star-wars.com
 -- STAGE: https://stage.star-wars.com
 -- PROD: https://www.star-wars.com
-+- DEV: https://dev.deathstar.com
-+- STAGE: https://stage.deathstar.com
-+- PROD: https://www.deathstar.com
++- DEV: https://dev.death-star.com
++- STAGE: https://stage.death-star.com
++- PROD: https://www.death-star.com
  
  ## Local environment setup
  

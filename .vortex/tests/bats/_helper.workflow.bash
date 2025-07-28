@@ -143,7 +143,6 @@ assert_gitignore() {
   fi
 
   # Assert that Drupal Scaffold files were added to the git repository.
-  assert_git_file_is_tracked "${webroot}/.htaccess"
   assert_git_file_is_tracked "${webroot}/autoload.php"
   assert_git_file_is_tracked "${webroot}/index.php"
   assert_git_file_is_tracked "${webroot}/robots.txt"

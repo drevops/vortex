@@ -77,6 +77,8 @@ class HostingProvider extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
 
     if ($v === static::ACQUIA) {
       File::removeTokenAsync('!HOSTING_ACQUIA');
@@ -87,11 +89,13 @@ class HostingProvider extends AbstractHandler {
       File::removeTokenAsync('!HOSTING_LAGOON');
       File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
       $this->removeAcquia();
+      @unlink(sprintf('%s/%s/.htaccess', $t, $w));
     }
     else {
       $this->removeAcquia();
       $this->removeLagoon();
       File::removeTokenAsync('HOSTING');
+      @unlink(sprintf('%s/%s/.htaccess', $t, $w));
     }
   }
 
