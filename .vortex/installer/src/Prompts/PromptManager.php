@@ -314,59 +314,59 @@ class PromptManager {
     $responses = $this->responses;
 
     $values['General information'] = Tui::LIST_SECTION_TITLE;
-    $values['🏷️ Site name'] = $responses[Name::id()];
-    $values['🏷️ Site machine name'] = $responses[MachineName::id()];
-    $values['🏢 Organization name'] = $responses[Org::id()];
-    $values['🏢 Organization machine name'] = $responses[OrgMachineName::id()];
-    $values['🌐 Public domain'] = $responses[Domain::id()];
+    $values['Site name'] = $responses[Name::id()];
+    $values['Site machine name'] = $responses[MachineName::id()];
+    $values['Organization name'] = $responses[Org::id()];
+    $values['Organization machine name'] = $responses[OrgMachineName::id()];
+    $values['Public domain'] = $responses[Domain::id()];
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;
-    $values['🗄 Code provider'] = $responses[CodeProvider::id()];
+    $values['Code provider'] = $responses[CodeProvider::id()];
 
     $values['Drupal'] = Tui::LIST_SECTION_TITLE;
-    $values['📁 Webroot'] = $responses[Webroot::id()];
-    $values['🧾 Profile'] = $responses[Profile::id()];
+    $values['Webroot'] = $responses[Webroot::id()];
+    $values['Profile'] = $responses[Profile::id()];
 
-    $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
-    $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
+    $values['Module prefix'] = $responses[ModulePrefix::id()];
+    $values['Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
     $values['Environment'] = Tui::LIST_SECTION_TITLE;
-    $values['🌍 Timezone'] = $responses[Timezone::id()];
-    $values['🦠 ClamAV'] = Converter::bool(in_array(Services::CLAMAV, $responses[Services::id()]));
-    $values['🔍 Solr'] = Converter::bool(in_array(Services::SOLR, $responses[Services::id()]));
-    $values['🗃️ Valkey'] = Converter::bool(in_array(Services::VALKEY, $responses[Services::id()]));
+    $values['Timezone'] = $responses[Timezone::id()];
+    $values['ClamAV'] = Converter::bool(in_array(Services::CLAMAV, $responses[Services::id()]));
+    $values['Solr'] = Converter::bool(in_array(Services::SOLR, $responses[Services::id()]));
+    $values['Valkey'] = Converter::bool(in_array(Services::VALKEY, $responses[Services::id()]));
 
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
-    $values['☁️ Hosting provider'] = $responses[HostingProvider::id()];
+    $values['Hosting provider'] = $responses[HostingProvider::id()];
 
     $values['Deployment'] = Tui::LIST_SECTION_TITLE;
-    $values['🚚 Deployment types'] = Converter::toList($responses[DeployType::id()]);
+    $values['Deployment types'] = Converter::toList($responses[DeployType::id()]);
 
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
-    $values['🦋 Provision type'] = $responses[ProvisionType::id()];
+    $values['Provision type'] = $responses[ProvisionType::id()];
 
     if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
-      $values['📡 Database source'] = $responses[DatabaseDownloadSource::id()];
+      $values['Database source'] = $responses[DatabaseDownloadSource::id()];
 
       if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
-        $values['🏷️ Database container image'] = $responses[DatabaseImage::id()];
+        $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
 
     $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
-    $values['♻️ CI provider'] = $responses[CiProvider::id()];
+    $values['CI provider'] = $responses[CiProvider::id()];
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
-    $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
-    $values['👤 Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
+    $values['Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
+    $values['Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
+    $values['Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = Tui::LIST_SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
-    $values['📋 Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
+    $values['Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
+    $values['Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
-    $values['🤖 AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
+    $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
