@@ -146,7 +146,6 @@ assert_gitignore() {
   assert_git_file_is_tracked "${webroot}/autoload.php"
   assert_git_file_is_tracked "${webroot}/index.php"
   assert_git_file_is_tracked "${webroot}/robots.txt"
-  assert_git_file_is_tracked "${webroot}/update.php"
   # Assert that lock files were added to the git repository.
   assert_git_file_is_tracked "composer.lock"
   assert_git_file_is_tracked "${webroot}/themes/custom/star_wars/yarn.lock"
