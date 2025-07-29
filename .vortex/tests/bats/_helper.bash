@@ -507,7 +507,7 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
   assert_file_exists "${webroot}/robots.txt"
-  assert_file_exists "${webroot}/update.php"
+  assert_file_not_exists "${webroot}/update.php"
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,

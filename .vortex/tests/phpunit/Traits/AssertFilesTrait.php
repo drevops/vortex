@@ -264,7 +264,7 @@ trait AssertFilesTrait {
     Assert::assertFileExists($webroot . '/autoload.php');
     Assert::assertFileExists($webroot . '/index.php');
     Assert::assertFileExists($webroot . '/robots.txt');
-    Assert::assertFileExists($webroot . '/update.php');
+    Assert::assertFileDoesNotExist($webroot . '/update.php');
 
     // Settings files exist.
     Assert::assertFileExists($webroot . '/sites/default/settings.php');
@@ -301,7 +301,6 @@ trait AssertFilesTrait {
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
     $this->gitAssertFilesTracked($webroot . '/robots.txt');
-    $this->gitAssertFilesTracked($webroot . '/update.php');
 
     // Assert that lock files were added to the git repository.
     $this->gitAssertFilesTracked('composer.lock');
