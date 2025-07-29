@@ -94,7 +94,7 @@ class FunctionalTestCase extends UnitTestCase {
     int $timeout = 60,
     int $idle_timeout = 30,
   ): Process {
-    return $this->processRun('ahoy cli ' . $command, $arguments, $inputs, $env, $timeout, $idle_timeout);
+    return $this->processRun('ahoy cli -- ' . $command, $arguments, $inputs, $env, $timeout, $idle_timeout);
   }
 
   public function volumesMounted(): bool {
