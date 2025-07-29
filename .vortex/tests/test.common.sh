@@ -36,16 +36,7 @@ bats() {
   popd >/dev/null || exit 1
 }
 
-bats "${TEST_DIR}/bats/unit/helpers.bats"
-bats "${TEST_DIR}/bats/unit/deploy-artifact.bats"
-bats "${TEST_DIR}/bats/unit/deploy-container-registry.bats"
-bats "${TEST_DIR}/bats/unit/deploy-lagoon.bats"
-bats "${TEST_DIR}/bats/unit/deploy-webhook.bats"
-bats "${TEST_DIR}/bats/unit/login-container-registry.bats"
-bats "${TEST_DIR}/bats/unit/notify.bats"
-bats "${TEST_DIR}/bats/unit/provision.bats"
-bats "${TEST_DIR}/bats/unit/setup-ssh.bats"
-bats "${TEST_DIR}/bats/unit/update-vortex.bats"
+bats "${TEST_DIR}/bats/unit"
 bats "${TEST_DIR}/bats/e2e/env.bats"
 bats "${TEST_DIR}/bats/e2e/docker-compose.bats"
 bats "${TEST_DIR}/bats/e2e/reset.bats"
