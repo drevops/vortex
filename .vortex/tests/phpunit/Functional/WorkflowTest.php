@@ -34,6 +34,8 @@ class WorkflowTest extends FunctionalTestCase {
   public function testSmoke(): void {
     $this->assertDirectoryExists(static::$sut, 'SUT directory exists');
     $this->assertEquals(static::$sut, File::cwd(), 'SUT is the current working directory');
+
+    $this->processRunInContainer('rm', ['-rf', '/app/.logs/screenshots/*']);
   }
 
   public function testIdempotence(): void {
