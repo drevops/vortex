@@ -24,7 +24,7 @@ jobs:
           node-version: 22.17.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2
+        uses: shivammathur/setup-php@2282b6a082fc605c8320908a4cca3a5d1ca6c6fe # v2
 
       - name: Check docs up-to-date
         run: |
