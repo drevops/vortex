@@ -30,7 +30,7 @@ trait LoggerTrait {
   }
 
   public static function logSubstep(string $message): void {
-    fwrite(STDERR, '  --> '. $message . PHP_EOL);
+    fwrite(STDERR, '  --> ' . $message . PHP_EOL);
   }
 
 }

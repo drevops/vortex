@@ -460,6 +460,17 @@ EOT;
       $output .= '    git add -A' . PHP_EOL;
       $output .= '    git commit -m "Initial commit."' . PHP_EOL;
       $output .= PHP_EOL;
+
+      // Check for required tools and provide conditional instructions.
+      $missing_tools = $this->checkRequiredTools();
+      if (!empty($missing_tools)) {
+        $output .= '  Install required tools:' . PHP_EOL;
+        foreach ($missing_tools as $tool => $instructions) {
+          $output .= sprintf('    %s: %s', $tool, $instructions) . PHP_EOL;
+        }
+        $output .= PHP_EOL;
+      }
+
       $output .= '  Build project locally:' . PHP_EOL;
       $output .= '    ahoy build' . PHP_EOL;
       $output .= PHP_EOL;
@@ -469,6 +480,47 @@ EOT;
     }
 
     Tui::box($output, $title);
+  }
+
+  /**
+   * Check for required development tools.
+   *
+   * @return array
+   *   Array of missing tools with installation instructions.
+   */
+  protected function checkRequiredTools(): array {
+    $tools = [
+      'docker' => [
+        'name' => 'Docker',
+        'command' => 'docker',
+        'instructions' => 'https://www.docker.com/get-started',
+      ],
+      'pygmy' => [
+        'name' => 'Pygmy',
+        'command' => 'pygmy',
+        'instructions' => 'https://github.com/pygmystack/pygmy',
+      ],
+      'ahoy' => [
+        'name' => 'Ahoy',
+        'command' => 'ahoy',
+        'instructions' => 'https://github.com/ahoy-cli/ahoy',
+      ],
+    ];
+
+    $missing = [];
+
+    foreach ($tools as $tool) {
+      // Use exec with output capture to avoid output to console.
+      $output = [];
+      $return_code = 0;
+      exec(sprintf('command -v %s 2>/dev/null', $tool['command']), $output, $return_code);
+
+      if ($return_code !== 0) {
+        $missing[$tool['name']] = $tool['instructions'];
+      }
+    }
+
+    return $missing;
   }
 
   /**
