@@ -42,7 +42,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2282b6a082fc605c8320908a4cca3a5d1ca6c6fe # v2
+        uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # v2
         with:
           php-version: 8.2
 
@@ -105,7 +105,7 @@ jobs:
           node-version: 22.17.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2282b6a082fc605c8320908a4cca3a5d1ca6c6fe # v2
+        uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # v2
 
       - name: Download installer
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
