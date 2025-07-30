@@ -65,7 +65,7 @@ load ../_helper.bash
 
   # Create temporary installer file.
   local test_installer="${LOCAL_REPO_DIR}/test-installer.php"
-  echo "<?php echo 'test installer';" > "${test_installer}"
+  echo "<?php echo 'test installer';" >"${test_installer}"
 
   export VORTEX_INSTALLER_PATH="${test_installer}"
 

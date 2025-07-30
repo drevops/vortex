@@ -1,4 +1,8 @@
 #!/usr/bin/env bats
+##
+# Unit tests for download-db-url.sh
+#
+# shellcheck disable=SC2030,SC2031,SC2016
 
 load ../_helper.bash
 
@@ -29,7 +33,7 @@ load ../_helper.bash
   mock_unzip=$(mock_command "unzip")
   mock_set_side_effect "${mock_unzip}" "mkdir -p \"\$4/subdir\" && echo 'database content' > \"\$4/subdir/backup.sql\"" 1
   mock_find=$(mock_command "find")
-  mock_set_side_effect "${mock_find}" "echo \"\$1/subdir/backup.sql\"" 1
+  mock_set_side_effect "${mock_find}" 'echo "$1/subdir/backup.sql"' 1
 
   export VORTEX_DB_DOWNLOAD_URL="http://example.com/db.zip"
   export VORTEX_DB_DIR=".data"
@@ -53,7 +57,7 @@ load ../_helper.bash
   mock_unzip=$(mock_command "unzip")
   mock_set_side_effect "${mock_unzip}" "mkdir -p \"\$6/protected\" && echo 'protected database content' > \"\$6/protected/secure_backup.sql\"" 1
   mock_find=$(mock_command "find")
-  mock_set_side_effect "${mock_find}" "echo \"\$1/protected/secure_backup.sql\"" 1
+  mock_set_side_effect "${mock_find}" 'echo "$1/protected/secure_backup.sql"' 1
 
   export VORTEX_DB_DOWNLOAD_URL="http://example.com/protected.zip"
   export VORTEX_DB_DIR=".data"
@@ -83,7 +87,6 @@ load ../_helper.bash
 
   popd >/dev/null
 }
-
 
 @test "download-db-url: Use default values for optional variables" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1

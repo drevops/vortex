@@ -2,7 +2,7 @@
 #
 # Test for CircleCI lifecycle.
 #
-# shellcheck disable=SC2030,SC2031,SC2129,SC2155
+# shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
 load ../_helper.bash
 load ../_helper.deployment.bash

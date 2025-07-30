@@ -1,4 +1,8 @@
 #!/usr/bin/env bats
+##
+# Unit tests for download-db-container-registry.sh
+#
+# shellcheck disable=SC2030,SC2031
 
 load ../_helper.bash
 
@@ -137,7 +141,6 @@ load ../_helper.bash
 
   popd >/dev/null
 }
-
 
 @test "download-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
