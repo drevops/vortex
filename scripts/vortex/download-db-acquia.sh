@@ -93,7 +93,7 @@ mkdir -p "${VORTEX_DB_DIR}"
 
 task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
-note "Token API response: ${token_json}"
+[ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response: ${token_json}"
 
 # Check for HTTP errors in response
 if echo "${token_json}" | grep -q '"error"'; then
@@ -102,7 +102,7 @@ if echo "${token_json}" | grep -q '"error"'; then
 fi
 
 token="$(echo "${token_json}" | extract_json_value "access_token")"
-note "Extracted token: ${token}"
+[ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted token: ${token}"
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}" && exit 1
 
 task "Retrieving ${VORTEX_ACQUIA_APP_NAME} application UUID."
