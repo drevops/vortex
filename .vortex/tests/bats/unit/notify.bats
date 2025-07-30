@@ -65,8 +65,8 @@ load ../_helper.bash
   assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com, jim@example.com"
   assert_output_contains "Finished email notification."
 
-  assert_output_contains "testproject deployment notification of \"develop\" branch"
-  assert_output_contains "Site testproject \"develop\" branch has been deployed"
+  assert_output_contains 'testproject deployment notification of "develop" branch'
+  assert_output_contains 'Site testproject "develop" branch has been deployed'
   assert_output_contains "and is available at https://develop.testproject.com."
 
   assert_output_contains "Finished dispatching notifications."
@@ -93,8 +93,8 @@ load ../_helper.bash
   assert_output_contains "Notification email(s) sent to: john@example.com, jane@example.com"
   assert_output_contains "Finished email notification."
 
-  assert_output_contains "testproject deployment notification of \"PR-123\""
-  assert_output_contains "Site testproject \"PR-123\" has been deployed"
+  assert_output_contains 'testproject deployment notification of "PR-123"'
+  assert_output_contains 'Site testproject "PR-123" has been deployed'
   assert_output_contains "and is available at https://develop.testproject.com."
 
   assert_output_contains "Finished dispatching notifications."
@@ -239,7 +239,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"nonexistingbranch\", \"environment\": \"PR\", \"auto_merge\": false} # {\"message\": \"No ref found for: nonexistingbranch\",\"documentation_url\": \"https://docs.github.com/rest/deployments/deployments#create-a-deployment\",\"status\": \"422\"}"
+    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch", "environment": "PR", "auto_merge": false} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
     "Failed to get a deployment ID for a pre_deployment operation. Payload:"
     "Wait for GitHub checks to finish and try again."
     "-Marked deployment as finished."
@@ -388,6 +388,7 @@ load ../_helper.bash
   assignee_account_id="987654321c20165700ede21g"
   comment_id="1234"
 
+  # shellcheck disable=SC2034
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started JIRA notification."
@@ -402,13 +403,13 @@ load ../_helper.bash
     "Posted comment with ID ${comment_id}."
     "Transitioning issue to QA"
     "Discovering transition ID for QA"
-    "@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions # {\"expand\":\"transitions\",\"transitions\":[{\"id\":\"123\",\"name\":\"QA\"},{\"id\":\"456\",\"name\":\"Closed\"}]}"
-    "@curl -s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions --data { \"transition\": {\"id\": \"123\"}} # "
+    '@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions # {"expand":"transitions","transitions":[{"id":"123","name":"QA"},{"id":"456","name":"Closed"}]}'
+    '@curl -s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/transitions --data { "transition": {"id": "123"}} # '
     "Transitioned issue to QA"
     "Assigning issue to jane.doe@example.com"
     "Discovering user ID for jane.doe@example.com"
     "@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/user/assignable/search?query=jane.doe@example.com&issueKey=proj-1234 # [{\"accountId\": \"${assignee_account_id}\", \"othervar\": \"54321\"}, {\"accountId\": \"01987654321c20165700edeg\", \"othervar\": \"54321\"}]"
-    "@curl -s -X PUT -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/assignee --data { \"accountId\": \"987654321c20165700ede21g\"} # "
+    '@curl -s -X PUT -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/assignee --data { "accountId": "987654321c20165700ede21g"} # '
   )
 
   mocks="$(run_steps "setup")"

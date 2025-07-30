@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154,SC2129
+# shellcheck disable=SC2154,SC2129,SC2016
 #
 # Helpers related to Vortex workflow testing functionality.
 #
@@ -173,7 +173,7 @@ assert_ahoy_cli() {
   export DRUPAL_UNFILTERED_VAR="drupalvar"
   export OTHER_FILTERED_VAR="othervar"
 
-  run ahoy cli "echo \$DRUPAL_UNFILTERED_VAR"
+  run ahoy cli 'echo $DRUPAL_UNFILTERED_VAR'
   assert_output_contains "drupalvar"
   assert_output_not_contains "othervar"
 }
@@ -515,7 +515,7 @@ assert_ahoy_lint_test() {
   assert_success
 
   substep "Assert that Test lint failure works for Gherkin Lint"
-  echo "Feature:" >> "tests/behat/features/test.feature"
+  echo "Feature:" >>"tests/behat/features/test.feature"
   sync_to_container
   run ahoy lint-tests
   assert_failure

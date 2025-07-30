@@ -232,8 +232,6 @@ assert_files_present_common() {
   local webroot="${6:-web}"
   local assert_theme="${7:-1}"
 
-  local suffix_abbreviated_uppercase="$(string_to_upper "${suffix_abbreviated}")"
-
   pushd "${dir}" >/dev/null || exit 1
 
   # Default Vortex files present.
@@ -642,7 +640,7 @@ assert_files_present_no_provision_use_profile() {
 
   assert_file_contains "README.md" "ahoy download-db"
 
-  if [ -f ".github/workflows/build-test-deploy.yml"  ]; then
+  if [ -f ".github/workflows/build-test-deploy.yml" ]; then
     assert_file_contains ".github/workflows/build-test-deploy.yml" "database:"
     assert_file_contains ".github/workflows/build-test-deploy.yml" "schedule:"
     assert_file_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_TIMESTAMP"
@@ -704,7 +702,7 @@ assert_files_present_ci_provider_gha() {
   assert_file_contains "README.md" "docs/ci.md"
   assert_file_contains "docs/ci.md" "GitHub Actions"
 
-  assert_files_present_no_ci_provider_circleci "$dir" "$suffix"
+  assert_files_present_no_ci_provider_circleci "${dir}" "${suffix}"
 
   popd >/dev/null || exit 1
 }
@@ -733,7 +731,7 @@ assert_files_present_ci_provider_circleci() {
   assert_file_contains "README.md" "docs/ci.md"
   assert_file_contains "docs/ci.md" "CircleCI"
 
-  assert_files_present_no_ci_provider_gha "$dir" "$suffix"
+  assert_files_present_no_ci_provider_gha "${dir}" "${suffix}"
 
   popd >/dev/null || exit 1
 }
@@ -757,8 +755,8 @@ assert_files_present_ci_provider_none() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_files_present_no_ci_provider_gha "$dir" "$suffix"
-  assert_files_present_no_ci_provider_circleci "$dir" "$suffix"
+  assert_files_present_no_ci_provider_gha "${dir}" "${suffix}"
+  assert_files_present_no_ci_provider_circleci "${dir}" "${suffix}"
 
   assert_file_not_exists "docs/ci.md"
   assert_file_not_contains "README.md" "docs/ci.md"
@@ -1405,12 +1403,10 @@ download_installer() {
 
   rm -Rf "install.php" >/dev/null || true
 
+  composer install --no-progress >/dev/null 2>&1
+  composer build >/dev/null 2>&1
 
-
-  composer install --no-progress > /dev/null 2>&1
-  composer build > /dev/null 2>&1
-
-  cp .build/installer.phar "install.php" > /dev/null
+  cp .build/installer.phar "install.php" >/dev/null
 
   assert_file_exists "install.php"
 

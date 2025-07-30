@@ -2,7 +2,7 @@
 #
 # Tests for scripts/vortex/deploy-container-registry.sh script.
 #
-# shellcheck disable=SC2030,SC2031,SC2129,SC2155
+# shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
 load ../_helper.bash
 load ../_helper.deployment.bash
@@ -43,26 +43,26 @@ load ../_helper.deployment.bash
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1 # service1_service_id"
-    "Found \"service1\" service container with id \"service1_service_id\"."
-    "Committing container image with name \"registry.example.com/image1:test_latest\"."
+    'Found "service1" service container with id "service1_service_id".'
+    'Committing container image with name "registry.example.com/image1:test_latest".'
     "@docker commit service1_service_id registry.example.com/image1:test_latest # sha256:service1_image_id"
-    "Committed container image with id \"service1_image_id\"."
+    'Committed container image with id "service1_image_id".'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image1:test_latest"
     "Processing service service2"
     "@docker compose ps -q service2 # service2_service_id"
-    "Found \"service2\" service container with id \"service2_service_id\"."
-    "Committing container image with name \"registry.example.com/image2:test_latest\"."
+    'Found "service2" service container with id "service2_service_id".'
+    'Committing container image with name "registry.example.com/image2:test_latest".'
     "@docker commit service2_service_id registry.example.com/image2:test_latest # sha256:service2_image_id"
-    "Committed container image with id \"service2_image_id\"."
+    'Committed container image with id "service2_image_id".'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image2:test_latest"
     "Processing service service3"
     "@docker compose ps -q service3 # service3_service_id"
-    "Found \"service3\" service container with id \"service3_service_id\"."
-    "Committing container image with name \"registry.example.com/image3:test_latest\"."
+    'Found "service3" service container with id "service3_service_id".'
+    'Committing container image with name "registry.example.com/image3:test_latest".'
     "@docker commit service3_service_id registry.example.com/image3:test_latest # sha256:service3_image_id"
-    "Committed container image with id \"service3_image_id\"."
+    'Committed container image with id "service3_image_id".'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image3:test_latest"
     "Finished container registry deployment."
@@ -96,7 +96,7 @@ load ../_helper.deployment.bash
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1"
-    "Service \"service1\" is not running."
+    'Service "service1" is not running.'
   )
 
   mocks="$(run_steps "setup")"
@@ -124,21 +124,21 @@ load ../_helper.deployment.bash
 
   run ./scripts/vortex/deploy-container-registry.sh
   assert_failure
-  assert_output_contains "invalid key/value pair \"service1\" provided."
+  assert_output_contains 'invalid key/value pair "service1" provided.'
 
   # Using a space delimiter.
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
   run scripts/vortex/deploy-container-registry.sh
   assert_failure
-  assert_output_contains "invalid key/value pair \"service1=image1 service2=image2\" provided."
+  assert_output_contains 'invalid key/value pair "service1=image1 service2=image2" provided.'
 
   # No comma delimiter
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
   run scripts/vortex/deploy-container-registry.sh
   assert_failure
-  assert_output_contains "invalid key/value pair \"service1=image1=service2=image2\" provided."
+  assert_output_contains 'invalid key/value pair "service1=image1=service2=image2" provided.'
 
   popd >/dev/null
 }

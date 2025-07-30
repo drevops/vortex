@@ -105,7 +105,7 @@ load ../_helper.bash
     "Finished SSH setup"
   )
   mocks="$(run_steps "setup")"
-    run scripts/vortex/setup-ssh.sh
+  run scripts/vortex/setup-ssh.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -294,6 +294,7 @@ load ../_helper.bash
   export VORTEX_SSH_REMOVE_ALL_KEYS="0"
   export VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="0"
 
+  # shellcheck disable=SC2034
   declare -a STEPS=(
     "Found fingerprint variable VORTEX_TEST_SSH_FINGERPRINT with value ${VORTEX_TEST_SSH_FINGERPRINT}."
     "Using fingerprint-based deploy key because fingerprint was provided."

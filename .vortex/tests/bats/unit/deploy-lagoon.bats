@@ -15,7 +15,7 @@ load ../_helper.deployment.bash
   [ -f .env.local ] && rm .env.local
 
   # Create minimal .env without LAGOON_PROJECT
-  echo "# Test env" > .env
+  echo "# Test env" >.env
 
   unset LAGOON_PROJECT
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -40,7 +40,6 @@ load ../_helper.deployment.bash
 
   popd >/dev/null
 }
-
 
 @test "Branch: Deploy fresh environment no existing environment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -94,7 +93,7 @@ load ../_helper.deployment.bash
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
-    "Found already deployed environment for branch \"test-branch\"."
+    'Found already deployed environment for branch "test-branch".'
     "Setting a DB overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
     "Redeploying environment: project test_project, branch: test-branch."
@@ -131,7 +130,7 @@ load ../_helper.deployment.bash
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
-    "Found already deployed environment for branch \"test-branch\"."
+    'Found already deployed environment for branch "test-branch".'
     "Setting a DB overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
     "Adding a DB import override flag for the current deployment."
@@ -213,7 +212,7 @@ load ../_helper.deployment.bash
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
-    "Found already deployed environment for PR \"123\"."
+    'Found already deployed environment for PR "123".'
     "Setting a DB overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-123 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
     "Redeploying environment: project test_project, PR: 123."
@@ -255,7 +254,7 @@ load ../_helper.deployment.bash
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
-    "Found already deployed environment for PR \"456\"."
+    'Found already deployed environment for PR "456".'
     "Setting a DB overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
     "Adding a DB import override flag for the current deployment."
@@ -397,6 +396,7 @@ load ../_helper.deployment.bash
   # Mock lagoon command to return environment limit exceeded error
   local limit_error="Error: graphql: 'pr-133' would exceed the configured limit of 5 development environments for project website"
 
+  # shellcheck disable=SC2034
   declare -a STEPS=(
     "Started LAGOON deployment."
     "Configuring Lagoon instance."

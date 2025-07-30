@@ -1,4 +1,8 @@
 #!/usr/bin/env bats
+##
+# Unit tests for download-db-ftp.sh
+#
+# shellcheck disable=SC2030,SC2031
 
 load ../_helper.bash
 
