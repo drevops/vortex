@@ -10,6 +10,7 @@ use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Yaml;
 
 /**
  * Class UnitTestCase.
@@ -110,6 +111,26 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     }
 
     return $content;
+  }
+
+  protected function assertYamlFileIsValid(string $filename): void {
+    try {
+      Yaml::validateFile($filename);
+    }
+    catch (\Exception $exception) {
+      $this->fail(sprintf('YAML validation for file %s failed: %s', $filename, $exception->getMessage()));
+    }
+  }
+
+  protected function assertJsonFileIsValid(string $filename): void {
+    $this->assertFileExists($filename);
+
+    $content = file_get_contents($filename);
+    if ($content === FALSE) {
+      $this->fail(sprintf('Failed to read JSON file "%s".', $filename));
+    }
+
+    $this->assertJson($content, sprintf('JSON validation for file %s failed: %s', $filename, json_last_error_msg()));
   }
 
 }

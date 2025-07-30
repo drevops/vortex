@@ -18,11 +18,13 @@
     },
     "require": {
         "php": ">=8.2",
-        "alexskrypnyk/file": "^0.8.0",
+        "alexskrypnyk/file": "^0.9",
         "alexskrypnyk/str2name": "^1.4",
+        "composer/composer": "^2.8",
         "cweagans/composer-patches": "^1.7",
         "czproject/git-php": "^4.3",
         "laravel/prompts": "^0.3.5",
+        "nikic/iter": "^2.4",
         "sebastian/diff": "*",
         "symfony/console": "^7.3",
         "symfony/filesystem": "^7.2",
@@ -93,6 +95,7 @@
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
         "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
-        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall"
+        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall",
+        "test-baseline": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline || UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline"
     }
 }

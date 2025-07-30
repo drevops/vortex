@@ -13,6 +13,7 @@ use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Strings;
 use PHPUnit\Framework\TestStatus\Error;
 use PHPUnit\Framework\TestStatus\Failure;
 
@@ -122,9 +123,16 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $needles = is_array($needles) ? $needles : [$needles];
 
     foreach ($needles as $needle) {
-      $this->assertDirectoryContainsWord($needle, static::$sut, [
-        'scripts/vortex',
-      ]);
+      if (Strings::isRegex($needle)) {
+        $this->assertDirectoryContainsString($needle, static::$sut, [
+          'scripts/vortex',
+        ]);
+      }
+      else {
+        $this->assertDirectoryContainsWord($needle, static::$sut, [
+          'scripts/vortex',
+        ]);
+      }
     }
   }
 
@@ -132,9 +140,16 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $needles = is_array($needles) ? $needles : [$needles];
 
     foreach ($needles as $needle) {
-      $this->assertDirectoryNotContainsWord($needle, static::$sut, [
-        'scripts/vortex',
-      ]);
+      if (Strings::isRegex($needle)) {
+        $this->assertDirectoryNotContainsString($needle, static::$sut, [
+          'scripts/vortex',
+        ]);
+      }
+      else {
+        $this->assertDirectoryNotContainsWord($needle, static::$sut, [
+          'scripts/vortex',
+        ]);
+      }
     }
   }
 

@@ -75,12 +75,12 @@ commands:
     usage: Show container logs for services.
     cmd: docker compose logs "$@"
 
+  # Drop into a shell if no arguments are supplied, otherwise run the command.
+  # Environment variables are passed from the host and filtered by prefix.
+  # Use \" (slash followed by a double quote) to escape double quotes in
+  # arguments that contain spaces.
   cli:
     usage: Start a shell or run a command inside the CLI service container.
-    # Drop into a shell if no arguments are supplied, otherwise run the command.
-    # Environment variables are passed from the host and filtered by prefix.
-    # Use \" (slash followed by a double quote) to escape double quotes in
-    # arguments that contain spaces.
     cmd: |
       if [ "${#}" -ne 0 ]; then
         docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|PACKAGE_\|DOCKER_\|DRUPAL_\|VORTEX_" | sed 's/^/-e /') cli bash -c "$*"
@@ -114,7 +114,7 @@ commands:
 
   download-db:
     usage: Download database. Run with "--no-cache" option to force fresh database backup.
-    aliases: ['fetch-db']
+    aliases: [fetch-db]
     cmd: |
       case " $* " in *" --no-cache "*) export VORTEX_DB_DOWNLOAD_NO_CACHE=1;; esac
       ./scripts/vortex/download-db.sh
@@ -149,7 +149,7 @@ commands:
     cmd: \[ -n "${VORTEX_DB_IMAGE}" \] && docker pull ${VORTEX_DB_IMAGE} || true
 
   reset:
-    usage: "Remove containers, all build files. Use with `hard` to reset repository to the last commit."
+    usage: Remove containers, all build files. Use with `hard` to reset repository to the last commit.
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down
@@ -177,7 +177,10 @@ commands:
 
   lint:
     usage: Lint back-end and front-end code.
-    cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests
+    cmd: |
+      ahoy lint-be
+      ahoy lint-fe
+      ahoy lint-tests
 
   lint-be:
     usage: Lint back-end code.
@@ -196,11 +199,14 @@ commands:
 
   lint-tests:
     usage: Lint tests code.
-    cmd: ahoy cli vendor/bin/gherkinlint lint tests/behat/features
+    cmd: |
+      ahoy cli vendor/bin/gherkinlint lint tests/behat/features
 
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.
-    cmd: ahoy lint-be-fix && ahoy lint-fe-fix
+    cmd: |
+      ahoy lint-be-fix
+      ahoy lint-fe-fix
 
   lint-be-fix:
     usage: Fix lint issues of back-end code.
@@ -217,7 +223,11 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy test-unit && ahoy test-kernel && ahoy test-functional && ahoy test-bdd
+    cmd: |
+      ahoy test-unit
+      ahoy test-kernel
+      ahoy test-functional
+      ahoy test-bdd
 
   test-unit:
     usage: Run PHPUnit unit tests.
@@ -233,7 +243,7 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    aliases: ['test-behat']
+    aliases: [test-behat]
     cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
 
   debug:
@@ -257,8 +267,7 @@ commands:
   local:
     usage: Custom local commands. See `ahoy local help`.
     optional: true
-    imports:
-      - .ahoy.local.yml
+    imports: [.ahoy.local.yml]
 
   # ----------------------------------------------------------------------------
   # Utilities.
@@ -290,15 +299,14 @@ commands:
     hide: true
 
 # Override entrypoint to alter default behavior of Ahoy.
+# 1. Exit the script if any statement returns a non-true return value.
+# 2. Read variables from .env file (while respecting existing values) to load
+#    and pass updated environment variables' values into already running
+#    containers.
 entrypoint:
   - bash
   - -c
-  # Exit the script if any statement returns a non-true return value.
   - -e
-  # Read variables from .env file, respecting existing values.
-  # - Used to load and pass updated environment variables' values into already
-  #   running containers.
-  # - Use `ahoy up cli` in cases when changes require container restart.
   - |
     t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
     bash -e -c "$0" "$@"

@@ -29,10 +29,11 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
+use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
-use DrevOps\VortexInstaller\Utils\Composer;
+use DrevOps\VortexInstaller\Utils\ComposerJson;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
@@ -49,7 +50,7 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(CiProvider::class)]
 #[CoversClass(CodeProvider::class)]
-#[CoversClass(Composer::class)]
+#[CoversClass(ComposerJson::class)]
 #[CoversClass(Converter::class)]
 #[CoversClass(DatabaseDownloadSource::class)]
 #[CoversClass(DatabaseImage::class)]
@@ -73,6 +74,7 @@ use Symfony\Component\Yaml\Yaml;
 #[CoversClass(Services::class)]
 #[CoversClass(Theme::class)]
 #[CoversClass(Timezone::class)]
+#[CoversClass(Tools::class)]
 #[CoversClass(Tui::class)]
 #[CoversClass(Webroot::class)]
 class PromptManagerTest extends UnitTestCase {
@@ -159,6 +161,7 @@ class PromptManagerTest extends UnitTestCase {
       Theme::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
+      Tools::id() => static::TUI_DEFAULT,
       HostingProvider::id() => static::TUI_DEFAULT,
       Webroot::id() => static::TUI_DEFAULT,
       DeployType::id() => static::TUI_DEFAULT,
@@ -189,6 +192,7 @@ class PromptManagerTest extends UnitTestCase {
       Theme::id() => 'myproject',
       Timezone::id() => 'UTC',
       Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
+      Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
@@ -206,6 +210,7 @@ class PromptManagerTest extends UnitTestCase {
 
     // Expected values for a pre-installed project.
     $expected_installed = [
+      Tools::id() => [],
       CiProvider::id() => CiProvider::NONE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
       AssignAuthorPr::id() => FALSE,
@@ -616,7 +621,6 @@ class PromptManagerTest extends UnitTestCase {
         [Services::id() => Key::ENTER],
         [Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY]] + $expected_defaults,
       ],
-
       'services - discovery - solr' => [
         [],
         [Services::id() => [Services::SOLR]] + $expected_installed,
@@ -676,6 +680,98 @@ YAML
         $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]]));
+        },
+      ],
+
+      'tools - prompt - defaults' => [
+        [Tools::id() => Key::ENTER],
+        [Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT]] + $expected_defaults,
+      ],
+      'tools - discovery - all tools' => [
+        [],
+        [Tools::id() => [Tools::BEHAT, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $dependencies = [
+            'squizlabs/php_codesniffer' => '*',
+            'phpmd/phpmd' => '*',
+            'phpstan/phpstan' => '*',
+            'rector/rector' => '*',
+            'phpunit/phpunit' => '*',
+            'behat/behat' => '*',
+          ];
+          $test->stubComposerJsonDependencies($dependencies, TRUE);
+        },
+      ],
+      'tools - discovery - none' => [
+        [],
+        [Tools::id() => []] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          // No tool dependencies in composer.json.
+        },
+      ],
+      'tools - discovery - non-Vortex project' => [
+        [],
+        $expected_defaults,
+        function (PromptManagerTest $test, Config $config): void {
+          $dependencies = [
+            'squizlabs/php_codesniffer' => '*',
+            'phpmd/phpmd' => '*',
+            'phpstan/phpstan' => '*',
+            'rector/rector' => '*',
+            'phpunit/phpunit' => '*',
+            'behat/behat' => '*',
+          ];
+          $test->stubComposerJsonDependencies($dependencies, TRUE);
+        },
+      ],
+      'tools - discovery - phpcs' => [
+        [],
+        [Tools::id() => [Tools::PHPCS]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubComposerJsonDependencies(['squizlabs/php_codesniffer' => '*'], TRUE);
+        },
+      ],
+      'tools - discovery - phpmd' => [
+        [],
+        [Tools::id() => [Tools::PHPMD]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubComposerJsonDependencies(['phpmd/phpmd' => '*'], TRUE);
+        },
+      ],
+      'tools - discovery - phpstan' => [
+        [],
+        [Tools::id() => [Tools::PHPSTAN]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubComposerJsonDependencies(['phpstan/phpstan' => '*'], TRUE);
+        },
+      ],
+      'tools - discovery - rector' => [
+        [],
+        [Tools::id() => [Tools::RECTOR]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubComposerJsonDependencies(['rector/rector' => '*'], TRUE);
+        },
+      ],
+      'tools - discovery - phpunit' => [
+        [],
+        [Tools::id() => [Tools::PHPUNIT]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubComposerJsonDependencies(['phpunit/phpunit' => '*'], TRUE);
+        },
+      ],
+      'tools - discovery - behat' => [
+        [],
+        [Tools::id() => [Tools::BEHAT]] + $expected_installed,
+        function (PromptManagerTest $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubComposerJsonDependencies(['behat/behat' => '*'], TRUE);
         },
       ],
 
@@ -765,7 +861,7 @@ YAML
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
         function (PromptManagerTest $test, Config $config): void {
-          $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]]);
+          $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]);
         },
       ],
       'webroot - discovery - invalid' => [
@@ -1140,6 +1236,30 @@ YAML
   protected function stubComposerJsonValue(string $name, mixed $value): string {
     $composer_json = static::$sut . DIRECTORY_SEPARATOR . 'composer.json';
     file_put_contents($composer_json, json_encode([$name => $value], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+    return $composer_json;
+  }
+
+  protected function stubComposerJsonDependencies(array $dependencies, bool $is_dev = FALSE): string {
+    $composer_json = static::$sut . DIRECTORY_SEPARATOR . 'composer.json';
+    $section = $is_dev ? 'require-dev' : 'require';
+
+    $data = [];
+    if (file_exists($composer_json)) {
+      $contents = file_get_contents($composer_json);
+      $existing = $contents !== FALSE ? json_decode($contents, TRUE) : NULL;
+      if ($existing) {
+        $data = $existing;
+      }
+    }
+
+    if (!isset($data[$section])) {
+      $data[$section] = [];
+    }
+
+    $data[$section] = array_merge($data[$section], $dependencies);
+
+    file_put_contents($composer_json, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $composer_json;
   }

@@ -56,6 +56,8 @@ Use the same commands to debug CLI scripts.
 
 To disable, run `ahoy up`.
 
+[//]: # (#;< TOOL_BEHAT)
+
 ## How to use Xdebug on Behat scripts?
 
 1. Enable debugging: `ahoy debug`
@@ -65,6 +67,8 @@ To disable, run `ahoy up`.
 ```bash
 vendor/bin/behat path/to/test.feature
 ```
+
+[//]: # (#;> TOOL_BEHAT)
 
 ## What should I do to switch to a "clean" branch environment?
 
@@ -131,9 +135,13 @@ This theme will be used when Drupal is in maintenance mode. If `DRUPAL_MAINTENAN
 
 The maintenance theme should be a valid Drupal theme that is already installed and enabled on your site.
 
+[//]: # (#;< TOOL_BEHAT)
+
 ## Behat tests with `@javascript` tag sometimes get stuck
 
 Behat tests with `@javascript` tag sometimes get stuck for about 10min then fail.
 The Chrome container randomly get stuck for an unknown reason.
 
 Restart the Chrome container: `docker compose restart chrome`
+
+[//]: # (#;> TOOL_BEHAT)

@@ -1,0 +1,60 @@
+@@ -256,36 +256,11 @@
+         run: docker compose exec -T cli composer normalize --dry-run
+         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint code with PHPCS
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: docker compose exec -T cli vendor/bin/phpcs
+-        continue-on-error: ${{ vars.VORTEX_CI_PHPCS_IGNORE_FAILURE == '1' }}
+-
+-      - name: Lint code with PHPStan
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: docker compose exec -T cli vendor/bin/phpstan
+-        continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
+-
+-      - name: Lint code with Rector
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run
+-        continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
+-
+-      - name: Lint code with PHPMD
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml
+-        continue-on-error: ${{ vars.VORTEX_CI_PHPMD_IGNORE_FAILURE == '1' }}
+-
+       - name: Lint code with Twig CS Fixer
+         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         run: docker compose exec -T cli vendor/bin/twig-cs-fixer
+         continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint code with Gherkin Lint
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
+-        continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
+-
+       - name: Lint module code with NodeJS linters
+         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         run: docker compose exec -T cli bash -c "yarn run lint"
+@@ -303,22 +278,6 @@
+             docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+           fi
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+-        timeout-minutes: 30
+-
+-      - name: Test with PHPUnit
+-        run: docker compose exec -T cli vendor/bin/phpunit
+-        continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
+-
+-      - name: Test with Behat
+-        run: |
+-          # shellcheck disable=SC2170
+-          if [ ${{ strategy.job-total }} -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${{ strategy.job-index }}}"; fi
+-          echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
+-          docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
+-        env:
+-          VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
+-        continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
+         timeout-minutes: 30
+ 
+       - name: Process test logs and artifacts

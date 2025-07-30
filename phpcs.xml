@@ -52,8 +52,10 @@
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
 
+    <!-- #;< TOOL_BEHAT -->
     <!-- Ignore prefixing of class names with project name in Behat tests. -->
     <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
         <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
     </rule>
+    <!-- #;> TOOL_BEHAT -->
 </ruleset>

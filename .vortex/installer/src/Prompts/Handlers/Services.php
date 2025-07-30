@@ -26,7 +26,7 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Select the services you want to use in the project.';
+    return 'Use up and down arrows to select tools. Press space to toggle selection.';
   }
 
   /**

@@ -1,0 +1,8 @@
+@@ -44,7 +44,6 @@
+ !patches
+ !phpcs.xml
+ !phpmd.xml
+-!phpstan.neon
+ !phpunit.xml
+ !rector.php
+ !scripts

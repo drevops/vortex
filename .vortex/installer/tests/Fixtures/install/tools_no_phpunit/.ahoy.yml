@@ -1,0 +1,23 @@
+@@ -224,22 +224,7 @@
+   test:
+     usage: Run all tests.
+     cmd: |
+-      ahoy test-unit
+-      ahoy test-kernel
+-      ahoy test-functional
+       ahoy test-bdd
+-
+-  test-unit:
+-    usage: Run PHPUnit unit tests.
+-    cmd: ahoy cli vendor/bin/phpunit --testsuite=unit "$@"
+-
+-  test-kernel:
+-    usage: Run PHPUnit kernel tests.
+-    cmd: ahoy cli vendor/bin/phpunit --testsuite=kernel "$@"
+-
+-  test-functional:
+-    usage: Run PHPUnit functional tests.
+-    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
+ 
+   test-bdd:
+     usage: Run BDD tests.
