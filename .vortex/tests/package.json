@@ -4,6 +4,6 @@
     "description": "Packages used for testing of Vortex",
     "license": "GPL-2.0-or-later",
     "devDependencies": {
-        "bats-helpers": "npm:@drevops/bats-helpers@^1.5"
+        "bats-helpers": "npm:@drevops/bats-helpers@^1.5.1"
     }
 }
