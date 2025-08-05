@@ -43,9 +43,9 @@ commands:
   db:
     usage: Open DB in Sequel Ace.
     cmd: |
-      uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" \
-      && VORTEX_HOST_DB_PORT="$(docker port $(docker compose ps -q database 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
-      && open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" && \
+      VORTEX_HOST_DB_PORT="$(docker port $(docker compose ps -q database 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" && \
+      open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
@@ -130,11 +130,11 @@ commands:
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
       docker compose rm --force --stop --volumes database && \
-        ahoy up -- --build database && \
-        ahoy up wait_dependencies && \
-        sleep 15 && \
-        ahoy provision && \
-        VORTEX_SHOW_LOGIN=1 ahoy info
+      ahoy up -- --build database && \
+      ahoy up wait_dependencies && \
+      sleep 15 && \
+      ahoy provision && \
+      VORTEX_SHOW_LOGIN=1 ahoy info
 
   provision:
     usage: Provision a site from the database dump or profile.
