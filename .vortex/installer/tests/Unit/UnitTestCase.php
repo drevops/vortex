@@ -63,6 +63,12 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected static function replaceVersionsInLine(string $content): string {
     $patterns = [
       '/sha512\-[A-Za-z0-9+\/]{86}={0,2}/' => '__INTEGRITY__',
+
+      // GitHub Actions with digests and version comments.
+      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}\s*#\s*v\d+(?:\.\d+)*/' => '${1}@__HASH__ # __VERSION__',
+      // GitHub Actions with digests (no version comments).
+      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}/' => '${1}@__HASH__',
+
       '/#[a-fA-F0-9]{39,40}/' => '#__HASH__',
       '/@[a-fA-F0-9]{39,40}/' => '@__HASH__',
 
@@ -74,8 +80,6 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       // docker-compose.yml.
       '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
       '/([\w.-]+\/[\w.-]+:)canary$/m' => '${1}__VERSION__',
-      // GitHub Actions with digests (with optional version comments).
-      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}(\s*#\s*v[\d.]+)?/' => '${1}@__VERSION__',
       // GHAs.
       '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
       '/(node-version:\s)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
