@@ -94,7 +94,30 @@ class Env {
     // Replace all # not inside quotes.
     $contents = preg_replace('/#(?=(?:(?:[^"]*"){2})*[^"]*$)/', ';', $contents);
 
-    return parse_ini_string($contents) ?: [];
+    set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$errors): bool {
+      $errors[] = [
+        'errno' => $errno,
+        'message' => $errstr,
+        'file' => $errfile,
+        'line' => $errline,
+      ];
+
+      return TRUE;
+    });
+
+    $result = parse_ini_string($contents);
+
+    restore_error_handler();
+
+    if ($result === FALSE) {
+      $message = array_reduce($errors ?? [], function (string $carry, array $error): string {
+        return $carry . $error['message'] . PHP_EOL;
+      }, '');
+
+      throw new \RuntimeException(sprintf('Unable to parse file %s: %s', $filename, $message));
+    }
+
+    return $result;
   }
 
   /**
