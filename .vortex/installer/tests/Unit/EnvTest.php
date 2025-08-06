@@ -200,6 +200,106 @@ class EnvTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderParseDotenv')]
+  public function testParseDotenv(string $content, ?array $expected, ?string $exception_message): void {
+    $filename = $this->createFixtureEnvFile($content);
+
+    if (!$filename) {
+      $this->fail('Failed to create fixture file.');
+    }
+
+    if ($exception_message) {
+      $this->expectException(\RuntimeException::class);
+      $this->expectExceptionMessageMatches('/' . preg_quote($exception_message, '/') . '/');
+    }
+
+    $result = Env::parseDotenv($filename);
+
+    if (!$exception_message) {
+      $this->assertEquals($expected, $result);
+    }
+
+    unlink($filename);
+  }
+
+  public static function dataProviderParseDotenv(): array {
+    return [
+      // Valid .env content.
+      ['VAR1=value1', ['VAR1' => 'value1'], NULL],
+      ["VAR1=value1\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL],
+      ['VAR="quoted value"', ['VAR' => 'quoted value'], NULL],
+      ['VAR=', ['VAR' => ''], NULL],
+      ['', [], NULL],
+
+      // Valid content with comments.
+      ["VAR1=value1\n# This is a comment\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL],
+      ['VAR="value with # in quotes"', ['VAR' => 'value with # in quotes'], NULL],
+
+      // Invalid .env content that should throw exceptions.
+      ['VAR[invalid', NULL, 'Unable to parse file'],
+      ['VAR=value1' . "\n" . 'INVALID[bracket', NULL, 'Unable to parse file'],
+      ["VAR1=value1\nVAR2[invalid=value2", NULL, 'Unable to parse file'],
+    ];
+  }
+
+  public function testParseDotenvFileNotReadable(): void {
+    $result = Env::parseDotenv('/nonexistent/file.env');
+    $this->assertEquals([], $result);
+  }
+
+  public function testParseDotenvFileReadFailure(): void {
+    // Create a file we can't read.
+    $filename = tempnam(sys_get_temp_dir(), '.env');
+    file_put_contents($filename, 'VAR=value');
+    chmod($filename, 0000);
+
+    $result = Env::parseDotenv($filename);
+    $this->assertEquals([], $result);
+
+    // Clean up.
+    chmod($filename, 0644);
+    unlink($filename);
+  }
+
+  #[DataProvider('dataProviderToValue')]
+  public function testToValue(string $input, mixed $expected): void {
+    $result = Env::toValue($input);
+    $this->assertSame($expected, $result);
+  }
+
+  public static function dataProviderToValue(): array {
+    return [
+      // String constants.
+      ['true', TRUE],
+      ['false', FALSE],
+      ['null', NULL],
+
+      // Numeric values.
+      ['123', 123],
+      ['0', 0],
+      ['-456', -456],
+
+      // Regular strings.
+      ['regular_string', 'regular_string'],
+      ['non-numeric', 'non-numeric'],
+
+      // List values (contains comma).
+      ['item1,item2,item3', ['item1', 'item2', 'item3']],
+      ['single,item', ['single', 'item']],
+    ];
+  }
+
+  public function testPut(): void {
+    $name = 'TEST_PUT_VAR';
+    $value = 'test_value';
+
+    Env::put($name, $value);
+
+    $this->assertEquals($value, getenv($name));
+
+    putenv($name);
+  }
+
   protected function createFixtureEnvFile(string $content): string|false {
     $filename = tempnam(sys_get_temp_dir(), '.env');
     file_put_contents($filename, $content);
