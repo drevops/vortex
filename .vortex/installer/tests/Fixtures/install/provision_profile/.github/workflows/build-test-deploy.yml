@@ -40,7 +40,7 @@
 -        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 -
 -      - name: Check out code
--        uses: actions/checkout@__HASH__ # v4
+-        uses: actions/checkout@__HASH__ # __VERSION__
 -        with:
 -          # Do not keep SSH credentials after checkout to allow custom.
 -          persist-credentials: false
@@ -75,7 +75,7 @@
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
--        uses: actions/cache/restore@__HASH__ # v4
+-        uses: actions/cache/restore@__HASH__ # __VERSION__
 -        with:
 -          path: .data
 -          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
@@ -105,7 +105,7 @@
 -      # Note that the cache fallback flag is enabled for this case in order
 -      # to save cache even if the fallback is not used when restoring it.
 -      - name: Save DB cache
--        uses: actions/cache/save@__HASH__ # v4
+-        uses: actions/cache/save@__HASH__ # __VERSION__
 -        if: env.db_hash != hashFiles('.data')
 -        with:
 -          path: .data
@@ -151,7 +151,7 @@
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
--        uses: actions/cache/restore@__HASH__ # v4
+-        uses: actions/cache/restore@__HASH__ # __VERSION__
 -        with:
 -          path: .data
 -          fail-on-cache-miss: true

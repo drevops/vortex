@@ -75,7 +75,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@__HASH__ # v4
+        uses: actions/checkout@__HASH__ # __VERSION__
         with:
           # Do not keep SSH credentials after checkout to allow custom.
           persist-credentials: false
@@ -110,7 +110,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@__HASH__ # v4
+        uses: actions/cache/restore@__HASH__ # __VERSION__
         with:
           path: .data
           key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
@@ -140,7 +140,7 @@ jobs:
       # Note that the cache fallback flag is enabled for this case in order
       # to save cache even if the fallback is not used when restoring it.
       - name: Save DB cache
-        uses: actions/cache/save@__HASH__ # v4
+        uses: actions/cache/save@__HASH__ # __VERSION__
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
@@ -183,7 +183,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@__HASH__ # v4
+        uses: actions/checkout@__HASH__ # __VERSION__
 
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
@@ -206,7 +206,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@__HASH__ # v4
+        uses: actions/cache/restore@__HASH__ # __VERSION__
         with:
           path: .data
           fail-on-cache-miss: true
@@ -322,7 +322,7 @@ jobs:
           fi
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@__HASH__ # v4
+        uses: actions/upload-artifact@__HASH__ # __VERSION__
         if: always()
         with:
           name: test-artifacts-${{ matrix.instance }}
@@ -331,7 +331,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@__HASH__ # v5
+        uses: codecov/codecov-action@__HASH__ # __VERSION__
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
           directory: .logs/coverage
@@ -341,7 +341,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload exported codebase as artifact
-        uses: actions/upload-artifact@__HASH__ # v4
+        uses: actions/upload-artifact@__HASH__ # __VERSION__
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
         with:
           name: code-artifact
@@ -352,7 +352,7 @@ jobs:
 
       - name: Setup tmate session
         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
-        uses: mxschmitt/action-tmate@__HASH__ # v3
+        uses: mxschmitt/action-tmate@__HASH__ # __VERSION__
         timeout-minutes: 120 # Cancel the action after 15 minutes, regardless of whether a connection has been established.
         with:
           detached: true
@@ -375,7 +375,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Checkout code
-        uses: actions/checkout@__HASH__ # v4
+        uses: actions/checkout@__HASH__ # __VERSION__
         with:
           # Fetch all history for git repository.
           fetch-depth: 0
@@ -385,7 +385,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Download exported codebase as an artifact
-        uses: actions/download-artifact@__HASH__ # v4
+        uses: actions/download-artifact@__HASH__ # __VERSION__
         with:
           name: code-artifact
           path: "/tmp/workspace/code"

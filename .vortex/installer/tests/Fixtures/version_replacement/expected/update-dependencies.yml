@@ -16,6 +16,10 @@ jobs:
         uses: actions/checkout@__VERSION__
 
       - uses: suzuki-shunsuke/github-action-renovate-config-validator@__HASH__ # __VERSION__
+      
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__HASH__ # __VERSION__
+      
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@__HASH__ # __VERSION__
         
       - name: Setup Node.js
         uses: actions/setup-node@__VERSION__
