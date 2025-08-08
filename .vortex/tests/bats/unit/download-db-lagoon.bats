@@ -21,6 +21,8 @@ load ../_helper.bash
     "[INFO] Started SSH setup."
     "Found variable VORTEX_DB_DOWNLOAD_SSH_FILE with value false."
 
+    "- Database dump refresh requested. Will create a new dump."
+
     # Mock SSH command to create/check database dump on remote
     "@ssh * # 0 # > Creating a database dump /tmp/db_$(date +%Y%m%d).sql."
 
@@ -73,6 +75,8 @@ load ../_helper.bash
     "[INFO] Started SSH setup."
     "Found variable VORTEX_DB_DOWNLOAD_SSH_FILE with value false."
 
+    "- Database dump refresh requested. Will create a new dump."
+
     # Mock SSH command that finds existing dump
     "@ssh * # 0 # > Using existing dump /tmp/db_$(date +%Y%m%d).sql."
 
@@ -124,6 +128,8 @@ load ../_helper.bash
     "[INFO] Started SSH setup."
     "Found variable VORTEX_DB_DOWNLOAD_SSH_FILE with value false."
 
+    "Database dump refresh requested. Will create a new dump."
+
     # Mock SSH command that refreshes dump (removes old, creates new)
     "@ssh * # 0 # Removed previously created DB dumps.\\n      > Creating a database dump /tmp/db_$(date +%Y%m%d).sql."
 
@@ -137,7 +143,7 @@ load ../_helper.bash
 
   export LAGOON_PROJECT="testproject"
   export VORTEX_DB_DOWNLOAD_ENVIRONMENT="main"
-  export VORTEX_DB_DOWNLOAD_REFRESH="1"
+  export VORTEX_DB_DOWNLOAD_NO_CACHE="1"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 

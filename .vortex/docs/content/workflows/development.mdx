@@ -45,7 +45,10 @@ ahoy provision
 
 To fetch the database with the latest data from the production environment,
 use the `ahoy fetch-db` command, which will download the latest database
-dump from the production environment into a `.data` directory.
+dump from the production environment into a `.data` directory. If there was a
+download attempt on the same day (locally or from CI), it will download the
+cached database dump. Use `ahoy fetch-db --no-cache` to create a new database
+dump regardless of the cache.
 
 :::note
 
