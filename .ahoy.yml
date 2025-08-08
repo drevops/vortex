@@ -120,9 +120,11 @@ commands:
 
   #;< !PROVISION_TYPE_PROFILE
   download-db:
-    usage: Download database.
+    usage: Download database. Run with "--no-cache" option to force fresh database backup.
     aliases: ['fetch-db']
-    cmd: ./scripts/vortex/download-db.sh
+    cmd: |
+      case " $* " in *" --no-cache "*) export VORTEX_DB_DOWNLOAD_NO_CACHE=1;; esac
+      ./scripts/vortex/download-db.sh
   #;> !PROVISION_TYPE_PROFILE
 
   reload-db:

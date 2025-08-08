@@ -23,7 +23,7 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Flag to download a fresh copy of the database.
-VORTEX_DB_DOWNLOAD_REFRESH="${VORTEX_DB_DOWNLOAD_REFRESH:-}"
+VORTEX_DB_DOWNLOAD_NO_CACHE="${VORTEX_DB_DOWNLOAD_NO_CACHE:-}"
 
 # Lagoon project name.
 LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
@@ -84,8 +84,6 @@ for cmd in ssh rsync; do command -v "${cmd}" >/dev/null || {
 
 info "Started database dump download from Lagoon."
 
-mkdir -p "${VORTEX_DB_DIR}"
-
 # Try to read credentials from the credentials file.
 if [ -f ".env.local" ]; then
   # shellcheck disable=SC1090
@@ -103,6 +101,15 @@ if [ "${VORTEX_DB_DOWNLOAD_SSH_FILE:-}" != false ]; then
   ssh_opts+=(-i "${VORTEX_DB_DOWNLOAD_SSH_FILE}")
 fi
 
+if [ ! -d "${VORTEX_DB_DIR}" ]; then
+  task "Creating directory for database dumps."
+  mkdir -p "${VORTEX_DB_DIR}"
+fi
+
+if [ "$VORTEX_DB_DOWNLOAD_NO_CACHE" == "1" ]; then
+  note "Database dump refresh requested. Will create a new dump."
+fi
+
 # Initiates an SSH connection to a remote server using provided SSH options.
 # On the server:
 # 1. Checks for the existence of a specific database dump file.
@@ -113,7 +120,7 @@ fi
 ssh \
   "${ssh_opts[@]}" \
   "${VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER}@${VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST}" service=cli container=cli \
-  "if [ ! -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${VORTEX_DB_DOWNLOAD_REFRESH}\" == \"1\" ] ; then \
+  "if [ ! -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${VORTEX_DB_DOWNLOAD_NO_CACHE}\" == \"1\" ] ; then \
      [ -n \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}\"\/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
      echo \"      > Creating a database dump ${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
      /app/vendor/bin/drush --root=./${WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
