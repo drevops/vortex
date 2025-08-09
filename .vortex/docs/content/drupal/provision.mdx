@@ -82,7 +82,7 @@ You can control the provisioning flow using the following environment variables:
 1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
 2. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
 3. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
-4. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `drush sql:cli < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/><br/>
+4. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `$(drush sql:connect) < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/><br/>
 5. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
 6. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
 
