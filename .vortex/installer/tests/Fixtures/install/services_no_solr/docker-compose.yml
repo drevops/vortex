@@ -12,12 +12,12 @@
 -        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
+-    volumes:
+-      - solr:/var/solr
 -    depends_on:
 -      - cli
 -    ports:
--      - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
--    volumes:
--      - solr:/var/solr
+-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 -
    clamav:
      build:

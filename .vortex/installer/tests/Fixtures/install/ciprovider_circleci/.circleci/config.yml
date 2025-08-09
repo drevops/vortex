@@ -234,6 +234,12 @@ jobs:
             done
 
       - run:
+          name: Lint Docker Compose files with DCLint
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Build stack
           command: docker compose up -d
 

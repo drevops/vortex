@@ -239,6 +239,11 @@ jobs:
           done
         continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
 
+      - name: Lint Docker Compose files with DCLint
+        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        run: docker run --rm -v "${PWD}":/app zavoloklom/dclint:3.1.0 .
+        continue-on-error: ${{ vars.VORTEX_CI_DCLINT_IGNORE_FAILURE == '1' }}
+
       - name: Build stack
         run: docker compose up -d
 
