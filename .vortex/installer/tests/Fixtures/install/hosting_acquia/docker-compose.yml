@@ -1,4 +1,4 @@
-@@ -21,10 +21,10 @@
+@@ -65,10 +65,10 @@
      # All application files mounted into container.
      - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
      # Override mount for files to allow different type of syncing for optimised performance.
@@ -9,5 +9,5 @@
 -    ##- files:/app/web/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
 +    ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
  
- # The default user under which the containers should run.
- x-user: &default-user
+ # ------------------------------------------------------------------------------
+ # Services.

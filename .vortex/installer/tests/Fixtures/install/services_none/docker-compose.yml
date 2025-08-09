@@ -1,15 +1,15 @@
-@@ -67,8 +67,6 @@
+@@ -50,8 +50,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
 -  # Valkey integration flag.
 -  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
  
- # ------------------------------------------------------------------------------
- # Services.
+ # The default user under which the containers should run.
+ x-user: &default-user
 @@ -144,37 +142,6 @@
      ports:
-       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+       - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
 -  valkey:
 -    image: uselagoon/valkey-8:__VERSION__
@@ -24,32 +24,34 @@
 -        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
+-    volumes:
+-      - solr:/var/solr
 -    depends_on:
 -      - cli
 -    ports:
--      - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
--    volumes:
--      - solr:/var/solr
+-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 -
 -  clamav:
 -    build:
 -      context: .
 -      dockerfile: .docker/clamav.dockerfile
--    ports:
--      - "3310" # Find port on host with `docker compose port clamav 3310`.
 -    environment:
--      << : *default-environment
+-      <<: *default-environment
+-    ports:
+-      - '3310' # Find port on host with `docker compose port clamav 3310`.
 -    networks:
 -      - default
 -
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -193,8 +160,7 @@
+@@ -191,10 +158,9 @@
+   wait_dependencies:
+     image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
+-      - clamav
        - cli
        - database
--      - clamav
 -    command: database:3306 clamav:3310
 +    command: database:3306
  

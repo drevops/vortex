@@ -1,16 +1,16 @@
-@@ -67,8 +67,6 @@
+@@ -50,8 +50,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
 -  # Valkey integration flag.
 -  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
  
- # ------------------------------------------------------------------------------
- # Services.
+ # The default user under which the containers should run.
+ x-user: &default-user
 @@ -143,9 +141,6 @@
-       <<: *default-environment
+     <<: *default-user
      ports:
-       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+       - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
 -
 -  valkey:
 -    image: uselagoon/valkey-8:__VERSION__
