@@ -89,7 +89,7 @@ if [ "${VORTEX_NOTIFY_EVENT}" = "pre_deployment" ]; then
     -H "Accept: application/vnd.github.v3+json" \
     -s \
     "https://api.github.com/repos/${VORTEX_NOTIFY_REPOSITORY}/deployments" \
-    -d "{\"ref\":\"${VORTEX_NOTIFY_BRANCH}\", \"environment\": \"${VORTEX_NOTIFY_ENVIRONMENT_TYPE}\", \"auto_merge\": false}")"
+    -d "{\"ref\":\"${VORTEX_NOTIFY_BRANCH}\", \"environment\": \"${VORTEX_NOTIFY_ENVIRONMENT_TYPE}\", \"auto_merge\": false, \"required_contexts\": []}")"
 
   deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
 

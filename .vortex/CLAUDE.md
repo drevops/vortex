@@ -123,24 +123,24 @@ yarn lint
 yarn lint-fix
 ```
 
-**Template Tests** (`.vortex/tests/`):
+**Template Tests** (`.vortex/`):
 ```bash
-cd .vortex/tests
+cd .vortex
 
-# PHP dependencies
-composer install
-
-# Node.js dependencies (for BATS)
-yarn install
+# Install all dependencies (PHP, Node.js, BATS)
+ahoy install
 
 # Run PHPUnit tests
-./vendor/bin/phpunit
+cd tests && ./vendor/bin/phpunit
 
-# Run BATS tests
-bats bats/provision.bats
+# Run BATS tests - use ahoy from .vortex/ directory
+ahoy test-bats -- tests/bats/unit/notify.bats          # Specific test file
+ahoy test-bats -- tests/bats/provision.bats            # Another test file
+ahoy test-bats -- --verbose-run tests/bats/unit/       # Verbose output for directory
+ahoy test-bats -- tests/bats/                          # All BATS tests
 
-# Run with verbose output
-bats --verbose-run bats/provision.bats
+# Alternative: direct bats command (after ahoy install)
+bats tests/bats/unit/notify.bats
 ```
 
 ## Installer Fixture System
@@ -291,18 +291,23 @@ yarn test           # Run all tests
 yarn test:watch     # Watch mode for development
 ```
 
-**Template Testing** (`.vortex/tests/`):
+**Template Testing** (`.vortex/`):
 ```bash
-# From .vortex/tests/
-composer install
-composer lint       # Code linting
-composer test       # Run all tests
+# From .vortex/
+ahoy install        # Install all dependencies
+ahoy lint           # Code linting
+ahoy test           # Run all tests
 
 # Individual test suites
+cd tests
 ./test.common.sh     # Common tests
 ./test.deployment.sh # Deployment tests
 ./test.workflow.sh   # Workflow tests
 ./lint.scripts.sh    # Shell script linting
+
+# BATS testing (from .vortex/)
+ahoy test-bats -- tests/bats/unit/notify.bats    # Specific test
+ahoy test-bats -- tests/bats/                    # All BATS tests
 ```
 
 ## Environment Variables
