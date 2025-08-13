@@ -27,7 +27,7 @@ trait ReflectionTrait {
    * @return mixed
    *   Method result.
    */
-  protected static function callProtectedMethod(object|string $object, string $name, array $args = []) {
+  protected static function callProtectedMethod(object|string $object, string $name, array $args = []): mixed {
     $object_or_class = is_object($object) ? $object::class : $object;
 
     if (!class_exists($object_or_class)) {
@@ -42,11 +42,6 @@ trait ReflectionTrait {
 
     $method = $class->getMethod($name);
 
-    $original_accessibility = $method->isPublic();
-
-    // Set method accessibility to true, so it can be invoked.
-    $method->setAccessible(TRUE);
-
     // If the method is static, we won't pass an object instance to invokeArgs()
     // Otherwise, we ensure to pass the object instance.
     $invoke_object = $method->isStatic() ? NULL : (is_object($object) ? $object : NULL);
@@ -56,12 +51,7 @@ trait ReflectionTrait {
       throw new \InvalidArgumentException("An object instance is required for non-static methods");
     }
 
-    $result = $method->invokeArgs($invoke_object, $args);
-
-    // Reset the method's accessibility to its original state.
-    $method->setAccessible($original_accessibility);
-
-    return $result;
+    return $method->invokeArgs($invoke_object, $args);
   }
 
   /**
@@ -70,7 +60,6 @@ trait ReflectionTrait {
   protected static function setProtectedValue(object $object, string $property, mixed $value): void {
     $class = new \ReflectionClass($object::class);
     $property = $class->getProperty($property);
-    $property->setAccessible(TRUE);
 
     $property->setValue($object, $value);
   }
@@ -89,7 +78,6 @@ trait ReflectionTrait {
   protected static function getProtectedValue($object, $property): mixed {
     $class = new \ReflectionClass($object::class);
     $property = $class->getProperty($property);
-    $property->setAccessible(TRUE);
 
     return $property->getValue($class);
   }
