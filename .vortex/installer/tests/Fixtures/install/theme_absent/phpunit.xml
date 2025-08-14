@@ -1,4 +1,4 @@
-@@ -61,15 +61,12 @@
+@@ -63,15 +63,12 @@
          <testsuite name="unit">
              <directory>tests/phpunit</directory>
              <directory>web/modules/custom/*/tests/src/Unit</directory>
@@ -14,7 +14,7 @@
          </testsuite>
  
          <!-- Not implemented. -->
-@@ -98,7 +95,6 @@
+@@ -100,7 +97,6 @@
      <source>
          <include>
              <directory>web/modules/custom</directory>
@@ -22,7 +22,7 @@
              <directory>web/sites/default/includes</directory>
              <directory>web/sites/default/settings.php</directory>
          </include>
-@@ -105,8 +101,6 @@
+@@ -107,8 +103,6 @@
          <exclude>
              <directory suffix="Test.php">web/modules/custom</directory>
              <directory>web/modules/custom/*/node_modules</directory>

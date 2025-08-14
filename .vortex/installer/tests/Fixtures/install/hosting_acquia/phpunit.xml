@@ -7,7 +7,7 @@
           colors="true"
           beStrictAboutTestsThatDoNotTestAnything="true"
           beStrictAboutOutputDuringTests="true"
-@@ -60,16 +60,16 @@
+@@ -62,16 +62,16 @@
      <testsuites>
          <testsuite name="unit">
              <directory>tests/phpunit</directory>
@@ -30,7 +30,7 @@
          </testsuite>
  
          <!-- Not implemented. -->
-@@ -97,16 +97,16 @@
+@@ -99,16 +99,16 @@
      </coverage>
      <source>
          <include>
