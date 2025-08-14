@@ -268,6 +268,8 @@ assert_files_not_present_common() {
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_base"
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
   assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
+  assert_file_not_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/example.services.local.yml"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
   assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Unit/YourSiteExampleUnitTest.php"
@@ -518,11 +520,11 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/sites/default/default.settings.php"
   assert_file_exists "${webroot}/sites/default/default.services.yml"
 
-  assert_file_exists "${webroot}/sites/default/default.settings.local.php"
-  assert_file_mode "${webroot}/sites/default/default.settings.local.php" "644"
+  assert_file_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_mode "${webroot}/sites/default/example.settings.local.php" "644"
 
-  assert_file_exists "${webroot}/sites/default/default.services.local.yml"
-  assert_file_mode "${webroot}/sites/default/default.services.local.yml" "644"
+  assert_file_exists "${webroot}/sites/default/example.services.local.yml"
+  assert_file_mode "${webroot}/sites/default/example.services.local.yml" "644"
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
@@ -1168,10 +1170,10 @@ create_development_settings() {
   substep "Create development settings"
   assert_file_not_exists "${webroot}/sites/default/settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/services.local.yml"
-  assert_file_exists "${webroot}/sites/default/default.settings.local.php"
-  assert_file_exists "${webroot}/sites/default/default.services.local.yml"
-  cp "${webroot}/sites/default/default.settings.local.php" "${webroot}/sites/default/settings.local.php"
-  cp "${webroot}/sites/default/default.services.local.yml" "${webroot}/sites/default/services.local.yml"
+  assert_file_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_exists "${webroot}/sites/default/example.services.local.yml"
+  cp "${webroot}/sites/default/example.settings.local.php" "${webroot}/sites/default/settings.local.php"
+  cp "${webroot}/sites/default/example.services.local.yml" "${webroot}/sites/default/services.local.yml"
   assert_file_exists "${webroot}/sites/default/settings.local.php"
   assert_file_exists "${webroot}/sites/default/services.local.yml"
 }

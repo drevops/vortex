@@ -17,6 +17,8 @@ docroot/sites/default/files
 docroot/sites/simpletest
 
 # Ignore non-production Drupal Scaffold files.
+docroot/sites/default/example.services.local.yml
+docroot/sites/default/example.settings.local.php
 docroot/sites/default/default.services.local.yml
 docroot/sites/default/default.settings.local.php
 

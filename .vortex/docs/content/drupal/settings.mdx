@@ -251,24 +251,24 @@ Each settings file should:
 At the end of the `settings.php`, there is an option to include additional local
 settings. This allows you to override some settings for the local
 environment without affecting the main configuration. You can
-copy `default.settings.local.php` and `default.services.local.yml`
+copy `example.settings.local.php` and `example.services.local.yml`
 to `settings.local.php` and `services.local.yml`, respectively, to utilize this
 functionality.
 
-import LocalSettingsExample from '!!raw-loader!./../../../../web/sites/default/default.settings.local.php';
+import LocalSettingsExample from '!!raw-loader!./../../../../web/sites/default/example.settings.local.php';
 
 <details>
-  <summary>Click here to see the contents of the `default.settings.local.php` file</summary>
+  <summary>Click here to see the contents of the `example.settings.local.php` file</summary>
 
   <CodeBlock language="php">{LocalSettingsExample}</CodeBlock>
 
 </details>
 
 
-import LocalServicesExample from '!!raw-loader!./../../../../web/sites/default/default.services.local.yml';
+import LocalServicesExample from '!!raw-loader!./../../../../web/sites/default/example.services.local.yml';
 
 <details>
-  <summary>Click here to see the contents of the `default.services.local.yml` file</summary>
+  <summary>Click here to see the contents of the `example.services.local.yml` file</summary>
 
   <CodeBlock language="php">{LocalServicesExample}</CodeBlock>
 

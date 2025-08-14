@@ -4,7 +4,7 @@
  * @file
  * Drupal site-specific configuration file.
  *
- * Copy `default.settings.local.php` and `default.services.local.yml` to
+ * Copy `example.settings.local.php` and `example.services.local.yml` to
  * `settings.local.php` and `services.local.yml` respectively to
  * enable local overrides.
  *
@@ -171,7 +171,7 @@ if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
 
 // Load local override configuration, if available.
 //
-// Copy `default.settings.local.php` and `default.services.local.yml` to
+// Copy `example.settings.local.php` and `example.services.local.yml` to
 // `settings.local.php` and `services.local.yml` respectively to enable local
 // overrides.
 //

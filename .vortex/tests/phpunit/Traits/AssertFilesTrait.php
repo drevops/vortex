@@ -52,8 +52,8 @@ trait AssertFilesTrait {
     Assert::assertDirectoryDoesNotExist($webroot . '/themes/custom/your_site_theme');
 
     // Example settings files that should not exist.
-    Assert::assertFileDoesNotExist($webroot . '/sites/default/default.settings.local.php');
-    Assert::assertFileDoesNotExist($webroot . '/sites/default/default.services.local.yml');
+    Assert::assertFileDoesNotExist($webroot . '/sites/default/example.settings.local.php');
+    Assert::assertFileDoesNotExist($webroot . '/sites/default/example.services.local.yml');
 
     // Documentation and CI files that should not exist in some contexts.
     Assert::assertFileDoesNotExist('docs/faqs.md');
@@ -271,8 +271,8 @@ trait AssertFilesTrait {
     Assert::assertDirectoryExists($webroot . '/sites/default/includes/');
     Assert::assertFileExists($webroot . '/sites/default/default.settings.php');
     Assert::assertFileExists($webroot . '/sites/default/default.services.yml');
-    Assert::assertFileExists($webroot . '/sites/default/default.settings.local.php');
-    Assert::assertFileExists($webroot . '/sites/default/default.services.local.yml');
+    Assert::assertFileExists($webroot . '/sites/default/example.settings.local.php');
+    Assert::assertFileExists($webroot . '/sites/default/example.services.local.yml');
 
     // Assert all stub strings were replaced - these should not exist in any
     // files.
@@ -321,11 +321,11 @@ trait AssertFilesTrait {
   }
 
   protected function createDevelopmentDrupalSettings(string $webroot = 'web'): void {
-    Assert::assertFileExists($webroot . '/sites/default/default.settings.local.php');
-    Assert::assertFileExists($webroot . '/sites/default/default.services.local.yml');
+    Assert::assertFileExists($webroot . '/sites/default/example.settings.local.php');
+    Assert::assertFileExists($webroot . '/sites/default/example.services.local.yml');
 
-    File::copy($webroot . '/sites/default/default.settings.local.php', $webroot . '/sites/default/settings.local.php');
-    File::copy($webroot . '/sites/default/default.services.local.yml', $webroot . '/sites/default/services.local.yml');
+    File::copy($webroot . '/sites/default/example.settings.local.php', $webroot . '/sites/default/settings.local.php');
+    File::copy($webroot . '/sites/default/example.services.local.yml', $webroot . '/sites/default/services.local.yml');
 
     Assert::assertFileExists($webroot . '/sites/default/settings.local.php');
     Assert::assertFileExists($webroot . '/sites/default/services.local.yml');
@@ -333,8 +333,8 @@ trait AssertFilesTrait {
 
   protected function removeDevelopmentDrupalSettings(string $webroot = 'web'): void {
     File::remove([
-      $webroot . '/sites/default/default.settings.local.php',
-      $webroot . '/sites/default/default.services.local.yml',
+      $webroot . '/sites/default/example.settings.local.php',
+      $webroot . '/sites/default/example.services.local.yml',
     ]);
   }
 

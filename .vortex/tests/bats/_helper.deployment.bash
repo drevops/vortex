@@ -67,6 +67,8 @@ assert_deployment_files_present() {
   # Settings files present.
   assert_file_exists "${webroot}/sites/default/settings.php"
   assert_file_exists "${webroot}/sites/default/services.yml"
+  assert_file_not_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/example.services.local.yml"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
 

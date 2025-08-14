@@ -190,7 +190,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['shield.settings']['shield_enable'] = FALSE;
-    $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
@@ -209,7 +208,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['maintenance_theme'] = 'claro';
-    $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
@@ -234,7 +232,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['shield.settings']['shield_enable'] = FALSE;
-    $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
@@ -253,7 +250,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['maintenance_theme'] = 'claro';
-    $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^example-site\.docker\.amazee\.io$',
