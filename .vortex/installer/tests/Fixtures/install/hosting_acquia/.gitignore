@@ -1,4 +1,4 @@
-@@ -5,45 +5,45 @@
+@@ -5,47 +5,47 @@
  # To add an override file, explicitly un-ignore it below and add to the
  # repository (useful for robots.txt and .htaccess file overrides).
  
@@ -18,6 +18,8 @@
 -web/sites/default/*
 -!web/sites/default/settings.php
 -!web/sites/default/services.yml
+-!web/sites/default/example.settings.local.php
+-!web/sites/default/example.services.local.yml
 -!web/sites/default/default.settings.local.php
 -!web/sites/default/default.services.local.yml
 -!web/sites/default/includes
@@ -37,6 +39,8 @@
 +docroot/sites/default/*
 +!docroot/sites/default/settings.php
 +!docroot/sites/default/services.yml
++!docroot/sites/default/example.settings.local.php
++!docroot/sites/default/example.services.local.yml
 +!docroot/sites/default/default.settings.local.php
 +!docroot/sites/default/default.services.local.yml
 +!docroot/sites/default/includes

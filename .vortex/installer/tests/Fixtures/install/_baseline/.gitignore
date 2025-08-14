@@ -21,6 +21,8 @@ web/profiles/*
 web/sites/default/*
 !web/sites/default/settings.php
 !web/sites/default/services.yml
+!web/sites/default/example.settings.local.php
+!web/sites/default/example.services.local.yml
 !web/sites/default/default.settings.local.php
 !web/sites/default/default.services.local.yml
 !web/sites/default/includes
