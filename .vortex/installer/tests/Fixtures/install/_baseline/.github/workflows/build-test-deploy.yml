@@ -188,6 +188,9 @@ jobs:
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
 
+      - name: Load environment variables from .env
+        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+
       - name: Validate Composer configuration
         run: composer validate --strict
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
@@ -235,7 +238,7 @@ jobs:
         run: docker compose up -d
 
       - name: Export built codebase
-        if: matrix.instance == 0
+        if: matrix.instance == 0 && contains(env.VORTEX_DEPLOY_TYPES, 'artifact')
         run: |
           mkdir -p "/tmp/workspace/code"
           docker compose cp -L cli:"/app/." "/tmp/workspace/code"
@@ -347,7 +350,7 @@ jobs:
 
       - name: Upload exported codebase as artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__
-        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
           path: "/tmp/workspace/code"
@@ -389,8 +392,12 @@ jobs:
           persist-credentials: false
           ref: ${{ github.head_ref || github.ref_name }}
 
+      - name: Load environment variables from .env
+        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+
       - name: Download exported codebase as an artifact
         uses: actions/download-artifact@__HASH__ # __VERSION__
+        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
           path: "/tmp/workspace/code"
