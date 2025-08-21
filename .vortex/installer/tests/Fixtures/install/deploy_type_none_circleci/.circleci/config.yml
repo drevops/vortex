@@ -71,7 +71,6 @@ aliases:
     # Change to 'large' for faster builds.
     resource_class: medium
 
-  # Set up remote Docker.
   - &step_setup_remote_docker
     setup_remote_docker:
       # Docker Layer Caching allows to significantly speed up builds by caching
@@ -80,13 +79,18 @@ aliases:
       docker_layer_caching: false
       version: default
 
-  # Process the codebase to be run in CI environment.
   - &step_process_codebase_for_ci
     run:
       name: Process codebase to run in CI
       command: |
         find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
         mkdir -p /tmp/workspace/code
+
+  - &load_variables_from_dotenv
+    run:
+      name: Load environment variables from .env file
+      # Load variables from .env file, respecting existing values, and make them available for the next steps.
+      command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
 ################################################################################
 # PARAMETERS
@@ -120,6 +124,7 @@ jobs:
 
       - checkout
       - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
       - *step_setup_remote_docker
 
       - run:
@@ -200,6 +205,7 @@ jobs:
 
       - checkout
       - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
 
       - run:
           name: Validate Composer configuration
@@ -246,6 +252,7 @@ jobs:
       - run:
           name: Export built codebase
           command: |
+            echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
             mkdir -p "/tmp/workspace/code"
             docker compose cp -L cli:"/app/." "/tmp/workspace/code"
             du -sh "/tmp/workspace/code"
