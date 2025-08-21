@@ -1,4 +1,4 @@
-@@ -20,8 +20,8 @@
+@@ -21,8 +21,8 @@
  $ruleset->addRule(new TwigCsFixer\Rules\Whitespace\TrailingSpaceRule());
  
  $finder = new TwigCsFixer\File\Finder();
