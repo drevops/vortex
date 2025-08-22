@@ -1,0 +1,29 @@
+# Default state for all rules
+default: true
+
+# Path to configuration file to extend
+extends: null
+
+# MD004/ul-style : Unordered list style : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md004.md
+MD004:
+  style: "dash"
+
+# MD013/line-length : Line length : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md013.md
+MD013: false
+
+# MD024/no-duplicate-heading : Multiple headings with the same content : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md024.md
+MD024: false
+
+# MD033/no-inline-html : Inline HTML : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md033.md
+MD033: false
+
+# MD034/no-bare-urls : Bare URL used : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md034.md
+MD034: false
+
+# MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md041.md
+MD041: false
+
+# MD046/code-block-style : Code block style : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md046.md
+MD046:
+  # Block style
+  style: "fenced"

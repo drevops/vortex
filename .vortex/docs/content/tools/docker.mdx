@@ -15,11 +15,11 @@ that make this possible.
 
 :::info
 
-    Lagoon images are **production-grade** and are used in production environments.
-    They receive regular updates and are maintained by the Lagoon team.
+Lagoon images are **production-grade** and are used in production environments.
+They receive regular updates and are maintained by the Lagoon team.
 
-    If you are using Lagoon as your hosting provider, then all of your
-    environments are using identical images to run the project.
+If you are using Lagoon as your hosting provider, then all of your
+environments are using identical images to run the project.
 
 :::
 
@@ -27,8 +27,8 @@ that make this possible.
 
 :::note
 
-    Below is a brief overview of Docker and Docker Compose. For more information,
-    see the official documentation.
+Below is a brief overview of Docker and Docker Compose. For more information,
+see the official documentation.
 
 :::
 
@@ -165,12 +165,12 @@ Any other variables should be defined in the `.env` file.
 
 Consider the example:
 
-```
-  TZ: ${TZ:-UTC}
-  # Local development URL.
-  VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
-  # Local development route used in Lagoon images and Pygmy to route requests.
-  LAGOON_ROUTE: *default-url
+```bash
+TZ: ${TZ:-UTC}
+# Local development URL.
+VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+# Local development route used in Lagoon images and Pygmy to route requests.
+LAGOON_ROUTE: *default-url
 ```
 
 where
@@ -178,11 +178,11 @@ where
 - `TZ: ${TZ:-UTC}` - defines a variable `TZ` with a
   default value of `UTC`, but only if `TZ` variable is
   not defined.
-- `VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io`
-  - defines a variable `VORTEX_LOCALDEV_URL` with a default value of
-    `${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io`, but only if
-    `VORTEX_LOCALDEV_URL` variable is not defined. The value of the variable
-    is also stored in a YAML anchor `default-url` for later use.
+- `VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - defines
+   a variable `VORTEX_LOCALDEV_URL` with a default value of
+  `${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io`, but only if
+  `VORTEX_LOCALDEV_URL` variable is not defined. The value of the variable
+  is also stored in a YAML anchor `default-url` for later use.
 - `LAGOON_ROUTE: *default-url` - defines a variable `LAGOON_ROUTE` with a value
   of `*default-url`, which is a reference to the `default-url` YAML anchor
   defined above.
@@ -219,9 +219,9 @@ Vortex:
   number.
 - `clamav` - an optional container that runs a ClamAV antivirus server. This
   container is used to scan uploaded files for viruses.
-  - `chrome` - container that runs a Chrome browser. This container is
-    used to run Behat tests. It is based on the official Selenium image which has
-    additional required tools, like virtual desktop, installed.
+- `chrome` - container that runs a Chrome browser. This container is
+  used to run Behat tests. It is based on the official Selenium image which has
+  additional required tools, like virtual desktop, installed.
 - `wait_dependencies` - a container that runs a script to wait for applications
   within other containers to become available. Docker itself can coordinate
   startup of containers, but it does not know when the application within the

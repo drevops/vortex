@@ -29,6 +29,7 @@ executed by name.
 ## Example deploy hook
 
 ###
+
 ```php
 function ys_base_deploy_create_about_page(): string {
   $environment = \Drupal\Core\Site\Settings::get('environment');
@@ -62,6 +63,7 @@ function ys_base_deploy_create_about_page(): string {
 ```
 
 ### Debugging Commands
+
 ```bash
 # List available deploy hooks
 drush deploy:hook --list

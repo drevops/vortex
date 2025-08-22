@@ -190,9 +190,9 @@ const VerticalTabs = ({ children }) => {
           {tabs[activeTab] && (
             <div className="content-panel">
               <div className="content-header">
-                <h1>
+                <h2>
                   {tabs[activeTab].icon} {tabs[activeTab].title}
-                </h1>
+                </h2>
                 {tabs[activeTab].shortDesc && (
                   <p className="content-subtitle">
                     {tabs[activeTab].shortDesc}

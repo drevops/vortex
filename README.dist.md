@@ -1,6 +1,7 @@
 <div align="center">
 
 # YOURSITE
+
 Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;< CI_PROVIDER_CIRCLECI)
@@ -72,12 +73,12 @@ to Vortex progress. Remove this section once onboarding is finished.
 
 [//]: # (#;> HOSTING_LAGOON)
 
-
 [//]: # (#;< !PROVISION_TYPE_PROFILE)
 
 - `ahoy download-db`
 
 [//]: # (#;> !PROVISION_TYPE_PROFILE)
+
 - `pygmy up`
 - `ahoy build`
 

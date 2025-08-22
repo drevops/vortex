@@ -1,4 +1,4 @@
-@@ -8,8 +8,6 @@
+@@ -9,8 +9,6 @@
  ![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
  [![codecov](https://codecov.io/gh/star_wars_org/star_wars/graph/badge.svg)](https://codecov.io/gh/star_wars_org/star_wars)
  

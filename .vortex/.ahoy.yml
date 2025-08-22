@@ -54,6 +54,9 @@ commands:
   lint-dockerfiles:
     cmd: ./tests/lint.dockerfiles.sh
 
+  lint-markdown:
+    cmd: ./tests/lint.markdown.sh
+
   lint-docs:
     cmd: yarn --cwd=docs run lint
 
