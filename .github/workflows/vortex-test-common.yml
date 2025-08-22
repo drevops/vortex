@@ -72,6 +72,7 @@ jobs:
         run: |
           ./tests/lint.scripts.sh
           ./tests/lint.dockerfiles.sh
+          ./tests/lint.markdown.sh
         working-directory: .vortex
 
       # Special case to validate Renovate  configuration with the same action

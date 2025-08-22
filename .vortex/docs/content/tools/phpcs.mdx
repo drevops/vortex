@@ -21,7 +21,9 @@ https://github.com/squizlabs/PHP_CodeSniffer
 ```shell
 vendor/bin/phpcs
 ```
+
 or
+
 ```shell
 ahoy lint-be
 ```
@@ -31,7 +33,9 @@ ahoy lint-be
 ```shell
 vendor/bin/phpcbf
 ```
+
 or
+
 ```shell
 ahoy lint-fix
 ```
@@ -52,11 +56,13 @@ By default, PHPCS will check against the following rules:
 Targets include custom modules and themes, settings and tests.
 
 Adding or removing targets:
+
 ```xml
 <file>path/to/dir_or_file</file>
 ```
 
 Run checks against platform version specified in `composer.json` key `config.platform.php`:
+
 ```xml
 <config name="testVersion" value="8.1"/>
 ```
@@ -64,6 +70,7 @@ Run checks against platform version specified in `composer.json` key `config.pla
 ## Ignoring
 
 Ignoring rules **globally** takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/develop/phpcs.xml) file:
+
 ```xml
 <!-- Comment about why this rules is excluded. -->
 <rule ref="DrupalPractice.General.ClassName.ClassPrefix">
@@ -73,16 +80,19 @@ Ignoring rules **globally** takes place in the [`phpcs.xml`](https://github.com/
 ```
 
 To ignore **all PHPCS rules** within a file, place in the file header:
+
 ```php
 // phpcs:ignoreFile
 ```
 
 To ignore **a specific rule** within a file, place in the file header:
+
 ```php
 // phpcs:disable <rule_name>
 ```
 
 To ignore rule for the **code block**:
+
 ```php
 // phpcs:disable <rule_name>
 $a = 1;
@@ -90,6 +100,7 @@ $a = 1;
 ```
 
 To ignore only the current and the **next line**:
+
 ```php
 // phpcs:ignore
 $a = 1;

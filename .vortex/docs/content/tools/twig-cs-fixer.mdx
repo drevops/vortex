@@ -13,7 +13,9 @@ https://github.com/VincentLanglet/Twig-CS-Fixer
 ```shell
 vendor/bin/twig-cs-fixer
 ```
+
 or
+
 ```shell
 ahoy lint-fe
 ```
@@ -27,6 +29,7 @@ All global configuration takes place in the [`.twig-cs-fixer.php`](https://githu
 Targets include custom modules and themes.
 
 Adding or removing targets:
+
 ```php
 $finder = new TwigCsFixer\File\Finder();
 $finder->in(__DIR__ . '/web/modules/custom');
@@ -36,17 +39,20 @@ $finder->in(__DIR__ . '/web/themes/custom');
 ## Ignoring
 
 Ignoring rules **globally** takes place in the  [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/develop/.twig-cs-fixer.php) file:
+
 ```php
 $finder->exclude('myCustomDirectory');
 ```
 
 All errors have an identifier with the syntax: `A.B:C:D` with
+
 - `A`: The rule short name (mainly made from the class name)
 - `B`: The error identifier (like the error level or a specific name)
 - `C`: The line the error occurs
 - `D`: The position of the token in the line the error occurs
 
 The four parts are optional, all those format are working
+
 - `A`
 - `A.B`
 - `A.B:C`
@@ -59,11 +65,13 @@ If you need to know the errors identifier you have/want to ignore, you can run
 the linter command with the `--debug` option.
 
 To ignore **all Twig CS Fixer rules** within a file, place in the file header:
+
 ```twig
 {# twig-cs-fixer-disable #}
 ```
 
 To ignore **a specific rule** within a file, place in the file header:
+
 ```twig
 {# twig-cs-fixer-disable A.B:C:D #}
 ```
@@ -71,11 +79,13 @@ To ignore **a specific rule** within a file, place in the file header:
 Twig CS Fixer does not support ignoring of the **code blocks**.
 
 To ignore only the **current line**:
+
 ```twig
 {# twig-cs-fixer-disable-next-line A.B:C:D #}
 ```
 
 To ignore only the **next line**:
+
 ```twig
 {# twig-cs-fixer-disable-line A.B:C:D #}
 ```

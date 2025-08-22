@@ -11,7 +11,9 @@ https://github.com/dantleech/gherkin-lint-php
 ```shell
 vendor/bin/gherkinlint lint tests/behat/features
 ```
+
 or
+
 ```shell
 ahoy lint-tests
 ```
@@ -32,6 +34,7 @@ vendor/bin/gherkinlint rules
 ## Ignoring
 
 Ignoring rules **globally** takes place in the  [`gherkinlint.json`](https://github.com/drevops/vortex/blob/develop/gherkinlint.json) file.
+
 ```json
 {
     "rules": {
@@ -45,6 +48,7 @@ Ignoring rules **globally** takes place in the  [`gherkinlint.json`](https://git
 Gherkin Lint does not support ignoring of all rules in the file.
 
 To ignore **a specific rule** within a file, place in the file header:
+
 ```yaml
 # @gherkinlint-disable-rule keyword-order, someother-rule
 ```

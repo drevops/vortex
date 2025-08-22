@@ -14,32 +14,36 @@ import TabItem from '@theme/TabItem';
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    ahoy test               # Run Unit, Kernel and Functional tests
 
-    ahoy test-unit          # Run Unit tests
+```shell
+ahoy test               # Run Unit, Kernel and Functional tests
 
-    ahoy test-kernel        # Run Kernel tests
+ahoy test-unit          # Run Unit tests
 
-    ahoy test-functional    # Run Functional tests
+ahoy test-kernel        # Run Kernel tests
 
-    ahoy test-bdd           # Run BDD tests
-    ```
+ahoy test-functional    # Run Functional tests
+
+ahoy test-bdd           # Run BDD tests
+```
+
   </TabItem>
   <TabItem value="direct" label="Direct">
-    These commands can be run directly from within the container:
 
-    ```shell
-    vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
+These commands can be run directly from within the container:
 
-    vendor/bin/phpunit --testsuite=unit          # Run Unit tests
+```shell
+vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
 
-    vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
+vendor/bin/phpunit --testsuite=unit          # Run Unit tests
 
-    vendor/bin/phpunit --testsuite=functional    # Run Functional tests
+vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
 
-    vendor/bin/behat                             # Run BDD tests
-    ```
+vendor/bin/phpunit --testsuite=functional    # Run Functional tests
+
+vendor/bin/behat                             # Run BDD tests
+```
+
   </TabItem>
 </Tabs>
 
@@ -104,9 +108,9 @@ Additional features include:
 
 1. [Behat Drupal Extension](https://github.com/drupalprojects/drupalextension) - an extension to work with Drupal.
 2. [Behat steps](https://github.com/drevops/behat-steps) - a library of re-usable Behat steps.
-2. [Behat Screenshot](https://github.com/drevops/behat-screenshot) - extension to capture screenshots on-demand and on failure.
-3. [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail) - extension to show progress as TAP and failures inline.
-4. Parallel profiles - configuration to allow running tests in parallel.
+3. [Behat Screenshot](https://github.com/drevops/behat-screenshot) - extension to capture screenshots on-demand and on failure.
+4. [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail) - extension to show progress as TAP and failures inline.
+5. Parallel profiles - configuration to allow running tests in parallel.
 
 ### FeatureContext
 

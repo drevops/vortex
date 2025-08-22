@@ -16,17 +16,21 @@ container environment.
 ```shell
 docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat
 ```
+
 or
+
 ```shell
 ahoy test-bdd
 ```
 
-**Running all tests in the file**
+### Running all tests in the file
 
 ```shell
 docker compose exec -T cli vendor/bin/behat tests/behat/features/my.feature
 ```
+
 or
+
 ```shell
 ahoy test-bdd tests/behat/features/my.feature
 ```
@@ -36,7 +40,9 @@ ahoy test-bdd tests/behat/features/my.feature
 ```shell
 docker compose exec -T cli vendor/bin/behat --tags=group_name
 ```
+
 or
+
 ```shell
 ahoy test-bdd --tags=group_name
 ```
@@ -163,8 +169,8 @@ for tests that require JavaScript.
 
 :::tip
 
-    JavaScript tests are slow. Try using as few JavaScript tests as possible to
-    keep the test run time low.
+JavaScript tests are slow. Try using as few JavaScript tests as possible to
+keep the test run time low.
 
 :::
 
@@ -195,19 +201,22 @@ Run
 ```shell
 ahoy info
 ```
+
 and click on the link next to `Selenium VNC URL on host` to open the browser.
 
 Or use the following command to get the port number:
+
 ```shell
 docker compose port chrome 7900
 ```
+
 and open `http://localhost:<port>/?autoconnect=1&password=secret` in the browser.
 
 :::tip
 
-    When running tests, you can add `And I wait for 60 seconds` step to suspend
-    the test execution for a minute and interact with the headless browser in a
-    container through a browser on your host machine.
+When running tests, you can add `And I wait for 60 seconds` step to suspend
+the test execution for a minute and interact with the headless browser in a
+container through a browser on your host machine.
 
 :::
 

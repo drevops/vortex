@@ -17,12 +17,14 @@ hadolint .docker/*.dockerfile
 ## Ignoring
 
 To ignore **all Hadolint rules** within a file, place in the file header:
+
 ```Dockerfile
 # hadolint global ignore=DL3003,DL3006,SC1035
 FROM ubuntu
 ```
 
 To ignore only the current and the **next line**:
+
 ```Dockerfile
 FROM ubuntu
 

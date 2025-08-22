@@ -23,6 +23,7 @@ initial setup or provisioning in dynamic environments (like CI pipelines,
 container rebuilds, or multisite setups), additional orchestration is needed.
 
 The `provision.sh` script addresses these gaps by:
+
 - **Bootstrapping the environment:** It can import a database dump or install a fresh Drupal instance from a
 profile.
 - **Handling conditional logic:** It accounts for different runtime scenarios, such as skipping provisioning,
@@ -43,6 +44,7 @@ Vortex provides two main approaches for setting up your database:
 ### Full Provisioning (`ahoy provision`)
 
 Runs the complete provisioning process including:
+
 - Database import (from dump or profile installation)
 - Configuration import (`drush config:import`)
 - Database updates (`drush updatedb`)
@@ -52,7 +54,9 @@ Runs the complete provisioning process including:
 Use this when you want a fully configured site ready for development or deployment.
 
 ### Database Import Only (`ahoy import-db`)
+
 Imports only the database dump without running deployment scripts:
+
 - Imports the database dump
 - Skips configuration imports
 - Skips database updates
@@ -106,13 +110,13 @@ environments safer to work with.
 
 :::warning
 
-    Sanitization takes place only after the database is **imported**, so anyone
-    with access to the dump file can still see sensitive data.
+Sanitization takes place only after the database is **imported**, so anyone
+with access to the dump file can still see sensitive data.
 
-    If your database has highly sensitive data, consider sanitizing the database
-    dump before it can be downloaded (sanitize on export). There are tools
-    available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-    or [MTK](https://github.com/skpr/mtk).
+If your database has highly sensitive data, consider sanitizing the database
+dump before it can be downloaded (sanitize on export). There are tools
+available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
+or [MTK](https://github.com/skpr/mtk).
 
 :::
 

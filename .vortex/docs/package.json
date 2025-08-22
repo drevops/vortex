@@ -16,8 +16,12 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/ && prettier --check src/",
-    "lint-fix": "eslint src/ --fix && prettier --write src/"
+    "lint": "yarn lint-js && yarn lint-docs-fix",
+    "lint-fix": "yarn lint-js-fix && yarn lint-docs-fix",
+    "lint-js": "eslint src/ && prettier --check src/",
+    "lint-js-fix": "eslint src/ --fix && prettier --write src/",
+    "lint-docs": "markdownlint-cli2 content/**/*.mdx",
+    "lint-docs-fix": "markdownlint-cli2 content/**/*.mdx --fix"
   },
   "dependencies": {
     "@docusaurus/core": "^3.5",
@@ -50,6 +54,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^29.0.0",
+    "markdownlint-cli2": "^0.18.1",
     "prettier": "^3.0.0"
   },
   "browserslist": {

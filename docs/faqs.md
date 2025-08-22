@@ -100,21 +100,21 @@ composer require drupal/module_name
 1. Add `title` to patch on https://drupal.org to the `patches` array in `extra`
    section in `composer.json`.
 
-```json
-"extra": {
-    "patches": {
-        "drupal/somepackage": {
-            "Patch description": "https://www.drupal.org/files/issues/issue.patch"
-        }
-    }
-}
-```
+   ```json
+   "extra": {
+       "patches": {
+           "drupal/somepackage": {
+               "Patch description": "https://www.drupal.org/files/issues/issue.patch"
+           }
+       }
+   }
+   ```
 
 2. Run
 
-```bash
-composer require drupal/somepackage
-```
+  ```bash
+  composer require drupal/somepackage
+  ```
 
 See https://www.vortextemplate.com/docs/workflows/development#working-with-composer-packages
 

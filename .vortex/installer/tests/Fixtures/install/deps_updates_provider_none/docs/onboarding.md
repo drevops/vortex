@@ -1,4 +1,4 @@
-@@ -80,9 +80,6 @@
+@@ -83,9 +83,6 @@
  
  ## 4. Setting up integrations
  

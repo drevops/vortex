@@ -47,6 +47,7 @@ does not suffice. In addition, it is not possible to automatically test which
 settings are applied in a specific environment.
 
 **Vortex** addresses this problem with a clear and maintainable approach:
+
 - The _environment type_ is [detected](#environment-type-detection) based on the
   environment where the site is running. This detection step is isolated and
   does not apply any configuration overrides.
@@ -54,6 +55,7 @@ settings are applied in a specific environment.
   with conditions applied based on the detected _environment type_.
 
 This structure offers several benefits:
+
 - It keeps environment detection separate from configuration logic.
 - It makes it easy to see how a module behaves in a specific environment — all
 in one place.
@@ -65,21 +67,22 @@ the configuration.
 ## Guidelines
 
 When working with settings, follow these guidelines to ensure clarity, consistency, and maintainability:
--	**Do not modify `settings.php` directly.<br/>**
+
+- **Do not modify `settings.php` directly.<br/>**
   Use environment variables for [general](#general) settings or [per-module override files](#per-module-overrides)
   for any custom or environment-aware configuration.
 
--	**Keep all overrides isolated by module.**<br/>
+- **Keep all overrides isolated by module.**<br/>
   Each file should encapsulate logic for a single module only. If a module is
   removed, its override file should be removable without affecting unrelated
   settings.
 
--	**Use environment variables for configuration that changes by environment.**<br/>
+- **Use environment variables for configuration that changes by environment.**<br/>
   Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to easily
   distinguish them from other environment variables.<br/>
   Always define a default hardcoded value for each environment variable.
 
--	**Use conditions based on _environment type_ within per-module override files.**<br/>
+- **Use conditions based on _environment type_ within per-module override files.**<br/>
   This allows for environment-specific configuration without cluttering the main
   `settings.php` file.<br/>
   Use the `$settings['environment']` variable to check the current _environment type_.
@@ -176,6 +179,7 @@ drive environment-specific behavior.
 #### Environment type constants
 
 **Vortex** defines the following constants to represent supported environments:
+
 - `ENVIRONMENT_LOCAL`
 - `ENVIRONMENT_CI`
 - `ENVIRONMENT_DEV`
@@ -193,9 +197,9 @@ for supported providers is stored in the `includes/providers` directory.
 To add support for a custom platform, simply create a `settings.[provider].php`
 file in that directory with the relevant detection logic.
 
--	If a provider is detected, the default environment type is set to `ENVIRONMENT_DEV`.
--	Additional provider-specific conditions can elevate this to `ENVIRONMENT_STAGE` or `ENVIRONMENT_PROD`.
--	If no provider is detected, the environment type defaults to `ENVIRONMENT_LOCAL`.
+- If a provider is detected, the default environment type is set to `ENVIRONMENT_DEV`.
+- Additional provider-specific conditions can elevate this to `ENVIRONMENT_STAGE` or `ENVIRONMENT_PROD`.
+- If no provider is detected, the environment type defaults to `ENVIRONMENT_LOCAL`.
 
 It is important to note that this detection logic is only responsible for
 identifying the environment type. It does not apply any configuration changes.
@@ -208,9 +212,10 @@ You can override the detected environment type by setting the
 `DRUPAL_ENVIRONMENT` environment variable.
 
 This is useful when:
--	Testing environment-specific behavior locally.
--	Working around gaps in the detection logic.
--	Forcing a known environment type for debugging.
+
+- Testing environment-specific behavior locally.
+- Working around gaps in the detection logic.
+- Forcing a known environment type for debugging.
 
 For example, add `DRUPAL_ENVIRONMENT=ci` to your `.env.local` file to simulate
 the CI environment locally.
@@ -229,11 +234,12 @@ modules, each isolated in its own file for easy maintenance and removal.
 
 To add settings for a new module, create a file following the naming pattern:
 
-```
+```bash
 web/sites/default/includes/modules/settings.[module_name].php
 ```
 
 Each settings file should:
+
 - Use environment type constants (`ENVIRONMENT_LOCAL`, `ENVIRONMENT_PROD`, etc.) for conditional logic
 - Leverage environment variables for configuration values
 - Provide sensible defaults when environment variables are not set
@@ -263,7 +269,6 @@ import LocalSettingsExample from '!!raw-loader!./../../../../web/sites/default/e
   <CodeBlock language="php">{LocalSettingsExample}</CodeBlock>
 
 </details>
-
 
 import LocalServicesExample from '!!raw-loader!./../../../../web/sites/default/example.services.local.yml';
 

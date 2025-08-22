@@ -1,4 +1,4 @@
-# Project-specific documentation.
+# Project-specific documentation
 
 - [Onboarding checklist](onboarding.md)
 

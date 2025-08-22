@@ -20,7 +20,9 @@ by [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 ```shell
 vendor/bin/rector --dry-run # Only see the diff of changes, do not save them to files.
 ```
+
 or
+
 ```shell
 ahoy lint-be
 ```
@@ -30,7 +32,9 @@ ahoy lint-be
 ```shell
 vendor/bin/rector process
 ```
+
 or
+
 ```shell
 ahoy lint-fix
 ```
@@ -91,6 +95,7 @@ $rectorConfig->skip([
 ```
 
 To ignore **all Rector rules** within a file:
+
 ```php
 $rectorConfig->skip([
   'file.php',
@@ -99,6 +104,7 @@ $rectorConfig->skip([
 ```
 
 To ignore **a specific rule** within a file:
+
 ```php
 $rectorConfig->skip([
   SimplifyIfReturnBoolRector::class => ['file.php'],
