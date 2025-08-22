@@ -1,6 +1,6 @@
 @@ -42,9 +42,6 @@
    task "Installing contrib modules."
-   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
+   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy
  
 -  task "Installing Redis module."
 -  drush pm:install redis || true
