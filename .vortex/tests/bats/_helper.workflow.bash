@@ -839,10 +839,18 @@ assert_valkey() {
   step "Valkey"
 
   substep "Valkey service is running"
-  run docker compose exec valkey valkey-cli FLUSHALL
+  run ahoy flush-valkey
   assert_output_contains "OK"
 
-  substep "Valkey integration is disabled"
+  substep "Disable ValKey integration with Drupal"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "0"
+  sync_to_container
+  run ahoy up
+  assert_success
+  sleep 10
+  ahoy flush-valkey
+
+  substep "Assert that Valkey integration is disabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec valkey valkey-cli --scan
@@ -851,11 +859,18 @@ assert_valkey() {
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "Warning"
 
-  substep "Restart with environment variable"
+  restore_file ".env"
+  sync_to_container
+
+  substep "Enable ValKey integration with Drupal"
   add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
   sync_to_container
-  DRUPAL_REDIS_ENABLED=1 ahoy up cli
+  run ahoy up
+  assert_success
   sleep 10
+  ahoy flush-valkey
+
+  substep "Assert that Valkey integration is enabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec valkey valkey-cli --scan
@@ -864,7 +879,10 @@ assert_valkey() {
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "OK"
 
-  ahoy up cli
+  restore_file ".env"
+  sync_to_container
+  run ahoy up
+  assert_success
 }
 
 assert_ahoy_reset() {

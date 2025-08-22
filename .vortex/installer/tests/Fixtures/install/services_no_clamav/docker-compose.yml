@@ -16,15 +16,16 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -193,10 +182,9 @@
+@@ -193,11 +182,10 @@
    wait_dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
 -      - clamav
        - cli
        - database
--    command: database:3306 clamav:3310
-+    command: database:3306
+       - valkey
+-    command: database:3306 clamav:3310 valkey:6379
++    command: database:3306  valkey:6379
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
