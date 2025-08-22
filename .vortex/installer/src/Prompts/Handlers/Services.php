@@ -115,7 +115,7 @@ class Services extends AbstractHandler {
       @unlink($t . DIRECTORY_SEPARATOR . '.docker/clamav.dockerfile');
       @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.clamav.php');
       @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/clamav.feature');
-      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'command: database:3306 clamav:3310', 'command: database:3306');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'clamav:3310', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
@@ -149,7 +149,9 @@ class Services extends AbstractHandler {
       File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/valkey');
       @unlink($t . DIRECTORY_SEPARATOR . '.docker/valkey.dockerfile');
       @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'valkey:6379', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
+      @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }
   }
 

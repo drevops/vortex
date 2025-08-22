@@ -84,10 +84,10 @@
  
    # Helper container to wait for services to become available.
    wait_dependencies:
-@@ -197,6 +224,8 @@
-       - cli
+@@ -198,6 +225,8 @@
        - database
-     command: database:3306 clamav:3310
+       - valkey
+     command: database:3306 clamav:3310 valkey:6379
 +    labels:
 +      lagoon.type: none # Do not deploy in Lagoon.
  

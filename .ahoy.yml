@@ -106,6 +106,7 @@ commands:
 
   #;< SERVICE_VALKEY
   flush-valkey:
+    aliases: [flush-redis]
     usage: Flush Valkey cache.
     cmd: docker compose exec valkey valkey-cli flushall
   #;> SERVICE_VALKEY

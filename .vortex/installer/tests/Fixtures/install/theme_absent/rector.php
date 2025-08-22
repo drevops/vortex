@@ -1,4 +1,4 @@
-@@ -42,7 +42,6 @@
+@@ -43,7 +43,6 @@
  
    $rectorConfig->paths([
      $drupalRoot . '/modules/custom',

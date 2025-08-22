@@ -258,7 +258,10 @@ services:
       #;> SERVICE_CLAMAV
       - cli
       - database
-    command: database:3306 clamav:3310
+      #;< SERVICE_VALKEY
+      - valkey
+      #;> SERVICE_VALKEY
+    command: database:3306 clamav:3310 valkey:6379
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: none # Do not deploy in Lagoon.
