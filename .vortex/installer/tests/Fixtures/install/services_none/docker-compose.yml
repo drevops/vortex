@@ -1,4 +1,4 @@
-@@ -50,8 +50,6 @@
+@@ -52,8 +52,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -7,7 +7,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -144,37 +142,6 @@
+@@ -146,37 +144,6 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -45,7 +45,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -191,10 +158,9 @@
+@@ -193,10 +160,9 @@
    wait_dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
@@ -57,7 +57,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -203,7 +169,6 @@
+@@ -205,7 +171,6 @@
  volumes:
    app: {}
    files: {}
