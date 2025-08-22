@@ -1,6 +1,6 @@
-@@ -19,7 +19,6 @@
-         "drupal/redirect": "__VERSION__",
+@@ -20,7 +20,6 @@
          "drupal/redis": "__VERSION__",
+         "drupal/robotstxt": "__VERSION__",
          "drupal/search_api": "__VERSION__",
 -        "drupal/search_api_solr": "__VERSION__",
          "drupal/seckit": "__VERSION__",

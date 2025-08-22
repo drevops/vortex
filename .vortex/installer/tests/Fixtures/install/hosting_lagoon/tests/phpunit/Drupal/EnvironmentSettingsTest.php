@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -298,6 +478,207 @@
+@@ -303,6 +483,210 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -214,6 +214,7 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
@@ -264,6 +265,7 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
@@ -314,6 +316,7 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);

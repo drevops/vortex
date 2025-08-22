@@ -18,6 +18,7 @@
         "drupal/pathauto": "^1.13",
         "drupal/redirect": "^1.11",
         "drupal/redis": "^1.9",
+        "drupal/robotstxt": "^1.6",
         "drupal/search_api": "^1.38",
         "drupal/search_api_solr": "^4.3",
         "drupal/seckit": "^2.0",
