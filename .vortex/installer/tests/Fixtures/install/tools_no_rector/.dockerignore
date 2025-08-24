@@ -1,0 +1,7 @@
+@@ -46,6 +46,5 @@
+ !phpmd.xml
+ !phpstan.neon
+ !phpunit.xml
+-!rector.php
+ !scripts
+ !tests

@@ -205,7 +205,7 @@ class Tui {
 
   public static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
     $lines = explode("\n", $text);
-    $colored_lines = array_map(function ($line) use ($color_code, $end_code): string {
+    $colored_lines = array_map(function (string $line) use ($color_code, $end_code): string {
       return sprintf("\033[%sm%s\033[%sm", $color_code, $line, $end_code);
     }, $lines);
     return implode("\n", $colored_lines);
@@ -258,7 +258,7 @@ class Tui {
     preg_match_all('/\X/u', $text, $matches);
 
     $utf8_chars = $matches[0];
-    $utf8_chars = array_map(fn($char): string => Strings::isAsciiStart($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
+    $utf8_chars = array_map(fn(string $char): string => Strings::isAsciiStart($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
 
     return implode('', $utf8_chars);
   }

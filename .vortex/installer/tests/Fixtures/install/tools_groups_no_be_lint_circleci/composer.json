@@ -1,0 +1,32 @@
+@@ -31,7 +31,6 @@
+     "require-dev": {
+         "behat/behat": "__VERSION__",
+         "dantleech/gherkin-lint": "__VERSION__",
+-        "dealerdirect/phpcodesniffer-composer-installer": "__VERSION__",
+         "drevops/behat-format-progress-fail": "__VERSION__",
+         "drevops/behat-screenshot": "__VERSION__",
+         "drevops/behat-steps": "__VERSION__",
+@@ -38,15 +37,9 @@
+         "drupal/core-dev": "__VERSION__",
+         "drupal/drupal-extension": "__VERSION__",
+         "ergebnis/composer-normalize": "__VERSION__",
+-        "mglaman/phpstan-drupal": "__VERSION__",
+-        "palantirnet/drupal-rector": "__VERSION__",
+         "phpcompatibility/php-compatibility": "__VERSION__",
+-        "phpmd/phpmd": "__VERSION__",
+         "phpspec/prophecy-phpunit": "__VERSION__",
+-        "phpstan/extension-installer": "__VERSION__",
+-        "phpstan/phpstan": "__VERSION__",
+         "pyrech/composer-changelogs": "__VERSION__",
+-        "rector/rector": "__VERSION__",
+         "vincentlanglet/twig-cs-fixer": "__VERSION__"
+     },
+     "conflict": {
+@@ -79,7 +72,6 @@
+             "ergebnis/composer-normalize": true,
+             "oomphinc/composer-installers-extender": true,
+             "php-http/discovery": true,
+-            "phpstan/extension-installer": true,
+             "pyrech/composer-changelogs": true,
+             "tbachert/spi": true
+         },

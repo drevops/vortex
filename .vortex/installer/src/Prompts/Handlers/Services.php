@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\File;
-use Symfony\Component\Yaml\Yaml;
+use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Services extends AbstractHandler {
 
@@ -26,7 +26,7 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Select the services you want to use in the project.';
+    return 'Use up and down arrows to select tools. Press space to toggle selection.';
   }
 
   /**

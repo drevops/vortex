@@ -8,6 +8,7 @@ use AlexSkrypnyk\File\ExtendedSplFileInfo;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Internal extends AbstractHandler {
 
@@ -64,7 +65,9 @@ class Internal extends AbstractHandler {
 
       if (!$should_ignore) {
         $content = File::collapseRepeatedEmptyLines($content);
-        $content = File::collapseYamlEmptyLinesInLiteralBlocks($content);
+        if (in_array($file->getExtension(), ['yml', 'yaml'], TRUE)) {
+           $content = Yaml::collapseFirstEmptyLinesInLiteralBlock($content);
+        }
       }
 
       return $content;

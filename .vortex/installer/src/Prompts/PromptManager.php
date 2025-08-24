@@ -32,6 +32,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
+use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
@@ -60,7 +61,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 23;
+  const TOTAL_RESPONSES = 24;
 
   /**
    * Array of responses.
@@ -139,6 +140,7 @@ class PromptManager {
       ->intro('Environment')
       ->add(fn($r, $pr, $n): string => suggest(...$this->args(Timezone::class)), Timezone::id())
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class)), Services::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Tools::class)), Tools::id())
 
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
@@ -257,6 +259,7 @@ class PromptManager {
       ProvisionType::id(),
       DeployType::id(),
       HostingProvider::id(),
+      Tools::id(),
       Services::id(),
       Timezone::id(),
       CodeProvider::id(),
@@ -335,6 +338,12 @@ class PromptManager {
     $values['ClamAV'] = Converter::bool(in_array(Services::CLAMAV, $responses[Services::id()]));
     $values['Solr'] = Converter::bool(in_array(Services::SOLR, $responses[Services::id()]));
     $values['Valkey'] = Converter::bool(in_array(Services::VALKEY, $responses[Services::id()]));
+    $values['PHP CodeSniffer'] = Converter::bool(in_array(Tools::PHPCS, $responses[Tools::id()]));
+    $values['PHP Mess Detector'] = Converter::bool(in_array(Tools::PHPMD, $responses[Tools::id()]));
+    $values['PHPStan'] = Converter::bool(in_array(Tools::PHPSTAN, $responses[Tools::id()]));
+    $values['Rector'] = Converter::bool(in_array(Tools::RECTOR, $responses[Tools::id()]));
+    $values['PHPUnit'] = Converter::bool(in_array(Tools::PHPUNIT, $responses[Tools::id()]));
+    $values['Behat'] = Converter::bool(in_array(Tools::BEHAT, $responses[Tools::id()]));
 
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
     $values['Hosting provider'] = $responses[HostingProvider::id()];
@@ -423,7 +432,7 @@ class PromptManager {
       throw new \RuntimeException(sprintf('Could not read the directory "%s".', $dir));
     }
 
-    $handler_files = array_filter($files, function ($file): bool {
+    $handler_files = array_filter($files, function (string $file): bool {
       return !in_array($file, ['.', '..']);
     });
 
@@ -492,6 +501,7 @@ class PromptManager {
     $options = $handler->options($responses);
     if (is_array($options) && $options !== []) {
       $args['options'] = $options;
+      $args['scroll'] = 10;
     }
 
     // Find appropriate default value.

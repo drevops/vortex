@@ -1,0 +1,8 @@
+@@ -42,7 +42,6 @@
+ !package.json
+ !package-lock.json
+ !patches
+-!phpcs.xml
+ !phpmd.xml
+ !phpstan.neon
+ !phpunit.xml

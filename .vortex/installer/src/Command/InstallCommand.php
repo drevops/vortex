@@ -56,7 +56,7 @@ class InstallCommand extends Command {
    */
   protected function configure(): void {
     $this->setName('Vortex Installer');
-    $this->setDescription('Install Vortex CLI from remote or local repository.');
+    $this->setDescription('Install Vortex from remote or local repository.');
     $this->setHelp(<<<EOF
   Interactively install Vortex from the latest stable release into the current directory:
   php installer destination

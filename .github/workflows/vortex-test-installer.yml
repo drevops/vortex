@@ -37,6 +37,10 @@ jobs:
         run: composer install
         working-directory: .vortex/installer
 
+      - name: Validate Composer configuration is normalized
+        run: composer normalize --dry-run
+        working-directory: .vortex/installer
+
       - name: Check coding standards
         run: composer lint
         working-directory: .vortex/installer
