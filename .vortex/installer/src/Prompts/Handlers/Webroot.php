@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Validator;
 
 class Webroot extends AbstractHandler {
