@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\ComposerJson;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Validator;
@@ -63,15 +63,16 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v1 = Env::getFromDotenv('WEBROOT', $this->dstDir);
-    if (!empty($v1)) {
-      return $v1;
+    $v = Env::getFromDotenv('WEBROOT', $this->dstDir);
+
+    if (!empty($v)) {
+      return $v;
     }
 
-    $v2 = ComposerJson::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
 
-    if (!empty($v2)) {
-      return $v2;
+    if (!empty($v)) {
+      return $v;
     }
 
     return NULL;

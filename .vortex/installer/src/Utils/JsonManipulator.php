@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Utils;
 
 use Composer\Json\JsonFile;
-use Composer\Json\JsonManipulator;
+use Composer\Json\JsonManipulator as ComposerJsonManipulator;
 
-class ComposerJson extends JsonManipulator {
+class JsonManipulator extends ComposerJsonManipulator {
 
   protected string $contents;
 

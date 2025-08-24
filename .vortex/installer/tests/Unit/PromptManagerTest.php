@@ -33,24 +33,24 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
-use DrevOps\VortexInstaller\Utils\ComposerJson;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use DrevOps\VortexInstaller\Utils\Tui;
+use DrevOps\VortexInstaller\Utils\Yaml;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Component\Yaml\Yaml;
 
 #[CoversClass(AiCodeInstructions::class)]
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(CiProvider::class)]
 #[CoversClass(CodeProvider::class)]
-#[CoversClass(ComposerJson::class)]
+#[CoversClass(JsonManipulator::class)]
 #[CoversClass(Converter::class)]
 #[CoversClass(DatabaseDownloadSource::class)]
 #[CoversClass(DatabaseImage::class)]

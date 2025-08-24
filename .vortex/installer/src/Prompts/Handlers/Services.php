@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\File;
-use Symfony\Component\Yaml\Yaml;
+use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Services extends AbstractHandler {
 

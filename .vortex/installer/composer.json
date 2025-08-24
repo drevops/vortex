@@ -50,8 +50,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\VortexInstaller\\Tests\\": "tests",
-            "AlexSkrypnyk\\File\\Tests\\": "vendor/alexskrypnyk/file/tests"
+            "AlexSkrypnyk\\File\\Tests\\": "vendor/alexskrypnyk/file/tests",
+            "DrevOps\\VortexInstaller\\Tests\\": "tests"
         },
         "classmap": [
             "tests"
@@ -94,8 +94,8 @@
         ],
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
+        "test-baseline": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline || UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline",
         "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
-        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall",
-        "test-baseline": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline || UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline"
+        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall"
     }
 }

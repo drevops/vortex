@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\ComposerJson;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\File;
 
@@ -53,7 +53,8 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = ComposerJson::fromFile($this->dstDir . '/composer.json')?->getProperty('description');
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('description');
+
     if ($v && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $v, $matches) && !empty($matches[2])) {
       return $matches[2];
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\ComposerJson;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
@@ -54,13 +54,13 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v1 = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
+    $v = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
 
-    if (!empty($v1)) {
-      return $v1;
+    if (!empty($v)) {
+      return $v;
     }
 
-    $v = ComposerJson::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
     if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[2])) {
       return trim($matches[2]);
     }

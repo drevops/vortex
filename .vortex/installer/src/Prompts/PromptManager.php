@@ -501,6 +501,7 @@ class PromptManager {
     $options = $handler->options($responses);
     if (is_array($options) && $options !== []) {
       $args['options'] = $options;
+      $args['scroll'] = 10;
     }
 
     // Find appropriate default value.
