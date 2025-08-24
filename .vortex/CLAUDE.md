@@ -586,6 +586,34 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 3. **Complex Logic Loss**: Don't oversimplify complex transformations - use callback signature when needed
 4. **Test Order Dependencies**: Some tests depend on specific file/directory states from previous handlers
 
+## Installer Test Architecture
+
+### Handler-Specific Test Classes
+
+The installer tests have been refactored to use a modular, handler-focused architecture that improves maintainability and test execution flexibility.
+
+**Abstract Base Class**: `AbstractInstallTestCase` provides shared test logic for all installer test scenarios, including:
+- Common setup and teardown procedures
+- Core `testInstall()` method with data provider integration
+- Fixture management and assertion helpers
+- Version replacement utilities
+
+**Handler Test Organization**: Each installer handler has its own dedicated test class in the `Handlers/` namespace that extends the abstract base class. This approach provides:
+
+- **Focused Testing**: Each test class covers scenarios specific to one handler or feature area
+- **Better Maintainability**: Smaller, focused data providers that are easier to understand and modify
+- **Improved Filtering**: Granular test execution capabilities using PHPUnit filters
+- **Scalable Architecture**: Easy to add new handler tests following established patterns
+
+**Key Benefits**:
+- Run all handler tests: `--filter "Handlers\\\\"`
+- Run specific handler: `--filter "HandlerNameInstallTest"`
+- Run specific scenarios: `--filter "HandlerNameInstallTest.*scenario_pattern"`
+- Consistent structure across all handler test classes
+- Clear separation between test logic (in base class) and test data (in handler classes)
+
+**Usage with Fixture Updates**: The `UPDATE_FIXTURES=1` mechanism works seamlessly with the new architecture, allowing systematic fixture updates across all handler test scenarios.
+
 ## Resources
 
 - **Documentation**: `.vortex/docs/` and https://www.vortextemplate.com
