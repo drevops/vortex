@@ -152,4 +152,17 @@ class Strings {
     return $leading_whitespace . '/**' . "\n" . implode("\n", $result_lines) . "\n" . $closing_indent . '*/' . $following_newline;
   }
 
+  /**
+   * Remove trailing spaces from all lines in a string.
+   *
+   * @param string $string
+   *   The input string to process.
+   *
+   * @return string
+   *   The string with trailing spaces removed from each line.
+   */
+  public static function removeTrailingSpaces(string $string): string {
+    return preg_replace('/[ \t]+(?=\r?\n|$)/m', '', $string);
+  }
+
 }

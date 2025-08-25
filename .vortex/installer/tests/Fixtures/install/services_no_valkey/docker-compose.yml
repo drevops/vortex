@@ -23,7 +23,7 @@
        - database
 -      - valkey
 -    command: database:3306 clamav:3310 valkey:6379
-+    command: database:3306 clamav:3310 
++    command: database:3306 clamav:3310
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.

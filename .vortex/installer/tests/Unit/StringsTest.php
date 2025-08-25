@@ -444,4 +444,95 @@ class StringsTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderRemoveTrailingSpaces')]
+  public function testRemoveTrailingSpaces(string $input, string $expected): void {
+    $actual = Strings::removeTrailingSpaces($input);
+    $this->assertEquals($expected, $actual);
+  }
+
+  public static function dataProviderRemoveTrailingSpaces(): array {
+    return [
+      'empty_string' => [
+        '',
+        '',
+      ],
+      'no_trailing_spaces' => [
+        'hello world',
+        'hello world',
+      ],
+      'single_line_with_trailing_spaces' => [
+        'hello world   ',
+        'hello world',
+      ],
+      'single_line_with_trailing_tabs' => [
+        "hello world\t\t",
+        'hello world',
+      ],
+      'single_line_with_mixed_trailing_whitespace' => [
+        "hello world \t  \t",
+        'hello world',
+      ],
+      'multiline_with_trailing_spaces' => [
+        "line one   \nline two  \nline three",
+        "line one\nline two\nline three",
+      ],
+      'multiline_with_trailing_tabs' => [
+        "line one\t\t\nline two\t\nline three",
+        "line one\nline two\nline three",
+      ],
+      'multiline_with_mixed_trailing_whitespace' => [
+        "line one \t \nline two  \t\nline three \t\t ",
+        "line one\nline two\nline three",
+      ],
+      'empty_lines_with_trailing_spaces' => [
+        "line one\n   \nline three",
+        "line one\n\nline three",
+      ],
+      'empty_lines_with_trailing_tabs' => [
+        "line one\n\t\t\nline three",
+        "line one\n\nline three",
+      ],
+      'only_trailing_whitespace_lines' => [
+        "   \n\t\t\n \t ",
+        "\n\n",
+      ],
+      'preserve_leading_whitespace' => [
+        "  indented line  \n\tindented with tab\t",
+        "  indented line\n\tindented with tab",
+      ],
+      'preserve_internal_whitespace' => [
+        "hello  world   \ninternal   spaces\t",
+        "hello  world\ninternal   spaces",
+      ],
+      'windows_line_endings' => [
+        "line one  \r\nline two\t\r\nline three",
+        "line one\r\nline two\r\nline three",
+      ],
+      'mixed_line_endings' => [
+        "line one  \nline two\t\r\nline three ",
+        "line one\nline two\r\nline three",
+      ],
+      'single_space_at_end' => [
+        'hello world ',
+        'hello world',
+      ],
+      'single_tab_at_end' => [
+        "hello world\t",
+        'hello world',
+      ],
+      'multiple_consecutive_trailing_spaces' => [
+        'hello world     ',
+        'hello world',
+      ],
+      'multiple_consecutive_trailing_tabs' => [
+        "hello world\t\t\t\t",
+        'hello world',
+      ],
+      'no_line_ending_with_trailing_spaces' => [
+        'single line with spaces   ',
+        'single line with spaces',
+      ],
+    ];
+  }
+
 }
