@@ -8,6 +8,7 @@ use AlexSkrypnyk\File\ExtendedSplFileInfo;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Internal extends AbstractHandler {
@@ -68,6 +69,7 @@ class Internal extends AbstractHandler {
         if (in_array($file->getExtension(), ['yml', 'yaml'], TRUE)) {
            $content = Yaml::collapseFirstEmptyLinesInLiteralBlock($content);
         }
+        $content = Strings::removeTrailingSpaces($content);
       }
 
       return $content;
