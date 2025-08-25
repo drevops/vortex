@@ -506,14 +506,21 @@ class PromptManager {
 
     // Find appropriate default value.
     $default_from_handler = $handler->default($responses);
-
-    $env_var = static::makeEnvName($id);
-    $env_val = Env::get($env_var);
+    // Create the env var name.
+    $var_name = static::makeEnvName($id);
+    // Get from config.
+    $config_val = $this->config->get($var_name);
+    $default_from_config = is_null($config_val) ? NULL : $config_val;
+    // Get from env.
+    $env_val = Env::get($var_name);
     $default_from_env = is_null($env_val) ? NULL : Env::toValue($env_val);
-
+    // Get from discovery.
     $default_from_discovery = $this->handlers[$id]->discover();
 
-    if (!is_null($default_from_env)) {
+    if (!is_null($default_from_config)) {
+      $default = $default_from_config;
+    }
+    elseif (!is_null($default_from_env)) {
       $default = $default_from_env;
     }
     elseif (!is_null($default_from_discovery)) {
