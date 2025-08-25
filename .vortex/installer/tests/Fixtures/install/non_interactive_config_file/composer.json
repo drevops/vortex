@@ -1,0 +1,17 @@
+@@ -1,6 +1,6 @@
+ {
+-    "name": "star_wars_org/star_wars",
+-    "description": "Drupal 11 implementation of star wars for star wars Org",
++    "name": "my_custom_org/star_wars",
++    "description": "Drupal 11 implementation of star wars for My custom org",
+     "license": "proprietary",
+     "type": "project",
+     "require": {
+@@ -17,7 +17,6 @@
+         "drupal/environment_indicator": "__VERSION__",
+         "drupal/pathauto": "__VERSION__",
+         "drupal/redirect": "__VERSION__",
+-        "drupal/redis": "__VERSION__",
+         "drupal/robotstxt": "__VERSION__",
+         "drupal/search_api": "__VERSION__",
+         "drupal/search_api_solr": "__VERSION__",

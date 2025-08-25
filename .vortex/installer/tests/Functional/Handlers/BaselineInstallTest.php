@@ -31,6 +31,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Downloader;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -76,6 +77,35 @@ class BaselineInstallTest extends AbstractInstallTestCase {
 
       'non-interactive' => [
         NULL,
+        NULL,
+        ['Welcome to the Vortex non-interactive installer'],
+      ],
+
+      'non-interactive, config file' => [
+        static::cw(function (AbstractInstallTestCase $test): void {
+          $config_file = static::$tmp . DIRECTORY_SEPARATOR . 'config.json';
+          File::dump($config_file, (string) json_encode([
+            // Test overriding scalar value.
+            PromptManager::makeEnvName(Org::id()) => 'My custom org',
+            // Test overriding array value.
+            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::CLAMAV],
+          ]));
+          $test->installOptions['config'] = $config_file;
+        }),
+        NULL,
+        ['Welcome to the Vortex non-interactive installer'],
+      ],
+
+      'non-interactive, config string' => [
+        static::cw(function (AbstractInstallTestCase $test): void {
+          $config_string = (string) json_encode([
+            // Test overriding scalar value.
+            PromptManager::makeEnvName(Org::id()) => 'My other custom org',
+            // Test overriding array value.
+            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::VALKEY],
+          ]);
+          $test->installOptions['config'] = $config_string;
+        }),
         NULL,
         ['Welcome to the Vortex non-interactive installer'],
       ],

@@ -18,6 +18,11 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  */
 abstract class AbstractInstallTestCase extends FunctionalTestCase {
 
+  /**
+   * Override options to pass to the install command.
+   */
+  public array $installOptions = [];
+
   protected function setUp(): void {
     parent::setUp();
 
@@ -42,7 +47,7 @@ abstract class AbstractInstallTestCase extends FunctionalTestCase {
       $before($this);
     }
 
-    $this->runNonInteractiveInstall();
+    $this->runNonInteractiveInstall(options: $this->installOptions);
 
     $expected = empty($expected) ? ['Welcome to the Vortex non-interactive installer'] : $expected;
     $this->assertApplicationOutputContains($expected);

@@ -78,7 +78,7 @@ EOF
 
     $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
     $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
-    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
+    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
     $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
   }
@@ -207,7 +207,12 @@ EOF
    *   Array of CLI options.
    */
   protected function resolveOptions(array $arguments, array $options): void {
-    $config = isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG]) ? strval($options[static::OPTION_CONFIG]) : '{}';
+    $config = '{}';
+    if (isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG])) {
+      $config_candidate = strval($options[static::OPTION_CONFIG]);
+      $config = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
+    }
+
     $this->config = Config::fromString($config);
 
     $this->config->setQuiet($options[static::OPTION_QUIET]);
