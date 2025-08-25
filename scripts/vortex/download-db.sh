@@ -52,7 +52,7 @@ if [ -n "${found_db:-}" ]; then
     note "Remove existing database file or set VORTEX_DB_DOWNLOAD_FORCE value to 1 to force download."
     exit 0
   else
-    task "Forcefully downloading database."
+    note "Will download a fresh copy of the database."
   fi
 fi
 

@@ -19,7 +19,6 @@ load ../_helper.bash
 
     # Mock SSH setup script call
     "[INFO] Started SSH setup."
-    "Found variable VORTEX_DB_DOWNLOAD_SSH_FILE with value false."
 
     "- Database dump refresh requested. Will create a new dump."
 
@@ -73,7 +72,6 @@ load ../_helper.bash
 
     # Mock SSH setup script call
     "[INFO] Started SSH setup."
-    "Found variable VORTEX_DB_DOWNLOAD_SSH_FILE with value false."
 
     "- Database dump refresh requested. Will create a new dump."
 
@@ -126,7 +124,6 @@ load ../_helper.bash
 
     # Mock SSH setup script call
     "[INFO] Started SSH setup."
-    "Found variable VORTEX_DB_DOWNLOAD_SSH_FILE with value false."
 
     "Database dump refresh requested. Will create a new dump."
 

@@ -84,12 +84,6 @@ for cmd in ssh rsync; do command -v "${cmd}" >/dev/null || {
 
 info "Started database dump download from Lagoon."
 
-# Try to read credentials from the credentials file.
-if [ -f ".env.local" ]; then
-  # shellcheck disable=SC1090
-  t=$(mktemp) && export -p >"${t}" && set -a && . ".env.local" && set +a && . "${t}" && rm "${t}" && unset t
-fi
-
 export VORTEX_SSH_PREFIX="DB_DOWNLOAD" && . ./scripts/vortex/setup-ssh.sh
 
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
@@ -117,6 +111,7 @@ fi
 #    a. Optionally removes any previous database dumps.
 #    b. Uses `drush` to create a new database dump with specific table structure options.
 # 3. If the file exists and no refresh is requested, notifies of using the existing dump.
+task "Discovering or creating a database dump on Lagoon."
 ssh \
   "${ssh_opts[@]}" \
   "${VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER}@${VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST}" service=cli container=cli \

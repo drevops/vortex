@@ -33,6 +33,7 @@ VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="${VORTEX_SSH_DISABLE_STRICT_HOST_KE
 # ------------------------------------------------------------------------------
 
 # @formatter:off
+debg() { if [ "${VORTEX_DEBUG-}" = "1" ]; then printf "[DEBG] %s\n" "$1"; fi; }
 note() { printf "       %s\n" "${1}"; }
 task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -45,18 +46,18 @@ info "Started SSH setup."
 fingerprint_var="VORTEX_${VORTEX_SSH_PREFIX}_SSH_FINGERPRINT"
 if [ -n "${!fingerprint_var-}" ]; then
   fingerprint="${!fingerprint_var}"
-  note "Found fingerprint variable ${fingerprint_var} with value ${fingerprint}."
+  debg "Found fingerprint variable ${fingerprint_var} with value ${fingerprint}."
 else
-  note "Did not find fingerprint variable ${fingerprint_var}."
+  debg "Did not find fingerprint variable ${fingerprint_var}."
 fi
 
 file_var="VORTEX_${VORTEX_SSH_PREFIX}_SSH_FILE"
 if [ -n "${!file_var-}" ]; then
   file="${!file_var}"
-  note "Found variable ${file_var} with value ${file}."
+  debg "Found variable ${file_var} with value ${file}."
 else
   file="${HOME}/.ssh/id_rsa"
-  note "Did not find a variable ${file_var}. Using default value ${file}."
+  debg "Did not find a variable ${file_var}. Using default value ${file}."
 fi
 
 if [ "${file}" = false ]; then
