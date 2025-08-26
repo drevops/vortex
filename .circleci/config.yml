@@ -423,7 +423,7 @@ jobs:
       - run:
           name: Check if deployment should be skipped
           command: |
-            if [ "${CIRCLE_PR_NUMBER}" != "" ] && echo "${CIRCLE_BRANCH}" | grep -q "^project/"; then
+            if [ "${CIRCLE_PULL_REQUEST}" != "" ] && echo "${CIRCLE_BRANCH}" | grep -q "^project/"; then
               echo "Skipping deployment - PR from project/* branch"
               circleci-agent step halt
             fi
