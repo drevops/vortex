@@ -54,6 +54,7 @@ jobs:
   #;< !PROVISION_TYPE_PROFILE
   database:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
 
     container:
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
@@ -157,7 +158,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: database
     #;< !PROVISION_TYPE_PROFILE
-    if: github.event_name != 'schedule'
+    if: ${{ github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     strategy:
@@ -399,7 +400,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
