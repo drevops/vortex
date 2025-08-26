@@ -93,6 +93,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'node_modules',
       'bower_components',
     ];
+    $settings['config_sync_directory'] = '../config/default';
     $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['maintenance_theme'] = 'claro';
     $settings['trusted_host_patterns'] = [
@@ -209,6 +210,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'node_modules',
       'bower_components',
     ];
+    $settings['config_sync_directory'] = '../config/default';
     $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['maintenance_theme'] = 'claro';
     $settings['trusted_host_patterns'] = [
@@ -252,6 +254,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       'node_modules',
       'bower_components',
     ];
+    $settings['config_sync_directory'] = '../config/default';
     $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['maintenance_theme'] = 'claro';
     $settings['trusted_host_patterns'] = [
@@ -300,6 +303,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
     $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
+    $settings['config_sync_directory'] = '../config/default';
     $settings['suspend_mail_send'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
