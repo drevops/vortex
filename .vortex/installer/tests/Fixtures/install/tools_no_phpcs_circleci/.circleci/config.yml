@@ -383,6 +383,14 @@ jobs:
       - *load_variables_from_dotenv
 
       - run:
+          name: Check if deployment should be skipped
+          command: |
+            if [ "${CIRCLE_PULL_REQUEST}" != "" ] && echo "${CIRCLE_BRANCH}" | grep -q "^project/"; then
+              echo "Skipping deployment - PR from project/* branch"
+              circleci-agent step halt
+            fi
+
+      - run:
           name: Deploy
           command: |
             VORTEX_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
