@@ -1,4 +1,4 @@
-@@ -364,65 +364,3 @@
+@@ -365,65 +365,3 @@
          timeout-minutes: 120 # Cancel the action after 15 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -6,7 +6,7 @@
 -  deploy:
 -    runs-on: ubuntu-latest
 -    needs: build
--    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 -
 -    container:
 -      image: drevops/ci-runner:__VERSION__

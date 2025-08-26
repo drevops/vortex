@@ -620,6 +620,10 @@ The installer tests have been refactored to use a modular, handler-focused archi
 - **BATS Documentation**: https://github.com/bats-core/bats-core
 - **Issue Tracking**: https://github.com/drevops/vortex/issues
 
+## Important AI Assistant Guidelines
+
+**CRITICAL**: NEVER directly modify files under `.vortex/installer/tests/Fixtures/`. These are test fixtures that must be updated by the user **MANUALLY**.
+
 ---
 
 *This knowledge base should be updated whenever significant changes are made to the Vortex testing or maintenance procedures.*

@@ -22,6 +22,42 @@ variable as a comma-separated list of one or multiple supported deployment types
 
 ## Using deployments
 
+## Deployment targets
+
+Deployment targets can be branches and pull requests. These targets are defined
+in the CI configuration files and the hosting platform.
+
+By default, deployments are triggered when commits are pushed into the following
+branches:
+- `production`
+- `main`
+- `master`
+- `develop`
+- `release/**`
+- `hotfix/**`
+- `project/**`
+
+This will run the deployment script to forward the code to the remote hosting
+platform and tell it to use the current branch's code for the deployment.
+
+When a pull request is raised against one of the branches above, a deployment
+will run for the pull request's branch. Depending on the hosting platform, this
+may create a temporary environment for the pull request with the name of the
+pull request.
+
+Note that `feature/*` or `bugfix/*` (or any other branches) branches are not
+included in the default list of deployment targets. This is to prevent
+deployments from branches that are typically short-lived and have a pull
+request raised, which will trigger a deployment. Adding these branches to the
+list of deployment targets will lead to duplicated CI runs and deployments.
+
+`project/*` branches are long-lived branches that are typically used for
+larger features or projects that may span multiple pull requests. Such branches
+would be manually synced with the `develop` branch and deployed to a remote
+environment for testing. An example of this would be a migration branch that
+has migration code and configuration that is not yet ready to be merged into
+`develop` but needs to be deployed to a remote environment for testing.
+
 ### Deployment action
 
 By default, an existing database will be retained during a deployment.
