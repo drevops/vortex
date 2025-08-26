@@ -49,9 +49,9 @@
      ];
    }
  
-@@ -301,6 +345,169 @@
-     $settings['maintenance_theme'] = 'claro';
+@@ -305,6 +349,173 @@
      $settings['skip_permissions_hardening'] = TRUE;
+     $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
@@ -92,6 +92,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
@@ -133,6 +134,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
@@ -174,6 +176,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
@@ -214,6 +217,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
      $settings['trusted_host_patterns'] = [

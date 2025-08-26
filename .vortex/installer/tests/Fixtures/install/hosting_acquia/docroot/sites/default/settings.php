@@ -63,12 +63,8 @@ $settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/defaul
 // Temporary file directory.
 $settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: getenv('TMP') ?: '/tmp';
 
-// Location of the site configuration files relative to the Drupal root. If not
-// set, the default location is inside a randomly-named directory in the public
-// files path.
-if (!empty(getenv('DRUPAL_CONFIG_PATH'))) {
-  $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH');
-}
+// Location of the site configuration files relative to the Drupal root.
+$settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: '../config/default';
 
 // Load services definition file.
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';

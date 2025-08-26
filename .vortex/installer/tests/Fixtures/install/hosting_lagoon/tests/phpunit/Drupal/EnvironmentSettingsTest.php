@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -303,6 +483,210 @@
+@@ -307,6 +487,214 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -221,6 +221,7 @@
 +
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -272,6 +273,7 @@
 +
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -323,6 +325,7 @@
 +
 +    $settings['cache_prefix']['default'] = 'test_project_master';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_STAGE;
@@ -374,6 +377,7 @@
 +
 +    $settings['cache_prefix']['default'] = 'test_project_production';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_PROD;
