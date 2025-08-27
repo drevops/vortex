@@ -96,7 +96,17 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function resolvedValue(array $responses): null|string|bool|array {
-    return $this->discover();
+    $discovered = $this->discover();
+
+    if (!is_null($discovered)) {
+      return $discovered;
+    }
+
+    if (($responses[HostingProvider::id()] ?? '') === HostingProvider::ACQUIA) {
+      return self::DOCROOT;
+    }
+
+    return NULL;
   }
 
   /**

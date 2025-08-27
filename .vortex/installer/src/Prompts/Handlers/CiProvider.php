@@ -25,7 +25,7 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Both providers support equivalent workflow.';
+    return 'Use ⬆ and ⬇ to select the CI provider.';
   }
 
   /**
@@ -33,9 +33,9 @@ class CiProvider extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     $options = [
-      self::NONE => 'None',
       self::GITHUB_ACTIONS => 'GitHub Actions',
       self::CIRCLECI => 'CircleCI',
+      self::NONE => 'None',
     ];
 
     if (isset($responses[CodeProvider::id()]) && $responses[CodeProvider::id()] !== CodeProvider::GITHUB) {

@@ -25,7 +25,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Use a self-hosted service if you cannot install a GitHub app.';
+    return 'Use ⬆ and ⬇ to select the dependency updates provider.';
   }
 
   /**
@@ -33,8 +33,8 @@ class DependencyUpdatesProvider extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     return [
-      self::RENOVATEBOT_CI => '🤖 +  🔄 Renovate self-hosted in CI',
       self::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
+      self::RENOVATEBOT_CI => '🤖 +  🔄 Renovate self-hosted in CI',
       self::NONE => '🚫 None',
     ];
   }
@@ -43,7 +43,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return self::RENOVATEBOT_CI;
+    return self::RENOVATEBOT_APP;
   }
 
   /**

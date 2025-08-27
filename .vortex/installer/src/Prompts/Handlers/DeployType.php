@@ -29,7 +29,7 @@ class DeployType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'You can deploy code using one or more methods.';
+    return 'Use ⬆, ⬇ and Space bar to select one or more deployment types.';
   }
 
   /**

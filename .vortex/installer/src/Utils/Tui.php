@@ -26,6 +26,10 @@ class Tui {
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
     static::$output = $output;
 
+    // We cannot use any Symfony console styles here, because Laravel Prompts
+    // does not correctly calculate the length of strings with style tags, which
+    // breaks the layout. Instead, we use ANSI escape codes directly using
+    // helpers in this class.
     Prompt::setOutput($output);
 
     if (!$is_interactive) {
@@ -233,6 +237,11 @@ class Tui {
       }
     }
 
+    $terminal_width = static::terminalWidth();
+
+    // (margin + 2 x border + 2 x padding) x 2 - 1 collapse divider width.
+    $column_width = (int) floor(($terminal_width - (1 + (1 + 1) * 2) * 2 - 1) / 2);
+
     $header = [];
     $rows = [];
     foreach ($values as $key => $value) {
@@ -241,7 +250,13 @@ class Tui {
         continue;
       }
 
-      $rows[] = ['  ' . static::normalizeText($key), static::normalizeText($value)];
+      $key = static::normalizeText($key);
+      $value = static::normalizeText($value);
+
+      $key = '  ' . wordwrap(static::normalizeText($key), $column_width + 2, PHP_EOL . '  ', TRUE);
+      $value = wordwrap(static::normalizeText($value), $column_width, PHP_EOL, TRUE);
+
+      $rows[] = [$key, $value];
     }
 
     intro(PHP_EOL . static::normalizeText($title) . PHP_EOL);

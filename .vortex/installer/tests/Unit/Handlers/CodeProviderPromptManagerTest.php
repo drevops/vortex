@@ -29,7 +29,7 @@ class CodeProviderPromptManagerTest extends AbstractPromptManagerTestCase {
         [CodeProvider::id() => Key::DOWN . Key::ENTER],
         [
           CodeProvider::id() => CodeProvider::OTHER,
-          CiProvider::id() => CiProvider::NONE,
+          CiProvider::id() => CiProvider::CIRCLECI,
         ] + $expected_defaults,
       ],
 
@@ -43,9 +43,7 @@ class CodeProviderPromptManagerTest extends AbstractPromptManagerTestCase {
 
       'code repo - discovery - other' => [
         [],
-        [
-          CodeProvider::id() => CodeProvider::OTHER,
-        ] + $expected_installed,
+        [CodeProvider::id() => CodeProvider::OTHER] + $expected_installed,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           Git::init(static::$sut);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "54be44ac372765b171d1dfed26f33f30",
+    "content-hash": "9e29b2508215c60080be4e7175b4d85b",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -936,16 +936,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.6",
+            "version": "dev-feature/add-description",
             "source": {
                 "type": "git",
-                "url": "https://github.com/laravel/prompts.git",
-                "reference": "86a8b692e8661d0fb308cec64f3d176821323077"
+                "url": "https://github.com/AlexSkrypnyk/prompts.git",
+                "reference": "e4cdcb467eb259a542e61e0d2d1c0a3e2741cada"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/86a8b692e8661d0fb308cec64f3d176821323077",
-                "reference": "86a8b692e8661d0fb308cec64f3d176821323077",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/prompts/zipball/e4cdcb467eb259a542e61e0d2d1c0a3e2741cada",
+                "reference": "e4cdcb467eb259a542e61e0d2d1c0a3e2741cada",
                 "shasum": ""
             },
             "require": {
@@ -962,8 +962,8 @@
                 "illuminate/collections": "^10.0|^11.0|^12.0",
                 "mockery/mockery": "^1.5",
                 "pestphp/pest": "^2.3|^3.4",
-                "phpstan/phpstan": "^1.11",
-                "phpstan/phpstan-mockery": "^1.1"
+                "phpstan/phpstan": "^1.12.28",
+                "phpstan/phpstan-mockery": "^1.1.3"
             },
             "suggest": {
                 "ext-pcntl": "Required for the spinner to be animated."
@@ -975,23 +975,26 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
                 "psr-4": {
                     "Laravel\\Prompts\\": "src/"
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.6"
+                "source": "https://github.com/AlexSkrypnyk/prompts/tree/feature/add-description"
             },
-            "time": "2025-07-07T14:17:42+00:00"
+            "time": "2025-08-30T01:04:27+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -5775,7 +5778,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "laravel/prompts": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

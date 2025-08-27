@@ -17,6 +17,27 @@ class Strings {
   }
 
   /**
+   * Wrap each line in a string with a prefix and/or suffix.
+   *
+   * @param string $lines
+   *   The input string containing multiple lines.
+   * @param string $prefix
+   *   The prefix to add to each line.
+   * @param string $suffix
+   *   The suffix to add to each line.
+   * @param string $eol
+   *   The end-of-line character(s) to use for splitting and joining lines.
+   *
+   * @return string
+   *   The modified string with each line padded with the specified prefix and
+   *   suffix.
+   */
+  public static function wrapLines(string $lines, string $prefix = '', string $suffix = '', string $eol = PHP_EOL): string {
+    $eol = $eol === '' ? PHP_EOL : $eol;
+    return implode($eol, array_map(fn(string $line): string => $prefix . $line . $suffix, explode($eol, $lines)));
+  }
+
+  /**
    * Checks if a string is a valid regular expression.
    *
    * @param string $string

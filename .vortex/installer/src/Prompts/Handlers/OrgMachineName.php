@@ -21,7 +21,7 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'We will use this name for the project directory and in the code.';
+    return 'We will use this name in the code.';
   }
 
   /**

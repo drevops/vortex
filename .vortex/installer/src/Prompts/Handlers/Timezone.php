@@ -621,7 +621,7 @@ class Timezone extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Select the timezone for your project.';
+    return 'Use ⬆ and ⬇, or start typing to select the timezone for your project.';
   }
 
   /**

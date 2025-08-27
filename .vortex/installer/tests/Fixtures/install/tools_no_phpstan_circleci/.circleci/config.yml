@@ -425,51 +425,6 @@ jobs:
       - store_artifacts:
           path: *artifacts
 
-  # Self-hosted dependency updates.
-  # Add the following environment variables to the CircleCI project:
-  # - RENOVATE_TOKEN: GitHub access token.
-  # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
-  # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
-  # Variables provided below can be overridden in the CircleCI project settings.
-  update-dependencies:
-    docker:
-      - image: renovate/renovate:__VERSION__
-        environment:
-          RENOVATE_PLATFORM: 'github'
-          RENOVATE_AUTODISCOVER: false
-          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by CircleCI'
-          RENOVATE_DEPENDENCY_DASHBOARD: false
-          RENOVATE_DRY_RUN: false
-          LOG_LEVEL: 'debug'
-
-    steps:
-      - checkout
-      - run:
-          name: Check if RENOVATE_TOKEN is set
-          command: |
-            if [ -z "${RENOVATE_TOKEN}" ]; then
-              echo "RENOVATE_TOKEN is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_REPOSITORIES}" ]; then
-              echo "Renovate repository is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_GIT_AUTHOR}" ]; then
-              echo "Renovate git author is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-      - run:
-          name: Validate Renovate configuration
-          command: renovate-config-validator
-
-      - run:
-          name: Run Renovate
-          command: renovate
-
 ################################################################################
 # WORKFLOWS
 ################################################################################
@@ -530,20 +485,3 @@ workflows:
                 - develop
     jobs:
       - database-nightly
-
-  # Self-hosted Renovate workflow.
-  update-dependencies:
-    triggers:
-      - schedule:
-          cron: "5 11,23 * * *"
-          filters:
-            branches:
-              only:
-                - develop
-    jobs:
-      - update-dependencies
-
-  update-dependencies-manual:
-    when: << pipeline.parameters.run_update_dependencies >>
-    jobs:
-      - update-dependencies

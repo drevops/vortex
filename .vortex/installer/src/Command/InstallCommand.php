@@ -9,6 +9,7 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Downloader;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -50,6 +51,11 @@ class InstallCommand extends Command {
    * Defines the configuration object.
    */
   protected Config $config;
+
+  /**
+   * The prompt manager.
+   */
+  protected PromptManager $promptManager;
 
   /**
    * {@inheritdoc}
@@ -101,15 +107,15 @@ EOF
       $this->resolveOptions($input->getArguments(), $input->getOptions());
 
       Tui::init($output, !$this->config->getNoInteraction());
-      $pm = new PromptManager($this->config);
+      $this->promptManager = new PromptManager($this->config);
 
       static::header();
 
-      $pm->runPrompts();
+      $this->promptManager->runPrompts();
 
-      Tui::list($pm->getResponsesSummary(), 'Installation summary');
+      Tui::list($this->promptManager->getResponsesSummary(), 'Installation summary');
 
-      if (!$pm->shouldProceed()) {
+      if (!$this->promptManager->shouldProceed()) {
         Tui::info('Aborting project installation. No files were changed.');
 
         return Command::SUCCESS;
@@ -132,7 +138,7 @@ EOF
 
       Tui::action(
         label: '⚙️ Customizing Vortex for your project',
-        action: fn() => $pm->runProcessors(),
+        action: fn() => $this->promptManager->runProcessors(),
         success: 'Vortex was customized for your project',
       );
 
@@ -153,9 +159,6 @@ EOF
         action: fn(): string|array => $this->handleDemo(),
         success: 'Demo content prepared',
       );
-
-      // @todo Implement the demo mode.
-      // $this->handleDemo();
     }
     catch (\Exception $exception) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -452,6 +455,8 @@ EOT;
 
   public function footer(): void {
     $output = '';
+    $prefix = '  ';
+
     if ($this->config->isVortexProject()) {
       $title = 'Finished updating Vortex 🚀🚀🚀';
       $output .= 'Please review the changes and commit the required files.';
@@ -459,29 +464,20 @@ EOT;
     else {
       $title = 'Finished installing Vortex 🚀🚀🚀';
       $output .= 'Next steps:' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  Add and commit all files:' . PHP_EOL;
-      $output .= '    cd ' . $this->config->getDst() . PHP_EOL;
-      $output .= '    git add -A' . PHP_EOL;
-      $output .= '    git commit -m "Initial commit."' . PHP_EOL;
-      $output .= PHP_EOL;
 
       // Check for required tools and provide conditional instructions.
       $missing_tools = $this->checkRequiredTools();
       if (!empty($missing_tools)) {
-        $output .= '  Install required tools:' . PHP_EOL;
+        $tools_output = 'Install required tools:' . PHP_EOL;
         foreach ($missing_tools as $tool => $instructions) {
-          $output .= sprintf('    %s: %s', $tool, $instructions) . PHP_EOL;
+          $tools_output .= sprintf('  %s: %s', $tool, $instructions) . PHP_EOL;
         }
-        $output .= PHP_EOL;
+        $tools_output .= PHP_EOL;
+        $output .= Strings::wrapLines($tools_output, $prefix);
       }
 
-      $output .= '  Build project locally:' . PHP_EOL;
-      $output .= '    ahoy build' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  Setup integration with your CI/CD system and hosting:' . PHP_EOL;
-      $output .= '    See https://www.vortextemplate.com/docs/quickstart';
-      $output .= PHP_EOL;
+      // Allow post-install handlers to add their messages.
+      $output .= Strings::wrapLines($this->promptManager->runPostInstall(), $prefix);
     }
 
     Tui::box($output, $title);

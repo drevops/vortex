@@ -67,7 +67,7 @@ class Internal extends AbstractHandler {
       if (!$should_ignore) {
         $content = File::collapseRepeatedEmptyLines($content);
         if (in_array($file->getExtension(), ['yml', 'yaml'], TRUE)) {
-           $content = Yaml::collapseFirstEmptyLinesInLiteralBlock($content);
+          $content = Yaml::collapseFirstEmptyLinesInLiteralBlock($content);
         }
         $content = Strings::removeTrailingSpaces($content);
       }
@@ -123,10 +123,13 @@ class Internal extends AbstractHandler {
   protected function processDemoMode(array $responses, string $dir): void {
     $is_demo = $this->config->get(Config::IS_DEMO);
 
-    // If demo mode is not set, check if it should be enabled based on
-    // provision type and database download source.
     if (is_null($is_demo)) {
-      if ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
+      if ($responses[Starter::id()] !== Starter::DRUPAL_LOAD_DATABASE_DEMO) {
+        $is_demo = FALSE;
+      }
+      // Check if it should be enabled based on the provision type and database
+      // download source.
+      elseif ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
         $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql'));
         $has_comment = File::contains($this->dstDir . '/.env', 'Override project-specific values for demonstration purposes');
 
@@ -163,6 +166,21 @@ class Internal extends AbstractHandler {
     }
 
     $this->config->set(Config::IS_DEMO, $is_demo);
+  }
+
+  public function postInstall():?string {
+    $output = '';
+
+    if (!$this->isInstalled()) {
+      $output .= PHP_EOL;
+      $output .= 'Add and commit all files:' . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
+      $output .= '  git add -A' . PHP_EOL;
+      $output .= '  git commit -m "Initial commit."' . PHP_EOL;
+      $output .= PHP_EOL;
+    }
+
+    return $output;
   }
 
 }
