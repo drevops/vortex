@@ -28,7 +28,7 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Select which profile to use';
+    return 'Use ⬆, ⬇ and Space bar to select which Drupal profile to use.';
   }
 
   /**
@@ -46,7 +46,7 @@ class Profile extends AbstractHandler {
       self::STANDARD => 'Standard',
       self::MINIMAL => 'Minimal',
       self::DEMO_UMAMI => 'Demo Umami',
-      self::CUSTOM => 'Custom',
+      self::CUSTOM => 'Custom (next prompt)',
     ];
   }
 

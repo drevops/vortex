@@ -23,7 +23,7 @@
         "composer/composer": "^2.8",
         "cweagans/composer-patches": "^1.7",
         "czproject/git-php": "^4.3",
-        "laravel/prompts": "^0.3.5",
+        "laravel/prompts": "dev-feature/add-description",
         "nikic/iter": "^2.4",
         "sebastian/diff": "*",
         "symfony/console": "^7.3",
@@ -43,6 +43,12 @@
         "rector/rector": "^2",
         "symfony/finder": "^7.2"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/AlexSkrypnyk/prompts.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "DrevOps\\VortexInstaller\\": "src/"

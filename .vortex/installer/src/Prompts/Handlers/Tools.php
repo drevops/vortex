@@ -36,7 +36,7 @@ class Tools extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Use up and down arrows to select tools. Press space to toggle selection.';
+    return 'Use ⬆, ⬇ and Space bar to select one or more tools.';
   }
 
   /**

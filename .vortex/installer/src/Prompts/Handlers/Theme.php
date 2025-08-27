@@ -21,7 +21,7 @@ class Theme extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'We will use this name for the theme directory. Leave empty to skip the theme scaffold.';
+    return 'Name for the theme directory. Leave empty to skip scaffolding.';
   }
 
   /**

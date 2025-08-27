@@ -21,7 +21,7 @@ class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTe
     return [
       'dependency updates provider - prompt' => [
         [DependencyUpdatesProvider::id() => Key::ENTER],
-        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_defaults,
+        [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $expected_defaults,
       ],
 
       'dependency updates provider - discovery - renovate self-hosted - gha' => [

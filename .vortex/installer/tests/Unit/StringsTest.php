@@ -535,4 +535,155 @@ class StringsTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderWrapLines')]
+  public function testWrapLines(string $input, string $prefix, string $suffix, string $eol, string $expected): void {
+    $actual = Strings::wrapLines($input, $prefix, $suffix, $eol);
+    $this->assertEquals($expected, $actual);
+  }
+
+  public static function dataProviderWrapLines(): array {
+    return [
+      'empty_string' => [
+        '',
+        '',
+        '',
+        PHP_EOL,
+        '',
+      ],
+      'single_line_no_wrapping' => [
+        'hello world',
+        '',
+        '',
+        PHP_EOL,
+        'hello world',
+      ],
+      'single_line_with_prefix' => [
+        'hello world',
+        '> ',
+        '',
+        PHP_EOL,
+        '> hello world',
+      ],
+      'single_line_with_suffix' => [
+        'hello world',
+        '',
+        ' <',
+        PHP_EOL,
+        'hello world <',
+      ],
+      'single_line_with_prefix_and_suffix' => [
+        'hello world',
+        '[ ',
+        ' ]',
+        PHP_EOL,
+        '[ hello world ]',
+      ],
+      'multiline_with_prefix' => [
+        "line one\nline two\nline three",
+        '> ',
+        '',
+        "\n",
+        "> line one\n> line two\n> line three",
+      ],
+      'multiline_with_suffix' => [
+        "line one\nline two\nline three",
+        '',
+        ' <--',
+        "\n",
+        "line one <--\nline two <--\nline three <--",
+      ],
+      'multiline_with_prefix_and_suffix' => [
+        "line one\nline two\nline three",
+        '| ',
+        ' |',
+        "\n",
+        "| line one |\n| line two |\n| line three |",
+      ],
+      'empty_lines_with_wrapping' => [
+        "line one\n\nline three",
+        '- ',
+        '',
+        "\n",
+        "- line one\n- \n- line three",
+      ],
+      'custom_eol_character' => [
+        "line one\r\nline two",
+        '> ',
+        ' <',
+        "\r\n",
+        "> line one <\r\n> line two <",
+      ],
+      'html_tag_wrapping' => [
+        "First paragraph\nSecond paragraph",
+        '<p>',
+        '</p>',
+        "\n",
+        "<p>First paragraph</p>\n<p>Second paragraph</p>",
+      ],
+      'indentation_wrapping' => [
+        "function test()\nreturn 'hello'",
+        '    ',
+        '',
+        "\n",
+        "    function test()\n    return 'hello'",
+      ],
+      'comment_wrapping' => [
+        "This is a comment\nAnother line",
+        '// ',
+        '',
+        "\n",
+        "// This is a comment\n// Another line",
+      ],
+      'quote_wrapping' => [
+        "First quote\nSecond quote",
+        '"',
+        '"',
+        "\n",
+        "\"First quote\"\n\"Second quote\"",
+      ],
+      'single_character_eol' => [
+        "line1|line2|line3",
+        '> ',
+        ' <',
+        "|",
+        "> line1 <|> line2 <|> line3 <",
+      ],
+      'whitespace_only_lines' => [
+        "   \n\t\n   ",
+        '> ',
+        ' <',
+        "\n",
+        ">     <\n> \t <\n>     <",
+      ],
+      'special_characters_in_prefix_suffix' => [
+        "line one\nline two",
+        '[INFO] ',
+        ' ✓',
+        "\n",
+        "[INFO] line one ✓\n[INFO] line two ✓",
+      ],
+      'unicode_content_and_wrapping' => [
+        "Hello 世界\nGoodbye 🌍",
+        '🔹 ',
+        ' ✨',
+        "\n",
+        "🔹 Hello 世界 ✨\n🔹 Goodbye 🌍 ✨",
+      ],
+      'complex_multiline_with_php_eol' => [
+        "<?php\nfunction test() {\n  return 'hello';\n}",
+        '  ',
+        '',
+        PHP_EOL,
+        "  <?php" . PHP_EOL . "  function test() {" . PHP_EOL . "    return 'hello';" . PHP_EOL . "  }",
+      ],
+      'empty_eol_fallback_to_php_eol' => [
+        "line one\nline two\nline three",
+        '> ',
+        ' <',
+        '',
+        "> line one <" . PHP_EOL . "> line two <" . PHP_EOL . "> line three <",
+      ],
+    ];
+  }
+
 }

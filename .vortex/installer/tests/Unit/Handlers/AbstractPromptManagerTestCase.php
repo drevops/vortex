@@ -26,6 +26,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
+use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
@@ -120,10 +121,11 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Org::id() => 'myproject Org',
       OrgMachineName::id() => 'myproject_org',
       Domain::id() => 'myproject.com',
-      CodeProvider::id() => CodeProvider::GITHUB,
+      Starter::id() => Starter::DRUPAL_LOAD_DATABASE_DEMO,
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
+      CodeProvider::id() => CodeProvider::GITHUB,
       Timezone::id() => 'UTC',
       Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
       Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT],
@@ -134,7 +136,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
       DatabaseImage::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
-      DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
+      DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
@@ -188,10 +190,11 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Org::id() => static::TUI_DEFAULT,
       OrgMachineName::id() => static::TUI_DEFAULT,
       Domain::id() => static::TUI_DEFAULT,
-      CodeProvider::id() => static::TUI_DEFAULT,
+      Starter::id() => static::TUI_DEFAULT,
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
+      CodeProvider::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
       Tools::id() => static::TUI_DEFAULT,

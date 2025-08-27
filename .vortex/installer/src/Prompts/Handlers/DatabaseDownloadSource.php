@@ -32,7 +32,7 @@ class DatabaseDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'The database can be downloaded as an exported dump file or pre-packaged in a container image.';
+    return 'Use ⬆ and ⬇ to select the database download source.';
   }
 
   /**
@@ -45,7 +45,7 @@ class DatabaseDownloadSource extends AbstractHandler {
       self::ACQUIA => '💧 Acquia backup',
       self::LAGOON => '🌊 Lagoon environment',
       self::CONTAINER_REGISTRY => '🐳 Container registry',
-      self::NONE => '🙅 None',
+      self::NONE => '🚫 None',
     ];
 
     if (isset($responses[HostingProvider::id()])) {

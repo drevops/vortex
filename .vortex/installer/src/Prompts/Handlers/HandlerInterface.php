@@ -126,7 +126,7 @@ interface HandlerInterface {
    *
    * If this returns a non-empty value, the caller should use this value
    * instead of prompting the user for input. This allows handlers to
-   * encapsulate logic for when values are discovered from environment,
+   * encapsulate logic for when values are discovered from the environment,
    * auto-selected based on other responses, or otherwise pre-determined.
    *
    * @param array $responses
@@ -176,5 +176,10 @@ interface HandlerInterface {
    * Process the discovered value once all the responses are collected.
    */
   public function process(): void;
+
+  /**
+   * Actions to perform and messages to print after installation is complete.
+   */
+  public function postInstall(): ?string;
 
 }
