@@ -446,8 +446,12 @@ EOT;
       $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
       $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
-      $content .= PHP_EOL;
+
+      if ($this->config->isVortexProject()) {
+        $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
+        $content .= PHP_EOL;
+      }
+
       $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
       $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
     }
