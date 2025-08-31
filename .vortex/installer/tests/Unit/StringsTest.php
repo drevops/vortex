@@ -15,18 +15,18 @@ use DrevOps\VortexInstaller\Utils\Strings;
 class StringsTest extends UnitTestCase {
 
   #[DataProvider('dataProviderIsAsciiStart')]
-  public function testIsAsciiStart(string $input, ?int $expected): void {
+  public function testIsAsciiStart(string $input, bool $expected): void {
     $this->assertEquals($expected, Strings::isAsciiStart($input));
   }
 
   public static function dataProviderIsAsciiStart(): array {
     return [
-      ['Hello', 1],
-      ['Ångström', 0],
-      ['⚙️', 0],
-      ['⚙️ Text', 0],
-      ["\x80Invalid UTF", 0],
-      ['', 0],
+      ['Hello', TRUE],
+      ['Ångström', FALSE],
+      ['⚙️', FALSE],
+      ['⚙️ Text', FALSE],
+      ["\x80Invalid UTF", FALSE],
+      ['', FALSE],
     ];
   }
 
@@ -42,6 +42,161 @@ class StringsTest extends UnitTestCase {
       ['NoEscapeCodes', 13],
       ['', 0],
       ['Vortex 🚀🚀🚀', 13],
+    ];
+  }
+
+  #[DataProvider('dataProviderStripAnsiColors')]
+  public function testStripAnsiColors(string $input, string $expected): void {
+    $actual = Strings::stripAnsiColors($input);
+    $this->assertEquals($expected, $actual);
+  }
+
+  public static function dataProviderStripAnsiColors(): array {
+    return [
+      'empty string' => [
+        '',
+        '',
+      ],
+
+      'plain text without ANSI codes' => [
+        'Hello World',
+        'Hello World',
+      ],
+
+      'text with basic color codes' => [
+        "\033[32mGreen text\033[0m",
+        'Green text',
+      ],
+
+      'text with multiple color codes' => [
+        "\033[31mRed\033[0m and \033[34mBlue\033[0m",
+        'Red and Blue',
+      ],
+
+      'text with style codes' => [
+        "\033[1mBold\033[0m and \033[4mUnderlined\033[0m",
+        'Bold and Underlined',
+      ],
+
+      'text with background colors' => [
+        "\033[41mRed background\033[0m",
+        'Red background',
+      ],
+
+      'text with 256-color codes' => [
+        "\033[38;5;196mBright red\033[0m",
+        'Bright red',
+      ],
+
+      'text with RGB color codes' => [
+        "\033[38;2;255;0;0mRGB red\033[0m",
+        'RGB red',
+      ],
+
+      'text with complex ANSI sequences' => [
+        "\033[1;31;40mBold red on black\033[0m",
+        'Bold red on black',
+      ],
+
+      'multiline text with ANSI codes' => [
+        "\033[32mLine 1\033[0m\n\033[34mLine 2\033[0m",
+        "Line 1\nLine 2",
+      ],
+
+      'ANSI codes at start and end' => [
+        "\033[33mYellow text\033[0m",
+        'Yellow text',
+      ],
+
+      'consecutive ANSI codes' => [
+        "\033[31m\033[1mBold Red\033[0m\033[0m",
+        'Bold Red',
+      ],
+
+      'ANSI codes without content between' => [
+        "\033[32m\033[0m",
+        '',
+      ],
+
+      'mixed ANSI and special characters' => [
+        "\033[35mSpecial: áéíóú ñ €\033[0m",
+        'Special: áéíóú ñ €',
+      ],
+
+      'cursor movement codes (should not be affected)' => [
+        "\033[2AUp two lines\033[B",
+        "\033[2AUp two lines\033[B",
+      ],
+
+      'clear screen codes (should not be affected)' => [
+        "\033[2JClear screen",
+        "\033[2JClear screen",
+      ],
+
+      'save/restore cursor (should not be affected)' => [
+        "\033[sSave\033[uRestore",
+        "\033[sSave\033[uRestore",
+      ],
+
+      'complex terminal output simulation' => [
+        "\033[1;32m[INFO]\033[0m \033[33mProcessing file:\033[0m example.txt",
+        '[INFO] Processing file: example.txt',
+      ],
+
+      'git-like colored output' => [
+        "\033[32m+\033[0m Added line\n\033[31m-\033[0m Removed line",
+        "+ Added line\n- Removed line",
+      ],
+
+      'only ANSI codes' => [
+        "\033[31m\033[1m\033[0m",
+        '',
+      ],
+
+      'partial ANSI sequences (should not be affected)' => [
+        'Text with \\033[31m escaped sequence',
+        'Text with \\033[31m escaped sequence',
+      ],
+
+      'ANSI codes with different parameter counts' => [
+        "\033[0mReset\033[1mBold\033[22mNormal\033[39mDefault",
+        'ResetBoldNormalDefault',
+      ],
+
+      'dim and bright codes' => [
+        "\033[2mDim text\033[22m\033[1mBright text\033[0m",
+        'Dim textBright text',
+      ],
+
+      'strikethrough and other styles' => [
+        "\033[9mStrikethrough\033[29m \033[3mItalic\033[23m",
+        'Strikethrough Italic',
+      ],
+
+      'extended color codes with semicolons' => [
+        "\033[38;5;208mOrange\033[48;5;19mBlue BG\033[0m",
+        'OrangeBlue BG',
+      ],
+
+      'codes with no parameters' => [
+        "\033[mDefault\033[m",
+        'Default',
+      ],
+
+      'real-world example: colored log output' => [
+        "\033[90m2023-01-01 12:00:00\033[0m \033[32mINFO\033[0m Application started",
+        '2023-01-01 12:00:00 INFO Application started',
+      ],
+
+      'real-world example: progress indicator' => [
+        "Processing... \033[32m✓\033[0m Done",
+        'Processing... ✓ Done',
+      ],
+
+      'mixed with escape sequences that should remain' => [
+        "Normal text\n\ttab and newline\033[31mRed\033[0m",
+        "Normal text\n\ttab and newlineRed",
+      ],
     ];
   }
 

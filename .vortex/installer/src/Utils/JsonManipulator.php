@@ -23,7 +23,13 @@ class JsonManipulator extends ComposerJsonManipulator {
 
     $contents = file_get_contents($composer_json);
     if ($contents === FALSE) {
-      throw new \RuntimeException('Failed to read composer.json from ' . $composer_json);
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf(
+        'Failed to read composer.json from %s: %s',
+        $composer_json,
+        error_get_last()['message'] ?? 'unknown error'
+      ));
+      // @codeCoverageIgnoreEnd
     }
 
     return new self($contents);

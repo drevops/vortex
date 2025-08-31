@@ -105,4 +105,66 @@ class ValidatorTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderGitCommitSha')]
+  public function testGitCommitSha(string $sha, bool $expected): void {
+    $this->assertSame($expected, Validator::gitCommitSha($sha));
+  }
+
+  public static function dataProviderGitCommitSha(): array {
+    return [
+      // Valid SHA-1 hashes (40 hexadecimal characters)
+      'valid lowercase SHA' => ['a1b2c3d4e5f6789012345678901234567890abcd', TRUE],
+      'valid uppercase SHA' => ['A1B2C3D4E5F6789012345678901234567890ABCD', TRUE],
+      'valid mixed case SHA' => ['a1B2c3D4e5F6789012345678901234567890AbCd', TRUE],
+      'valid all numbers SHA' => ['1234567890123456789012345678901234567890', TRUE],
+      'valid all letters SHA' => ['abcdefabcdefabcdefabcdefabcdefabcdefabcd', TRUE],
+
+      // Invalid SHA hashes.
+      'invalid too short' => ['a1b2c3d4e5f6789012345678901234567890abc', FALSE],
+      'invalid too long' => ['a1b2c3d4e5f6789012345678901234567890abcdef', FALSE],
+      'invalid with non-hex characters' => ['a1b2c3d4e5f6789012345678901234567890abcg', FALSE],
+      'invalid with special characters' => ['a1b2c3d4e5f6789012345678901234567890ab!@', FALSE],
+      'invalid with spaces' => ['a1b2c3d4e5f6 789012345678901234567890abcd', FALSE],
+      'invalid empty string' => ['', FALSE],
+      'invalid only spaces' => ['                                        ', FALSE],
+      'invalid with hyphens' => ['a1b2c3d4-e5f6-7890-1234-567890abcd', FALSE],
+      'invalid partial match' => ['123', FALSE],
+      'invalid null characters' => ["a1b2c3d4e5f6789012345678901234567890abc\0", FALSE],
+    ];
+  }
+
+  #[DataProvider('dataProviderGitCommitShaShort')]
+  public function testGitCommitShaShort(string $sha_short, bool $expected): void {
+    $this->assertSame($expected, Validator::gitCommitShaShort($sha_short));
+  }
+
+  public static function dataProviderGitCommitShaShort(): array {
+    return [
+      // Valid short SHA-1 hashes (7 hexadecimal characters)
+      'valid lowercase short SHA' => ['a1b2c3d', TRUE],
+      'valid uppercase short SHA' => ['A1B2C3D', TRUE],
+      'valid mixed case short SHA' => ['a1B2c3D', TRUE],
+      'valid all numbers short SHA' => ['1234567', TRUE],
+      'valid all letters short SHA' => ['abcdef0', TRUE],
+      'valid with f characters' => ['fffffff', TRUE],
+      'valid with 0 characters' => ['0000000', TRUE],
+
+      // Invalid short SHA hashes.
+      'invalid too short (6 chars)' => ['a1b2c3', FALSE],
+      'invalid too short (1 char)' => ['a', FALSE],
+      'invalid too long (8 chars)' => ['a1b2c3d4', FALSE],
+      'invalid too long (40 chars)' => ['a1b2c3d4e5f6789012345678901234567890abcd', FALSE],
+      'invalid with non-hex characters' => ['a1b2c3g', FALSE],
+      'invalid with special characters' => ['a1b2c!@', FALSE],
+      'invalid with spaces' => ['a1b 2c3', FALSE],
+      'invalid with leading space' => [' a1b2c3', FALSE],
+      'invalid with trailing space' => ['a1b2c3 ', FALSE],
+      'invalid empty string' => ['', FALSE],
+      'invalid only spaces' => ['       ', FALSE],
+      'invalid with hyphens' => ['a1b-2c3', FALSE],
+      'invalid with underscores' => ['a1b_2c3', FALSE],
+      'invalid null characters' => ["a1b2c3\0", FALSE],
+    ];
+  }
+
 }

@@ -6,14 +6,17 @@ namespace DrevOps\VortexInstaller\Utils;
 
 class Strings {
 
-  public static function isAsciiStart(string $string): ?int {
-    $pos = preg_match('/^[\x00-\x7F]/', $string);
-    return $pos !== FALSE ? $pos : NULL;
+  public static function isAsciiStart(string $string): bool {
+    return preg_match('/^[\x00-\x7F]/', $string) === 1;
   }
 
   public static function strlenPlain(string $text): int {
     $clean_text = preg_replace('/\e\[[0-9;]*m/', '', $text);
     return mb_strwidth($clean_text, 'UTF-8');
+  }
+
+  public static function stripAnsiColors(string $text): string {
+    return preg_replace('/\e\[[0-9;]*m/', '', $text);
   }
 
   /**

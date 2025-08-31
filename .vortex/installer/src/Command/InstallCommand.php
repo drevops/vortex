@@ -10,6 +10,7 @@ use DrevOps\VortexInstaller\Utils\Downloader;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
+use DrevOps\VortexInstaller\Utils\Task;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -123,7 +124,7 @@ EOF
 
       Tui::info('Starting project installation');
 
-      Tui::action(
+      Task::action(
         label: '⬇️ Downloading Vortex',
         action: function (): string {
           $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
@@ -136,25 +137,25 @@ EOF
         }
       );
 
-      Tui::action(
+      Task::action(
         label: '⚙️ Customizing Vortex for your project',
         action: fn() => $this->promptManager->runProcessors(),
         success: 'Vortex was customized for your project',
       );
 
-      Tui::action(
+      Task::action(
         label: '📁 Preparing destination directory',
         action: fn(): array => $this->prepareDestination(),
         success: 'Destination directory is ready',
       );
 
-      Tui::action(
+      Task::action(
         label: '➡️ Copying files to the destination directory',
         action: fn() => $this->copyFiles(),
         success: 'Files copied to destination directory',
       );
 
-      Tui::action(
+      Task::action(
         label: '🎭 Preparing demo content',
         action: fn(): string|array => $this->handleDemo(),
         success: 'Demo content prepared',

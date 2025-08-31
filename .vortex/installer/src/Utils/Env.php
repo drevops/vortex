@@ -82,13 +82,15 @@ class Env {
    *   Array of parsed values, key is the variable name.
    */
   public static function parseDotenv(string $filename = '.env'): array {
-    if (!is_readable($filename)) {
+    if (!is_file($filename) || !is_readable($filename)) {
       return [];
     }
 
     $contents = file_get_contents($filename);
     if ($contents === FALSE) {
+      // @codeCoverageIgnoreStart
       return [];
+      // @codeCoverageIgnoreEnd
     }
 
     // Replace all # not inside quotes.
@@ -141,7 +143,9 @@ class Env {
 
     $contents = file_get_contents($filename);
     if ($contents === FALSE) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf('Unable to read file %s.', $filename));
+      // @codeCoverageIgnoreEnd
     }
 
     // Pattern to match the variable name and its value, including multiline
@@ -158,7 +162,7 @@ class Env {
         $contents = preg_replace('/\n\n+/', "\n\n", $contents);
       }
       else {
-        // Add empty variable if it doesn't exist.
+        // Add empty line if it doesn't exist.
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
@@ -184,7 +188,9 @@ class Env {
     }
 
     if (file_put_contents($filename, $contents) === FALSE) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf('Unable to write to file %s.', $filename));
+      // @codeCoverageIgnoreEnd
     }
 
     // Return parsed values after modification.
