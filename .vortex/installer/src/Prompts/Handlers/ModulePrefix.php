@@ -13,7 +13,7 @@ class ModulePrefix extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🧩 Module prefix';
+    return 'Module prefix';
   }
 
   /**

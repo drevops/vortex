@@ -14,7 +14,7 @@ class AiCodeInstructions extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🤖 AI code assistant instructions';
+    return 'AI code assistant instructions';
   }
 
   /**

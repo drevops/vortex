@@ -15,7 +15,7 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🏷️ Site machine name';
+    return 'Site machine name';
   }
 
   /**

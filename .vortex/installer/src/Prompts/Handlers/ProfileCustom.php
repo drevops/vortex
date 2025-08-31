@@ -12,7 +12,7 @@ class ProfileCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🧾 Custom profile machine name';
+    return 'Custom profile machine name';
   }
 
   /**

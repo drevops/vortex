@@ -15,7 +15,7 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🏷️ What is your database container image name and a tag?';
+    return 'What is your database container image name and a tag?';
   }
 
   /**

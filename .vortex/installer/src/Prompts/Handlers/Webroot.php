@@ -19,7 +19,7 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '📁 Custom web root directory';
+    return 'Custom web root directory';
   }
 
   /**

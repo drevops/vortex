@@ -14,7 +14,7 @@ class Theme extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🎨 Theme machine name';
+    return 'Theme machine name';
   }
 
   /**

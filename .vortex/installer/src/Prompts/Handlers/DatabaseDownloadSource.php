@@ -25,7 +25,7 @@ class DatabaseDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '📡 Database source';
+    return 'Database source';
   }
 
   /**
@@ -40,12 +40,12 @@ class DatabaseDownloadSource extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     $options = [
-      self::URL => '🌍 URL download',
-      self::FTP => '📂 FTP download',
-      self::ACQUIA => '💧 Acquia backup',
-      self::LAGOON => '🌊 Lagoon environment',
-      self::CONTAINER_REGISTRY => '🐳 Container registry',
-      self::NONE => '🚫 None',
+      self::URL => 'URL download',
+      self::FTP => 'FTP download',
+      self::ACQUIA => 'Acquia backup',
+      self::LAGOON => 'Lagoon environment',
+      self::CONTAINER_REGISTRY => 'Container registry',
+      self::NONE => 'None',
     ];
 
     if (isset($responses[HostingProvider::id()])) {

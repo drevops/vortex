@@ -16,7 +16,7 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🗄️ Repository provider';
+    return 'Repository provider';
   }
 
   /**

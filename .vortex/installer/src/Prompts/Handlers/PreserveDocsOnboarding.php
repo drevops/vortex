@@ -12,7 +12,7 @@ class PreserveDocsOnboarding extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '📋 Preserve onboarding checklist?';
+    return 'Preserve onboarding checklist?';
   }
 
   /**

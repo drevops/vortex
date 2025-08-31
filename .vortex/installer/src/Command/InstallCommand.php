@@ -125,7 +125,7 @@ EOF
       Tui::info('Starting project installation');
 
       Task::action(
-        label: '⬇️ Downloading Vortex',
+        label: 'Downloading Vortex',
         action: function (): string {
           $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
@@ -138,25 +138,25 @@ EOF
       );
 
       Task::action(
-        label: '⚙️ Customizing Vortex for your project',
+        label: 'Customizing Vortex for your project',
         action: fn() => $this->promptManager->runProcessors(),
         success: 'Vortex was customized for your project',
       );
 
       Task::action(
-        label: '📁 Preparing destination directory',
+        label: 'Preparing destination directory',
         action: fn(): array => $this->prepareDestination(),
         success: 'Destination directory is ready',
       );
 
       Task::action(
-        label: '➡️ Copying files to the destination directory',
+        label: 'Copying files to the destination directory',
         action: fn() => $this->copyFiles(),
         success: 'Files copied to destination directory',
       );
 
       Task::action(
-        label: '🎭 Preparing demo content',
+        label: 'Preparing demo content',
         action: fn(): string|array => $this->handleDemo(),
         success: 'Demo content prepared',
       );
@@ -464,11 +464,11 @@ EOT;
     $prefix = '  ';
 
     if ($this->config->isVortexProject()) {
-      $title = 'Finished updating Vortex 🚀🚀🚀';
+      $title = 'Finished updating Vortex';
       $output .= 'Please review the changes and commit the required files.';
     }
     else {
-      $title = 'Finished installing Vortex 🚀🚀🚀';
+      $title = 'Finished installing Vortex';
       $output .= 'Next steps:' . PHP_EOL;
 
       // Check for required tools and provide conditional instructions.

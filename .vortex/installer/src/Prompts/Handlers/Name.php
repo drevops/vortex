@@ -14,7 +14,7 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🏷️ Site name';
+    return 'Site name';
   }
 
   /**

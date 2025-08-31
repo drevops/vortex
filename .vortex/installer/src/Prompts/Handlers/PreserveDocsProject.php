@@ -12,7 +12,7 @@ class PreserveDocsProject extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '📚 Preserve project documentation?';
+    return 'Preserve project documentation?';
   }
 
   /**

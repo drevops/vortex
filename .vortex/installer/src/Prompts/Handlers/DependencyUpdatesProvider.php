@@ -18,7 +18,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '⬆️ Dependency updates provider';
+    return 'Dependency updates provider';
   }
 
   /**
@@ -33,9 +33,9 @@ class DependencyUpdatesProvider extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     return [
-      self::RENOVATEBOT_APP => '🤖 Renovate GitHub app',
-      self::RENOVATEBOT_CI => '🤖 +  🔄 Renovate self-hosted in CI',
-      self::NONE => '🚫 None',
+      self::RENOVATEBOT_APP => 'Renovate GitHub app',
+      self::RENOVATEBOT_CI => 'Renovate self-hosted in CI',
+      self::NONE => 'None',
     ];
   }
 

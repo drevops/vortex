@@ -614,7 +614,7 @@ class Timezone extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🌍 Timezone';
+    return 'Timezone';
   }
 
   /**

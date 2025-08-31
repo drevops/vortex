@@ -21,7 +21,7 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🧾 Profile';
+    return 'Profile';
   }
 
   /**

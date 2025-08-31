@@ -29,7 +29,7 @@ class Tools extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🔧 Development tools';
+    return 'Development tools';
   }
 
   /**
@@ -180,7 +180,7 @@ class Tools extends AbstractHandler {
 
     $map = [
       self::PHPCS => [
-        'title' => '📏 PHP CodeSniffer',
+        'title' => 'PHP CodeSniffer',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'dealerdirect/phpcodesniffer-composer-installer') ||
             File::contains($this->dstDir . '/composer.json', 'drupal/coder') ||
@@ -200,7 +200,7 @@ class Tools extends AbstractHandler {
       ],
 
       self::PHPSTAN => [
-        'title' => '🔬 PHPStan',
+        'title' => 'PHPStan',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'phpstan/phpstan') ||
             File::contains($this->dstDir . '/composer.json', 'mglaman/phpstan-drupal');
@@ -218,7 +218,7 @@ class Tools extends AbstractHandler {
       ],
 
       self::RECTOR => [
-        'title' => '🔄 Rector',
+        'title' => 'Rector',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'rector/rector');
         },
@@ -231,7 +231,7 @@ class Tools extends AbstractHandler {
       ],
 
       self::PHPMD => [
-        'title' => '🔍 PHP Mess Detector',
+        'title' => 'PHP Mess Detector',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'phpmd/phpmd');
         },
@@ -247,7 +247,7 @@ class Tools extends AbstractHandler {
       ],
 
       self::PHPUNIT => [
-        'title' => '🧪 PHPUnit',
+        'title' => 'PHPUnit',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'phpunit/phpunit');
         },
@@ -276,7 +276,7 @@ class Tools extends AbstractHandler {
       ],
 
       self::BEHAT => [
-        'title' => '🥒 Behat',
+        'title' => 'Behat',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'behat/behat') ||
             File::contains($this->dstDir . '/composer.json', 'drupal/drupal-extension');
