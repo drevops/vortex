@@ -48,7 +48,7 @@ class Tui {
   }
 
   public static function error(string $message): void {
-    error('❌  ' . $message);
+    error('✕ ' . $message);
   }
 
   public static function green(string $text): string {

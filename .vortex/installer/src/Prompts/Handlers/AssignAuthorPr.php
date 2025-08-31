@@ -10,7 +10,7 @@ class AssignAuthorPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '👤 Auto-assign the author to their PR?';
+    return 'Auto-assign the author to their PR?';
   }
 
   /**

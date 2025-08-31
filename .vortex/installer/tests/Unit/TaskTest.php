@@ -51,7 +51,7 @@ class TaskTest extends UnitTestCase {
         'hint' => NULL,
         'success' => NULL,
         'failure' => NULL,
-        'expected_output' => '✅ OK',
+        'expected_output' => '✓ OK',
       ],
 
       'successful action with string messages' => [
@@ -61,7 +61,7 @@ class TaskTest extends UnitTestCase {
         'success' => 'Completed successfully',
         'failure' => 'Failed',
         'expected_output' => [
-          '✅ Completed successfully',
+          '✓ Completed successfully',
           'This is a hint',
         ],
       ],
@@ -72,7 +72,7 @@ class TaskTest extends UnitTestCase {
         'hint' => 'This is a hint',
         'success' => 'Completed successfully',
         'failure' => 'Failed',
-        'expected_output' => '✅ Completed successfully',
+        'expected_output' => '✓ Completed successfully',
       ],
 
       'successful action with closures' => [
@@ -82,7 +82,7 @@ class TaskTest extends UnitTestCase {
         'success' => fn($result): string => 'Success: ' . $result,
         'failure' => 'Failed',
         'expected_output' => [
-          '✅ Success: Done',
+          '✓ Success: Done',
           'Processing dynamically',
         ],
       ],
@@ -94,7 +94,7 @@ class TaskTest extends UnitTestCase {
         'success' => 'Processed items',
         'failure' => 'Processing failed',
         'expected_output' => [
-          '✅ Processed items',
+          '✓ Processed items',
           'item1',
           'item2',
         ],

@@ -19,7 +19,7 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🔌 Services';
+    return 'Services';
   }
 
   /**
@@ -34,9 +34,9 @@ class Services extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     return [
-      self::CLAMAV => '🦠 ClamAV',
-      self::SOLR => '🔍 Solr',
-      self::VALKEY => '🗃️ Valkey',
+      self::CLAMAV => 'ClamAV',
+      self::SOLR => 'Solr',
+      self::VALKEY => 'Valkey',
     ];
   }
 

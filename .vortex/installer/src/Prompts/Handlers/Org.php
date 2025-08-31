@@ -14,7 +14,7 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🏢 Organization name';
+    return 'Organization name';
   }
 
   /**

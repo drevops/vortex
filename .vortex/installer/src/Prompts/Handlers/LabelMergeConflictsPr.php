@@ -10,7 +10,7 @@ class LabelMergeConflictsPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🎫 Auto-add a CONFLICT label to a PR when conflicts occur?';
+    return 'Auto-add a CONFLICT label to a PR when conflicts occur?';
   }
 
   /**

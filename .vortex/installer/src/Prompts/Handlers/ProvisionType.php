@@ -18,7 +18,7 @@ class ProvisionType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🦋 Provision type';
+    return 'Provision type';
   }
 
   /**

@@ -65,7 +65,7 @@ class TuiTest extends UnitTestCase {
     Tui::error('Test error message');
 
     $actual = $output->fetch();
-    $this->assertStringContainsString('❌  Test error message', $actual);
+    $this->assertStringContainsString('✕ Test error message', $actual);
   }
 
   #[DataProvider('dataProviderColorMethods')]

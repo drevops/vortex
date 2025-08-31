@@ -15,7 +15,7 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🌐 Public domain';
+    return 'Public domain';
   }
 
   /**

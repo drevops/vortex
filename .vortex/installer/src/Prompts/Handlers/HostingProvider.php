@@ -22,7 +22,7 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '☁️ Hosting provider';
+    return 'Hosting provider';
   }
 
   /**
@@ -44,10 +44,10 @@ class HostingProvider extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     return [
-      self::ACQUIA => '💧 Acquia Cloud',
-      self::LAGOON => '🌊 Lagoon',
-      self::OTHER => '🧩 Other',
-      self::NONE => '🚫 None',
+      self::ACQUIA => 'Acquia Cloud',
+      self::LAGOON => 'Lagoon',
+      self::OTHER => 'Other',
+      self::NONE => 'None',
     ];
   }
 

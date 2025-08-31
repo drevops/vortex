@@ -18,7 +18,7 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🔄 Continuous Integration provider';
+    return 'Continuous Integration provider';
   }
 
   /**

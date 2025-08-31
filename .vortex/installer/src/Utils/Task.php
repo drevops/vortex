@@ -42,10 +42,11 @@ class Task {
     }
   }
 
-  protected static function label(string $message, ?string $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 2): void {
+  protected static function label(string $message, ?string $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 3): void {
     $width = Tui::terminalWidth();
     $right_offset = 10;
 
+    $message = '✦ ' . $message;
     $message = Tui::normalizeText($message);
 
     static::$message = Tui::blue(wordwrap($message, $width - $right_offset, PHP_EOL));
@@ -68,7 +69,7 @@ class Task {
   }
 
   protected static function ok(string $text = 'OK'): void {
-    $ok = Tui::green(Tui::normalizeText("✅ " . $text));
+    $ok = Tui::green(Tui::normalizeText('✓ ' . $text));
     Tui::note($ok);
     Tui::note(str_repeat(Tui::caretUp(), 4));
   }
