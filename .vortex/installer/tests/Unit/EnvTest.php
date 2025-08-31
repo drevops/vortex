@@ -74,11 +74,8 @@ class EnvTest extends UnitTestCase {
     if ($value_dotenv) {
       $content = sprintf('%s=%s', $name, $value_dotenv);
     }
-    $filename = $this->createFixtureEnvFile($content);
 
-    if (!$filename) {
-      $this->fail('Failed to create fixture file.');
-    }
+    $filename = $this->createFixtureEnvFile($content);
 
     $actual = Env::getFromDotenv($name, dirname($filename));
     $this->assertEquals($expected, $actual);
@@ -108,10 +105,6 @@ class EnvTest extends UnitTestCase {
       $content = sprintf('%s=%s', $name, $value_dotenv);
     }
     $filename = $this->createFixtureEnvFile($content);
-
-    if (!$filename) {
-      $this->fail('Failed to create fixture file.');
-    }
 
     Env::putFromDotenv($filename, $override_existing);
 
@@ -204,10 +197,6 @@ class EnvTest extends UnitTestCase {
   public function testParseDotenv(string $content, ?array $expected, ?string $exception_message): void {
     $filename = $this->createFixtureEnvFile($content);
 
-    if (!$filename) {
-      $this->fail('Failed to create fixture file.');
-    }
-
     if ($exception_message) {
       $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessageMatches('/' . preg_quote($exception_message, '/') . '/');
@@ -249,8 +238,7 @@ class EnvTest extends UnitTestCase {
 
   public function testParseDotenvFileReadFailure(): void {
     // Create a file we can't read.
-    $filename = tempnam(sys_get_temp_dir(), '.env');
-    file_put_contents($filename, 'VAR=value');
+    $filename = $this->createFixtureEnvFile('VAR=value');
     chmod($filename, 0000);
 
     $result = Env::parseDotenv($filename);
@@ -300,9 +288,134 @@ class EnvTest extends UnitTestCase {
     putenv($name);
   }
 
-  protected function createFixtureEnvFile(string $content): string|false {
+  public function testGetFromDotenvFileNotReadable(): void {
+    $result = Env::getFromDotenv('SOME_VAR', '/nonexistent/directory');
+    $this->assertNull($result);
+  }
+
+  public function testGetFromDotenvReturnsParsedValue(): void {
+    // Test the case when environment variable is not set but .env file exists.
+    $content = "TEST_VAR=dotenv_value";
+    $filename = $this->createFixtureEnvFile($content);
+    $dir = dirname($filename);
+
+    // Move the temp file to be named .env in the directory.
+    $dotenv_file = $dir . '/.env';
+    rename($filename, $dotenv_file);
+
+    // Ensure no environment variable is set by clearing any existing value.
+    if (getenv('TEST_VAR') !== FALSE) {
+      putenv('TEST_VAR');
+    }
+
+    $result = Env::getFromDotenv('TEST_VAR', $dir);
+    $this->assertEquals('dotenv_value', $result);
+
+    unlink($dotenv_file);
+  }
+
+  public function testWriteValueDotenvFileNotReadable(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('File /nonexistent/file.env is not readable.');
+
+    Env::writeValueDotenv('TEST_VAR', 'value', '/nonexistent/file.env');
+  }
+
+  public function testWriteValueDotenvFileReadFailure(): void {
+    // Create a file we can't read.
+    $filename = $this->createFixtureEnvFile('VAR=value');
+    chmod($filename, 0000);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('File %s is not readable.', $filename));
+
+    try {
+      Env::writeValueDotenv('TEST_VAR', 'value', $filename);
+    }
+    finally {
+      // Clean up.
+      chmod($filename, 0644);
+      unlink($filename);
+    }
+  }
+
+  public function testWriteValueDotenvAddNewVariableToFileWithoutNewline(): void {
+    // No trailing newline.
+    $filename = $this->createFixtureEnvFile('EXISTING_VAR=value');
+
+    Env::writeValueDotenv('NEW_VAR', 'new_value', $filename);
+
+    $content = file_get_contents($filename);
+    $expected = "EXISTING_VAR=value\nNEW_VAR=new_value\n";
+    $this->assertEquals($expected, $content);
+
+    unlink($filename);
+  }
+
+  public function testWriteValueDotenvReplaceVariableToFileWithoutNewline(): void {
+    // No trailing newline.
+    $filename = $this->createFixtureEnvFile('EXISTING_VAR=old_value');
+
+    Env::writeValueDotenv('NEW_VAR', 'new value with spaces', $filename);
+
+    $content = file_get_contents($filename);
+    $expected = "EXISTING_VAR=old_value\nNEW_VAR=\"new value with spaces\"\n";
+    $this->assertEquals($expected, $content);
+
+    unlink($filename);
+  }
+
+  public function testWriteValueDotenvAddEmptyVariable(): void {
+    $filename = $this->createFixtureEnvFile("EXISTING_VAR=value\n");
+
+    // Test adding a variable that doesn't exist with null value.
+    Env::writeValueDotenv('NEW_VAR', NULL, $filename);
+
+    $content = file_get_contents($filename);
+    $expected = "EXISTING_VAR=value\nNEW_VAR=\n";
+    $this->assertEquals($expected, $content);
+
+    unlink($filename);
+  }
+
+  public function testWriteValueDotenvAddEmptyVariableToFileWithoutNewline(): void {
+    // No trailing newline.
+    $filename = $this->createFixtureEnvFile('EXISTING_VAR=value');
+
+    // Test adding a variable that doesn't exist with null value to a file
+    // without newline.
+    Env::writeValueDotenv('NEW_VAR', NULL, $filename);
+
+    $content = file_get_contents($filename);
+    $expected = "EXISTING_VAR=value\nNEW_VAR=\n";
+    $this->assertEquals($expected, $content);
+
+    unlink($filename);
+  }
+
+  public function testParseDotenvFileGetContentsFailure(): void {
+    // Create a directory instead of a file (will cause file_get_contents
+    // to fail).
+    $dirname = tempnam(sys_get_temp_dir(), '.env');
+    unlink($dirname);
+    mkdir($dirname);
+
+    $result = Env::parseDotenv($dirname);
+    $this->assertEquals([], $result);
+
+    rmdir($dirname);
+  }
+
+  protected function createFixtureEnvFile(string $content): string {
     $filename = tempnam(sys_get_temp_dir(), '.env');
-    file_put_contents($filename, $content);
+
+    if ($filename === FALSE) {
+      throw new \RuntimeException('Failed to create temporary file.');
+    }
+
+    if (file_put_contents($filename, $content) === FALSE) {
+      throw new \RuntimeException('Failed to write to temporary file.');
+    }
 
     return $filename;
   }

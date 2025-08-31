@@ -33,11 +33,11 @@ class Validator {
     return (bool) preg_match('/^(?!^(?:\.{1,2}|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$)[\w\-.]+$/i', $value);
   }
 
-  public static function gitCommit(string $value): bool {
+  public static function gitCommitSha(string $value): bool {
     return (bool) preg_match('/^[0-9a-f]{40}$/i', $value);
   }
 
-  public static function gitShortCommit(string $value): bool {
+  public static function gitCommitShaShort(string $value): bool {
     return (bool) preg_match('/^[0-9a-f]{7}$/i', $value);
   }
 
