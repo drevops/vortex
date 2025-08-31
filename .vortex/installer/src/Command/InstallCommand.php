@@ -397,6 +397,7 @@ EOT;
 
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
     $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
+    $logo = Tui::cyan($logo);
 
     $version = $this->getApplication()->getVersion();
     // Depending on how the installer is run, the version may be set to
