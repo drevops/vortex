@@ -69,12 +69,14 @@ case ${index} in
     ;;
 
   3)
-    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
+    ;;
+
+  4)
+    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
-    # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
     ;;
 
@@ -87,7 +89,6 @@ case ${index} in
     bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
-    # @see https://github.com/drevops/vortex/issues/893
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
     ;;
 esac

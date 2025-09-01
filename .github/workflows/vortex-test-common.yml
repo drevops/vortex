@@ -114,9 +114,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        batch: [0, 1, 2, 3]
+        batch: [0, 1, 2, 3, 4]
 
     container:
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
@@ -183,7 +183,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         batch: [0, 1]
 
