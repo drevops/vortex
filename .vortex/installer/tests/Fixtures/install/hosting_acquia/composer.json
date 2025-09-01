@@ -1,4 +1,4 @@
-@@ -112,37 +112,37 @@
+@@ -112,40 +112,40 @@
                  "[web-root]/web.config": false
              },
              "locations": {
@@ -24,6 +24,9 @@
 -            "web/profiles/contrib/{$name}": [
 +            "docroot/profiles/contrib/{$name}": [
                  "type:drupal-profile"
+             ],
+             "recipes/{$name}": [
+                 "type:drupal-recipe"
              ],
 -            "web/themes/contrib/{$name}": [
 +            "docroot/themes/contrib/{$name}": [

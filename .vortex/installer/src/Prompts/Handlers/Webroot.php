@@ -112,16 +112,9 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function resolvedMessage(array $responses): ?string {
-    if (
-      isset($responses[HostingProvider::id()]) &&
-      $responses[HostingProvider::id()] !== HostingProvider::OTHER
-    ) {
-      $webroot = $this->default($responses);
-      if (is_array($webroot)) {
-        throw new \InvalidArgumentException('Web root must be a string, got: ' . gettype($webroot));
-      }
-      return sprintf('Web root will be set to "%s".', (string) $webroot);
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Web root will be set to "%s".', $resolved);
     }
 
     return NULL;

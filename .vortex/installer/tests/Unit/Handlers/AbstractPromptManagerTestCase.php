@@ -121,7 +121,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Org::id() => 'myproject Org',
       OrgMachineName::id() => 'myproject_org',
       Domain::id() => 'myproject.com',
-      Starter::id() => Starter::DRUPAL_LOAD_DATABASE_DEMO,
+      Starter::id() => Starter::LOAD_DATABASE_DEMO,
       Profile::id() => Profile::STANDARD,
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',

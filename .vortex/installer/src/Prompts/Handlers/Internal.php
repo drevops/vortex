@@ -124,7 +124,7 @@ class Internal extends AbstractHandler {
     $is_demo = $this->config->get(Config::IS_DEMO);
 
     if (is_null($is_demo)) {
-      if ($responses[Starter::id()] !== Starter::DRUPAL_LOAD_DATABASE_DEMO) {
+      if ($responses[Starter::id()] !== Starter::LOAD_DATABASE_DEMO) {
         $is_demo = FALSE;
       }
       // Check if it should be enabled based on the provision type and database

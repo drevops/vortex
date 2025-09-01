@@ -125,7 +125,9 @@ class PromptManager {
       ->intro('Drupal')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
       ->add(
-          fn($r, $pr, $n): int|string => select(...$this->args(Profile::class)),
+          function (array $r, $pr, $n): string {
+            return $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class)));
+          },
           Profile::id()
         )
         ->addIf(
@@ -147,17 +149,8 @@ class PromptManager {
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
       ->add(
-          // @todo Move into centralised resolver within this class.
           function (array $r, $pr, $n): string {
-            $handler = $this->handlers[Webroot::id()];
-            $resolved = $handler->resolvedValue($r);
-            if (is_string($resolved)) {
-              info($handler->resolvedMessage($r));
-              return $resolved;
-            }
-            else {
-              return text(...$this->args(Webroot::class, NULL, $r));
-            }
+            return $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r)));
           },
           Webroot::id()
         )
@@ -565,6 +558,40 @@ class PromptManager {
     }
 
     return array_filter($args, fn($value): bool => $value !== NULL);
+  }
+
+  /**
+   * Resolve a value via handler or prompt the user.
+   *
+   * This method is used to resolve a value via a handler's resolvedValue()
+   * method. If the value is not resolved, it will prompt the user using the
+   * provided prompt callable.
+   *
+   * @param string $handler_id
+   *   The handler ID.
+   * @param array $r
+   *   Current form responses for context-aware methods.
+   * @param callable $prompt
+   *   The prompt callable to use if the value is not resolved.
+   *
+   * @return string
+   *   The resolved value.
+   */
+  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): string {
+    $handler = $this->handlers[$handler_id];
+    $resolved = $handler->resolvedValue($r);
+
+    if (is_string($resolved)) {
+      $message = $handler->resolvedMessage($r, $resolved);
+
+      if ($message) {
+        info($message);
+      }
+
+      return $resolved;
+    }
+
+    return (string) $prompt();
   }
 
 }
