@@ -25,14 +25,6 @@ setup() {
   # NOTE: If Docker tests fail, re-run with custom temporary directory
   # (must be pre-created): TMPDIR=${HOME}/.bats-tmp bats <testfile>'
 
-  # Enforce architecture if not provided for ARM. Note that this may not work
-  # if bash uses Rosetta or other emulators, in which case the test should run
-  # with the variable explicitly set.
-  # LCOV_EXCL_START
-  if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
-    export DOCKER_DEFAULT_PLATFORM="${DOCKER_DEFAULT_PLATFORM:-linux/amd64}"
-  fi
-
   if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
     if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_VORTEX_DEBUG:-}" = "1" ]; then
       step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
