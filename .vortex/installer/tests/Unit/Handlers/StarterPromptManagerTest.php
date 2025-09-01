@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -17,17 +18,25 @@ class StarterPromptManagerTest extends AbstractPromptManagerTestCase {
     return [
       'starter - prompt' => [
         [Starter::id() => Key::ENTER],
-        [Starter::id() => Starter::DRUPAL_LOAD_DATABASE_DEMO] + $expected_defaults,
+        [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
       ],
 
-      'starter - prompt - profile' => [
+      'starter - prompt - Drupal profile' => [
         [Starter::id() => Key::DOWN . Key::ENTER],
-        [Starter::id() => Starter::DRUPAL_INSTALL_PROFILE] + $expected_defaults,
+        [Starter::id() => Starter::INSTALL_PROFILE_CORE] + $expected_defaults,
+      ],
+      'starter - prompt - Drupal CMS profile' => [
+        [Starter::id() => Key::DOWN . Key::DOWN . Key::ENTER],
+        [
+          Starter::id() => Starter::INSTALL_PROFILE_DRUPALCMS,
+          Profile::id() => Starter::INSTALL_PROFILE_DRUPALCMS_PATH,
+        ] + $expected_defaults,
+
       ],
 
       'starter - discovery' => [
         [],
-        [Starter::id() => Starter::DRUPAL_LOAD_DATABASE_DEMO] + $expected_defaults,
+        [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test): void {
           // Noop.
         },

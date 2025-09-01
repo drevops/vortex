@@ -146,11 +146,13 @@ interface HandlerInterface {
    *
    * @param array $responses
    *   Current form responses for context-aware message generation.
+   * @param mixed $resolved
+   *   The resolved value from resolvedValue().
    *
    * @return string|null
    *   The message to display, or null if no message needed.
    */
-  public function resolvedMessage(array $responses): ?string;
+  public function resolvedMessage(array $responses, mixed $resolved): ?string;
 
   /**
    * Set the responses.

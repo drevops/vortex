@@ -1,0 +1,52 @@
+@@ -9,6 +9,7 @@
+         "cweagans/composer-patches": "__VERSION__",
+         "drupal/admin_toolbar": "__VERSION__",
+         "drupal/clamav": "__VERSION__",
++        "drupal/cms": "__VERSION__",
+         "drupal/coffee": "__VERSION__",
+         "drupal/config_split": "__VERSION__",
+         "drupal/config_update": "__VERSION__",
+@@ -26,7 +27,9 @@
+         "drupal/stage_file_proxy": "__VERSION__",
+         "drush/drush": "__VERSION__",
+         "oomphinc/composer-installers-extender": "__VERSION__",
+-        "webflo/drupal-finder": "__VERSION__"
++        "symfony/http-client": "^6.4 || ^7.0",
++        "webflo/drupal-finder": "__VERSION__",
++        "wikimedia/composer-merge-plugin": "__VERSION__"
+     },
+     "require-dev": {
+         "behat/behat": "__VERSION__",
+@@ -81,7 +84,9 @@
+             "php-http/discovery": true,
+             "phpstan/extension-installer": true,
+             "pyrech/composer-changelogs": true,
+-            "tbachert/spi": true
++            "tbachert/spi": true,
++            "drupal/core-project-message": true,
++            "wikimedia/composer-merge-plugin": true
+         },
+         "discard-changes": true,
+         "platform": {
+@@ -157,7 +162,20 @@
+         "patchLevel": {
+             "drupal/core": "-p2"
+         },
+-        "patches": {}
++        "patches": {},
++        "merge-plugin": {
++            "ignore-duplicates": false,
++            "merge-false": true,
++            "merge-extra": false,
++            "merge-extra-deep": false,
++            "merge-replace": true,
++            "merge-scripts": false,
++            "recurse": true,
++            "replace": true,
++            "require": [
++                "vendor/drupal/cms/composer.json"
++            ]
++        }
+     },
+     "scripts": {
+         "pre-install-cmd": [

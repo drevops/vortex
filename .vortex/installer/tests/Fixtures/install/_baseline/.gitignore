@@ -29,7 +29,7 @@ web/sites/default/*
 # Preserve default settings files to use them in Functional test.
 !web/sites/default/default.settings.php
 !web/sites/default/default.services.yml
-# Whitelist Drupal Scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
+# Allow Drupal Scaffold files. @see https://github.com/drupal-composer/drupal-scaffold#limitation
 !web/.editorconfig
 !web/.eslintignore
 !web/.gitattributes
@@ -38,6 +38,9 @@ web/sites/default/*
 !web/index.php
 !web/robots.txt
 !web/update.php
+
+# Ignore all recipes by default. Custom recipes should be added explicitly.
+recipes/*
 
 # Ignore dependencies cache files.
 /vendor

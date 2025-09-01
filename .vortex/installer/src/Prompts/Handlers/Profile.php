@@ -73,32 +73,29 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function process(): void {
-    $v = $this->getResponseAsString();
+  public function resolvedValue(array $responses): null|string|bool|array {
+    $discovered = $this->discover();
 
-    // If user selected 'custom', use the ProfileCustom response instead.
-    if ($v === self::CUSTOM && isset($this->responses['profile_custom'])) {
-      $v = $this->responses['profile_custom'];
+    if (!is_null($discovered)) {
+      return $discovered;
     }
 
-    $t = $this->tmpDir;
-    $w = $this->webroot;
-
-    File::replaceContentInFile($t . '/.env', '/DRUPAL_PROFILE=.*/', 'DRUPAL_PROFILE=' . $v);
-
-    if (in_array($v, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI])) {
-      File::rmdir(sprintf('%s/%s/profiles/your_site_profile', $t, $w));
-      File::rmdir(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $w));
-
-      File::replaceContentAsync([
-        '/profiles/your_site_profile,' => '',
-        '/profiles/custom/your_site_profile,' => '',
-      ]);
+    if (($responses[Starter::id()] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS) {
+      return Starter::INSTALL_PROFILE_DRUPALCMS_PATH;
     }
-    else {
-      File::replaceContentAsync('your_site_profile', $v);
-      File::renameInDir($t, 'your_site_profile', $v);
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Profile will be set to "%s".', $resolved);
     }
+
+    return NULL;
   }
 
   /**
@@ -129,6 +126,40 @@ class Profile extends AbstractHandler {
     }
 
     return str_replace(['.info.yml', '.info'], '', basename($path));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+
+    // If user selected 'custom', use the ProfileCustom response instead.
+    if ($v === self::CUSTOM && isset($this->responses[ProfileCustom::id()])) {
+      $v = $this->responses[ProfileCustom::id()];
+    }
+
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    File::replaceContentInFile($t . '/.env', '/DRUPAL_PROFILE=.*/', 'DRUPAL_PROFILE=' . $v);
+
+    // Assume that profiles provided as a path are contrib profiles.
+    $is_contrib_profile = str_contains($v, DIRECTORY_SEPARATOR);
+
+    if (in_array($v, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI]) || $is_contrib_profile) {
+      File::rmdir(sprintf('%s/%s/profiles/your_site_profile', $t, $w));
+      File::rmdir(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $w));
+
+      File::replaceContentAsync([
+        '/profiles/your_site_profile,' => '',
+        '/profiles/custom/your_site_profile,' => '',
+      ]);
+    }
+    else {
+      File::replaceContentAsync('your_site_profile', $v);
+      File::renameInDir($t, 'your_site_profile', $v);
+    }
   }
 
 }

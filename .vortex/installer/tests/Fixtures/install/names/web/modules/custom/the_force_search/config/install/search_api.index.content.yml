@@ -2,7 +2,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.body
     - search_api.server.solr
   module:
     - node
@@ -59,14 +58,14 @@ name: Content
 description: ''
 read_only: false
 field_settings:
-  processed:
-    label: 'Body » Processed text'
+  status:
+    label: Published
     datasource_id: 'entity:node'
-    property_path: 'body:processed'
-    type: 'solr_text_custom:ngram'
+    property_path: status
+    type: boolean
     dependencies:
-      config:
-        - field.storage.node.body
+      module:
+        - node
   title:
     label: Title
     datasource_id: 'entity:node'

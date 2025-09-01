@@ -130,6 +130,9 @@
             "web/profiles/contrib/{$name}": [
                 "type:drupal-profile"
             ],
+            "recipes/{$name}": [
+                "type:drupal-recipe"
+            ],
             "web/themes/contrib/{$name}": [
                 "type:drupal-theme"
             ],
