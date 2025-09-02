@@ -61,7 +61,7 @@ assert_deployment_files_present() {
   # Drupal Scaffold files present.
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
-  assert_file_exists "${webroot}/robots.txt"
+  assert_file_not_exists "${webroot}/robots.txt"
   assert_file_not_exists "${webroot}/update.php"
 
   # Settings files present.

@@ -498,7 +498,7 @@ assert_files_present_drupal() {
   assert_file_not_exists "${webroot}/.gitattributes"
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
-  assert_file_exists "${webroot}/robots.txt"
+  assert_file_not_exists "${webroot}/robots.txt"
   assert_file_not_exists "${webroot}/update.php"
 
   # Settings files exist.

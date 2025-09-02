@@ -28,7 +28,7 @@
          },
          "discard-changes": true,
          "platform": {
-@@ -157,7 +162,20 @@
+@@ -158,7 +163,20 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
