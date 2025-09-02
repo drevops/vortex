@@ -424,12 +424,14 @@ EXPECTED,
         'terminal_width' => 100,
         'expected_output' => <<<EXPECTED
 
- ┌────────────────────────────────────────────┐
- │ Unbreakable                                │
- │ ───────────                                │
- │                                            │
- │ OneVeryLongWordThatCannotBeWrappedNormally │
- └────────────────────────────────────────────┘
+ ┌────────────────┐
+ │ Unbreakable    │
+ │ ───────────    │
+ │                │
+ │ OneVeryLongWor │
+ │ dThatCannotBeW │
+ │ rappedNormally │
+ └────────────────┘
 
 
 EXPECTED,
@@ -489,7 +491,8 @@ EXPECTED,
  │ Title  │
  │ ────── │
  │        │
- │ Short  │
+ │ Shor   │
+ │ t      │
  └────────┘
 
 

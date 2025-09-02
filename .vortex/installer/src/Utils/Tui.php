@@ -143,15 +143,15 @@ class Tui {
     table($header, $rows);
   }
 
-  public static function box(string $content, ?string $title = NULL, int $width = 80): void {
+  public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
     $rows = [];
 
-    $width = min($width, static::terminalWidth());
+    $width = $width ?? static::terminalWidth();
 
     // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
     $offset = 6;
 
-    $content = wordwrap($content, $width - $offset, PHP_EOL, FALSE);
+    $content = wordwrap($content, $width - $offset, PHP_EOL, TRUE);
 
     if ($title) {
       $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
@@ -193,8 +193,8 @@ class Tui {
     return implode(PHP_EOL, $centered_lines);
   }
 
-  public static function terminalWidth(): int {
-    return max(20, (new Terminal())->cols());
+  public static function terminalWidth(int $max = 100): int {
+    return min($max, max(20, (new Terminal())->cols()));
   }
 
   public static function normalizeText(string $text): string {
