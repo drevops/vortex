@@ -67,16 +67,13 @@ class Tools extends AbstractHandler {
 
     $tools = [];
 
-    $cj = JsonManipulator::fromFile($this->dstDir . '/composer.json');
-    if ($cj instanceof JsonManipulator) {
-      foreach (static::getToolDefinitions('tools') as $tool => $config) {
-        if (isset($config['present']) && $config['present'] instanceof \Closure && $config['present']->bindTo($this)()) {
-          $tools[] = $tool;
-        }
+    foreach (static::getToolDefinitions('tools') as $tool => $config) {
+      if (isset($config['present']) && $config['present'] instanceof \Closure && $config['present']->bindTo($this)()) {
+        $tools[] = $tool;
       }
-
-      sort($tools);
     }
+
+    sort($tools);
 
     return $tools;
   }
@@ -184,7 +181,8 @@ class Tools extends AbstractHandler {
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'dealerdirect/phpcodesniffer-composer-installer') ||
             File::contains($this->dstDir . '/composer.json', 'drupal/coder') ||
-            File::contains($this->dstDir . '/composer.json', 'squizlabs/php_codesniffer');
+            File::contains($this->dstDir . '/composer.json', 'squizlabs/php_codesniffer') ||
+            File::exists($this->dstDir . '/phpcs.xml');
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'dealerdirect/phpcodesniffer-composer-installer');
@@ -203,7 +201,8 @@ class Tools extends AbstractHandler {
         'title' => 'PHPStan',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'phpstan/phpstan') ||
-            File::contains($this->dstDir . '/composer.json', 'mglaman/phpstan-drupal');
+            File::contains($this->dstDir . '/composer.json', 'mglaman/phpstan-drupal') ||
+            File::exists($this->dstDir . '/phpstan.neon');
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpstan/phpstan');
@@ -220,7 +219,9 @@ class Tools extends AbstractHandler {
       self::RECTOR => [
         'title' => 'Rector',
         'present' => function (): mixed {
-          return File::contains($this->dstDir . '/composer.json', 'rector/rector');
+          return File::contains($this->dstDir . '/composer.json', 'rector/rector') ||
+            File::contains($this->dstDir . '/composer.json', 'palantirnet/drupal-rector') ||
+            File::exists($this->dstDir . '/rector.php');
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'rector/rector');
@@ -233,7 +234,8 @@ class Tools extends AbstractHandler {
       self::PHPMD => [
         'title' => 'PHP Mess Detector',
         'present' => function (): mixed {
-          return File::contains($this->dstDir . '/composer.json', 'phpmd/phpmd');
+          return File::contains($this->dstDir . '/composer.json', 'phpmd/phpmd') ||
+            File::exists($this->dstDir . '/phpmd.xml');
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpmd/phpmd');
@@ -249,7 +251,8 @@ class Tools extends AbstractHandler {
       self::PHPUNIT => [
         'title' => 'PHPUnit',
         'present' => function (): mixed {
-          return File::contains($this->dstDir . '/composer.json', 'phpunit/phpunit');
+          return File::contains($this->dstDir . '/composer.json', 'phpunit/phpunit') ||
+            File::exists($this->dstDir . '/phpunit.xml');
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpunit/phpunit');
@@ -279,7 +282,8 @@ class Tools extends AbstractHandler {
         'title' => 'Behat',
         'present' => function (): mixed {
           return File::contains($this->dstDir . '/composer.json', 'behat/behat') ||
-            File::contains($this->dstDir . '/composer.json', 'drupal/drupal-extension');
+            File::contains($this->dstDir . '/composer.json', 'drupal/drupal-extension') ||
+            File::exists($this->dstDir . '/behat.yml');
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'behat/behat');
