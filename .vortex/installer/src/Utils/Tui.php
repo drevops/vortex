@@ -18,8 +18,11 @@ class Tui {
 
   protected static OutputInterface $output;
 
+  protected static bool $isInteractive = TRUE;
+
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
     static::$output = $output;
+    static::$isInteractive = $is_interactive;
 
     // We cannot use any Symfony console styles here, because Laravel Prompts
     // does not correctly calculate the length of strings with style tags, which
@@ -49,6 +52,10 @@ class Tui {
 
   public static function error(string $message): void {
     error('✕ ' . $message);
+  }
+
+  public static function line(string $message, int $padding = 1): void {
+    static::$output->writeln(str_repeat(' ', max(0, $padding)) . $message);
   }
 
   public static function green(string $text): string {
@@ -85,6 +92,27 @@ class Tui {
 
   public static function undim(string $text): string {
     return static::escapeMultiline($text, 22, 22);
+  }
+
+  public static function getChar(): string {
+    if (!static::$isInteractive) {
+      return '';
+    }
+
+    // Disable input buffering.
+    system('stty cbreak -echo');
+
+    $res = fopen('php://stdin', 'r');
+    if ($res === FALSE) {
+      return '';
+    }
+
+    $char = (string) fgetc($res);
+
+    // Restore terminal settings.
+    system('stty -cbreak echo');
+
+    return $char;
   }
 
   protected static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
