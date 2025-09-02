@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -307,6 +487,214 @@
+@@ -312,6 +492,214 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',

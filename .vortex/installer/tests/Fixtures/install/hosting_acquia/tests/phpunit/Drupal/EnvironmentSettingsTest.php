@@ -49,7 +49,7 @@
      ];
    }
  
-@@ -305,6 +349,173 @@
+@@ -310,6 +354,173 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
