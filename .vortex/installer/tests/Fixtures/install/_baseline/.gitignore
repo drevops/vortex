@@ -36,7 +36,6 @@ web/sites/default/*
 !web/.htaccess
 !web/autoload.php
 !web/index.php
-!web/robots.txt
 !web/update.php
 
 # Ignore all recipes by default. Custom recipes should be added explicitly.

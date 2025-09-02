@@ -1,4 +1,4 @@
-@@ -51,7 +51,6 @@
+@@ -50,7 +50,6 @@
  web/themes/**/build
  .data
  .logs

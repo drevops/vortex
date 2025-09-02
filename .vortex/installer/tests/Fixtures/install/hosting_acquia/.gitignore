@@ -1,4 +1,4 @@
-@@ -5,39 +5,39 @@
+@@ -5,38 +5,38 @@
  # To add an override file, explicitly un-ignore it below and add to the
  # repository (useful for robots.txt and .htaccess file overrides).
  
@@ -56,7 +56,6 @@
 -!web/.htaccess
 -!web/autoload.php
 -!web/index.php
--!web/robots.txt
 -!web/update.php
 +!docroot/.editorconfig
 +!docroot/.eslintignore
@@ -64,12 +63,11 @@
 +!docroot/.htaccess
 +!docroot/autoload.php
 +!docroot/index.php
-+!docroot/robots.txt
 +!docroot/update.php
  
  # Ignore all recipes by default. Custom recipes should be added explicitly.
  recipes/*
-@@ -45,10 +45,10 @@
+@@ -44,10 +44,10 @@
  # Ignore dependencies cache files.
  /vendor
  /node_modules

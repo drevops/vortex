@@ -106,6 +106,7 @@
                 "[web-root]/README.md": false,
                 "[web-root]/README.txt": false,
                 "[web-root]/example.gitignore": false,
+                "[web-root]/robots.txt": false,
                 "[web-root]/sites/example.settings.local.php": false,
                 "[web-root]/sites/example.sites.php": false,
                 "[web-root]/update.php": false,

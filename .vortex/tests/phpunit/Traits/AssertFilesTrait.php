@@ -263,7 +263,7 @@ trait AssertFilesTrait {
     Assert::assertFileDoesNotExist($webroot . '/.gitattributes');
     Assert::assertFileExists($webroot . '/autoload.php');
     Assert::assertFileExists($webroot . '/index.php');
-    Assert::assertFileExists($webroot . '/robots.txt');
+    Assert::assertFileDoesNotExist($webroot . '/robots.txt');
     Assert::assertFileDoesNotExist($webroot . '/update.php');
 
     // Settings files exist.
@@ -300,7 +300,6 @@ trait AssertFilesTrait {
     // Assert that Drupal Scaffold files were added to the git repository.
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
-    $this->gitAssertFilesTracked($webroot . '/robots.txt');
 
     // Assert that lock files were added to the git repository.
     $this->gitAssertFilesTracked('composer.lock');
