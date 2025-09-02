@@ -110,7 +110,7 @@ EOF
       Tui::init($output, !$this->config->getNoInteraction());
       $this->promptManager = new PromptManager($this->config);
 
-      static::header();
+      $this->header();
 
       $this->promptManager->runPrompts();
 
@@ -168,7 +168,7 @@ EOF
       return Command::FAILURE;
     }
 
-    static::footer();
+    $this->footer();
 
     // Cleanup should take place only in case of the successful installation.
     // Otherwise, the user should be able to re-run the installer.
@@ -396,8 +396,10 @@ EOT;
                      by DrevOps
 EOT;
 
+    $max_header_width = 200;
+
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
-    $logo = Tui::center($logo, Tui::terminalWidth(), '─');
+    $logo = Tui::center($logo, Tui::terminalWidth($max_header_width), '─');
     $logo = Tui::cyan($logo);
 
     $version = $this->getApplication()->getVersion();
@@ -410,7 +412,7 @@ EOT;
       $version = str_replace('@vortex-installer-version@', 'development', $version);
     }
 
-    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), Tui::terminalWidth() - 2, ' ', STR_PAD_LEFT));
+    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), Tui::terminalWidth($max_header_width) - 2, ' ', STR_PAD_LEFT));
 
     Tui::note($logo);
 
@@ -457,6 +459,9 @@ EOT;
     }
 
     Tui::box($content, $title);
+
+    Tui::line(Tui::dim('Press any key to continue...'));
+    Tui::getChar();
   }
 
   public function footer(): void {

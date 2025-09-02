@@ -62,7 +62,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 24;
+  const TOTAL_RESPONSES = 25;
 
   /**
    * Array of responses.
@@ -320,7 +320,7 @@ class PromptManager {
     $proceed = TRUE;
 
     if (!$this->config->getNoInteraction()) {
-      Tui::note(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
+      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
       $proceed = confirm(
         label: 'Proceed with installing Vortex?',
       );
