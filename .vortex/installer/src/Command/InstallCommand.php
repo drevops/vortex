@@ -397,7 +397,7 @@ EOT;
 EOT;
 
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
-    $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
+    $logo = Tui::center($logo, Tui::terminalWidth(), '─');
     $logo = Tui::cyan($logo);
 
     $version = $this->getApplication()->getVersion();
@@ -410,7 +410,7 @@ EOT;
       $version = str_replace('@vortex-installer-version@', 'development', $version);
     }
 
-    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), min(Tui::terminalWidth(), 80) - 2, ' ', STR_PAD_LEFT));
+    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), Tui::terminalWidth() - 2, ' ', STR_PAD_LEFT));
 
     Tui::note($logo);
 
