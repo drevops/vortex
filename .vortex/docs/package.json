@@ -18,8 +18,8 @@
     "test:coverage": "jest --coverage",
     "lint": "yarn lint-js && yarn lint-docs-fix",
     "lint-fix": "yarn lint-js-fix && yarn lint-docs-fix",
-    "lint-js": "eslint src/ && prettier --check src/",
-    "lint-js-fix": "eslint src/ --fix && prettier --write src/",
+    "lint-js": "eslint src/ tests/ && prettier --check src/ tests/",
+    "lint-js-fix": "eslint src/ tests/ --fix && prettier --write src/ tests/",
     "lint-docs": "markdownlint-cli2 content/**/*.mdx",
     "lint-docs-fix": "markdownlint-cli2 content/**/*.mdx --fix"
   },

@@ -30,6 +30,11 @@ jobs:
           coverage: pcov
           ini-values: pcov.directory=.
 
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22.17.1
+
       - name: Set default branch name
         run: git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
 
@@ -50,6 +55,13 @@ jobs:
         working-directory: .vortex/installer
         env:
           GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+
+      - name: Generate video for installer (not used in the final artifact)
+        run: |
+          sudo apt install asciinema expect
+          npm i -g svg-term-cli sharp-cli
+          ./update-installer-video.sh
+        working-directory: .vortex/docs/.utils
 
       - name: Upload coverage reports as an artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

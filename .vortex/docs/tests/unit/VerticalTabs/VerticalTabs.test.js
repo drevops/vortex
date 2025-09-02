@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import {
   VerticalTabs,
   VerticalTab,
@@ -439,7 +445,9 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       expect(screen.queryByText('Drupal content here')).not.toBeInTheDocument();
 
       // Second tab should be active
-      const dockerTab = screen.getByText('Docker Services').closest('.tab-item');
+      const dockerTab = screen
+        .getByText('Docker Services')
+        .closest('.tab-item');
       expect(dockerTab).toHaveClass('active');
     });
 
@@ -494,7 +502,10 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Verify event listener was added
-      expect(window.addEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'hashchange',
+        expect.any(Function)
+      );
 
       // Initially shows first tab
       expect(screen.getByText('Drupal content here')).toBeInTheDocument();
@@ -532,7 +543,9 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       expect(screen.getByText('Drupal content here')).toBeInTheDocument();
       expect(screen.queryByText('Docker content here')).not.toBeInTheDocument();
 
-      const drupalTab = screen.getByText('Drupal Foundation').closest('.tab-item');
+      const drupalTab = screen
+        .getByText('Drupal Foundation')
+        .closest('.tab-item');
       expect(drupalTab).toHaveClass('active');
     });
 
@@ -630,13 +643,19 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Verify event listener was added
-      expect(window.addEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'hashchange',
+        expect.any(Function)
+      );
 
       // Unmount component
       unmount();
 
       // Verify event listener was removed
-      expect(window.removeEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+      expect(window.removeEventListener).toHaveBeenCalledWith(
+        'hashchange',
+        expect.any(Function)
+      );
     });
   });
 
@@ -675,7 +694,9 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Should extract and display all text types correctly
-      expect(screen.getByText(/Mixed content:.*42.*array values.*nested elements/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Mixed content:.*42.*array values.*nested elements/)
+      ).toBeInTheDocument();
     });
 
     test('handleTabClick with empty slug does not update URL', () => {

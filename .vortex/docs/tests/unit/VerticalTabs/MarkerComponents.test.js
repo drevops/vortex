@@ -28,10 +28,10 @@ describe('VerticalTab and VerticalTabPanel Marker Components', () => {
     test('handles edge cases gracefully', () => {
       // Null children
       render(<VerticalTab>{null}</VerticalTab>);
-      
-      // Empty children  
+
+      // Empty children
       render(<VerticalTab></VerticalTab>);
-      
+
       // Should not crash in either case
     });
   });
@@ -62,10 +62,10 @@ describe('VerticalTab and VerticalTabPanel Marker Components', () => {
     test('handles edge cases gracefully', () => {
       // Null children
       render(<VerticalTabPanel>{null}</VerticalTabPanel>);
-      
+
       // Empty children
       render(<VerticalTabPanel></VerticalTabPanel>);
-      
+
       // Should not crash in either case
     });
   });

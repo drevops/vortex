@@ -43,7 +43,9 @@ describe('Card and CardGrid Integration', () => {
 
       // Check descriptions
       expect(screen.getByText('First feature description')).toBeInTheDocument();
-      expect(screen.getByText('Second feature description')).toBeInTheDocument();
+      expect(
+        screen.getByText('Second feature description')
+      ).toBeInTheDocument();
       expect(screen.getByText('Third feature description')).toBeInTheDocument();
 
       // Check linked cards
@@ -62,10 +64,7 @@ describe('Card and CardGrid Integration', () => {
             description="A card representing tools"
             link="/tools"
           />
-          <Card
-            title="No Icon Card"
-            description="This card has no icon"
-          />
+          <Card title="No Icon Card" description="This card has no icon" />
           <Card
             icon="🎨"
             title="Design Card"
@@ -134,8 +133,14 @@ describe('Card and CardGrid Integration', () => {
       const links = screen.getAllByRole('link');
       expect(links).toHaveLength(3);
       expect(links[0]).toHaveAttribute('href', '/features#drupal-foundation');
-      expect(links[1]).toHaveAttribute('href', '/features#hosting-integrations');
-      expect(links[2]).toHaveAttribute('href', '/features#continuous-integration');
+      expect(links[1]).toHaveAttribute(
+        'href',
+        '/features#hosting-integrations'
+      );
+      expect(links[2]).toHaveAttribute(
+        'href',
+        '/features#continuous-integration'
+      );
     });
 
     test('renders benefit cards as used in homepage', () => {
@@ -163,7 +168,9 @@ describe('Card and CardGrid Integration', () => {
       );
 
       // Check all benefit cards are present
-      expect(screen.getByText('Production-Ready from Day One')).toBeInTheDocument();
+      expect(
+        screen.getByText('Production-Ready from Day One')
+      ).toBeInTheDocument();
       expect(screen.getByText('Built for Teams')).toBeInTheDocument();
       expect(screen.getByText('Continuously Tested')).toBeInTheDocument();
 
@@ -208,7 +215,9 @@ describe('Card and CardGrid Integration', () => {
       expect(links[1]).toHaveAttribute('href', '/click-2');
 
       // Non-clickable card should not be a link
-      const nonClickableCard = screen.getByText('Non-clickable Card').closest('div');
+      const nonClickableCard = screen
+        .getByText('Non-clickable Card')
+        .closest('div');
       expect(nonClickableCard.tagName).toBe('DIV');
     });
   });
@@ -217,11 +226,7 @@ describe('Card and CardGrid Integration', () => {
     test('grid maintains structure with varying content lengths', () => {
       render(
         <CardGrid>
-          <Card
-            icon="📝"
-            title="Short"
-            description="Brief"
-          />
+          <Card icon="📝" title="Short" description="Brief" />
           <Card
             icon="📚"
             title="This is a Much Longer Title That Will Definitely Wrap to Multiple Lines in Most Responsive Layouts"
@@ -242,7 +247,11 @@ describe('Card and CardGrid Integration', () => {
 
       // All cards should be present regardless of content length
       expect(screen.getByText('Short')).toBeInTheDocument();
-      expect(screen.getByText('This is a Much Longer Title That Will Definitely Wrap to Multiple Lines in Most Responsive Layouts')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'This is a Much Longer Title That Will Definitely Wrap to Multiple Lines in Most Responsive Layouts'
+        )
+      ).toBeInTheDocument();
       expect(screen.getByText('Medium Length Title')).toBeInTheDocument();
       expect(screen.getByText('Another Card')).toBeInTheDocument();
     });
@@ -327,11 +336,7 @@ describe('Card and CardGrid Integration', () => {
     test('handles dynamic updates correctly', () => {
       const { rerender } = render(
         <CardGrid>
-          <Card
-            icon="🔄"
-            title="Initial Card"
-            description="Initial state"
-          />
+          <Card icon="🔄" title="Initial Card" description="Initial state" />
         </CardGrid>
       );
 
@@ -396,7 +401,9 @@ describe('Card and CardGrid Integration', () => {
 
       // Check card classes
       const card1 = container.querySelector('.card.custom-card-class');
-      const card2 = container.querySelector('.card.another-card-class.card-link');
+      const card2 = container.querySelector(
+        '.card.another-card-class.card-link'
+      );
       expect(card1).toBeInTheDocument();
       expect(card2).toBeInTheDocument();
 

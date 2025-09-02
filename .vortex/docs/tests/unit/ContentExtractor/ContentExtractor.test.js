@@ -7,7 +7,9 @@ import ContentExtractor from '../../../src/components/ContentExtractor';
 const MockContentWithHeading = () => (
   <div>
     <h1>Page Title</h1>
-    <p>Select a feature from the tab list to view details in the content panel.</p>
+    <p>
+      Select a feature from the tab list to view details in the content panel.
+    </p>
     <h2>Section 1</h2>
     <p>This is section 1 content.</p>
     <h3>Subsection 1.1</h3>
@@ -53,15 +55,6 @@ const MockContentWithFrontmatter = () => (
   </div>
 );
 
-const MockContentWithComments = () => (
-  <div>
-    {/* This is a comment that might contain frontmatter */}
-    <h1>Title</h1>
-    <p>Content goes here.</p>
-    {/* Another comment */}
-  </div>
-);
-
 describe('ContentExtractor', () => {
   describe('Basic Rendering', () => {
     test('renders children without any modifications by default', () => {
@@ -72,9 +65,15 @@ describe('ContentExtractor', () => {
       );
 
       expect(screen.getByText('Page Title')).toBeInTheDocument();
-      expect(screen.getByText('Select a feature from the tab list to view details in the content panel.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Select a feature from the tab list to view details in the content panel.'
+        )
+      ).toBeInTheDocument();
       expect(screen.getByText('Section 1')).toBeInTheDocument();
-      expect(screen.getByText('This is section 1 content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is section 1 content.')
+      ).toBeInTheDocument();
     });
 
     test('applies default className', () => {
@@ -108,10 +107,12 @@ describe('ContentExtractor', () => {
 
       // First h1 should be removed
       expect(screen.queryByText('Page Title')).not.toBeInTheDocument();
-      
+
       // Other content should remain
       expect(screen.getByText('Section 1')).toBeInTheDocument();
-      expect(screen.getByText('This is section 1 content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is section 1 content.')
+      ).toBeInTheDocument();
     });
 
     test('preserves first h1 heading when stripFirstHeading is false', () => {
@@ -132,7 +133,9 @@ describe('ContentExtractor', () => {
         </ContentExtractor>
       );
 
-      expect(screen.getByText('Content without any headings.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Content without any headings.')
+      ).toBeInTheDocument();
       expect(screen.getByText('Some nested content')).toBeInTheDocument();
     });
   });
@@ -149,10 +152,12 @@ describe('ContentExtractor', () => {
       expect(screen.queryByText('title: Features')).not.toBeInTheDocument();
       expect(screen.queryByText('Frontmatter data')).not.toBeInTheDocument();
       expect(screen.queryByText('Meta information')).not.toBeInTheDocument();
-      
+
       // Actual content should remain
       expect(screen.getByText('Actual Content Title')).toBeInTheDocument();
-      expect(screen.getByText('This is the actual page content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is the actual page content.')
+      ).toBeInTheDocument();
       expect(screen.getByText('Section')).toBeInTheDocument();
     });
 
@@ -167,10 +172,12 @@ describe('ContentExtractor', () => {
       expect(screen.getByText('title: Features')).toBeInTheDocument();
       expect(screen.getByText('Frontmatter data')).toBeInTheDocument();
       expect(screen.getByText('Meta information')).toBeInTheDocument();
-      
+
       // Actual content should also remain
       expect(screen.getByText('Actual Content Title')).toBeInTheDocument();
-      expect(screen.getByText('This is the actual page content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is the actual page content.')
+      ).toBeInTheDocument();
     });
 
     test('removes elements with frontmatter-related classes', () => {
@@ -189,7 +196,9 @@ describe('ContentExtractor', () => {
         </ContentExtractor>
       );
 
-      expect(screen.queryByText('YAML frontmatter here')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('YAML frontmatter here')
+      ).not.toBeInTheDocument();
       expect(screen.queryByText('Metadata content')).not.toBeInTheDocument();
       expect(screen.getByText('Real Content')).toBeInTheDocument();
       expect(screen.getByText('Actual article content.')).toBeInTheDocument();
@@ -210,7 +219,9 @@ describe('ContentExtractor', () => {
         </ContentExtractor>
       );
 
-      expect(screen.queryByText('Data frontmatter element')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Data frontmatter element')
+      ).not.toBeInTheDocument();
       expect(screen.queryByText('JSON frontmatter')).not.toBeInTheDocument();
       expect(screen.getByText('Regular content')).toBeInTheDocument();
     });
@@ -222,7 +233,9 @@ describe('ContentExtractor', () => {
         </ContentExtractor>
       );
 
-      expect(screen.getByText('Content without any headings.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Content without any headings.')
+      ).toBeInTheDocument();
       expect(screen.getByText('Some nested content')).toBeInTheDocument();
     });
   });
@@ -236,8 +249,12 @@ describe('ContentExtractor', () => {
       );
 
       // Intro paragraph should be removed
-      expect(screen.queryByText('Select a feature from the tab list to view details in the content panel.')).not.toBeInTheDocument();
-      
+      expect(
+        screen.queryByText(
+          'Select a feature from the tab list to view details in the content panel.'
+        )
+      ).not.toBeInTheDocument();
+
       // Other content should remain
       expect(screen.getByText('Page Title')).toBeInTheDocument();
       expect(screen.getByText('Section 1')).toBeInTheDocument();
@@ -250,7 +267,11 @@ describe('ContentExtractor', () => {
         </ContentExtractor>
       );
 
-      expect(screen.getByText('Select a feature from the tab list to view details in the content panel.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Select a feature from the tab list to view details in the content panel.'
+        )
+      ).toBeInTheDocument();
     });
 
     test('only strips intro paragraphs containing specific text', () => {
@@ -268,9 +289,17 @@ describe('ContentExtractor', () => {
         </ContentExtractor>
       );
 
-      expect(screen.getByText('This paragraph should remain.')).toBeInTheDocument();
-      expect(screen.getByText('This paragraph should also remain.')).toBeInTheDocument();
-      expect(screen.queryByText('Select a feature from the tab list to view details.')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('This paragraph should remain.')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('This paragraph should also remain.')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          'Select a feature from the tab list to view details.'
+        )
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -284,8 +313,12 @@ describe('ContentExtractor', () => {
 
       // Content before the selector should be removed
       expect(screen.queryByText('Features')).not.toBeInTheDocument();
-      expect(screen.queryByText('Select a feature from the tab list to view details.')).not.toBeInTheDocument();
-      
+      expect(
+        screen.queryByText(
+          'Select a feature from the tab list to view details.'
+        )
+      ).not.toBeInTheDocument();
+
       // Content from the selector onwards should remain
       expect(screen.getByText('Tab 1')).toBeInTheDocument();
       expect(screen.getByText('Tab content 1')).toBeInTheDocument();
@@ -311,7 +344,7 @@ describe('ContentExtractor', () => {
       // Content before the end selector should remain
       expect(screen.getByText('Title')).toBeInTheDocument();
       expect(screen.getByText('Keep this content')).toBeInTheDocument();
-      
+
       // Content from the end selector onwards should be removed
       expect(screen.queryByText('End here')).not.toBeInTheDocument();
       expect(screen.queryByText('Remove this content')).not.toBeInTheDocument();
@@ -319,8 +352,8 @@ describe('ContentExtractor', () => {
 
     test('handles non-existent selectors gracefully', () => {
       render(
-        <ContentExtractor 
-          startFromSelector=".non-existent" 
+        <ContentExtractor
+          startFromSelector=".non-existent"
           endAtSelector=".also-non-existent"
           stripFirstHeading={false}
         >
@@ -331,15 +364,17 @@ describe('ContentExtractor', () => {
       // All content should remain when selectors don't match anything
       expect(screen.getByText('Page Title')).toBeInTheDocument();
       expect(screen.getByText('Section 1')).toBeInTheDocument();
-      expect(screen.getByText('This is section 1 content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is section 1 content.')
+      ).toBeInTheDocument();
     });
   });
 
   describe('Combined Filtering Options', () => {
     test('applies multiple filtering options together', () => {
       render(
-        <ContentExtractor 
-          stripFirstHeading={true} 
+        <ContentExtractor
+          stripFirstHeading={true}
           stripIntro={true}
           stripFrontmatter={true}
           startFromSelector="h2"
@@ -350,13 +385,19 @@ describe('ContentExtractor', () => {
 
       // h1 should be removed by stripFirstHeading
       expect(screen.queryByText('Page Title')).not.toBeInTheDocument();
-      
-      // Intro should be removed by stripIntro  
-      expect(screen.queryByText('Select a feature from the tab list to view details in the content panel.')).not.toBeInTheDocument();
-      
+
+      // Intro should be removed by stripIntro
+      expect(
+        screen.queryByText(
+          'Select a feature from the tab list to view details in the content panel.'
+        )
+      ).not.toBeInTheDocument();
+
       // Content should start from h2 due to startFromSelector
       expect(screen.getByText('Section 1')).toBeInTheDocument();
-      expect(screen.getByText('This is section 1 content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is section 1 content.')
+      ).toBeInTheDocument();
     });
 
     test('applies frontmatter stripping with other options', () => {
@@ -371,9 +412,9 @@ describe('ContentExtractor', () => {
       );
 
       render(
-        <ContentExtractor 
+        <ContentExtractor
           stripFrontmatter={true}
-          stripFirstHeading={true} 
+          stripFirstHeading={true}
           stripIntro={true}
         >
           <CombinedContent />
@@ -383,8 +424,12 @@ describe('ContentExtractor', () => {
       // All should be stripped
       expect(screen.queryByText('title: Test Page')).not.toBeInTheDocument();
       expect(screen.queryByText('Page Title')).not.toBeInTheDocument();
-      expect(screen.queryByText('Select a feature from the tab list to view details.')).not.toBeInTheDocument();
-      
+      expect(
+        screen.queryByText(
+          'Select a feature from the tab list to view details.'
+        )
+      ).not.toBeInTheDocument();
+
       // Main content should remain
       expect(screen.getByText('Main Section')).toBeInTheDocument();
       expect(screen.getByText('Important content here.')).toBeInTheDocument();
@@ -405,22 +450,14 @@ describe('ContentExtractor', () => {
     });
 
     test('handles null children', () => {
-      render(
-        <ContentExtractor>
-          {null}
-        </ContentExtractor>
-      );
+      render(<ContentExtractor>{null}</ContentExtractor>);
 
       const container = document.querySelector('.mdx-content-extracted');
       expect(container).toBeInTheDocument();
     });
 
     test('handles text-only content', () => {
-      render(
-        <ContentExtractor>
-          Plain text content
-        </ContentExtractor>
-      );
+      render(<ContentExtractor>Plain text content</ContentExtractor>);
 
       expect(screen.getByText('Plain text content')).toBeInTheDocument();
     });
@@ -428,7 +465,7 @@ describe('ContentExtractor', () => {
     test('handles case when contentRef.current is null', () => {
       // Use a ref callback to simulate null contentRef
       const TestComponent = () => {
-        const refCallback = React.useCallback((node) => {
+        const refCallback = React.useCallback(_node => {
           // Set ref to null to trigger the early return
           return null;
         }, []);
@@ -453,14 +490,16 @@ describe('ContentExtractor', () => {
           <div>Normal component lifecycle</div>
         </ContentExtractor>
       );
-      
-      expect(screen.getByText('Normal component lifecycle')).toBeInTheDocument();
+
+      expect(
+        screen.getByText('Normal component lifecycle')
+      ).toBeInTheDocument();
     });
 
     test('handles case when contentDiv is null', () => {
       // Create content without a div wrapper
       const NoWrapperContent = () => 'Just text';
-      
+
       render(
         <ContentExtractor>
           <NoWrapperContent />
@@ -481,10 +520,14 @@ describe('ContentExtractor', () => {
 
       // stripFirstHeading defaults to true
       expect(screen.queryByText('Page Title')).not.toBeInTheDocument();
-      
+
       // stripIntro defaults to false
-      expect(screen.getByText('Select a feature from the tab list to view details in the content panel.')).toBeInTheDocument();
-      
+      expect(
+        screen.getByText(
+          'Select a feature from the tab list to view details in the content panel.'
+        )
+      ).toBeInTheDocument();
+
       // Default className should be applied
       expect(container.firstChild).toHaveClass('mdx-content-extracted');
     });
@@ -499,10 +542,12 @@ describe('ContentExtractor', () => {
       // stripFrontmatter defaults to true, so frontmatter should be removed
       expect(screen.queryByText('title: Features')).not.toBeInTheDocument();
       expect(screen.queryByText('Frontmatter data')).not.toBeInTheDocument();
-      
+
       // Actual content should remain
       expect(screen.getByText('Actual Content Title')).toBeInTheDocument();
-      expect(screen.getByText('This is the actual page content.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is the actual page content.')
+      ).toBeInTheDocument();
     });
   });
 });

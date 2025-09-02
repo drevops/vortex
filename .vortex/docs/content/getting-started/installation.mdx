@@ -2,6 +2,8 @@
 sidebar_position: 3
 ---
 
+import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
+
 # Installation
 
 The installation process consists of installing the **Vortex** template into
@@ -22,7 +24,15 @@ for each service (see relevant sections in the documentation).
     curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
     ```
 
-    ![installer.png](/img/installer.png)
+    <AsciinemaPlayer
+      src="/img/installer.json"
+      poster="npt:0:1"
+      autoPlay={false}
+      loop={false}
+      preload={true}
+      controls={true}
+      theme="asciinema"
+    />
 
 3. Run the following command to commit the initial project structure.
 
