@@ -38,7 +38,7 @@ class ServicesInstallTest extends AbstractInstallTestCase {
           Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::VALKEY]));
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['solr', '_search'])),
       ],
 
       'services, none' => [
