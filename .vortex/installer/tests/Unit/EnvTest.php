@@ -166,17 +166,17 @@ class EnvTest extends UnitTestCase {
 
   public static function dataProviderFormatValueForDotenv(): array {
     return [
-      // Values without whitespace - should not be quoted.
+      // Values without special characters or whitespace - should not be quoted.
       ['simple_value', 'simple_value'],
       ['123', '123'],
       ['true', 'true'],
-      ['key=value', 'key=value'],
       ['path/to/file', 'path/to/file'],
       ['with-dashes', 'with-dashes'],
       ['with_underscores', 'with_underscores'],
       ['UPPERCASE', 'UPPERCASE'],
       ['mixedCase', 'mixedCase'],
-      ['special!@#$%^&*()[]{}|;:,.<>?', 'special!@#$%^&*()[]{}|;:,.<>?'],
+      ['email@domain.com', 'email@domain.com'],
+      ['https://example.com', 'https://example.com'],
       ['', ''],
 
       // Values with whitespace - should be quoted.
@@ -189,7 +189,35 @@ class EnvTest extends UnitTestCase {
       ["new\nline", "\"new\nline\""],
       ['path with spaces/to/file', '"path with spaces/to/file"'],
       ['sentence with multiple words', '"sentence with multiple words"'],
-      ['value with "quotes"', "\"value with \\\"quotes\\\"\""],
+
+      // Values with shell special characters - should be quoted.
+      ['value#comment', '"value#comment"'],
+      ['value$variable', '"value$variable"'],
+      ['value!history', '"value!history"'],
+      ['command;another', '"command;another"'],
+      ['background&process', '"background&process"'],
+      ['pipe|value', '"pipe|value"'],
+      ['redirect>output', '"redirect>output"'],
+      ['input<file', '"input<file"'],
+      ['glob*pattern', '"glob*pattern"'],
+      ['wildcard?match', '"wildcard?match"'],
+      ['group(content)', '"group(content)"'],
+      ['expand{a,b}', '"expand{a,b}"'],
+      ['array[index]', '"array[index]"'],
+      ['command`substitution', '"command`substitution"'],
+      ["single'quote", '"single\'quote"'],
+      ['double"quote', '"double\\"quote"'],
+
+      // Combined cases (whitespace + special characters).
+      ['value with "quotes"', '"value with \\"quotes\\""'],
+      ['email|name with spaces', '"email|name with spaces"'],
+      ['command; with spaces', '"command; with spaces"'],
+      ['path with spaces & special', '"path with spaces & special"'],
+
+      // Edge cases.
+    // = is not a special character, so no quoting needed.
+      ['key=value', 'key=value'],
+      ['webmaster@your-site-domain.example|Webmaster', '"webmaster@your-site-domain.example|Webmaster"'],
     ];
   }
 
