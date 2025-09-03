@@ -207,14 +207,12 @@ class Env {
    *   The formatted value with quotes if needed.
    */
   protected static function formatValueForDotenv(string $value): string {
-    // Quote if the value contains whitespace characters (spaces, tabs,
-    // newlines).
-    if (preg_match('/\s/', $value)) {
-      // Escape backslashes first, then double quotes for .env format.
+    if (preg_match('/[\s#$!;&|><*?(){}[\]`\'"]/', $value)) {
       $escaped = str_replace('\\', '\\\\', $value);
       $escaped = str_replace('"', '\\"', $escaped);
       return '"' . $escaped . '"';
     }
+
     return $value;
   }
 
