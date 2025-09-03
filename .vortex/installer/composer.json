@@ -23,7 +23,7 @@
         "composer/composer": "^2.8",
         "cweagans/composer-patches": "^1.7",
         "czproject/git-php": "^4.3",
-        "laravel/prompts": "dev-feature/add-description",
+        "laravel/prompts": "^0.3.7",
         "nikic/iter": "^2.4",
         "sebastian/diff": "*",
         "symfony/console": "^7.3",
@@ -46,7 +46,8 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/AlexSkrypnyk/prompts.git"
+            "url": "https://github.com/AlexSkrypnyk/prompts.git",
+            "canonical": true
         }
     ],
     "autoload": {
@@ -76,12 +77,7 @@
         "sort-packages": true
     },
     "extra": {
-        "composer-exit-on-patch-failure": true,
-        "patches": {
-            "laravel/prompts": {
-                "Allow static validator to run before prompt's validator": "patches/laravel-prompts-186+1.patch"
-            }
-        }
+        "composer-exit-on-patch-failure": true
     },
     "scripts": {
         "build": [
