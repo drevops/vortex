@@ -129,6 +129,7 @@ class Services extends AbstractHandler {
       File::removeLine($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) && \\');
       // @todo Remove after 25.10.0 release.
       File::removeLine($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \\');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'scripts/custom/provision-10-example.sh', 'drush pm:install ys_base ys_search', 'drush pm:install ys_base');
 
       $locations = [
         $t . sprintf('/%s/modules/custom/*_search', $w),
