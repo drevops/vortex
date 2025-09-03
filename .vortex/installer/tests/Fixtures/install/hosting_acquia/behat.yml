@@ -1,4 +1,4 @@
-@@ -52,9 +52,9 @@
+@@ -55,9 +55,9 @@
        api_driver: drupal
        drush_driver: drush
        drupal:
@@ -7,6 +7,6 @@
        drush:
 -        root: web
 +        root: docroot
-       selectors:
-         message_selector: '.messages'
-         error_message_selector: '.messages.error'
+       region_map:
+         header: "#header"
+         primary_menu: ".header-nav"
