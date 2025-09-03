@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9e29b2508215c60080be4e7175b4d85b",
+    "content-hash": "e0084072fc06b8ca899e6958d111e813",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -936,16 +936,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "dev-feature/add-description",
+            "version": "v0.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/prompts.git",
-                "reference": "e4cdcb467eb259a542e61e0d2d1c0a3e2741cada"
+                "reference": "4ebb85f8544ff1abdfe46ef0a49396ecca882caa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/prompts/zipball/e4cdcb467eb259a542e61e0d2d1c0a3e2741cada",
-                "reference": "e4cdcb467eb259a542e61e0d2d1c0a3e2741cada",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/prompts/zipball/4ebb85f8544ff1abdfe46ef0a49396ecca882caa",
+                "reference": "4ebb85f8544ff1abdfe46ef0a49396ecca882caa",
                 "shasum": ""
             },
             "require": {
@@ -992,9 +992,9 @@
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "source": "https://github.com/AlexSkrypnyk/prompts/tree/feature/add-description"
+                "source": "https://github.com/AlexSkrypnyk/prompts/tree/v0.3.7"
             },
-            "time": "2025-08-30T01:04:27+00:00"
+            "time": "2025-09-03T00:55:15+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -5779,9 +5779,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "laravel/prompts": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
