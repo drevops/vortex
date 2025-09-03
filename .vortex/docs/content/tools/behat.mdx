@@ -13,39 +13,51 @@ https://docs.behat.org/en/latest/user_guide.html
 Since Behat requires a running Drupal instance, it can only be run within
 container environment.
 
-```shell
-docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
-
-```shell
-ahoy test-bdd
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy test-bdd
+    ```
+  </TabItem>
+  <TabItem value="direct" label="Docker Compose">
+    ```shell
+    docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat
+    ```
+  </TabItem>
+</Tabs>
 
 ### Running all tests in the file
 
-```shell
-docker compose exec -T cli vendor/bin/behat tests/behat/features/my.feature
-```
-
-or
-
-```shell
-ahoy test-bdd tests/behat/features/my.feature
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy test-bdd tests/behat/features/my.feature
+    ```
+  </TabItem>
+  <TabItem value="direct" label="Docker Compose">
+    ```shell
+    docker compose exec -T cli vendor/bin/behat tests/behat/features/my.feature
+    ```
+  </TabItem>
+</Tabs>
 
 **Running tagged tests with `@group_name` tag**
 
-```shell
-docker compose exec -T cli vendor/bin/behat --tags=group_name
-```
-
-or
-
-```shell
-ahoy test-bdd --tags=group_name
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy test-bdd --tags=group_name
+    ```
+  </TabItem>
+  <TabItem value="direct" label="Docker Compose">
+    ```shell
+    docker compose exec -T cli vendor/bin/behat --tags=group_name
+    ```
+  </TabItem>
+</Tabs>
 
 ## Configuration
 
@@ -123,22 +135,6 @@ Feature: Homepage
 The profile can be overridden using `$VORTEX_CI_BEHAT_PROFILE` environment
 variable set in the continuous integration pipeline configuration.
 
-## Ignoring fail in continuous integration pipeline
-
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
-
-Set `VORTEX_CI_BEHAT_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report violations, if any.
-
-:::note
-
-Based on the size of your website and continuous integration runner resources,
-Behat test may fail intermittently. To avoid task failure in the continuous
-integration pipeline, the failed Behat test will run again.
-
-:::
-
 ## Writing tests
 
 When writing tests, it is recommended to use the following structure:
@@ -174,7 +170,7 @@ keep the test run time low.
 
 :::
 
-### `FeatureContext.php` and example tests
+### `FeatureContext.php`
 
 The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/develop/tests/behat/bootstrap/FeatureContext.php)
 file is a Behat custom context file that is loaded by default. This is where
@@ -183,7 +179,7 @@ custom step definitions and hooks should be placed.
 It is recommended to use traits to organize step definitions and hooks and
 include those traits in the `FeatureContext.php` file. There are already
 several traits included from the [Behat Steps](https://github.com/drevops/behat-steps)
-package (only basic ones are included; there are more available in the package).
+package.
 
 There are also example tests in the [`tests/behat/features`](https://github.com/drevops/vortex/blob/develop/tests/behat/features)
 directory that can be used as a starting point for writing tests. These tests
@@ -196,21 +192,22 @@ For `@javascript` tests, Behat uses Selenium to connect to the browser. The
 browser runs within a container and can be observed from the host machine by
 using a browser thanks to the VNC server running in the container and [noVNC](https://novnc.com/).
 
-Run
-
-```shell
-ahoy info
-```
-
-and click on the link next to `Selenium VNC URL on host` to open the browser.
-
-Or use the following command to get the port number:
-
-```shell
-docker compose port chrome 7900
-```
-
-and open `http://localhost:<port>/?autoconnect=1&password=secret` in the browser.
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    1. Get the link for Selenium VNC URL on host:
+    ```shell
+    ahoy info
+    ```
+    2. Click on the link next to `Selenium VNC URL on host` to open the browser.
+  </TabItem>
+  <TabItem value="direct" label="Docker Compose">
+    1. Get the port number:
+    ```shell
+    docker compose port chrome 7900
+    ```
+    2. Replace `<port>` with the value above and open `http://localhost:<port>/?autoconnect=1&password=secret` in your browser.
+  </TabItem>
+</Tabs>
 
 :::tip
 
@@ -221,3 +218,21 @@ container through a browser on your host machine.
 :::
 
 ![behat-novnc.gif](/img/behat-novnc.gif)
+
+## Ignoring fail in continuous integration pipeline
+
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
+
+Set `VORTEX_CI_BEHAT_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.
+
+:::note
+
+Due to the size of your website and the available continuous integration runner
+resources, Behat tests may occasionally fail.
+
+To prevent the pipeline from failing as a result, any failed Behat test will be
+retried automatically.
+
+:::
