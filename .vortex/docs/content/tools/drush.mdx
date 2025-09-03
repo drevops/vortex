@@ -28,7 +28,33 @@ Drush should be used from the inside of the container.
 ```shell
 docker compose exec cli drush <command>
 ```
+
 or
+
 ```shell
 ahoy drush <command>
+```
+
+## Aliases
+
+For Lagoon hosting, Drush site aliases are automatically generated for each
+environment and can be used as follows:
+
+```shell
+# On the host machine
+drush @lagoon.develop status  # Show status of the develop environment
+drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+
+# Inside the container
+ahoy drush @lagoon.develop status  # Show status of the develop environment
+ahoy drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+```
+
+Note that your SSH key must be loaded in your `ssh-agent` for Drush SSH client
+to connect to the remote environment:
+
+```shell
+ssh-add ~/.ssh/path/to/key             # Run on host to run remote Drush commands from host.
+# or
+pygmy addkey --key ~/.ssh/path/to/key  # Run on the host to execute remote Drush commands from inside the container (including ahoy drush).
 ```

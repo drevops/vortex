@@ -54,6 +54,7 @@ jobs:
   #;< !PROVISION_TYPE_PROFILE
   database:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
 
     container:
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
@@ -81,7 +82,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           # Do not keep SSH credentials after checkout to allow custom.
           persist-credentials: false
@@ -116,14 +117,14 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: .data
-          key: v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
           # Fallback to caching by default branch name only. Allows to use
           # cache from the branch build on the previous day.
           restore-keys: |
-            v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+            v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 
       - name: Download DB
         run: |
@@ -146,18 +147,18 @@ jobs:
       # Note that the cache fallback flag is enabled for this case in order
       # to save cache even if the fallback is not used when restoring it.
       - name: Save DB cache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
-          key: v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
   #;> !PROVISION_TYPE_PROFILE
 
   build:
     runs-on: ubuntu-latest
     needs: database
     #;< !PROVISION_TYPE_PROFILE
-    if: github.event_name != 'schedule'
+    if: ${{ github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     strategy:
@@ -194,10 +195,13 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+
+      - name: Load environment variables from .env
+        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
 
       - name: Validate Composer configuration
         run: composer validate --strict
@@ -211,21 +215,21 @@ jobs:
           date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
-        run: echo 'v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+        run: echo 'v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
       # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: .data
           fail-on-cache-miss: true
           # Use cached database from previous builds of this branch.
-          key: v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            v25.7.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+            v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Login to container registry
@@ -239,11 +243,16 @@ jobs:
           done
         continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
 
+      - name: Lint Docker Compose files with DCLint
+        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        run: docker run --rm -v "${PWD}":/app zavoloklom/dclint:3.1.0 .
+        continue-on-error: ${{ vars.VORTEX_CI_DCLINT_IGNORE_FAILURE == '1' }}
+
       - name: Build stack
         run: docker compose up -d
 
       - name: Export built codebase
-        if: matrix.instance == 0
+        if: matrix.instance == 0 && contains(env.VORTEX_DEPLOY_TYPES, 'artifact')
         run: |
           mkdir -p "/tmp/workspace/code"
           docker compose cp -L cli:"/app/." "/tmp/workspace/code"
@@ -261,35 +270,45 @@ jobs:
         run: docker compose exec -T cli composer normalize --dry-run
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
 
+      #;< TOOL_PHPCS
       - name: Lint code with PHPCS
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli vendor/bin/phpcs
         continue-on-error: ${{ vars.VORTEX_CI_PHPCS_IGNORE_FAILURE == '1' }}
+      #;> TOOL_PHPCS
 
+      #;< TOOL_PHPSTAN
       - name: Lint code with PHPStan
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli vendor/bin/phpstan
         continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
+      #;> TOOL_PHPSTAN
 
+      #;< TOOL_RECTOR
       - name: Lint code with Rector
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run
         continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
+      #;> TOOL_RECTOR
 
+      #;< TOOL_PHPMD
       - name: Lint code with PHPMD
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml
         continue-on-error: ${{ vars.VORTEX_CI_PHPMD_IGNORE_FAILURE == '1' }}
+      #;> TOOL_PHPMD
 
       - name: Lint code with Twig CS Fixer
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli vendor/bin/twig-cs-fixer
         continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
 
+      #;< TOOL_BEHAT
       - name: Lint code with Gherkin Lint
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
+      #;> TOOL_BEHAT
 
       - name: Lint module code with NodeJS linters
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -312,10 +331,13 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
         timeout-minutes: 30
 
+      #;< TOOL_PHPUNIT
       - name: Test with PHPUnit
         run: docker compose exec -T cli vendor/bin/phpunit
         continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
+      #;> TOOL_PHPUNIT
 
+      #;< TOOL_BEHAT
       - name: Test with Behat
         run: |
           # shellcheck disable=SC2170
@@ -327,6 +349,7 @@ jobs:
           VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
         continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
         timeout-minutes: 30
+      #;> TOOL_BEHAT
 
       - name: Process test logs and artifacts
         if: always()
@@ -346,7 +369,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
           directory: .logs/coverage
@@ -357,7 +380,7 @@ jobs:
 
       - name: Upload exported codebase as artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
           path: "/tmp/workspace/code"
@@ -377,7 +400,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
@@ -393,7 +416,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           # Fetch all history for git repository.
           fetch-depth: 0
@@ -402,8 +425,12 @@ jobs:
           persist-credentials: false
           ref: ${{ github.head_ref || github.ref_name }}
 
+      - name: Load environment variables from .env
+        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+
       - name: Download exported codebase as an artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
           path: "/tmp/workspace/code"

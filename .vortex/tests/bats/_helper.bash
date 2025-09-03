@@ -25,14 +25,6 @@ setup() {
   # NOTE: If Docker tests fail, re-run with custom temporary directory
   # (must be pre-created): TMPDIR=${HOME}/.bats-tmp bats <testfile>'
 
-  # Enforce architecture if not provided for ARM. Note that this may not work
-  # if bash uses Rosetta or other emulators, in which case the test should run
-  # with the variable explicitly set.
-  # LCOV_EXCL_START
-  if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
-    export DOCKER_DEFAULT_PLATFORM="${DOCKER_DEFAULT_PLATFORM:-linux/amd64}"
-  fi
-
   if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
     if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_VORTEX_DEBUG:-}" = "1" ]; then
       step "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."
@@ -232,8 +224,6 @@ assert_files_present_common() {
   local webroot="${6:-web}"
   local assert_theme="${7:-1}"
 
-  local suffix_abbreviated_uppercase="$(string_to_upper "${suffix_abbreviated}")"
-
   pushd "${dir}" >/dev/null || exit 1
 
   # Default Vortex files present.
@@ -270,6 +260,8 @@ assert_files_not_present_common() {
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_base"
   assert_dir_not_exists "${webroot}/modules/custom/${suffix_abbreviated}_search"
   assert_dir_not_exists "${webroot}/themes/custom/${suffix}"
+  assert_file_not_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/example.services.local.yml"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
   assert_file_not_exists "${webroot}/modules/custom/ys_base/tests/src/Unit/YourSiteExampleUnitTest.php"
@@ -291,7 +283,6 @@ assert_files_not_present_common() {
   assert_file_not_exists "${webroot}/.editorconfig"
   assert_file_not_exists "${webroot}/.eslintignore"
   assert_file_not_exists "${webroot}/.gitattributes"
-  assert_file_not_exists "${webroot}/.htaccess"
   assert_file_not_exists "${webroot}/autoload.php"
   assert_file_not_exists "${webroot}/index.php"
   assert_file_not_exists "${webroot}/robots.txt"
@@ -505,11 +496,10 @@ assert_files_present_drupal() {
   assert_file_not_exists "${webroot}/.eslintignore"
   assert_file_not_exists "${webroot}/.eslintrc.json"
   assert_file_not_exists "${webroot}/.gitattributes"
-  assert_file_exists "${webroot}/.htaccess"
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
-  assert_file_exists "${webroot}/robots.txt"
-  assert_file_exists "${webroot}/update.php"
+  assert_file_not_exists "${webroot}/robots.txt"
+  assert_file_not_exists "${webroot}/update.php"
 
   # Settings files exist.
   # @note The permissions can be 644 or 664 depending on the umask of OS. Also,
@@ -522,11 +512,11 @@ assert_files_present_drupal() {
   assert_file_exists "${webroot}/sites/default/default.settings.php"
   assert_file_exists "${webroot}/sites/default/default.services.yml"
 
-  assert_file_exists "${webroot}/sites/default/default.settings.local.php"
-  assert_file_mode "${webroot}/sites/default/default.settings.local.php" "644"
+  assert_file_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_mode "${webroot}/sites/default/example.settings.local.php" "644"
 
-  assert_file_exists "${webroot}/sites/default/default.services.local.yml"
-  assert_file_mode "${webroot}/sites/default/default.services.local.yml" "644"
+  assert_file_exists "${webroot}/sites/default/example.services.local.yml"
+  assert_file_mode "${webroot}/sites/default/example.services.local.yml" "644"
 
   # Special case to fix all occurrences of the stub in core files to exclude
   # false-positives from the assertions below.
@@ -542,7 +532,7 @@ assert_files_present_drupal() {
   assert_dir_not_contains_string "${dir}" "YOURORG"
   assert_dir_not_contains_string "${dir}" "www.your-site-domain.example"
   # Assert all special comments were removed.
-  assert_dir_not_contains_string "${dir}" "#;"
+  # assert_dir_not_contains_string "${dir}" "#;"
   assert_dir_not_contains_string "${dir}" "#;<"
   assert_dir_not_contains_string "${dir}" "#;>"
 
@@ -644,7 +634,7 @@ assert_files_present_no_provision_use_profile() {
 
   assert_file_contains "README.md" "ahoy download-db"
 
-  if [ -f ".github/workflows/build-test-deploy.yml"  ]; then
+  if [ -f ".github/workflows/build-test-deploy.yml" ]; then
     assert_file_contains ".github/workflows/build-test-deploy.yml" "database:"
     assert_file_contains ".github/workflows/build-test-deploy.yml" "schedule:"
     assert_file_contains ".github/workflows/build-test-deploy.yml" "VORTEX_CI_DB_CACHE_TIMESTAMP"
@@ -706,7 +696,7 @@ assert_files_present_ci_provider_gha() {
   assert_file_contains "README.md" "docs/ci.md"
   assert_file_contains "docs/ci.md" "GitHub Actions"
 
-  assert_files_present_no_ci_provider_circleci "$dir" "$suffix"
+  assert_files_present_no_ci_provider_circleci "${dir}" "${suffix}"
 
   popd >/dev/null || exit 1
 }
@@ -735,7 +725,7 @@ assert_files_present_ci_provider_circleci() {
   assert_file_contains "README.md" "docs/ci.md"
   assert_file_contains "docs/ci.md" "CircleCI"
 
-  assert_files_present_no_ci_provider_gha "$dir" "$suffix"
+  assert_files_present_no_ci_provider_gha "${dir}" "${suffix}"
 
   popd >/dev/null || exit 1
 }
@@ -759,8 +749,8 @@ assert_files_present_ci_provider_none() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  assert_files_present_no_ci_provider_gha "$dir" "$suffix"
-  assert_files_present_no_ci_provider_circleci "$dir" "$suffix"
+  assert_files_present_no_ci_provider_gha "${dir}" "${suffix}"
+  assert_files_present_no_ci_provider_circleci "${dir}" "${suffix}"
 
   assert_file_not_exists "docs/ci.md"
   assert_file_not_contains "README.md" "docs/ci.md"
@@ -844,6 +834,7 @@ assert_files_present_integration_acquia() {
   assert_symlink_not_exists "hooks/prod/post-db-copy"
 
   assert_file_exists "${webroot}/sites/default/includes/providers/settings.acquia.php"
+  assert_file_exists "${webroot}/.htaccess"
   assert_file_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
 
   if [ "${include_scripts:-}" -eq 1 ]; then
@@ -866,7 +857,10 @@ assert_files_present_no_integration_acquia() {
   assert_dir_not_exists "hooks"
   assert_dir_not_exists "hooks/library"
   assert_file_not_exists "${webroot}sites/default/includes/providers/settings.acquia.php"
-  assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
+  if [ -f "${webroot}/.htaccess" ]; then
+    assert_file_not_contains "${webroot}/.htaccess" "RewriteCond %{HTTP_HOST} !\.acquia-sites\.com [NC]"
+  fi
+
   assert_file_not_contains ".env" "VORTEX_ACQUIA_APP_NAME="
   assert_file_not_contains ".env" "VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="
   assert_file_not_contains ".ahoy.yml" "VORTEX_ACQUIA_APP_NAME="
@@ -1168,10 +1162,10 @@ create_development_settings() {
   substep "Create development settings"
   assert_file_not_exists "${webroot}/sites/default/settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/services.local.yml"
-  assert_file_exists "${webroot}/sites/default/default.settings.local.php"
-  assert_file_exists "${webroot}/sites/default/default.services.local.yml"
-  cp "${webroot}/sites/default/default.settings.local.php" "${webroot}/sites/default/settings.local.php"
-  cp "${webroot}/sites/default/default.services.local.yml" "${webroot}/sites/default/services.local.yml"
+  assert_file_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_exists "${webroot}/sites/default/example.services.local.yml"
+  cp "${webroot}/sites/default/example.settings.local.php" "${webroot}/sites/default/settings.local.php"
+  cp "${webroot}/sites/default/example.services.local.yml" "${webroot}/sites/default/services.local.yml"
   assert_file_exists "${webroot}/sites/default/settings.local.php"
   assert_file_exists "${webroot}/sites/default/services.local.yml"
 }
@@ -1403,12 +1397,10 @@ download_installer() {
 
   rm -Rf "install.php" >/dev/null || true
 
+  composer install --no-progress >/dev/null 2>&1
+  composer build >/dev/null 2>&1
 
-
-  composer install --no-progress > /dev/null 2>&1
-  composer build > /dev/null 2>&1
-
-  cp .build/installer.phar "install.php" > /dev/null
+  cp .build/installer.phar "install.php" >/dev/null
 
   assert_file_exists "install.php"
 

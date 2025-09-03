@@ -14,14 +14,14 @@ class AiCodeInstructions extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🤖 AI code assistant instructions';
+    return 'AI code assistant instructions';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Helps AI coding assistants to understand the project better.';
+    return 'Provides AI coding assistants with better context about the project.';
   }
 
   /**

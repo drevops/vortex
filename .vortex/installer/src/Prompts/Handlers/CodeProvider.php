@@ -16,14 +16,21 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🗄️ Repository provider';
+    return 'Repository provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(array $responses): string {
+    return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
+    return 'Use ⬆ and ⬇ to select your code repository provider.';
   }
 
   /**

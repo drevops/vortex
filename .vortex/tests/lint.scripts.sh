@@ -20,6 +20,7 @@ done < <(
     "${ROOT_DIR}"/.circleci \
     "${ROOT_DIR}"/hooks/library \
     "${ROOT_DIR}"/.vortex/docs \
+    "${ROOT_DIR}"/.vortex/tests/bats \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" -not -path "*fixtures*" \
@@ -31,17 +32,6 @@ for file in "${targets[@]}"; do
 
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
-
-    if ! "${ROOT_DIR}/.vortex/tests/vendor/bin/shellvar" lint "${file}"; then
-      # Skip the file with a false positive.
-      # @see https://github.com/AlexSkrypnyk/shellvar/issues/65
-      if [[ ! "${file}" =~ github-labels ]]; then
-        exit 1
-      else
-        echo "  > Skipping the file ${file} due to a false positive."
-      fi
-    fi
-
     if ! LC_ALL=C.UTF-8 shellcheck "${file}"; then
       exit 1
     fi

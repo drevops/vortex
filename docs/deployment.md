@@ -55,20 +55,20 @@ below).
    to required environment.
 2. Developer pushes code update to the GitHub branch.
 3. CI system picks-up the update and does the following:
-1. Builds a website using production DB.
-2. Runs code standard checks and Behat tests on the built website.
-3. Creates a deployment artifact (project files to be pushed to Acquia Cloud
+4. Builds a website using production DB.
+5. Runs code standard checks and Behat tests on the built website.
+6. Creates a deployment artifact (project files to be pushed to Acquia Cloud
    repository).
-4. Pushes created artifact to the Acquia Cloud repository:
+7. Pushes created artifact to the Acquia Cloud repository:
    - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
    the code is pushed to the branch with exactly the same name.
    - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
    pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
-4. Acquia Cloud picks up recent push to the repository and
+8. Acquia Cloud picks up recent push to the repository and
    runs [post code update hooks](hooks/dev/post-code-update) on the environments
    where code is already deployed.
    OR
-4. If the branch has not been deployed into any Acquia Cloud environment yet and
+9. If the branch has not been deployed into any Acquia Cloud environment yet and
    the developer starts the deployment, Acquia Cloud
    runs [post code deploy hooks](hooks/dev/post-code-deploy) on the environment
    where code is being deployed.

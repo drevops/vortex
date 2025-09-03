@@ -10,7 +10,7 @@ load ../_helper.workflow.bash
 
 @test "Workflow: Build Docker Compose stack with frontend build" {
   export VORTEX_DEV_VOLUMES_SKIP_MOUNT=1
-  export COMPOSE_PROJECT_NAME="test_frontend_build_$$_$RANDOM"
+  export COMPOSE_PROJECT_NAME="test_frontend_build_${$}_${RANDOM}"
 
   prepare_sut "Starting DB-driven, with frontend build WORKFLOW tests in build directory ${BUILD_DIR}"
 
@@ -42,7 +42,7 @@ load ../_helper.workflow.bash
 
 @test "Workflow: Build Docker Compose stack without frontend build" {
   export VORTEX_DEV_VOLUMES_SKIP_MOUNT=1
-  export COMPOSE_PROJECT_NAME="test_frontend_build_$$_$RANDOM"
+  export COMPOSE_PROJECT_NAME="test_frontend_build_${$}_${RANDOM}"
 
   prepare_sut "Starting DB-driven, with frontend build WORKFLOW tests in build directory ${BUILD_DIR}"
 

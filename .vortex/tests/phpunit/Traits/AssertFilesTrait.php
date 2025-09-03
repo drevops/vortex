@@ -52,8 +52,8 @@ trait AssertFilesTrait {
     Assert::assertDirectoryDoesNotExist($webroot . '/themes/custom/your_site_theme');
 
     // Example settings files that should not exist.
-    Assert::assertFileDoesNotExist($webroot . '/sites/default/default.settings.local.php');
-    Assert::assertFileDoesNotExist($webroot . '/sites/default/default.services.local.yml');
+    Assert::assertFileDoesNotExist($webroot . '/sites/default/example.settings.local.php');
+    Assert::assertFileDoesNotExist($webroot . '/sites/default/example.services.local.yml');
 
     // Documentation and CI files that should not exist in some contexts.
     Assert::assertFileDoesNotExist('docs/faqs.md');
@@ -70,7 +70,6 @@ trait AssertFilesTrait {
     Assert::assertFileDoesNotExist($webroot . '/.editorconfig');
     Assert::assertFileDoesNotExist($webroot . '/.eslintignore');
     Assert::assertFileDoesNotExist($webroot . '/.gitattributes');
-    Assert::assertFileDoesNotExist($webroot . '/.htaccess');
     Assert::assertFileDoesNotExist($webroot . '/autoload.php');
     Assert::assertFileDoesNotExist($webroot . '/index.php');
     Assert::assertFileDoesNotExist($webroot . '/robots.txt');
@@ -262,19 +261,18 @@ trait AssertFilesTrait {
     Assert::assertFileDoesNotExist($webroot . '/.eslintignore');
     Assert::assertFileDoesNotExist($webroot . '/.eslintrc.json');
     Assert::assertFileDoesNotExist($webroot . '/.gitattributes');
-    Assert::assertFileExists($webroot . '/.htaccess');
     Assert::assertFileExists($webroot . '/autoload.php');
     Assert::assertFileExists($webroot . '/index.php');
-    Assert::assertFileExists($webroot . '/robots.txt');
-    Assert::assertFileExists($webroot . '/update.php');
+    Assert::assertFileDoesNotExist($webroot . '/robots.txt');
+    Assert::assertFileDoesNotExist($webroot . '/update.php');
 
     // Settings files exist.
     Assert::assertFileExists($webroot . '/sites/default/settings.php');
     Assert::assertDirectoryExists($webroot . '/sites/default/includes/');
     Assert::assertFileExists($webroot . '/sites/default/default.settings.php');
     Assert::assertFileExists($webroot . '/sites/default/default.services.yml');
-    Assert::assertFileExists($webroot . '/sites/default/default.settings.local.php');
-    Assert::assertFileExists($webroot . '/sites/default/default.services.local.yml');
+    Assert::assertFileExists($webroot . '/sites/default/example.settings.local.php');
+    Assert::assertFileExists($webroot . '/sites/default/example.services.local.yml');
 
     // Assert all stub strings were replaced - these should not exist in any
     // files.
@@ -300,11 +298,8 @@ trait AssertFilesTrait {
     }
 
     // Assert that Drupal Scaffold files were added to the git repository.
-    $this->gitAssertFilesTracked($webroot . '/.htaccess');
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
-    $this->gitAssertFilesTracked($webroot . '/robots.txt');
-    $this->gitAssertFilesTracked($webroot . '/update.php');
 
     // Assert that lock files were added to the git repository.
     $this->gitAssertFilesTracked('composer.lock');
@@ -325,11 +320,11 @@ trait AssertFilesTrait {
   }
 
   protected function createDevelopmentDrupalSettings(string $webroot = 'web'): void {
-    Assert::assertFileExists($webroot . '/sites/default/default.settings.local.php');
-    Assert::assertFileExists($webroot . '/sites/default/default.services.local.yml');
+    Assert::assertFileExists($webroot . '/sites/default/example.settings.local.php');
+    Assert::assertFileExists($webroot . '/sites/default/example.services.local.yml');
 
-    File::copy($webroot . '/sites/default/default.settings.local.php', $webroot . '/sites/default/settings.local.php');
-    File::copy($webroot . '/sites/default/default.services.local.yml', $webroot . '/sites/default/services.local.yml');
+    File::copy($webroot . '/sites/default/example.settings.local.php', $webroot . '/sites/default/settings.local.php');
+    File::copy($webroot . '/sites/default/example.services.local.yml', $webroot . '/sites/default/services.local.yml');
 
     Assert::assertFileExists($webroot . '/sites/default/settings.local.php');
     Assert::assertFileExists($webroot . '/sites/default/services.local.yml');
@@ -337,8 +332,8 @@ trait AssertFilesTrait {
 
   protected function removeDevelopmentDrupalSettings(string $webroot = 'web'): void {
     File::remove([
-      $webroot . '/sites/default/default.settings.local.php',
-      $webroot . '/sites/default/default.services.local.yml',
+      $webroot . '/sites/default/example.settings.local.php',
+      $webroot . '/sites/default/example.services.local.yml',
     ]);
   }
 

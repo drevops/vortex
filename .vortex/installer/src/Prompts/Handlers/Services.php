@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\File;
-use Symfony\Component\Yaml\Yaml;
+use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Services extends AbstractHandler {
 
@@ -19,14 +19,14 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🔌 Services';
+    return 'Services';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Select the services you want to use in the project.';
+    return 'Use ⬆, ⬇ and Space bar to select one or more services.';
   }
 
   /**
@@ -34,9 +34,9 @@ class Services extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     return [
-      self::CLAMAV => '🦠 ClamAV',
-      self::SOLR => '🔍 Solr',
-      self::VALKEY => '🗃️ Valkey',
+      self::CLAMAV => 'ClamAV',
+      self::SOLR => 'Solr',
+      self::VALKEY => 'Valkey',
     ];
   }
 
@@ -115,7 +115,7 @@ class Services extends AbstractHandler {
       @unlink($t . DIRECTORY_SEPARATOR . '.docker/clamav.dockerfile');
       @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.clamav.php');
       @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/clamav.feature');
-      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'command: database:3306 clamav:3310', 'command: database:3306');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'clamav:3310', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
@@ -126,6 +126,8 @@ class Services extends AbstractHandler {
       @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/search.feature');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/solr":\s*"[^\"]+",?\n/', "\n");
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/search_api_solr":\s*"[^\"]+",?\n/', "\n");
+      File::removeLine($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) && \\');
+      // @todo Remove after 25.10.0 release.
       File::removeLine($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \\');
 
       $locations = [
@@ -147,7 +149,9 @@ class Services extends AbstractHandler {
       File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/valkey');
       @unlink($t . DIRECTORY_SEPARATOR . '.docker/valkey.dockerfile');
       @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'valkey:6379', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
+      @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }
   }
 

@@ -134,7 +134,7 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
-  public function resolvedMessage(array $responses): ?string {
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
     return NULL;
   }
 
@@ -161,6 +161,13 @@ abstract class AbstractHandler implements HandlerInterface {
     $this->webroot = $webroot;
 
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postInstall(): ?string {
+    return NULL;
   }
 
   /**

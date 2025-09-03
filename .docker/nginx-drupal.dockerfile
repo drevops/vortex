@@ -11,7 +11,7 @@ ARG CLI_IMAGE
 # hadolint ignore=DL3006
 FROM ${CLI_IMAGE:-cli} AS cli
 
-FROM uselagoon/nginx-drupal:25.7.0
+FROM uselagoon/nginx-drupal:25.8.0
 
 # Webroot is used for Nginx web root configuration.
 ARG WEBROOT=web

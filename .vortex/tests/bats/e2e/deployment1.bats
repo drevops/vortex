@@ -2,7 +2,7 @@
 #
 # Test runner for deployment tests.
 #
-# shellcheck disable=SC2030,SC2031,SC2129
+# shellcheck disable=SC2030,SC2031,SC2129,SC2154
 
 load ../_helper.bash
 load ../_helper.deployment.bash

@@ -685,4 +685,100 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
+  /**
+   * Test trusted host patterns settings.
+   */
+  #[DataProvider('dataProviderTrustedHostPatterns')]
+  public function testTrustedHostPatterns(array $vars, array $expected_patterns): void {
+    $this->setEnvVars($vars);
+
+    $this->requireSettingsFile();
+
+    $this->assertSame($expected_patterns, $this->settings['trusted_host_patterns']);
+  }
+
+  /**
+   * Data provider for testTrustedHostPatterns().
+   */
+  public static function dataProviderTrustedHostPatterns(): array {
+    return [
+      'empty environment variable' => [
+        [],
+        [
+          '^localhost$',
+        ],
+      ],
+      'single domain' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'example.com'],
+        [
+          '^localhost$',
+          '^example\.com$',
+        ],
+      ],
+      'multiple domains' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'example.com,www.example.com,cdn.example.org'],
+        [
+          '^localhost$',
+          '^example\.com$',
+          '^www\.example\.com$',
+          '^cdn\.example\.org$',
+        ],
+      ],
+      'whitespace and empty values' => [
+        ['DRUPAL_TRUSTED_HOSTS' => ' example.com , , www.example.com '],
+        [
+          '^localhost$',
+          '^example\.com$',
+          '^www\.example\.com$',
+        ],
+      ],
+      'special regex characters' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'sub-domain.example.com,test.example-site.org'],
+        [
+          '^localhost$',
+          '^sub\-domain\.example\.com$',
+          '^test\.example\-site\.org$',
+        ],
+      ],
+      'complex domains' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'api.v2.example.com,cdn-assets.example-site.co.uk'],
+        [
+          '^localhost$',
+          '^api\.v2\.example\.com$',
+          '^cdn\-assets\.example\-site\.co\.uk$',
+        ],
+      ],
+      'duplicates' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'example.com,test.org,example.com,another.com,test.org'],
+        [
+          '^localhost$',
+          '^example\.com$',
+          '^test\.org$',
+          '^example\.com$',
+          '^another\.com$',
+          '^test\.org$',
+        ],
+      ],
+      'uppercase hosts' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'EXAMPLE.COM,Test.ORG,www.EXAMPLE-SITE.CO.UK'],
+        [
+          '^localhost$',
+          '^example\.com$',
+          '^test\.org$',
+          '^www\.example\-site\.co\.uk$',
+        ],
+      ],
+      'explicit localhost' => [
+        ['DRUPAL_TRUSTED_HOSTS' => 'localhost,example.com,localhost,test.org'],
+        [
+          '^localhost$',
+          '^localhost$',
+          '^example\.com$',
+          '^localhost$',
+          '^test\.org$',
+        ],
+      ],
+    ];
+  }
+
 }

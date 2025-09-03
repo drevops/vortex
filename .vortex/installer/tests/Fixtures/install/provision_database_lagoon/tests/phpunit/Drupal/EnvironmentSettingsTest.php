@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -302,6 +482,207 @@
+@@ -312,6 +492,214 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -214,12 +214,14 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -264,12 +266,14 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_DEV;
@@ -314,12 +318,14 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
 +    $settings['cache_prefix']['default'] = 'test_project_master';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_STAGE;
@@ -371,6 +377,7 @@
 +
 +    $settings['cache_prefix']['default'] = 'test_project_production';
 +    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = static::ENVIRONMENT_PROD;

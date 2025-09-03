@@ -22,14 +22,14 @@ class DeployType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🚚 Deployment types';
+    return 'Deployment types';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'You can deploy code using one or more methods.';
+    return 'Use ⬆, ⬇ and Space bar to select one or more deployment types.';
   }
 
   /**
@@ -37,10 +37,10 @@ class DeployType extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     $options = [
-      self::ARTIFACT => '📦 Code artifact',
-      self::LAGOON => '🌊 Lagoon webhook',
-      self::CONTAINER_IMAGE => '🐳 Container image',
-      self::WEBHOOK => '🌐 Custom webhook',
+      self::ARTIFACT => 'Code artifact',
+      self::LAGOON => 'Lagoon webhook',
+      self::CONTAINER_IMAGE => 'Container image',
+      self::WEBHOOK => 'Custom webhook',
     ];
 
     // Remove Lagoon option for Acquia hosting.

@@ -54,6 +54,9 @@ commands:
   lint-dockerfiles:
     cmd: ./tests/lint.dockerfiles.sh
 
+  lint-markdown:
+    cmd: ./tests/lint.markdown.sh
+
   lint-docs:
     cmd: yarn --cwd=docs run lint
 
@@ -103,6 +106,12 @@ commands:
     cmd: |
       composer --working-dir=./docs/.utils install
       yarn --cwd=docs run update-variables
+
+  update-installer-video:
+    usage: Update installer video in the documentation.
+    cmd: |
+      cd docs/.utils
+      ./update-installer-video.sh
 
 entrypoint:
   - bash

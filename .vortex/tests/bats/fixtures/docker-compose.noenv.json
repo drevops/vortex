@@ -39,6 +39,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -98,6 +99,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -157,6 +159,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -214,6 +217,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -271,6 +275,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -337,6 +342,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -403,6 +409,7 @@
                 "DRUPAL_SHIELD_USER": "",
                 "DRUPAL_TEMPORARY_FILES": "/tmp",
                 "DRUPAL_THEME": "",
+                "DRUPAL_TRUSTED_HOSTS": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "TZ": "UTC",
                 "VORTEX_LOCALDEV_URL": "star_wars.docker.amazee.io",
@@ -444,7 +451,8 @@
         "wait_dependencies": {
             "command": [
                 "database:3306",
-                "clamav:3310"
+                "clamav:3310",
+                "valkey:6379"
             ],
             "depends_on": {
                 "clamav": {
@@ -456,6 +464,10 @@
                     "required": true
                 },
                 "database": {
+                    "condition": "service_started",
+                    "required": true
+                },
+                "valkey": {
                     "condition": "service_started",
                     "required": true
                 }

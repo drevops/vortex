@@ -148,8 +148,8 @@ process_docker_compose_json() {
     });
 
     array_walk_recursive(\$data, function (&\$value) {
-      if (\$value !== null && str_contains(\$value, \"$HOME\")) {
-        \$value = str_replace(\"$HOME\", 'HOME', \$value);
+      if (\$value !== null && str_contains(\$value, \"${HOME}\")) {
+        \$value = str_replace(\"${HOME}\", 'HOME', \$value);
       }
     });
 

@@ -1,9 +1,10 @@
-@@ -1,12 +1,12 @@
+@@ -1,13 +1,13 @@
  <div align="center">
  
 -# star wars
--Drupal 11 implementation of star wars for star wars Org
 +# New hope
+ 
+-Drupal 11 implementation of star wars for star wars Org
 +Drupal 11 implementation of New hope for Jedi Order
  
 -[![Database, Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
@@ -15,16 +16,16 @@
  
  ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
  
-@@ -23,9 +23,9 @@
+@@ -24,9 +24,9 @@
  
  ## Environments
  
 -- DEV: https://dev.star-wars.com
 -- STAGE: https://stage.star-wars.com
 -- PROD: https://www.star-wars.com
-+- DEV: https://dev.deathstar.com
-+- STAGE: https://stage.deathstar.com
-+- PROD: https://www.deathstar.com
++- DEV: https://dev.death-star.com
++- STAGE: https://stage.death-star.com
++- PROD: https://www.death-star.com
  
  ## Local environment setup
  

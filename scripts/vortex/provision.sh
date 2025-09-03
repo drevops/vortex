@@ -6,7 +6,7 @@
 # This script has excessive verbose output to make it easy to debug site
 # provisions and deployments.
 #
-# shellcheck disable=SC1091,SC2086,SC2002,SC2235,SC1090,SC2012,SC2015
+# shellcheck disable=SC1091,SC2086,SC2002,SC2235,SC1090,SC2012,SC2015,SC2091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -149,7 +149,7 @@ provision_from_db() {
 
   drush sql:drop
 
-  drush sql:cli <"${VORTEX_PROVISION_DB}"
+  $(drush sql:connect) <"${VORTEX_PROVISION_DB}"
 
   pass "Imported database from the dump file."
 }

@@ -7,7 +7,7 @@ describe('CardGrid Component', () => {
   describe('Basic Rendering', () => {
     test('renders empty CardGrid', () => {
       const { container } = render(<CardGrid />);
-      
+
       const gridElement = container.querySelector('.cards-grid');
       expect(gridElement).toBeInTheDocument();
       expect(gridElement.children).toHaveLength(0);
@@ -58,22 +58,14 @@ describe('CardGrid Component', () => {
     test('renders multiple Card components correctly', () => {
       render(
         <CardGrid>
-          <Card
-            icon="🚀"
-            title="Card 1"
-            description="First card description"
-          />
+          <Card icon="🚀" title="Card 1" description="First card description" />
           <Card
             icon="💡"
             title="Card 2"
             description="Second card description"
             link="/card-2"
           />
-          <Card
-            icon="🎯"
-            title="Card 3"
-            description="Third card description"
-          />
+          <Card icon="🎯" title="Card 3" description="Third card description" />
         </CardGrid>
       );
 
@@ -117,11 +109,7 @@ describe('CardGrid Component', () => {
     test('maintains grid layout with different content sizes', () => {
       const { container } = render(
         <CardGrid>
-          <Card
-            icon="📝"
-            title="Short"
-            description="Short description"
-          />
+          <Card icon="📝" title="Short" description="Short description" />
           <Card
             icon="📚"
             title="Very Long Title That Might Wrap To Multiple Lines"
@@ -137,10 +125,12 @@ describe('CardGrid Component', () => {
 
       const gridElement = container.querySelector('.cards-grid');
       expect(gridElement).toBeInTheDocument();
-      
+
       // All cards should be present
       expect(screen.getByText('Short')).toBeInTheDocument();
-      expect(screen.getByText('Very Long Title That Might Wrap To Multiple Lines')).toBeInTheDocument();
+      expect(
+        screen.getByText('Very Long Title That Might Wrap To Multiple Lines')
+      ).toBeInTheDocument();
       expect(screen.getByText('Medium Title')).toBeInTheDocument();
     });
   });
@@ -228,22 +218,14 @@ describe('CardGrid Component', () => {
 
   describe('Children Handling', () => {
     test('handles null children', () => {
-      const { container } = render(
-        <CardGrid>
-          {null}
-        </CardGrid>
-      );
+      const { container } = render(<CardGrid>{null}</CardGrid>);
 
       const gridElement = container.querySelector('.cards-grid');
       expect(gridElement).toBeInTheDocument();
     });
 
     test('handles undefined children', () => {
-      const { container } = render(
-        <CardGrid>
-          {undefined}
-        </CardGrid>
-      );
+      const { container } = render(<CardGrid>{undefined}</CardGrid>);
 
       const gridElement = container.querySelector('.cards-grid');
       expect(gridElement).toBeInTheDocument();
@@ -270,7 +252,11 @@ describe('CardGrid Component', () => {
         <CardGrid>
           <>
             <Card icon="🧩" title="Fragment Card 1" description="In fragment" />
-            <Card icon="🔗" title="Fragment Card 2" description="Also in fragment" />
+            <Card
+              icon="🔗"
+              title="Fragment Card 2"
+              description="Also in fragment"
+            />
           </>
           <Card icon="🎯" title="Direct Card" description="Direct child" />
         </CardGrid>
@@ -283,9 +269,24 @@ describe('CardGrid Component', () => {
 
     test('handles array of children', () => {
       const cardArray = [
-        <Card key="1" icon="1️⃣" title="Array Card 1" description="First array card" />,
-        <Card key="2" icon="2️⃣" title="Array Card 2" description="Second array card" />,
-        <Card key="3" icon="3️⃣" title="Array Card 3" description="Third array card" />
+        <Card
+          key="1"
+          icon="1️⃣"
+          title="Array Card 1"
+          description="First array card"
+        />,
+        <Card
+          key="2"
+          icon="2️⃣"
+          title="Array Card 2"
+          description="Second array card"
+        />,
+        <Card
+          key="3"
+          icon="3️⃣"
+          title="Array Card 3"
+          description="Third array card"
+        />,
       ];
 
       render(<CardGrid>{cardArray}</CardGrid>);
@@ -304,8 +305,12 @@ describe('CardGrid Component', () => {
       render(
         <CardGrid>
           <Card icon="🎯" title="Always Visible" description="Always shown" />
-          {showCard2 && <Card icon="🔄" title="Conditional Card 2" description="Hidden" />}
-          {showCard3 && <Card icon="✅" title="Conditional Card 3" description="Visible" />}
+          {showCard2 && (
+            <Card icon="🔄" title="Conditional Card 2" description="Hidden" />
+          )}
+          {showCard3 && (
+            <Card icon="✅" title="Conditional Card 3" description="Visible" />
+          )}
         </CardGrid>
       );
 
@@ -443,9 +448,7 @@ describe('CardGrid Component', () => {
     test('handles empty and whitespace-only children', () => {
       render(
         <CardGrid>
-          {''}
-          {' '}
-          {'\n'}
+          {''} {'\n'}
           <Card icon="✅" title="Valid Card" description="Real content" />
           {'   '}
         </CardGrid>

@@ -46,7 +46,9 @@ class Git extends GitRepository {
     foreach ($list as $line) {
       $parts = explode("\t", $line);
       if (count($parts) < 2) {
+        // @codeCoverageIgnoreStart
         continue;
+        // @codeCoverageIgnoreEnd
       }
       // Remove the trailing (fetch) or (push) from the remote name.
       $parts[1] = preg_replace('/ \(.*\)$/', '', $parts[1]);
@@ -95,7 +97,9 @@ class Git extends GitRepository {
     $command = sprintf("cd %s && git ls-files", escapeshellarg($dir));
     exec($command, $output, $code);
     if ($code !== 0) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException("Failed to retrieve tracked files using git ls-files.");
+      // @codeCoverageIgnoreEnd
     }
 
     foreach ($output as $file) {

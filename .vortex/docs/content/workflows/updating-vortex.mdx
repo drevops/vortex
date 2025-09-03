@@ -10,6 +10,7 @@ update it to get the latest features and bug fixes without losing your project c
 ## Overview
 
 Updating Vortex allows existing projects to benefit from:
+
 - Security patches and bug fixes
 - New features and workflow improvements
 - Updated dependencies and tooling
@@ -30,11 +31,13 @@ Specifically check if any environment variables were added or changed.
 ## Update process
 
 1. Create a new branch for the update:
+
    ```shell title="Create a new branch for the update"
    git checkout -b update-vortex
    ```
 
 2. Run the update command:
+
    ```shell title="Update to the latest version"
    ahoy update-vortex
    ```
@@ -64,11 +67,14 @@ Specifically check if any environment variables were added or changed.
    ```
 
 4. Test the updated environment to ensure everything works as expected:
+
    ```shell title="Test the updated environment"
    ahoy build
    ```
+
 5. Push to the remote repository, create a pull request, and observe the
    Continuous Integration run passing.
+
    ```shell title="Push the update branch"
    git push origin update-vortex
    ```

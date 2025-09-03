@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\Composer;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
 class MachineName extends AbstractHandler {
 
@@ -15,7 +15,7 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🏷️ Site machine name';
+    return 'Site machine name';
   }
 
   /**
@@ -54,20 +54,18 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $value = NULL;
+    $v = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
 
-    $from_env = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
-    if ($from_env) {
-      $value = $from_env;
-    }
-    else {
-      $from_composerjson = Composer::getJsonValue('name', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
-      if ($from_composerjson && preg_match('/([^\/]+)\/(.+)/', (string) $from_composerjson, $matches) && !empty($matches[2])) {
-        $value = $matches[2];
-      }
+    if (!empty($v)) {
+      return $v;
     }
 
-    return $value;
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+    if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[2])) {
+      return trim($matches[2]);
+    }
+
+    return NULL;
   }
 
   /**

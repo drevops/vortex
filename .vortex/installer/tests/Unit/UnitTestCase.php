@@ -10,6 +10,7 @@ use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Yaml;
 
 /**
  * Class UnitTestCase.
@@ -63,6 +64,12 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected static function replaceVersionsInLine(string $content): string {
     $patterns = [
       '/sha512\-[A-Za-z0-9+\/]{86}={0,2}/' => '__INTEGRITY__',
+
+      // GitHub Actions with digests and version comments.
+      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}\s*#\s*v\d+(?:\.\d+)*/' => '${1}@__HASH__ # __VERSION__',
+      // GitHub Actions with digests (no version comments).
+      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}/' => '${1}@__HASH__',
+
       '/#[a-fA-F0-9]{39,40}/' => '#__HASH__',
       '/@[a-fA-F0-9]{39,40}/' => '@__HASH__',
 
@@ -74,8 +81,6 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       // docker-compose.yml.
       '/([\w.-]+\/[\w.-]+:)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
       '/([\w.-]+\/[\w.-]+:)canary$/m' => '${1}__VERSION__',
-      // GitHub Actions with digests (with optional version comments).
-      '/([\w.-]+\/[\w.-]+)@[a-f0-9]{40}(\s*#\s*v[\d.]+)?/' => '${1}@__VERSION__',
       // GHAs.
       '/([\w.-]+\/[\w.-]+)@(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}@__VERSION__',
       '/(node-version:\s)(?:v)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?/' => '${1}__VERSION__',
@@ -106,6 +111,26 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     }
 
     return $content;
+  }
+
+  protected function assertYamlFileIsValid(string $filename): void {
+    try {
+      Yaml::validateFile($filename);
+    }
+    catch (\Exception $exception) {
+      $this->fail(sprintf('YAML validation for file %s failed: %s', $filename, $exception->getMessage()));
+    }
+  }
+
+  protected function assertJsonFileIsValid(string $filename): void {
+    $this->assertFileExists($filename);
+
+    $content = file_get_contents($filename);
+    if ($content === FALSE) {
+      $this->fail(sprintf('Failed to read JSON file "%s".', $filename));
+    }
+
+    $this->assertJson($content, sprintf('JSON validation for file %s failed: %s', $filename, json_last_error_msg()));
   }
 
 }

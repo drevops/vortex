@@ -1,4 +1,4 @@
-@@ -8,18 +8,18 @@
+@@ -8,19 +8,19 @@
      <exclude-pattern>*/vendor/*</exclude-pattern>
      <exclude-pattern>*/node_modules/*</exclude-pattern>
  
@@ -14,6 +14,7 @@
 +    <exclude-pattern>*/docroot/modules/contrib/*</exclude-pattern>
 +    <exclude-pattern>*/docroot/themes/contrib/*</exclude-pattern>
 +    <exclude-pattern>*/docroot/sites/*</exclude-pattern>
+     <exclude-pattern>*/recipes/*</exclude-pattern>
      <exclude-pattern>*/scripts/*</exclude-pattern>
      <exclude-pattern>*/tests/*Test.php</exclude-pattern>
  

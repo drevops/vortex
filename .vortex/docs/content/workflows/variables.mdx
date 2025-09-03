@@ -2,6 +2,8 @@
 sidebar_position: 8
 ---
 
+<!-- markdownlint-disable -->
+
 # Variables
 
 **Vortex** uses environment variables to configure workflows without code
@@ -18,7 +20,7 @@ environments.
 to alter workflow behavior. For example, changing how deployment behaves
 or skipping a certain code branch deployment within CI.
 
-## Override order (bottom values win):
+## Override order (bottom values win)
 
 - default value in container taken from image
 - default value in `docker-compose.yml`
@@ -224,7 +226,7 @@ Defined in: `docker-compose.yml`
 
 Enable Redis/Valkey integration.<br/>See settings.redis.php for details.
 
-Default value: `UNDEFINED`
+Default value: `1`
 
 Defined in: `.env`
 
@@ -278,9 +280,21 @@ Default value: `your_site_theme`
 
 Defined in: `.env`
 
+### `DRUPAL_TRUSTED_HOSTS`
+
+Trusted host patterns.
+
+Comma-separated list of domains for trusted host patterns. These domains will<br/>be added to the trusted host patterns alongside any other routes defined by<br/>the hosting provider.
+
+Default value: `your-site-domain.example,www.your-site-domain.example`
+
+Defined in: `.env`
+
 ### `LAGOON_PROJECT`
 
 Lagoon project name. May be different from [`$VORTEX_PROJECT`](#vortex_project).
+
+Update drush/sites/lagoon.site.yml if you update this value.
 
 Default value: `your_site`
 
@@ -429,6 +443,14 @@ Defined in: `CI config`
 ### `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`
 
 Ignore `composer validate` failures.
+
+Default value: `UNDEFINED`
+
+Defined in: `CI config`
+
+### `VORTEX_CI_DCLINT_IGNORE_FAILURE`
+
+Ignore DCLint failures.
 
 Default value: `UNDEFINED`
 
@@ -666,6 +688,14 @@ Default value: `${LAGOON_PROJECT}-${VORTEX_DB_DOWNLOAD_ENVIRONMENT}`
 
 Defined in: `scripts/vortex/download-db-lagoon.sh`
 
+### `VORTEX_DB_DOWNLOAD_NO_CACHE`
+
+Flag to download a fresh copy of the database.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/download-db-lagoon.sh`
+
 ### `VORTEX_DB_DOWNLOAD_PROCEED`
 
 Proceed with download.
@@ -673,14 +703,6 @@ Proceed with download.
 Default value: `1`
 
 Defined in: `scripts/vortex/download-db.sh`
-
-### `VORTEX_DB_DOWNLOAD_REFRESH`
-
-Flag to download a fresh copy of the database.
-
-Default value: `UNDEFINED`
-
-Defined in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_SOURCE`
 
@@ -705,6 +727,14 @@ SSH key fingerprint used to connect to a remote.
 Default value: `UNDEFINED`
 
 Defined in: `scripts/vortex/download-db-lagoon.sh`
+
+### `VORTEX_DB_DOWNLOAD_UNZIP_PASSWORD`
+
+Password for unzipping password-protected zip files.
+
+Default value: `UNDEFINED`
+
+Defined in: `scripts/vortex/download-db-url.sh`
 
 ### `VORTEX_DB_DOWNLOAD_URL`
 
@@ -1289,7 +1319,7 @@ Applies to email notifications.
 
 Multiple names can be specified as a comma-separated list of email addresses<br/>with optional names in the format "email|name".<br/>Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
 
-Default value: `webmaster@your-site-domain.example`
+Default value: `webmaster@your-site-domain.example|Webmaster`
 
 Defined in: `.env`, `scripts/vortex/notify-email.sh`
 

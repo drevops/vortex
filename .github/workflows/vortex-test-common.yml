@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -72,6 +72,7 @@ jobs:
         run: |
           ./tests/lint.scripts.sh
           ./tests/lint.dockerfiles.sh
+          ./tests/lint.markdown.sh
         working-directory: .vortex
 
       # Special case to validate Renovate  configuration with the same action
@@ -102,7 +103,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -115,7 +116,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        batch: [0, 1, 2, 3]
+        batch: [0, 1, 2, 3, 4]
 
     container:
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
@@ -132,7 +133,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -171,7 +172,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -201,7 +202,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -248,7 +249,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5
         with:
           directory: /tmp/.vortex-coverage-html
           fail_ci_if_error: false
@@ -260,7 +261,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Login to container registry
         run: ./scripts/vortex/login-container-registry.sh
@@ -273,5 +274,5 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
 
       - name: Check coding standards with actionlint
-        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.7.2 -ignore 'SC2002:' -ignore 'SC2155:' -ignore 'SC2015:' -ignore 'SC2046:'
+        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.7.2 -ignore 'SC2002:' -ignore 'SC2155:' -ignore 'SC2015:' -ignore 'SC2046:' -ignore 'SC1090:'
         continue-on-error: ${{ vars.VORTEX_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}

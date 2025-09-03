@@ -8,6 +8,12 @@ on:
     branches:
       - '**release-docs**'
       - '**release-installer**'
+  workflow_dispatch:
+    inputs:
+      installer_version:
+        description: 'Override installer version (leave empty for auto-discovery)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -25,18 +31,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
 
       - name: Cache Composer dependencies
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2
         with:
           php-version: 8.2
 
@@ -46,9 +52,14 @@ jobs:
 
       - name: Add version
         run: |
-          TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
-          sed -i "s/\"git-tag-ci\": \"dev\"/\"git-tag-ci\": \"${TAG:-${SHA}}\"/g" box.json
+          if [ -n "${{ inputs.installer_version }}" ]; then
+            VERSION="${{ inputs.installer_version }}"
+          else
+            TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
+            SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
+            VERSION="${TAG:-${SHA}}"
+          fi
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"${VERSION}\"/g" box.json
         working-directory: .vortex/installer
 
       - name: Build PHAR
@@ -56,7 +67,11 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer.phar --no-interaction test || exit 1
+        run: ./build/installer.phar --no-interaction --no-cleanup test || exit 1
+        working-directory: .vortex/installer
+
+      - name: Test PHAR version
+        run: ./build/installer.phar --version || exit 1
         working-directory: .vortex/installer
 
       - name: Upload artifact
@@ -80,7 +95,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
 
@@ -90,10 +105,10 @@ jobs:
           node-version: 22.17.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@0f7f1d08e3e32076e51cae65eb0b0c871405b16e # v2
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2
 
       - name: Download installer
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: vortex-installer
 
@@ -117,8 +132,15 @@ jobs:
         run: yarn run build
         working-directory: .vortex/docs
 
+      - name: Generate video for installer (not used in the final artifact)
+        run: |
+          sudo apt install asciinema expect
+          npm i -g svg-term-cli sharp-cli
+          ./update-installer-video.sh
+        working-directory: .vortex/docs/.utils
+
       - name: Upload documentation site
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: .vortex/docs/build
 

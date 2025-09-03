@@ -1,7 +1,7 @@
-@@ -56,8 +56,6 @@
-   DATABASE_CHARSET: utf8mb4
-   # Local database collation (variable is not used in hosting environment).
+@@ -41,8 +41,6 @@
    DATABASE_COLLATION: utf8mb4_general_ci
+   # Trusted host patterns.
+   DRUPAL_TRUSTED_HOSTS: ${DRUPAL_TRUSTED_HOSTS:-}
 -  # Drupal theme name.
 -  DRUPAL_THEME: ${DRUPAL_THEME:-}
    # Drupal file paths.

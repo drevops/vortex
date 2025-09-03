@@ -38,9 +38,9 @@ commands:
   db:
     usage: Open DB in Sequel Ace.
     cmd: |
-      uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null |grep -q "Ace" \
-      && VORTEX_HOST_DB_PORT="$(docker port $(docker compose ps -q database 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
-      && open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@__VERSION__.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
+      VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2) && \
+      open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@__VERSION__.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------
@@ -75,12 +75,12 @@ commands:
     usage: Show container logs for services.
     cmd: docker compose logs "$@"
 
+  # Drop into a shell if no arguments are supplied, otherwise run the command.
+  # Environment variables are passed from the host and filtered by prefix.
+  # Use \" (slash followed by a double quote) to escape double quotes in
+  # arguments that contain spaces.
   cli:
     usage: Start a shell or run a command inside the CLI service container.
-    # Drop into a shell if no arguments are supplied, otherwise run the command.
-    # Environment variables are passed from the host and filtered by prefix.
-    # Use \" (slash followed by a double quote) to escape double quotes in
-    # arguments that contain spaces.
     cmd: |
       if [ "${#}" -ne 0 ]; then
         docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|PACKAGE_\|DOCKER_\|DRUPAL_\|VORTEX_" | sed 's/^/-e /') cli bash -c "$*"
@@ -100,6 +100,7 @@ commands:
     cmd: ahoy cli "vendor/bin/drush -l \${VORTEX_LOCALDEV_URL} $*"
 
   flush-valkey:
+    aliases: [flush-redis]
     usage: Flush Valkey cache.
     cmd: docker compose exec valkey valkey-cli flushall
 
@@ -112,20 +113,22 @@ commands:
     cmd: ahoy cli ./scripts/vortex/login.sh
 
   download-db:
-    usage: Download database.
-    aliases: ['fetch-db']
-    cmd: ./scripts/vortex/download-db.sh
+    usage: Download database. Run with "--no-cache" option to force fresh database backup.
+    aliases: [fetch-db]
+    cmd: |
+      case " $* " in *" --no-cache "*) export VORTEX_DB_DOWNLOAD_NO_CACHE=1;; esac
+      ./scripts/vortex/download-db.sh
 
   reload-db:
     usage: Reload the database container using local database image.
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
       docker compose rm --force --stop --volumes database && \
-        ahoy up -- --build database && \
-        ahoy up wait_dependencies && \
-        sleep 15 && \
-        ahoy provision && \
-        VORTEX_SHOW_LOGIN=1 ahoy info
+      ahoy up -- --build database && \
+      ahoy up wait_dependencies && \
+      sleep 15 && \
+      ahoy provision && \
+      VORTEX_SHOW_LOGIN=1 ahoy info
 
   provision:
     usage: Provision a site from the database dump or profile.
@@ -146,7 +149,7 @@ commands:
     cmd: \[ -n "${VORTEX_DB_IMAGE}" \] && docker pull ${VORTEX_DB_IMAGE} || true
 
   reset:
-    usage: "Remove containers, all build files. Use with `hard` to reset repository to the last commit."
+    usage: Remove containers, all build files. Use with `hard` to reset repository to the last commit.
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down
@@ -174,7 +177,10 @@ commands:
 
   lint:
     usage: Lint back-end and front-end code.
-    cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests
+    cmd: |
+      ahoy lint-be
+      ahoy lint-fe
+      ahoy lint-tests
 
   lint-be:
     usage: Lint back-end code.
@@ -193,11 +199,14 @@ commands:
 
   lint-tests:
     usage: Lint tests code.
-    cmd: ahoy cli vendor/bin/gherkinlint lint tests/behat/features
+    cmd: |
+      ahoy cli vendor/bin/gherkinlint lint tests/behat/features
 
   lint-fix:
     usage: Fix lint issues of back-end and front-end code.
-    cmd: ahoy lint-be-fix && ahoy lint-fe-fix
+    cmd: |
+      ahoy lint-be-fix
+      ahoy lint-fe-fix
 
   lint-be-fix:
     usage: Fix lint issues of back-end code.
@@ -214,7 +223,11 @@ commands:
 
   test:
     usage: Run all tests.
-    cmd: ahoy test-unit && ahoy test-kernel && ahoy test-functional && ahoy test-bdd
+    cmd: |
+      ahoy test-unit
+      ahoy test-kernel
+      ahoy test-functional
+      ahoy test-bdd
 
   test-unit:
     usage: Run PHPUnit unit tests.
@@ -230,7 +243,7 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    aliases: ['test-behat']
+    aliases: [test-behat]
     cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
 
   debug:
@@ -254,8 +267,7 @@ commands:
   local:
     usage: Custom local commands. See `ahoy local help`.
     optional: true
-    imports:
-      - .ahoy.local.yml
+    imports: [.ahoy.local.yml]
 
   # ----------------------------------------------------------------------------
   # Utilities.
@@ -287,15 +299,14 @@ commands:
     hide: true
 
 # Override entrypoint to alter default behavior of Ahoy.
+# 1. Exit the script if any statement returns a non-true return value.
+# 2. Read variables from .env file (while respecting existing values) to load
+#    and pass updated environment variables' values into already running
+#    containers.
 entrypoint:
   - bash
   - -c
-  # Exit the script if any statement returns a non-true return value.
   - -e
-  # Read variables from .env file, respecting existing values.
-  # - Used to load and pass updated environment variables' values into already
-  #   running containers.
-  # - Use `ahoy up cli` in cases when changes require container restart.
   - |
     t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
     bash -e -c "$0" "$@"

@@ -1,4 +1,4 @@
-@@ -147,23 +147,6 @@
+@@ -149,23 +149,6 @@
    valkey:
      image: uselagoon/valkey-8:__VERSION__
  
@@ -12,17 +12,17 @@
 -        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
+-    volumes:
+-      - solr:/var/solr
 -    depends_on:
 -      - cli
 -    ports:
--      - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
--    volumes:
--      - solr:/var/solr
+-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 -
    clamav:
      build:
        context: .
-@@ -203,7 +186,6 @@
+@@ -206,7 +189,6 @@
  volumes:
    app: {}
    files: {}

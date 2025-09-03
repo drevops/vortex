@@ -52,7 +52,7 @@ load ../_helper.bash
   composer --working-dir="${ROOT_DIR}/.vortex/installer" install >/dev/null
   composer --working-dir="${ROOT_DIR}/.vortex/installer" build >/dev/null
   assert_file_exists "${ROOT_DIR}/.vortex/installer/build/installer.phar"
-  substep "Built Vortex installer: $(php ${ROOT_DIR}/.vortex/installer/build/installer.phar --version)"
+  substep "Built Vortex installer: $(php "${ROOT_DIR}"/.vortex/installer/build/installer.phar --version)"
 
   # Override install script with the currently tested one to be called
   # from ./scripts/vortex/update-vortex.sh

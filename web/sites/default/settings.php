@@ -4,7 +4,7 @@
  * @file
  * Drupal site-specific configuration file.
  *
- * Copy `default.settings.local.php` and `default.services.local.yml` to
+ * Copy `example.settings.local.php` and `example.services.local.yml` to
  * `settings.local.php` and `services.local.yml` respectively to
  * enable local overrides.
  *
@@ -63,12 +63,8 @@ $settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/defaul
 // Temporary file directory.
 $settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: getenv('TMP') ?: '/tmp';
 
-// Location of the site configuration files relative to the Drupal root. If not
-// set, the default location is inside a randomly-named directory in the public
-// files path.
-if (!empty(getenv('DRUPAL_CONFIG_PATH'))) {
-  $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH');
-}
+// Location of the site configuration files relative to the Drupal root.
+$settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: '../config/default';
 
 // Load services definition file.
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
@@ -171,7 +167,7 @@ if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
 
 // Load local override configuration, if available.
 //
-// Copy `default.settings.local.php` and `default.services.local.yml` to
+// Copy `example.settings.local.php` and `example.services.local.yml` to
 // `settings.local.php` and `services.local.yml` respectively to enable local
 // overrides.
 //

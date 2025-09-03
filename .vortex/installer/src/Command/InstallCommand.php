@@ -9,6 +9,8 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Downloader;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Strings;
+use DrevOps\VortexInstaller\Utils\Task;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -52,11 +54,16 @@ class InstallCommand extends Command {
   protected Config $config;
 
   /**
+   * The prompt manager.
+   */
+  protected PromptManager $promptManager;
+
+  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
     $this->setName('Vortex Installer');
-    $this->setDescription('Install Vortex CLI from remote or local repository.');
+    $this->setDescription('Install Vortex from remote or local repository.');
     $this->setHelp(<<<EOF
   Interactively install Vortex from the latest stable release into the current directory:
   php installer destination
@@ -78,7 +85,7 @@ EOF
 
     $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
     $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
-    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options.');
+    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
     $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
   }
@@ -101,15 +108,15 @@ EOF
       $this->resolveOptions($input->getArguments(), $input->getOptions());
 
       Tui::init($output, !$this->config->getNoInteraction());
-      $pm = new PromptManager($this->config);
+      $this->promptManager = new PromptManager($this->config);
 
-      static::header();
+      $this->header();
 
-      $pm->runPrompts();
+      $this->promptManager->runPrompts();
 
-      Tui::list($pm->getResponsesSummary(), 'Installation summary');
+      Tui::list($this->promptManager->getResponsesSummary(), 'Installation summary');
 
-      if (!$pm->shouldProceed()) {
+      if (!$this->promptManager->shouldProceed()) {
         Tui::info('Aborting project installation. No files were changed.');
 
         return Command::SUCCESS;
@@ -117,8 +124,8 @@ EOF
 
       Tui::info('Starting project installation');
 
-      Tui::action(
-        label: '⬇️ Downloading Vortex',
+      Task::action(
+        label: 'Downloading Vortex',
         action: function (): string {
           $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
@@ -130,32 +137,29 @@ EOF
         }
       );
 
-      Tui::action(
-        label: '⚙️ Customizing Vortex for your project',
-        action: fn() => $pm->runProcessors(),
+      Task::action(
+        label: 'Customizing Vortex for your project',
+        action: fn() => $this->promptManager->runProcessors(),
         success: 'Vortex was customized for your project',
       );
 
-      Tui::action(
-        label: '📁 Preparing destination directory',
+      Task::action(
+        label: 'Preparing destination directory',
         action: fn(): array => $this->prepareDestination(),
         success: 'Destination directory is ready',
       );
 
-      Tui::action(
-        label: '➡️ Copying files to the destination directory',
+      Task::action(
+        label: 'Copying files to the destination directory',
         action: fn() => $this->copyFiles(),
         success: 'Files copied to destination directory',
       );
 
-      Tui::action(
-        label: '🎭 Preparing demo content',
+      Task::action(
+        label: 'Preparing demo content',
         action: fn(): string|array => $this->handleDemo(),
         success: 'Demo content prepared',
       );
-
-      // @todo Implement the demo mode.
-      // $this->handleDemo();
     }
     catch (\Exception $exception) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -164,7 +168,7 @@ EOF
       return Command::FAILURE;
     }
 
-    static::footer();
+    $this->footer();
 
     // Cleanup should take place only in case of the successful installation.
     // Otherwise, the user should be able to re-run the installer.
@@ -207,7 +211,12 @@ EOF
    *   Array of CLI options.
    */
   protected function resolveOptions(array $arguments, array $options): void {
-    $config = isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG]) ? strval($options[static::OPTION_CONFIG]) : '{}';
+    $config = '{}';
+    if (isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG])) {
+      $config_candidate = strval($options[static::OPTION_CONFIG]);
+      $config = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
+    }
+
     $this->config = Config::fromString($config);
 
     $this->config->setQuiet($options[static::OPTION_QUIET]);
@@ -387,12 +396,23 @@ EOT;
                      by DrevOps
 EOT;
 
+    $max_header_width = 200;
+
     $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
-    $logo = Tui::center($logo, min(Tui::terminalWidth(), 80), '─');
+    $logo = Tui::center($logo, Tui::terminalWidth($max_header_width), '─');
+    $logo = Tui::cyan($logo);
 
     $version = $this->getApplication()->getVersion();
-    $version = str_replace('@git-tag-ci@', 'development', $version);
-    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), min(Tui::terminalWidth(), 80) - 2, ' ', STR_PAD_LEFT));
+    // Depending on how the installer is run, the version may be set to
+    // the placeholder value or actual version (PHAR packager will replace
+    // the placeholder with the actual version).
+    // We need to fence the replacement below only if the version is still set
+    // to the placeholder value.
+    if (str_contains($version, 'vortex-installer-version')) {
+      $version = str_replace('@vortex-installer-version@', 'development', $version);
+    }
+
+    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), Tui::terminalWidth($max_header_width) - 2, ' ', STR_PAD_LEFT));
 
     Tui::note($logo);
 
@@ -428,39 +448,91 @@ EOT;
       $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
       $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
       $content .= PHP_EOL;
-      $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
-      $content .= PHP_EOL;
+
+      if ($this->config->isVortexProject()) {
+        $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
+        $content .= PHP_EOL;
+      }
+
       $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
       $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
     }
 
     Tui::box($content, $title);
+
+    Tui::line(Tui::dim('Press any key to continue...'));
+    Tui::getChar();
   }
 
   public function footer(): void {
     $output = '';
+    $prefix = '  ';
+
     if ($this->config->isVortexProject()) {
-      $title = 'Finished updating Vortex 🚀🚀🚀';
+      $title = 'Finished updating Vortex';
       $output .= 'Please review the changes and commit the required files.';
     }
     else {
-      $title = 'Finished installing Vortex 🚀🚀🚀';
+      $title = 'Finished installing Vortex';
       $output .= 'Next steps:' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  Add and commit all files:' . PHP_EOL;
-      $output .= '    cd ' . $this->config->getDst() . PHP_EOL;
-      $output .= '    git add -A' . PHP_EOL;
-      $output .= '    git commit -m "Initial commit."' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  Build project locally:' . PHP_EOL;
-      $output .= '    ahoy build' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= '  Setup integration with your CI/CD system and hosting:' . PHP_EOL;
-      $output .= '    See https://www.vortextemplate.com/docs/quickstart';
-      $output .= PHP_EOL;
+
+      // Check for required tools and provide conditional instructions.
+      $missing_tools = $this->checkRequiredTools();
+      if (!empty($missing_tools)) {
+        $tools_output = 'Install required tools:' . PHP_EOL;
+        foreach ($missing_tools as $tool => $instructions) {
+          $tools_output .= sprintf('  %s: %s', $tool, $instructions) . PHP_EOL;
+        }
+        $tools_output .= PHP_EOL;
+        $output .= Strings::wrapLines($tools_output, $prefix);
+      }
+
+      // Allow post-install handlers to add their messages.
+      $output .= Strings::wrapLines($this->promptManager->runPostInstall(), $prefix);
     }
 
     Tui::box($output, $title);
+  }
+
+  /**
+   * Check for required development tools.
+   *
+   * @return array
+   *   Array of missing tools with installation instructions.
+   */
+  protected function checkRequiredTools(): array {
+    $tools = [
+      'docker' => [
+        'name' => 'Docker',
+        'command' => 'docker',
+        'instructions' => 'https://www.docker.com/get-started',
+      ],
+      'pygmy' => [
+        'name' => 'Pygmy',
+        'command' => 'pygmy',
+        'instructions' => 'https://github.com/pygmystack/pygmy',
+      ],
+      'ahoy' => [
+        'name' => 'Ahoy',
+        'command' => 'ahoy',
+        'instructions' => 'https://github.com/ahoy-cli/ahoy',
+      ],
+    ];
+
+    $missing = [];
+
+    foreach ($tools as $tool) {
+      // Use exec with output capture to avoid output to console.
+      $output = [];
+      $return_code = 0;
+      exec(sprintf('command -v %s 2>/dev/null', $tool['command']), $output, $return_code);
+
+      if ($return_code !== 0) {
+        $missing[$tool['name']] = $tool['instructions'];
+      }
+    }
+
+    return $missing;
   }
 
   /**

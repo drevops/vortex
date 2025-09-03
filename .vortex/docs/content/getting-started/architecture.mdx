@@ -7,21 +7,21 @@ This page provides a high-level overview of how the template is structured, how
 its components work together, and how your project benefits from its
 architecture.
 
-# Design Principles
+## Design Principles
 
 **Vortex** is guided by principles that prioritize simplicity, visibility, and
 maintainability:
 
-* **Simple is better than complex**: The template encourages clarity, even in
+- **Simple is better than complex**: The template encourages clarity, even in
   customizations.
-* **Use standard tools**: Wherever possible, **Vortex** follows upstream conventions
+- **Use standard tools**: Wherever possible, **Vortex** follows upstream conventions
   and avoids reinvention.
-* **Avoid silent errors**: Misconfigurations should fail loudly.
-* **Readability counts**: Code and configuration are meant to be understood.
-* **Explicit logging helps**: Scripts log every major step, so it’s easy to
+- **Avoid silent errors**: Misconfigurations should fail loudly.
+- **Readability counts**: Code and configuration are meant to be understood.
+- **Explicit logging helps**: Scripts log every major step, so it’s easy to
   follow what’s going on.
 
-# System Components
+## System Components
 
 The system is made up of several modular pieces that work together:
 
@@ -58,9 +58,9 @@ with short, easy-to-remember commands.
 The provisioning process is central to how **Vortex** works. Instead of manually
 running Drush commands, you run a single provision script. This script handles:
 
-* Importing a database (or initializing from a profile)
-* Running updates, config imports, cache rebuilds, and deploy hooks
-* Executing post-provision custom scripts
+- Importing a database (or initializing from a profile)
+- Running updates, config imports, cache rebuilds, and deploy hooks
+- Executing post-provision custom scripts
 
 Because provisioning is centralized, it runs exactly in the same way in every
 environment: local, CI, or hosting. This eliminates "works on my machine"
@@ -73,9 +73,9 @@ problems and makes the process predictable for everyone.
 We include examples of a custom module and theme, each fully integrated with
 tests. These show you how to:
 
-* Structure custom features
-* Write functional, kernel, and unit tests
-* Connect theme assets to a build pipeline
+- Structure custom features
+- Write functional, kernel, and unit tests
+- Connect theme assets to a build pipeline
 
 Use these scaffolds as starting points for your own work.
 
@@ -87,9 +87,9 @@ and [Drupal > Theme Scaffold](../drupal/theme-scaffold)
 **Vortex** includes a structured way to manage Drupal settings per environment.
 Here's how it works:
 
-* The environment type (e.g. local, CI, stage) is automatically detected based
+- The environment type (e.g. local, CI, stage) is automatically detected based
   on your hosting provider.
-* Configuration overrides are stored in `includes/modules/` with logic per
+- Configuration overrides are stored in `includes/modules/` with logic per
   environment inside each module-specific file.
 
 This structure gives you clarity, avoids config sprawl, and lets you remove a
@@ -101,17 +101,17 @@ module’s settings cleanly when no longer needed.
 
 **Vortex** ships with pre-configured tools for maintaining code quality:
 
-* **PHP CodeSniffer (phpcs)**
-* **PHPStan**
-* **PHP Mess Detector (phpmd)**
-* **Twig CS Fixer**
+- **PHP CodeSniffer (phpcs)**
+- **PHPStan**
+- **PHP Mess Detector (phpmd)**
+- **Twig CS Fixer**
 
 You’ll also find scaffolds for:
 
-* **PHPUnit**: Unit and kernel testing
-* **Behat**: Behavior-driven testing with screenshot capture and extra steps
+- **PHPUnit**: Unit and kernel testing
+- **Behat**: Behavior-driven testing with screenshot capture and extra steps
 
-➡️ See [Tools > PHPStan](../tools/phpstan), [Tools > PHPCS](../tools/phpcs), 
+➡️ See [Tools > PHPStan](../tools/phpstan), [Tools > PHPCS](../tools/phpcs),
 [Tools > Behat](../tools/behat), and [Tools > PHPUnit](../tools/phpunit)
 
 ## Continuous Integration Workflows
@@ -119,11 +119,11 @@ You’ll also find scaffolds for:
 **Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
 project. The workflows include:
 
-* Database download and caching (for faster builds)
-* Full site provisioning in CI
-* Running code quality checks
-* Running unit, functional and behavior tests
-* Triggering deploys when tests pass
+- Database download and caching (for faster builds)
+- Full site provisioning in CI
+- Running code quality checks
+- Running unit, functional and behavior tests
+- Triggering deploys when tests pass
 
 Each continuous integration configuration mirrors what happens locally and in hosting to ensure
 uniformity.
@@ -134,8 +134,8 @@ uniformity.
 
 Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
 
-* Trigger provisioning with the same steps used locally and in CI
-* Provide deployment workflows suited to each platform
+- Trigger provisioning with the same steps used locally and in CI
+- Provide deployment workflows suited to each platform
 
 You can use **Vortex** with other platforms too, but these are first-class
 integrations.
@@ -146,9 +146,9 @@ integrations.
 
 **Vortex** includes configuration for RenovateBot to automate dependency upgrades:
 
-* Critical updates checked daily
-* Regular updates run weekly
-* PRs include changelogs and pass through your continuous integration pipeline
+- Critical updates checked daily
+- Regular updates run weekly
+- PRs include changelogs and pass through your continuous integration pipeline
 
 You can host RenovateBot yourself or use the cloud version, and you can tweak
 the schedule as needed.
@@ -170,9 +170,9 @@ defined via POSIX-compliant Bash scripts in `scripts/vortex`.
 
 These scripts:
 
-* Run identically across local, CI, and hosting
-* Support environment variables to adapt behavior
-* Are modular and easy to extend
+- Run identically across local, CI, and hosting
+- Support environment variables to adapt behavior
+- Are modular and easy to extend
 
 ### Customizing workflows
 

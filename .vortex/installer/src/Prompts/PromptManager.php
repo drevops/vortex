@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
@@ -29,8 +30,10 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
+use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
+use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
@@ -59,7 +62,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 23;
+  const TOTAL_RESPONSES = 25;
 
   /**
    * Array of responses.
@@ -119,12 +122,12 @@ class PromptManager {
       ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
       ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
 
-      ->intro('Code repository')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
-
       ->intro('Drupal')
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
       ->add(
-          fn($r, $pr, $n): int|string => select(...$this->args(Profile::class)),
+          function (array $r, $pr, $n): string {
+            return $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class)));
+          },
           Profile::id()
         )
         ->addIf(
@@ -135,23 +138,19 @@ class PromptManager {
       ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
       ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, NULL, $r)), Theme::id())
 
+      ->intro('Code repository')
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
+
       ->intro('Environment')
       ->add(fn($r, $pr, $n): string => suggest(...$this->args(Timezone::class)), Timezone::id())
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class)), Services::id())
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Tools::class)), Tools::id())
 
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
       ->add(
           function (array $r, $pr, $n): string {
-            $handler = $this->handlers[Webroot::id()];
-            $resolved = $handler->resolvedValue($r);
-            if (is_string($resolved)) {
-              info($handler->resolvedMessage($r));
-              return $resolved;
-            }
-            else {
-              return text(...$this->args(Webroot::class, NULL, $r));
-            }
+            return $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r)));
           },
           Webroot::id()
         )
@@ -160,7 +159,6 @@ class PromptManager {
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, NULL, $r)), DeployType::id())
 
       ->intro('Workflow')
-      ->add(fn($r, $pr, $n) => Tui::note('<info>Provisioning</info> is the process of setting up the site in the environment with an already assembled codebase.'))
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class)), ProvisionType::id())
       ->addIf(
           fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
@@ -242,6 +240,7 @@ class PromptManager {
     // runPrompts() to ensure that the handlers for string replacements process
     // more specific values first, and the more generic ones last.
     $ids = [
+      Dotenv::id(),
       Webroot::id(),
       AiCodeInstructions::id(),
       PreserveDocsOnboarding::id(),
@@ -255,9 +254,11 @@ class PromptManager {
       ProvisionType::id(),
       DeployType::id(),
       HostingProvider::id(),
+      Tools::id(),
       Services::id(),
       Timezone::id(),
       CodeProvider::id(),
+      Starter::id(),
       ProfileCustom::id(),
       Profile::id(),
       Domain::id(),
@@ -281,6 +282,32 @@ class PromptManager {
   }
 
   /**
+   * Run all post-install processors.
+   */
+  public function runPostInstall(): string {
+    $output = '';
+
+    $ids = [
+      Internal::id(),
+      Starter::id(),
+    ];
+
+    foreach ($ids as $id) {
+      if (!array_key_exists($id, $this->handlers)) {
+        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
+      }
+
+      $handler_output = $this->handlers[$id]->postInstall();
+
+      if (is_string($handler_output) && !empty($handler_output)) {
+        $output .= $handler_output;
+      }
+    }
+
+    return $output;
+  }
+
+  /**
    * Check if the installation should proceed.
    *
    * This method checks the configuration for the no-interaction mode and
@@ -293,9 +320,9 @@ class PromptManager {
     $proceed = TRUE;
 
     if (!$this->config->getNoInteraction()) {
+      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
       $proceed = confirm(
         label: 'Proceed with installing Vortex?',
-        hint: sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst())
       );
     }
 
@@ -312,59 +339,58 @@ class PromptManager {
     $responses = $this->responses;
 
     $values['General information'] = Tui::LIST_SECTION_TITLE;
-    $values['🏷️ Site name'] = $responses[Name::id()];
-    $values['🏷️ Site machine name'] = $responses[MachineName::id()];
-    $values['🏢 Organization name'] = $responses[Org::id()];
-    $values['🏢 Organization machine name'] = $responses[OrgMachineName::id()];
-    $values['🌐 Public domain'] = $responses[Domain::id()];
-
-    $values['Code repository'] = Tui::LIST_SECTION_TITLE;
-    $values['🗄 Code provider'] = $responses[CodeProvider::id()];
+    $values['Site name'] = $responses[Name::id()];
+    $values['Site machine name'] = $responses[MachineName::id()];
+    $values['Organization name'] = $responses[Org::id()];
+    $values['Organization machine name'] = $responses[OrgMachineName::id()];
+    $values['Public domain'] = $responses[Domain::id()];
 
     $values['Drupal'] = Tui::LIST_SECTION_TITLE;
-    $values['📁 Webroot'] = $responses[Webroot::id()];
-    $values['🧾 Profile'] = $responses[Profile::id()];
+    $values['Starter'] = $responses[Starter::id()];
+    $values['Webroot'] = $responses[Webroot::id()];
+    $values['Profile'] = $responses[Profile::id()];
+    $values['Module prefix'] = $responses[ModulePrefix::id()];
+    $values['Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
-    $values['🧩 Module prefix'] = $responses[ModulePrefix::id()];
-    $values['🎨 Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
+    $values['Code repository'] = Tui::LIST_SECTION_TITLE;
+    $values['Code provider'] = $responses[CodeProvider::id()];
 
     $values['Environment'] = Tui::LIST_SECTION_TITLE;
-    $values['🌍 Timezone'] = $responses[Timezone::id()];
-    $values['🦠 ClamAV'] = Converter::bool(in_array(Services::CLAMAV, $responses[Services::id()]));
-    $values['🔍 Solr'] = Converter::bool(in_array(Services::SOLR, $responses[Services::id()]));
-    $values['🗃️ Valkey'] = Converter::bool(in_array(Services::VALKEY, $responses[Services::id()]));
+    $values['Timezone'] = $responses[Timezone::id()];
+    $values['Services'] = Converter::toList($responses[Services::id()], ', ');
+    $values['Tools'] = Converter::toList($responses[Tools::id()], ', ');
 
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
-    $values['☁️ Hosting provider'] = $responses[HostingProvider::id()];
+    $values['Hosting provider'] = $responses[HostingProvider::id()];
 
     $values['Deployment'] = Tui::LIST_SECTION_TITLE;
-    $values['🚚 Deployment types'] = Converter::toList($responses[DeployType::id()]);
+    $values['Deployment types'] = Converter::toList($responses[DeployType::id()]);
 
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
-    $values['🦋 Provision type'] = $responses[ProvisionType::id()];
+    $values['Provision type'] = $responses[ProvisionType::id()];
 
     if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
-      $values['📡 Database source'] = $responses[DatabaseDownloadSource::id()];
+      $values['Database source'] = $responses[DatabaseDownloadSource::id()];
 
       if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
-        $values['🏷️ Database container image'] = $responses[DatabaseImage::id()];
+        $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
 
     $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
-    $values['♻️ CI provider'] = $responses[CiProvider::id()];
+    $values['CI provider'] = $responses[CiProvider::id()];
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
-    $values['⬆️ Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
-    $values['👤 Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
-    $values['🎫 Auto-add a <info>CONFLICT</info> label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
+    $values['Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
+    $values['Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
+    $values['Auto-add a CONFLICT label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
 
     $values['Documentation'] = Tui::LIST_SECTION_TITLE;
-    $values['📚 Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
-    $values['📋 Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
+    $values['Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
+    $values['Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
-    $values['🤖 AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
+    $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
@@ -421,7 +447,7 @@ class PromptManager {
       throw new \RuntimeException(sprintf('Could not read the directory "%s".', $dir));
     }
 
-    $handler_files = array_filter($files, function ($file): bool {
+    $handler_files = array_filter($files, function (string $file): bool {
       return !in_array($file, ['.', '..']);
     });
 
@@ -483,6 +509,11 @@ class PromptManager {
       'validate' => $handler->validate(),
     ];
 
+    $description = $handler->description($responses);
+    if (!is_null($description)) {
+      $args['description'] = PHP_EOL . $description . PHP_EOL;
+    }
+
     if ($handler->isRequired()) {
       $args['required'] = TRUE;
     }
@@ -490,18 +521,26 @@ class PromptManager {
     $options = $handler->options($responses);
     if (is_array($options) && $options !== []) {
       $args['options'] = $options;
+      $args['scroll'] = 10;
     }
 
     // Find appropriate default value.
     $default_from_handler = $handler->default($responses);
-
-    $env_var = static::makeEnvName($id);
-    $env_val = Env::get($env_var);
+    // Create the env var name.
+    $var_name = static::makeEnvName($id);
+    // Get from config.
+    $config_val = $this->config->get($var_name);
+    $default_from_config = is_null($config_val) ? NULL : $config_val;
+    // Get from env.
+    $env_val = Env::get($var_name);
     $default_from_env = is_null($env_val) ? NULL : Env::toValue($env_val);
-
+    // Get from discovery.
     $default_from_discovery = $this->handlers[$id]->discover();
 
-    if (!is_null($default_from_env)) {
+    if (!is_null($default_from_config)) {
+      $default = $default_from_config;
+    }
+    elseif (!is_null($default_from_env)) {
       $default = $default_from_env;
     }
     elseif (!is_null($default_from_discovery)) {
@@ -519,6 +558,40 @@ class PromptManager {
     }
 
     return array_filter($args, fn($value): bool => $value !== NULL);
+  }
+
+  /**
+   * Resolve a value via handler or prompt the user.
+   *
+   * This method is used to resolve a value via a handler's resolvedValue()
+   * method. If the value is not resolved, it will prompt the user using the
+   * provided prompt callable.
+   *
+   * @param string $handler_id
+   *   The handler ID.
+   * @param array $r
+   *   Current form responses for context-aware methods.
+   * @param callable $prompt
+   *   The prompt callable to use if the value is not resolved.
+   *
+   * @return string
+   *   The resolved value.
+   */
+  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): string {
+    $handler = $this->handlers[$handler_id];
+    $resolved = $handler->resolvedValue($r);
+
+    if (is_string($resolved)) {
+      $message = $handler->resolvedMessage($r, $resolved);
+
+      if ($message) {
+        info($message);
+      }
+
+      return $resolved;
+    }
+
+    return (string) $prompt();
   }
 
 }

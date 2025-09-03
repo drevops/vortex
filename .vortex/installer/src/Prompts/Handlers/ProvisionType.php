@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\Tui;
 
 class ProvisionType extends AbstractHandler {
 
@@ -17,14 +18,36 @@ class ProvisionType extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🦋 Provision type';
+    return 'Provision type';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(array $responses): string {
+    $label1 = Tui::bold('Import from database dump');
+    $label2 = Tui::bold('Install from profile');
+
+    return <<<DOC
+Provisioning sets up the site in an environment using an already assembled codebase.
+
+    ○ {$label1}
+      Provisions the site by importing a database dump
+      typically copied from production into lower
+      environments.
+
+    ○ {$label2}
+      Provisions the site by installing a fresh Drupal
+      site from a profile every time an environment is
+      created.
+DOC;
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Selecting "Profile" will install site from a profile rather than a database dump.';
+    return 'Use ⬆ and ⬇ to select the provision type.';
   }
 
   /**

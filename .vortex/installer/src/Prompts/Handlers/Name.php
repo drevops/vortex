@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\Composer;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
 class Name extends AbstractHandler {
 
@@ -14,14 +14,14 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🏷️ Site name';
+    return 'Site name';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'We will use this name in the project and in the documentation.';
+    return 'We will use this name in the project and documentation.';
   }
 
   /**
@@ -50,14 +50,13 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $value = NULL;
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('description');
 
-    $description = Composer::getJsonValue('description', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
-    if ($description && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+)(\s?\.|for)/', (string) $description, $matches) && !empty($matches[1])) {
-      $value = trim($matches[1]);
+    if ($v && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+)(\s?\.|for)/', (string) $v, $matches) && !empty($matches[1])) {
+      return trim($matches[1]);
     }
 
-    return $value;
+    return NULL;
   }
 
   /**

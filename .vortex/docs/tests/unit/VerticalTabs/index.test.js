@@ -1,4 +1,4 @@
-// Import directly from index to ensure coverage tracking  
+// Import directly from index to ensure coverage tracking
 import {
   VerticalTabs,
   VerticalTab,
@@ -11,7 +11,7 @@ describe('VerticalTabs index exports', () => {
     expect(typeof VerticalTabs).toBe('function');
     expect(typeof VerticalTab).toBe('function');
     expect(typeof VerticalTabPanel).toBe('function');
-    
+
     // Test component identifiers
     expect(VerticalTabs.name).toBe('VerticalTabs');
     expect(VerticalTab.displayName).toBe('VerticalTab');

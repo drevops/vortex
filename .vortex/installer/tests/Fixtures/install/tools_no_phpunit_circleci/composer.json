@@ -1,0 +1,20 @@
+@@ -42,7 +42,6 @@
+         "palantirnet/drupal-rector": "__VERSION__",
+         "phpcompatibility/php-compatibility": "__VERSION__",
+         "phpmd/phpmd": "__VERSION__",
+-        "phpspec/prophecy-phpunit": "__VERSION__",
+         "phpstan/extension-installer": "__VERSION__",
+         "phpstan/phpstan": "__VERSION__",
+         "pyrech/composer-changelogs": "__VERSION__",
+@@ -63,11 +62,6 @@
+     "autoload": {
+         "classmap": [
+             "scripts/composer/ScriptHandler.php"
+-        ]
+-    },
+-    "autoload-dev": {
+-        "classmap": [
+-            "tests/phpunit/"
+         ]
+     },
+     "config": {

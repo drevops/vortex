@@ -18,6 +18,7 @@
         "drupal/pathauto": "__VERSION__",
         "drupal/redirect": "__VERSION__",
         "drupal/redis": "__VERSION__",
+        "drupal/robotstxt": "__VERSION__",
         "drupal/search_api": "__VERSION__",
         "drupal/search_api_solr": "__VERSION__",
         "drupal/seckit": "__VERSION__",
@@ -55,10 +56,6 @@
         {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
-        },
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
         }
     ],
     "minimum-stability": "beta",
@@ -109,8 +106,10 @@
                 "[web-root]/README.md": false,
                 "[web-root]/README.txt": false,
                 "[web-root]/example.gitignore": false,
+                "[web-root]/robots.txt": false,
                 "[web-root]/sites/example.settings.local.php": false,
                 "[web-root]/sites/example.sites.php": false,
+                "[web-root]/update.php": false,
                 "[web-root]/web.config": false
             },
             "locations": {
@@ -131,6 +130,9 @@
             ],
             "web/profiles/contrib/{$name}": [
                 "type:drupal-profile"
+            ],
+            "recipes/{$name}": [
+                "type:drupal-recipe"
             ],
             "web/themes/contrib/{$name}": [
                 "type:drupal-theme"

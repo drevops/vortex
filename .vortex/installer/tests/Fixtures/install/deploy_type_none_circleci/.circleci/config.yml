@@ -71,7 +71,6 @@ aliases:
     # Change to 'large' for faster builds.
     resource_class: medium
 
-  # Set up remote Docker.
   - &step_setup_remote_docker
     setup_remote_docker:
       # Docker Layer Caching allows to significantly speed up builds by caching
@@ -80,13 +79,18 @@ aliases:
       docker_layer_caching: false
       version: default
 
-  # Process the codebase to be run in CI environment.
   - &step_process_codebase_for_ci
     run:
       name: Process codebase to run in CI
       command: |
         find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
         mkdir -p /tmp/workspace/code
+
+  - &load_variables_from_dotenv
+    run:
+      name: Load environment variables from .env file
+      # Load variables from .env file, respecting existing values, and make them available for the next steps.
+      command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
 ################################################################################
 # PARAMETERS
@@ -120,6 +124,7 @@ jobs:
 
       - checkout
       - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
       - *step_setup_remote_docker
 
       - run:
@@ -200,6 +205,7 @@ jobs:
 
       - checkout
       - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
 
       - run:
           name: Validate Composer configuration
@@ -234,12 +240,19 @@ jobs:
             done
 
       - run:
+          name: Lint Docker Compose files with DCLint
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Build stack
           command: docker compose up -d
 
       - run:
           name: Export built codebase
           command: |
+            echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
             mkdir -p "/tmp/workspace/code"
             docker compose cp -L cli:"/app/." "/tmp/workspace/code"
             du -sh "/tmp/workspace/code"
@@ -360,51 +373,6 @@ jobs:
           paths:
             - code
 
-  # Self-hosted dependency updates.
-  # Add the following environment variables to the CircleCI project:
-  # - RENOVATE_TOKEN: GitHub access token.
-  # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
-  # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
-  # Variables provided below can be overridden in the CircleCI project settings.
-  update-dependencies:
-    docker:
-      - image: renovate/renovate:__VERSION__
-        environment:
-          RENOVATE_PLATFORM: 'github'
-          RENOVATE_AUTODISCOVER: false
-          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by CircleCI'
-          RENOVATE_DEPENDENCY_DASHBOARD: false
-          RENOVATE_DRY_RUN: false
-          LOG_LEVEL: 'debug'
-
-    steps:
-      - checkout
-      - run:
-          name: Check if RENOVATE_TOKEN is set
-          command: |
-            if [ -z "${RENOVATE_TOKEN}" ]; then
-              echo "RENOVATE_TOKEN is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_REPOSITORIES}" ]; then
-              echo "Renovate repository is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_GIT_AUTHOR}" ]; then
-              echo "Renovate git author is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-      - run:
-          name: Validate Renovate configuration
-          command: renovate-config-validator
-
-      - run:
-          name: Run Renovate
-          command: renovate
-
 ################################################################################
 # WORKFLOWS
 ################################################################################
@@ -436,20 +404,3 @@ workflows:
                 - develop
     jobs:
       - database-nightly
-
-  # Self-hosted Renovate workflow.
-  update-dependencies:
-    triggers:
-      - schedule:
-          cron: "5 11,23 * * *"
-          filters:
-            branches:
-              only:
-                - develop
-    jobs:
-      - update-dependencies
-
-  update-dependencies-manual:
-    when: << pipeline.parameters.run_update_dependencies >>
-    jobs:
-      - update-dependencies

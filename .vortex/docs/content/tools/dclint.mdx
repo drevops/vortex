@@ -1,0 +1,43 @@
+# DCLint
+
+https://github.com/zavoloklom/docker-compose-linter
+
+> A command-line tool for validating and enforcing best practices in Docker Compose files.
+
+**Vortex** does not install DCLint. Please follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation) to install it on your system.
+
+## Usage
+
+```shell
+dclint docker-compose.yml
+```
+
+## Ignoring
+
+To ignore **all DCLint rules** within a file, place in the file header:
+
+```yaml
+# dclint disable
+version: '3.8'
+services:
+  app:
+    image: ubuntu
+```
+
+To ignore only **specific rules**:
+
+```yaml
+version: '3.8'
+services:
+  # dclint disable-next-line no-version-field
+  app:
+    image: ubuntu
+```
+
+## Ignoring fail in continuous integration pipeline
+
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
+
+Set `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.

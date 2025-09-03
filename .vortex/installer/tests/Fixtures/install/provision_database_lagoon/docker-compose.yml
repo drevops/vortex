@@ -1,15 +1,15 @@
-@@ -32,6 +32,7 @@
-   user: '1000'
+@@ -15,6 +15,7 @@
+ # ------------------------------------------------------------------------------
  
  # Environment variables set in all containers during build and runtime.
 +# Note that these variables are not read from here in Lagoon environment.
  x-environment: &default-environment
    TZ: ${TZ:-UTC}
    # Pass-through 'CI' variable used to identify the CI environment.
-@@ -98,6 +99,10 @@
-     # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
+@@ -100,6 +101,10 @@
      volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
        - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+     user: root
 +    labels:
 +      lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
 +      lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
@@ -17,7 +17,7 @@
  
    nginx:
      build:
-@@ -116,6 +121,11 @@
+@@ -118,6 +123,11 @@
      networks:
        - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
        - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
@@ -29,8 +29,8 @@
  
    # PHP FPM container. All web requests are going through this container.
    php:
-@@ -131,6 +141,11 @@
-       <<: *default-environment
+@@ -133,6 +143,11 @@
+     <<: [ *default-volumes, *default-user ]
      depends_on:
        - cli
 +    labels:
@@ -41,10 +41,10 @@
  
    database:
      build:
-@@ -143,9 +158,13 @@
-       <<: *default-environment
+@@ -145,9 +160,13 @@
+     <<: *default-user
      ports:
-       - "3306" # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+       - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
 +    labels:
 +      lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
  
@@ -55,17 +55,17 @@
  
    solr:
      build:
-@@ -163,6 +182,8 @@
-       - "8983" # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
-     volumes:
-       - solr:/var/solr
+@@ -165,6 +184,8 @@
+       - cli
+     ports:
+       - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 +    labels:
 +      lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
  
    clamav:
      build:
-@@ -174,6 +195,10 @@
-       << : *default-environment
+@@ -176,6 +197,10 @@
+       - '3310' # Find port on host with `docker compose port clamav 3310`.
      networks:
        - default
 +    labels:
@@ -75,19 +75,19 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -186,6 +211,8 @@
-       <<: *default-environment
-     depends_on:
-       - cli
+@@ -188,6 +213,8 @@
+     ports:
+       - '7900' # Find port on host with `docker compose port chrome 7900`.
+     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
 +    labels:
 +      lagoon.type: none # Do not deploy in Lagoon.
  
    # Helper container to wait for services to become available.
    wait_dependencies:
-@@ -195,6 +222,8 @@
+@@ -198,6 +225,8 @@
        - database
-       - clamav
-     command: database:3306 clamav:3310
+       - valkey
+     command: database:3306 clamav:3310 valkey:6379
 +    labels:
 +      lagoon.type: none # Do not deploy in Lagoon.
  

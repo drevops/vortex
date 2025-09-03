@@ -13,6 +13,6 @@ jobs:
       - name: Check if PRs have conflicts
         uses: eps1lon/actions-label-merge-conflict@__VERSION__
         with:
-          dirtyLabel: "PR: CONFLICT"
+          dirtyLabel: "CONFLICT"
           removeOnDirtyLabel: "Needs review"
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

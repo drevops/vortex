@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Utils\Composer;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Validator;
 
 class Webroot extends AbstractHandler {
@@ -19,7 +19,7 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '📁 Custom web root directory';
+    return 'Custom web root directory';
   }
 
   /**
@@ -63,17 +63,19 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $value = Env::getFromDotenv('WEBROOT', $this->dstDir);
+    $v = Env::getFromDotenv('WEBROOT', $this->dstDir);
 
-    if (empty($value)) {
-      // Try from composer.json.
-      $extra = Composer::getJsonValue('extra', $this->dstDir . DIRECTORY_SEPARATOR . 'composer.json');
-      if (!empty($extra)) {
-        $value = $extra['drupal-scaffold']['drupal-scaffold']['locations']['web-root'] ?? NULL;
-      }
+    if (!empty($v)) {
+      return $v;
     }
 
-    return $value;
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
+
+    if (!empty($v)) {
+      return $v;
+    }
+
+    return NULL;
   }
 
   /**
@@ -94,22 +96,25 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function resolvedValue(array $responses): null|string|bool|array {
-    return $this->discover();
+    $discovered = $this->discover();
+
+    if (!is_null($discovered)) {
+      return $discovered;
+    }
+
+    if (($responses[HostingProvider::id()] ?? '') === HostingProvider::ACQUIA) {
+      return self::DOCROOT;
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function resolvedMessage(array $responses): ?string {
-    if (
-      isset($responses[HostingProvider::id()]) &&
-      $responses[HostingProvider::id()] !== HostingProvider::OTHER
-    ) {
-      $webroot = $this->default($responses);
-      if (is_array($webroot)) {
-        throw new \InvalidArgumentException('Web root must be a string, got: ' . gettype($webroot));
-      }
-      return sprintf('Web root will be set to "%s".', (string) $webroot);
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Web root will be set to "%s".', $resolved);
     }
 
     return NULL;

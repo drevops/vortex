@@ -51,6 +51,8 @@ choose which changes to commit.
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
 ```
 
+<img src=".vortex/docs/static/img/installer.svg" alt="Vortex installer screenshot" />
+
 Alternatively, clone this repository and adjust the configuration by manually
 editing or deleting the sections that aren't necessary for your setup.
 

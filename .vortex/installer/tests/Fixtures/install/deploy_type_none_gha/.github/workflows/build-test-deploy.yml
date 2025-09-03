@@ -1,4 +1,4 @@
-@@ -356,61 +356,3 @@
+@@ -365,65 +365,3 @@
          timeout-minutes: 120 # Cancel the action after 15 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -6,7 +6,7 @@
 -  deploy:
 -    runs-on: ubuntu-latest
 -    needs: build
--    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') }}
+-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 -
 -    container:
 -      image: drevops/ci-runner:__VERSION__
@@ -21,7 +21,7 @@
 -        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 -
 -      - name: Checkout code
--        uses: actions/checkout@__HASH__ # v4
+-        uses: actions/checkout@__HASH__ # __VERSION__
 -        with:
 -          # Fetch all history for git repository.
 -          fetch-depth: 0
@@ -30,8 +30,12 @@
 -          persist-credentials: false
 -          ref: ${{ github.head_ref || github.ref_name }}
 -
+-      - name: Load environment variables from .env
+-        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+-
 -      - name: Download exported codebase as an artifact
--        uses: actions/download-artifact@__HASH__ # v4
+-        uses: actions/download-artifact@__HASH__ # __VERSION__
+-        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
 -        with:
 -          name: code-artifact
 -          path: "/tmp/workspace/code"

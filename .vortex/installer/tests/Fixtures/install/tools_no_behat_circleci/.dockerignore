@@ -1,0 +1,11 @@
+@@ -32,10 +32,8 @@
+ !.sass-lint.yml
+ !.stylelintrc.js
+ !.twig-cs-fixer.php
+-!gherkinlint.json
+ !Gruntfile.js
+ !auth.json
+-!behat.yml
+ !composer.json
+ !composer.lock
+ !yarn.lock

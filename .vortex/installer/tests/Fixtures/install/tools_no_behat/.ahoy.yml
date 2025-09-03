@@ -1,0 +1,37 @@
+@@ -180,7 +180,6 @@
+     cmd: |
+       ahoy lint-be
+       ahoy lint-fe
+-      ahoy lint-tests
+ 
+   lint-be:
+     usage: Lint back-end code.
+@@ -200,8 +199,6 @@
+   lint-tests:
+     usage: Lint tests code.
+     cmd: |
+-      ahoy cli vendor/bin/gherkinlint lint tests/behat/features
+-
+   lint-fix:
+     usage: Fix lint issues of back-end and front-end code.
+     cmd: |
+@@ -227,7 +224,6 @@
+       ahoy test-unit
+       ahoy test-kernel
+       ahoy test-functional
+-      ahoy test-bdd
+ 
+   test-unit:
+     usage: Run PHPUnit unit tests.
+@@ -240,11 +236,6 @@
+   test-functional:
+     usage: Run PHPUnit functional tests.
+     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
+-
+-  test-bdd:
+-    usage: Run BDD tests.
+-    aliases: [test-behat]
+-    cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
+ 
+   debug:
+     usage: Enable PHP Xdebug.

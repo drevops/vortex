@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import {
   VerticalTabs,
   VerticalTab,
@@ -32,7 +38,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
     // Reset mocks before each test
     mockLocation.hash = '';
     mockHistory.replaceState.mockClear();
-    
+
     // Clear any existing hashchange listeners
     window.removeEventListener = jest.fn();
     window.addEventListener = jest.fn();
@@ -336,8 +342,8 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Should have proper heading hierarchy
-      const h1 = screen.getByRole('heading', { level: 1 });
-      expect(h1.textContent).toContain('Accessible Tab');
+      const heading = screen.getByRole('heading', { level: 2 });
+      expect(heading.textContent).toContain('Accessible Tab');
 
       const headings = screen.getAllByRole('heading', { level: 3 });
       const contentHeading = headings.find(
@@ -420,7 +426,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
     test('sets active tab from URL hash on mount', () => {
       // Set hash to match second tab's slug
       mockLocation.hash = '#docker-services';
-      
+
       render(
         <VerticalTabs>
           <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
@@ -437,9 +443,11 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       // Should show content for second tab (Docker Services)
       expect(screen.getByText('Docker content here')).toBeInTheDocument();
       expect(screen.queryByText('Drupal content here')).not.toBeInTheDocument();
-      
+
       // Second tab should be active
-      const dockerTab = screen.getByText('Docker Services').closest('.tab-item');
+      const dockerTab = screen
+        .getByText('Docker Services')
+        .closest('.tab-item');
       expect(dockerTab).toHaveClass('active');
     });
 
@@ -472,7 +480,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
 
     test('handles hash changes via browser navigation', () => {
       let hashChangeHandler;
-      
+
       // Capture the hashchange event listener
       window.addEventListener = jest.fn((event, handler) => {
         if (event === 'hashchange') {
@@ -494,7 +502,10 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Verify event listener was added
-      expect(window.addEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'hashchange',
+        expect.any(Function)
+      );
 
       // Initially shows first tab
       expect(screen.getByText('Drupal content here')).toBeInTheDocument();
@@ -514,7 +525,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
 
     test('ignores invalid hash values', () => {
       mockLocation.hash = '#nonexistent-tab';
-      
+
       render(
         <VerticalTabs>
           <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
@@ -531,14 +542,16 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       // Should default to first tab when hash doesn't match any tab
       expect(screen.getByText('Drupal content here')).toBeInTheDocument();
       expect(screen.queryByText('Docker content here')).not.toBeInTheDocument();
-      
-      const drupalTab = screen.getByText('Drupal Foundation').closest('.tab-item');
+
+      const drupalTab = screen
+        .getByText('Drupal Foundation')
+        .closest('.tab-item');
       expect(drupalTab).toHaveClass('active');
     });
 
     test('handles empty hash correctly', () => {
       mockLocation.hash = '';
-      
+
       render(
         <VerticalTabs>
           <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
@@ -573,7 +586,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
 
       // Click first tab to check slug generation
       fireEvent.click(screen.getByText('Special Characters & Symbols!'));
-      
+
       expect(mockHistory.replaceState).toHaveBeenCalledWith(
         null,
         '',
@@ -582,7 +595,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
 
       // Click second tab to check multiple spaces handling
       fireEvent.click(screen.getByText('Multi Spaces Tab'));
-      
+
       expect(mockHistory.replaceState).toHaveBeenCalledWith(
         null,
         '',
@@ -592,7 +605,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
 
     test('preserves search parameters when updating hash', async () => {
       mockLocation.search = '?param=value';
-      
+
       render(
         <VerticalTabs>
           <VerticalTab>💧 Drupal Foundation | Core platform</VerticalTab>
@@ -630,13 +643,19 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Verify event listener was added
-      expect(window.addEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'hashchange',
+        expect.any(Function)
+      );
 
       // Unmount component
       unmount();
 
       // Verify event listener was removed
-      expect(window.removeEventListener).toHaveBeenCalledWith('hashchange', expect.any(Function));
+      expect(window.removeEventListener).toHaveBeenCalledWith(
+        'hashchange',
+        expect.any(Function)
+      );
     });
   });
 
@@ -675,7 +694,9 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Should extract and display all text types correctly
-      expect(screen.getByText(/Mixed content:.*42.*array values.*nested elements/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Mixed content:.*42.*array values.*nested elements/)
+      ).toBeInTheDocument();
     });
 
     test('handleTabClick with empty slug does not update URL', () => {

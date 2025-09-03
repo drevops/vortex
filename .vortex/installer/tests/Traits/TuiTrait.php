@@ -18,8 +18,6 @@ trait TuiTrait {
     // Override how validation is handled (it expects a user input on incorrect
     // validation) to throw an exception instead so that we can assert on it
     // in the tests.
-    // @note Prompts do not pass the transformed $value as an argument to the
-    // static method, so this was added in a patch.
     Prompt::validateUsing(function (Prompt $prompt, mixed $value): null {
       if (is_callable($prompt->validate)) {
         $error = ($prompt->validate)($value);

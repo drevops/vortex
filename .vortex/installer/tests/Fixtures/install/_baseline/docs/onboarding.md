@@ -1,5 +1,4 @@
-Onboarding checklist
-====================
+# Onboarding checklist
 
 Use this checklist to track the process of migration of the **existing site**
 to Vortex. This file is intended to be committed into repository until
@@ -15,18 +14,22 @@ indicate that it was addressed.
 - [ ] Setup site on local machine using MAMP or DDEV to bootstrap the project.
 - [ ] Install [hacked](https://www.drupal.org/project/hacked) module and extract
   a list of all modules with their versions. Add them below:
-  ```
+
+  ```text
     Add a list of extracted modules here.
   ```
 
 - [ ] Find existing patches or create new patches for all "hacked" modules. List
   them below:
-  ```
+
+  ```text
   ctools: https:/drupal.org/path/to/file.patch
   ```
+
 - [ ] Assess if there are any libraries used in the project, find their
   versions together with download URLs, and list them below:
-  ```
+
+  ```text
   ckeditor@4.3.2, https://www.ckeditor.com/archive/ckeditor_4.3.2.zip
   ```
 
@@ -121,10 +124,12 @@ indicate that it was addressed.
 
 - [ ] Submit PR and include the contents of this file.
 - [ ] Schedule deployment window with the Client and add the information below:
-  ```
+
+  ```text
   Deployment approved by Jane Doe (jane.doe@example.com) on 2019/4/27 at 17:00
   via email to take place on 2019/4/29 at 18:30.
   ```
+
 - [ ] Get PR approval (do not merge yet!). You may need to wait for deployment
   window before merging (depends on the type of the deployment integration).
 - [ ] Merge PR and ensure that CI passed.

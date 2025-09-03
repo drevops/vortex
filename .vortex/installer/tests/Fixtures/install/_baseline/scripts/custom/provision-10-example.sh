@@ -40,7 +40,7 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
 
   # Enable contrib modules.
   task "Installing contrib modules."
-  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect shield stage_file_proxy
+  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy
 
   task "Installing Redis module."
   drush pm:install redis || true

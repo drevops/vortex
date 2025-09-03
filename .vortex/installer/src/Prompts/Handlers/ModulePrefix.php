@@ -13,14 +13,14 @@ class ModulePrefix extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '🧩 Module prefix';
+    return 'Module prefix';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'We will use this name for custom modules.';
+    return 'We will use this name in custom modules';
   }
 
   /**

@@ -1,0 +1,8 @@
+@@ -188,7 +188,6 @@
+       ahoy cli vendor/bin/phpcs
+       ahoy cli vendor/bin/phpstan
+       ahoy cli vendor/bin/rector --clear-cache --dry-run
+-      ahoy cli vendor/bin/phpmd . text phpmd.xml
+ 
+   lint-fe:
+     usage: Lint front-end code.

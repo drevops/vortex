@@ -59,15 +59,16 @@ assert_deployment_files_present() {
   assert_dir_not_exists "${webroot}/themes/custom/star_wars/node_modules"
 
   # Drupal Scaffold files present.
-  assert_file_exists "${webroot}/.htaccess"
   assert_file_exists "${webroot}/autoload.php"
   assert_file_exists "${webroot}/index.php"
-  assert_file_exists "${webroot}/robots.txt"
-  assert_file_exists "${webroot}/update.php"
+  assert_file_not_exists "${webroot}/robots.txt"
+  assert_file_not_exists "${webroot}/update.php"
 
   # Settings files present.
   assert_file_exists "${webroot}/sites/default/settings.php"
   assert_file_exists "${webroot}/sites/default/services.yml"
+  assert_file_not_exists "${webroot}/sites/default/example.settings.local.php"
+  assert_file_not_exists "${webroot}/sites/default/example.services.local.yml"
   assert_file_not_exists "${webroot}/sites/default/default.settings.local.php"
   assert_file_not_exists "${webroot}/sites/default/default.services.local.yml"
 

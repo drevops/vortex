@@ -23,3 +23,8 @@ parameters:
       # this error.
       message: '#.*no value type specified in iterable type array.#'
       reportUnmatched: false
+    -
+      # Bound callbacks do not provide docblocks for parameters.
+      message: '#Undefined variable: \$this#'
+      paths:
+        - src/Prompts/Handlers/Tools.php

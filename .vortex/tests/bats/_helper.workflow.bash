@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154,SC2129
+# shellcheck disable=SC2154,SC2129,SC2016
 #
 # Helpers related to Vortex workflow testing functionality.
 #
@@ -143,11 +143,9 @@ assert_gitignore() {
   fi
 
   # Assert that Drupal Scaffold files were added to the git repository.
-  assert_git_file_is_tracked "${webroot}/.htaccess"
   assert_git_file_is_tracked "${webroot}/autoload.php"
   assert_git_file_is_tracked "${webroot}/index.php"
-  assert_git_file_is_tracked "${webroot}/robots.txt"
-  assert_git_file_is_tracked "${webroot}/update.php"
+  assert_git_file_is_not_tracked "${webroot}/robots.txt"
   # Assert that lock files were added to the git repository.
   assert_git_file_is_tracked "composer.lock"
   assert_git_file_is_tracked "${webroot}/themes/custom/star_wars/yarn.lock"
@@ -175,7 +173,7 @@ assert_ahoy_cli() {
   export DRUPAL_UNFILTERED_VAR="drupalvar"
   export OTHER_FILTERED_VAR="othervar"
 
-  run ahoy cli "echo \$DRUPAL_UNFILTERED_VAR"
+  run ahoy cli 'echo $DRUPAL_UNFILTERED_VAR'
   assert_output_contains "drupalvar"
   assert_output_not_contains "othervar"
 }
@@ -517,7 +515,7 @@ assert_ahoy_lint_test() {
   assert_success
 
   substep "Assert that Test lint failure works for Gherkin Lint"
-  echo "Feature:" >> "tests/behat/features/test.feature"
+  echo "Feature:" >>"tests/behat/features/test.feature"
   sync_to_container
   run ahoy lint-tests
   assert_failure
@@ -841,10 +839,18 @@ assert_valkey() {
   step "Valkey"
 
   substep "Valkey service is running"
-  run docker compose exec valkey valkey-cli FLUSHALL
+  run ahoy flush-valkey
   assert_output_contains "OK"
 
-  substep "Valkey integration is disabled"
+  substep "Disable ValKey integration with Drupal"
+  add_var_to_file .env "DRUPAL_REDIS_ENABLED" "0"
+  sync_to_container
+  run ahoy up
+  assert_success
+  sleep 10
+  ahoy flush-valkey
+
+  substep "Assert that Valkey integration is disabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec valkey valkey-cli --scan
@@ -853,11 +859,18 @@ assert_valkey() {
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "Warning"
 
-  substep "Restart with environment variable"
+  restore_file ".env"
+  sync_to_container
+
+  substep "Enable ValKey integration with Drupal"
   add_var_to_file .env "DRUPAL_REDIS_ENABLED" "1"
   sync_to_container
-  DRUPAL_REDIS_ENABLED=1 ahoy up cli
+  run ahoy up
+  assert_success
   sleep 10
+  ahoy flush-valkey
+
+  substep "Assert that Valkey integration is enabled"
   ahoy drush cr
   ahoy cli curl -L -s "http://nginx:8080" >/dev/null
   run docker compose exec valkey valkey-cli --scan
@@ -866,7 +879,10 @@ assert_valkey() {
   run docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity
   assert_output_contains "OK"
 
-  ahoy up cli
+  restore_file ".env"
+  sync_to_container
+  run ahoy up
+  assert_success
 }
 
 assert_ahoy_reset() {

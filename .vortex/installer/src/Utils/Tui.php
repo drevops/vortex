@@ -10,7 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
-use function Laravel\Prompts\spin;
 use function Laravel\Prompts\table;
 
 class Tui {
@@ -19,13 +18,16 @@ class Tui {
 
   protected static OutputInterface $output;
 
-  protected static string $message;
-
-  protected static ?string $hint;
+  protected static bool $isInteractive = TRUE;
 
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
     static::$output = $output;
+    static::$isInteractive = $is_interactive;
 
+    // We cannot use any Symfony console styles here, because Laravel Prompts
+    // does not correctly calculate the length of strings with style tags, which
+    // breaks the layout. Instead, we use ANSI escape codes directly using
+    // helpers in this class.
     Prompt::setOutput($output);
 
     if (!$is_interactive) {
@@ -40,36 +42,6 @@ class Tui {
     return static::$output;
   }
 
-  public static function action(
-    \Closure|string $label,
-    ?\Closure $action = NULL,
-    \Closure|string|null $hint = NULL,
-    \Closure|string|null $success = NULL,
-    \Closure|string|null $failure = NULL,
-  ): void {
-    $label = is_callable($label) ? $label() : $label;
-
-    if (!is_callable($action)) {
-      throw new \InvalidArgumentException('Action must be callable.');
-    }
-
-    $label = static::normalizeText($label);
-
-    // @phpstan-ignore-next-line
-    $return = spin($action, static::yellow($label));
-
-    static::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) === 0 ? 3 : 2);
-
-    if ($return === FALSE) {
-      $failure = $failure && is_callable($failure) ? $failure() : $failure;
-      static::error($failure ? static::normalizeText($failure) : 'FAILED');
-    }
-    else {
-      $success = $success && is_callable($success) ? $success($return) : $success;
-      static::ok($success ? static::normalizeText($success) : 'OK');
-    }
-  }
-
   public static function info(string $message): void {
     intro($message);
   }
@@ -79,92 +51,11 @@ class Tui {
   }
 
   public static function error(string $message): void {
-    error('❌  ' . $message);
+    error('✕ ' . $message);
   }
 
-  public static function box(string $content, ?string $title = NULL, int $width = 80): void {
-    $rows = [];
-
-    $width = min($width, static::terminalWidth());
-
-    // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
-    $offset = 6;
-
-    $content = wordwrap($content, $width - $offset, PHP_EOL, FALSE);
-
-    if ($title) {
-      $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
-      $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, static::normalizeText($title))[0]))) . PHP_EOL];
-    }
-
-    $rows[] = [$content];
-
-    table([], $rows);
-  }
-
-  public static function center(string $text, int $width = 80, ?string $border = NULL): string {
-    $lines = explode(PHP_EOL, $text);
-    $centered_lines = [];
-
-    // Find the maximum line length.
-    $max_length = 0;
-    foreach ($lines as $line) {
-      $line_length = Strings::strlenPlain($line);
-      if ($line_length > $max_length) {
-        $max_length = $line_length;
-      }
-    }
-
-    foreach ($lines as $line) {
-      $padding = empty($line) ? '' : str_repeat(' ', (int) (($width - $max_length) / 2));
-      $centered_lines[] = $padding . $line;
-    }
-
-    if ($border) {
-      $border = str_repeat($border, $width - 2);
-      array_unshift($centered_lines, '');
-      array_unshift($centered_lines, $border);
-      $centered_lines[] = '';
-      $centered_lines[] = $border;
-    }
-
-    return implode(PHP_EOL, $centered_lines);
-  }
-
-  public static function ok(string $text = 'OK'): void {
-    $ok = static::green(static::normalizeText("✅ " . $text));
-    static::note($ok);
-    static::note(str_repeat(static::caretUp(), 4));
-  }
-
-  public static function label(string $message, ?string $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 2): void {
-    $width = static::terminalWidth();
-    $right_offset = 10;
-
-    $message = static::normalizeText($message);
-
-    static::$message = static::blue(wordwrap($message, $width - $right_offset, PHP_EOL));
-    static::$hint = $hint ? wordwrap(static::normalizeText($hint), $width - $right_offset, PHP_EOL) : NULL;
-
-    static::note(static::$message);
-    static::note(str_repeat(static::caretUp(), 5));
-
-    if (static::$hint) {
-      static::note(str_repeat(' ', $sublist_indent) . static::dim(static::$hint));
-      static::note(str_repeat(static::caretUp(), 5));
-    }
-
-    if (is_array($sublist)) {
-      foreach ($sublist as $value) {
-        static::note(str_repeat(' ', $sublist_indent) . static::dim($value));
-        static::note(str_repeat(static::caretUp(), 5));
-      }
-    }
-  }
-
-  public static function terminalWidth(): int {
-    return (new Terminal())->cols();
+  public static function line(string $message, int $padding = 1): void {
+    static::$output->writeln(str_repeat(' ', max(0, $padding)) . $message);
   }
 
   public static function green(string $text): string {
@@ -203,9 +94,30 @@ class Tui {
     return static::escapeMultiline($text, 22, 22);
   }
 
-  public static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
+  public static function getChar(): string {
+    if (!static::$isInteractive) {
+      return '';
+    }
+
+    // Disable input buffering.
+    system('stty cbreak -echo');
+
+    $res = fopen('php://stdin', 'r');
+    if ($res === FALSE) {
+      return '';
+    }
+
+    $char = (string) fgetc($res);
+
+    // Restore terminal settings.
+    system('stty -cbreak echo');
+
+    return $char;
+  }
+
+  protected static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
     $lines = explode("\n", $text);
-    $colored_lines = array_map(function ($line) use ($color_code, $end_code): string {
+    $colored_lines = array_map(function (string $line) use ($color_code, $end_code): string {
       return sprintf("\033[%sm%s\033[%sm", $color_code, $line, $end_code);
     }, $lines);
     return implode("\n", $colored_lines);
@@ -233,6 +145,11 @@ class Tui {
       }
     }
 
+    $terminal_width = static::terminalWidth();
+
+    // (margin + 2 x border + 2 x padding) x 2 - 1 collapse divider width.
+    $column_width = max(1, (int) floor(($terminal_width - (1 + (1 + 1) * 2) * 2 - 1) / 2));
+
     $header = [];
     $rows = [];
     foreach ($values as $key => $value) {
@@ -241,15 +158,75 @@ class Tui {
         continue;
       }
 
-      $rows[] = ['  ' . static::normalizeText($key), static::normalizeText($value)];
+      $key = static::normalizeText($key);
+      $value = static::normalizeText($value);
+
+      $key = '  ' . wordwrap(static::normalizeText($key), $column_width + 2, PHP_EOL . '  ', TRUE);
+      $value = wordwrap(static::normalizeText($value), $column_width, PHP_EOL, TRUE);
+
+      $rows[] = [$key, $value];
     }
 
     intro(PHP_EOL . static::normalizeText($title) . PHP_EOL);
     table($header, $rows);
   }
 
+  public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
+    $rows = [];
+
+    $width = $width ?? static::terminalWidth();
+
+    // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
+    $offset = 6;
+
+    $content = wordwrap($content, $width - $offset, PHP_EOL, TRUE);
+
+    if ($title) {
+      $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
+      $rows[] = [static::green($title)];
+      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, static::normalizeText($title))[0]))) . PHP_EOL];
+    }
+
+    $rows[] = [$content];
+
+    table([], $rows);
+  }
+
+  public static function center(string $text, int $width = 80, ?string $border = NULL): string {
+    $lines = explode(PHP_EOL, $text);
+    $centered_lines = [];
+
+    // Find the maximum line length.
+    $max_length = 0;
+    foreach ($lines as $line) {
+      $line_length = Strings::strlenPlain($line);
+      if ($line_length > $max_length) {
+        $max_length = $line_length;
+      }
+    }
+
+    foreach ($lines as $line) {
+      $padding = empty($line) ? '' : str_repeat(' ', (int) (max(0, ($width - $max_length)) / 2));
+      $centered_lines[] = $padding . $line;
+    }
+
+    if ($border) {
+      $border = str_repeat($border, $width - 2);
+      array_unshift($centered_lines, '');
+      array_unshift($centered_lines, $border);
+      $centered_lines[] = '';
+      $centered_lines[] = $border;
+    }
+
+    return implode(PHP_EOL, $centered_lines);
+  }
+
+  public static function terminalWidth(int $max = 100): int {
+    return min($max, max(20, (new Terminal())->cols()));
+  }
+
   public static function normalizeText(string $text): string {
-    if (is_null(Strings::isAsciiStart($text))) {
+    if (!Strings::isAsciiStart($text)) {
       return $text;
     }
 
@@ -258,12 +235,12 @@ class Tui {
     preg_match_all('/\X/u', $text, $matches);
 
     $utf8_chars = $matches[0];
-    $utf8_chars = array_map(fn($char): string => Strings::isAsciiStart($char) === 0 ? $char . static::utfPadding($char) : $char, $utf8_chars);
+    $utf8_chars = array_map(fn(string $char): string => Strings::isAsciiStart($char) ? $char : $char . static::utfPadding($char), $utf8_chars);
 
     return implode('', $utf8_chars);
   }
 
-  public static function utfPadding(string $char): string {
+  protected static function utfPadding(string $char): string {
     $padding = '';
 
     $len = strlen($char);
@@ -276,7 +253,6 @@ class Tui {
 
     if (str_contains((string) getenv('TERM_PROGRAM'), 'Apple_Terminal') && ($mblen > 1 && $len < 8)) {
       $padding = ' ';
-
     }
 
     return $padding;

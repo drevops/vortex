@@ -1,0 +1,11 @@
+@@ -306,10 +306,6 @@
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+         timeout-minutes: 30
+ 
+-      - name: Test with PHPUnit
+-        run: docker compose exec -T cli vendor/bin/phpunit
+-        continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
+-
+       - name: Test with Behat
+         run: |
+           # shellcheck disable=SC2170

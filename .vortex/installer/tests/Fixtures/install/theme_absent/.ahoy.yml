@@ -6,7 +6,7 @@
        ahoy provision                      # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -156,25 +155,10 @@
+@@ -159,22 +158,7 @@
      usage: Install front-end assets.
      cmd: |
        ahoy cli "yarn install --frozen-lockfile"
@@ -28,12 +28,8 @@
 -
    lint:
      usage: Lint back-end and front-end code.
--    cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests
-+    cmd: ahoy lint-be && ahoy lint-tests
- 
-   lint-be:
-     usage: Lint back-end code.
-@@ -189,7 +173,6 @@
+     cmd: |
+@@ -195,7 +179,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
        ahoy cli "yarn run lint"
@@ -41,16 +37,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -197,7 +180,7 @@
- 
-   lint-fix:
-     usage: Fix lint issues of back-end and front-end code.
--    cmd: ahoy lint-be-fix && ahoy lint-fe-fix
-+    cmd: ahoy lint-be-fix
- 
-   lint-be-fix:
-     usage: Fix lint issues of back-end code.
-@@ -210,7 +193,6 @@
+@@ -219,7 +202,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"

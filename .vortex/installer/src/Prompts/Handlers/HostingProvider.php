@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
 class HostingProvider extends AbstractHandler {
 
@@ -21,14 +22,14 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function label(): string {
-    return '☁️ Hosting provider';
+    return 'Hosting provider';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Select the hosting provider where the project is hosted. The web root directory will be set accordingly.';
+    return 'Use ⬆, ⬇ and Space bar to select your hosting provider.';
   }
 
   /**
@@ -43,10 +44,10 @@ class HostingProvider extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     return [
-      self::ACQUIA => '💧 Acquia Cloud',
-      self::LAGOON => '🌊 Lagoon',
-      self::OTHER => '🧩 Other',
-      self::NONE => '🚫 None',
+      self::ACQUIA => 'Acquia Cloud',
+      self::LAGOON => 'Lagoon',
+      self::OTHER => 'Other',
+      self::NONE => 'None',
     ];
   }
 
@@ -77,6 +78,8 @@ class HostingProvider extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
 
     if ($v === static::ACQUIA) {
       File::removeTokenAsync('!HOSTING_ACQUIA');
@@ -87,11 +90,16 @@ class HostingProvider extends AbstractHandler {
       File::removeTokenAsync('!HOSTING_LAGOON');
       File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
       $this->removeAcquia();
+      @unlink(sprintf('%s/%s/.htaccess', $t, $w));
+      $cj = JsonManipulator::fromFile($this->tmpDir . '/composer.json');
+      $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
+      file_put_contents($this->tmpDir . '/composer.json', $cj->getContents());
     }
     else {
       $this->removeAcquia();
       $this->removeLagoon();
       File::removeTokenAsync('HOSTING');
+      @unlink(sprintf('%s/%s/.htaccess', $t, $w));
     }
   }
 

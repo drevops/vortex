@@ -19,9 +19,6 @@ if ($settings['environment'] === ENVIRONMENT_PROD) {
 if ($settings['environment'] === ENVIRONMENT_LOCAL || $settings['environment'] === ENVIRONMENT_CI) {
   // Never harden permissions on sites/default/files.
   $settings['skip_permissions_hardening'] = TRUE;
-}
-
-if ($settings['environment'] === ENVIRONMENT_LOCAL) {
   // Show all error messages on the site.
   $config['system.logging']['error_level'] = 'all';
 }

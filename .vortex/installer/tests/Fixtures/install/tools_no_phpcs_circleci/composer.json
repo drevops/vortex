@@ -1,0 +1,8 @@
+@@ -31,7 +31,6 @@
+     "require-dev": {
+         "behat/behat": "__VERSION__",
+         "dantleech/gherkin-lint": "__VERSION__",
+-        "dealerdirect/phpcodesniffer-composer-installer": "__VERSION__",
+         "drevops/behat-format-progress-fail": "__VERSION__",
+         "drevops/behat-screenshot": "__VERSION__",
+         "drevops/behat-steps": "__VERSION__",

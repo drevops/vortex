@@ -49,9 +49,9 @@
      ];
    }
  
-@@ -300,6 +344,166 @@
-     $settings['maintenance_theme'] = 'claro';
+@@ -310,6 +354,173 @@
      $settings['skip_permissions_hardening'] = TRUE;
+     $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
@@ -76,6 +76,7 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
@@ -91,6 +92,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
@@ -116,6 +118,7 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
@@ -131,6 +134,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
@@ -156,6 +160,7 @@
 +    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
@@ -171,6 +176,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
@@ -211,6 +217,7 @@
 +      'node_modules',
 +      'bower_components',
 +    ];
++    $settings['config_sync_directory'] = '../config/default';
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
      $settings['trusted_host_patterns'] = [
