@@ -17,7 +17,8 @@
             "exclude": [
                 "tests",
                 "vendor-bin"
-            ]
+            ],
+            "notName": "/.*\\.md|.*\\.xml|rector\\.php/"
         }
     ],
     "blacklist": [
