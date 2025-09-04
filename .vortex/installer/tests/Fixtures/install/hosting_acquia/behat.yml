@@ -8,5 +8,5 @@
 -        root: web
 +        root: docroot
        region_map:
-         header: "#header"
-         primary_menu: ".header-nav"
+         header: '#header'
+         primary_menu: '.header-nav'
