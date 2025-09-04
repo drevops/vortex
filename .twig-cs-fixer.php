@@ -3,22 +3,8 @@
 declare(strict_types=1);
 
 $ruleset = new TwigCsFixer\Ruleset\Ruleset();
-$ruleset->addStandard(new TwigCsFixer\Standard\Twig());
-$ruleset->addRule(new TwigCsFixer\Rules\Delimiter\BlockNameSpacingRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Delimiter\DelimiterSpacingRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Function\NamedArgumentSpacingRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Operator\OperatorNameSpacingRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Operator\OperatorSpacingRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Punctuation\PunctuationSpacingRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Punctuation\TrailingCommaMultiLineRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Punctuation\TrailingCommaSingleLineRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Literal\HashQuoteRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Literal\SingleQuoteRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Variable\VariableNameRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Whitespace\BlankEOFRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Whitespace\EmptyLinesRule());
-$ruleset->addRule(new TwigCsFixer\Rules\Whitespace\IndentRule(2));
-$ruleset->addRule(new TwigCsFixer\Rules\Whitespace\TrailingSpaceRule());
+$ruleset->addStandard(new TwigCsFixer\Standard\TwigCsFixer());
+$ruleset->overrideRule(new TwigCsFixer\Rules\Whitespace\IndentRule(2));
 
 $finder = new TwigCsFixer\File\Finder();
 $finder->in(__DIR__ . '/web/modules/custom');
