@@ -79,7 +79,7 @@ return static function (RectorConfig $rectorConfig): void {
     RemoveAlwaysTrueIfConditionRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     StringClassNameToClassConstantRector::class => [
-      $drupalRoot . '/sites/default/includes/*',
+      $drupalRoot . '/sites/default/includes/**/*',
     ],
     // Dependencies.
     '*/vendor/*',

@@ -31,7 +31,6 @@
             "environment"
           ],
           "Data Management and Configuration": [
-            "<<",
             "volumes",
             "volumes_from",
             "secrets",

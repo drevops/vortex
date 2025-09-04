@@ -16,7 +16,7 @@
 # @see https://git.drupalcode.org/project/drupal/-/blob/11.x/core/assets/scaffold/files/development.services.yml
 parameters:
   http.response.debug_cacheability_headers: true
-  # Disable twig debugging and auto reload, plus enable twig caching.
+  # Enable Twig debugging and caching (auto_reload inherits core default).
   twig.config:
     debug: true
     auto_reload: null
