@@ -10,5 +10,7 @@ Feature: Robots.txt file
     Given I am an anonymous user
     When I go to "/robots.txt"
     Then the response status code should be 200
+    And the response header "content-type" should contain the value "text/plain"
     And the response should contain "User-agent: *"
     And the response should contain "Disallow: /"
+    And the response should not contain "Allow: /core"
