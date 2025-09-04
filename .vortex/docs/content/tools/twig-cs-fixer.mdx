@@ -10,15 +10,21 @@ https://github.com/VincentLanglet/Twig-CS-Fixer
 
 ## Usage
 
-```shell
-vendor/bin/twig-cs-fixer
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
-
-```shell
-ahoy lint-fe
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-fe
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/twig-cs-fixer
+    ```
+  </TabItem>
+</Tabs>
 
 ## Configuration
 

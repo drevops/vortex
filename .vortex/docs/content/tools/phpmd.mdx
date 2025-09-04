@@ -19,15 +19,21 @@ for Drupal projects.
 
 ## Usage
 
-```shell
-vendor/bin/phpmd . text phpmd.xml
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
-
-```shell
-ahoy lint-be
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-be
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/phpmd . text phpmd.xml
+    ```
+  </TabItem>
+</Tabs>
 
 ## Configuration
 

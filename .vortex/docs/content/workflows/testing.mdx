@@ -14,36 +14,22 @@ import TabItem from '@theme/TabItem';
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
-
-```shell
-ahoy test               # Run Unit, Kernel and Functional tests
-
-ahoy test-unit          # Run Unit tests
-
-ahoy test-kernel        # Run Kernel tests
-
-ahoy test-functional    # Run Functional tests
-
-ahoy test-bdd           # Run BDD tests
-```
-
+    ```shell
+    ahoy test               # Run Unit, Kernel and Functional tests
+    ahoy test-unit          # Run Unit tests
+    ahoy test-kernel        # Run Kernel tests
+    ahoy test-functional    # Run Functional tests
+    ahoy test-bdd           # Run BDD tests
+    ```
   </TabItem>
-  <TabItem value="direct" label="Direct">
-
-These commands can be run directly from within the container:
-
-```shell
-vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
-
-vendor/bin/phpunit --testsuite=unit          # Run Unit tests
-
-vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
-
-vendor/bin/phpunit --testsuite=functional    # Run Functional tests
-
-vendor/bin/behat                             # Run BDD tests
-```
-
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/phpunit                           # Run Unit, Kernel and Functional tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=unit          # Run Unit tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=kernel        # Run Kernel tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=functional    # Run Functional tests
+    docker compose exec cli vendor/bin/behat                             # Run BDD tests
+    ```
   </TabItem>
 </Tabs>
 

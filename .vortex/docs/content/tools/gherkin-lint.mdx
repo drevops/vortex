@@ -8,15 +8,21 @@ https://github.com/dantleech/gherkin-lint-php
 
 ## Usage
 
-```shell
-vendor/bin/gherkinlint lint tests/behat/features
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
-
-```shell
-ahoy lint-tests
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-tests
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/gherkinlint lint tests/behat/features
+    ```
+  </TabItem>
+</Tabs>
 
 ## Configuration
 
