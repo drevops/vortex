@@ -108,6 +108,10 @@
   margin-bottom: 2rem;
 }
 
+.hero-cta {
+  margin-top: 2rem;
+}
+
 .cta-button {
   display: inline-block;
   padding: 1rem 2.5rem;

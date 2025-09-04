@@ -25,36 +25,60 @@ See [workflows](/docs/workflows) for more details.
 
 Drush should be used from the inside of the container.
 
-```shell
-docker compose exec cli drush <command>
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
-
-```shell
-ahoy drush <command>
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy drush <command>
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli drush <command>
+    ```
+  </TabItem>
+</Tabs>
 
 ## Aliases
 
 For Lagoon hosting, Drush site aliases are automatically generated for each
-environment and can be used as follows:
+environment and can be used either from the host machine or from within the
+container.
 
-```shell
-# On the host machine
-drush @lagoon.develop status  # Show status of the develop environment
-drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
-
-# Inside the container
-ahoy drush @lagoon.develop status  # Show status of the develop environment
-ahoy drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
-```
-
-Note that your SSH key must be loaded in your `ssh-agent` for Drush SSH client
-to connect to the remote environment:
-
-```shell
-ssh-add ~/.ssh/path/to/key             # Run on host to run remote Drush commands from host.
-# or
-pygmy addkey --key ~/.ssh/path/to/key  # Run on the host to execute remote Drush commands from inside the container (including ahoy drush).
-```
+<Tabs>
+  <TabItem value="host" label="Host" default>
+    1. Make sure your SSH key is loaded in your `ssh-agent`:
+    ```shell
+    ssh-add ~/.ssh/path/to/key
+    ```
+    2. Run Drush commands using the Lagoon site aliases:
+    ```shell
+    drush @lagoon.develop status  # Show status of the develop environment
+    drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    ```
+  </TabItem>
+  <TabItem value="ahoy" label="Ahoy">
+    1. Make sure your SSH key is loaded into `pygmy`:
+    ```shell
+    pygmy addkey --key ~/.ssh/path/to/key
+    ```
+    2. Run Drush commands using the Lagoon site aliases:
+    ```shell
+    ahoy drush @lagoon.develop status  # Show status of the develop environment
+    ahoy drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    1. Make sure your SSH key is loaded into `pygmy`:
+    ```shell
+    pygmy addkey --key ~/.ssh/path/to/key
+    ```
+    2. Run Drush commands using the Lagoon site aliases:
+    ```shell
+    docker compose exec cli drush drush @lagoon.develop status  # Show status of the develop environment
+    docker compose exec cli drush drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    ```
+  </TabItem>
+</Tabs>

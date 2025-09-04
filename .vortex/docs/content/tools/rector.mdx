@@ -17,27 +17,36 @@ by [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 
 ### Check for violations
 
-```shell
-vendor/bin/rector --dry-run # Only see the diff of changes, do not save them to files.
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
-
-```shell
-ahoy lint-be
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-be
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/rector --dry-run
+    ```
+  </TabItem>
+</Tabs>
 
 ### Fix violations
 
-```shell
-vendor/bin/rector process
-```
-
-or
-
-```shell
-ahoy lint-fix
-```
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-fix
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/rector process
+    ```
+  </TabItem>
+</Tabs>
 
 ## Configuration
 
