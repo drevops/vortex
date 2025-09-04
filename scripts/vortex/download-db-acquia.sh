@@ -79,9 +79,6 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-# Pre-flight checks.
-command -v curl >/dev/null || (fail "curl command is not available." && exit 1)
-
 # Check that all required variables are present.
 [ -z "${VORTEX_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_ACQUIA_KEY." && exit 1
 [ -z "${VORTEX_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_ACQUIA_SECRET." && exit 1

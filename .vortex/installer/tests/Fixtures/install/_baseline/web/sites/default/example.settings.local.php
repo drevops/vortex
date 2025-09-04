@@ -5,13 +5,11 @@
  * Local development override configuration feature.
  *
  * To activate this feature, copy and rename it such that its path plus
- * filename is 'sites/default/settings.local.php'. Then, go to the bottom of
- * 'sites/default/settings.php' and uncomment the commented lines that mention
- * 'settings.local.php'.
+ * filename is 'sites/default/settings.local.php'. No changes to settings.php
+ * are required as it automatically loads settings.local.php if present.
  *
  * If you are using a site name in the path, such as 'sites/example.com', copy
- * this file to 'sites/example.com/settings.local.php', and uncomment the lines
- * at the bottom of 'sites/example.com/settings.php'.
+ * this file to 'sites/example.com/settings.local.php'.
  *
  * @see https://git.drupalcode.org/project/drupal/-/blob/11.x/core/assets/scaffold/files/example.settings.local.php
  */
@@ -114,6 +112,6 @@ $settings['rebuild_access'] = TRUE;
 $settings['skip_permissions_hardening'] = TRUE;
 
 /**
- * Hide admin toolbar. Useful for themeing while logged in as admin.
+ * Hide admin toolbar. Useful for theming while logged in as admin.
  */
 // $settings['hide_admin_toolbar'] = TRUE;
