@@ -77,7 +77,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_SUT;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
+    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
@@ -148,7 +148,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_SUT;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
+    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
     $config['shield.settings']['shield_enable'] = TRUE;
     $config['system.performance']['cache']['page']['max_age'] = 1800;
     $this->assertConfig($config);
@@ -192,7 +192,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_LOCAL;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
+    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
     $config['shield.settings']['shield_enable'] = FALSE;
     $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -238,7 +238,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_LOCAL;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
+    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
     $config['shield.settings']['shield_enable'] = FALSE;
     $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -286,7 +286,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_CI;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
-    $config['robots_txt.settings']['content'] = "User-agent: *\r\nDisallow:";
+    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
     $config['shield.settings']['shield_enable'] = FALSE;
     $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
