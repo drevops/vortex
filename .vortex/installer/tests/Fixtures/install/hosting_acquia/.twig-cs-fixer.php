@@ -1,5 +1,5 @@
-@@ -21,8 +21,8 @@
- $ruleset->addRule(new TwigCsFixer\Rules\Whitespace\TrailingSpaceRule());
+@@ -7,8 +7,8 @@
+ $ruleset->overrideRule(new TwigCsFixer\Rules\Whitespace\IndentRule(2));
  
  $finder = new TwigCsFixer\File\Finder();
 -$finder->in(__DIR__ . '/web/modules/custom');

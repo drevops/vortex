@@ -1,4 +1,4 @@
-@@ -22,7 +22,6 @@
+@@ -8,7 +8,6 @@
  
  $finder = new TwigCsFixer\File\Finder();
  $finder->in(__DIR__ . '/web/modules/custom');
