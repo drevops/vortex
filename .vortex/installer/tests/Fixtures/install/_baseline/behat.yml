@@ -4,7 +4,7 @@ default:
   gherkin:
     cache: ~  # Disable caching during development. It is enabled for profiles below.
     filters:
-      tags: '~@skipped'  # Allow skipping tests by tagging them with "@skipped".
+      tags: '~@skipped'  # Allow skipping tests by tagging them with '@skipped'.
 
   suites:
     default:
@@ -33,11 +33,11 @@ default:
       browser_name: chrome
       javascript_session: selenium2
       selenium2:
-        wd_host: "http://chrome:4444/wd/hub"
+        wd_host: 'http://chrome:4444/wd/hub'
         capabilities:
           browser: chrome
           extra_capabilities:
-            "goog:chromeOptions":
+            'goog:chromeOptions':
               args:
                 # Options to increase stability and speed.
                 - '--disable-extensions'            # Disables all installed Chrome extensions. Useful in testing environments to avoid interference from extensions.
@@ -59,17 +59,17 @@ default:
       drush:
         root: web
       region_map:
-        header: "#header"
-        primary_menu: ".header-nav"
-        secondary_menu: ".region.region--secondary-menu"
-        hero: ".region.region--hero"
-        highlighted: ".region.region--highlighted"
-        breadcrumb: ".region.region--breadcrumb"
-        social: ".social-bar"
-        content_above: ".region.region--content-above"
-        content: ".region.region--content"
-        sidebar: ".region.region--sidebar"
-        content_below: ".region.region--content-below"
+        header: '#header'
+        primary_menu: '.header-nav'
+        secondary_menu: '.region.region--secondary-menu'
+        hero: '.region.region--hero'
+        highlighted: '.region.region--highlighted'
+        breadcrumb: '.region.region--breadcrumb'
+        social: '.social-bar'
+        content_above: '.region.region--content-above'
+        content: '.region.region--content'
+        sidebar: '.region.region--sidebar'
+        content_below: '.region.region--content-below'
         footer_top: '.region.region--footer-top'
         footer_bottom: '.region.region--footer-bottom'
       selectors:
@@ -92,18 +92,18 @@ default:
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 # Profile for parallel testing.
-# Runs all tests not tagged with "smoke" or "@p1" and not tagged with "@skipped".
-# This is a "catch-all" profile that runs any tests not tagged with "@pX".
+# Runs all tests not tagged with 'smoke' or '@p1' and not tagged with '@skipped'.
+# This is a 'catch-all' profile that runs any tests not tagged with '@pX'.
 p0:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "@smoke,~@p1&&~@skipped"
+      tags: '@smoke,~@p1&&~@skipped'
 
 # Profile for parallel testing.
-# Runs all tests tagged with "@smoke" or "@p1" and not tagged with "@skipped".
+# Runs all tests tagged with '@smoke' or '@p1' and not tagged with '@skipped'.
 p1:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "@smoke,@p1&&~@skipped"
+      tags: '@smoke,@p1&&~@skipped'
