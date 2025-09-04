@@ -10,7 +10,7 @@
 
 ### Project Structure
 
-```
+```text
 vortex/
 ├── .vortex/                    # Test harness and development tools
 │   ├── docs/                   # Documentation for Vortex
@@ -26,6 +26,7 @@ vortex/
 ## .vortex Directory Structure
 
 ### .vortex/docs/
+
 - **Docusaurus-based documentation** published to https://www.vortextemplate.com
 - **MDX content system** with interactive components
 - **Multi-layered testing**: Jest (unit), E2E, and spellcheck validation
@@ -33,17 +34,20 @@ vortex/
 - **Custom React components** for enhanced documentation UX
 
 ### .vortex/installer/
+
 - Self-contained Symfony console application
 - Handles Vortex installation and customization
 - **Fixture System**: Uses baseline + diff architecture
 
 ### .vortex/tests/
+
 - Unit and functional tests for Vortex
 - Uses both **PHPUnit** (functional workflows) and **BATS** (shell script unit tests)
 
 ## Testing Framework
 
 ### Documentation Testing (.vortex/docs/)
+
 - **Jest-based testing** with jsdom and React Testing Library
 - **Unit tests**: React component functionality and interactions
 - **Spellcheck**: cspell validation for American English consistency
@@ -51,6 +55,7 @@ vortex/
 - **Location**: `tests/unit/`
 
 ### PHPUnit Tests (.vortex/tests/phpunit/)
+
 - **Purpose**: Functional testing of Vortex user workflows
 - **Scope**: Processes and commands in context of Vortex installation
 - **Location**: `.vortex/tests/phpunit/`
@@ -59,6 +64,7 @@ vortex/
   - `Functional/FunctionalTestCase.php` - Base test case
 
 ### BATS Tests (.vortex/tests/bats/)
+
 - **Purpose**: Unit testing of shell scripts with coverage
 - **Technology**: [Bats (Bash Automated Testing System)](https://github.com/bats-core/bats-core)
 - **Location**: `.vortex/tests/bats/`
@@ -68,9 +74,11 @@ vortex/
   - `fixtures/` - Test fixture files
 
 #### BATS Helpers System
+
 The BATS tests use a sophisticated helper system located in `node_modules/bats-helpers/src/steps.bash` that provides:
 
 **Step Types**:
+
 1. **Command Mocking**: `@<command> [<args>] # <mock_status> [ # <mock_output> ]`
    - Mocks shell commands with specific exit codes and output
    - Example: `"@drush -y status --field=drupal-version # mocked_core_version"`
@@ -85,6 +93,7 @@ The BATS tests use a sophisticated helper system located in `node_modules/bats-h
    - Example: `"-      Existing database detected. Performing additional example operations."`
 
 **Usage Pattern**:
+
 ```bash
 declare -a STEPS=(
   "@drush -y status # 0 # success"          # Mock command
@@ -100,6 +109,7 @@ run_steps "assert" "${mocks}"   # Assert phase
 ### Running Tests
 
 **Documentation Tests** (`.vortex/docs/`):
+
 ```bash
 cd .vortex/docs
 
@@ -124,6 +134,7 @@ yarn lint-fix
 ```
 
 **Template Tests** (`.vortex/`):
+
 ```bash
 cd .vortex
 
@@ -146,13 +157,15 @@ bats tests/bats/unit/notify.bats
 ## Installer Fixture System
 
 ### Architecture
+
 The installer uses a **baseline + diff** system for managing test fixtures:
 
 1. **Baseline** (`_baseline/`): Complete template files
 2. **Scenario Fixtures**: Diff files that modify the baseline
 
 ### Fixture Locations
-```
+
+```text
 .vortex/installer/tests/Fixtures/install/
 ├── _baseline/                  # Complete template files
 ├── services_no_clamav/         # Diff: removes ClamAV-related content
@@ -180,12 +193,14 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"services.*no.*cla
 ```
 
 **How it works**:
+
 1. Tests run and compare actual output vs expected fixtures
 2. When `UPDATE_FIXTURES=1` is set, differences automatically update fixtures
 3. Baseline changes propagate to all scenario diffs
 4. Each scenario maintains only its differences from baseline
 
 ### Fixture Update Process
+
 1. **Baseline First**: Update baseline fixtures first
 2. **Scenario Diffs**: Run individual scenario tests to update their diffs
 3. **Validation**: Verify tests pass without UPDATE_FIXTURES flag
@@ -193,6 +208,7 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"services.*no.*cla
 ## Script Output Formatters
 
 ### Standard Output Formatters
+
 Vortex uses consistent output formatting across all scripts:
 
 ```bash
@@ -207,6 +223,7 @@ note() { printf "      %s\n" "${1}"; }
 ```
 
 ### Usage Guidelines
+
 - **info()**: Main section headers and completion messages
 - **pass()**: Success confirmations
 - **fail()**: Error messages
@@ -214,6 +231,7 @@ note() { printf "      %s\n" "${1}"; }
 - **note()**: Conditional messages, details, hints
 
 ### Example Usage
+
 ```bash
 info "Executing example operations in non-production environment."
 task "Setting site name."
@@ -233,6 +251,7 @@ info "Finished executing example operations in non-production environment."
 ### Provision Script BATS Test Logic
 
 The provision example script (`scripts/custom/provision-10-example.sh`) uses conditional logic:
+
 ```bash
 if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
   note "Fresh database detected. Performing additional example operations."
@@ -242,6 +261,7 @@ fi
 ```
 
 **BATS Test Expectations**:
+
 - **Fresh database scenarios**: Should have "Fresh database detected" and NOT have "Existing database detected"
   - `"Provision: DB; no site"`
   - `"Provision: DB; existing site; overwrite"`
@@ -254,6 +274,7 @@ fi
   - `"Provision: profile; existing site"`
 
 **Test Pattern**:
+
 ```bash
 # Fresh database tests
 "      Fresh database detected. Performing additional example operations."
@@ -265,6 +286,7 @@ fi
 ```
 
 ### BATS Test Updates
+
 When script output changes, update corresponding test files:
 
 ```bash
@@ -279,6 +301,7 @@ When script output changes, update corresponding test files:
 ### Common Test Commands
 
 **Documentation Workflow** (`.vortex/docs/`):
+
 ```bash
 # Development workflow
 yarn start          # Start dev server
@@ -292,6 +315,7 @@ yarn test:watch     # Watch mode for development
 ```
 
 **Template Testing** (`.vortex/`):
+
 ```bash
 # From .vortex/
 ahoy install        # Install all dependencies
@@ -313,22 +337,26 @@ ahoy test-bats -- tests/bats/                    # All BATS tests
 ## Environment Variables
 
 ### Testing
+
 - `TEST_VORTEX_DEBUG=1` - Enable debug output
 - `TEST_NODE_INDEX` - CI runner index for parallel execution
 - `VORTEX_DEV_TEST_COVERAGE_DIR` - Coverage output directory
 - `UPDATE_FIXTURES=1` - Enable fixture updates during tests
 
 ### Development
+
 - `VORTEX_DEBUG=1` - Enable debug mode in scripts
 
 ## Conditional Token System
 
 ### Overview
+
 Vortex uses conditional tokens to strip out content from template files based on user selections during installation. This allows the same template to generate customized projects with only relevant features.
 
 ### Token Patterns
 
 **Markdown files** (like `README.dist.md`, `CLAUDE.md`):
+
 ```markdown
 [//]: # (#;< TOKEN_NAME)
 Content that gets removed if user doesn't select this feature
@@ -336,6 +364,7 @@ Content that gets removed if user doesn't select this feature
 ```
 
 **Shell/YAML files** (like `docker-compose.yml`, shell scripts):
+
 ```bash
 #;< TOKEN_NAME
 Content that gets removed if user doesn't select this feature
@@ -345,42 +374,52 @@ Content that gets removed if user doesn't select this feature
 ### Available Tokens
 
 **Theme-related**:
+
 - `DRUPAL_THEME` - Custom theme functionality
 
 **Services**:
+
 - `SERVICE_CLAMAV` - ClamAV virus scanning
 - `SERVICE_SOLR` - Solr search engine
 - `SERVICE_VALKEY` - Valkey/Redis caching
 
 **CI Providers**:
+
 - `CI_PROVIDER_GHA` - GitHub Actions
 - `CI_PROVIDER_CIRCLECI` - CircleCI
 - `CI_PROVIDER_ANY` - Any CI provider selected
 
 **Hosting Providers**:
+
 - `HOSTING_LAGOON` - Lagoon hosting
 - `HOSTING_ACQUIA` - Acquia hosting
 
 **Deployment Types**:
+
 - `DEPLOY_TYPE_CONTAINER_REGISTRY` - Container registry deployments
 - `DEPLOY_TYPE_WEBHOOK` - Webhook deployments
 - `DEPLOY_TYPE_ARTIFACT` - Artifact deployments
 
 **Dependencies**:
+
 - `DEPS_UPDATE_PROVIDER` - Automated dependency updates (RenovateBot)
 
 **Database**:
+
 - `!DB_DOWNLOAD_SOURCE_NONE` - Negated token, removes content when NO database download source is selected
 
 **Documentation**:
+
 - `DOCS_ONBOARDING` - Onboarding documentation sections
 
 **Provisioning**:
+
 - `!PROVISION_TYPE_PROFILE` - Negated token for non-profile provision types
 
 ### Token Implementation Locations
 
 **Handler Classes** (`.vortex/installer/src/Prompts/Handlers/`):
+
 - `CiProvider.php` - Defines CI_PROVIDER_* tokens
 - `HostingProvider.php` - Defines HOSTING_* tokens
 - `Services.php` - Defines SERVICE_* tokens
@@ -388,6 +427,7 @@ Content that gets removed if user doesn't select this feature
 - `DependencyUpdatesProvider.php` - Defines DEPS_UPDATE_PROVIDER token
 
 **Token Processing** (`.vortex/installer/src/Prompts/Handlers/Internal.php:29`):
+
 ```php
 // Remove all conditional tokens during installation
 File::removeTokenInDir($this->tmpDir);
@@ -405,6 +445,7 @@ When creating or updating template files:
 ### Example Usage in Template Files
 
 **Root CLAUDE.md** - Wrapping theme-specific content:
+
 ```markdown
 [//]: # (#;< DRUPAL_THEME)
 
@@ -415,6 +456,7 @@ Commands and workflows for custom theme development...
 ```
 
 **docker-compose.yml** - Service-specific containers:
+
 ```yaml
 #;< SERVICE_SOLR
   solr:
@@ -434,6 +476,7 @@ When adding new conditional features:
 ### Token Testing
 
 Conditional tokens are tested through the installer fixture system:
+
 - **Baseline fixtures** contain all possible content
 - **Scenario fixtures** show what gets removed for specific configurations
 - Use `UPDATE_FIXTURES=1` mechanism to regenerate after token changes
@@ -441,7 +484,8 @@ Conditional tokens are tested through the installer fixture system:
 ## Key Directories and Files
 
 ### Template Structure (Outside .vortex/)
-```
+
+```text
 ├── scripts/
 │   ├── vortex/                 # Core Vortex scripts
 │   └── custom/                 # Custom project scripts
@@ -455,7 +499,8 @@ Conditional tokens are tested through the installer fixture system:
 ```
 
 ### Test Harness (.vortex/)
-```
+
+```text
 ├── docs/                       # Vortex documentation (Docusaurus)
 │   ├── src/components/         # React components (VerticalTabs, etc.)
 │   ├── tests/unit/             # Jest tests
@@ -474,17 +519,20 @@ Conditional tokens are tested through the installer fixture system:
 ## Maintenance Tips
 
 ### Fixture Updates Can Be Finicky
+
 - The `UPDATE_FIXTURES=1` mechanism can have defects
 - Try updating baseline first, then individual scenarios
 - Use filtered test runs for specific scenarios
 - Be patient - full test suite can take several minutes
 
 ### Script Changes Require Multi-Level Updates
+
 1. **Main script** (template level)
 2. **BATS test assertions** (unit test level)
 3. **Installer fixtures** (integration test level)
 
 ### Output Formatter Consistency
+
 - Always use the standard formatter functions
 - Maintain consistent output patterns across all scripts
 - Test changes with both BATS and installer fixture tests
@@ -492,6 +540,7 @@ Conditional tokens are tested through the installer fixture system:
 ## Troubleshooting
 
 ### Fixture Update Issues
+
 ```bash
 # Try baseline first
 UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testInstall.*baseline"
@@ -504,11 +553,13 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
 ```
 
 ### Test Failures
+
 - Check BATS test output formatting matches script changes
 - Verify installer fixtures are properly updated
 - Ensure output formatters are defined in all scripts
 
 ### Performance
+
 - BATS tests are fast (unit level)
 - PHPUnit workflow tests are slower (integration level)
 - Installer tests are slowest (full installation simulation)
@@ -520,6 +571,7 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
 **Batch Processing Pattern**: The installer uses batch processing for file operations to improve performance. All file modifications are queued and executed in a single pass through the directory tree.
 
 **Key Pattern**:
+
 ```php
 // Before: Individual operations (slow)
 File::replaceContentInFile($file, 'old', 'new');
@@ -565,9 +617,9 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 
 ### Refactoring Workflow
 
-2. **Create Wrappers**: Add static methods to `File` class for common patterns
-3. **Replace Usage**: Update handlers to use wrapper methods
-4. **Test Systematically**:
+1. **Create Wrappers**: Add static methods to `File` class for common patterns
+1. **Replace Usage**: Update handlers to use wrapper methods
+1. **Test Systematically**:
    - Run baseline test first to verify core functionality
    - Run individual test scenarios to catch edge cases
    - Use `UPDATE_FIXTURES=1` to regenerate expected outputs when needed
@@ -575,6 +627,7 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 ### Performance Insights
 
 **Critical Success Factors**:
+
 - Maintain execution order (handlers queue, PromptManager executes)
 - Preserve complex logic in callbacks for edge cases (e.g., empty line processing exclusions)
 - Test each handler type (token removal, string replacement, custom transformation)
@@ -593,6 +646,7 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 The installer tests have been refactored to use a modular, handler-focused architecture that improves maintainability and test execution flexibility.
 
 **Abstract Base Class**: `AbstractInstallTestCase` provides shared test logic for all installer test scenarios, including:
+
 - Common setup and teardown procedures
 - Core `testInstall()` method with data provider integration
 - Fixture management and assertion helpers
@@ -606,6 +660,7 @@ The installer tests have been refactored to use a modular, handler-focused archi
 - **Scalable Architecture**: Easy to add new handler tests following established patterns
 
 **Key Benefits**:
+
 - Run all handler tests: `--filter "Handlers\\\\"`
 - Run specific handler: `--filter "HandlerNameInstallTest"`
 - Run specific scenarios: `--filter "HandlerNameInstallTest.*scenario_pattern"`
