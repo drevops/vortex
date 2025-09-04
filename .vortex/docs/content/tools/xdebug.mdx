@@ -17,19 +17,49 @@ code coverage enabled. See [PHPUnit](phpunit.mdx#coverage) for more details.
 
 ## Usage
 
-Xdebug is disabled by default.
+Xdebug is disabled by default. Run the following command to enable it:
 
-```shell
-XDEBUG_ENABLE=true docker compose up -d cli php nginx   # Restart containers with Xdebug enabled.
-docker compose up -d cli php nginx                      # Restart containers with Xdebug disabled.
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-or
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy debug    # Restart containers with Xdebug enabled.
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    XDEBUG_ENABLE=true docker compose up -d cli php nginx   # Restart containers with Xdebug enabled.
+    ```
+  </TabItem>
+</Tabs>
 
-```shell
-ahoy debug-on  # Restart containers with Xdebug enabled.
-ahoy up        # Restart containers with Xdebug disabled.
-```
+Run the following command to disable Xdebug:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy up   # Restart containers with Xdebug disabled.
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose up -d cli php nginx    # Restart containers with Xdebug disabled.
+    ```
+  </TabItem>
+</Tabs>
+
+### CLI
+
+Running PHP from the command line with Xdebug works the same way as
+debugging a web page, except that you need to run it from within the
+container.
+
+Note that some commands, like `drush`, may disable Xdebug by default for
+performance reasons. You may need to explicitly enable it by providing
+`--xdebug` flag to `drush` command. Check the documentation of the
+command you are trying to run for more details.
 
 ## IDE configuration
 
@@ -44,11 +74,11 @@ In order to use Xdebug on the project for the first time, you need to follow
 these steps (assuming you already have a fully working site):
 
 1. Install Xdebug helper extension for your browser:
-     - [Chrome Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc)
+     - [Chrome Xdebug Helper by JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
        extension.
-     - [Firefox Xdebug Helper](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-for-firefox/)
+     - [Firefox Xdebug Helper by JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
        extension.
-     - [Edge Xdebug Helper](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper/ggnngifabofaddiejjeagbaebkejomen)
+     - [Edge Xdebug Helper by JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
        add-on.
 
 2. Enable Xdebug in your browser (see instructions for your extension/add-on).
@@ -71,7 +101,7 @@ For more information see the following resources:
 - https://www.jetbrains.com/help/phpstorm/configuring-xdebug.html#debugging-with-phpstorm
 - https://docs.lagoon.sh/using-lagoon-advanced/setting-up-xdebug-with-lagoon/
 
-### Tips and tricks
+#### Tips and tricks
 
 Once your first Xdebug session is set up, you can adjust some of the Debug
 configurations in the PhpStorm IDE to make your life easier:
@@ -83,7 +113,3 @@ configurations in the PhpStorm IDE to make your life easier:
 - Increase the number in `Max. simultaneous connections` to `5` or more. This
   will prevent hidden debug session being "stuck" without being visible in
   the IDE.
-
-Running PHP from the command line with Xdebug works the same way as
-debugging a web page, except that you need to run it from within the
-container.

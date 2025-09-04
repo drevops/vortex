@@ -165,7 +165,7 @@ Any other variables should be defined in the `.env` file.
 
 Consider the example:
 
-```bash
+```shell
 TZ: ${TZ:-UTC}
 # Local development URL.
 VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
@@ -241,7 +241,7 @@ is used to connect all containers together.
 After updating the `docker-compose.yml` file, it is useful sometimes to validate
 it before running the build. This can be done with the following command:
 
-```bash
+```shell
 
 docker compose -f docker-compose.yml config
 
