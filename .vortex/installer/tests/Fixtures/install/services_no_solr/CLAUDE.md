@@ -413,7 +413,7 @@ As a authenticated user    # Logged-in users
 
 #### Example Feature File
 
-```gherbal
+```gherkin
 Feature: Homepage
 
   As a site visitor
@@ -423,7 +423,6 @@ Feature: Homepage
   Scenario: View homepage content
     Given I am on the homepage
     Then I should see "[TEST] Welcome Message"
-    And I should see the "main navigation" region
     And I should see "About Us" in the "navigation" region
 ```
 
@@ -432,9 +431,9 @@ Feature: Homepage
 ```bash
 # Generate step definitions reference (run once)
 ahoy test-bdd -- --definitions=l >.claude/artifacts/behat-steps.txt
-
-# Use the cached file for reference, don't regenerate unless asked
 ```
+
+Use the cached file for reference, don't regenerate unless asked.
 
 ### Content Type Testing Process
 
