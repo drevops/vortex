@@ -18,3 +18,9 @@ indent_size = 4
 
 [*.xml]
 indent_size = 4
+
+[.eslintrc.json]
+indent_size = 2
+
+[.prettierrc.json]
+indent_size = 2

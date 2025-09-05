@@ -9,9 +9,9 @@
  !composer.json
  !composer.lock
  !yarn.lock
-@@ -42,10 +40,5 @@
- !package.json
- !package-lock.json
+@@ -44,10 +42,5 @@
+ !.prettierignore
+ !.prettierrc.json
  !patches
 -!phpcs.xml
 -!phpmd.xml
