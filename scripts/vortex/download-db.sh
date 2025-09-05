@@ -38,13 +38,12 @@ info "Started database download."
 
 [ "${VORTEX_DB_DOWNLOAD_PROCEED}" != "1" ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
-# Check if database file exists.
-# @todo: Implement better support based on $VORTEX_DB_FILE instead of hardcoded 'db*' name.
-[ -d "${VORTEX_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DB_DIR}" -name "db*.sql" -o -name "db*.tar")
+db_file_basename="${VORTEX_DB_FILE%.*}"
+[ -d "${VORTEX_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
 
 if [ -n "${found_db:-}" ]; then
   note "Found existing database dump file(s)."
-  ls -Alh "${VORTEX_DB_DIR}"/db* 2>/dev/null || true
+  ls -Alh "${VORTEX_DB_DIR}" 2>/dev/null || true
 
   if [ "${VORTEX_DB_DOWNLOAD_FORCE}" != "1" ]; then
     note "Using existing database dump file(s)."
@@ -76,7 +75,7 @@ if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "container_registry" ]; then
   ./scripts/vortex/download-db-container-registry.sh
 fi
 
-ls -Alh "${VORTEX_DB_DIR}"/db* || true
+ls -Alh "${VORTEX_DB_DIR}" || true
 
 # Create a semaphore file to indicate that the database has been downloaded.
 [ -n "${VORTEX_DB_DOWNLOAD_SEMAPHORE:-}" ] && touch "${VORTEX_DB_DOWNLOAD_SEMAPHORE}"
