@@ -9,7 +9,7 @@
  !composer.json
  !composer.lock
  !yarn.lock
-@@ -45,7 +43,6 @@
+@@ -47,7 +45,6 @@
  !phpcs.xml
  !phpmd.xml
  !phpstan.neon

@@ -18,8 +18,11 @@
   "devDependencies": {
     "eslint": "__VERSION__",
     "eslint-config-airbnb-base": "__VERSION__",
+    "eslint-config-prettier": "__VERSION__",
     "eslint-plugin-import": "__VERSION__",
+    "eslint-plugin-prettier": "__VERSION__",
     "eslint-plugin-yml": "__VERSION__",
+    "prettier": "__VERSION__",
     "stylelint": "__VERSION__",
     "stylelint-config-standard": "__VERSION__",
     "stylelint-order": "__VERSION__"

@@ -3,11 +3,9 @@
  * YS Base module JavaScript behaviors.
  */
 
-(function (Drupal) {
-  'use strict';
-
+((Drupal) => {
   Drupal.behaviors.ysBase = {
-    attach: function (context) {
+    attach(context) {
       this.initCounterBlock(context);
     },
 
@@ -17,10 +15,10 @@
      * @param {HTMLElement} context
      *   Context element to search for counter blocks.
      */
-    initCounterBlock: function (context) {
+    initCounterBlock(context) {
       const counterBlocks = context.querySelectorAll('[data-ys-base-counter]');
 
-      counterBlocks.forEach(function (block) {
+      counterBlocks.forEach(function processBlock(block) {
         // Skip if already processed.
         if (block.classList.contains('ys-base-counter-processed')) {
           return;
@@ -33,23 +31,26 @@
 
         // Load saved value from localStorage.
         const storageKey = 'ys_counter_value';
-        let currentValue = parseInt(localStorage.getItem(storageKey)) || 0;
+        let currentValue = parseInt(localStorage.getItem(storageKey), 10) || 0;
         valueElement.textContent = currentValue;
 
         // Add event listeners to buttons.
-        buttons.forEach(function (button) {
-          button.addEventListener('click', function () {
+        buttons.forEach(function processButton(button) {
+          button.addEventListener('click', function handleClick() {
             const action = this.getAttribute('data-counter-action');
 
             switch (action) {
               case 'increment':
-                currentValue++;
+                currentValue += 1;
                 break;
               case 'decrement':
-                currentValue--;
+                currentValue -= 1;
                 break;
               case 'reset':
                 currentValue = 0;
+                break;
+              default:
+                // No action for unknown action types.
                 break;
             }
 
@@ -61,16 +62,26 @@
 
             // Add visual feedback.
             valueElement.classList.add('updated');
-            setTimeout(function () {
-              valueElement.classList.remove('updated');
-            }, 300);
+            Drupal.behaviors.ysBase.removeUpdatedClassAfterDelay(valueElement);
 
-            // Log action.
-            console.log('Counter ' + action + ': ' + currentValue);
+            // Log action for debugging.
+            // eslint-disable-next-line no-console
+            console.log(`Counter ${action}: ${currentValue}`);
           });
         });
       });
-    }
-  };
+    },
 
+    /**
+     * Remove updated class after a delay for visual feedback.
+     *
+     * @param {HTMLElement} element
+     *   The element to remove the class from.
+     */
+    removeUpdatedClassAfterDelay(element) {
+      setTimeout(function removeUpdatedClass() {
+        element.classList.remove('updated');
+      }, 300);
+    },
+  };
 })(Drupal);

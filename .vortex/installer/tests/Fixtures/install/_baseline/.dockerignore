@@ -41,6 +41,8 @@ drush/contrib/
 !yarn.lock
 !package.json
 !package-lock.json
+!.prettierignore
+!.prettierrc.json
 !patches
 !phpcs.xml
 !phpmd.xml
