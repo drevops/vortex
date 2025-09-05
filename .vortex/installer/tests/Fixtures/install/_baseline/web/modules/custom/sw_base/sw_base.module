@@ -20,7 +20,7 @@ function sw_base_theme(): array {
       'variables' => [
         'counter_value' => 0,
       ],
-      'template' => 'ys-base-counter-block',
+      'template' => 'sw-base-counter-block',
     ],
   ];
 }

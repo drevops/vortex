@@ -16,15 +16,15 @@
      *   Context element to search for counter blocks.
      */
     initCounterBlock(context) {
-      const counterBlocks = context.querySelectorAll('[data-ys-base-counter]');
+      const counterBlocks = context.querySelectorAll('[data-the-force-base-counter]');
 
       counterBlocks.forEach(function processBlock(block) {
         // Skip if already processed.
-        if (block.classList.contains('ys-base-counter-processed')) {
+        if (block.classList.contains('the-force-base-counter-processed')) {
           return;
         }
 
-        block.classList.add('ys-base-counter-processed');
+        block.classList.add('the-force-base-counter-processed');
 
         const valueElement = block.querySelector('[data-counter-value]');
         const buttons = block.querySelectorAll('[data-counter-action]');

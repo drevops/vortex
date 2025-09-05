@@ -20,7 +20,7 @@ function the_force_base_theme(): array {
       'variables' => [
         'counter_value' => 0,
       ],
-      'template' => 'ys-base-counter-block',
+      'template' => 'the-force-base-counter-block',
     ],
   ];
 }
