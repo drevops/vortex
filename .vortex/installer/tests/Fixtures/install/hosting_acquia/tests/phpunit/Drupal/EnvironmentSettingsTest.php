@@ -1,5 +1,5 @@
 @@ -59,6 +59,50 @@
-         static::ENVIRONMENT_LOCAL,
+         self::ENVIRONMENT_LOCAL,
        ],
  
 +      // Acquia.
@@ -7,43 +7,43 @@
 +        [
 +          'AH_SITE_ENVIRONMENT' => TRUE,
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
 +          'AH_SITE_ENVIRONMENT' => 'prod',
 +        ],
-+        static::ENVIRONMENT_PROD,
++        self::ENVIRONMENT_PROD,
 +      ],
 +      [
 +        [
 +          'AH_SITE_ENVIRONMENT' => 'stage',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +      [
 +        [
 +          'AH_SITE_ENVIRONMENT' => 'test',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +      [
 +        [
 +          'AH_SITE_ENVIRONMENT' => 'dev',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
 +          'AH_SITE_ENVIRONMENT' => 'ode1',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
 +          'AH_SITE_ENVIRONMENT' => 'nonode1',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +
      ];
@@ -73,7 +73,7 @@
 +    $config['config_split.config_split.dev']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -84,7 +84,7 @@
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_DEV;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -115,7 +115,7 @@
 +    $config['config_split.config_split.dev']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -126,7 +126,7 @@
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_DEV;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -157,7 +157,7 @@
 +    $config['config_split.config_split.stage']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#fff176';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_STAGE;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -168,7 +168,7 @@
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_STAGE;
++    $settings['environment'] = self::ENVIRONMENT_STAGE;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -198,7 +198,7 @@
 +    $config['acquia_hosting_settings_autoconnect'] = FALSE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PROD;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -209,7 +209,7 @@
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_PROD;
++    $settings['environment'] = self::ENVIRONMENT_PROD;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';

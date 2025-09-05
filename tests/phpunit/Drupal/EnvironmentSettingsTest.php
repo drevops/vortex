@@ -41,14 +41,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   public static function dataProviderEnvironmentTypeDetection(): array {
     return [
       // By default, the default environment type is local.
-      [[], static::ENVIRONMENT_LOCAL],
+      [[], self::ENVIRONMENT_LOCAL],
 
       // CI.
       [
         [
           'CI' => 1,
         ],
-        static::ENVIRONMENT_CI,
+        self::ENVIRONMENT_CI,
       ],
 
       // Container.
@@ -56,7 +56,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
         ],
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
       ],
 
       // #;< SETTINGS_PROVIDER_ACQUIA
@@ -65,43 +65,43 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'AH_SITE_ENVIRONMENT' => TRUE,
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
           'AH_SITE_ENVIRONMENT' => 'prod',
         ],
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
       ],
       [
         [
           'AH_SITE_ENVIRONMENT' => 'stage',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
       [
         [
           'AH_SITE_ENVIRONMENT' => 'test',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
       [
         [
           'AH_SITE_ENVIRONMENT' => 'dev',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
           'AH_SITE_ENVIRONMENT' => 'ode1',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
           'AH_SITE_ENVIRONMENT' => 'nonode1',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       // phpcs:ignore #;> SETTINGS_PROVIDER_ACQUIA
 
@@ -111,7 +111,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
         [
           'LAGOON_KUBERNETES' => 1,
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
 
       [
@@ -119,7 +119,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_KUBERNETES' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'production',
         ],
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
       ],
       [
         [
@@ -128,7 +128,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'main',
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
       ],
       [
         [
@@ -137,7 +137,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'master',
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -146,7 +146,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -155,7 +155,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
           'LAGOON_ENVIRONMENT_TYPE' => 'production',
         ],
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
       ],
       [
         [
@@ -164,7 +164,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -173,7 +173,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
           'LAGOON_ENVIRONMENT_TYPE' => 'production',
         ],
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
       ],
 
       [
@@ -182,7 +182,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'release',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -190,7 +190,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'release/1.2.3',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
       [
         [
@@ -198,7 +198,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'hotfix',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -206,7 +206,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
         ],
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
       ],
 
       [
@@ -215,7 +215,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'LAGOON_GIT_BRANCH' => FALSE,
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -223,7 +223,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -232,7 +232,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_GIT_BRANCH' => FALSE,
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -241,7 +241,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_GIT_BRANCH' => 'somebranch',
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -250,7 +250,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_GIT_BRANCH' => FALSE,
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -259,7 +259,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_GIT_BRANCH' => 'somebranch',
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -268,7 +268,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_GIT_BRANCH' => '',
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => '',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       [
         [
@@ -277,14 +277,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
           'LAGOON_GIT_BRANCH' => 'mainbranch',
           'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'mainbranch',
         ],
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
       ],
       [
         [
           'LAGOON_KUBERNETES' => 1,
           'LAGOON_ENVIRONMENT_TYPE' => 'development',
         ],
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
       ],
       // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
     ];
@@ -295,14 +295,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentNoOverrides(): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => static::ENVIRONMENT_SUT,
+      'DRUPAL_ENVIRONMENT' => self::ENVIRONMENT_SUT,
     ]);
 
     $this->requireSettingsFile();
 
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
     $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_SUT;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_SUT;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -313,7 +313,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_SUT;
+    $settings['environment'] = self::ENVIRONMENT_SUT;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -335,7 +335,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentOverrides(): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => static::ENVIRONMENT_SUT,
+      'DRUPAL_ENVIRONMENT' => self::ENVIRONMENT_SUT,
       // Database configuration.
       'DATABASE_NAME' => 'custom_db',
       'DATABASE_USERNAME' => 'custom_user',
@@ -373,7 +373,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     // Verify key config overrides.
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
     $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_SUT;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_SUT;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -386,7 +386,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = 'custom_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_SUT;
+    $settings['environment'] = self::ENVIRONMENT_SUT;
     $settings['file_public_path'] = 'custom_public';
     $settings['file_private_path'] = 'custom_private';
     $settings['file_temp_path'] = 'custom_temp';
@@ -408,7 +408,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentLocal(): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => static::ENVIRONMENT_LOCAL,
+      'DRUPAL_ENVIRONMENT' => self::ENVIRONMENT_LOCAL,
     ]);
 
     $this->requireSettingsFile();
@@ -417,7 +417,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.local']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
     $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_LOCAL;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -431,7 +431,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_LOCAL;
+    $settings['environment'] = self::ENVIRONMENT_LOCAL;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -464,7 +464,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.local']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
     $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_LOCAL;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -478,7 +478,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_LOCAL;
+    $settings['environment'] = self::ENVIRONMENT_LOCAL;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -514,7 +514,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.ci']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
     $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_CI;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_CI;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -528,7 +528,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_CI;
+    $settings['environment'] = self::ENVIRONMENT_CI;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -563,7 +563,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.ci']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#006600';
     $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_CI;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_CI;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -577,7 +577,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_CI;
+    $settings['environment'] = self::ENVIRONMENT_CI;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -612,7 +612,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.dev']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -623,7 +623,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_DEV;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -654,7 +654,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.dev']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -665,7 +665,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_DEV;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -696,7 +696,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.stage']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_STAGE;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -707,7 +707,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_STAGE;
+    $settings['environment'] = self::ENVIRONMENT_STAGE;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -737,7 +737,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['acquia_hosting_settings_autoconnect'] = FALSE;
     $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PROD;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -748,7 +748,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_PROD;
+    $settings['environment'] = self::ENVIRONMENT_PROD;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -784,7 +784,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.dev']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -797,7 +797,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_DEV;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -836,7 +836,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.dev']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -849,7 +849,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_DEV;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -888,7 +888,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['config_split.config_split.stage']['status'] = TRUE;
     $config['environment_indicator.indicator']['bg_color'] = '#fff176';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_STAGE;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -901,7 +901,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_STAGE;
+    $settings['environment'] = self::ENVIRONMENT_STAGE;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -940,7 +940,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
     $config['environment_indicator.indicator']['fg_color'] = '#000000';
-    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PROD;
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -953,7 +953,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
-    $settings['environment'] = static::ENVIRONMENT_PROD;
+    $settings['environment'] = self::ENVIRONMENT_PROD;
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
