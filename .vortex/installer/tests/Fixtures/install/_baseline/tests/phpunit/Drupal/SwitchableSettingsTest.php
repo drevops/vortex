@@ -96,7 +96,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   public static function dataProviderConfigSplit(): array {
     return [
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
           'config_split.config_split.local' => ['status' => TRUE],
         ],
@@ -107,7 +107,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_CI,
+        self::ENVIRONMENT_CI,
         [
           'config_split.config_split.ci' => ['status' => TRUE],
         ],
@@ -118,7 +118,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'config_split.config_split.dev' => ['status' => TRUE],
         ],
@@ -129,7 +129,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
         [
           'config_split.config_split.stage' => ['status' => TRUE],
         ],
@@ -140,7 +140,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
         [],
         [
           'config_split.config_split.stage' => NULL,
@@ -150,7 +150,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_SUT,
+        self::ENVIRONMENT_SUT,
         [],
         [
           'config_split.config_split.stage' => NULL,
@@ -183,44 +183,44 @@ class SwitchableSettingsTest extends SettingsTestCase {
   public static function dataProviderEnvironmentIndicator(): array {
     return [
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_LOCAL, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_LOCAL, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
       [
-        static::ENVIRONMENT_CI,
+        self::ENVIRONMENT_CI,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_CI, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_CI, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_DEV, 'bg_color' => '#4caf50', 'fg_color' => '#000000'],
+          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_DEV, 'bg_color' => '#4caf50', 'fg_color' => '#000000'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
       [
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_STAGE, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
+          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_STAGE, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
       [
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_PROD, 'bg_color' => '#ef5350', 'fg_color' => '#000000'],
+          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_PROD, 'bg_color' => '#ef5350', 'fg_color' => '#000000'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
       [
-        static::ENVIRONMENT_SUT,
+        self::ENVIRONMENT_SUT,
         [
-          'environment_indicator.indicator' => ['name' => static::ENVIRONMENT_SUT, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_SUT, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
           'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
         ],
       ],
@@ -345,7 +345,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   public static function dataProviderShield(): array {
     return [
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [],
         [
           'shield.settings' => ['shield_enable' => FALSE],
@@ -355,7 +355,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
         ],
@@ -367,7 +367,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -379,7 +379,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_CI,
+        self::ENVIRONMENT_CI,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -391,7 +391,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -403,7 +403,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -415,7 +415,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -430,7 +430,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_SUT,
+        self::ENVIRONMENT_SUT,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -442,7 +442,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -455,7 +455,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -467,7 +467,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -480,7 +480,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -492,7 +492,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -504,7 +504,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -516,7 +516,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
           'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
@@ -529,7 +529,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_SHIELD_DISABLED' => TRUE,
         ],
@@ -538,7 +538,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
         [
           'DRUPAL_SHIELD_DISABLED' => TRUE,
         ],
@@ -547,7 +547,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
         [
           'DRUPAL_SHIELD_DISABLED' => TRUE,
         ],
@@ -577,7 +577,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   public static function dataProviderStageFileProxy(): array {
     return [
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [],
         [],
         [
@@ -585,7 +585,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         ],
       ],
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
         ],
@@ -595,7 +595,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         [],
       ],
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
@@ -607,7 +607,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         [],
       ],
       [
-        static::ENVIRONMENT_LOCAL,
+        self::ENVIRONMENT_LOCAL,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
@@ -619,7 +619,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_CI,
+        self::ENVIRONMENT_CI,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
@@ -632,7 +632,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_DEV,
+        self::ENVIRONMENT_DEV,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
@@ -645,7 +645,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_STAGE,
+        self::ENVIRONMENT_STAGE,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
@@ -658,7 +658,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_PROD,
+        self::ENVIRONMENT_PROD,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
@@ -671,7 +671,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
 
       [
-        static::ENVIRONMENT_SUT,
+        self::ENVIRONMENT_SUT,
         [
           'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
           'DRUPAL_SHIELD_USER' => 'drupal_shield_user',

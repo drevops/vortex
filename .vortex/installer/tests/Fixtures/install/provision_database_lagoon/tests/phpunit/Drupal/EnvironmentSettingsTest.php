@@ -1,5 +1,5 @@
 @@ -59,6 +59,186 @@
-         static::ENVIRONMENT_LOCAL,
+         self::ENVIRONMENT_LOCAL,
        ],
  
 +      // Lagoon.
@@ -7,7 +7,7 @@
 +        [
 +          'LAGOON_KUBERNETES' => 1,
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +
 +      [
@@ -15,7 +15,7 @@
 +          'LAGOON_KUBERNETES' => 1,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'production',
 +        ],
-+        static::ENVIRONMENT_PROD,
++        self::ENVIRONMENT_PROD,
 +      ],
 +      [
 +        [
@@ -24,7 +24,7 @@
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'main',
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        ],
-+        static::ENVIRONMENT_PROD,
++        self::ENVIRONMENT_PROD,
 +      ],
 +      [
 +        [
@@ -33,7 +33,7 @@
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'master',
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +      [
 +        [
@@ -42,7 +42,7 @@
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +      [
 +        [
@@ -51,7 +51,7 @@
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'production',
 +        ],
-+        static::ENVIRONMENT_PROD,
++        self::ENVIRONMENT_PROD,
 +      ],
 +      [
 +        [
@@ -60,7 +60,7 @@
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +      [
 +        [
@@ -69,7 +69,7 @@
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'production',
 +        ],
-+        static::ENVIRONMENT_PROD,
++        self::ENVIRONMENT_PROD,
 +      ],
 +
 +      [
@@ -78,7 +78,7 @@
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +          'LAGOON_GIT_BRANCH' => 'release',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -86,7 +86,7 @@
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +          'LAGOON_GIT_BRANCH' => 'release/1.2.3',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +      [
 +        [
@@ -94,7 +94,7 @@
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +          'LAGOON_GIT_BRANCH' => 'hotfix',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -102,7 +102,7 @@
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +          'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
 +        ],
-+        static::ENVIRONMENT_STAGE,
++        self::ENVIRONMENT_STAGE,
 +      ],
 +
 +      [
@@ -111,7 +111,7 @@
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +          'LAGOON_GIT_BRANCH' => FALSE,
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -119,7 +119,7 @@
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -128,7 +128,7 @@
 +          'LAGOON_GIT_BRANCH' => FALSE,
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -137,7 +137,7 @@
 +          'LAGOON_GIT_BRANCH' => 'somebranch',
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -146,7 +146,7 @@
 +          'LAGOON_GIT_BRANCH' => FALSE,
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -155,7 +155,7 @@
 +          'LAGOON_GIT_BRANCH' => 'somebranch',
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -164,7 +164,7 @@
 +          'LAGOON_GIT_BRANCH' => '',
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => '',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
 +      [
 +        [
@@ -173,14 +173,14 @@
 +          'LAGOON_GIT_BRANCH' => 'mainbranch',
 +          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'mainbranch',
 +        ],
-+        static::ENVIRONMENT_PROD,
++        self::ENVIRONMENT_PROD,
 +      ],
 +      [
 +        [
 +          'LAGOON_KUBERNETES' => 1,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        ],
-+        static::ENVIRONMENT_DEV,
++        self::ENVIRONMENT_DEV,
 +      ],
      ];
    }
@@ -211,7 +211,7 @@
 +    $config['config_split.config_split.dev']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -224,7 +224,7 @@
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_DEV;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -263,7 +263,7 @@
 +    $config['config_split.config_split.dev']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_DEV;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -276,7 +276,7 @@
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_DEV;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -315,7 +315,7 @@
 +    $config['config_split.config_split.stage']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#fff176';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_STAGE;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_STAGE;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -328,7 +328,7 @@
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_STAGE;
++    $settings['environment'] = self::ENVIRONMENT_STAGE;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -367,7 +367,7 @@
 +
 +    $config['environment_indicator.indicator']['bg_color'] = '#ef5350';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = static::ENVIRONMENT_PROD;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PROD;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -380,7 +380,7 @@
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = static::ENVIRONMENT_PROD;
++    $settings['environment'] = self::ENVIRONMENT_PROD;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
