@@ -2734,16 +2734,16 @@
     "packages-dev": [
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.8.3",
+            "version": "0.8.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "25ff50640bbfe0ca2642551f5222d842f801853d"
+                "reference": "0064df99be8f7b7146d8d69bd6ff9ea7a2e8395d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/25ff50640bbfe0ca2642551f5222d842f801853d",
-                "reference": "25ff50640bbfe0ca2642551f5222d842f801853d",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/0064df99be8f7b7146d8d69bd6ff9ea7a2e8395d",
+                "reference": "0064df99be8f7b7146d8d69bd6ff9ea7a2e8395d",
                 "shasum": ""
             },
             "require": {
@@ -2797,7 +2797,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-07-29T07:15:34+00:00"
+            "time": "2025-09-05T06:52:25+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -3005,16 +3005,16 @@
         },
         {
             "name": "ergebnis/composer-normalize",
-            "version": "2.48.1",
+            "version": "2.48.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ergebnis/composer-normalize.git",
-                "reference": "40d5d91df9e6b6bf9526a11ac6a47c5bb089005c"
+                "reference": "86dc9731b8320f49e9be9ad6d8e4de9b8b0e9b8b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ergebnis/composer-normalize/zipball/40d5d91df9e6b6bf9526a11ac6a47c5bb089005c",
-                "reference": "40d5d91df9e6b6bf9526a11ac6a47c5bb089005c",
+                "url": "https://api.github.com/repos/ergebnis/composer-normalize/zipball/86dc9731b8320f49e9be9ad6d8e4de9b8b0e9b8b",
+                "reference": "86dc9731b8320f49e9be9ad6d8e4de9b8b0e9b8b",
                 "shasum": ""
             },
             "require": {
@@ -3048,7 +3048,7 @@
             "extra": {
                 "class": "Ergebnis\\Composer\\Normalize\\NormalizePlugin",
                 "branch-alias": {
-                    "dev-main": "2.44-dev"
+                    "dev-main": "2.49-dev"
                 },
                 "plugin-optional": true,
                 "composer-normalize": {
@@ -3085,7 +3085,7 @@
                 "security": "https://github.com/ergebnis/composer-normalize/blob/main/.github/SECURITY.md",
                 "source": "https://github.com/ergebnis/composer-normalize"
             },
-            "time": "2025-09-01T05:44:15+00:00"
+            "time": "2025-09-06T11:42:34+00:00"
         },
         {
             "name": "ergebnis/json",
@@ -4394,16 +4394,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.35",
+            "version": "11.5.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "d341ee94ee5007b286fc7907b383aae6b5b3cc91"
+                "reference": "264a87c7ef68b1ab9af7172357740dc266df5957"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d341ee94ee5007b286fc7907b383aae6b5b3cc91",
-                "reference": "d341ee94ee5007b286fc7907b383aae6b5b3cc91",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/264a87c7ef68b1ab9af7172357740dc266df5957",
+                "reference": "264a87c7ef68b1ab9af7172357740dc266df5957",
                 "shasum": ""
             },
             "require": {
@@ -4475,7 +4475,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.35"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.36"
             },
             "funding": [
                 {
@@ -4499,20 +4499,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-28T05:13:54+00:00"
+            "time": "2025-09-03T06:24:17+00:00"
         },
         {
             "name": "rector/rector",
-            "version": "2.1.4",
+            "version": "2.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "fe613c528819222f8686a9a037a315ef9d4915b3"
+                "reference": "729aabc0ec66e700ef164e26454a1357f222a2f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/fe613c528819222f8686a9a037a315ef9d4915b3",
-                "reference": "fe613c528819222f8686a9a037a315ef9d4915b3",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/729aabc0ec66e700ef164e26454a1357f222a2f3",
+                "reference": "729aabc0ec66e700ef164e26454a1357f222a2f3",
                 "shasum": ""
             },
             "require": {
@@ -4551,7 +4551,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.1.4"
+                "source": "https://github.com/rectorphp/rector/tree/2.1.6"
             },
             "funding": [
                 {
@@ -4559,7 +4559,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-15T14:41:36+00:00"
+            "time": "2025-09-05T15:43:08+00:00"
         },
         {
             "name": "sebastian/cli-parser",
