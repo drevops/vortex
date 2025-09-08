@@ -99,4 +99,23 @@ class File extends UpstreamFile {
     });
   }
 
+  /**
+   * Convert a path to a relative path.
+   *
+   * @param string $path
+   *   The path to convert.
+   * @param string|null $base
+   *   The base path to resolve relative paths against. If NULL, the current
+   *   working directory is used.
+   *
+   * @return string
+   *   The relative path.
+   */
+  public static function toRelative(string $path, ?string $base = NULL): string {
+    $base = $base ?? (string) getcwd();
+    $absolute = static::absolute($path, $base);
+
+    return str_replace($base . DIRECTORY_SEPARATOR, '', $absolute);
+  }
+
 }
