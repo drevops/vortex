@@ -24,7 +24,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
-use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
@@ -181,7 +180,6 @@ class PromptManager {
 
       ->intro('Documentation')
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class)), PreserveDocsProject::id())
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsOnboarding::class)), PreserveDocsOnboarding::id())
 
       ->intro('AI')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id());
@@ -243,7 +241,6 @@ class PromptManager {
       Dotenv::id(),
       Webroot::id(),
       AiCodeInstructions::id(),
-      PreserveDocsOnboarding::id(),
       PreserveDocsProject::id(),
       LabelMergeConflictsPr::id(),
       AssignAuthorPr::id(),
@@ -387,7 +384,6 @@ class PromptManager {
 
     $values['Documentation'] = Tui::LIST_SECTION_TITLE;
     $values['Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
-    $values['Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
     $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];

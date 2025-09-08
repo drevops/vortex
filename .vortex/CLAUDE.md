@@ -408,10 +408,6 @@ Content that gets removed if user doesn't select this feature
 
 - `!DB_DOWNLOAD_SOURCE_NONE` - Negated token, removes content when NO database download source is selected
 
-**Documentation**:
-
-- `DOCS_ONBOARDING` - Onboarding documentation sections
-
 **Provisioning**:
 
 - `!PROVISION_TYPE_PROFILE` - Negated token for non-profile provision types

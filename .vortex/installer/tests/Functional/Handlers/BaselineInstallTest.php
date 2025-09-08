@@ -20,7 +20,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
-use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
@@ -52,7 +51,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Name::class)]
 #[CoversClass(Org::class)]
 #[CoversClass(OrgMachineName::class)]
-#[CoversClass(PreserveDocsOnboarding::class)]
 #[CoversClass(PreserveDocsProject::class)]
 #[CoversClass(Profile::class)]
 #[CoversClass(ProvisionType::class)]

@@ -991,34 +991,6 @@ assert_files_present_no_integration_renovatebot() {
   popd >/dev/null || exit 1
 }
 
-assert_files_present_onboarding() {
-  local dir="${1:-$(pwd)}"
-  local suffix="${2:-star_wars}"
-
-  pushd "${dir}" >/dev/null || exit 1
-
-  assert_file_contains "docs/README.md" "Onboarding"
-  assert_file_contains "README.md" "Onboarding"
-
-  assert_file_exists "docs/onboarding.md"
-
-  popd >/dev/null || exit 1
-}
-
-assert_files_present_no_onboarding() {
-  local dir="${1:-$(pwd)}"
-  local suffix="${2:-star_wars}"
-
-  pushd "${dir}" >/dev/null || exit 1
-
-  assert_file_not_contains "docs/README.md" "Onboarding"
-  assert_file_not_contains "README.md" "Onboarding"
-
-  assert_file_not_exists "docs/onboarding.md"
-
-  popd >/dev/null || exit 1
-}
-
 assert_webpage_contains() {
   path="${1}"
   content="${2}"
