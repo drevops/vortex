@@ -21,7 +21,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
-use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
@@ -140,7 +139,6 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
-      PreserveDocsOnboarding::id() => TRUE,
       AiCodeInstructions::id() => AiCodeInstructions::NONE,
     ];
   }
@@ -156,7 +154,6 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
       PreserveDocsProject::id() => FALSE,
-      PreserveDocsOnboarding::id() => FALSE,
     ];
     return $overrides + static::getExpectedDefaults();
   }
@@ -209,7 +206,6 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       AssignAuthorPr::id() => static::TUI_DEFAULT,
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
-      PreserveDocsOnboarding::id() => static::TUI_DEFAULT,
       AiCodeInstructions::id() => static::TUI_DEFAULT,
     ];
   }

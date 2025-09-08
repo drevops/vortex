@@ -16,7 +16,7 @@
  
  ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
  
-@@ -24,9 +24,9 @@
+@@ -19,9 +19,9 @@
  
  ## Environments
  
