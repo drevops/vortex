@@ -70,6 +70,14 @@ class Webroot extends AbstractHandler {
     }
 
     $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
+    if (!empty($v)) {
+      try {
+        $v = File::toRelative($v, $this->dstDir);
+      }
+      catch (\Exception) {
+        $v = NULL;
+      }
+    }
 
     if (!empty($v)) {
       return $v;
