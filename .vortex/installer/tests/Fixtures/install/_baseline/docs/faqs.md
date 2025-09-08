@@ -56,6 +56,8 @@ Use the same commands to debug CLI scripts.
 
 To disable, run `ahoy up`.
 
+See https://www.vortextemplate.com/docs/tools/xdebug for more details.
+
 ## How to use Xdebug on Behat scripts?
 
 1. Enable debugging: `ahoy debug`
@@ -63,7 +65,7 @@ To disable, run `ahoy up`.
 3. Run Behat tests:
 
 ```bash
-vendor/bin/behat path/to/test.feature
+vendor/bin/behat --xdebug path/to/test.feature
 ```
 
 ## What should I do to switch to a "clean" branch environment?
@@ -74,8 +76,10 @@ Provided that your stack is already running:
 2. `composer install`
 3. `ahoy provision`
 
-Note that you do not need to rebuild the full stack using `ahoy build` every
-time.
+You do not need to rebuild the full stack using `ahoy build` every
+time you switch branches. `ahoy provision` will update the environment
+to match the current branch.
+
 However, sometimes you would want to have an absolutely clean environment - in
 that case, use `ahoy build`.
 
@@ -104,7 +108,8 @@ composer require drupal/module_name
    "extra": {
        "patches": {
            "drupal/somepackage": {
-               "Patch description": "https://www.drupal.org/files/issues/issue.patch"
+               "Remote patch description": "https://www.drupal.org/files/issues/issue.patch"
+               "Local patch description": "patches/package-description.patch"
            }
        }
    }
@@ -120,20 +125,25 @@ See https://www.vortextemplate.com/docs/workflows/development#working-with-compo
 
 ## How to set a custom maintenance theme?
 
-To set a custom theme for Drupal's maintenance mode (when the site is offline for updates), set the `DRUPAL_MAINTENANCE_THEME` environment variable:
+To set a custom theme for Drupal's maintenance mode (when the site is offline
+for updates), set the `DRUPAL_MAINTENANCE_THEME` environment variable:
 
 ```bash
 # In .env file
 DRUPAL_MAINTENANCE_THEME=my_custom_theme
 ```
 
-This theme will be used when Drupal is in maintenance mode. If `DRUPAL_MAINTENANCE_THEME` is not set, the system will fall back to using the value of `DRUPAL_THEME`.
+This theme will be used when Drupal is in maintenance mode. If
+`DRUPAL_MAINTENANCE_THEME` is not set, the system will fall back to using the
+value of `DRUPAL_THEME`.
 
-The maintenance theme should be a valid Drupal theme that is already installed and enabled on your site.
+The maintenance theme should be a valid Drupal theme that is already installed
+and enabled on your site.
 
 ## Behat tests with `@javascript` tag sometimes get stuck
 
-Behat tests with `@javascript` tag sometimes get stuck for about 10min then fail.
+Behat tests with `@javascript` tag sometimes get stuck for about 10min then
+fail.
 The Chrome container randomly get stuck for an unknown reason.
 
 Restart the Chrome container: `docker compose restart chrome`
