@@ -126,7 +126,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Theme::id() => 'myproject',
       CodeProvider::id() => CodeProvider::GITHUB,
       Timezone::id() => 'UTC',
-      Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
+      Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
       Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT],
       HostingProvider::id() => HostingProvider::NONE,
       Webroot::id() => Webroot::WEB,

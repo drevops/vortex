@@ -170,7 +170,7 @@ The installer uses a **baseline + diff** system for managing test fixtures:
 ├── _baseline/                  # Complete template files
 ├── services_no_clamav/         # Diff: removes ClamAV-related content
 ├── services_no_solr/           # Diff: removes Solr-related content
-├── services_no_valkey/         # Diff: removes Redis/Valkey content
+├── services_no_redis/          # Diff: removes Redis content
 ├── services_none/              # Diff: removes all services
 ├── hosting_acquia/             # Diff: Acquia-specific modifications
 ├── hosting_lagoon/             # Diff: Lagoon-specific modifications
@@ -381,7 +381,7 @@ Content that gets removed if user doesn't select this feature
 
 - `SERVICE_CLAMAV` - ClamAV virus scanning
 - `SERVICE_SOLR` - Solr search engine
-- `SERVICE_VALKEY` - Valkey/Redis caching
+- `SERVICE_REDIS` - Redis caching
 
 **CI Providers**:
 

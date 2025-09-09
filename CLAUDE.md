@@ -327,22 +327,22 @@ ahoy drush search-api:server-status
 
 [//]: # (#;> SERVICE_SOLR)
 
-[//]: # (#;< SERVICE_VALKEY)
+[//]: # (#;< SERVICE_REDIS)
 
-### Valkey/Redis Caching Service
+### Redis Caching Service
 
 ```bash
-# Clear all caches (includes Valkey/Redis)
+# Clear all caches (includes Redis)
 ahoy drush cache:rebuild
 
-# Check Redis/Valkey connection status
+# Check Redis connection status
 ahoy drush php:script -- redis_status
 
 # Flush Redis cache specifically
 ahoy drush eval "\\Drupal::service('cache.backend.redis')->deleteAll();"
 ```
 
-[//]: # (#;> SERVICE_VALKEY)
+[//]: # (#;> SERVICE_REDIS)
 
 [//]: # (#;< SERVICE_CLAMAV)
 

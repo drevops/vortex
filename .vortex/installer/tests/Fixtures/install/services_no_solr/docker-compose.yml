@@ -1,5 +1,5 @@
 @@ -149,23 +149,6 @@
-   valkey:
+   redis:
      image: uselagoon/valkey-8:__VERSION__
  
 -  solr:

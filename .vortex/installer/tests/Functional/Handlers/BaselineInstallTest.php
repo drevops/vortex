@@ -100,7 +100,7 @@ class BaselineInstallTest extends AbstractInstallTestCase {
             // Test overriding scalar value.
             PromptManager::makeEnvName(Org::id()) => 'My other custom org',
             // Test overriding array value.
-            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::VALKEY],
+            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::REDIS],
           ]);
           $test->installOptions['config'] = $config_string;
         }),

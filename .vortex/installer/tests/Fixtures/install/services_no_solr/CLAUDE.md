@@ -288,13 +288,13 @@ foreach ($nodes as $node) {
 
 ## Service Integrations
 
-### Valkey/Redis Caching Service
+### Redis Caching Service
 
 ```bash
-# Clear all caches (includes Valkey/Redis)
+# Clear all caches (includes Redis)
 ahoy drush cache:rebuild
 
-# Check Redis/Valkey connection status
+# Check Redis connection status
 ahoy drush php:script -- redis_status
 
 # Flush Redis cache specifically

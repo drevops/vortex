@@ -1,4 +1,4 @@
-@@ -180,7 +180,6 @@
+@@ -179,7 +179,6 @@
      cmd: |
        ahoy lint-be
        ahoy lint-fe
@@ -6,7 +6,7 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -200,8 +199,6 @@
+@@ -199,8 +198,6 @@
    lint-tests:
      usage: Lint tests code.
      cmd: |
@@ -15,7 +15,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -227,7 +224,6 @@
+@@ -226,7 +223,6 @@
        ahoy test-unit
        ahoy test-kernel
        ahoy test-functional
@@ -23,7 +23,7 @@
  
    test-unit:
      usage: Run PHPUnit unit tests.
-@@ -240,11 +236,6 @@
+@@ -239,11 +235,6 @@
    test-functional:
      usage: Run PHPUnit functional tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
