@@ -71,6 +71,19 @@ for more details.
 
 See [Features](https://www.vortextemplate.com/docs/getting-started/features) for more details.
 
+## Roadmap
+
+Check out upcoming features and bug fixes in the project boards:
+
+- [Project development board](https://github.com/orgs/drevops/projects/2/views/1)
+- [Project planning board](https://github.com/orgs/drevops/projects/2/views/3)
+
+Releases are planned to occur **monthly**. However, adjustments to the release schedule may be necessary
+depending on the scope of features and the volume of bug fixes required.
+
+We recommend subscribing for
+releases and keeping your stack [updated](https://www.vortextemplate.com/docs/workflows/updating-vortex) with each new version.
+
 ## Documentation
 
 The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://www.vortextemplate.com](https://www.vortextemplate.com) on Vortex release.
