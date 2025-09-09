@@ -662,6 +662,14 @@ assert_ahoy_test_bdd() {
   assert_success
   sync_to_host
   assert_dir_not_empty .logs/screenshots
+
+  substep "Assert screenshot metadata is present"
+  assert_file_exists .logs/screenshots/behat-test-screenshot.html
+  assert_file_contains .logs/screenshots/behat-test-screenshot.html "Current URL: http://nginx:8080/"
+  assert_file_contains .logs/screenshots/behat-test-screenshot.html "Feature: Behat configuration"
+  assert_file_contains .logs/screenshots/behat-test-screenshot.html "Step: save screenshot with name"
+  assert_file_contains .logs/screenshots/behat-test-screenshot.html "Datetime:"
+
   rm -rf .logs/screenshots/*
   ahoy cli rm -rf /app/.logs/screenshots/*
   assert_dir_not_empty .logs/test_results
