@@ -19,23 +19,23 @@ class ServicesInstallTest extends AbstractInstallTestCase {
     return [
       'services, no clamav' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::VALKEY]));
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::REDIS]));
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
 
-      'services, no valkey' => [
+      'services, no redis' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]));
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['valkey', 'redis'])),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('redis')),
       ],
 
       'services, no solr' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::VALKEY]));
+          Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::REDIS]));
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['solr', '_search'])),
@@ -46,7 +46,7 @@ class ServicesInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('clamav');
           $test->assertSutNotContains('solr');
-          $test->assertSutNotContains(['valkey', 'redis']);
+          $test->assertSutNotContains('redis');
         }),
       ],
 

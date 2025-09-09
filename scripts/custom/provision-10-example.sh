@@ -42,10 +42,10 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   task "Installing contrib modules."
   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy
 
-  #;< SERVICE_VALKEY
+  #;< SERVICE_REDIS
   task "Installing Redis module."
   drush pm:install redis || true
-  #;> SERVICE_VALKEY
+  #;> SERVICE_REDIS
 
   #;< SERVICE_CLAMAV
   task "Installing and configuring ClamAV."

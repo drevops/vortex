@@ -2,7 +2,7 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
--  # Valkey integration flag.
+-  # Redis integration flag.
 -  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
  
  # The default user under which the containers should run.
@@ -11,7 +11,7 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
--  valkey:
+-  redis:
 -    image: uselagoon/valkey-8:__VERSION__
 -
 -  solr:
@@ -52,8 +52,8 @@
 -      - clamav
        - cli
        - database
--      - valkey
--    command: database:3306 clamav:3310 valkey:6379
+-      - redis
+-    command: database:3306 clamav:3310 redis:6379
 +    command: database:3306
  
  networks:           ### Use external networks locally. Automatically removed in CI.

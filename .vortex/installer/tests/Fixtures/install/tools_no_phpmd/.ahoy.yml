@@ -1,4 +1,4 @@
-@@ -188,7 +188,6 @@
+@@ -187,7 +187,6 @@
        ahoy cli vendor/bin/phpcs
        ahoy cli vendor/bin/phpstan
        ahoy cli vendor/bin/rector --clear-cache --dry-run

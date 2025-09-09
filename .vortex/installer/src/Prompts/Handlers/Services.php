@@ -11,7 +11,7 @@ class Services extends AbstractHandler {
 
   const CLAMAV = 'clamav';
 
-  const VALKEY = 'valkey';
+  const REDIS = 'redis';
 
   const SOLR = 'solr';
 
@@ -36,7 +36,7 @@ class Services extends AbstractHandler {
     return [
       self::CLAMAV => 'ClamAV',
       self::SOLR => 'Solr',
-      self::VALKEY => 'Valkey',
+      self::REDIS => 'Redis',
     ];
   }
 
@@ -44,7 +44,7 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return [self::CLAMAV, self::SOLR, self::VALKEY];
+    return [self::CLAMAV, self::REDIS, self::SOLR];
   }
 
   /**
@@ -72,8 +72,8 @@ class Services extends AbstractHandler {
       $services[] = self::SOLR;
     }
 
-    if (isset($dc['services']['valkey'])) {
-      $services[] = self::VALKEY;
+    if (isset($dc['services']['redis'])) {
+      $services[] = self::REDIS;
     }
 
     sort($services);
@@ -103,11 +103,11 @@ class Services extends AbstractHandler {
       File::removeTokenAsync('SERVICE_SOLR');
     }
 
-    if (in_array(self::VALKEY, $v)) {
-      File::removeTokenAsync('!SERVICE_VALKEY');
+    if (in_array(self::REDIS, $v)) {
+      File::removeTokenAsync('!SERVICE_REDIS');
     }
     else {
-      File::removeTokenAsync('SERVICE_VALKEY');
+      File::removeTokenAsync('SERVICE_REDIS');
     }
 
     if (!in_array(self::CLAMAV, $v)) {
@@ -146,11 +146,11 @@ class Services extends AbstractHandler {
       }
     }
 
-    if (!in_array(self::VALKEY, $v)) {
-      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/valkey');
-      @unlink($t . DIRECTORY_SEPARATOR . '.docker/valkey.dockerfile');
+    if (!in_array(self::REDIS, $v)) {
+      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/redis');
+      @unlink($t . DIRECTORY_SEPARATOR . '.docker/redis.dockerfile');
       @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
-      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'valkey:6379', '');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'redis:6379', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
       @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }
