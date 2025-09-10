@@ -70,6 +70,10 @@ class WorkflowInstallDbTest extends FunctionalTestCase {
 
     $this->stepAhoyExportDb();
 
+    $this->stepAhoyExportDb('mydb.sql');
+
+    $this->stepAhoyImportDb('.data/mydb.sql');
+
     $this->stepAhoyProvision();
 
     $this->stepAhoyLint();

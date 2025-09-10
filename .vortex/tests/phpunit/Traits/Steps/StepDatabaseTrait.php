@@ -14,27 +14,32 @@ trait StepDatabaseTrait {
 
   use LoggerTrait;
 
-  protected function stepAhoyExportDb(string $file = 'mydb.sql'): void {
+  protected function stepAhoyExportDb(string $filename = ''): void {
     $this->logStepStart();
 
     $this->logSubstep('Testing ahoy export-db command');
-    $this->processRun('ahoy export-db ' . $file);
+    $this->processRun('ahoy export-db', $filename !== '' ? ['file' => $filename] : []);
     $this->assertProcessSuccessful();
     $this->assertProcessOutputNotContains('Containers are not running.');
 
     $this->syncToHost();
 
     $this->logSubstep('Verify export file was created');
-    $this->assertFileExists('.data/' . $file, 'Export file should exist after export');
+    if ($filename !== '' && $filename !== '0') {
+      $this->assertFileExists('.data/' . $filename, 'Export file should exist after export');
+    }
+    else {
+      $this->assertFilesWildcardExists('.data/export_db_*');
+    }
 
     $this->logStepFinish();
   }
 
-  protected function stepAhoyImportDb(): void {
+  protected function stepAhoyImportDb(string $filename = ''): void {
     $this->logStepStart();
 
     $this->logSubstep('Testing ahoy import-db command');
-    $this->processRun('ahoy import-db');
+    $this->processRun('ahoy import-db', $filename !== '' && $filename !== '0' ? ['file' => $filename] : []);
     $this->assertProcessSuccessful();
     $this->assertProcessOutputContains('Provisioning site from the database dump file.');
     $this->assertProcessOutputNotContains("Running deployment operations via 'drush deploy:hook'.");
