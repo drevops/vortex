@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a356b89a7ca54f18b8c57b25e28c78c5",
+    "content-hash": "da38ba76341c22e5643c729f98d5c600",
     "packages": [],
     "packages-dev": [
         {
@@ -131,16 +131,16 @@
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.8.4",
+            "version": "0.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "0064df99be8f7b7146d8d69bd6ff9ea7a2e8395d"
+                "reference": "c7e4fae71086cc28cf9fdf95994471c79fda528a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/0064df99be8f7b7146d8d69bd6ff9ea7a2e8395d",
-                "reference": "0064df99be8f7b7146d8d69bd6ff9ea7a2e8395d",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/c7e4fae71086cc28cf9fdf95994471c79fda528a",
+                "reference": "c7e4fae71086cc28cf9fdf95994471c79fda528a",
                 "shasum": ""
             },
             "require": {
@@ -194,7 +194,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-05T06:52:25+00:00"
+            "time": "2025-09-10T19:10:45+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",
