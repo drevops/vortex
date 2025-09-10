@@ -134,16 +134,20 @@ class FunctionalTestCase extends UnitTestCase {
    * @param string|array $patterns
    *   Wildcard pattern(s) to match files against.
    */
-  protected function assertFilesWildcardExists($patterns): void {
+  protected function assertFilesWildcardExists(string|array $patterns): void {
     $patterns = is_array($patterns) ? $patterns : [$patterns];
 
     if (empty($patterns)) {
-      $this->assertTrue(TRUE, 'Empty pattern array - no files to check');
-      return;
+      throw new \InvalidArgumentException('Empty patterns - no files to check');
     }
 
     foreach ($patterns as $pattern) {
       $matches = glob($pattern);
+
+      if ($matches === FALSE) {
+        throw new \RuntimeException(sprintf('Failed to read files matching wildcard pattern: %s', $pattern));
+      }
+
       $this->assertNotEmpty(
         $matches,
         sprintf('No files found matching wildcard pattern: %s', $pattern)
@@ -157,16 +161,20 @@ class FunctionalTestCase extends UnitTestCase {
    * @param string|array $patterns
    *   Wildcard pattern(s) to match files against.
    */
-  protected function assertFilesWildcardDoNotExist($patterns): void {
+  protected function assertFilesWildcardDoNotExist(string|array $patterns): void {
     $patterns = is_array($patterns) ? $patterns : [$patterns];
 
     if (empty($patterns)) {
-      $this->assertTrue(TRUE, 'Empty pattern array - no files to check');
-      return;
+      throw new \InvalidArgumentException('Empty patterns - no files to check');
     }
 
     foreach ($patterns as $pattern) {
       $matches = glob($pattern);
+
+      if ($matches === FALSE) {
+        throw new \RuntimeException(sprintf('Failed to read files matching wildcard pattern: %s', $pattern));
+      }
+
       $this->assertEmpty(
         $matches,
         sprintf('Found %d file(s) matching wildcard pattern that should not exist: %s', count($matches), $pattern)

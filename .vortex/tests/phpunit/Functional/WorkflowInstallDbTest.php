@@ -49,7 +49,6 @@ class WorkflowInstallDbTest extends FunctionalTestCase {
     $this->stepAhoyLogin();
 
     // State-less tests.
-
     $this->assertFilesTrackedInGit();
 
     $this->stepAhoyCli();

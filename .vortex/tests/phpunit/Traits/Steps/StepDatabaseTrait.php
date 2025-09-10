@@ -47,7 +47,6 @@ trait StepDatabaseTrait {
     $this->logStepStart();
 
     // Phase 1.
-
     $this->logSubstep('Run initial provision');
     $this->processRun('ahoy provision');
     $this->assertProcessSuccessful();
@@ -63,7 +62,6 @@ trait StepDatabaseTrait {
     $this->syncToHost();
 
     // Phase 2.
-
     $this->logSubstep('Dump database');
     $this->processRun('ahoy export-db db.sql');
     $this->assertProcessSuccessful();
@@ -94,7 +92,6 @@ trait StepDatabaseTrait {
     $this->assertProcessOutputContains('Different');
 
     // Phase 3.
-
     $this->logSubstep('Run provision with exported config files different to DB');
     $this->processRun('ahoy provision');
     $this->assertProcessSuccessful();
@@ -105,7 +102,6 @@ trait StepDatabaseTrait {
     $this->assertProcessOutputContains('Import the listed configuration changes');
 
     // Phase 4.
-
     $this->logSubstep('Drop database to test that provision works without DB');
     $this->processRun('ahoy drush sql:drop -y');
     $this->assertProcessSuccessful();

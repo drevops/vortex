@@ -135,7 +135,7 @@ trait GitTrait {
 
     $commits = $this->gitGetAllCommits($path);
 
-    array_walk($range, static function (&$v): void {
+    array_walk($range, static function (int &$v): void {
       --$v;
     });
 

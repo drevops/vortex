@@ -62,7 +62,8 @@ trait StepEnvironmentTrait {
     $this->assertProcessOutputContains('my_custom_var_value');
     $this->assertProcessSuccessful();
 
-    // Restore file, apply changes and assert that original behaviour has been restored.
+    // Restore file, apply changes and assert that original behaviour has been
+    // restored.
     $this->restoreFile('.env');
     $this->processRun('ahoy up cli');
     $this->syncToContainer();
@@ -107,7 +108,8 @@ trait StepEnvironmentTrait {
     $this->processRun('docker compose exec database date');
     $this->assertProcessOutputContains('AWST');
 
-    // Restore file, apply changes and assert that original behaviour has been restored.
+    // Restore file, apply changes and assert that original behaviour has been
+    // restored.
     $this->restoreFile('.env');
     $this->syncToContainer();
     $this->processRun('ahoy up');
@@ -120,7 +122,8 @@ trait StepEnvironmentTrait {
     $this->logStepStart();
 
     $this->logSubstep('Enable debug');
-    // Assert that Xdebug is disabled by default from the inside of the container.
+    // Assert that Xdebug is disabled by default from the inside of the
+    // container.
     $this->processRun('ahoy cli "php -v | grep Xdebug"');
     $this->assertProcessFailed();
 
@@ -254,7 +257,7 @@ trait StepEnvironmentTrait {
   }
 
   protected function addVarToFile(string $file, string $var, string $value): void {
-    // Backup original file first
+    // Backup original file first.
     $this->backupFile($file);
     $content = File::read($file);
     $content .= sprintf('%s%s=%s%s', PHP_EOL, $var, $value, PHP_EOL);
@@ -294,7 +297,7 @@ trait StepEnvironmentTrait {
   }
 
   protected function assertFilesPresent(string $webroot): void {
-    // Use existing method from base class with correct signature
+    // Use existing method from base class with correct signature.
     $this->assertCommonFilesPresent($webroot);
   }
 

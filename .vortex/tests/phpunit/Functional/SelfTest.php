@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\AssertionFailedError;
 use AlexSkrypnyk\File\File;
 
 /**
  * Test the testing system itself.
- *
- * @group smoke
  */
-#[\PHPUnit\Framework\Attributes\Group('smoke')]
+#[Group('smoke')]
+#[Group('smoke')]
 class SelfTest extends FunctionalTestCase {
 
   protected function setUp(): void {
@@ -36,12 +38,12 @@ class SelfTest extends FunctionalTestCase {
   /**
    * Test assertFilesWildcardExists method.
    */
-  #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderAssertFilesWildcardExists')]
-  public function testAssertFilesWildcardExists($patterns, bool $should_pass): void {
+  #[DataProvider('dataProviderAssertFilesWildcardExists')]
+  public function testAssertFilesWildcardExists(string|array $patterns, bool $should_pass): void {
     // Convert relative patterns to absolute paths.
     $workspace = static::$workspace;
     if (is_array($patterns)) {
-      $patterns = array_map(function ($pattern) use ($workspace) {
+      $patterns = array_map(function (string $pattern) use ($workspace): string {
         return $workspace . DIRECTORY_SEPARATOR . $pattern;
       }, $patterns);
     }
@@ -53,7 +55,7 @@ class SelfTest extends FunctionalTestCase {
       $this->assertFilesWildcardExists($patterns);
     }
     else {
-      $this->expectException(\PHPUnit\Framework\AssertionFailedError::class);
+      $this->expectException(AssertionFailedError::class);
       $this->assertFilesWildcardExists($patterns);
     }
   }
@@ -65,27 +67,27 @@ class SelfTest extends FunctionalTestCase {
     return [
       'single pattern exists' => [
         'wildcard_test/*.html',
-        true,
+        TRUE,
       ],
       'single pattern not exists' => [
         'wildcard_test/*.xml',
-        false,
+        FALSE,
       ],
       'array patterns all exist' => [
         ['wildcard_test/*.html', 'wildcard_test/*.log'],
-        true,
+        TRUE,
       ],
       'array patterns mixed' => [
         ['wildcard_test/*.html', 'wildcard_test/*.xml'],
-        false,
+        FALSE,
       ],
       'subdirectory pattern' => [
         'wildcard_test/*/*.html',
-        true,
+        TRUE,
       ],
       'empty array' => [
         [],
-        true,
+        TRUE,
       ],
     ];
   }
@@ -93,12 +95,12 @@ class SelfTest extends FunctionalTestCase {
   /**
    * Test assertFilesWildcardDoNotExist method.
    */
-  #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderAssertFilesWildcardDoNotExist')]
-  public function testAssertFilesWildcardDoNotExist($patterns, bool $should_pass): void {
+  #[DataProvider('dataProviderAssertFilesWildcardDoNotExist')]
+  public function testAssertFilesWildcardDoNotExist(string|array $patterns, bool $should_pass): void {
     // Convert relative patterns to absolute paths.
     $workspace = static::$workspace;
     if (is_array($patterns)) {
-      $patterns = array_map(function ($pattern) use ($workspace) {
+      $patterns = array_map(function (string $pattern) use ($workspace): string {
         return $workspace . DIRECTORY_SEPARATOR . $pattern;
       }, $patterns);
     }
@@ -110,7 +112,7 @@ class SelfTest extends FunctionalTestCase {
       $this->assertFilesWildcardDoNotExist($patterns);
     }
     else {
-      $this->expectException(\PHPUnit\Framework\AssertionFailedError::class);
+      $this->expectException(AssertionFailedError::class);
       $this->assertFilesWildcardDoNotExist($patterns);
     }
   }
@@ -122,23 +124,23 @@ class SelfTest extends FunctionalTestCase {
     return [
       'single pattern not exists' => [
         'wildcard_test/*.xml',
-        true,
+        TRUE,
       ],
       'single pattern exists' => [
         'wildcard_test/*.html',
-        false,
+        FALSE,
       ],
       'array patterns none exist' => [
         ['wildcard_test/*.xml', 'wildcard_test/*.php'],
-        true,
+        TRUE,
       ],
       'array patterns some exist' => [
         ['wildcard_test/*.xml', 'wildcard_test/*.html'],
-        false,
+        FALSE,
       ],
       'empty array' => [
         [],
-        true,
+        TRUE,
       ],
     ];
   }

@@ -45,7 +45,6 @@ trait StepTestingTrait {
     $this->assertProcessSuccessful();
 
     // @todo Add restoring of the file.
-
     $this->logStepFinish();
   }
 
@@ -204,8 +203,8 @@ trait StepTestingTrait {
   protected function stepAhoyTestBddFast(string $webroot = 'web'): void {
     $this->logStepStart();
 
-    // Sometimes, tests fail for random reasons. A workaround is to run BDD tests
-    // to "cache" the environment and then run the tests again.
+    // Sometimes, tests fail for random reasons. A workaround is to run BDD
+    // tests to "cache" the environment and then run the tests again.
     $this->processRun('ahoy test-bdd || true');
 
     $this->logSubstep('Run all BDD tests');
@@ -232,8 +231,8 @@ trait StepTestingTrait {
 
     $this->logSubstep('Run all BDD tests');
 
-    // Sometimes, tests fail for random reasons. A workaround is to run BDD tests
-    // to "cache" the environment and then run the tests again.
+    // Sometimes, tests fail for random reasons. A workaround is to run BDD
+    // tests to "cache" the environment and then run the tests again.
     $this->processRun('ahoy test-bdd || true');
 
     $this->processRun('ahoy test-bdd', timeout: 120, idle_timeout: 90);
@@ -298,7 +297,8 @@ trait StepTestingTrait {
   protected function trimFile(string $file): void {
     $content = File::read($file);
     $lines = explode("\n", $content);
-    array_pop($lines); // Remove last line
+    // Remove last line.
+    array_pop($lines);
     File::dump($file, implode("\n", $lines));
   }
 
