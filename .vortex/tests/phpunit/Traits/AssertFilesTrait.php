@@ -300,6 +300,8 @@ trait AssertFilesTrait {
     // Assert that Drupal Scaffold files were added to the git repository.
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
+    $this->gitAssertFilesNotTracked($webroot . '/robots.txt');
+    $this->gitAssertFilesNotTracked($webroot . '/update.txt');
 
     // Assert that lock files were added to the git repository.
     $this->gitAssertFilesTracked('composer.lock');
@@ -316,10 +318,11 @@ trait AssertFilesTrait {
     $this->gitAssertFilesNotTracked($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css');
     $this->gitAssertFilesNotTracked($webroot . '/themes/custom/star_wars/build/js/star_wars.js');
 
-    $this->removeDevelopmentDrupalSettings($webroot);
+    $this->removeLocalDrupalSettings($webroot);
   }
 
   protected function createDevelopmentDrupalSettings(string $webroot = 'web'): void {
+    $this->logSubstep('Create local settings');
     Assert::assertFileExists($webroot . '/sites/default/example.settings.local.php');
     Assert::assertFileExists($webroot . '/sites/default/example.services.local.yml');
 
@@ -330,10 +333,11 @@ trait AssertFilesTrait {
     Assert::assertFileExists($webroot . '/sites/default/services.local.yml');
   }
 
-  protected function removeDevelopmentDrupalSettings(string $webroot = 'web'): void {
+  protected function removeLocalDrupalSettings(string $webroot = 'web'): void {
+    $this->logSubstep('Remove local settings');
     File::remove([
-      $webroot . '/sites/default/example.settings.local.php',
-      $webroot . '/sites/default/example.services.local.yml',
+      $webroot . '/sites/default/settings.local.php',
+      $webroot . '/sites/default/services.local.yml',
     ]);
   }
 
