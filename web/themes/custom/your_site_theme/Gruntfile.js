@@ -84,7 +84,7 @@ module.exports = function (grunt) {
         options: {
           implementation: require('sass'),
           sourceMap: true,
-          outputStyle: 'expanded'
+          style: 'expanded'
         }
       },
       prod: {
