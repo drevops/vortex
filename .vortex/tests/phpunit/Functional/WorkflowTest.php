@@ -76,26 +76,39 @@ class WorkflowTest extends FunctionalTestCase {
     $this->assertProcessSuccessful();
 
     $this->logSubstep('Building stack with docker compose');
-    $this->processRun('docker compose up -d --build --force-recreate', timeout: 15 * 60);
+    $this->processRun('docker compose build --no-cache', timeout: 15 * 60);
     $this->assertProcessSuccessful();
+    $this->processRun('docker compose up -d --force-recreate', timeout: 15 * 60);
+    $this->assertProcessSuccessful();
+
+    $this->syncToHost();
 
     $this->logSubstep('Installing dependencies with composer');
     $this->processRun('docker compose exec -T cli composer install --prefer-dist', timeout: 10 * 60);
     $this->assertProcessSuccessful();
+    $this->processRun('docker compose exec -T cli yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} install --frozen-lockfile', timeout: 10 * 60);
+    $this->assertProcessSuccessful();
 
     $this->logSubstep('Provisioning with direct script execution');
+
     if (!$this->volumesMounted() && file_exists('.data/db.sql')) {
-      $this->logSubstep('Copying database file to container');
+      $this->logNote('Copying database file to container');
       $this->processRun('docker compose exec cli mkdir -p .data');
       $this->assertProcessSuccessful();
       $this->processRun('docker compose cp -L .data/db.sql cli:/app/.data/db.sql');
       $this->assertProcessSuccessful();
+      $this->logNote('Installing front-end dependencies on host');
+      $this->processRun('docker compose exec -T cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"');
+      $this->assertProcessSuccessful();
     }
+
     $this->processRun('docker compose exec -T cli ./scripts/vortex/provision.sh', timeout: 10 * 60);
     $this->assertProcessSuccessful();
 
     $this->syncToHost();
+
     $this->assertFilesTrackedInGit();
+
     $this->stepTestBdd();
   }
 
