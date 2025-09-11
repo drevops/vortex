@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da38ba76341c22e5643c729f98d5c600",
+    "content-hash": "612fdc9548a46c100c72d38090aa6067",
     "packages": [],
     "packages-dev": [
         {
@@ -131,16 +131,16 @@
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.9.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "c7e4fae71086cc28cf9fdf95994471c79fda528a"
+                "reference": "15ce793597963c06e31df24479f5d4dd62af3d1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/c7e4fae71086cc28cf9fdf95994471c79fda528a",
-                "reference": "c7e4fae71086cc28cf9fdf95994471c79fda528a",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/15ce793597963c06e31df24479f5d4dd62af3d1b",
+                "reference": "15ce793597963c06e31df24479f5d4dd62af3d1b",
                 "shasum": ""
             },
             "require": {
@@ -160,6 +160,7 @@
                 "squizlabs/php_codesniffer": "^3.7",
                 "symfony/console": "^6.4 || ^7.2"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -194,7 +195,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-10T19:10:45+00:00"
+            "time": "2025-09-11T03:42:01+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",
@@ -4163,7 +4164,9 @@
     ],
     "aliases": [],
     "minimum-stability": "alpha",
-    "stability-flags": {},
+    "stability-flags": {
+        "alexskrypnyk/phpunit-helpers": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
