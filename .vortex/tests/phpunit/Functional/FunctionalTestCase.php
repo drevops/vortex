@@ -52,6 +52,12 @@ class FunctionalTestCase extends UnitTestCase {
     $is_verbose = !empty(getenv('TEST_VORTEX_DEBUG')) || static::isDebug();
     $this->processStreamOutput = $is_verbose;
     $this->loggerSetVerbose(TRUE);
+
+    static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
+
+    chdir(static::$sut);
+
+    $this->stepPrepareSut();
   }
 
   protected function tearDown(): void {

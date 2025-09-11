@@ -135,12 +135,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "15ce793597963c06e31df24479f5d4dd62af3d1b"
+                "reference": "25d709126172eb376aa0977e5fdd3f66d772afdd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/15ce793597963c06e31df24479f5d4dd62af3d1b",
-                "reference": "15ce793597963c06e31df24479f5d4dd62af3d1b",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/25d709126172eb376aa0977e5fdd3f66d772afdd",
+                "reference": "25d709126172eb376aa0977e5fdd3f66d772afdd",
                 "shasum": ""
             },
             "require": {
@@ -195,7 +195,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-11T03:42:01+00:00"
+            "time": "2025-09-11T04:41:45+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",

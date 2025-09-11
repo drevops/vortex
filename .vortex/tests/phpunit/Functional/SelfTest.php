@@ -13,7 +13,6 @@ use AlexSkrypnyk\File\File;
  * Test the testing system itself.
  */
 #[Group('smoke')]
-#[Group('smoke')]
 class SelfTest extends FunctionalTestCase {
 
   protected function setUp(): void {
@@ -39,7 +38,7 @@ class SelfTest extends FunctionalTestCase {
    * Test assertFilesWildcardExists method.
    */
   #[DataProvider('dataProviderAssertFilesWildcardExists')]
-  public function testAssertFilesWildcardExists(string|array $patterns, bool $should_pass): void {
+  public function testAssertFilesWildcardExists(string|array $patterns, bool $should_pass, ?string $expected_exception = NULL, ?string $expected_message = NULL): void {
     // Convert relative patterns to absolute paths.
     $workspace = static::$workspace;
     if (is_array($patterns)) {
@@ -55,7 +54,14 @@ class SelfTest extends FunctionalTestCase {
       $this->assertFilesWildcardExists($patterns);
     }
     else {
-      $this->expectException(AssertionFailedError::class);
+      if (!is_string($expected_exception) || !class_exists($expected_exception)) {
+        throw new \RuntimeException('Expected a string, got a ' . gettype($expected_exception));
+      }
+      /** @var class-string<\Throwable> $expected_exception */
+      $this->expectException($expected_exception);
+      if ($expected_message !== NULL) {
+        $this->expectExceptionMessage($expected_message);
+      }
       $this->assertFilesWildcardExists($patterns);
     }
   }
@@ -72,6 +78,8 @@ class SelfTest extends FunctionalTestCase {
       'single pattern not exists' => [
         'wildcard_test/*.xml',
         FALSE,
+        AssertionFailedError::class,
+        'No files found matching wildcard pattern',
       ],
       'array patterns all exist' => [
         ['wildcard_test/*.html', 'wildcard_test/*.log'],
@@ -80,6 +88,8 @@ class SelfTest extends FunctionalTestCase {
       'array patterns mixed' => [
         ['wildcard_test/*.html', 'wildcard_test/*.xml'],
         FALSE,
+        AssertionFailedError::class,
+        'No files found matching wildcard pattern',
       ],
       'subdirectory pattern' => [
         'wildcard_test/*/*.html',
@@ -87,7 +97,9 @@ class SelfTest extends FunctionalTestCase {
       ],
       'empty array' => [
         [],
-        TRUE,
+        FALSE,
+        \InvalidArgumentException::class,
+        'Empty patterns - no files to check',
       ],
     ];
   }
@@ -96,7 +108,7 @@ class SelfTest extends FunctionalTestCase {
    * Test assertFilesWildcardDoNotExist method.
    */
   #[DataProvider('dataProviderAssertFilesWildcardDoNotExist')]
-  public function testAssertFilesWildcardDoNotExist(string|array $patterns, bool $should_pass): void {
+  public function testAssertFilesWildcardDoNotExist(string|array $patterns, bool $should_pass, ?string $expected_exception = NULL, ?string $expected_message = NULL): void {
     // Convert relative patterns to absolute paths.
     $workspace = static::$workspace;
     if (is_array($patterns)) {
@@ -112,7 +124,14 @@ class SelfTest extends FunctionalTestCase {
       $this->assertFilesWildcardDoNotExist($patterns);
     }
     else {
-      $this->expectException(AssertionFailedError::class);
+      if (!is_string($expected_exception) || !class_exists($expected_exception)) {
+        throw new \RuntimeException('Expected a string, got a ' . gettype($expected_exception));
+      }
+      /** @var class-string<\Throwable> $expected_exception */
+      $this->expectException($expected_exception);
+      if ($expected_message !== NULL) {
+        $this->expectExceptionMessage($expected_message);
+      }
       $this->assertFilesWildcardDoNotExist($patterns);
     }
   }
@@ -129,6 +148,8 @@ class SelfTest extends FunctionalTestCase {
       'single pattern exists' => [
         'wildcard_test/*.html',
         FALSE,
+        AssertionFailedError::class,
+        'Found 2 file(s) matching wildcard pattern that should not exist',
       ],
       'array patterns none exist' => [
         ['wildcard_test/*.xml', 'wildcard_test/*.php'],
@@ -137,10 +158,14 @@ class SelfTest extends FunctionalTestCase {
       'array patterns some exist' => [
         ['wildcard_test/*.xml', 'wildcard_test/*.html'],
         FALSE,
+        AssertionFailedError::class,
+        'Found 2 file(s) matching wildcard pattern that should not exist',
       ],
       'empty array' => [
         [],
-        TRUE,
+        FALSE,
+        \InvalidArgumentException::class,
+        'Empty patterns - no files to check',
       ],
     ];
   }

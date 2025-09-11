@@ -24,20 +24,9 @@ class WorkflowInstallDbTest extends FunctionalTestCase {
   use StepTestingTrait;
 
   protected function setUp(): void {
-    static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
-
     parent::setUp();
 
-    chdir(static::$sut);
-
-    $this->stepPrepareSut();
     $this->stepDownloadDb();
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-
-    static::logSection('TEST DONE | ' . $this->name(), double_border: TRUE);
   }
 
   /**
