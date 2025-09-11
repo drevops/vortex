@@ -252,11 +252,12 @@ jobs:
         run: docker compose up -d
 
       - name: Export built codebase
-        if: matrix.instance == 0 && contains(env.VORTEX_DEPLOY_TYPES, 'artifact')
+        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         run: |
-          mkdir -p "/tmp/workspace/code"
+          mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
           docker compose cp -L cli:"/app/." "/tmp/workspace/code"
-          du -sh "/tmp/workspace/code"
+          tar -C /tmp/workspace -cpf /tmp/artifacts/code.tar code
+          du -sh "/tmp/artifacts"
 
       - name: Install development dependencies
         run: |
@@ -378,12 +379,12 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Upload exported codebase as artifact
+      - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
-          path: "/tmp/workspace/code"
+          path: "/tmp/artifacts/code.tar"
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 1
@@ -433,7 +434,13 @@ jobs:
         if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
-          path: "/tmp/workspace/code"
+          path: "/tmp/artifacts"
+
+      - name: Unpack downloaded exported codebase
+        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        run: |
+          mkdir -p /tmp/workspace
+          tar -xpf /tmp/artifacts/code.tar -C /tmp/workspace
 
       - name: Add SSH private key to the runner
         if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
