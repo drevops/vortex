@@ -23,8 +23,7 @@ trait StepFrontendTrait {
     $this->syncToContainer();
 
     $this->logSubstep('Install Node modules');
-    $this->processRun('ahoy fei');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy fei');
     $this->syncToHost();
     $this->assertDirectoryExists($webroot . '/themes/custom/star_wars/node_modules');
 
@@ -49,7 +48,7 @@ trait StepFrontendTrait {
     File::dump($variables_file, $new_content);
 
     $this->syncToContainer();
-    $this->processRun('ahoy fe');
+    $this->cmd('ahoy fe');
     $this->syncToHost();
     // Assets compiled for production are minified (no spaces between
     // properties and their values).
@@ -64,7 +63,7 @@ trait StepFrontendTrait {
     File::dump($variables_file, $dev_content);
 
     $this->syncToContainer();
-    $this->processRun('ahoy fed');
+    $this->cmd('ahoy fed');
     $this->syncToHost();
     // Note that assets compiled for development are not minified (contains
     // spaces between properties and their values).

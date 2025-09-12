@@ -44,10 +44,10 @@ trait StepPrepareSutTrait {
 
     if (!is_dir('.vortex/installer/vendor')) {
       $this->log('Installing dependencies of the Vortex installer');
-      $this->processRun('composer --working-dir=.vortex/installer install');
+      $this->cmd('composer --working-dir=.vortex/installer install');
     }
 
-    $this->processRun('php .vortex/installer/installer.php --no-interaction ' . static::locationsSut(), $arguments, env: [
+    $this->cmd('php .vortex/installer/installer.php --no-interaction ' . static::locationsSut(), arg: $arguments, env: [
       // Force the installer script to be downloaded from the local repo for
       // testing.
       'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
@@ -67,7 +67,6 @@ trait StepPrepareSutTrait {
       // the installer script downloads the Vortex codebase for processing.
       'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
     ]);
-    $this->assertProcessSuccessful();
 
     // Switch to the SUT directory after the installer has run.
     chdir(static::locationsSut());

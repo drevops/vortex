@@ -17,9 +17,7 @@ trait StepServicesTrait {
     $this->logStepStart();
 
     $this->logSubstep('Testing Solr service connectivity');
-    $this->processRun('ahoy cli curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json"');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('response');
+    $this->cmd('ahoy cli curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json"', 'response');
 
     $this->logStepFinish();
   }
@@ -28,27 +26,23 @@ trait StepServicesTrait {
     $this->logStepStart();
 
     $this->logSubstep('Redis service is running');
-    $this->processRun('ahoy flush-redis');
-    $this->assertProcessOutputContains('OK');
+    $this->cmd('ahoy flush-redis', 'OK');
 
     $this->logSubstep('Disable Redis integration');
     $this->addVarToFile('.env', 'DRUPAL_REDIS_ENABLED', '0');
     $this->syncToContainer();
 
-    $this->processRun('ahoy up');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy up');
     sleep(10);
-    $this->processRun('ahoy flush-redis');
+    $this->cmd('ahoy flush-redis');
 
     $this->logSubstep('Assert that Redis integration is not working');
-    $this->processRun('ahoy drush cr');
-    $this->processRun('ahoy cli curl -L -s "http://nginx:8080" >/dev/null');
-    $this->processRun('docker compose exec redis redis-cli --scan');
-    $this->assertProcessOutputNotContains('config');
+    $this->cmd('ahoy drush cr');
+    $this->cmd('ahoy cli curl -L -s -f "http://nginx:8080" >/dev/null');
+    $this->cmd('docker compose exec -T redis redis-cli --scan', '! config');
 
     $this->logSubstep('Assert that Redis is not connected in Drupal');
-    $this->processRun('docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity');
-    $this->assertProcessOutputContains('Warning');
+    $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'Warning');
 
     $this->restoreFile('.env');
     $this->syncToContainer();
@@ -57,26 +51,22 @@ trait StepServicesTrait {
     $this->addVarToFile('.env', 'DRUPAL_REDIS_ENABLED', '1');
     $this->syncToContainer();
 
-    $this->processRun('ahoy up');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy up');
     sleep(10);
-    $this->processRun('ahoy flush-redis');
+    $this->cmd('ahoy flush-redis');
 
     $this->logSubstep('Assert that Redis integration is working');
-    $this->processRun('ahoy drush cr');
-    $this->processRun('ahoy cli curl -L -s "http://nginx:8080" >/dev/null');
-    $this->processRun('docker compose exec redis redis-cli --scan');
-    $this->assertProcessOutputContains('config');
+    $this->cmd('ahoy drush cr');
+    $this->cmd('ahoy cli curl -L -s -f "http://nginx:8080" >/dev/null');
+    $this->cmd('docker compose exec -T redis redis-cli --scan', 'config');
 
     $this->logSubstep('Assert that Redis is connected in Drupal');
-    $this->processRun('docker compose exec cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity');
-    $this->assertProcessOutputContains('OK');
+    $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'OK');
 
     $this->logSubstep('Cleanup after test');
     $this->restoreFile('.env');
     $this->syncToContainer();
-    $this->processRun('ahoy up cli');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy up cli');
 
     $this->logStepFinish();
   }

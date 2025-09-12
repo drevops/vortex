@@ -18,8 +18,7 @@ trait StepEnvironmentTrait {
     $this->logStepStart();
 
     $this->logSubstep('Testing git tracking behavior');
-    $this->processRun('git status --porcelain');
-    $this->assertProcessSuccessful();
+    $this->cmd('git status --porcelain');
 
     $this->logSubstep('Assert scaffold files are tracked');
     $this->assertFileExists('.gitignore', 'Gitignore file should exist');
@@ -35,17 +34,14 @@ trait StepEnvironmentTrait {
     $this->assertFileNotContainsString('my_custom_var_value', '.env');
 
     // Assert that test variable is not available inside of containers.
-    $this->processRun('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
-    $this->assertProcessFailed();
+    $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
 
     // Assert that test value is not available inside of containers.
-    $this->processRun('ahoy cli \'echo $MY_CUSTOM_VAR | grep -q my_custom_var_value\'');
-    $this->assertProcessFailed();
-    $this->assertProcessOutputNotContains('my_custom_var_value');
+    $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep -q my_custom_var_value\'', '! my_custom_var_value');
 
     // Add variable to the .env file and apply the change to container.
     $this->addVarToFile('.env', 'MY_CUSTOM_VAR', 'my_custom_var_value');
-    $this->processRun('ahoy up cli');
+    $this->cmd('ahoy up cli');
     $this->syncToContainer();
 
     // Assert that .env contains test values.
@@ -53,28 +49,21 @@ trait StepEnvironmentTrait {
     $this->assertFileContainsString('my_custom_var_value', '.env');
 
     // Assert that test variable and values are available inside of containers.
-    $this->processRun('ahoy cli "printenv | grep MY_CUSTOM_VAR"');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('my_custom_var_value');
+    $this->cmd('ahoy cli "printenv | grep MY_CUSTOM_VAR"', 'my_custom_var_value');
 
     // Assert that test variable and value are available inside of containers.
-    $this->processRun('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'');
-    $this->assertProcessOutputContains('my_custom_var_value');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', 'my_custom_var_value');
 
     // Restore file, apply changes and assert that original behaviour has been
     // restored.
     $this->restoreFile('.env');
-    $this->processRun('ahoy up cli');
+    $this->cmd('ahoy up cli');
     $this->syncToContainer();
 
     $this->assertFileNotContainsString('MY_CUSTOM_VAR', '.env');
     $this->assertFileNotContainsString('my_custom_var_value', '.env');
-    $this->processRun('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
-    $this->assertProcessFailed();
-    $this->processRun('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'');
-    $this->assertProcessFailed();
-    $this->assertProcessOutputNotContains('my_custom_var_value');
+    $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
+    $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', '! my_custom_var_value');
 
     $this->logStepFinish();
   }
@@ -85,34 +74,26 @@ trait StepEnvironmentTrait {
     // Assert that .env contains a default value.
     // Note that AEDT changes to AEST during winter.
     $this->assertFileContainsString('TZ=UTC', '.env');
-    $this->processRun('docker compose exec cli date');
-    $this->assertProcessOutputContains('UTC');
-    $this->processRun('docker compose exec php date');
-    $this->assertProcessOutputContains('UTC');
-    $this->processRun('docker compose exec nginx date');
-    $this->assertProcessOutputContains('UTC');
-    $this->processRun('docker compose exec database date');
-    $this->assertProcessOutputContains('UTC');
+    $this->cmd('docker compose exec -T cli date', 'UTC');
+    $this->cmd('docker compose exec -T php date', 'UTC');
+    $this->cmd('docker compose exec -T nginx date', 'UTC');
+    $this->cmd('docker compose exec -T database date', 'UTC');
 
     // Add variable to the .env file and apply the change to container.
     $this->addVarToFile('.env', 'TZ', '"Australia/Perth"');
     $this->syncToContainer();
-    $this->processRun('ahoy up');
+    $this->cmd('ahoy up');
 
-    $this->processRun('docker compose exec cli date');
-    $this->assertProcessOutputContains('AWST');
-    $this->processRun('docker compose exec php date');
-    $this->assertProcessOutputContains('AWST');
-    $this->processRun('docker compose exec nginx date');
-    $this->assertProcessOutputContains('AWST');
-    $this->processRun('docker compose exec database date');
-    $this->assertProcessOutputContains('AWST');
+    $this->cmd('docker compose exec -T cli date', 'AWST');
+    $this->cmd('docker compose exec -T php date', 'AWST');
+    $this->cmd('docker compose exec -T nginx date', 'AWST');
+    $this->cmd('docker compose exec -T database date', 'AWST');
 
     // Restore file, apply changes and assert that original behaviour has been
     // restored.
     $this->restoreFile('.env');
     $this->syncToContainer();
-    $this->processRun('ahoy up');
+    $this->cmd('ahoy up');
     sleep(10);
 
     $this->logStepFinish();
@@ -124,54 +105,33 @@ trait StepEnvironmentTrait {
     $this->logSubstep('Enable debug');
     // Assert that Xdebug is disabled by default from the inside of the
     // container.
-    $this->processRun('ahoy cli "php -v | grep Xdebug"');
-    $this->assertProcessFailed();
+    $this->cmdFail('ahoy cli "php -v | grep Xdebug"');
 
     // Assert info correctly shown from the outside of the container.
-    $this->processRun('ahoy info');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Xdebug');
-    $this->assertProcessOutputContains('Disabled');
-    $this->assertProcessOutputNotContains('Enabled');
+    $this->cmd('ahoy info', ['* Xdebug', '* Disabled', '! Enabled']);
 
     // Enable debugging.
-    $this->processRun('ahoy debug');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy debug', ['* Enabled debug', '* reat']);
     // Assert that the stack has restarted.
     // Using "reat" from "Create" or "Creating".
-    $this->assertProcessErrorOutputContains('reat');
-    $this->assertProcessOutputContains('Enabled debug');
-
     // Assert that Xdebug is enabled from the inside of the container.
-    $this->processRun('ahoy cli "php -v | grep Xdebug"');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy cli "php -v | grep Xdebug"');
 
     // Assert info correctly shown from the outside of the container.
-    $this->processRun('ahoy info');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputNotContains('Disabled');
-    $this->assertProcessOutputContains('Enabled');
+    $this->cmd('ahoy info', ['! Disabled', '* Enabled']);
 
     // Assert that command when debugging is enabled does not restart the stack.
-    $this->processRun('ahoy debug');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Enabled debug');
+    $this->cmd('ahoy debug', 'Enabled debug');
 
     $this->logSubstep('Disable debug');
     // Assert that restarting the stack does not have Xdebug enabled.
-    $this->processRun('ahoy up');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy up');
 
     // Assert that Xdebug is disabled from the inside of the container.
-    $this->processRun('ahoy cli "php -v | grep Xdebug"');
-    $this->assertProcessFailed();
+    $this->cmdFail('ahoy cli "php -v | grep Xdebug"');
 
     // Assert info correctly shown from the outside of the container.
-    $this->processRun('ahoy info');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Xdebug');
-    $this->assertProcessOutputContains('Disabled');
-    $this->assertProcessOutputNotContains('Enabled');
+    $this->cmd('ahoy info', ['* Xdebug', '* Disabled', '! Enabled']);
 
     $this->logStepFinish();
   }
@@ -189,8 +149,7 @@ trait StepEnvironmentTrait {
     File::mkdir('.logs/screenshots');
     $this->assertDirectoryExists('.logs/screenshots');
 
-    $this->processRun('ahoy reset');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy reset');
     sleep(10);
 
     // Assert that initial Vortex files have not been removed.
@@ -232,8 +191,7 @@ trait StepEnvironmentTrait {
     File::mkdir('.logs/screenshots');
     $this->assertDirectoryExists('.logs/screenshots');
 
-    $this->processRun('ahoy reset hard');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy reset hard');
     sleep(10);
 
     $this->assertCommonFilesPresent($webroot);
@@ -290,9 +248,11 @@ trait StepEnvironmentTrait {
   }
 
   protected function removeDevelopmentSettings(string $webroot = 'web'): void {
-    File::remove($webroot . '/sites/default/settings.local.php');
+    File::remove([
+      $webroot . '/sites/default/settings.local.php',
+      $webroot . '/sites/default/services.local.yml',
+    ]);
     $this->assertFileDoesNotExist($webroot . '/sites/default/settings.local.php');
-    File::remove($webroot . '/sites/default/services.local.yml');
     $this->assertFileDoesNotExist($webroot . '/sites/default/services.local.yml');
   }
 

@@ -21,15 +21,7 @@ trait StepBuildTrait {
 
     $this->logSubstep('Starting ahoy build');
 
-    $this->processRun(
-      'ahoy build',
-      inputs: ['y'],
-      env: array_merge($this->getDefaultBuildEnv(), $env),
-      timeout: 10 * 60,
-      idle_timeout: 60
-    );
-    $this->logSubstep('Finished ahoy build');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy build', txt: 'Finished ahoy build', inp: ['y'], env: array_merge($this->getDefaultBuildEnv(), $env), tio: 10 * 60, ito: 60);
     $this->syncToHost();
 
     $this->logSubstep('Assert that lock files were created');
@@ -67,15 +59,14 @@ trait StepBuildTrait {
 
     $this->logSubstep('Starting ahoy build (expecting failure)');
 
-    $this->processRun(
+    $this->cmdFail(
       'ahoy build',
-      inputs: ['y'],
+      txt: 'Finished ahoy build (expected to fail)',
+      inp: ['y'],
       env: array_merge($this->getDefaultBuildEnv(), $env),
-      timeout: 10 * 60,
-      idle_timeout: 60
+      tio: 10 * 60,
+      ito: 60
     );
-    $this->logSubstep('Finished ahoy build (expected to fail)');
-    $this->assertProcessFailed();
 
     $this->logStepFinish();
   }

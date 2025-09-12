@@ -26,10 +26,9 @@ trait StepDownloadDbTrait {
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
 
     $this->logSubstep('Downloading demo database from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST);
-    $this->processRun('ahoy download-db', env: [
+    $this->cmd('ahoy download-db', env: [
       'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
     ]);
-    $this->assertProcessSuccessful();
 
     $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after downloading the database.');
 
