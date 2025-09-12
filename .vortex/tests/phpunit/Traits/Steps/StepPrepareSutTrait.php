@@ -91,7 +91,9 @@ trait StepPrepareSutTrait {
     if (File::exists('docker-compose.yml')) {
       $this->logSubstep('Fixing host dependencies in docker-compose.yml');
       File::removeLine('docker-compose.yml', '###');
-      File::replaceContent('docker-compose.yml', '##', '');
+      $this->assertFileNotContainsString('###', 'docker-compose.yml', 'Lines with ### should be removed from docker-compose.yml');
+      File::replaceContentInFile('docker-compose.yml', '##', '');
+      $this->assertFileNotContainsString('##', 'docker-compose.yml', 'Lines with ## should be removed from docker-compose.yml');
     }
 
     if (file_exists('.ahoy.yml')) {

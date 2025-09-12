@@ -66,8 +66,6 @@ class FunctionalTestCase extends UnitTestCase {
     parent::tearDown();
 
     $this->processTearDown();
-
-    static::logStepSummary();
   }
 
   public function fixtureExportCodebase(string $src, string $dst): void {
