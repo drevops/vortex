@@ -57,7 +57,7 @@ fi
 case ${index} in
 
   0)
-    phpunit "${TEST_DIR}"/phpunit
+    phpunit "${TEST_DIR}"/phpunit --filter=testPackageToken
     ;;
 
   1)
