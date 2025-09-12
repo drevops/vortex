@@ -86,19 +86,19 @@ class WorkflowTest extends FunctionalTestCase {
     $this->logSubstep('Installing dependencies with composer');
     $this->processRun('docker compose exec -T cli composer install --prefer-dist', timeout: 10 * 60);
     $this->assertProcessSuccessful();
-    $this->processRun('docker compose exec -T cli yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} install --frozen-lockfile', timeout: 10 * 60);
+    $this->processRun('docker compose exec -T cli bash -lc "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} install --frozen-lockfile"', timeout: 10 * 60);
     $this->assertProcessSuccessful();
 
     $this->logSubstep('Provisioning with direct script execution');
 
     if (!$this->volumesMounted() && file_exists('.data/db.sql')) {
       $this->logNote('Copying database file to container');
-      $this->processRun('docker compose exec cli mkdir -p .data');
+      $this->processRun('docker compose exec -T cli mkdir -p .data');
       $this->assertProcessSuccessful();
       $this->processRun('docker compose cp -L .data/db.sql cli:/app/.data/db.sql');
       $this->assertProcessSuccessful();
-      $this->logNote('Installing front-end dependencies on host');
-      $this->processRun('docker compose exec -T cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"');
+      $this->logNote('Building front-end assets in container');
+      $this->processRun('docker compose exec -T cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"', timeout: 10 * 60);
       $this->assertProcessSuccessful();
     }
 

@@ -301,7 +301,7 @@ trait AssertFilesTrait {
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
     $this->gitAssertFilesNotTracked($webroot . '/robots.txt');
-    $this->gitAssertFilesNotTracked($webroot . '/update.txt');
+    $this->gitAssertFilesNotTracked($webroot . '/update.php');
 
     // Assert that lock files were added to the git repository.
     $this->gitAssertFilesTracked('composer.lock');

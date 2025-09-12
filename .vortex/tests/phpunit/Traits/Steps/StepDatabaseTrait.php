@@ -18,7 +18,7 @@ trait StepDatabaseTrait {
     $this->logStepStart();
 
     $this->logSubstep('Testing ahoy export-db command');
-    $this->processRun('ahoy export-db', $filename !== '' ? ['file' => $filename] : []);
+    $this->processRun('ahoy export-db', $filename !== '' ? [$filename] : []);
     $this->assertProcessSuccessful();
     $this->assertProcessOutputNotContains('Containers are not running.');
 
@@ -39,7 +39,7 @@ trait StepDatabaseTrait {
     $this->logStepStart();
 
     $this->logSubstep('Testing ahoy import-db command');
-    $this->processRun('ahoy import-db', $filename !== '' && $filename !== '0' ? ['file' => $filename] : []);
+    $this->processRun('ahoy import-db', $filename !== '' && $filename !== '0' ? [$filename] : []);
     $this->assertProcessSuccessful();
     $this->assertProcessOutputContains('Provisioning site from the database dump file.');
     $this->assertProcessOutputNotContains("Running deployment operations via 'drush deploy:hook'.");

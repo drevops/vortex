@@ -40,7 +40,7 @@ trait StepServicesTrait {
     sleep(10);
     $this->processRun('ahoy flush-redis');
 
-    $this->logSubstep('Assert that Redis integration is working');
+    $this->logSubstep('Assert that Redis integration is not working');
     $this->processRun('ahoy drush cr');
     $this->processRun('ahoy cli curl -L -s "http://nginx:8080" >/dev/null');
     $this->processRun('docker compose exec redis redis-cli --scan');
