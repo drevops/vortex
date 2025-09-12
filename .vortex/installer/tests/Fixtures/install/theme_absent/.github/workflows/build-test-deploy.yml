@@ -1,4 +1,4 @@
-@@ -293,11 +293,6 @@
+@@ -294,11 +294,6 @@
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  

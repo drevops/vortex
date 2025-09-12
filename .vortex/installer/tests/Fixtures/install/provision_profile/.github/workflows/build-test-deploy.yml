@@ -16,8 +16,8 @@
 -    if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
  
 -    container:
+-      # https://hub.docker.com/r/drevops/ci-runner
 -      image: drevops/ci-runner:__VERSION__
--
 -      env:
 -        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 -        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -43,10 +43,10 @@
 -      - name: Check out code
 -        uses: actions/checkout@__HASH__ # __VERSION__
 -        with:
--          # Do not keep SSH credentials after checkout to allow custom.
+-          # Do not keep SSH credentials after checkout to allow adding custom SSH keys.
 -          persist-credentials: false
 -
--      - name: Add SSH private key to the runner
+-      - name: Add SSH private key used to download database
 -        if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
 -        uses: shimataro/ssh-key-action@__VERSION__
 -        with:
@@ -118,8 +118,8 @@
 -    if: ${{ github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
  
      strategy:
-       matrix:
-@@ -170,14 +67,6 @@
+       # A matrix to run multiple jobs in parallel.
+@@ -171,14 +68,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -134,7 +134,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -196,29 +85,6 @@
+@@ -197,29 +86,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -164,11 +164,11 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -370,7 +236,6 @@
+@@ -371,7 +237,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: build
 -    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
  
      container:
-       image: drevops/ci-runner:__VERSION__
+       # https://hub.docker.com/r/drevops/ci-runner

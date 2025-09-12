@@ -1,0 +1,10 @@
+@@ -125,6 +125,9 @@
+           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
+         timeout-minutes: 30
++        env:
++          VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
++          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
+ 
+       - name: Export DB
+         run: |

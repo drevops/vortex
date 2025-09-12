@@ -26,6 +26,12 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
     // @codeCoverageIgnoreEnd
   }
 
+  // Set the config sync directory to a `config_vcs_directory`, but still
+  // allow overriding it with the DRUPAL_CONFIG_PATH environment variable.
+  if (!empty($settings['config_vcs_directory'])) {
+    $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: $settings['config_vcs_directory'];
+  }
+
   // Default all environments to 'dev', including ODE environments.
   $settings['environment'] = ENVIRONMENT_DEV;
 
