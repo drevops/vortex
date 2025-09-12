@@ -57,8 +57,8 @@ jobs:
     if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
 
     container:
+      # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
-
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -84,10 +84,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
-          # Do not keep SSH credentials after checkout to allow custom.
+          # Do not keep SSH credentials after checkout to allow adding custom SSH keys.
           persist-credentials: false
 
-      - name: Add SSH private key to the runner
+      - name: Add SSH private key used to download database
         if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@v2
         with:
@@ -120,17 +120,22 @@ jobs:
         uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: .data
-          key: v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.8.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
           # Fallback to caching by default branch name only. Allows to use
           # cache from the branch build on the previous day.
           restore-keys: |
-            v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+            v25.8.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 
       - name: Download DB
         run: |
           VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
         timeout-minutes: 30
+        #;< DB_DOWNLOAD_SOURCE_ACQUIA
+        env:
+          VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
+          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
+        #;> DB_DOWNLOAD_SOURCE_ACQUIA
 
       - name: Export DB
         run: |
@@ -151,7 +156,7 @@ jobs:
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
-          key: v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.8.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
   #;> !PROVISION_TYPE_PROFILE
 
   build:
@@ -162,13 +167,14 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     strategy:
+      # A matrix to run multiple jobs in parallel.
       matrix:
         instance: [0, 1]
       fail-fast: false
 
     container:
+      # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
-
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -215,7 +221,7 @@ jobs:
           date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
-        run: echo 'v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+        run: echo 'v25.8.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
       # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
@@ -227,9 +233,9 @@ jobs:
           path: .data
           fail-on-cache-miss: true
           # Use cached database from previous builds of this branch.
-          key: v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v25.8.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            v25.8.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+            v25.8.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Login to container registry
@@ -405,6 +411,7 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     container:
+      # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
       env:
         TZ: ${{ vars.TZ || 'UTC' }}

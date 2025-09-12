@@ -51,8 +51,8 @@ jobs:
     if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
 
     container:
+      # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:__VERSION__
-
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -78,10 +78,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
-          # Do not keep SSH credentials after checkout to allow custom.
+          # Do not keep SSH credentials after checkout to allow adding custom SSH keys.
           persist-credentials: false
 
-      - name: Add SSH private key to the runner
+      - name: Add SSH private key used to download database
         if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@__VERSION__
         with:
@@ -153,13 +153,14 @@ jobs:
     if: ${{ github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
     strategy:
+      # A matrix to run multiple jobs in parallel.
       matrix:
         instance: [0, 1]
       fail-fast: false
 
     container:
+      # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:__VERSION__
-
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -373,6 +374,7 @@ jobs:
     if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
     container:
+      # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:__VERSION__
       env:
         TZ: ${{ vars.TZ || 'UTC' }}
