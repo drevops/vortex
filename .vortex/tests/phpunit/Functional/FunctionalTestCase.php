@@ -49,7 +49,8 @@ class FunctionalTestCase extends UnitTestCase {
 
     $this->fixtureExportCodebase(static::$root, static::$repo);
 
-    $this->processStreamOutput = TRUE;
+    $is_verbose = !empty(getenv('TEST_VORTEX_DEBUG')) || static::isDebug();
+    $this->processStreamOutput = $is_verbose;
     $this->loggerSetVerbose(TRUE);
 
     static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
