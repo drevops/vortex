@@ -1,0 +1,305 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\Vortex\Tests\Traits\Steps;
+
+use AlexSkrypnyk\File\File;
+use DrevOps\Vortex\Tests\Traits\LoggerTrait;
+
+/**
+ * Provides testing operation steps (lint, test).
+ */
+trait StepTestingTrait {
+
+  use LoggerTrait;
+
+  protected function stepAhoyLint(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that lint works');
+    $this->processRun('ahoy lint', timeout: 120, idle_timeout: 90);
+    $this->assertProcessSuccessful();
+
+    $this->stepAhoyLintBe($webroot);
+    $this->stepAhoyLintFe($webroot);
+    $this->stepAhoyLintTest();
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyLintBe(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that BE lint failure works');
+    File::dump($webroot . '/modules/custom/sw_base/sw_base.module', File::read($webroot . '/modules/custom/sw_base/sw_base.module') . '$a=1;');
+    $this->syncToContainer();
+    $this->processRun('ahoy lint-be', timeout: 120, idle_timeout: 90);
+    $this->assertProcessFailed();
+
+    $this->logSubstep('Assert that BE lint tool disabling works');
+    // Replace with some valid XML element to avoid XML parsing errors.
+    File::replaceContentInFile('phpcs.xml', '<file>' . $webroot . '/modules/custom</file>', '<exclude-pattern>somefile</exclude-pattern>');
+    $this->syncToContainer();
+    $this->processRun('ahoy lint-be', timeout: 120, idle_timeout: 90);
+    $this->assertProcessSuccessful();
+
+    // @todo Add restoring of the file.
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyLintFe(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that FE lint failure works for npm lint');
+    File::dump($webroot . '/themes/custom/star_wars/scss/components/_test.scss', '.abc{margin: 0px;}');
+    $this->syncToContainer();
+    $this->processRun('ahoy lint-fe', timeout: 120, idle_timeout: 90);
+    $this->assertProcessFailed();
+    File::remove($webroot . '/themes/custom/star_wars/scss/components/_test.scss');
+    $this->processRun('ahoy cli rm -f ' . $webroot . '/themes/custom/star_wars/scss/components/_test.scss');
+    $this->syncToContainer();
+
+    $this->logSubstep('Assert that FE lint failure works for Twig CS Fixer');
+    File::dump($webroot . '/modules/custom/sw_base/templates/block/test1.twig', "{{ set a='a' }}");
+    File::dump($webroot . '/themes/custom/star_wars/templates/block/test2.twig', "{{ set b='b' }}");
+    $this->syncToContainer();
+
+    $this->processRun('ahoy lint-fe', timeout: 120, idle_timeout: 90);
+    $this->assertProcessFailed();
+
+    File::remove($webroot . '/modules/custom/sw_base/templates/block/test1.twig');
+    File::remove($webroot . '/themes/custom/star_wars/templates/block/test2.twig');
+    $this->processRun('ahoy cli rm -f ' . $webroot . '/modules/custom/sw_base/templates/block/test1.twig');
+    $this->processRun('ahoy cli rm -f ' . $webroot . '/themes/custom/star_wars/templates/block/test2.twig');
+    $this->syncToContainer();
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyLintTest(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that Test lint works for Gherkin Lint');
+    $this->processRun('ahoy lint-tests');
+    $this->assertProcessSuccessful();
+
+    $this->logSubstep('Assert that Test lint failure works for Gherkin Lint');
+    File::dump('tests/behat/features/test.feature', 'Feature:');
+    $this->syncToContainer();
+    $this->processRun('ahoy lint-tests');
+    $this->assertProcessFailed();
+    File::remove('tests/behat/features/test.feature');
+    $this->processRun('ahoy cli rm -f tests/behat/features/test.feature');
+    $this->syncToContainer();
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyTest(string $webroot = 'web', bool $is_fast = FALSE): void {
+    $this->logStepStart();
+
+    $this->stepAhoyTestUnit($webroot);
+    $this->stepAhoyTestKernel($webroot);
+    $this->stepAhoyTestFunctional($webroot);
+
+    if ($is_fast) {
+      $this->stepAhoyTestBddFast($webroot);
+    }
+    else {
+      $this->stepAhoyTestBdd($webroot);
+    }
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyTestUnit(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Run all Unit tests');
+    $this->processRun('ahoy test-unit --no-coverage');
+    $this->assertProcessSuccessful();
+    $this->assertProcessOutputContains('OK (');
+    $this->syncToHost();
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->logSubstep('Assert that Drupal Unit test failure works');
+    // Prepare failing test.
+    $unit_test_file = $webroot . '/modules/custom/sw_base/tests/src/Unit/ExampleTest.php';
+    $content = File::read($unit_test_file);
+    $content = str_replace('assertEquals', 'assertNotEquals', $content);
+    File::dump($unit_test_file, $content);
+
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/.logs/test_results/*');
+    $this->syncToContainer();
+
+    $this->processRun('ahoy test-unit');
+    $this->assertProcessFailed();
+    $this->syncToHost();
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyTestKernel(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Run all Kernel tests');
+    $this->processRun('ahoy test-kernel --no-coverage', timeout: 120, idle_timeout: 90);
+    $this->assertProcessSuccessful();
+    $this->assertProcessOutputContains('OK (');
+    $this->syncToHost();
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->logSubstep('Assert that Kernel test failure works');
+    // Prepare failing test.
+    $kernel_test_file = $webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php';
+    $content = File::read($kernel_test_file);
+    $content = str_replace('assertEquals', 'assertNotEquals', $content);
+    File::dump($kernel_test_file, $content);
+
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/.logs/test_results/*');
+    $this->syncToContainer();
+
+    $this->processRun('ahoy test-kernel', timeout: 120, idle_timeout: 90);
+    $this->assertProcessFailed();
+    $this->syncToHost();
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyTestFunctional(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Run all Functional tests');
+    $this->processRun('ahoy test-functional --no-coverage', timeout: 120, idle_timeout: 90);
+    $this->assertProcessSuccessful();
+    $this->assertProcessOutputContains('OK (');
+    $this->syncToHost();
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->logSubstep('Assert that Functional test failure works');
+    // Prepare failing test.
+    $functional_test_file = $webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php';
+    $content = File::read($functional_test_file);
+    $content = str_replace('assertEquals', 'assertNotEquals', $content);
+    File::dump($functional_test_file, $content);
+
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/.logs/test_results/*');
+    $this->syncToContainer();
+
+    $this->processRun('ahoy test-functional');
+    $this->assertProcessFailed();
+    $this->syncToHost();
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyTestBddFast(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    // Sometimes, tests fail for random reasons. A workaround is to run BDD
+    // tests to "cache" the environment and then run the tests again.
+    $this->processRun('ahoy test-bdd || true');
+
+    $this->logSubstep('Run all BDD tests');
+    $this->processRun('ahoy test-bdd');
+    $this->assertProcessSuccessful();
+
+    $this->syncToHost();
+
+    $this->assertDirectoryExists('.logs/screenshots');
+    File::remove('.logs/screenshots');
+    $this->processRun('ahoy cli rm -rf /app/.logs/screenshots/*');
+
+    $this->assertDirectoryExists('.logs/test_results');
+    $this->assertFileExists('.logs/test_results/behat/default.xml');
+
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/.logs/test_results/*');
+
+    $this->logStepFinish();
+  }
+
+  protected function stepAhoyTestBdd(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Run all BDD tests');
+
+    // Sometimes, tests fail for random reasons. A workaround is to run BDD
+    // tests to "cache" the environment and then run the tests again.
+    $this->processRun('ahoy test-bdd || true');
+
+    $this->processRun('ahoy test-bdd', timeout: 120, idle_timeout: 90);
+    $this->assertProcessSuccessful();
+    $this->syncToHost();
+    $this->assertDirectoryExists('.logs/screenshots');
+
+    $this->logSubstep('Assert that screenshots and test results are created');
+    $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
+    $this->assertFileContainsString('Current URL: http://nginx:8080/', '.logs/screenshots/behat-test-screenshot.html');
+    $this->assertFileContainsString('Feature: Behat configuration', '.logs/screenshots/behat-test-screenshot.html');
+    $this->assertFileContainsString('Step: save screenshot with name', '.logs/screenshots/behat-test-screenshot.html');
+    $this->assertFileContainsString('Datetime:', '.logs/screenshots/behat-test-screenshot.html');
+
+    File::remove('.logs/screenshots');
+    $this->processRun('ahoy cli rm -rf /app/.logs/screenshots/*');
+    $this->assertDirectoryExists('.logs/test_results');
+    $this->assertFileExists('.logs/test_results/behat/default.xml');
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/.logs/test_results/*');
+
+    $this->logSubstep('Run tagged BDD tests');
+
+    $this->processRun('ahoy test-bdd -- --tags=smoke');
+    $this->assertProcessSuccessful();
+    $this->syncToHost();
+    $this->assertDirectoryExists('.logs/test_results');
+    $this->assertFileExists('.logs/test_results/behat/default.xml');
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/test_results/*');
+    $this->assertDirectoryExists('.logs/screenshots');
+    $this->assertFilesWildcardExists('.logs/screenshots/*html');
+    $this->assertFilesWildcardExists('.logs/screenshots/*png');
+    File::remove('.logs/screenshots');
+    $this->processRun('ahoy cli rm -rf /app/.logs/screenshots/*');
+
+    $this->logSubstep('Assert that Behat tests failure works');
+    File::dump('tests/behat/features/homepage.feature', File::read('tests/behat/features/homepage.feature') . "\nAnd the path should be \"some-non-existing-page\"");
+    $this->syncToContainer();
+
+    $this->processRun('ahoy test-bdd');
+    $this->assertProcessFailed();
+    $this->syncToHost();
+    $this->assertDirectoryExists('.logs/test_results');
+    $this->assertFileExists('.logs/test_results/behat/default.xml');
+    File::remove('.logs/test_results');
+    $this->processRun('ahoy cli rm -rf /app/test_results/*');
+    $this->assertDirectoryExists('.logs/screenshots');
+    File::remove('.logs/screenshots');
+    $this->processRun('ahoy cli rm -rf /app/.logs/screenshots/*');
+
+    // Remove failing step from the feature.
+    $this->trimFile('tests/behat/features/homepage.feature');
+    $this->syncToContainer();
+    $this->restoreFile('.env');
+    $this->processRun('ahoy up cli');
+    $this->syncToContainer();
+
+    $this->logStepFinish();
+  }
+
+  protected function trimFile(string $file): void {
+    $content = File::read($file);
+    $lines = explode("\n", $content);
+    // Remove last line.
+    array_pop($lines);
+    File::dump($file, implode("\n", $lines));
+  }
+
+}

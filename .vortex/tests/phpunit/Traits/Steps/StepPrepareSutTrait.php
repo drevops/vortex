@@ -91,7 +91,9 @@ trait StepPrepareSutTrait {
     if (File::exists('docker-compose.yml')) {
       $this->logSubstep('Fixing host dependencies in docker-compose.yml');
       File::removeLine('docker-compose.yml', '###');
-      File::replaceContent('docker-compose.yml', '##', '');
+      $this->assertFileNotContainsString('###', 'docker-compose.yml', 'Lines with ### should be removed from docker-compose.yml');
+      File::replaceContentInFile('docker-compose.yml', '##', '');
+      $this->assertFileNotContainsString('##', 'docker-compose.yml', 'Lines with ## should be removed from docker-compose.yml');
     }
 
     if (file_exists('.ahoy.yml')) {
@@ -114,7 +116,7 @@ trait StepPrepareSutTrait {
       // Provision script may be called from multiple sections of the .ahoy.yml
       // file, so we need to ensure that we only modify the one in
       // the 'provision' section.
-      File::replaceContent('.ahoy.yml',
+      File::replaceContentInFile('.ahoy.yml',
         '      ahoy cli ./scripts/vortex/provision.sh',
         '      if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli ./scripts/vortex/provision.sh',
       );

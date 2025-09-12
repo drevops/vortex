@@ -11,22 +11,6 @@ use AlexSkrypnyk\File\File;
  */
 class WorkflowUtilitiesTest extends FunctionalTestCase {
 
-  protected function setUp(): void {
-    static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
-
-    parent::setUp();
-
-    chdir(static::$sut);
-
-    $this->stepPrepareSut();
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-
-    static::logSection('TEST DONE | ' . $this->name(), double_border: TRUE);
-  }
-
   /**
    * Test local Ahoy commands functionality.
    */

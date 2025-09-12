@@ -31,7 +31,9 @@ class FunctionalTestCase extends UnitTestCase {
   use GitTrait;
   use LocationsTrait;
   use LoggerTrait;
-  use ProcessTrait;
+  use ProcessTrait {
+    ProcessTrait::processRun as traitProcessRun;
+  }
   use StepBuildTrait;
   use StepDownloadDbTrait;
   use StepPrepareSutTrait;
@@ -50,6 +52,12 @@ class FunctionalTestCase extends UnitTestCase {
     $is_verbose = !empty(getenv('TEST_VORTEX_DEBUG')) || static::isDebug();
     $this->processStreamOutput = $is_verbose;
     $this->loggerSetVerbose(TRUE);
+
+    static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
+
+    chdir(static::$sut);
+
+    $this->stepPrepareSut();
   }
 
   protected function tearDown(): void {
@@ -66,6 +74,36 @@ class FunctionalTestCase extends UnitTestCase {
     chdir($src);
     shell_exec(sprintf('git archive --format=tar HEAD | (cd %s && tar -xf -)', escapeshellarg($dst)));
     chdir($current_dir);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processRun(
+    string $command,
+    array $arguments = [],
+    array $inputs = [],
+    array $env = [],
+    int $timeout = 60,
+    int $idle_timeout = 60,
+  ): Process {
+    $env += [
+      'AHOY_CONFIRM_RESPONSE' => 'y',
+      'AHOY_CONFIRM_WAIT_SKIP' => 1,
+    ];
+
+    return $this->traitProcessRun($command, $arguments, $inputs, $env, $timeout, $idle_timeout);
+  }
+
+  public function processRunInContainer(
+    string $command,
+    array $arguments = [],
+    array $inputs = [],
+    array $env = [],
+    int $timeout = 60,
+    int $idle_timeout = 30,
+  ): Process {
+    return $this->traitProcessRun('ahoy cli -- ' . $command, $arguments, $inputs, $env, $timeout, $idle_timeout);
   }
 
   public function syncToHost(): void {
@@ -86,17 +124,6 @@ class FunctionalTestCase extends UnitTestCase {
     shell_exec('docker compose cp -L . cli:/app/');
   }
 
-  public function processRunInContainer(
-    string $command,
-    array $arguments = [],
-    array $inputs = [],
-    array $env = [],
-    int $timeout = 60,
-    int $idle_timeout = 30,
-  ): Process {
-    return $this->processRun('ahoy cli -- ' . $command, $arguments, $inputs, $env, $timeout, $idle_timeout);
-  }
-
   public function volumesMounted(): bool {
     return getenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT') != 1;
   }
@@ -104,6 +131,60 @@ class FunctionalTestCase extends UnitTestCase {
   protected function assertFilesExist(string $directory, array $files): void {
     foreach ($files as $file) {
       $this->assertFileExists($directory . DIRECTORY_SEPARATOR . $file);
+    }
+  }
+
+  /**
+   * Assert that files matching wildcard pattern(s) exist.
+   *
+   * @param string|array $patterns
+   *   Wildcard pattern(s) to match files against.
+   */
+  protected function assertFilesWildcardExists(string|array $patterns): void {
+    $patterns = is_array($patterns) ? $patterns : [$patterns];
+
+    if (empty($patterns)) {
+      throw new \InvalidArgumentException('Empty patterns - no files to check');
+    }
+
+    foreach ($patterns as $pattern) {
+      $matches = glob($pattern);
+
+      if ($matches === FALSE) {
+        throw new \RuntimeException(sprintf('Failed to read files matching wildcard pattern: %s', $pattern));
+      }
+
+      $this->assertNotEmpty(
+        $matches,
+        sprintf('No files found matching wildcard pattern: %s', $pattern)
+      );
+    }
+  }
+
+  /**
+   * Assert that files matching wildcard pattern(s) do not exist.
+   *
+   * @param string|array $patterns
+   *   Wildcard pattern(s) to match files against.
+   */
+  protected function assertFilesWildcardDoNotExist(string|array $patterns): void {
+    $patterns = is_array($patterns) ? $patterns : [$patterns];
+
+    if (empty($patterns)) {
+      throw new \InvalidArgumentException('Empty patterns - no files to check');
+    }
+
+    foreach ($patterns as $pattern) {
+      $matches = glob($pattern);
+
+      if ($matches === FALSE) {
+        throw new \RuntimeException(sprintf('Failed to read files matching wildcard pattern: %s', $pattern));
+      }
+
+      $this->assertEmpty(
+        $matches,
+        sprintf('Found %d file(s) matching wildcard pattern that should not exist: %s', count($matches), $pattern)
+      );
     }
   }
 

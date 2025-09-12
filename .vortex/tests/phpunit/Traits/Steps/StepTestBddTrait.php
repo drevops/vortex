@@ -19,6 +19,8 @@ trait StepTestBddTrait {
   protected function stepTestBdd(): void {
     $this->logStepStart();
 
+    $this->stepWarmCaches();
+
     $this->logSubstep('Running all BDD tests');
     $process = $this->processRun('ahoy test-bdd');
 
@@ -41,6 +43,13 @@ trait StepTestBddTrait {
     $this->processRunInContainer('rm', ['-rf', '/app/.logs/test_results/*']);
 
     $this->logStepFinish();
+  }
+
+  protected function stepWarmCaches(): void {
+    $this->logSubstep('Warming up caches');
+    $this->processRun('ahoy drush cr');
+    $this->processRun('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080 | grep -q 200');
+    $this->assertProcessSuccessful();
   }
 
 }

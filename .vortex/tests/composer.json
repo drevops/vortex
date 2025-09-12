@@ -12,8 +12,8 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "alexskrypnyk/file": "^0.7.0",
-        "alexskrypnyk/phpunit-helpers": "^0.8.3",
+        "alexskrypnyk/file": "^0.9",
+        "alexskrypnyk/phpunit-helpers": "main-dev",
         "alexskrypnyk/shellvar": "^1.2",
         "czproject/git-php": "^4.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
@@ -38,7 +38,7 @@
             "ergebnis/composer-normalize": true
         },
         "discard-changes": true,
-        "process-timeout": 600,
+        "process-timeout": 0,
         "sort-packages": true
     },
     "scripts": {
