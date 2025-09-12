@@ -25,55 +25,173 @@ vortex/
 
 ## .vortex Directory Structure
 
-### .vortex/docs/
+The `.vortex/` directory contains **three distinct subsystems**, each with its own purpose and technology stack:
 
-- **Docusaurus-based documentation** published to https://www.vortextemplate.com
-- **MDX content system** with interactive components
-- **Multi-layered testing**: Jest (unit), E2E, and spellcheck validation
-- **Quality tools**: ESLint, Prettier, and American English standardization
-- **Custom React components** for enhanced documentation UX
+### 1. .vortex/docs/ - Documentation Website
 
-### .vortex/installer/
+**Purpose**: Public-facing documentation website for Vortex users
 
-- Self-contained Symfony console application
-- Handles Vortex installation and customization
-- **Fixture System**: Uses baseline + diff architecture
+**Technology Stack**:
 
-### .vortex/tests/
+- **Docusaurus** - Static site generator with React
+- **MDX** - Markdown with React components
+- **Jest** - Unit testing framework
+- **ESLint/Prettier** - Code quality tools
+- **cspell** - American English spellcheck validation
 
-- Unit and functional tests for Vortex
-- Uses both **PHPUnit** (functional workflows) and **BATS** (shell script unit tests)
+**Key Features**:
 
-## Testing Framework
+- Interactive documentation with custom React components
+- Published to https://www.vortextemplate.com
+- Comprehensive testing (unit tests, spellcheck, linting)
+- Multi-format content system with enhanced UX
 
-### Documentation Testing (.vortex/docs/)
+**Commands** (from `.vortex/docs/`):
 
-- **Jest-based testing** with jsdom and React Testing Library
-- **Unit tests**: React component functionality and interactions
-- **Spellcheck**: cspell validation for American English consistency
-- **Coverage reporting**: Text, lcov, HTML, and Cobertura formats
-- **Location**: `tests/unit/`
+```bash
+yarn install    # Install dependencies
+yarn start      # Development server
+yarn build      # Production build
+yarn test       # Run all tests
+yarn spellcheck # Validate spelling
+```
 
-### PHPUnit Tests (.vortex/tests/phpunit/)
+### 2. .vortex/installer/ - Template Installer
 
-- **Purpose**: Functional testing of Vortex user workflows
-- **Scope**: Processes and commands in context of Vortex installation
-- **Location**: `.vortex/tests/phpunit/`
-- **Key Files**:
-  - `Functional/WorkflowTest.php` - Main workflow testing
-  - `Functional/FunctionalTestCase.php` - Base test case
+**Purpose**: Self-contained installation system that customizes the Vortex template based on user selections
 
-### BATS Tests (.vortex/tests/bats/)
+**Technology Stack**:
 
-- **Purpose**: Unit testing of shell scripts with coverage
-- **Technology**: [Bats (Bash Automated Testing System)](https://github.com/bats-core/bats-core)
-- **Location**: `.vortex/tests/bats/`
-- **Key Files**:
-  - `provision.bats` - Tests for provision.sh script
-  - `_helper.bash` - Test helper functions
-  - `fixtures/` - Test fixture files
+- **Symfony Console** - Command-line application framework
+- **PHP** - Core programming language
+- **PHPUnit** - Testing framework for installer logic
 
-#### BATS Helpers System
+**Key Features**:
+
+- Interactive installation wizard
+- Conditional token system for template customization
+- Baseline + diff fixture architecture for testing
+- Handles all user prompts and template modifications
+
+**Architecture**:
+
+- `src/` - Installer source code (handlers, prompts, utilities)
+- `tests/Fixtures/` - Test fixtures with baseline + scenario diffs
+- `tests/Functional/` - PHPUnit tests for installation scenarios
+
+**Commands** (from `.vortex/installer/`):
+
+```bash
+composer install                    # Install dependencies
+./vendor/bin/phpunit               # Run installer tests
+UPDATE_FIXTURES=1 composer test    # Update test fixtures
+```
+
+### 3. .vortex/tests/ - Template Testing Harness
+
+**Purpose**: Comprehensive testing of the Vortex template itself through functional workflows
+
+**Technology Stack**:
+
+- **PHPUnit** - Functional testing of complete Drupal project workflows
+- **BATS** - Unit testing of individual shell scripts
+- **Bash** - Shell script testing and execution
+
+**Key Features**:
+
+- End-to-end workflow testing (build, provision, deploy)
+- Shell script unit testing with mocking capabilities
+- Real Docker container testing environment
+- Coverage reporting and performance testing
+
+**Architecture**:
+
+- `phpunit/` - Functional tests for complete workflows
+- `bats/` - Unit tests for individual shell scripts
+- `bats/fixtures/` - Test fixtures and mock data
+
+**Commands** (from `.vortex/`):
+
+```bash
+ahoy install                           # Install all dependencies
+ahoy test-bats -- tests/bats/        # Run BATS shell script tests
+cd tests && ./vendor/bin/phpunit      # Run PHPUnit workflow tests
+```
+
+## Testing Architecture Overview
+
+Vortex uses **three independent testing systems**, each serving different parts of the codebase:
+
+### 1. Documentation Tests (.vortex/docs/)
+
+**Scope**: Testing the documentation website components and content
+
+**Technology**: Jest + React Testing Library + cspell
+
+**What it Tests**:
+
+- React component functionality and interactions
+- MDX content rendering and navigation
+- American English spelling consistency
+- Documentation build processes
+
+**Test Types**:
+
+- **Unit tests**: Component behavior (`tests/unit/`)
+- **Spellcheck**: Content validation (`cspell.json`)
+- **Coverage reporting**: Multiple formats (text, lcov, HTML, Cobertura)
+
+### 2. Installer Tests (.vortex/installer/)
+
+**Scope**: Testing the template installation and customization logic
+
+**Technology**: PHPUnit + Fixture System
+
+**What it Tests**:
+
+- User prompt handling and validation
+- Template file modifications and token replacement
+- Installation scenario outcomes
+- Baseline vs customized template differences
+
+**Test Types**:
+
+- **Functional tests**: Complete installation scenarios
+- **Handler tests**: Individual prompt and modification logic
+- **Fixture tests**: Expected vs actual template output
+
+### 3. Template Tests (.vortex/tests/)
+
+**Scope**: Testing the actual Drupal template functionality
+
+**Technology**: PHPUnit + BATS
+
+**What it Tests**:
+
+- Complete Drupal project workflows (build, provision, deploy)
+- Individual shell script functionality
+- Docker container interactions
+- Real-world usage scenarios
+
+**Test Types**:
+
+- **PHPUnit Functional**: End-to-end workflow testing
+- **BATS Unit**: Individual shell script testing with mocking
+
+## Template BATS Testing System (.vortex/tests/bats/)
+
+### Overview
+
+**BATS (Bash Automated Testing System)** provides unit testing for individual shell scripts with sophisticated mocking and assertion capabilities.
+
+**Key Files**:
+
+- `provision.bats` - Tests for provision.sh script
+- `_helper.bash` - Test helper functions
+- `fixtures/` - Test fixture files
+- `unit/` - Individual script unit tests
+
+### BATS Helpers System
 
 The BATS tests use a sophisticated helper system located in `node_modules/bats-helpers/src/steps.bash` that provides:
 
@@ -106,9 +224,11 @@ mocks="$(run_steps "setup")"    # Setup phase
 run_steps "assert" "${mocks}"   # Assert phase
 ```
 
-### Running Tests
+## Running Tests by System
 
-**Documentation Tests** (`.vortex/docs/`):
+### 1. Documentation Tests (.vortex/docs/)
+
+**Purpose**: Test documentation website functionality
 
 ```bash
 cd .vortex/docs
@@ -116,24 +236,49 @@ cd .vortex/docs
 # Install dependencies
 yarn install
 
-# Run tests
-yarn test
+# Development workflow
+yarn start              # Start dev server  
+yarn build              # Build documentation
 
-# Run with coverage
-yarn test:coverage
+# Testing workflow
+yarn test               # Run all tests
+yarn test:coverage      # Run with coverage
+yarn test:watch         # Watch mode for development
 
-# Run in watch mode
-yarn test:watch
-
-# Spellcheck validation
-yarn spellcheck
-
-# Code quality checks
-yarn lint
-yarn lint-fix
+# Quality assurance
+yarn spellcheck         # American English validation
+yarn lint               # Code quality checks
+yarn lint-fix           # Auto-fix code quality issues
 ```
 
-**Template Tests** (`.vortex/`):
+### 2. Installer Tests (.vortex/installer/)
+
+**Purpose**: Test template installation scenarios
+
+```bash
+cd .vortex/installer
+
+# Install dependencies
+composer install
+
+# Run all installer tests
+./vendor/bin/phpunit
+
+# Update test fixtures
+UPDATE_FIXTURES=1 composer test
+
+# Run specific scenarios
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testInstall.*baseline"
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"services.*no.*clamav"'
+
+# Run handler-specific tests
+./vendor/bin/phpunit --filter "Handlers\\\\"
+./vendor/bin/phpunit --filter "ServicesInstallTest"
+```
+
+### 3. Template Tests (.vortex/tests/)
+
+**Purpose**: Test the actual Drupal template functionality
 
 ```bash
 cd .vortex
@@ -141,10 +286,10 @@ cd .vortex
 # Install all dependencies (PHP, Node.js, BATS)
 ahoy install
 
-# Run PHPUnit tests
+# PHPUnit functional tests (workflow testing)
 cd tests && ./vendor/bin/phpunit
 
-# Run BATS tests - use ahoy from .vortex/ directory
+# BATS unit tests (shell script testing)
 ahoy test-bats -- tests/bats/unit/notify.bats          # Specific test file
 ahoy test-bats -- tests/bats/provision.bats            # Another test file
 ahoy test-bats -- --verbose-run tests/bats/unit/       # Verbose output for directory
@@ -152,6 +297,12 @@ ahoy test-bats -- tests/bats/                          # All BATS tests
 
 # Alternative: direct bats command (after ahoy install)
 bats tests/bats/unit/notify.bats
+
+# Individual test suites
+./test.common.sh        # Common tests
+./test.deployment.sh    # Deployment tests
+./test.workflow.sh      # Workflow tests
+./lint.scripts.sh       # Shell script linting
 ```
 
 ## Installer Fixture System
@@ -298,40 +449,35 @@ When script output changes, update corresponding test files:
 "      Fresh database detected. Performing additional example operations."
 ```
 
-### Common Test Commands
+## Cross-System Test Dependencies
 
-**Documentation Workflow** (`.vortex/docs/`):
+**Important**: Each system has independent dependencies and must be set up separately:
+
+1. **Documentation** (`.vortex/docs/`): Requires Node.js/Yarn
+2. **Installer** (`.vortex/installer/`): Requires PHP/Composer  
+3. **Template** (`.vortex/tests/`): Requires PHP/Composer + Node.js + BATS
+
+**Full Setup** (from `.vortex/`):
 
 ```bash
-# Development workflow
-yarn start          # Start dev server
-yarn build          # Build documentation
-yarn spellcheck     # American English validation
-yarn lint-fix       # Auto-fix code quality issues
-
-# Testing workflow
-yarn test           # Run all tests
-yarn test:watch     # Watch mode for development
+ahoy install        # Installs dependencies for all three systems
 ```
 
-**Template Testing** (`.vortex/`):
+## Unified Testing Commands
+
+For convenience, you can run tests across all systems:
 
 ```bash
-# From .vortex/
-ahoy install        # Install all dependencies
-ahoy lint           # Code linting
-ahoy test           # Run all tests
+# From .vortex/ root
+ahoy install        # Install all dependencies (docs, installer, template)
+ahoy lint           # Code linting across all systems
+ahoy test           # Run all template tests
 
-# Individual test suites
-cd tests
-./test.common.sh     # Common tests
-./test.deployment.sh # Deployment tests
-./test.workflow.sh   # Workflow tests
-./lint.scripts.sh    # Shell script linting
-
-# BATS testing (from .vortex/)
-ahoy test-bats -- tests/bats/unit/notify.bats    # Specific test
-ahoy test-bats -- tests/bats/                    # All BATS tests
+# Individual system commands
+cd docs && yarn test                    # Documentation tests only
+cd installer && composer test           # Installer tests only
+cd tests && ./vendor/bin/phpunit       # Template PHPUnit tests only
+ahoy test-bats -- tests/bats/          # Template BATS tests only
 ```
 
 ## Environment Variables
@@ -477,9 +623,9 @@ Conditional tokens are tested through the installer fixture system:
 - **Scenario fixtures** show what gets removed for specific configurations
 - Use `UPDATE_FIXTURES=1` mechanism to regenerate after token changes
 
-## Key Directories and Files
+## Directory Structure Summary
 
-### Template Structure (Outside .vortex/)
+### Template Structure (Outside .vortex/) - The Actual Drupal Project
 
 ```text
 ├── scripts/
@@ -491,51 +637,138 @@ Conditional tokens are tested through the installer fixture system:
 │   └── phpunit/                # PHPUnit tests for the template
 ├── config/                     # Drupal configuration
 ├── web/                        # Drupal webroot
-└── [other template files]
+├── docker-compose.yml          # Docker development environment
+├── .ahoy.yml                   # Ahoy task definitions
+├── composer.json               # PHP dependencies for Drupal project
+└── [other template files]      # Complete Drupal project structure
 ```
 
-### Test Harness (.vortex/)
+### Test Harness (.vortex/) - Three Separate Systems
+
+**Critical Understanding**: The `.vortex/` directory contains three **completely independent subsystems**:
+
+1. **`.vortex/docs/`** - Docusaurus website (Node.js/React)
+2. **`.vortex/installer/`** - PHP installer application (Symfony Console)
+3. **`.vortex/tests/`** - Template testing harness (PHPUnit + BATS)
+
+Each system:
+
+- Has its own dependencies and package managers
+- Serves a different purpose in the Vortex ecosystem
+- Can be developed and tested independently
+- Has its own command structure and workflows
+
+### Test Harness (.vortex/) - Three Independent Systems
 
 ```text
-├── docs/                       # Vortex documentation (Docusaurus)
+├── docs/                       # 1. DOCUMENTATION WEBSITE
 │   ├── src/components/         # React components (VerticalTabs, etc.)
-│   ├── tests/unit/             # Jest tests
+│   ├── tests/unit/             # Jest tests for React components
 │   ├── content/                # MDX documentation content
-│   ├── jest.config.js          # Test configuration
-│   └── cspell.json             # Spellcheck configuration
-├── installer/
-│   ├── src/                    # Installer source code
+│   ├── jest.config.js          # Jest test configuration
+│   ├── cspell.json             # Spellcheck configuration
+│   ├── package.json            # Node.js dependencies
+│   └── yarn.lock               # Lockfile for docs dependencies
+│
+├── installer/                  # 2. TEMPLATE INSTALLER
+│   ├── src/                    # Installer source code (PHP)
+│   │   ├── Prompts/Handlers/   # Installation prompt handlers
+│   │   └── Utilities/          # Helper classes and utilities
 │   ├── tests/Fixtures/         # Installation test fixtures
-│   └── tests/Functional/       # Installer functional tests
-└── tests/
+│   │   ├── _baseline/          # Base template files
+│   │   └── [scenarios]/        # Scenario-specific diffs
+│   ├── tests/Functional/       # PHPUnit installer tests
+│   ├── composer.json           # PHP dependencies for installer
+│   └── installer.php           # Main installer entry point
+│
+└── tests/                      # 3. TEMPLATE TESTING
     ├── bats/                   # Shell script unit tests
-    └── phpunit/                # Workflow functional tests
+    │   ├── unit/               # Individual script tests
+    │   ├── fixtures/           # Test fixtures for BATS
+    │   └── provision.bats      # Main provision script tests
+    ├── phpunit/                # Workflow functional tests
+    │   ├── Functional/         # End-to-end workflow tests
+    │   └── Traits/             # Shared test functionality
+    ├── composer.json           # PHP dependencies for template tests
+    └── [test scripts]          # Individual test executables
 ```
 
-## Maintenance Tips
+## System-Specific Maintenance Guidelines
 
-### Fixture Updates Can Be Finicky
+### 1. Documentation System (.vortex/docs/)
+
+**Common Tasks**:
+
+- Update React components and test with Jest
+- Maintain American English spelling consistency
+- Keep MDX content synchronized with code changes
+- Ensure responsive design across device types
+
+**Best Practices**:
+
+- Run spellcheck before committing content changes
+- Test interactive components in both development and production builds
+- Maintain consistent terminology across all documentation
+
+### 2. Installer System (.vortex/installer/)
+
+**Fixture Updates Can Be Finicky**:
 
 - The `UPDATE_FIXTURES=1` mechanism can have defects
 - Try updating baseline first, then individual scenarios
 - Use filtered test runs for specific scenarios
 - Be patient - full test suite can take several minutes
 
-### Script Changes Require Multi-Level Updates
+**Handler Development**:
+
+- Queue operations in handlers, execute centrally in PromptManager
+- Use wrapper methods for common file operations
+- Test each handler type (token removal, string replacement, custom transformation)
+- Maintain execution order dependencies
+
+### 3. Template Testing System (.vortex/tests/)
+
+**Script Changes Require Multi-Level Updates**:
 
 1. **Main script** (template level)
 2. **BATS test assertions** (unit test level)
 3. **Installer fixtures** (integration test level)
 
-### Output Formatter Consistency
+**Output Formatter Consistency**:
 
 - Always use the standard formatter functions
 - Maintain consistent output patterns across all scripts
 - Test changes with both BATS and installer fixture tests
 
-## Troubleshooting
+**PHPUnit Helper Usage**:
 
-### Fixture Update Issues
+- Use `cmd()` for successful commands with output assertions
+- Use `cmdFail()` for expected failures
+- Follow prefix rules: all-or-nothing for output assertions
+- Prefer named arguments for complex parameters
+
+## System-Specific Troubleshooting
+
+### 1. Documentation Issues (.vortex/docs/)
+
+**Common Problems**:
+
+```bash
+# Build failures
+yarn build --verbose           # Check for detailed build errors
+
+# Spellcheck failures  
+yarn spellcheck                # Review American English violations
+npx cspell "content/**/*.md"   # Check specific files
+
+# Component test failures
+yarn test --verbose            # Detailed Jest output
+yarn test --updateSnapshot     # Update component snapshots
+```
+
+### 2. Installer Issues (.vortex/installer/)
+
+**Fixture Update Issues**:
 
 ```bash
 # Try baseline first
@@ -548,17 +781,31 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
 ./vendor/bin/phpunit --timeout=600
 ```
 
-### Test Failures
+**Handler Development Issues**:
 
-- Check BATS test output formatting matches script changes
-- Verify installer fixtures are properly updated
-- Ensure output formatters are defined in all scripts
+- Verify execution order (handlers queue, PromptManager executes)
+- Check namespace imports for `ExtendedSplFileInfo`
+- Ensure complex logic is preserved in callback signatures
 
-### Performance
+### 3. Template Testing Issues (.vortex/tests/)
 
-- BATS tests are fast (unit level)
-- PHPUnit workflow tests are slower (integration level)
-- Installer tests are slowest (full installation simulation)
+**BATS Test Failures**:
+
+- Check output formatting matches script changes
+- Verify mock commands and assertions align
+- Ensure test fixtures are updated after script modifications
+
+**PHPUnit Workflow Failures**:
+
+- Verify Docker containers are running properly
+- Check that cmd() prefix rules are followed correctly
+- Ensure test environments are properly isolated
+
+**Performance Characteristics**:
+
+- **BATS tests**: Fast (unit level, ~seconds)
+- **PHPUnit workflow tests**: Slower (integration level, ~minutes)
+- **Installer tests**: Slowest (full installation simulation, ~minutes)
 
 ## Installer Development Patterns
 
@@ -665,16 +912,176 @@ The installer tests have been refactored to use a modular, handler-focused archi
 
 **Usage with Fixture Updates**: The `UPDATE_FIXTURES=1` mechanism works seamlessly with the new architecture, allowing systematic fixture updates across all handler test scenarios.
 
-## Resources
+## PHPUnit Helper Functions
 
-- **Documentation**: `.vortex/docs/` and https://www.vortextemplate.com
+### cmd() Function
+
+The `FunctionalTestCase` provides a convenient `cmd()` function that combines `processRun()` + `assertProcessSuccessful()` + output assertions:
+
+```php
+public function cmd(
+  string $cmd,
+  array|string|null $out = NULL,
+  ?string $txt = NULL,
+  array $arg = [],
+  array $inp = [],
+  array $env = [],
+  int $tio = 60,
+  int $ito = 60,
+): ?Process
+```
+
+**Basic Usage:**
+
+```php
+// Simple command without output checks
+$this->cmd('ahoy drush cr');
+
+// Command with single output assertion
+$this->cmd('ahoy doctor info', 'OPERATING SYSTEM');
+
+// Command with multiple output assertions
+$this->cmd('ahoy info', [
+  'Project name                : star_wars',
+  'Docker Compose project name : star_wars'
+]);
+
+// Command with named parameters
+$this->cmd('ahoy reset', inp: ['y'], tio: 5 * 60);
+```
+
+### cmdFail() Function
+
+For commands expected to fail, use `cmdFail()` which calls `assertProcessFailed()`:
+
+```php
+$this->cmdFail('ahoy lint-be', tio: 120, ito: 90);
+```
+
+### Output Assertion Prefixes
+
+**CRITICAL RULE**: When using ANY prefixed strings, **ALL strings must have prefixes**. You cannot mix prefixed and non-prefixed strings.
+
+#### Prefix Types
+
+- **`+`** - Exact match present (entire output must equal this string)
+- **`*`** - Substring present (string must be found within output)
+- **`-`** - Exact match absent (entire output must NOT equal this string)
+- **`!`** - Substring absent (string must NOT be found within output)
+
+#### Two Operating Modes
+
+**1. Shortcut Mode** (No prefixes - all treated as substring present):
+
+```php
+$this->cmd('ahoy info', ['Docker', 'Compose']);  // Both must be found in output
+```
+
+**2. Mixed Mode** (Any prefix present - ALL must have prefixes):
+
+```php
+// ✅ CORRECT - all strings have prefixes
+$this->cmd('ahoy info', [
+  '* Xdebug',      // Must contain "Xdebug"
+  '* Disabled',    // Must contain "Disabled" 
+  '! Enabled'      // Must NOT contain "Enabled"
+]);
+
+// ❌ INCORRECT - mixing prefixed and non-prefixed
+$this->cmd('ahoy info', [
+  'Xdebug',        // No prefix
+  '! Enabled'      // Has prefix - this will throw RuntimeException
+]);
+```
+
+**Example Conversions:**
+
+Before:
+
+```php
+$this->processRun('ahoy export-db', $args);
+$this->assertProcessSuccessful();
+$this->assertProcessOutputNotContains('Containers are not running.');
+```
+
+After:
+
+```php
+$this->cmd('ahoy export-db', '! Containers are not running.', arg: $args);
+```
+
+### When to Use cmd() vs processRun()
+
+**Use `cmd()`:**
+
+- Commands that should succeed (`assertProcessSuccessful()`)
+- Simple output assertions (`assertProcessOutputContains/NotContains`)
+- Most common test scenarios
+
+**Use `processRun()`:**
+
+- Commands with complex error output assertions (`assertProcessErrorOutputContains`)
+- Commands requiring custom logic between execution and assertions
+- Special cases like conditional retry patterns
+
+## System-Specific Resources
+
+### Documentation System
+
+- **Live Site**: https://www.vortextemplate.com
+- **Docusaurus Docs**: https://docusaurus.io/docs
+- **React Testing Library**: https://testing-library.com/docs/react-testing-library/intro/
+- **Jest Documentation**: https://jestjs.io/docs/getting-started
+- **MDX Documentation**: https://mdxjs.com/docs/
+
+### Installer System
+
+- **Symfony Console**: https://symfony.com/doc/current/console.html
+- **PHPUnit Documentation**: https://phpunit.de/documentation.html
+- **Composer Documentation**: https://getcomposer.org/doc/
+
+### Template Testing System
+
 - **BATS Documentation**: https://github.com/bats-core/bats-core
+- **PHPUnit Helpers**: https://github.com/AlexSkrypnyk/phpunit-helpers
+- **Docker Compose**: https://docs.docker.com/compose/
+
+### General
+
 - **Issue Tracking**: https://github.com/drevops/vortex/issues
+- **Main Repository**: https://github.com/drevops/vortex
 
 ## Important AI Assistant Guidelines
 
-**CRITICAL**: NEVER directly modify files under `.vortex/installer/tests/Fixtures/`. These are test fixtures that must be updated by the user **MANUALLY**.
+### System-Specific Restrictions
+
+**Documentation System** (`.vortex/docs/`):
+
+- Maintain American English spelling throughout
+- Test React components thoroughly before committing
+- Preserve responsive design patterns
+
+**Installer System** (`.vortex/installer/`):
+
+- **CRITICAL**: NEVER directly modify files under `.vortex/installer/tests/Fixtures/`
+- These are test fixtures that must be updated via `UPDATE_FIXTURES=1` mechanism
+- Always test with baseline scenario first, then individual scenarios
+- Preserve handler execution order and batching patterns
+
+**Template Testing System** (`.vortex/tests/`):
+
+- Follow PHPUnit helper function patterns (`cmd()`, `cmdFail()`)
+- Maintain BATS test assertion alignment with script output
+- Preserve Docker container isolation between tests
+- Use appropriate test types for different validation levels
+
+### Cross-System Considerations
+
+- Each system can be modified independently
+- Changes to template (outside `.vortex/`) may require updates across all three systems
+- Always run system-specific tests after making changes
+- Consider impact on user workflows when modifying any system
 
 ---
 
-*This knowledge base should be updated whenever significant changes are made to the Vortex testing or maintenance procedures.*
+*This knowledge base should be updated whenever significant changes are made to any of the three Vortex subsystems or their maintenance procedures.*

@@ -16,16 +16,11 @@ class WorkflowUtilitiesTest extends FunctionalTestCase {
    */
   public function testLocalAhoyCommands(): void {
     $this->logSubstep('Assert calling local commands without local file does not throw error');
-    $this->processRun('ahoy --version');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputNotContains('[fatal]');
+    $this->cmd('ahoy --version', '! [fatal]');
 
     $this->logSubstep('Assert calling local commands with local file path specified and file is present works correctly');
     File::copy('.ahoy.local.example.yml', '.ahoy.local.yml');
-    $this->processRun('ahoy local help');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Custom local commands');
-    $this->assertProcessOutputNotContains('[fatal]');
+    $this->cmd('ahoy local help', ['* Custom local commands', '! [fatal]']);
 
     $this->logSubstep('Assert calling local commands with local file path specified and file is present and file return non-zero exit code');
     $local_command_content = <<<YAML
@@ -40,10 +35,7 @@ YAML;
 
     File::dump('.ahoy.local.yml', $existing_content . $local_command_content);
 
-    $this->processRun('ahoy local mylocalcommand');
-    $this->assertProcessFailed();
-    $this->assertProcessOutputContains('expected failure');
-    $this->assertProcessOutputNotContains('[fatal]');
+    $this->cmdFail('ahoy local mylocalcommand', ['* expected failure', '! [fatal]']);
   }
 
   /**
@@ -51,14 +43,14 @@ YAML;
    */
   public function testDoctorInfo(): void {
     $this->logSubstep('Run ahoy doctor info');
-    $this->processRun('ahoy doctor info');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('System information report');
-    $this->assertProcessOutputContains('OPERATING SYSTEM');
-    $this->assertProcessOutputContains('DOCKER');
-    $this->assertProcessOutputContains('DOCKER COMPOSE');
-    $this->assertProcessOutputContains('PYGMY');
-    $this->assertProcessOutputContains('AHOY');
+    $this->cmd('ahoy doctor info', [
+      'System information report',
+      'OPERATING SYSTEM',
+      'DOCKER',
+      'DOCKER COMPOSE',
+      'PYGMY',
+      'AHOY',
+    ]);
   }
 
 }

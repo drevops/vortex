@@ -95,15 +95,52 @@ class FunctionalTestCase extends UnitTestCase {
     return $this->traitProcessRun($command, $arguments, $inputs, $env, $timeout, $idle_timeout);
   }
 
-  public function processRunInContainer(
-    string $command,
-    array $arguments = [],
-    array $inputs = [],
+  public function cmd(
+    string $cmd,
+    array|string|null $out = NULL,
+    ?string $txt = NULL,
+    array $arg = [],
+    array $inp = [],
     array $env = [],
-    int $timeout = 60,
-    int $idle_timeout = 30,
-  ): Process {
-    return $this->traitProcessRun('ahoy cli -- ' . $command, $arguments, $inputs, $env, $timeout, $idle_timeout);
+    int $tio = 120,
+    int $ito = 60,
+  ): ?Process {
+    if ($txt) {
+      $this->logNote($txt);
+    }
+
+    $this->processRun($cmd, $arg, $inp, $env, $tio, $ito);
+    $this->assertProcessSuccessful();
+
+    if ($out) {
+      $this->assertProcessAnyOutputContainsOrNot($out);
+    }
+
+    return $this->process;
+  }
+
+  public function cmdFail(
+    string $cmd,
+    array|string|null $out = NULL,
+    ?string $txt = NULL,
+    array $arg = [],
+    array $inp = [],
+    array $env = [],
+    int $tio = 60,
+    int $ito = 60,
+  ): ?Process {
+    if ($txt) {
+      $this->logNote($txt);
+    }
+
+    $this->processRun($cmd, $arg, $inp, $env, $tio, $ito);
+    $this->assertProcessFailed();
+
+    if ($out) {
+      $this->assertProcessAnyOutputContainsOrNot($out);
+    }
+
+    return $this->process;
   }
 
   public function syncToHost(): void {

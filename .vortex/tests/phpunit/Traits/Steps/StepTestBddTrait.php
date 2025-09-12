@@ -26,8 +26,7 @@ trait StepTestBddTrait {
 
     if (!$process->isSuccessful()) {
       $this->logSubstep('Re-running all BDD tests after random failure');
-      $this->processRun('ahoy test-bdd');
-      $this->assertProcessSuccessful();
+      $this->cmd('ahoy test-bdd');
     }
 
     $this->syncToHost();
@@ -37,19 +36,17 @@ trait StepTestBddTrait {
     $this->assertFileExists('.logs/test_results/behat/default.xml', 'Behat test results XML file should exist');
 
     $this->logSubstep('Cleaning up after the test');
-    File::remove('.logs/screenshots');
-    File::remove('.logs/test_results/behat');
-    $this->processRunInContainer('rm', ['-rf', '/app/.logs/screenshots/*']);
-    $this->processRunInContainer('rm', ['-rf', '/app/.logs/test_results/*']);
+    File::remove(['.logs/screenshots', '.logs/test_results/behat']);
+    $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
+    $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
 
     $this->logStepFinish();
   }
 
   protected function stepWarmCaches(): void {
     $this->logSubstep('Warming up caches');
-    $this->processRun('ahoy drush cr');
-    $this->processRun('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080 | grep -q 200');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy drush cr');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080 | grep -q 200');
   }
 
 }

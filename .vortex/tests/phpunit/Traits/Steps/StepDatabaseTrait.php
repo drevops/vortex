@@ -18,9 +18,7 @@ trait StepDatabaseTrait {
     $this->logStepStart();
 
     $this->logSubstep('Testing ahoy export-db command');
-    $this->processRun('ahoy export-db', $filename !== '' ? [$filename] : []);
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputNotContains('Containers are not running.');
+    $this->cmd('ahoy export-db', '! Containers are not running.', arg: $filename !== '' ? [$filename] : []);
 
     $this->syncToHost();
 
@@ -39,11 +37,11 @@ trait StepDatabaseTrait {
     $this->logStepStart();
 
     $this->logSubstep('Testing ahoy import-db command');
-    $this->processRun('ahoy import-db', $filename !== '' && $filename !== '0' ? [$filename] : []);
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Provisioning site from the database dump file.');
-    $this->assertProcessOutputNotContains("Running deployment operations via 'drush deploy:hook'.");
-    $this->assertProcessOutputNotContains('Running database updates.');
+    $this->cmd('ahoy import-db', [
+      '* Provisioning site from the database dump file.',
+      "! Running deployment operations via 'drush deploy:hook'.",
+      '! Running database updates.',
+    ], arg: $filename !== '' && $filename !== '0' ? [$filename] : []);
 
     $this->logStepFinish();
   }
@@ -53,71 +51,57 @@ trait StepDatabaseTrait {
 
     // Phase 1.
     $this->logSubstep('Run initial provision');
-    $this->processRun('ahoy provision');
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessOutputContains('Provisioning site from the database dump file.');
-    // Assert that config files do not exist.
-    $this->assertProcessOutputContains("Running deployment operations via 'drush deploy:hook'.");
-    $this->assertProcessOutputContains('Running database updates.');
+    $this->cmd('ahoy provision', [
+      'Provisioning site from the database dump file.',
+      "Running deployment operations via 'drush deploy:hook'.",
+      'Running database updates.',
+    ]);
 
     $this->logSubstep('Export config');
-    $this->processRun('ahoy drush cex -y');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy drush cex -y');
     $this->syncToHost();
 
     // Phase 2.
     $this->logSubstep('Dump database');
-    $this->processRun('ahoy export-db db.sql');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy export-db db.sql');
     $this->syncToHost();
 
     $this->logSubstep('Run follow-up provision with exported config files matching DB');
-    $this->processRun('ahoy provision');
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessOutputContains('Provisioning site from the database dump file.');
-    // @note 'drush deploy:hook' runs only if config files exist.
-    $this->assertProcessOutputContains("Running deployment operations via 'drush deploy'.");
-    $this->assertProcessErrorOutputContains('There are no changes to import');
-    $this->assertProcessOutputNotContains('Import the listed configuration changes');
+    $this->cmd('ahoy provision', [
+      '* Provisioning site from the database dump file.',
+      // @note 'drush deploy:hook' runs only if config files exist.
+      "* Running deployment operations via 'drush deploy'.",
+      '! Import the listed configuration changes',
+      '* There are no changes to import',
+    ]);
 
     $this->logSubstep('Check that config files are not different to DB');
-    $this->processRun('ahoy drush config:status');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputNotContains('Different');
+    $this->cmd('ahoy drush config:status', '! Different');
 
     $this->logSubstep('Make a change to the configuration.');
     File::replaceContentInFile('config/default/system.site.yml', 'admin_compact_mode: false', 'admin_compact_mode: true');
     $this->syncToContainer();
 
     $this->logSubstep('Check that config files are different to DB');
-    $this->processRun('ahoy drush config:status');
-    $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Different');
+    $this->cmd('ahoy drush config:status', 'Different');
 
     // Phase 3.
     $this->logSubstep('Run provision with exported config files different to DB');
-    $this->processRun('ahoy provision');
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessOutputContains('Provisioning site from the database dump file.');
-    // @note 'drush deploy:hook' runs only if config files exist.
-    $this->assertProcessOutputContains("Running deployment operations via 'drush deploy'.");
-    $this->assertProcessOutputContains('Import the listed configuration changes');
+    $this->cmd('ahoy provision', [
+      'Provisioning site from the database dump file.',
+      "Running deployment operations via 'drush deploy'.",
+      'Import the listed configuration changes',
+    ]);
 
     // Phase 4.
     $this->logSubstep('Drop database to test that provision works without DB');
-    $this->processRun('ahoy drush sql:drop -y');
-    $this->assertProcessSuccessful();
+    $this->cmd('ahoy drush sql:drop -y');
 
     $this->logSubstep('Run provision without DB');
-    $this->processRun('ahoy provision');
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessOutputContains('Provisioning site from the database dump file.');
-    // @note 'drush deploy:hook' runs only if config files exist.
-    $this->assertProcessOutputContains("Running deployment operations via 'drush deploy'.");
+    $this->cmd('ahoy provision', [
+      'Provisioning site from the database dump file.',
+      "Running deployment operations via 'drush deploy'.",
+    ]);
 
     $this->logStepFinish();
   }
