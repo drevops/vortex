@@ -57,11 +57,11 @@ fi
 case ${index} in
 
   0)
-    phpunit "${TEST_DIR}"/phpunit
+    phpunit "${TEST_DIR}"/phpunit --exclude-filter=testDbDrivenWorkflow
     ;;
 
   1)
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.db.bats
+    phpunit "${TEST_DIR}"/phpunit --filter=testDbDrivenWorkflow
     ;;
 
   2)
@@ -82,7 +82,6 @@ case ${index} in
 
   *)
     phpunit "${TEST_DIR}"/phpunit
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.db.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
