@@ -23,6 +23,11 @@ class WorkflowTest extends FunctionalTestCase {
   public function testSmoke(): void {
     $this->assertDirectoryExists(static::$sut, 'SUT directory exists');
     $this->assertEquals(static::$sut, File::cwd(), 'SUT is the current working directory');
+
+    // Assert all special comments were removed.
+    $this->assertDirectoryNotContainsString('.', '#;', ['.png', '.jpg']);
+    $this->assertDirectoryNotContainsString('.', '#;<', ['.png', '.jpg']);
+    $this->assertDirectoryNotContainsString('.', '#;>', ['.png', '.jpg']);
   }
 
   public function testIdempotence(): void {

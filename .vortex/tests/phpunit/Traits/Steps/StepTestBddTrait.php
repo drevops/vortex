@@ -32,7 +32,7 @@ trait StepTestBddTrait {
     $this->syncToHost();
 
     $this->logSubstep('Checking that BDD tests have created screenshots and test results');
-    $this->assertDirectoryContainsString('html', '.logs/screenshots', message: 'Screenshots directory should not be empty after BDD tests');
+    $this->assertDirectoryContainsString('.logs/screenshots', 'html', message: 'Screenshots directory should not be empty after BDD tests');
     $this->assertFileExists('.logs/test_results/behat/default.xml', 'Behat test results XML file should exist');
 
     $this->logSubstep('Cleaning up after the test');

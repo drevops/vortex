@@ -30,8 +30,8 @@ trait StepEnvironmentTrait {
     $this->logStepStart();
 
     // Assert that .env does not contain test values.
-    $this->assertFileNotContainsString('MY_CUSTOM_VAR', '.env');
-    $this->assertFileNotContainsString('my_custom_var_value', '.env');
+    $this->assertFileNotContainsString('.env', 'MY_CUSTOM_VAR');
+    $this->assertFileNotContainsString('.env', 'my_custom_var_value');
 
     // Assert that test variable is not available inside of containers.
     $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
@@ -45,8 +45,8 @@ trait StepEnvironmentTrait {
     $this->syncToContainer();
 
     // Assert that .env contains test values.
-    $this->assertFileContainsString('MY_CUSTOM_VAR', '.env');
-    $this->assertFileContainsString('my_custom_var_value', '.env');
+    $this->assertFileContainsString('.env', 'MY_CUSTOM_VAR');
+    $this->assertFileContainsString('.env', 'my_custom_var_value');
 
     // Assert that test variable and values are available inside of containers.
     $this->cmd('ahoy cli "printenv | grep MY_CUSTOM_VAR"', 'my_custom_var_value');
@@ -60,8 +60,8 @@ trait StepEnvironmentTrait {
     $this->cmd('ahoy up cli');
     $this->syncToContainer();
 
-    $this->assertFileNotContainsString('MY_CUSTOM_VAR', '.env');
-    $this->assertFileNotContainsString('my_custom_var_value', '.env');
+    $this->assertFileNotContainsString('.env', 'MY_CUSTOM_VAR');
+    $this->assertFileNotContainsString('.env', 'my_custom_var_value');
     $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
     $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', '! my_custom_var_value');
 
@@ -73,7 +73,7 @@ trait StepEnvironmentTrait {
 
     // Assert that .env contains a default value.
     // Note that AEDT changes to AEST during winter.
-    $this->assertFileContainsString('TZ=UTC', '.env');
+    $this->assertFileContainsString('.env', 'TZ=UTC');
     $this->cmd('docker compose exec -T cli date', 'UTC');
     $this->cmd('docker compose exec -T php date', 'UTC');
     $this->cmd('docker compose exec -T nginx date', 'UTC');

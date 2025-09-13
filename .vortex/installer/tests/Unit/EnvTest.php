@@ -151,7 +151,7 @@ class EnvTest extends UnitTestCase {
     // Add new variable.
     Env::writeValueDotenv('NEW_VAR', 'new_added_value', $actual_file);
 
-    $this->assertDirectoryEqualsDirectory($fixture_dir . '/after', static::$sut);
+    $this->assertDirectoryEqualsDirectory(static::$sut, $fixture_dir . '/after');
   }
 
   #[DataProvider('dataProviderFormatValueForDotenv')]

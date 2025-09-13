@@ -226,10 +226,10 @@ trait StepTestingTrait {
 
     $this->logSubstep('Assert that screenshots and test results are created');
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Current URL: http://nginx:8080/', '.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Feature: Behat configuration', '.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Step: save screenshot with name', '.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Datetime:', '.logs/screenshots/behat-test-screenshot.html');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://nginx:8080/');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Feature: Behat configuration');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: save screenshot with name');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Datetime:');
 
     File::remove('.logs/screenshots');
     $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');

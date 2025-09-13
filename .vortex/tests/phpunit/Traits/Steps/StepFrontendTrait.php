@@ -40,7 +40,7 @@ trait StepFrontendTrait {
     $variables_file = $webroot . '/themes/custom/star_wars/scss/_variables.scss';
     $minified_file = $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css';
 
-    $this->assertFileNotContainsString($test_color1, $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css');
+    $this->assertFileNotContainsString($minified_file, $test_color1);
 
     $original_content = File::read($variables_file);
     $new_content = $original_content . "\n\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n";
@@ -52,11 +52,11 @@ trait StepFrontendTrait {
     $this->syncToHost();
     // Assets compiled for production are minified (no spaces between
     // properties and their values).
-    $this->assertFileContainsString('background:' . $test_color1, $minified_file);
+    $this->assertFileContainsString($minified_file, 'background:' . $test_color1);
 
     $this->logSubstep('Build FE assets for development');
 
-    $this->assertFileNotContainsString($test_color2, $minified_file);
+    $this->assertFileNotContainsString($minified_file, $test_color2);
 
     $dev_content = $new_content . "\n\$color-please: {$test_color2};\n\$color-primary: \$color-please;\n";
     File::remove($variables_file);
@@ -67,7 +67,7 @@ trait StepFrontendTrait {
     $this->syncToHost();
     // Note that assets compiled for development are not minified (contains
     // spaces between properties and their values).
-    $this->assertFileContainsString('background: ' . $test_color2, $minified_file);
+    $this->assertFileContainsString($minified_file, 'background: ' . $test_color2);
 
     $this->logStepFinish();
   }

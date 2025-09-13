@@ -17,7 +17,7 @@ class SelfTest extends UnitTestCase {
 
     static::replaceVersions(static::$sut);
 
-    $this->assertDirectoryEqualsDirectory($expected, static::$sut);
+    $this->assertDirectoryEqualsDirectory(static::$sut, $expected);
   }
 
 }
