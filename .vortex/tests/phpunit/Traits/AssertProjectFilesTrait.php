@@ -12,7 +12,7 @@ use PHPUnit\Framework\Assert;
 /**
  * Provides file and directory assertion methods.
  */
-trait AssertFilesTrait {
+trait AssertProjectFilesTrait {
 
   use DirectoryAssertionsTrait;
   use FileAssertionsTrait;

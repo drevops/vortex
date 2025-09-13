@@ -10,7 +10,7 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\LocationsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase;
-use DrevOps\Vortex\Tests\Traits\AssertFilesTrait;
+use DrevOps\Vortex\Tests\Traits\AssertProjectFilesTrait;
 use DrevOps\Vortex\Tests\Traits\GitTrait;
 use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepBuildTrait;
@@ -26,7 +26,7 @@ use Symfony\Component\Process\Process;
 class FunctionalTestCase extends UnitTestCase {
 
   use AssertArrayTrait;
-  use AssertFilesTrait;
+  use AssertProjectFilesTrait;
   use EnvTrait;
   use GitTrait;
   use LocationsTrait;
