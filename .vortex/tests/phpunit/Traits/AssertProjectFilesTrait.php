@@ -276,22 +276,6 @@ trait AssertProjectFilesTrait {
 
     // Assert all stub strings were replaced - these should not exist in any
     // files.
-    $exclude = [
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.gif',
-      '.svg',
-      '.ico',
-      '.webp',
-      '.tiff',
-      '.tif',
-      '.bmp',
-      'themes.README.txt',
-      'modules.README.txt',
-      'themes/README.txt',
-      'modules/README.txt',
-    ];
     $this->assertDirectoryNotContainsString('.', 'your_site');
     $this->assertDirectoryNotContainsString('.', 'ys_base');
     $this->assertDirectoryNotContainsString('.', 'YOURSITE');
@@ -301,9 +285,9 @@ trait AssertProjectFilesTrait {
     $this->assertDirectoryNotContainsString('.', 'YOURORG');
     $this->assertDirectoryNotContainsString('.', 'www.your-site-domain.example');
     // Assert all special comments were removed.
-    $this->assertDirectoryNotContainsString('.', '#;', $exclude);
-    $this->assertDirectoryNotContainsString('.', '#;<', $exclude);
-    $this->assertDirectoryNotContainsString('.', '#;>', $exclude);
+    $this->assertDirectoryNotContainsString('.', '#;');
+    $this->assertDirectoryNotContainsString('.', '#;<');
+    $this->assertDirectoryNotContainsString('.', '#;>');
   }
 
   public function assertFilesTrackedInGit(string $webroot = 'web', bool $skip_commit = FALSE): void {
@@ -355,6 +339,42 @@ trait AssertProjectFilesTrait {
       $webroot . '/sites/default/settings.local.php',
       $webroot . '/sites/default/services.local.yml',
     ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function ignoredPaths(): array {
+    return [
+      '.7z',
+      '.avif',
+      '.bz2',
+      '.gz',
+      '.heic',
+      '.heif',
+      '.pdf',
+      '.rar',
+      '.tar',
+      '.woff',
+      '.woff2',
+      '.xz',
+      '.zip',
+      '.bmp',
+      '.gif',
+      '.ico',
+      '.jpeg',
+      '.jpg',
+      '.png',
+      '.svg',
+      '.svgz',
+      '.tif',
+      '.tiff',
+      '.webp',
+      'modules.README.txt',
+      'modules/README.txt',
+      'themes.README.txt',
+      'themes/README.txt',
+    ];
   }
 
 }

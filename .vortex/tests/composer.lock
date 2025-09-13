@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e21080373c436f4663c6fd41ddcf60a0",
+    "content-hash": "b736365dd6117fe7ba39b7e9f598e7f1",
     "packages": [],
     "packages-dev": [
         {
@@ -65,16 +65,16 @@
         },
         {
             "name": "alexskrypnyk/file",
-            "version": "0.10.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "fc98183bb62bf115c581754ff52a6708979bc6cf"
+                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/fc98183bb62bf115c581754ff52a6708979bc6cf",
-                "reference": "fc98183bb62bf115c581754ff52a6708979bc6cf",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
+                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
                 "shasum": ""
             },
             "require": {
@@ -82,7 +82,7 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.9.0",
+                "alexskrypnyk/phpunit-helpers": "^0.10.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
@@ -90,6 +90,7 @@
                 "phpunit/phpunit": "^11",
                 "rector/rector": "^2"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -127,7 +128,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-13T01:01:21+00:00"
+            "time": "2025-09-14T00:12:13+00:00"
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
@@ -4163,7 +4164,9 @@
     ],
     "aliases": [],
     "minimum-stability": "alpha",
-    "stability-flags": {},
+    "stability-flags": {
+        "alexskrypnyk/file": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

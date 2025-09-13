@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
@@ -14,7 +13,6 @@ use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 trait StepTestBddTrait {
 
   use LoggerTrait;
-  use DirectoryAssertionsTrait;
 
   protected function stepTestBdd(): void {
     $this->logStepStart();
