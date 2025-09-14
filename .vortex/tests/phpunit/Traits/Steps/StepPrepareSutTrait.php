@@ -72,6 +72,11 @@ trait StepPrepareSutTrait {
 
     // Adjust the codebase for unmounted volumes.
     $this->adjustCodebaseForUnmountedVolumes();
+
+    // Assert all special comments were removed.
+    $this->assertDirectoryNotContainsString('.', '#;');
+    $this->assertDirectoryNotContainsString('.', '#;<');
+    $this->assertDirectoryNotContainsString('.', '#;>');
   }
 
   /**
@@ -82,12 +87,12 @@ trait StepPrepareSutTrait {
    */
   protected function adjustCodebaseForUnmountedVolumes(): void {
     if ($this->volumesMounted()) {
-      $this->logSubstep('Skipping fixing host dependencies as volumes are mounted');
+      $this->logNote('Skipping fixing host dependencies as volumes are mounted');
       return;
     }
 
     if (File::exists('docker-compose.yml')) {
-      $this->logSubstep('Fixing host dependencies in docker-compose.yml');
+      $this->logNote('Fixing host dependencies in docker-compose.yml');
       File::removeLine('docker-compose.yml', '###');
       $this->assertFileNotContainsString('docker-compose.yml', '###', 'Lines with ### should be removed from docker-compose.yml');
       File::replaceContentInFile('docker-compose.yml', '##', '');
@@ -100,7 +105,7 @@ trait StepPrepareSutTrait {
       // the container for when the volumes are not mounted.
       // We are doing this only to replicate developer's workflow and experience
       // when they run `ahoy build` locally.
-      $this->logSubstep('Pre-processing .ahoy.yml to copy database file to container');
+      $this->logNote('Pre-processing .ahoy.yml to copy database file to container');
 
       $this->assertFileContainsString(
         '.ahoy.yml',
@@ -108,9 +113,10 @@ trait StepPrepareSutTrait {
         'Initial Ahoy command to provision the container should exist in .ahoy.yml'
       );
 
-      // Replace the command to provision the container with a command that
-      // checks for the database file and copies it to the container if it
-      // exists.
+      $this->logNote("Patching 'ahoy provision' command to copy the database into container");
+      // Replace the command to provision the site in the container with a
+      // command that checks for the database file and copies it to the
+      // container if it exists.
       // Provision script may be called from multiple sections of the .ahoy.yml
       // file, so we need to ensure that we only modify the one in
       // the 'provision' section.

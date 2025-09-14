@@ -52,7 +52,7 @@ yarn install
 ./vendor/bin/phpunit
 
 # Run specific test class
-./vendor/bin/phpunit phpunit/Functional/WorkflowTest.php
+./vendor/bin/phpunit phpunit/Functional/IdempotenceTest.php
 ```
 
 ## Running BATS tests

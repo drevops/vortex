@@ -237,4 +237,27 @@ class FunctionalTestCase extends UnitTestCase {
     $this->assertDirectoryExists('.git');
   }
 
+  protected function substepDownloadDb(bool $copy_to_container = FALSE): void {
+    $this->logStepStart();
+
+    File::remove('.data/db.sql');
+    $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
+
+    $this->cmd(
+      './scripts/vortex/download-db.sh',
+      txt: 'Download demo database from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
+      env: ['VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
+    );
+
+    $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after downloading the database.');
+
+    if ($copy_to_container && !$this->volumesMounted() && file_exists('.data/db.sql')) {
+      $this->logNote('Copy database file to container');
+      $this->cmd('docker compose exec -T cli mkdir -p .data', txt: 'Create .data directory in the container');
+      $this->cmd('docker compose cp -L .data/db.sql cli:/app/.data/db.sql', txt: 'Copy database dump into container');
+    }
+
+    $this->logStepFinish();
+  }
+
 }
