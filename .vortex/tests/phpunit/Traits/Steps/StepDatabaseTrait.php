@@ -5,14 +5,27 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides database operation testing steps.
  */
 trait StepDatabaseTrait {
 
-  use LoggerTrait;
+  protected function stepDownloadDb(): void {
+    $this->logStepStart();
+
+    File::remove('.data/db.sql');
+    $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
+
+    $this->logSubstep('Downloading demo database from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST);
+    $this->cmd('ahoy download-db', env: [
+      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
+    ]);
+
+    $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after downloading the database.');
+
+    $this->logStepFinish();
+  }
 
   protected function stepAhoyExportDb(string $filename = ''): void {
     $this->logStepStart();

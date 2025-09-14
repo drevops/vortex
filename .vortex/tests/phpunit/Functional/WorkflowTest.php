@@ -23,20 +23,25 @@ class WorkflowTest extends FunctionalTestCase {
   public function testSmoke(): void {
     $this->assertDirectoryExists(static::$sut, 'SUT directory exists');
     $this->assertEquals(static::$sut, File::cwd(), 'SUT is the current working directory');
+
+    // Assert all special comments were removed.
+    $this->assertDirectoryNotContainsString('.', '#;', ['.png', '.jpg']);
+    $this->assertDirectoryNotContainsString('.', '#;<', ['.png', '.jpg']);
+    $this->assertDirectoryNotContainsString('.', '#;>', ['.png', '.jpg']);
   }
 
   public function testIdempotence(): void {
     $this->stepBuild();
     $this->assertFilesTrackedInGit();
 
-    $this->stepTestBdd();
+    $this->stepAhoyTestBddFast();
 
     $this->logSubstep('Re-build project to check that the results are identical.');
     $this->stepBuild();
     $this->assertFilesTrackedInGit(skip_commit: TRUE);
 
     $this->logSubstep('Run BDD tests again on re-built project');
-    $this->stepTestBdd();
+    $this->stepAhoyTestBddFast();
   }
 
   /**
@@ -96,7 +101,7 @@ class WorkflowTest extends FunctionalTestCase {
 
     $this->assertFilesTrackedInGit();
 
-    $this->stepTestBdd();
+    $this->stepAhoyTestBdd();
   }
 
 }

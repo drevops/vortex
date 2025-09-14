@@ -124,12 +124,12 @@ abstract class FunctionalTestCase extends UnitTestCase {
 
     foreach ($needles as $needle) {
       if (Strings::isRegex($needle)) {
-        $this->assertDirectoryContainsString($needle, static::$sut, [
+        $this->assertDirectoryContainsString(static::$sut, $needle, [
           'scripts/vortex',
         ]);
       }
       else {
-        $this->assertDirectoryContainsWord($needle, static::$sut, [
+        $this->assertDirectoryContainsWord(static::$sut, $needle, [
           'scripts/vortex',
         ]);
       }
@@ -141,12 +141,12 @@ abstract class FunctionalTestCase extends UnitTestCase {
 
     foreach ($needles as $needle) {
       if (Strings::isRegex($needle)) {
-        $this->assertDirectoryNotContainsString($needle, static::$sut, [
+        $this->assertDirectoryNotContainsString(static::$sut, $needle, [
           'scripts/vortex',
         ]);
       }
       else {
-        $this->assertDirectoryNotContainsWord($needle, static::$sut, [
+        $this->assertDirectoryNotContainsWord(static::$sut, $needle, [
           'scripts/vortex',
         ]);
       }

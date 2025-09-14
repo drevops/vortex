@@ -21,7 +21,7 @@ class ThemeInstallTest extends AbstractInstallTestCase {
           Env::put(PromptManager::makeEnvName(Theme::id()), '');
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('themes/custom', static::$sut, [
+        static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
           'scripts/vortex',
           'composer.json',
@@ -31,7 +31,7 @@ class ThemeInstallTest extends AbstractInstallTestCase {
 
       'theme, custom' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString('your_site_theme', static::$sut)),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'your_site_theme')),
       ],
 
     ];

@@ -12,7 +12,7 @@ use PHPUnit\Framework\Assert;
 /**
  * Provides file and directory assertion methods.
  */
-trait AssertFilesTrait {
+trait AssertProjectFilesTrait {
 
   use DirectoryAssertionsTrait;
   use FileAssertionsTrait;
@@ -22,17 +22,17 @@ trait AssertFilesTrait {
 
     // Assert that project name is correct.
     Assert::assertFileExists('.env');
-    $this->assertFileContainsString('VORTEX_PROJECT=' . $project_name, '.env');
+    $this->assertFileContainsString('.env', 'VORTEX_PROJECT=' . $project_name);
 
     // Assert that Vortex version was replaced in README.md.
     Assert::assertFileExists('README.md');
     $vortex_version = getenv('TEST_VORTEX_VERSION') ?: 'develop';
-    $this->assertFileContainsString(sprintf('badge/Vortex-%s-65ACBC.svg', $vortex_version), 'README.md');
-    $this->assertFileContainsString('https://github.com/drevops/vortex/tree/' . $vortex_version, 'README.md');
-    $this->assertFileNotContainsString('The following list includes', 'README.md');
+    $this->assertFileContainsString('README.md', sprintf('badge/Vortex-%s-65ACBC.svg', $vortex_version));
+    $this->assertFileContainsString('README.md', 'https://github.com/drevops/vortex/tree/' . $vortex_version);
+    $this->assertFileNotContainsString('README.md', 'The following list includes');
     Assert::assertFileDoesNotExist('README.dist.md');
 
-    $this->assertFileContainsString('This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template', 'README.md', 'Assert that Vortex footnote remains.');
+    $this->assertFileContainsString('README.md', 'This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template', 'Assert that Vortex footnote remains.');
 
     // Assert Drupal files are present.
     $this->assertDrupalFilesPresent($webroot);
@@ -200,12 +200,12 @@ trait AssertFilesTrait {
     Assert::assertFileDoesNotExist('.github/workflows/vortex-test-installer.yml');
 
     if (file_exists('.circleci/config.yml')) {
-      $this->assertFileNotContainsString('vortex-dev', '.circleci/config.yml', 'CircleCI config should not contain development Vortex references');
+      $this->assertFileNotContainsString('.circleci/config.yml', 'vortex-dev', 'CircleCI config should not contain development Vortex references');
     }
 
     // Assert that documentation was processed correctly.
     if (file_exists('README.md')) {
-      $this->assertFileNotContainsString('# Vortex', 'README.md');
+      $this->assertFileNotContainsString('README.md', '# Vortex');
     }
 
     // Check directory doesn't contain .vortex references.
@@ -339,6 +339,42 @@ trait AssertFilesTrait {
       $webroot . '/sites/default/settings.local.php',
       $webroot . '/sites/default/services.local.yml',
     ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function ignoredPaths(): array {
+    return [
+      '.7z',
+      '.avif',
+      '.bz2',
+      '.gz',
+      '.heic',
+      '.heif',
+      '.pdf',
+      '.rar',
+      '.tar',
+      '.woff',
+      '.woff2',
+      '.xz',
+      '.zip',
+      '.bmp',
+      '.gif',
+      '.ico',
+      '.jpeg',
+      '.jpg',
+      '.png',
+      '.svg',
+      '.svgz',
+      '.tif',
+      '.tiff',
+      '.webp',
+      'modules.README.txt',
+      'modules/README.txt',
+      'themes.README.txt',
+      'themes/README.txt',
+    ];
   }
 
 }

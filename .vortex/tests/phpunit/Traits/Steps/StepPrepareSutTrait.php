@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides system under test preparation step.
  */
 trait StepPrepareSutTrait {
-
-  use LoggerTrait;
-  use StepDownloadDbTrait;
 
   protected function stepPrepareSut(): void {
     $this->logStepStart();
@@ -43,11 +39,16 @@ trait StepPrepareSutTrait {
     chdir(static::locationsRoot());
 
     if (!is_dir('.vortex/installer/vendor')) {
-      $this->log('Installing dependencies of the Vortex installer');
+      $this->logNote('Installing dependencies of the Vortex installer');
       $this->cmd('composer --working-dir=.vortex/installer install');
     }
 
-    $this->cmd('php .vortex/installer/installer.php --no-interaction ' . static::locationsSut(), arg: $arguments, env: [
+    $arguments = array_merge([
+      '--no-interaction',
+      static::locationsSut(),
+    ], $arguments);
+
+    $this->cmd('php .vortex/installer/installer.php', arg: $arguments, env: [
       // Force the installer script to be downloaded from the local repo for
       // testing.
       'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
@@ -56,12 +57,10 @@ trait StepPrepareSutTrait {
       // to set the CURL DB to test DB.
       //
       // Override demo database with test demo database. This is required to
-      // use
-      // test assertions ("star wars") with demo database.
+      // use test assertions ("star wars") with demo database.
       //
       // Installer will load environment variable and it will take precedence
-      // over
-      // the value in .env file.
+      // over the value in .env file.
       'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       // Use unique installer temporary directory for each run. This is where
       // the installer script downloads the Vortex codebase for processing.
@@ -90,9 +89,9 @@ trait StepPrepareSutTrait {
     if (File::exists('docker-compose.yml')) {
       $this->logSubstep('Fixing host dependencies in docker-compose.yml');
       File::removeLine('docker-compose.yml', '###');
-      $this->assertFileNotContainsString('###', 'docker-compose.yml', 'Lines with ### should be removed from docker-compose.yml');
+      $this->assertFileNotContainsString('docker-compose.yml', '###', 'Lines with ### should be removed from docker-compose.yml');
       File::replaceContentInFile('docker-compose.yml', '##', '');
-      $this->assertFileNotContainsString('##', 'docker-compose.yml', 'Lines with ## should be removed from docker-compose.yml');
+      $this->assertFileNotContainsString('docker-compose.yml', '##', 'Lines with ## should be removed from docker-compose.yml');
     }
 
     if (file_exists('.ahoy.yml')) {
@@ -104,8 +103,8 @@ trait StepPrepareSutTrait {
       $this->logSubstep('Pre-processing .ahoy.yml to copy database file to container');
 
       $this->assertFileContainsString(
-        'ahoy cli ./scripts/vortex/provision.sh',
         '.ahoy.yml',
+        'ahoy cli ./scripts/vortex/provision.sh',
         'Initial Ahoy command to provision the container should exist in .ahoy.yml'
       );
 

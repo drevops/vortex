@@ -9,7 +9,8 @@ use DrevOps\Vortex\Tests\Traits\Steps\StepDatabaseTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepEnvironmentTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepFrontendTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepServicesTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepTestingTrait;
+use DrevOps\Vortex\Tests\Traits\Steps\StepTestTrait;
+use DrevOps\Vortex\Tests\Traits\Steps\StepLintTrait;
 
 /**
  * Tests DB-driven workflow.
@@ -20,8 +21,9 @@ class WorkflowInstallDbTest extends FunctionalTestCase {
   use StepDatabaseTrait;
   use StepEnvironmentTrait;
   use StepFrontendTrait;
+  use StepLintTrait;
   use StepServicesTrait;
-  use StepTestingTrait;
+  use StepTestTrait;
 
   protected function setUp(): void {
     parent::setUp();

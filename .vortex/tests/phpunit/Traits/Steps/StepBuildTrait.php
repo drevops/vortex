@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
-
 /**
  * Provides build step.
  */
 trait StepBuildTrait {
-
-  use LoggerTrait;
 
   protected function stepBuild(string $webroot = 'web', array $env = []): void {
     $this->logStepStart();
@@ -43,12 +39,12 @@ trait StepBuildTrait {
 
     $this->logSubstep('Assert only minified compiled CSS exists');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'Minified CSS file should exist');
-    $this->assertFileNotContainsString('background: #7e57e2', $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'CSS should not contain development colors');
+    $this->assertFileNotContainsString($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'background: #7e57e2', 'CSS should not contain development colors');
     $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/css/star_wars.css', 'Non-minified CSS should not exist');
 
     $this->logSubstep('Assert only minified compiled JS exists');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS file should exist');
-    $this->assertFileContainsString('!function(Drupal){"use strict";Drupal.behaviors.star_wars', $webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'JS should contain expected minified content');
+    $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(Drupal){"use strict";Drupal.behaviors.star_wars', 'JS should contain expected minified content');
     $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist');
 
     $this->logStepFinish();

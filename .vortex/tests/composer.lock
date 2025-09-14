@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "612fdc9548a46c100c72d38090aa6067",
+    "content-hash": "cc22670886a902fdcd8911f876bbab23",
     "packages": [],
     "packages-dev": [
         {
@@ -65,16 +65,16 @@
         },
         {
             "name": "alexskrypnyk/file",
-            "version": "0.9.0",
+            "version": "0.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "df98e9ba70357433061533e9cc747708ce92500c"
+                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/df98e9ba70357433061533e9cc747708ce92500c",
-                "reference": "df98e9ba70357433061533e9cc747708ce92500c",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
+                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
                 "shasum": ""
             },
             "require": {
@@ -82,7 +82,7 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.8.1",
+                "alexskrypnyk/phpunit-helpers": "^0.10.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
@@ -127,11 +127,11 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-08-24T03:16:48+00:00"
+            "time": "2025-09-14T00:12:13+00:00"
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "dev-main",
+            "version": "0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
@@ -160,7 +160,6 @@
                 "squizlabs/php_codesniffer": "^3.7",
                 "symfony/console": "^6.4 || ^7.2"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -4164,9 +4163,7 @@
     ],
     "aliases": [],
     "minimum-stability": "alpha",
-    "stability-flags": {
-        "alexskrypnyk/phpunit-helpers": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

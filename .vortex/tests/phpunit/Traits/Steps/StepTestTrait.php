@@ -5,91 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides testing operation steps (lint, test).
  */
-trait StepTestingTrait {
-
-  use LoggerTrait;
-
-  protected function stepAhoyLint(string $webroot = 'web'): void {
-    $this->logStepStart();
-
-    $this->logSubstep('Assert that lint works');
-    $this->cmd('ahoy lint', tio: 120, ito: 90);
-
-    $this->stepAhoyLintBe($webroot);
-    $this->stepAhoyLintFe($webroot);
-    $this->stepAhoyLintTest();
-
-    $this->logStepFinish();
-  }
-
-  protected function stepAhoyLintBe(string $webroot = 'web'): void {
-    $this->logStepStart();
-
-    $this->logSubstep('Assert that BE lint failure works');
-    File::dump($webroot . '/modules/custom/sw_base/sw_base.module', File::read($webroot . '/modules/custom/sw_base/sw_base.module') . '$a=1;');
-    $this->syncToContainer();
-    $this->cmdFail('ahoy lint-be', tio: 120, ito: 90);
-
-    $this->logSubstep('Assert that BE lint tool disabling works');
-    // Replace with some valid XML element to avoid XML parsing errors.
-    File::replaceContentInFile('phpcs.xml', '<file>' . $webroot . '/modules/custom</file>', '<exclude-pattern>somefile</exclude-pattern>');
-    $this->syncToContainer();
-    $this->cmd('ahoy lint-be', tio: 120, ito: 90);
-
-    // @todo Add restoring of the file.
-    $this->logStepFinish();
-  }
-
-  protected function stepAhoyLintFe(string $webroot = 'web'): void {
-    $this->logStepStart();
-
-    $this->logSubstep('Assert that FE lint failure works for npm lint');
-    File::dump($webroot . '/themes/custom/star_wars/scss/components/_test.scss', '.abc{margin: 0px;}');
-    $this->syncToContainer();
-    $this->cmdFail('ahoy lint-fe', tio: 120, ito: 90);
-    File::remove($webroot . '/themes/custom/star_wars/scss/components/_test.scss');
-    $this->cmd('ahoy cli rm -f ' . $webroot . '/themes/custom/star_wars/scss/components/_test.scss');
-    $this->syncToContainer();
-
-    $this->logSubstep('Assert that FE lint failure works for Twig CS Fixer');
-    File::dump($webroot . '/modules/custom/sw_base/templates/block/test1.twig', "{{ set a='a' }}");
-    File::dump($webroot . '/themes/custom/star_wars/templates/block/test2.twig', "{{ set b='b' }}");
-    $this->syncToContainer();
-
-    $this->cmdFail('ahoy lint-fe', tio: 120, ito: 90);
-
-    File::remove([
-      $webroot . '/modules/custom/sw_base/templates/block/test1.twig',
-      $webroot . '/themes/custom/star_wars/templates/block/test2.twig',
-    ]);
-    $this->cmd('ahoy cli rm -f ' . $webroot . '/modules/custom/sw_base/templates/block/test1.twig');
-    $this->cmd('ahoy cli rm -f ' . $webroot . '/themes/custom/star_wars/templates/block/test2.twig');
-    $this->syncToContainer();
-
-    $this->logStepFinish();
-  }
-
-  protected function stepAhoyLintTest(): void {
-    $this->logStepStart();
-
-    $this->logSubstep('Assert that Test lint works for Gherkin Lint');
-    $this->cmd('ahoy lint-tests');
-
-    $this->logSubstep('Assert that Test lint failure works for Gherkin Lint');
-    File::dump('tests/behat/features/test.feature', 'Feature:');
-    $this->syncToContainer();
-    $this->cmdFail('ahoy lint-tests');
-    File::remove('tests/behat/features/test.feature');
-    $this->cmd('ahoy cli rm -f tests/behat/features/test.feature');
-    $this->syncToContainer();
-
-    $this->logStepFinish();
-  }
+trait StepTestTrait {
 
   protected function stepAhoyTest(string $webroot = 'web', bool $is_fast = FALSE): void {
     $this->logStepStart();
@@ -189,23 +109,25 @@ trait StepTestingTrait {
   protected function stepAhoyTestBddFast(string $webroot = 'web'): void {
     $this->logStepStart();
 
-    // Sometimes, tests fail for random reasons. A workaround is to run BDD
-    // tests to "cache" the environment and then run the tests again.
-    $this->cmd('ahoy test-bdd || true');
+    $this->stepWarmCaches();
 
     $this->logSubstep('Run all BDD tests');
-    $this->cmd('ahoy test-bdd');
+    $process = $this->processRun('ahoy test-bdd');
+
+    if (!$process->isSuccessful()) {
+      $this->logSubstep('Re-run all BDD tests after random failure');
+      $this->cmd('ahoy test-bdd');
+    }
 
     $this->syncToHost();
 
-    $this->assertDirectoryExists('.logs/screenshots');
-    File::remove('.logs/screenshots');
+    $this->logSubstep('Check that BDD tests have created screenshots and test results');
+    $this->assertDirectoryContainsString('.logs/screenshots', 'html', message: 'Screenshots directory should not be empty after BDD tests');
+    $this->assertFileExists('.logs/test_results/behat/default.xml', 'Behat test results XML file should exist');
+
+    $this->logSubstep('Clean up after the test');
+    File::remove(['.logs/screenshots', '.logs/test_results/behat']);
     $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
-
-    $this->assertDirectoryExists('.logs/test_results');
-    $this->assertFileExists('.logs/test_results/behat/default.xml');
-
-    File::remove('.logs/test_results');
     $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
 
     $this->logStepFinish();
@@ -226,10 +148,10 @@ trait StepTestingTrait {
 
     $this->logSubstep('Assert that screenshots and test results are created');
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Current URL: http://nginx:8080/', '.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Feature: Behat configuration', '.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Step: save screenshot with name', '.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('Datetime:', '.logs/screenshots/behat-test-screenshot.html');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://nginx:8080/');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Feature: Behat configuration');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: save screenshot with name');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Datetime:');
 
     File::remove('.logs/screenshots');
     $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
@@ -274,14 +196,6 @@ trait StepTestingTrait {
     $this->syncToContainer();
 
     $this->logStepFinish();
-  }
-
-  protected function trimFile(string $file): void {
-    $content = File::read($file);
-    $lines = explode("\n", $content);
-    // Remove last line.
-    array_pop($lines);
-    File::dump($file, implode("\n", $lines));
   }
 
 }

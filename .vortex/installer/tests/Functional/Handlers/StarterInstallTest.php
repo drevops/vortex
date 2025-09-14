@@ -17,15 +17,25 @@ class StarterInstallTest extends AbstractInstallTestCase {
     return [
       'starter, demo db' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::LOAD_DATABASE_DEMO)),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+          'drupal/cms',
+          'wikimedia/composer-merge-plugin',
+          'vendor/drupal/cms/composer.json',
+        ])),
       ],
 
       'starter, Drupal profile' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::INSTALL_PROFILE_CORE)),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+          'drupal/cms',
+          'wikimedia/composer-merge-plugin',
+          'vendor/drupal/cms/composer.json',
+        ])),
       ],
 
       'starter, Drupal CMS profile' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::INSTALL_PROFILE_DRUPALCMS)),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutContains([
           'drupal/cms',
           'wikimedia/composer-merge-plugin',
           'vendor/drupal/cms/composer.json',

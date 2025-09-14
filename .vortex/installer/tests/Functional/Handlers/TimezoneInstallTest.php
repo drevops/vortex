@@ -24,21 +24,21 @@ class TimezoneInstallTest extends AbstractInstallTestCase {
         }),
         static::cw(function (FunctionalTestCase $test): void {
           // Timezone should be replaced in .env file.
-          $test->assertFileContainsString('TZ=America/New_York', static::$sut . '/.env');
-          $test->assertFileNotContainsString('UTC', static::$sut . '/.env');
+          $test->assertFileContainsString(static::$sut . '/.env', 'TZ=America/New_York');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'UTC');
 
           // Timezone should be replaced in Renovate config.
-          $test->assertFileContainsString('"timezone": "America/New_York"', static::$sut . '/renovate.json');
-          $test->assertFileNotContainsString('UTC', static::$sut . '/renovate.json');
+          $test->assertFileContainsString(static::$sut . '/renovate.json', '"timezone": "America/New_York"');
+          $test->assertFileNotContainsString(static::$sut . '/renovate.json', 'UTC');
 
           // Timezone should not be replaced in GHA config in code as it should
           // be overridden via UI.
-          $test->assertFileNotContainsString('America/New_York', static::$sut . '/.github/workflows/build-test-deploy.yml');
-          $test->assertFileContainsString('UTC', static::$sut . '/.github/workflows/build-test-deploy.yml');
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'America/New_York');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'UTC');
 
           // Timezone should not be replaced in Docker Compose config.
-          $test->assertFileNotContainsString('America/New_York', static::$sut . '/docker-compose.yml');
-          $test->assertFileContainsString('UTC', static::$sut . '/docker-compose.yml');
+          $test->assertFileNotContainsString(static::$sut . '/docker-compose.yml', 'America/New_York');
+          $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'UTC');
         }),
       ],
 
@@ -50,8 +50,8 @@ class TimezoneInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           // Timezone should not be replaced in CircleCI config in code as it
           // should be overridden via UI.
-          $test->assertFileNotContainsString('TZ: America/New_York', static::$sut . '/.circleci/config.yml');
-          $test->assertFileContainsString('TZ: UTC', static::$sut . '/.circleci/config.yml');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'TZ: America/New_York');
+          $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'TZ: UTC');
         }),
       ],
     ];

@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
-
 /**
  * Provides Ahoy command testing steps.
  */
 trait StepAhoyTrait {
-
-  use LoggerTrait;
 
   protected function stepAhoyCli(): void {
     $this->logStepStart();

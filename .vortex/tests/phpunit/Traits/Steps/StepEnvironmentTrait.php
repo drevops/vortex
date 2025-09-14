@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides environment and configuration testing steps.
  */
 trait StepEnvironmentTrait {
-
-  use LoggerTrait;
 
   protected function stepGitignore(): void {
     $this->logStepStart();
@@ -29,14 +26,11 @@ trait StepEnvironmentTrait {
   protected function stepEnvChanges(): void {
     $this->logStepStart();
 
-    // Assert that .env does not contain test values.
-    $this->assertFileNotContainsString('MY_CUSTOM_VAR', '.env');
-    $this->assertFileNotContainsString('my_custom_var_value', '.env');
+    $this->assertFileNotContainsString('.env', 'MY_CUSTOM_VAR', '.env does not contain test values');
+    $this->assertFileNotContainsString('.env', 'my_custom_var_value', '.env does not contain test values');
 
-    // Assert that test variable is not available inside of containers.
     $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
 
-    // Assert that test value is not available inside of containers.
     $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep -q my_custom_var_value\'', '! my_custom_var_value');
 
     // Add variable to the .env file and apply the change to container.
@@ -44,15 +38,10 @@ trait StepEnvironmentTrait {
     $this->cmd('ahoy up cli');
     $this->syncToContainer();
 
-    // Assert that .env contains test values.
-    $this->assertFileContainsString('MY_CUSTOM_VAR', '.env');
-    $this->assertFileContainsString('my_custom_var_value', '.env');
-
-    // Assert that test variable and values are available inside of containers.
-    $this->cmd('ahoy cli "printenv | grep MY_CUSTOM_VAR"', 'my_custom_var_value');
-
-    // Assert that test variable and value are available inside of containers.
-    $this->cmd('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', 'my_custom_var_value');
+    $this->assertFileContainsString('.env', 'MY_CUSTOM_VAR', '.env contains test values');
+    $this->assertFileContainsString('.env', 'my_custom_var_value', '.env contains test values');
+    $this->cmd('ahoy cli "printenv | grep MY_CUSTOM_VAR"', 'my_custom_var_value', 'Assert that test variable and values are available inside of containers.');
+    $this->cmd('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', 'my_custom_var_value', 'Assert that test variable and values are available inside of containers.');
 
     // Restore file, apply changes and assert that original behaviour has been
     // restored.
@@ -60,8 +49,8 @@ trait StepEnvironmentTrait {
     $this->cmd('ahoy up cli');
     $this->syncToContainer();
 
-    $this->assertFileNotContainsString('MY_CUSTOM_VAR', '.env');
-    $this->assertFileNotContainsString('my_custom_var_value', '.env');
+    $this->assertFileNotContainsString('.env', 'MY_CUSTOM_VAR');
+    $this->assertFileNotContainsString('.env', 'my_custom_var_value');
     $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"');
     $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', '! my_custom_var_value');
 
@@ -71,26 +60,25 @@ trait StepEnvironmentTrait {
   protected function stepTimezone(): void {
     $this->logStepStart();
 
-    // Assert that .env contains a default value.
-    // Note that AEDT changes to AEST during winter.
-    $this->assertFileContainsString('TZ=UTC', '.env');
-    $this->cmd('docker compose exec -T cli date', 'UTC');
-    $this->cmd('docker compose exec -T php date', 'UTC');
-    $this->cmd('docker compose exec -T nginx date', 'UTC');
-    $this->cmd('docker compose exec -T database date', 'UTC');
+    $this->logSubstep('Assert default timezone values.');
+    $this->assertFileContainsString('.env', 'TZ=UTC', '.env contains a default value.');
+    $this->cmd('docker compose exec -T cli date', 'UTC', 'Date is in default timezone inside CLI container by default');
+    $this->cmd('docker compose exec -T php date', 'UTC', 'Date is in default timezone inside PHP container by default');
+    $this->cmd('docker compose exec -T nginx date', 'UTC', 'Date is in default timezone inside Nginx container by default');
+    $this->cmd('docker compose exec -T database date', 'UTC', 'Date is in default timezone inside Database container by default');
 
-    // Add variable to the .env file and apply the change to container.
+    $this->logSubstep('Add variable to the .env file and apply the change to container.');
     $this->addVarToFile('.env', 'TZ', '"Australia/Perth"');
     $this->syncToContainer();
     $this->cmd('ahoy up');
 
-    $this->cmd('docker compose exec -T cli date', 'AWST');
-    $this->cmd('docker compose exec -T php date', 'AWST');
-    $this->cmd('docker compose exec -T nginx date', 'AWST');
-    $this->cmd('docker compose exec -T database date', 'AWST');
+    $this->logSubstep('Assert custom timezone values.');
+    $this->cmd('docker compose exec -T cli date', 'AWST', 'Date is in custom timezone inside CLI container');
+    $this->cmd('docker compose exec -T php date', 'AWST', 'Date is in custom timezone inside PHP container');
+    $this->cmd('docker compose exec -T nginx date', 'AWST', 'Date is in custom timezone inside Nginx container');
+    $this->cmd('docker compose exec -T database date', 'AWST', 'Date is in custom timezone inside Database container');
 
-    // Restore file, apply changes and assert that original behaviour has been
-    // restored.
+    $this->logSubstep('Restore file, apply changes and assert that original behaviour has been restored.');
     $this->restoreFile('.env');
     $this->syncToContainer();
     $this->cmd('ahoy up');
@@ -212,57 +200,6 @@ trait StepEnvironmentTrait {
     $this->removeDevelopmentSettings($webroot);
 
     $this->logStepFinish();
-  }
-
-  protected function addVarToFile(string $file, string $var, string $value): void {
-    // Backup original file first.
-    $this->backupFile($file);
-    $content = File::read($file);
-    $content .= sprintf('%s%s=%s%s', PHP_EOL, $var, $value, PHP_EOL);
-    File::dump($file, $content);
-  }
-
-  protected function backupFile(string $file): void {
-    $backup_dir = '/tmp/bkp';
-    if (!is_dir($backup_dir)) {
-      mkdir($backup_dir, 0755, TRUE);
-    }
-    File::copy($file, $backup_dir . '/' . basename($file));
-  }
-
-  protected function restoreFile(string $file): void {
-    $backup_file = '/tmp/bkp/' . basename($file);
-    if (file_exists($backup_file)) {
-      File::copy($backup_file, $file);
-    }
-  }
-
-  protected function createDevelopmentSettings(string $webroot = 'web'): void {
-    File::copy($webroot . '/sites/default/example.settings.local.php', $webroot . '/sites/default/settings.local.php');
-    // Assert manually created local settings file exists.
-    $this->assertFileExists($webroot . '/sites/default/settings.local.php');
-
-    File::copy($webroot . '/sites/default/example.services.local.yml', $webroot . '/sites/default/services.local.yml');
-    // Assert manually created local services file exists.
-    $this->assertFileExists($webroot . '/sites/default/services.local.yml');
-  }
-
-  protected function removeDevelopmentSettings(string $webroot = 'web'): void {
-    File::remove([
-      $webroot . '/sites/default/settings.local.php',
-      $webroot . '/sites/default/services.local.yml',
-    ]);
-    $this->assertFileDoesNotExist($webroot . '/sites/default/settings.local.php');
-    $this->assertFileDoesNotExist($webroot . '/sites/default/services.local.yml');
-  }
-
-  protected function assertFilesPresent(string $webroot): void {
-    // Use existing method from base class with correct signature.
-    $this->assertCommonFilesPresent($webroot);
-  }
-
-  protected function assertGitRepo(): void {
-    $this->assertDirectoryExists('.git');
   }
 
 }
