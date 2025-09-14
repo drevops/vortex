@@ -15,7 +15,7 @@ use DrevOps\Vortex\Tests\Traits\Steps\StepLintTrait;
 /**
  * Tests DB-driven workflow.
  */
-class WorkflowInstallDbTest extends FunctionalTestCase {
+class InstallDbTest extends FunctionalTestCase {
 
   use StepAhoyTrait;
   use StepDatabaseTrait;
@@ -28,7 +28,7 @@ class WorkflowInstallDbTest extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->stepDownloadDb();
+    $this->substepDownloadDb();
   }
 
   /**
