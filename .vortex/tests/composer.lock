@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b736365dd6117fe7ba39b7e9f598e7f1",
+    "content-hash": "cc22670886a902fdcd8911f876bbab23",
     "packages": [],
     "packages-dev": [
         {
@@ -65,7 +65,7 @@
         },
         {
             "name": "alexskrypnyk/file",
-            "version": "dev-main",
+            "version": "0.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
@@ -90,7 +90,6 @@
                 "phpunit/phpunit": "^11",
                 "rector/rector": "^2"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -4164,9 +4163,7 @@
     ],
     "aliases": [],
     "minimum-stability": "alpha",
-    "stability-flags": {
-        "alexskrypnyk/file": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8fd1201532508729eef60d24db5e6201",
+    "content-hash": "3cb225b1e6a0e40a218f12441448b002",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.10.0",
+            "version": "0.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "fc98183bb62bf115c581754ff52a6708979bc6cf"
+                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/fc98183bb62bf115c581754ff52a6708979bc6cf",
-                "reference": "fc98183bb62bf115c581754ff52a6708979bc6cf",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
+                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
                 "shasum": ""
             },
             "require": {
@@ -25,7 +25,7 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.9.0",
+                "alexskrypnyk/phpunit-helpers": "^0.10.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
@@ -70,7 +70,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-13T01:01:21+00:00"
+            "time": "2025-09-14T00:12:13+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",
@@ -5533,16 +5533,16 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "8.22.0",
+            "version": "8.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "a4cef983bad2e70125612d22b2f6e2bd1333d5c2"
+                "reference": "1dd80bf3b93692bedb21a6623c496887fad05fec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/a4cef983bad2e70125612d22b2f6e2bd1333d5c2",
-                "reference": "a4cef983bad2e70125612d22b2f6e2bd1333d5c2",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/1dd80bf3b93692bedb21a6623c496887fad05fec",
+                "reference": "1dd80bf3b93692bedb21a6623c496887fad05fec",
                 "shasum": ""
             },
             "require": {
@@ -5554,11 +5554,11 @@
             "require-dev": {
                 "phing/phing": "3.0.1|3.1.0",
                 "php-parallel-lint/php-parallel-lint": "1.4.0",
-                "phpstan/phpstan": "2.1.22",
+                "phpstan/phpstan": "2.1.24",
                 "phpstan/phpstan-deprecation-rules": "2.0.3",
                 "phpstan/phpstan-phpunit": "2.0.7",
                 "phpstan/phpstan-strict-rules": "2.0.6",
-                "phpunit/phpunit": "9.6.8|10.5.48|11.4.4|11.5.36|12.3.8"
+                "phpunit/phpunit": "9.6.8|10.5.48|11.4.4|11.5.36|12.3.10"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -5582,7 +5582,7 @@
             ],
             "support": {
                 "issues": "https://github.com/slevomat/coding-standard/issues",
-                "source": "https://github.com/slevomat/coding-standard/tree/8.22.0"
+                "source": "https://github.com/slevomat/coding-standard/tree/8.22.1"
             },
             "funding": [
                 {
@@ -5594,7 +5594,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-06T09:14:48+00:00"
+            "time": "2025-09-13T08:53:30+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",

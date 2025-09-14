@@ -34,14 +34,14 @@ class WorkflowTest extends FunctionalTestCase {
     $this->stepBuild();
     $this->assertFilesTrackedInGit();
 
-    $this->stepTestBdd();
+    $this->stepAhoyTestBddFast();
 
     $this->logSubstep('Re-build project to check that the results are identical.');
     $this->stepBuild();
     $this->assertFilesTrackedInGit(skip_commit: TRUE);
 
     $this->logSubstep('Run BDD tests again on re-built project');
-    $this->stepTestBdd();
+    $this->stepAhoyTestBddFast();
   }
 
   /**
@@ -101,7 +101,7 @@ class WorkflowTest extends FunctionalTestCase {
 
     $this->assertFilesTrackedInGit();
 
-    $this->stepTestBdd();
+    $this->stepAhoyTestBdd();
   }
 
 }

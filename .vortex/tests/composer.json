@@ -12,7 +12,7 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "alexskrypnyk/file": "dev-main",
+        "alexskrypnyk/file": "^0.11.0",
         "alexskrypnyk/phpunit-helpers": "^0.10",
         "alexskrypnyk/shellvar": "^1.2",
         "czproject/git-php": "^4.4",

@@ -11,9 +11,6 @@ use AlexSkrypnyk\File\File;
  */
 trait StepPrepareSutTrait {
 
-
-  use StepDownloadDbTrait;
-
   protected function stepPrepareSut(): void {
     $this->logStepStart();
 
