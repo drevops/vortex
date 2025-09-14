@@ -50,9 +50,7 @@ trait StepFrontendTrait {
     $this->syncToContainer();
     $this->cmd('ahoy fe');
     $this->syncToHost();
-    // Assets compiled for production are minified (no spaces between
-    // properties and their values).
-    $this->assertFileContainsString($minified_file, 'background:' . $test_color1);
+    $this->assertFileContainsString($minified_file, 'background:' . $test_color1, 'Assets compiled for production are minified (no spaces between properties and their values)');
 
     $this->logSubstep('Build FE assets for development');
 
@@ -65,9 +63,7 @@ trait StepFrontendTrait {
     $this->syncToContainer();
     $this->cmd('ahoy fed');
     $this->syncToHost();
-    // Note that assets compiled for development are not minified (contains
-    // spaces between properties and their values).
-    $this->assertFileContainsString($minified_file, 'background: ' . $test_color2);
+    $this->assertFileContainsString($minified_file, 'background: ' . $test_color2, 'Assets compiled for development are not minified (contains spaces between properties and their values)');
 
     $this->logStepFinish();
   }
