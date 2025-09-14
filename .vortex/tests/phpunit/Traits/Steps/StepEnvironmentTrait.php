@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides environment and configuration testing steps.
  */
 trait StepEnvironmentTrait {
-
-  use LoggerTrait;
 
   protected function stepGitignore(): void {
     $this->logStepStart();

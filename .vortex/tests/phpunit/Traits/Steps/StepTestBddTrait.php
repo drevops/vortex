@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides BDD testing step.
  */
 trait StepTestBddTrait {
-
-  use LoggerTrait;
 
   protected function stepTestBdd(): void {
     $this->logStepStart();

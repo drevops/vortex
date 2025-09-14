@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides system under test preparation step.
  */
 trait StepPrepareSutTrait {
 
-  use LoggerTrait;
+
   use StepDownloadDbTrait;
 
   protected function stepPrepareSut(): void {

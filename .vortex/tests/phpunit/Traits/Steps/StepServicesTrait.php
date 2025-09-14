@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
-
 /**
  * Provides service testing steps (Solr, Redis).
  */
 trait StepServicesTrait {
-
-  use LoggerTrait;
 
   protected function stepSolr(): void {
     $this->logStepStart();

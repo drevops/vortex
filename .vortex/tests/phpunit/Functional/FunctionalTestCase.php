@@ -12,7 +12,7 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase;
 use DrevOps\Vortex\Tests\Traits\AssertProjectFilesTrait;
 use DrevOps\Vortex\Tests\Traits\GitTrait;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
+use AlexSkrypnyk\PhpunitHelpers\Traits\LoggerTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepBuildTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepDownloadDbTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepPrepareSutTrait;

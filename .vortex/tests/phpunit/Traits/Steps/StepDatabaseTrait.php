@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides database operation testing steps.
  */
 trait StepDatabaseTrait {
-
-  use LoggerTrait;
 
   protected function stepAhoyExportDb(string $filename = ''): void {
     $this->logStepStart();

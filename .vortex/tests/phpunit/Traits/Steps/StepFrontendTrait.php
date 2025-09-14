@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides frontend development testing steps.
  */
 trait StepFrontendTrait {
-
-  use LoggerTrait;
 
   protected function stepAhoyFei(string $webroot = 'web'): void {
     $this->logStepStart();

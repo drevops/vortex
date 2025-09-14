@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
-
 /**
  * Provides build step.
  */
 trait StepBuildTrait {
-
-  use LoggerTrait;
 
   protected function stepBuild(string $webroot = 'web', array $env = []): void {
     $this->logStepStart();

@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Steps;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
 
 /**
  * Provides testing operation steps (lint, test).
  */
 trait StepTestingTrait {
-
-  use LoggerTrait;
 
   protected function stepAhoyLint(string $webroot = 'web'): void {
     $this->logStepStart();
