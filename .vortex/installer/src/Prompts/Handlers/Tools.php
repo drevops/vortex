@@ -186,6 +186,7 @@ class Tools extends AbstractHandler {
         },
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'dealerdirect/phpcodesniffer-composer-installer');
+          $cj->removeConfigSetting('allow-plugins.dealerdirect/phpcodesniffer-composer-installer');
           $cj->removeSubNode('require-dev', 'drupal/coder');
           $cj->removeSubNode('require-dev', 'squizlabs/php_codesniffer');
         },

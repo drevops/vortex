@@ -23,7 +23,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -65,11 +51,6 @@
+@@ -65,21 +51,14 @@
              "scripts/composer/ScriptHandler.php"
          ]
      },
@@ -35,7 +35,9 @@
      "config": {
          "allow-plugins": {
              "composer/installers": true,
-@@ -79,7 +60,6 @@
+             "cweagans/composer-patches": true,
+-            "dealerdirect/phpcodesniffer-composer-installer": true,
+             "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
              "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,
