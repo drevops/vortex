@@ -60,6 +60,7 @@ class FunctionalTestCase extends UnitTestCase {
     $this->loggerSetVerbose(TRUE);
 
     static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
+    $this->logNote(static::locationsInfo());
 
     chdir(static::$sut);
 

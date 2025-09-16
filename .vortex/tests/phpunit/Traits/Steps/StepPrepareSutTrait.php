@@ -14,28 +14,29 @@ trait StepPrepareSutTrait {
   protected function stepPrepareSut(): void {
     $this->logStepStart();
 
-    $this->logSubstep('Check that SUT does not have common files before installation');
+    $this->logSubstep('Assert that SUT does not have common files before installation');
     $this->assertCommonFilesAbsent();
 
-    $this->logSubstep('Run installer to initialise the project with default settings');
+    $this->logSubstep('Run the installer to initialise the project with the default settings');
     $this->runInstaller();
 
-    $this->logSubstep('Check that SUT has common files after installation');
+    $this->logSubstep('Assert that SUT has common files after installation');
     $this->assertCommonFilesPresent();
 
-    $this->logSubstep('Check that created SUT is a git repository');
+    $this->logSubstep('Assert that created SUT is a git repository');
     $this->gitAssertIsRepository(static::$sut);
 
-    $this->logSubstep('Add all Vortex files to new git repo');
-    $this->gitCommitAll(static::locationsSut(), 'Add all Vortex files to new git repo');
+    $this->logSubstep('Add all Vortex files to new git repository');
+    $this->gitCommitAll(static::locationsSut(), 'Added Vortex files');
 
-    $this->logSubstep('Create IDE config file');
+    $this->logSubstep('Create git-excluded files');
     File::dump(static::locationsSut() . DIRECTORY_SEPARATOR . '.idea/idea_file.txt');
 
     $this->logStepFinish();
   }
 
   protected function runInstaller(array $arguments = []): void {
+    $this->logNote('Switch to the project root directory');
     chdir(static::locationsRoot());
 
     if (!is_dir('.vortex/installer/vendor')) {
@@ -48,32 +49,38 @@ trait StepPrepareSutTrait {
       static::locationsSut(),
     ], $arguments);
 
-    $this->cmd('php .vortex/installer/installer.php', arg: $arguments, env: [
-      // Force the installer script to be downloaded from the local repo for
-      // testing.
-      'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
-      // Tests are using demo database and 'ahoy download-db' command, so we
-      // need
-      // to set the CURL DB to test DB.
-      //
-      // Override demo database with test demo database. This is required to
-      // use test assertions ("star wars") with demo database.
-      //
-      // Installer will load environment variable and it will take precedence
-      // over the value in .env file.
-      'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
-      // Use unique installer temporary directory for each run. This is where
-      // the installer script downloads the Vortex codebase for processing.
-      'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
-    ]);
+    $this->cmd(
+      'php .vortex/installer/installer.php',
+      arg: $arguments,
+      env: [
+        // Use a unique temporary directory for each installer run.
+        // This is where the installer script downloads the Vortex codebase
+        // for processing.
+        'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
+        // Point the installer to the local template repository as the source
+        // of the Vortex codebase. During development, ensure any pending
+        // changes are committed to the template repository.
+        'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
+        // Tests use the demo database and the 'ahoy download-db' command,
+        // so we need to point CURL to the test database instead.
+        //
+        // This overrides the *demo database* with the *test demo database*,
+        // which is required for running test assertions ("star wars")
+        // against an expected data set.
+        //
+        // The installer will load this environment variable, and it will
+        // take precedence over the value in the .env file.
+        'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
+      ],
+      txt: 'Run the installer'
+    );
 
-    // Switch to the SUT directory after the installer has run.
+    $this->logNote('Switch back to the SUT directory after the installer has run');
     chdir(static::locationsSut());
 
-    // Adjust the codebase for unmounted volumes.
     $this->adjustCodebaseForUnmountedVolumes();
 
-    // Assert all special comments were removed.
+    $this->logNote('Smoke test the installer processing');
     $this->assertDirectoryNotContainsString('.', '#;');
     $this->assertDirectoryNotContainsString('.', '#;<');
     $this->assertDirectoryNotContainsString('.', '#;>');
@@ -83,7 +90,9 @@ trait StepPrepareSutTrait {
    * Adjust the codebase for unmounted volumes.
    *
    * This method modifies the codebase files to ensure
-   * that the project can be built and run without mounted Docker volumes.
+   * that the project can be built and run without mounted Docker volumes in
+   * environments such as CI/CD pipelines (which also replicate some hosting
+   * environments).
    */
   protected function adjustCodebaseForUnmountedVolumes(): void {
     if ($this->volumesMounted()) {
