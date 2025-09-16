@@ -14,7 +14,6 @@ use AlexSkrypnyk\PhpunitHelpers\UnitTestCase;
 use DrevOps\Vortex\Tests\Traits\AssertProjectFilesTrait;
 use DrevOps\Vortex\Tests\Traits\GitTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepBuildTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepDatabaseTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepPrepareSutTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepTestTrait;
 use Symfony\Component\Process\Process;
@@ -44,7 +43,6 @@ class FunctionalTestCase extends UnitTestCase {
   use StepBuildTrait;
   use StepPrepareSutTrait;
   use StepTestTrait;
-  use StepDatabaseTrait;
 
   protected function setUp(): void {
     self::locationsInit(File::cwd() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..');
@@ -259,6 +257,88 @@ class FunctionalTestCase extends UnitTestCase {
     }
 
     $this->logStepFinish();
+  }
+
+  /**
+   * Logs the start of a step, inferred from the calling function name.
+   *
+   * @param string|null $message
+   *   Optional message to log with the step start.
+   */
+  public static function logStepStart(?string $message = NULL): void {
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+    $step = $trace[1]['function'] ?? 'unknown';
+
+    // Capture current parent stack for hierarchy.
+    $parent_stack = static::$loggerStepStack;
+
+    // Add step to tracking array with hierarchy information.
+    static::$loggerSteps[] = [
+      'name' => $step,
+      'start_time' => microtime(TRUE),
+      'end_time' => NULL,
+      'elapsed' => NULL,
+      'parent_stack' => $parent_stack,
+    ];
+
+    // Push current step onto the stack for nested steps.
+    static::$loggerStepStack[] = $step;
+
+    $prefix = str_starts_with($step, 'subtest') ? 'SUBTEST START' : 'STEP START';
+
+    static::logSection($prefix . ' | ' . $step, $message, FALSE, 40);
+    if (static::$loggerIsVerbose) {
+      fwrite(static::getOutputStream(), PHP_EOL);
+    }
+  }
+
+  /**
+   * Logs the completion of a step, inferred from the calling function name.
+   *
+   * @param string|null $message
+   *   Optional message to log with the step completion.
+   */
+  public static function logStepFinish(?string $message = NULL): void {
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+    $step = $trace[1]['function'] ?? 'unknown';
+
+    // Find the most recent unfinished step with matching name.
+    $prefix = str_starts_with($step, 'subtest') ? 'SUBTEST DONE' : 'STEP DONE';
+
+    $section_title = $prefix . ' | ' . $step;
+    $step_index = NULL;
+
+    // Search backwards for the most recent matching step.
+    for ($i = count(static::$loggerSteps) - 1; $i >= 0; $i--) {
+      if (static::$loggerSteps[$i]['name'] === $step && static::$loggerSteps[$i]['end_time'] === NULL) {
+        $step_index = $i;
+        break;
+      }
+    }
+
+    if ($step_index !== NULL) {
+      $end_time = microtime(TRUE);
+      $elapsed_time = $end_time - static::$loggerSteps[$step_index]['start_time'];
+      $formatted_time = static::formatElapsedTime($elapsed_time);
+
+      // Update the step entry with completion info.
+      static::$loggerSteps[$step_index]['end_time'] = $end_time;
+      static::$loggerSteps[$step_index]['elapsed'] = $elapsed_time;
+
+      $section_title .= ' | ' . $formatted_time;
+
+      // Pop the step from the stack when it finishes.
+      // Find and remove the step from the stack.
+      $stack_key = array_search($step, static::$loggerStepStack, TRUE);
+      if ($stack_key !== FALSE) {
+        array_splice(static::$loggerStepStack, (int) $stack_key, 1);
+      }
+    }
+
+    static::logSection($section_title, $message, FALSE, 40);
+    if (static::$loggerIsVerbose) {
+      fwrite(static::getOutputStream(), PHP_EOL);
+    }
   }
 
 }

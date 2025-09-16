@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Functional;
 
-use DrevOps\Vortex\Tests\Traits\Steps\StepAhoyTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepDatabaseTrait;
+use DrevOps\Vortex\Tests\Traits\Steps\SubtestAhoyTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepEnvironmentTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepFrontendTrait;
 use DrevOps\Vortex\Tests\Traits\Steps\StepServicesTrait;
@@ -17,8 +16,7 @@ use DrevOps\Vortex\Tests\Traits\Steps\StepLintTrait;
  */
 class InstallDbTest extends FunctionalTestCase {
 
-  use StepAhoyTrait;
-  use StepDatabaseTrait;
+  use SubtestAhoyTrait;
   use StepEnvironmentTrait;
   use StepFrontendTrait;
   use StepLintTrait;
@@ -37,35 +35,35 @@ class InstallDbTest extends FunctionalTestCase {
   public function testDbDrivenWorkflow(): void {
     $this->stepBuild();
 
-    $this->stepAhoyLogin();
+    $this->subtestAhoyLogin();
 
     // State-less tests.
     $this->assertFilesTrackedInGit();
 
-    $this->stepAhoyCli();
+    $this->subtestAhoyCli();
 
     $this->stepEnvChanges();
 
     $this->stepTimezone();
 
-    $this->stepAhoyComposer();
+    $this->subtestAhoyComposer();
 
-    $this->stepAhoyDrush();
+    $this->subtestAhoyDrush();
 
-    $this->stepAhoyInfo();
+    $this->subtestAhoyInfo();
 
-    $this->stepAhoyContainerLogs();
+    $this->subtestAhoyContainerLogs();
 
     // State-full tests.
-    $this->stepAhoyImportDb();
+    $this->subtestAhoyImportDb();
 
-    $this->stepAhoyExportDb();
+    $this->subtestAhoyExportDb();
 
-    $this->stepAhoyExportDb('mydb.sql');
+    $this->subtestAhoyExportDb('mydb.sql');
 
-    $this->stepAhoyImportDb('.data/mydb.sql');
+    $this->subtestAhoyImportDb('.data/mydb.sql');
 
-    $this->stepAhoyProvision();
+    $this->subtestAhoyProvision();
 
     $this->stepAhoyLint();
 
