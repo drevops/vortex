@@ -27,6 +27,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
@@ -191,6 +192,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
+      ThemeCustom::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,

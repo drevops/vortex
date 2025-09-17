@@ -1,0 +1,24 @@
+@@ -15,7 +15,6 @@
+ 
+   paths:
+     - web/modules/custom
+-    - web/themes/custom
+     - web/sites/default/settings.php
+     - web/sites/default/includes
+     - tests
+@@ -37,7 +36,6 @@
+       message: '#.*no value type specified in iterable type array.#'
+       paths:
+         - web/modules/custom/*/tests/*
+-        - web/themes/custom/*/tests/*
+         - tests/phpunit/*
+       reportUnmatched: false
+     -
+@@ -46,7 +44,6 @@
+       message: '#.* with no value type specified in iterable type array#'
+       paths:
+         - web/modules/custom/*
+-        - web/themes/custom/*
+       reportUnmatched: false
+     -
+       # Included settings files are not aware about global variables.

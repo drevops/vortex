@@ -31,6 +31,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
@@ -135,7 +136,17 @@ class PromptManager {
             ProfileCustom::id()
           )
       ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, NULL, $r)), Theme::id())
+      ->add(
+          function (array $r, $pr, $n): string {
+            return $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class)));
+          },
+          Theme::id()
+        )
+        ->addIf(
+            fn($r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
+            fn($r, $pr, $n): string => text(...$this->args(ThemeCustom::class, NULL, $r)),
+            ThemeCustom::id()
+          )
 
       ->intro('Code repository')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
@@ -205,6 +216,14 @@ class PromptManager {
     // Always remove ProfileCustom key (it's only used for internal merging)
     unset($responses[ProfileCustom::id()]);
 
+    // Handle Theme custom name merging.
+    if (isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM && isset($responses[ThemeCustom::id()])) {
+      $responses[Theme::id()] = $responses[ThemeCustom::id()];
+    }
+
+    // Always remove ThemeCustom key (it's only used for internal merging)
+    unset($responses[ThemeCustom::id()]);
+
     // Handle DatabaseDownloadSource when ProvisionType is PROFILE.
     if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
       $responses[DatabaseDownloadSource::id()] = DatabaseDownloadSource::NONE;
@@ -260,6 +279,7 @@ class PromptManager {
       Profile::id(),
       Domain::id(),
       ModulePrefix::id(),
+      ThemeCustom::id(),
       Theme::id(),
       OrgMachineName::id(),
       MachineName::id(),
