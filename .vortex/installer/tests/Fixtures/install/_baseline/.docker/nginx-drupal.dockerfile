@@ -21,4 +21,6 @@ RUN apk add --no-cache tzdata
 
 COPY ./.docker/config/nginx/redirects-map.conf /etc/nginx/redirects-map.conf
 
+RUN fix-permissions /etc/nginx
+
 COPY --from=cli /app /app
