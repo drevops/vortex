@@ -73,15 +73,6 @@ check_dependencies() {
 prepare_installer() {
   info "Preparing installer..."
 
-  # Check if installer exists in build directory.
-  if [ -f "$INSTALLER_BUILD" ]; then
-    info "Copying installer from build directory"
-    note "Source: $INSTALLER_BUILD"
-    note "Target: $INSTALLER_DOCS"
-    cp "$INSTALLER_BUILD" "$INSTALLER_DOCS"
-    return 0
-  fi
-
   # Build installer if source directory exists.
   if [ -d "$INSTALLER_SOURCE_DIR" ]; then
     info "Building installer from source"
