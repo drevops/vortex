@@ -50,7 +50,7 @@ function ys_base_deploy_place_counter_block(): string {
  *
  * @codeCoverageIgnore
  */
-function ys_base_deploy_install_theme(): void {
+function ys_base_deploy_install_active_theme(): void {
   \Drupal::service('theme_installer')->install(['olivero']);
   \Drupal::service('config.factory')->getEditable('system.theme')->set('default', 'olivero')->save();
   // phpcs:ignore #;< DRUPAL_THEME

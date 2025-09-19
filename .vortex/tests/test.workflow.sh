@@ -41,7 +41,7 @@ bats() {
 
 phpunit() {
   pushd "${TEST_DIR}" >/dev/null || exit 1
-  "./vendor/bin/phpunit" "$@"
+  php -d memory_limit=-1 "./vendor/bin/phpunit" "$@"
   popd >/dev/null || exit 1
 }
 
@@ -57,15 +57,16 @@ fi
 case ${index} in
 
   0)
-    phpunit "${TEST_DIR}"/phpunit --exclude-filter=testDbDrivenWorkflow
+    phpunit "${TEST_DIR}"/phpunit --exclude-filter=AhoyWorkflowTest
     ;;
 
   1)
-    phpunit "${TEST_DIR}"/phpunit --filter=testDbDrivenWorkflow
+    phpunit "${TEST_DIR}"/phpunit --filter=AhoyWorkflowTest
     ;;
 
   2)
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
+    bats "${TEST_DIR}"/bats/e2e/update-vortex.bats
     ;;
 
   3)
@@ -73,7 +74,6 @@ case ${index} in
     ;;
 
   4)
-    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
@@ -83,7 +83,6 @@ case ${index} in
     phpunit "${TEST_DIR}"/phpunit
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
     bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats

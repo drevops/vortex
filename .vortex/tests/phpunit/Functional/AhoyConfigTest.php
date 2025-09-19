@@ -9,7 +9,7 @@ use AlexSkrypnyk\File\File;
 /**
  * Tests local Ahoy workflow functionality.
  */
-class AhoyTest extends FunctionalTestCase {
+class AhoyConfigTest extends FunctionalTestCase {
 
   public function testLocalConfigAbsent(): void {
     $this->cmd(

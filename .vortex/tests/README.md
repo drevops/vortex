@@ -52,17 +52,17 @@ yarn install
 ./vendor/bin/phpunit
 
 # Run specific test class
-./vendor/bin/phpunit phpunit/Functional/IdempotenceTest.php
+./vendor/bin/phpunit phpunit/Functional/AhoyConfigTest.php
 ```
 
 ## Running BATS tests
 
 ```bash
 # Run specific Bats test file
-bats bats/helpers.bats
+./node_modules/.bin/bats bats/helpers.bats
 
 # Run with verbose output
-bats --verbose-run bats/provision.bats
+./node_modules/.bin/bats --verbose-run bats/provision.bats
 ```
 
 ## Running Individual Test Suites
@@ -86,8 +86,6 @@ multiple runners.
 The following environment variables can be added in the environment to
 customize test execution:
 
-- `TEST_VORTEX_DEBUG=1` - Enable debug output
-- `TEST_NODE_INDEX` - CI runner index for parallel execution
-- `VORTEX_DEV_TEST_COVERAGE_DIR` - Coverage output directory
+- `TEST_VORTEX_DEBUG=1` - Enable debug output from tests
 - `TEST_PACKAGE_TOKEN` - GitHub token used for integration tests
-- `TEST_VORTEX_CONTAINER_REGISTRY_USER/PASS` - Container registry credentials used for integration tests
+- `TEST_VORTEX_CONTAINER_REGISTRY_USER` and `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - Container registry credentials used for integration tests
