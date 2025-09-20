@@ -817,7 +817,7 @@ assert_ahoy_debug() {
   run ahoy debug
   assert_success
   assert_output_not_contains "reat"
-  assert_output_contains "Enabled debug"
+  assert_output_contains "Debug configuration is already enabled"
 
   substep "Disable debug"
   # Assert that restarting the stack does not have Xdebug enabled.

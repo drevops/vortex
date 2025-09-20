@@ -608,12 +608,14 @@ trait SubtestAhoyTrait {
     $test_color1 = '#7e57e2';
     $test_color2 = '#91ea5e';
     $variables_file = $webroot . '/themes/custom/star_wars/scss/_variables.scss';
+    $this->backupFile($variables_file);
     $minified_file = $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css';
+    $this->backupFile($minified_file);
 
     $this->assertFileNotContainsString($minified_file, $test_color1, 'Minified CSS file should not contain test color before build');
 
     $original_content = File::read($variables_file);
-    $new_content = $original_content . "\n\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n";
+    $new_content = $original_content . "\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n";
     File::remove($variables_file);
     File::dump($variables_file, $new_content);
     $this->syncToContainer();
@@ -626,7 +628,7 @@ trait SubtestAhoyTrait {
 
     $this->assertFileNotContainsString($minified_file, $test_color2, 'Minified CSS file should not contain second test color before development build');
 
-    $dev_content = $new_content . "\n\$color-please: {$test_color2};\n\$color-primary: \$color-please;\n";
+    $dev_content = $new_content . "\$color-please: {$test_color2};\n\$color-primary: \$color-please;\n";
     File::remove($variables_file);
     File::dump($variables_file, $dev_content);
     $this->syncToContainer();
@@ -634,6 +636,9 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy fed');
     $this->syncToHost();
     $this->assertFileContainsString($minified_file, 'background: ' . $test_color2, 'Assets compiled for development are not minified (contains spaces between properties and their values)');
+
+    $this->restoreFile($variables_file);
+    $this->restoreFile($minified_file);
 
     $this->logStepFinish();
   }
@@ -646,16 +651,15 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy info', ['* Xdebug', '* Disabled', '! Enabled'], '`ahoy info` shows that Xdebug is initially disabled.');
 
     $this->logSubstep('Enable Xdebug');
-    // Using "creat" from "Create" or "Creating".
-    $this->cmd('ahoy debug', ['* Enabled debug', '* creat'], '`ahoy debug` enables Xdebug and restarts the stack.');
+    $this->cmd('ahoy debug', '* Enabled debug', '`ahoy debug` enables Xdebug and restarts the stack.');
     $this->cmd('ahoy cli "php -v"', '* Xdebug', 'Xdebug is enabled in the container.');
     $this->cmd('ahoy info', ['! Disabled', '* Enabled'], '`ahoy info` shows that Xdebug is enabled.');
 
     $this->logSubstep('Assert repeated call does not restart the stack');
-    $this->cmd('ahoy debug', 'Enabled debug', '`ahoy debug` does not restart the stack when Xdebug is already enabled.');
+    $this->cmd('ahoy debug', '* Debug configuration is already enabled.', '`ahoy debug` does not restart the stack when Xdebug is already enabled.');
 
     $this->logSubstep('Disable Xdebug');
-    $this->cmd('ahoy up', txt: 'Restart the stack to disable Xdebug.');
+    $this->cmd('ahoy up', '! debug', txt: 'Restart the stack to disable Xdebug.');
     $this->cmd('ahoy cli "php -v"', '! Xdebug', 'Xdebug is not enabled in the container after a restart.');
     $this->cmd('ahoy info', ['* Xdebug', '* Disabled', '! Enabled'], '`ahoy info` shows that Xdebug is disabled after a restart.');
 

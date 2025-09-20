@@ -247,7 +247,9 @@ commands:
 
   debug:
     usage: Enable PHP Xdebug.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable."
+    cmd: |
+      ahoy cli php -v | grep -q Xdebug && echo "Debug configuration is already enabled. Use 'ahoy up' to disable." || \
+      (XDEBUG_ENABLE=true ahoy up cli php nginx && sleep 1 && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable.")
 
   deploy:
     usage: Run remote deployment procedures.
