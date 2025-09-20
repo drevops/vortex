@@ -13,7 +13,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   use SubtestAhoyTrait;
 
-  public function testStateless(): void {
+  public function testAhoyWorkflowStateless(): void {
     $this->subtestAhoyBuild();
 
     $this->subtestAhoyLogin();
@@ -55,7 +55,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
-  public function testStateful(): void {
+  public function testAhoyWorkflowStateful(): void {
     $this->subtestAhoyBuild();
 
     $this->subtestAhoyImportDb();
@@ -87,7 +87,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
-  public function testIdempotence(): void {
+  public function testAhoyBuildIdempotence(): void {
     $this->logSubstep('Initial build of the project.');
     $this->subtestAhoyBuild();
     $this->assertFilesTrackedInGit();

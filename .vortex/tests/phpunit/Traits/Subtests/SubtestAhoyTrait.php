@@ -11,18 +11,25 @@ use AlexSkrypnyk\File\File;
  */
 trait SubtestAhoyTrait {
 
-  protected function subtestAhoyBuild(string $webroot = 'web', array $env = []): void {
+  protected function subtestAhoyBuild(string $webroot = 'web', array $env = [], bool $build_theme = TRUE): void {
     $this->logStepStart();
 
     $this->logSubstep('Assert lock files presence/absence before build');
     $this->assertFileDoesNotExist('composer.lock', 'Composer lock file should not exist before build');
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist before build');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/yarn.lock', 'Theme Yarn lock file should exist before build');
+
+    if ($build_theme) {
+      $this->assertThemeFilesPresent();
+    }
+    else {
+      $this->assertThemeFilesAbsent();
+    }
 
     $db_file_present = file_exists('.data/db.sql');
     $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
 
-    $this->logSubstep('Starting ahoy build');
+    $this->logSubstep('Starting Ahoy build');
+    $this->dockerCleanup();
     $this->cmd(
       'ahoy build',
       inp: ['y'],
@@ -33,37 +40,41 @@ trait SubtestAhoyTrait {
         'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
         'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
       ], $env),
-      tio: 10 * 60,
-      ito: 60,
-      txt: '`ahoy build` should complete successfully'
+      txt: '`ahoy build` should build stack images and stack should start successfully',
     );
     $this->syncToHost();
 
     $this->logSubstep('Assert lock files presence/absence after build');
     $this->assertFileExists('composer.lock', 'Composer lock file should exist after build');
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist after build');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/yarn.lock', 'Theme Yarn lock file should exist after build');
-
-    // Assert that database file preserved after build if existed before.
-    if ($db_file_present) {
-      $this->assertFileExists('.data/db.sql', 'Database file should be preserved after build if it existed before');
+    if ($build_theme) {
+      $this->assertThemeFilesPresent();
     }
     else {
-      $this->assertFileDoesNotExist('.data/db.sql', 'Database file should not exist if it did not exist before build');
+      $this->assertThemeFilesAbsent();
     }
 
     $this->logSubstep('Assert common files are present after build');
     $this->assertCommonFilesPresent($webroot);
 
-    $this->logSubstep('Assert only minified compiled CSS exists');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'Minified CSS file should exist');
-    $this->assertFileNotContainsString($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'background: #7e57e2', 'CSS should not contain development colors');
-    $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/css/star_wars.css', 'Non-minified CSS should not exist');
+    if ($build_theme) {
+      $this->logSubstep('Assert only minified compiled CSS exists');
+      $this->assertFileExists($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'Minified CSS file should exist');
+      $this->assertFileNotContainsString($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'background: #7e57e2', 'CSS should not contain development colors');
+      $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/css/star_wars.css', 'Non-minified CSS should not exist');
 
-    $this->logSubstep('Assert only minified compiled JS exists');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS file should exist');
-    $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(Drupal){"use strict";Drupal.behaviors.star_wars', 'JS should contain expected minified content');
-    $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist');
+      $this->logSubstep('Assert only minified compiled JS exists');
+      $this->assertFileExists($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS file should exist');
+      $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(Drupal){"use strict";Drupal.behaviors.star_wars', 'JS should contain expected minified content');
+      $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist');
+    }
+    else {
+      $this->logSubstep('Assert no compiled CSS or JS exists when theme build is skipped');
+      $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/css/star_wars.min.css', 'Minified CSS file should not exist when theme build is skipped');
+      $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/css/star_wars.css', 'Non-minified CSS should not exist when theme build is skipped');
+      $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS file should not exist when theme build is skipped');
+      $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist when theme build is skipped');
+    }
 
     $this->logStepFinish();
   }

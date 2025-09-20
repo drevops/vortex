@@ -443,6 +443,7 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.theme');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/Gruntfile.js');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/package.json');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/yarn.lock');
 
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Unit/StarWarsUnitTestBase.php');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Unit/ExampleTest.php');
