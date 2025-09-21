@@ -27,19 +27,7 @@ trait SubtestDockerComposeTrait {
     $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
 
     $this->logSubstep('Starting Docker Compose build');
-    $this->dockerCleanup();
-    $this->cmd(
-      'docker compose up -d --force-recreate --build --renew-anon-volumes',
-      env: array_merge([
-        // Credentials for the test container registry to allow fetching public
-        // images to overcome the throttle limit of Docker Hub, and also used
-        // for pushing images during the build.
-        'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
-        'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
-      ], $env),
-      tio: 15 * 60,
-      txt: 'Stack images should be built and stack should start successfully',
-    );
+    $this->cmd('docker compose up -d --force-recreate --build --renew-anon-volumes', tio: 15 * 60, txt: 'Stack images should be built and stack should start successfully');
     $this->syncToHost();
 
     $this->logSubstep('Assert lock files presence/absence after build');
@@ -279,7 +267,7 @@ trait SubtestDockerComposeTrait {
     $this->logStepStart();
 
     // Wait a for Solr to start in case the stack was restarted in another step.
-    sleep(10);
+    sleep(20);
 
     $this->cmd(
       'docker compose exec -T cli bash -c "curl -s \"http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',

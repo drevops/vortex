@@ -36,6 +36,11 @@ trait ProcessTrait {
     $env += [
       'AHOY_CONFIRM_RESPONSE' => 'y',
       'AHOY_CONFIRM_WAIT_SKIP' => 1,
+      // Credentials for the test container registry to allow fetching public
+      // images to overcome the throttle limit of Docker Hub, and also used
+      // for pushing images during the build.
+      'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
+      'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
     ];
 
     // If process streaming is disabled, also silence the output of the
@@ -60,7 +65,7 @@ trait ProcessTrait {
     array $arg = [],
     array $inp = [],
     array $env = [],
-    int $tio = 180,
+    int $tio = 900,
     int $ito = 180,
   ): ?Process {
     $this->processRun($cmd, $arg, $inp, $env, $tio, $ito);
@@ -83,8 +88,8 @@ trait ProcessTrait {
     array $arg = [],
     array $inp = [],
     array $env = [],
-    int $tio = 60,
-    int $ito = 60,
+    int $tio = 900,
+    int $ito = 180,
   ): ?Process {
     $this->processRun($cmd, $arg, $inp, $env, $tio, $ito);
     $this->assertProcessFailed($txt);

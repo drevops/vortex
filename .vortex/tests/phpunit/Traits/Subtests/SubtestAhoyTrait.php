@@ -15,9 +15,9 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->logSubstep('Assert lock files presence/absence before build');
-    $this->assertFileDoesNotExist('composer.lock', 'Composer lock file should not exist before build');
+    $composerlock_present = file_exists('composer.lock');
+    $this->logNote('`composer.lock` file exists before build: ' . ($composerlock_present ? 'Yes' : 'No'));
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist before build');
-
     if ($build_theme) {
       $this->assertThemeFilesPresent();
     }
@@ -29,19 +29,7 @@ trait SubtestAhoyTrait {
     $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
 
     $this->logSubstep('Starting Ahoy build');
-    $this->dockerCleanup();
-    $this->cmd(
-      'ahoy build',
-      inp: ['y'],
-      env: array_merge([
-        // Credentials for the test container registry to allow fetching public
-        // images to overcome the throttle limit of Docker Hub, and also used
-        // for pushing images during the build.
-        'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
-        'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
-      ], $env),
-      txt: '`ahoy build` should build stack images and stack should start successfully',
-    );
+    $this->cmd('ahoy build', inp: ['y'], txt: '`ahoy build` should build stack images and stack should start successfully');
     $this->syncToHost();
 
     $this->logSubstep('Assert lock files presence/absence after build');

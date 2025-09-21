@@ -53,6 +53,8 @@ class FunctionalTestCase extends UnitTestCase {
     chdir(static::$sut);
 
     $this->prepareSut();
+
+    $this->dockerCleanup();
   }
 
   protected function tearDown(): void {

@@ -160,7 +160,7 @@ commands:
     usage: Remove containers, all build files. Use with `hard` to reset repository to the last commit.
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
-      AHOY_CONFIRM_RESPONSE=y ahoy down
+      AHOY_CONFIRM_RESPONSE=y ahoy down || true
       ./scripts/vortex/reset.sh "$@"
 
   fei:
