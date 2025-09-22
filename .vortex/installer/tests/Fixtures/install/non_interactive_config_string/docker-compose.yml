@@ -1,4 +1,4 @@
-@@ -166,17 +166,6 @@
+@@ -167,17 +167,6 @@
      ports:
        - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
  
@@ -16,16 +16,16 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -193,11 +182,10 @@
-   wait_dependencies:
+@@ -194,12 +183,10 @@
+   wait-for-dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
 -      - clamav
-       - cli
        - database
        - redis
--    command: database:3306 clamav:3310 redis:6379
-+    command: database:3306  redis:6379
- 
- networks:           ### Use external networks locally. Automatically removed in CI.
-   amazeeio-network: ### Automatically removed in CI.
+       - solr
+     command:
+-      - clamav:3310
+       - database:3306
+       - redis:6379
+       - solr:8983

@@ -109,6 +109,9 @@ services:
     # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+    depends_on:
+      wait-for-dependencies:
+        condition: service_completed_successfully
     user: root
     #;< HOSTING_LAGOON
     labels:
@@ -202,8 +205,6 @@ services:
       <<: *default-environment
     volumes:
       - solr:/var/solr
-    depends_on:
-      - cli
     ports:
       - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
     #;< HOSTING_LAGOON
@@ -248,18 +249,31 @@ services:
     #;> HOSTING_LAGOON
 
   # Helper container to wait for services to become available.
-  wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:25.3.0
+  wait-for-dependencies:
+    image: drevops/docker-wait-for-dependencies:25.9.0
     depends_on:
       #;< SERVICE_CLAMAV
       - clamav
       #;> SERVICE_CLAMAV
-      - cli
       - database
       #;< SERVICE_REDIS
       - redis
       #;> SERVICE_REDIS
-    command: database:3306 clamav:3310 redis:6379
+      #;< SERVICE_SOLR
+      - solr
+      #;> SERVICE_SOLR
+    command:
+      #;< SERVICE_CLAMAV
+      - clamav:3310
+      #;> SERVICE_CLAMAV
+      - database:3306
+      #;< SERVICE_REDIS
+      - redis:6379
+      #;> SERVICE_REDIS
+      #;< SERVICE_SOLR
+      - solr:8983
+      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+      #;> SERVICE_SOLR
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: none # Do not deploy in Lagoon.

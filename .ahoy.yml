@@ -133,7 +133,7 @@ commands:
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
       docker compose rm --force --stop --volumes database && \
       ahoy up -- --build database && \
-      ahoy up wait_dependencies && \
+      ahoy up wait-for-dependencies && \
       sleep 15 && \
       ahoy provision && \
       VORTEX_SHOW_LOGIN=1 ahoy info

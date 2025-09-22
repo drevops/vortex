@@ -266,9 +266,6 @@ trait SubtestDockerComposeTrait {
   protected function subtestSolr(): void {
     $this->logStepStart();
 
-    // Wait a for Solr to start in case the stack was restarted in another step.
-    sleep(20);
-
     $this->cmd(
       'docker compose exec -T cli bash -c "curl -s \"http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
       'response',
