@@ -249,7 +249,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:25.3.0
+    image: drevops/docker-wait-for-dependencies:25.9.0
     depends_on:
       #;< SERVICE_CLAMAV
       - clamav
