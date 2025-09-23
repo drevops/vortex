@@ -156,10 +156,6 @@ services:
     build:
       context: .
       dockerfile: .docker/solr.dockerfile
-      args:
-        CLI_IMAGE: *cli-image
-      additional_contexts:
-        cli: "service:cli"
     environment:
       <<: *default-environment
     volumes:

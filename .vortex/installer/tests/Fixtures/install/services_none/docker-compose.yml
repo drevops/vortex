@@ -7,7 +7,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -149,35 +147,6 @@
+@@ -149,31 +147,6 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -18,10 +18,6 @@
 -    build:
 -      context: .
 -      dockerfile: .docker/solr.dockerfile
--      args:
--        CLI_IMAGE: *cli-image
--      additional_contexts:
--        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    volumes:
@@ -43,7 +39,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -194,16 +163,9 @@
+@@ -190,16 +163,9 @@
    wait-for-dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
@@ -60,7 +56,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -212,7 +174,6 @@
+@@ -208,7 +174,6 @@
  volumes:
    app: {}
    files: {}

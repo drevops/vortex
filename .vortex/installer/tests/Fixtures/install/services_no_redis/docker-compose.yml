@@ -17,7 +17,7 @@
    solr:
      build:
        context: .
-@@ -196,12 +191,10 @@
+@@ -192,12 +187,10 @@
      depends_on:
        - clamav
        - database

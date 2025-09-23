@@ -1,4 +1,4 @@
-@@ -152,21 +152,6 @@
+@@ -152,17 +152,6 @@
    redis:
      image: uselagoon/valkey-8:__VERSION__
  
@@ -6,10 +6,6 @@
 -    build:
 -      context: .
 -      dockerfile: .docker/solr.dockerfile
--      args:
--        CLI_IMAGE: *cli-image
--      additional_contexts:
--        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    volumes:
@@ -20,7 +16,7 @@
    clamav:
      build:
        context: .
-@@ -197,13 +182,10 @@
+@@ -193,13 +182,10 @@
        - clamav
        - database
        - redis
@@ -34,7 +30,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -212,7 +194,6 @@
+@@ -208,7 +194,6 @@
  volumes:
    app: {}
    files: {}

@@ -55,7 +55,7 @@
  
    solr:
      build:
-@@ -166,6 +185,8 @@
+@@ -162,6 +181,8 @@
        - solr:/var/solr
      ports:
        - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
@@ -64,7 +64,7 @@
  
    clamav:
      build:
-@@ -177,6 +198,10 @@
+@@ -173,6 +194,10 @@
        - '3310' # Find port on host with `docker compose port clamav 3310`.
      networks:
        - default
@@ -75,7 +75,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -189,6 +214,8 @@
+@@ -185,6 +210,8 @@
      ports:
        - '7900' # Find port on host with `docker compose port chrome 7900`.
      shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
@@ -84,7 +84,7 @@
  
    # Helper container to wait for services to become available.
    wait-for-dependencies:
-@@ -204,6 +231,8 @@
+@@ -200,6 +227,8 @@
        - redis:6379
        - solr:8983
        - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
