@@ -131,17 +131,15 @@ commands:
     usage: Reload the database container using local database image.
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
-      docker compose rm --force --stop --volumes database && \
-      ahoy up -- --build database && \
-      ahoy up wait-for-dependencies && \
-      sleep 15 && \
-      ahoy provision && \
-      VORTEX_SHOW_LOGIN=1 ahoy info
+      docker compose rm --force --stop --volumes database
+      docker compose build database
+      ahoy up
 
   provision:
     usage: Provision a site from the database dump or profile.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
+      [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
       ahoy cli ./scripts/vortex/provision.sh
 
   export-db:

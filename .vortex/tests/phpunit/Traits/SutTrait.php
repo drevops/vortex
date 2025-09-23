@@ -626,11 +626,11 @@ EOT;
     }
   }
 
-  protected function addVarToFile(string $file, string $var, string $value): void {
+  protected function addVarToFile(string $file, string $var, string|int|float $value): void {
     // Backup original file first.
     $this->backupFile($file);
     $content = File::read($file);
-    $content .= sprintf('%s%s=%s%s', PHP_EOL, $var, $value, PHP_EOL);
+    $content .= sprintf('%s%s=%s%s', PHP_EOL, $var, strval($value), PHP_EOL);
     File::dump($file, $content);
   }
 
