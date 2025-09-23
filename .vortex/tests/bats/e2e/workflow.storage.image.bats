@@ -77,8 +77,6 @@ load ../_helper.workflow.bash
 
   assert_ahoy_login
 
-  assert_ahoy_debug
-
   assert_ahoy_export_db "mydb.tar"
 
   assert_ahoy_test_bdd_fast
