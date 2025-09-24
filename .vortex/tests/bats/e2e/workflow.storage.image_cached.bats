@@ -85,7 +85,7 @@ load ../_helper.workflow.bash
   assert_output_contains "Committing exported container image with name docker.io/${VORTEX_DB_IMAGE}"
   assert_output_contains "Committed exported container image with id"
   assert_output_contains "Exporting database image archive to file ./.data/db.tar."
-  assert_output_contains "Saved exported database image archive file ./.data/db.tar."
+  assert_output_contains "Exported database image saved to archive file ./.data/db.tar."
   assert_file_exists .data/db.tar
 
   substep "Remove existing image and assert that exported DB image file still exists."

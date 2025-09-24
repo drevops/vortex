@@ -494,6 +494,28 @@ trait SutTrait {
     $this->removeDevelopmentSettings($webroot);
   }
 
+  protected function assertWebpageContains(string $path, string $content, string $message = ''): void {
+    $fetched = $this->fetchWebpageContent($path);
+    $this->assertStringContainsString($content, $fetched, $message ?: "Webpage at $path should contain: $content");
+  }
+
+  protected function assertWebpageNotContains(string $path, string $content, string $message = ''): void {
+    $fetched = $this->fetchWebpageContent($path);
+    $this->assertStringNotContainsString($content, $fetched, $message ?: "Webpage at $path should not contain: $content");
+  }
+
+  protected function fetchWebpageContent(string $path): string {
+    $this->cmd('ahoy cli curl -L -s "http://nginx:8080' . $path . '"', txt: 'Fetch webpage content');
+
+    $content = $this->process->getOutput();
+
+    $filename = static::$tmp . '/fetch_webpage_content/' . md5($path) . '.html';
+    File::dump($filename, $content);
+    $this->logNote('Webpage content saved to: ' . $filename);
+
+    return $content;
+  }
+
   protected function prepareGlobalGitconfig(): void {
     shell_exec('git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"');
   }

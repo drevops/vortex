@@ -25,9 +25,6 @@ trait SubtestAhoyTrait {
       $this->assertThemeFilesAbsent();
     }
 
-    $db_file_present = file_exists('.data/db.sql');
-    $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
-
     $this->logSubstep('Starting Ahoy build');
     $this->cmd('ahoy build', inp: ['y'], txt: '`ahoy build` should build stack images and stack should start successfully');
     $this->syncToHost();
@@ -268,7 +265,7 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
-  protected function subtestAhoyExportDb(string $filename = ''): void {
+  protected function subtestAhoyExportDb(string $filename = '', bool $is_file = TRUE): void {
     $this->logStepStart();
 
     $has_argument = $filename !== '';
@@ -278,13 +275,11 @@ trait SubtestAhoyTrait {
       'ahoy export-db',
       arg: $has_argument ? [$filename] : [],
       out: [
-        '* Exported database dump saved',
+        $is_file ? '* Exported database dump saved' : '* Exported database image saved to archive file',
         '! Containers are not running.',
       ],
       txt: 'Export database dump ' . ($has_argument ? sprintf("to file '%s'", $filename) : 'to a default file')
     );
-
-    $this->syncToHost();
 
     if ($has_argument) {
       $this->assertFileExists('.data/' . $filename, 'Export file should exist after export');
@@ -542,18 +537,13 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
-  protected function subtestAhoyTestBddFast(string $webroot = 'web'): void {
+  protected function subtestAhoyTestBddFast(string $webroot = 'web', ?string $tags = NULL): void {
     $this->logStepStart();
 
     $this->substepWarmCaches();
 
     $this->logSubstep('Run all BDD tests');
-    $process = $this->processRun('ahoy test-bdd');
-
-    if (!$process->isSuccessful()) {
-      $this->logSubstep('Re-run all BDD tests after random failure');
-      $this->cmd('ahoy test-bdd');
-    }
+    $process = $this->cmd('ahoy test-bdd', arg: $tags !== NULL ? ['--', '--tags=' . $tags] : [], txt: '`ahoy test-bdd` runs successfully');
 
     $this->syncToHost();
 
