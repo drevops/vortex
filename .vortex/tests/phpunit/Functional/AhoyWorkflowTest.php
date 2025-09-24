@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Functional;
 
-use AlexSkrypnyk\File\File;
 use DrevOps\Vortex\Tests\Traits\Subtests\SubtestAhoyTrait;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests DB-driven workflow.
@@ -29,6 +29,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     parent::setUp();
   }
 
+  #[Group('p1')]
   public function testAhoyWorkflowStateless(): void {
     $this->subtestAhoyBuild();
 
@@ -71,6 +72,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
+  #[Group('p1')]
   public function testAhoyWorkflowStateful(): void {
     $this->subtestAhoyBuild();
 
@@ -103,6 +105,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
+  #[Group('p1')]
   public function testAhoyBuildIdempotence(): void {
     $this->logSubstep('Initial build of the project.');
     $this->subtestAhoyBuild();
@@ -119,6 +122,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyTestBddFast();
   }
 
+  #[Group('p4')]
   public function testAhoyWorkflowDiSi(): void {
     $this->logStepStart();
 
@@ -131,7 +135,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileNotContainsString('.env', 'VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest', '.env should not contain demo database image');
     $this->assertFileNotContainsString('.env', 'VORTEX_DB_DOWNLOAD_URL=', '.env should not contain database download URL');
 
-    // Do not use demo database - testing demo database discovery is another test.
+    // Do not use demo database - testing demo database discovery is
+    // another test.
     $this->addVarToFile('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
 
     // Explicitly specify that we do not want to login into the public registry
@@ -143,7 +148,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyInfo(db_image: $db_image);
 
-    // Assert that the database was not downloaded because VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP was set.
+    // Assert that the database was not downloaded
+    // because VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP was set.
     $this->assertFileDoesNotExist('.data/db.sql', 'Demo database file should not exist after installer');
 
     $this->logSubstep('Test database reload functionality');
@@ -160,7 +166,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyInfo(db_image: $db_image);
     $this->assertWebpageContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should show initial test content after database reload');
 
-    // Other stack assertions - these run only for this container image-related test.
+    // Other stack assertions - these run only for this container
+    // image-related test.
     $this->assertFilesTrackedInGit();
 
     $this->subtestAhoyContainerLogs();

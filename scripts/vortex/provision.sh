@@ -61,6 +61,9 @@ VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 # Database dump file name.
 VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
+# Name of the pre-built database container image.
+VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off

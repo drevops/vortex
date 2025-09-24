@@ -57,11 +57,11 @@ fi
 case ${index} in
 
   0)
-    phpunit "${TEST_DIR}"/phpunit --exclude-filter=AhoyWorkflowTest
+    phpunit "${TEST_DIR}"/phpunit --group=p0
     ;;
 
   1)
-    phpunit "${TEST_DIR}"/phpunit --filter=AhoyWorkflowTest
+    phpunit "${TEST_DIR}"/phpunit --group=p1
     ;;
 
   2)
@@ -74,7 +74,7 @@ case ${index} in
     ;;
 
   4)
-    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
+    phpunit "${TEST_DIR}"/phpunit --group=p4
     # Disabled due to intermittent failures.
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
     ;;

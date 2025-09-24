@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests local Ahoy workflow functionality.
  */
 class AhoyConfigTest extends FunctionalTestCase {
 
+  #[Group('p0')]
   public function testLocalConfigAbsent(): void {
     $this->cmd(
       'ahoy --version',
@@ -19,6 +21,7 @@ class AhoyConfigTest extends FunctionalTestCase {
     );
   }
 
+  #[Group('p0')]
   public function testLocalConfigPresent(): void {
     File::copy('.ahoy.local.example.yml', '.ahoy.local.yml');
     $this->cmd(
@@ -28,6 +31,7 @@ class AhoyConfigTest extends FunctionalTestCase {
     );
   }
 
+  #[Group('p0')]
   public function testLocalConfigPresentNonZeroExitCode(): void {
     File::copy('.ahoy.local.example.yml', '.ahoy.local.yml');
 

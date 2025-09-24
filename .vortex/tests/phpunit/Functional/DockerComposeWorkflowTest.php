@@ -6,6 +6,7 @@ namespace DrevOps\Vortex\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
 use DrevOps\Vortex\Tests\Traits\Subtests\SubtestDockerComposeTrait;
+use PHPUnit\Framework\Attributes\Group;
 
 class DockerComposeWorkflowTest extends FunctionalTestCase {
 
@@ -27,6 +28,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     parent::setUp();
   }
 
+  #[Group('p0')]
   public function testDockerComposeWorkflowFull(): void {
     $this->logSubstep('Building stack with Docker Compose');
     $this->subtestDockerComposeBuild();
@@ -62,6 +64,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/behat', txt: 'Run Behat tests');
   }
 
+  #[Group('p0')]
   public function testDockerComposeWorkflowNoFe(): void {
     $this->logSubstep('Building stack with Docker Compose');
     $this->subtestDockerComposeBuild(env: ['VORTEX_FRONTEND_BUILD_SKIP' => '1'], build_theme: FALSE);
@@ -97,6 +100,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
    * export TEST_PACKAGE_TOKEN=real_github_token_with_access_to_private_package
    * or this test will fail.
    */
+  #[Group('p0')]
   public function testDockerComposePackageToken(): void {
     $package_token = getenv('TEST_PACKAGE_TOKEN');
     $this->assertNotEmpty($package_token, 'TEST_PACKAGE_TOKEN environment variable must be set');

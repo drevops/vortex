@@ -265,7 +265,7 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
-  protected function subtestAhoyExportDb(string $filename = '', bool $is_file = TRUE): void {
+  protected function subtestAhoyExportDb(string $filename = '', bool $export_source_is_file = TRUE): void {
     $this->logStepStart();
 
     $has_argument = $filename !== '';
@@ -275,7 +275,7 @@ trait SubtestAhoyTrait {
       'ahoy export-db',
       arg: $has_argument ? [$filename] : [],
       out: [
-        $is_file ? '* Exported database dump saved' : '* Exported database image saved to archive file',
+        $export_source_is_file ? '* Exported database dump saved' : '* Exported database image saved to archive file',
         '! Containers are not running.',
       ],
       txt: 'Export database dump ' . ($has_argument ? sprintf("to file '%s'", $filename) : 'to a default file')
@@ -284,7 +284,7 @@ trait SubtestAhoyTrait {
     if ($has_argument) {
       $this->assertFileExists('.data/' . $filename, 'Export file should exist after export');
     }
-    else {
+    elseif ($export_source_is_file) {
       $this->assertFilesWildcardExists('.data/export_db_*');
     }
 
@@ -543,7 +543,7 @@ trait SubtestAhoyTrait {
     $this->substepWarmCaches();
 
     $this->logSubstep('Run all BDD tests');
-    $process = $this->cmd('ahoy test-bdd', arg: $tags !== NULL ? ['--', '--tags=' . $tags] : [], txt: '`ahoy test-bdd` runs successfully');
+    $this->cmd('ahoy test-bdd', arg: $tags !== NULL ? ['--', '--tags=' . $tags] : [], txt: '`ahoy test-bdd` runs successfully');
 
     $this->syncToHost();
 

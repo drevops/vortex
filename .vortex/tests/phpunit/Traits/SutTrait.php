@@ -496,18 +496,18 @@ trait SutTrait {
 
   protected function assertWebpageContains(string $path, string $content, string $message = ''): void {
     $fetched = $this->fetchWebpageContent($path);
-    $this->assertStringContainsString($content, $fetched, $message ?: "Webpage at $path should contain: $content");
+    $this->assertStringContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should contain: %s', $path, $content));
   }
 
   protected function assertWebpageNotContains(string $path, string $content, string $message = ''): void {
     $fetched = $this->fetchWebpageContent($path);
-    $this->assertStringNotContainsString($content, $fetched, $message ?: "Webpage at $path should not contain: $content");
+    $this->assertStringNotContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should not contain: %s', $path, $content));
   }
 
   protected function fetchWebpageContent(string $path): string {
     $this->cmd('ahoy cli curl -L -s "http://nginx:8080' . $path . '"', txt: 'Fetch webpage content');
 
-    $content = $this->process->getOutput();
+    $content = $this->processGet()->getOutput();
 
     $filename = static::$tmp . '/fetch_webpage_content/' . md5($path) . '.html';
     File::dump($filename, $content);
