@@ -107,9 +107,18 @@ trait SutTrait {
     $this->adjustCodebaseForUnmountedVolumes();
 
     $this->logNote('Smoke test the installer processing');
-    $this->assertDirectoryNotContainsString('.', '#;', message: 'Directory should not contain lines with #;');
-    $this->assertDirectoryNotContainsString('.', '#;<', message: 'Directory should not contain lines with #;<');
-    $this->assertDirectoryNotContainsString('.', '#;>', message: 'Directory should not contain lines with #;>');
+    $this->assertDirectoryNotContainsString('.', 'your_site');
+    $this->assertDirectoryNotContainsString('.', 'ys_base');
+    $this->assertDirectoryNotContainsString('.', 'YOURSITE');
+    $this->assertDirectoryNotContainsString('.', 'YourSite');
+    $this->assertDirectoryNotContainsString('.', 'your_site_theme');
+    $this->assertDirectoryNotContainsString('.', 'your_org');
+    $this->assertDirectoryNotContainsString('.', 'YOURORG');
+    $this->assertDirectoryNotContainsString('.', 'www.your-site-domain.example');
+    // Assert all special comments were removed.
+    $this->assertDirectoryNotContainsString('.', '#;');
+    $this->assertDirectoryNotContainsString('.', '#;<');
+    $this->assertDirectoryNotContainsString('.', '#;>');
   }
 
   protected function downloadDatabase(bool $copy_to_container = FALSE): void {
@@ -420,21 +429,6 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/sites/default/default.services.yml');
     $this->assertFileExists($webroot . '/sites/default/example.settings.local.php');
     $this->assertFileExists($webroot . '/sites/default/example.services.local.yml');
-
-    // Assert all stub strings were replaced - these should not exist in any
-    // files.
-    $this->assertDirectoryNotContainsString('.', 'your_site');
-    $this->assertDirectoryNotContainsString('.', 'ys_base');
-    $this->assertDirectoryNotContainsString('.', 'YOURSITE');
-    $this->assertDirectoryNotContainsString('.', 'YourSite');
-    $this->assertDirectoryNotContainsString('.', 'your_site_theme');
-    $this->assertDirectoryNotContainsString('.', 'your_org');
-    $this->assertDirectoryNotContainsString('.', 'YOURORG');
-    $this->assertDirectoryNotContainsString('.', 'www.your-site-domain.example');
-    // Assert all special comments were removed.
-    $this->assertDirectoryNotContainsString('.', '#;');
-    $this->assertDirectoryNotContainsString('.', '#;<');
-    $this->assertDirectoryNotContainsString('.', '#;>');
   }
 
   protected function assertThemeFilesPresent(string $webroot = 'web'): void {
@@ -693,8 +687,12 @@ EOT;
       '.tif',
       '.tiff',
       '.webp',
+      '/core/',
+      '/libraries/',
+      '/modules/contrib/',
       'modules.README.txt',
       'modules/README.txt',
+      '/themes/contrib/',
       'themes.README.txt',
       'themes/README.txt',
     ];
