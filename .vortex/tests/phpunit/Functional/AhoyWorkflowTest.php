@@ -34,6 +34,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE']);
       unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER']);
       unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE']);
+
+      static::$sutInstallerEnv['VORTEX_INSTALLER_IS_DEMO'] = '1';
     }
 
     parent::setUp();

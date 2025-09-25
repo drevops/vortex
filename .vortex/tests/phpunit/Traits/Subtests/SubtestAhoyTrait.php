@@ -25,6 +25,9 @@ trait SubtestAhoyTrait {
       $this->assertThemeFilesAbsent();
     }
 
+    $db_file_present = file_exists('.data/db.sql');
+    $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
+
     $this->logSubstep('Starting Ahoy build');
     $this->cmd('ahoy build', inp: ['y'], txt: '`ahoy build` should build stack images and stack should start successfully');
     $this->syncToHost();
