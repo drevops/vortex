@@ -21,9 +21,19 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE'] = 'container_registry';
       static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE'] = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest';
     }
+    elseif (str_contains($this->name(), 'ProfileStandard')) {
+      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER'] = 'install_profile_core';
+      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE'] = 'profile';
+    }
+    elseif (str_contains($this->name(), 'ProfileDrupalCms')) {
+      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER'] = 'install_profile_drupalcms';
+      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE'] = 'profile';
+    }
     else {
       unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE']);
       unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE']);
+      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER']);
+      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE']);
     }
 
     parent::setUp();
@@ -179,6 +189,56 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // Cannot run all the tests as DB was refreshed and the provisioning
     // did not run (the post-provisioning hooks did not enable the modules).
     $this->subtestAhoyTestBddFast(tags: 'smoke');
+
+    $this->logStepFinish();
+  }
+
+  #[Group('p2')]
+  public function testAhoyWorkflowProfileStandard(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Verify environment configuration');
+    $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
+    $this->assertFileContainsString('.env', 'DRUPAL_PROFILE=standard');
+
+    $this->addVarToFile('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+
+    $this->subtestAhoyBuild();
+
+    $this->subtestAhoyInfo();
+
+    $this->assertWebpageNotContains('/', 'demo', 'Homepage should not show any demo content ');
+
+    // Cannot run all the tests as DB was refreshed and the provisioning
+    // did not run (the post-provisioning hooks did not enable the modules).
+    $this->subtestAhoyTestBddFast(tags: 'smoke');
+
+    $this->logStepFinish();
+  }
+
+  #[Group('p3')]
+  public function testAhoyWorkflowProfileDrupalCms(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Verify environment configuration');
+    $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
+    $this->assertFileContainsString('.env', 'DRUPAL_PROFILE=../recipes/drupal_cms_starter');
+
+    $this->addVarToFile('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+
+    $this->subtestAhoyBuild();
+
+    $this->assertFileContainsString('composer.json', '"drupal/cms"');
+    $this->assertFileContainsString('composer.json', '"wikimedia/composer-merge-plugin"');
+    $this->assertFileContainsString('composer.json', '"vendor/drupal/cms/composer.json"');
+
+    $this->subtestAhoyInfo();
+
+    $this->assertWebpageContains('/', 'This is the home page of your new site.', 'Homepage should show Drupal CMS profile content ');
+
+    // Cannot run all the tests as DB was refreshed and the provisioning
+    // did not run (the post-provisioning hooks did not enable the modules).
+    $this->subtestAhoyTestBddFast(tags: 'smoke,counter');
 
     $this->logStepFinish();
   }

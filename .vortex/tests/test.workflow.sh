@@ -65,12 +65,12 @@ case ${index} in
     ;;
 
   2)
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
+    phpunit "${TEST_DIR}"/phpunit --group=p2
     bats "${TEST_DIR}"/bats/e2e/update-vortex.bats
     ;;
 
   3)
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
+    phpunit "${TEST_DIR}"/phpunit --group=p3
     ;;
 
   4)
@@ -81,9 +81,6 @@ case ${index} in
 
   *)
     phpunit "${TEST_DIR}"/phpunit
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
     ;;
