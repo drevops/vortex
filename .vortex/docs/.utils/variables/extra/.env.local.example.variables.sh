@@ -12,9 +12,6 @@
 # Override only if you need to use a different URL than the default.
 VORTEX_LOCALDEV_URL="${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io"
 
-# Set to `1` to override existing downloaded DB dump without asking.
-VORTEX_DB_DOWNLOAD_FORCE=
-
 # Set to `1` to print debug information in Vortex scripts.
 VORTEX_DEBUG=
 

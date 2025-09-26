@@ -67,7 +67,7 @@ trait SutTrait {
 
     if (!is_dir('.vortex/installer/vendor')) {
       $this->logNote('Installing dependencies of the Vortex installer');
-      $this->cmd('composer --working-dir=.vortex/installer install');
+      $this->cmd('composer --working-dir=.vortex/installer install --no-interaction --no-progress');
     }
 
     $arguments = array_merge([
@@ -152,46 +152,50 @@ trait SutTrait {
    * environments such as CI/CD pipelines (which also replicate some hosting
    * environments).
    */
-  protected function adjustCodebaseForUnmountedVolumes(bool $force = FALSE): void {
-    if ($this->volumesMounted() && !$force) {
-      $this->logNote('Skipping fixing host dependencies as volumes are mounted');
+  protected function adjustCodebaseForUnmountedVolumes(): void {
+    if ($this->volumesMounted()) {
+      $this->logNote('Skipping removing of host dependencies as volumes are mounted');
       return;
     }
 
-    if (File::exists('docker-compose.yml')) {
-      $this->logNote('Fixing host dependencies in docker-compose.yml');
-      File::removeLine('docker-compose.yml', '###');
-      $this->assertFileNotContainsString('docker-compose.yml', '###', 'Lines with ### should be removed from docker-compose.yml');
-      File::replaceContentInFile('docker-compose.yml', '##', '');
-      $this->assertFileNotContainsString('docker-compose.yml', '##', 'Lines with ## should be removed from docker-compose.yml');
+    $this->assertFileExists('docker-compose.yml', 'docker-compose.yml should exist to adjust it for unmounted volumes');
+
+    $this->logNote('Removing host dependencies in docker-compose.yml as volumes are not mounted');
+
+    File::removeLine('docker-compose.yml', '###');
+    $this->assertFileNotContainsString('docker-compose.yml', '###', 'Lines with ### should be removed from docker-compose.yml');
+
+    File::replaceContentInFile('docker-compose.yml', '##', '');
+    $this->assertFileNotContainsString('docker-compose.yml', '##', 'Lines with ## should be removed from docker-compose.yml');
+  }
+
+  /**
+   * Adjust Ahoy configuration for unmounted volumes.
+   *
+   * This is similar to adjustCodebaseForUnmountedVolumes() but is called only
+   * for local Ahoy-based workflows. We need to do this to allow testing local
+   * workflows where the volumes are mounted in the CI environment where the
+   * volumes are not mounted.
+   */
+  protected function adjustAhoyForUnmountedVolumes(): void {
+    if ($this->volumesMounted()) {
+      $this->logNote('Skipping adjusting of Ahoy configuration as volumes are mounted');
+      return;
     }
 
-    if (file_exists('.ahoy.yml')) {
-      // Override the provision command in .ahoy.yml to copy the database file
-      // to
-      // the container for when the volumes are not mounted.
-      // We are doing this only to replicate developer's workflow and experience
-      // when they run `ahoy build` locally.
-      $this->logNote('Pre-processing .ahoy.yml to copy database file to container');
+    $this->assertFileExists('.ahoy.yml', '.ahoy.yml should exist to adjust it for unmounted volumes');
 
-      $this->assertFileContainsString(
-        '.ahoy.yml',
-        'ahoy cli ./scripts/vortex/provision.sh',
-        'Initial Ahoy command to provision the container should exist in .ahoy.yml'
-      );
+    $this->logNote('Adjusting .ahoy.yml as volumes are not mounted');
 
-      $this->logNote("Patching 'ahoy provision' command to copy the database into container");
-      // Replace the command to provision the site in the container with a
-      // command that checks for the database file and copies it to the
-      // container if it exists.
-      // Provision script may be called from multiple sections of the .ahoy.yml
-      // file, so we need to ensure that we only modify the one in
-      // the 'provision' section.
-      File::replaceContentInFile('.ahoy.yml',
-        '      ahoy cli ./scripts/vortex/provision.sh',
-        '      if [ -f .data/db.sql ]; then docker compose exec cli mkdir -p .data; docker compose cp -L .data/db.sql cli:/app/.data/db.sql; fi; ahoy cli ./scripts/vortex/provision.sh',
-      );
-    }
+    $this->assertFileContainsString(
+      '.ahoy.yml',
+      '      ahoy cli ./scripts/vortex/provision.sh',
+      '`ahoy provision` should exist in .ahoy.yml'
+    );
+    File::replaceContentInFile('.ahoy.yml',
+      '      ahoy cli ./scripts/vortex/provision.sh',
+      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./scripts/vortex/provision.sh',
+    );
   }
 
   protected function assertCommonFilesPresent(string $webroot = 'web', string $project_name = 'star_wars'): void {
@@ -488,28 +492,6 @@ trait SutTrait {
     $this->removeDevelopmentSettings($webroot);
   }
 
-  protected function assertWebpageContains(string $path, string $content, string $message = ''): void {
-    $fetched = $this->fetchWebpageContent($path);
-    $this->assertStringContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should contain: %s', $path, $content));
-  }
-
-  protected function assertWebpageNotContains(string $path, string $content, string $message = ''): void {
-    $fetched = $this->fetchWebpageContent($path);
-    $this->assertStringNotContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should not contain: %s', $path, $content));
-  }
-
-  protected function fetchWebpageContent(string $path): string {
-    $this->cmd('ahoy cli curl -L -s "http://nginx:8080' . $path . '"', txt: 'Fetch webpage content');
-
-    $content = $this->processGet()->getOutput();
-
-    $filename = static::$tmp . '/fetch_webpage_content/' . md5($path) . '.html';
-    File::dump($filename, $content);
-    $this->logNote('Webpage content saved to: ' . $filename);
-
-    return $content;
-  }
-
   protected function prepareGlobalGitconfig(): void {
     shell_exec('git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"');
   }
@@ -577,125 +559,6 @@ EOT;
     ]);
     $this->assertFileDoesNotExist($webroot . '/sites/default/settings.local.php', 'Manually created local settings file has been removed.');
     $this->assertFileDoesNotExist($webroot . '/sites/default/services.local.yml', 'Manually created local services file has been removed.');
-  }
-
-  public function volumesMounted(): bool {
-    return getenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT') != 1;
-  }
-
-  public function forceVolumesUnmounted(): void {
-    putenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT=1');
-  }
-
-  public function syncToHost(string|array $files = []): void {
-    if ($this->volumesMounted()) {
-      return;
-    }
-
-    $files = array_filter(is_array($files) ? $files : [$files]);
-    if (empty($files)) {
-      $this->logNote('Syncing all files from container to host');
-      shell_exec('docker compose cp -L cli:/app/. . > /dev/null 2>&1');
-    }
-    else {
-      foreach ($files as $file) {
-        $this->logNote('Syncing file from container to host: ' . $file);
-        shell_exec('docker compose cp -L cli:/app/' . escapeshellarg($file) . ' ' . escapeshellarg($file));
-      }
-    }
-  }
-
-  public function syncToContainer(string|array $files = []): void {
-    if ($this->volumesMounted()) {
-      return;
-    }
-
-    $files = array_filter(is_array($files) ? $files : [$files]);
-    if (empty($files)) {
-      $this->logNote('Syncing all files from host to container');
-      shell_exec('docker compose cp -L . cli:/app/ > /dev/null 2>&1');
-    }
-    else {
-      foreach ($files as $file) {
-        if (!file_exists($file)) {
-          throw new \InvalidArgumentException('Unable to sync file - file does not exist: ' . $file);
-        }
-
-        $this->logNote('Syncing file from host to container: ' . $file);
-        shell_exec('docker compose cp -L ' . escapeshellarg($file) . ' cli:/app/' . escapeshellarg($file));
-      }
-    }
-  }
-
-  protected function backupFile(string $file): void {
-    $backup_dir = static::$tmp . '/bkp';
-    if (!is_dir($backup_dir)) {
-      mkdir($backup_dir, 0755, TRUE);
-    }
-    File::copy($file, $backup_dir . '/' . basename($file));
-  }
-
-  protected function restoreFile(string $file): void {
-    $backup_file = static::$tmp . '/bkp/' . basename($file);
-    if (file_exists($backup_file)) {
-      File::copy($backup_file, $file);
-    }
-  }
-
-  protected function addVarToFile(string $file, string $var, string|int|float $value): void {
-    // Backup original file first.
-    $this->backupFile($file);
-    $content = File::read($file);
-    $content .= sprintf('%s%s=%s%s', PHP_EOL, $var, strval($value), PHP_EOL);
-    File::dump($file, $content);
-  }
-
-  protected function trimFile(string $file): void {
-    $content = File::read($file);
-    $lines = explode("\n", $content);
-    // Remove last line.
-    array_pop($lines);
-    File::dump($file, implode("\n", $lines));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function ignoredPaths(): array {
-    return [
-      '.7z',
-      '.avif',
-      '.bz2',
-      '.gz',
-      '.heic',
-      '.heif',
-      '.pdf',
-      '.rar',
-      '.tar',
-      '.woff',
-      '.woff2',
-      '.xz',
-      '.zip',
-      '.bmp',
-      '.gif',
-      '.ico',
-      '.jpeg',
-      '.jpg',
-      '.png',
-      '.svg',
-      '.svgz',
-      '.tif',
-      '.tiff',
-      '.webp',
-      '/core/',
-      '/libraries/',
-      '/modules/contrib/',
-      'modules.README.txt',
-      'modules/README.txt',
-      '/themes/contrib/',
-      'themes.README.txt',
-      'themes/README.txt',
-    ];
   }
 
 }

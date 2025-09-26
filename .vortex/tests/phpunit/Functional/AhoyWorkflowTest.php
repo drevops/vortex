@@ -15,6 +15,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   use SubtestAhoyTrait;
 
   protected function setUp(): void {
+    parent::setUp();
+
     // A bit hacky way to set a different installer theme for NoFe tests here
     // rather than within the test as the installer runs in the parent::setUp().
     if (str_contains($this->name(), 'DiSi')) {
@@ -38,7 +40,11 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       static::$sutInstallerEnv['VORTEX_INSTALLER_IS_DEMO'] = '1';
     }
 
-    parent::setUp();
+    $this->prepareSut();
+
+    $this->dockerCleanup();
+
+    $this->adjustAhoyForUnmountedVolumes();
   }
 
   #[Group('p1')]
@@ -96,6 +102,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyImportDb('.data/mydb.sql');
 
+    $this->downloadDatabase(TRUE);
+
     $this->subtestAhoyProvision();
 
     $this->subtestAhoyTest();
@@ -149,12 +157,12 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     // Do not use demo database - testing demo database discovery is
     // another test.
-    $this->addVarToFile('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
 
     // Explicitly specify that we do not want to login into the public registry
     // to use test image.
-    $this->addVarToFile('.env', 'VORTEX_CONTAINER_REGISTRY_USER', '');
-    $this->addVarToFile('.env', 'VORTEX_CONTAINER_REGISTRY_PASS', '');
+    $this->fileAddVar('.env', 'VORTEX_CONTAINER_REGISTRY_USER', '');
+    $this->fileAddVar('.env', 'VORTEX_CONTAINER_REGISTRY_PASS', '');
 
     $this->subtestAhoyBuild();
 
@@ -173,7 +181,12 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Reload database from the container image and assert that the initial content is restored');
     $this->cmd('ahoy reload-db', txt: "`ahoy reload-db` restarts the stack fast", tio: 60);
-    // @todo Urgently review this and move to ahoy config. Do not merge the PR.
+    // @note Redis caches are not flushed automatically on cache clear as it
+    // may be clearing too much.
+    // For now, we are manually clearing Redis cache after DB reload. A human
+    // operator would make a call to do it manually depending on the hosting,
+    // website size, traffic, etc.
+    // @see https://www.drupal.org/project/redis/issues/2765895
     $this->cmd('ahoy flush-redis', txt: "`ahoy flush-redis` flushes Redis cache after database reload", tio: 30);
     $this->subtestAhoyInfo(db_image: $db_image);
     $this->assertWebpageContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should show initial test content after database reload');
@@ -186,7 +199,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyLogin();
 
-    $this->subtestAhoyExportDb('mydb.tar', FALSE);
+    $this->subtestAhoyExportDb('mydb.tar', TRUE);
 
     // Cannot run all the tests as DB was refreshed and the provisioning
     // did not run (the post-provisioning hooks did not enable the modules).
@@ -203,7 +216,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
     $this->assertFileContainsString('.env', 'DRUPAL_PROFILE=standard');
 
-    $this->addVarToFile('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
 
     $this->subtestAhoyBuild();
 
@@ -226,7 +239,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
     $this->assertFileContainsString('.env', 'DRUPAL_PROFILE=../recipes/drupal_cms_starter');
 
-    $this->addVarToFile('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
 
     $this->subtestAhoyBuild();
 

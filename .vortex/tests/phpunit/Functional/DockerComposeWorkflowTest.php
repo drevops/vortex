@@ -13,19 +13,23 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
   use SubtestDockerComposeTrait;
 
   protected function setUp(): void {
+    parent::setUp();
+
     // Docker Compose tests replicate read-only environments.
     $this->forceVolumesUnmounted();
 
     // A bit hacky way to set a different installer theme for NoFe tests here
     // rather than within the test as the installer runs in the parent::setUp().
-    if (str_contains($this->name(), 'NoFe')) {
+    if (str_contains($this->name(), 'NoTheme')) {
       static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_THEME'] = 'olivero';
     }
     else {
       unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_THEME']);
     }
 
-    parent::setUp();
+    $this->prepareSut();
+
+    $this->dockerCleanup();
   }
 
   #[Group('p0')]
@@ -65,9 +69,9 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
   }
 
   #[Group('p0')]
-  public function testDockerComposeWorkflowNoFe(): void {
+  public function testDockerComposeWorkflowNoTheme(): void {
     $this->logSubstep('Building stack with Docker Compose');
-    $this->subtestDockerComposeBuild(env: ['VORTEX_FRONTEND_BUILD_SKIP' => '1'], build_theme: FALSE);
+    $this->subtestDockerComposeBuild(build_theme: FALSE);
 
     $this->logSubstep('Installing development dependencies');
     $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 10 * 60);
@@ -93,6 +97,12 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/behat', txt: 'Run Behat tests');
   }
 
+  #[Group('p0')]
+  public function testDockerComposeWorkflowNoFe(): void {
+    $this->logSubstep('Building stack with Docker Compose');
+    $this->subtestDockerComposeBuild(env: ['VORTEX_FRONTEND_BUILD_SKIP' => '1'], build_theme: FALSE);
+  }
+
   /**
    * Test Package token handling during build.
    *
@@ -111,7 +121,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('composer require --no-update drevops/test-private-package:^1');
 
     $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
-    $this->cmdFail('docker compose build cil --no-cache', txt: 'Build stack images without token', tio: 15 * 60);
+    $this->cmdFail('docker compose build cli --no-cache', txt: 'Build stack images without token', tio: 15 * 60);
 
     $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
     $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token', env: ['PACKAGE_TOKEN' => $package_token], tio: 15 * 60);

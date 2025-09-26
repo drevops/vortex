@@ -17,27 +17,27 @@ trait SubtestDockerComposeTrait {
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist before build');
 
     if ($build_theme) {
-      $this->assertThemeFilesPresent();
+      $this->assertThemeFilesPresent($webroot);
     }
     else {
-      $this->assertThemeFilesAbsent();
+      $this->assertThemeFilesAbsent($webroot);
     }
 
     $db_file_present = file_exists('.data/db.sql');
     $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
 
     $this->logSubstep('Starting Docker Compose build');
-    $this->cmd('docker compose up -d --force-recreate --build --renew-anon-volumes', tio: 15 * 60, txt: 'Stack images should be built and stack should start successfully');
+    $this->cmd('docker compose up -d --force-recreate --build --renew-anon-volumes', env: $env, tio: 15 * 60, txt: 'Stack images should be built and stack should start successfully');
     $this->syncToHost();
 
     $this->logSubstep('Assert lock files presence/absence after build');
     $this->assertFileExists('composer.lock', 'Composer lock file should exist after build');
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist after build');
     if ($build_theme) {
-      $this->assertThemeFilesPresent();
+      $this->assertThemeFilesPresent($webroot);
     }
     else {
-      $this->assertThemeFilesAbsent();
+      $this->assertThemeFilesAbsent($webroot);
     }
 
     $this->logSubstep('Assert common files are present after build');
@@ -80,7 +80,7 @@ trait SubtestDockerComposeTrait {
     //   override the values defined in the docker-compose.yml file.
     // - Process start:
     //   - if the process is started via bash (like
-    //     `docker compose exec cli bash -c "..."`), then the ~/.bashrc is
+    //     `docker compose exec -T cli bash -c "..."`), then the ~/.bashrc is
     //     loaded on every new shell session like `docker compose exec bash -c`
     //     This reads the .env file and loads any variables defined there.
     //     This allows to avoid container restart to pick up changes
@@ -102,7 +102,7 @@ trait SubtestDockerComposeTrait {
     //   - custom variable is not mentioned in the docker-compose.yml file
     //     and is only available if the .env file is read by the shell.
     // - shell type: interactive vs non-interactive
-    //   - interactive shell is started with `docker compose exec cli bash`
+    //   - interactive shell is started with `docker compose exec -T cli bash`
     //     and loads ~/.bashrc which reads the .env file on every new shell
     //     session.
     //   - non-interactive shell is started with `docker compose exec -T cli
@@ -138,10 +138,10 @@ trait SubtestDockerComposeTrait {
     $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR1\') ?: \'Not set\';"', ['! my_custom_var_value1', '* Not set'], 'Custom variable does not exist and has no value in PHP script.');
 
     $this->logNote('Adding variables to the .env file.');
-    $this->addVarToFile('.env', 'DRUPAL_SHIELD_USER', 'my_custom_shield_user1');
+    $this->fileAddVar('.env', 'DRUPAL_SHIELD_USER', 'my_custom_shield_user1');
     $this->assertFileContainsString('.env', 'DRUPAL_SHIELD_USER', '.env contains docker-compose-mapped variable');
     $this->assertFileContainsString('.env', 'my_custom_shield_user1', '.env contains docker-compose-mapped variable value');
-    $this->addVarToFile('.env', 'MY_CUSTOM_VAR1', 'my_custom_var_value1');
+    $this->fileAddVar('.env', 'MY_CUSTOM_VAR1', 'my_custom_var_value1');
     $this->assertFileContainsString('.env', 'MY_CUSTOM_VAR1', '.env contains test variable');
     $this->assertFileContainsString('.env', 'my_custom_var_value1', '.env contains test variable value');
 
@@ -173,7 +173,7 @@ trait SubtestDockerComposeTrait {
     // process environment.
     $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR1\') ?: \'Not set\';"', ['! my_custom_var_value1', '* Not set'], 'Custom variable does not exist and has no value in PHP script after container restarts.');
 
-    $this->restoreFile('.env');
+    $this->fileRestore('.env');
 
     //
     // Phase 2.
@@ -187,50 +187,50 @@ trait SubtestDockerComposeTrait {
     $this->assertFileNotContainsString('.env', 'my_custom_var_value2', '.env does not contain custom variable value');
 
     $this->logNote('Asserting initial variable values.');
-    $this->cmd('docker compose exec cli bash -c "printenv|sort"', 'DRUPAL_SHIELD_PASS', 'Docker-compose-mapped variable exists.');
-    $this->cmd('docker compose exec cli bash -c \'echo $DRUPAL_SHIELD_PASS\'', '! my_custom_shield_pass1', 'Docker-compose-mapped variable has no value.');
-    $this->cmd('docker compose exec cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['! my_custom_shield_pass1', '* Not set'], 'Docker-compose-mapped variable does not exist and has no value in PHP script.');
-    $this->cmd('docker compose exec cli bash -c "printenv|sort"', '! MY_CUSTOM_VAR2', 'Custom variable does not exist.');
-    $this->cmd('docker compose exec cli bash -c \'echo $MY_CUSTOM_VAR2\'', '! my_custom_var_value2', 'Custom variable does not exist and has no value.');
-    $this->cmd('docker compose exec cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script.');
+    $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'DRUPAL_SHIELD_PASS', 'Docker-compose-mapped variable exists.');
+    $this->cmd('docker compose exec -T cli bash -c \'echo $DRUPAL_SHIELD_PASS\'', '! my_custom_shield_pass1', 'Docker-compose-mapped variable has no value.');
+    $this->cmd('docker compose exec -T cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['! my_custom_shield_pass1', '* Not set'], 'Docker-compose-mapped variable does not exist and has no value in PHP script.');
+    $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', '! MY_CUSTOM_VAR2', 'Custom variable does not exist.');
+    $this->cmd('docker compose exec -T cli bash -c \'echo $MY_CUSTOM_VAR2\'', '! my_custom_var_value2', 'Custom variable does not exist and has no value.');
+    $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script.');
 
     $this->logNote('Adding variables to the .env file.');
-    $this->addVarToFile('.env', 'DRUPAL_SHIELD_PASS', 'my_custom_shield_pass1');
+    $this->fileAddVar('.env', 'DRUPAL_SHIELD_PASS', 'my_custom_shield_pass1');
     $this->assertFileContainsString('.env', 'DRUPAL_SHIELD_PASS', '.env contains docker-compose-mapped variable');
     $this->assertFileContainsString('.env', 'my_custom_shield_pass1', '.env contains docker-compose-mapped variable value');
-    $this->addVarToFile('.env', 'MY_CUSTOM_VAR2', 'my_custom_var_value2');
+    $this->fileAddVar('.env', 'MY_CUSTOM_VAR2', 'my_custom_var_value2');
     $this->assertFileContainsString('.env', 'MY_CUSTOM_VAR2', '.env contains test variable');
     $this->assertFileContainsString('.env', 'my_custom_var_value2', '.env contains test variable value');
 
     $this->syncToContainer('.env');
 
     $this->logNote('Asserting variables before container restarts.');
-    $this->cmd('docker compose exec cli bash -c "printenv|sort"', 'DRUPAL_SHIELD_PASS', 'Docker-compose-mapped variable exists before container restarts.');
-    $this->cmd('docker compose exec cli bash -c \'echo $DRUPAL_SHIELD_PASS\'', '! my_custom_shield_pass1', 'Docker-compose-mapped variable has no value before container restarts.');
-    $this->cmd('docker compose exec cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['! my_custom_shield_pass1', '* Not set'], 'Docker-compose-mapped variable does not exist and has no value in PHP script before container restarts.');
-    $this->cmd('docker compose exec cli bash -c "printenv|sort"', 'my_custom_var_value2', 'Custom variable exists inside of container before container restarts.');
-    $this->cmd('docker compose exec cli bash -c \'echo $MY_CUSTOM_VAR2\'', 'my_custom_var_value2', 'Custom variable exists and has a value inside of container before container restarts.');
-    $this->cmd('docker compose exec cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script before container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'DRUPAL_SHIELD_PASS', 'Docker-compose-mapped variable exists before container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c \'echo $DRUPAL_SHIELD_PASS\'', '! my_custom_shield_pass1', 'Docker-compose-mapped variable has no value before container restarts.');
+    $this->cmd('docker compose exec -T cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['! my_custom_shield_pass1', '* Not set'], 'Docker-compose-mapped variable does not exist and has no value in PHP script before container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'my_custom_var_value2', 'Custom variable exists inside of container before container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c \'echo $MY_CUSTOM_VAR2\'', 'my_custom_var_value2', 'Custom variable exists and has a value inside of container before container restarts.');
+    $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script before container restarts.');
 
     $this->logSubstep('Asserting .env file is read by interactive shells after container restarts.');
 
     $this->cmd('docker compose up -d cli', txt: 'Restarting CLI container to pick up changes to .env file.');
 
     $this->logNote('Asserting variables after container restarts.');
-    $this->cmd('docker compose exec cli bash -c "printenv|sort"', 'DRUPAL_SHIELD_PASS', 'Docker-compose-mapped variable exists after container restarts.');
-    $this->cmd('docker compose exec cli bash -c \'echo $DRUPAL_SHIELD_PASS\'', 'my_custom_shield_pass1', 'Docker-compose-mapped variable has value after container restarts.');
-    $this->cmd('docker compose exec cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['* my_custom_shield_pass1', '! Not set'], 'Docker-compose-mapped variable has value in PHP script after container restarts.');
-    $this->cmd('docker compose exec cli bash -c "printenv|sort"', 'my_custom_var_value2', 'Custom variable exists inside of container after container restarts.');
-    $this->cmd('docker compose exec cli bash -c \'echo $MY_CUSTOM_VAR2\'', 'my_custom_var_value2', 'Custom variable exists and has a value inside of container after container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'DRUPAL_SHIELD_PASS', 'Docker-compose-mapped variable exists after container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c \'echo $DRUPAL_SHIELD_PASS\'', 'my_custom_shield_pass1', 'Docker-compose-mapped variable has value after container restarts.');
+    $this->cmd('docker compose exec -T cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['* my_custom_shield_pass1', '! Not set'], 'Docker-compose-mapped variable has value in PHP script after container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'my_custom_var_value2', 'Custom variable exists inside of container after container restarts.');
+    $this->cmd('docker compose exec -T cli bash -c \'echo $MY_CUSTOM_VAR2\'', 'my_custom_var_value2', 'Custom variable exists and has a value inside of container after container restarts.');
     // Important: getenv() uses variables available in the environments when the
-    // PHP process starts. Using `docker compose exec cli php` rather than
-    // `docker compose exec cli bash -c "php"` means that PHP is
+    // PHP process starts. Using `docker compose exec -T cli php` rather than
+    // `docker compose exec -T cli bash -c "php"` means that PHP is
     // started directly by Docker Compose and not via bash, so the ~/.bashrc
     // is not loaded and the custom variable is not available in the PHP
     // process environment.
-    $this->cmd('docker compose exec cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script after container restarts.');
+    $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script after container restarts.');
 
-    $this->restoreFile('.env');
+    $this->fileRestore('.env');
     $this->cmd('docker compose up -d');
 
     $this->logStepFinish();
@@ -247,7 +247,7 @@ trait SubtestDockerComposeTrait {
     $this->cmd('docker compose exec -T database date', 'UTC', 'Date is in default timezone inside Database container by default');
 
     $this->logSubstep('Add variable to the .env file and apply the change to container.');
-    $this->addVarToFile('.env', 'TZ', '"Australia/Perth"');
+    $this->fileAddVar('.env', 'TZ', '"Australia/Perth"');
     $this->cmd('docker compose up -d');
 
     $this->logSubstep('Assert custom timezone values.');
@@ -257,7 +257,7 @@ trait SubtestDockerComposeTrait {
     $this->cmd('docker compose exec -T database date', 'AWST', 'Date is in custom timezone inside Database container');
 
     $this->logSubstep('Restore file, apply changes and assert that original behaviour has been restored.');
-    $this->restoreFile('.env');
+    $this->fileRestore('.env');
     $this->cmd('docker compose up -d');
 
     $this->logStepFinish();

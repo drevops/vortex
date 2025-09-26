@@ -19,10 +19,10 @@ trait SubtestAhoyTrait {
     $this->logNote('`composer.lock` file exists before build: ' . ($composerlock_present ? 'Yes' : 'No'));
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist before build');
     if ($build_theme) {
-      $this->assertThemeFilesPresent();
+      $this->assertThemeFilesPresent($webroot);
     }
     else {
-      $this->assertThemeFilesAbsent();
+      $this->assertThemeFilesAbsent($webroot);
     }
 
     $db_file_present = file_exists('.data/db.sql');
@@ -36,10 +36,10 @@ trait SubtestAhoyTrait {
     $this->assertFileExists('composer.lock', 'Composer lock file should exist after build');
     $this->assertFileExists('yarn.lock', 'Yarn lock file should exist after build');
     if ($build_theme) {
-      $this->assertThemeFilesPresent();
+      $this->assertThemeFilesPresent($webroot);
     }
     else {
-      $this->assertThemeFilesAbsent();
+      $this->assertThemeFilesAbsent($webroot);
     }
 
     $this->logSubstep('Assert common files are present after build');
@@ -83,18 +83,18 @@ trait SubtestAhoyTrait {
     $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"', txt: 'Custom variable does not exist inside of container.');
     $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep -q my_custom_var_value\'', '! my_custom_var_value', txt: 'Custom variable does not exist and has no value inside of container.');
     // Add variable to the .env file and apply the change to container.
-    $this->addVarToFile('.env', 'MY_CUSTOM_VAR', 'my_custom_var_value');
+    $this->fileAddVar('.env', 'MY_CUSTOM_VAR', 'my_custom_var_value');
     $this->cmd('ahoy up cli');
-    $this->syncToContainer();
+    $this->syncToContainer('.env');
 
     $this->assertFileContainsString('.env', 'MY_CUSTOM_VAR', '.env contains test values');
     $this->assertFileContainsString('.env', 'my_custom_var_value', '.env contains test values');
     $this->cmd('ahoy cli "printenv | grep MY_CUSTOM_VAR"', 'my_custom_var_value', 'Custom variable set in .env exists inside of container.');
     $this->cmd('ahoy cli \'echo $MY_CUSTOM_VAR | grep my_custom_var_value\'', 'my_custom_var_value', 'Custom variable set in .env exists and has a value inside of container.');
 
-    $this->restoreFile('.env');
+    $this->fileRestore('.env');
     $this->cmd('ahoy up cli');
-    $this->syncToContainer();
+    $this->syncToContainer('.env');
 
     $this->logStepFinish();
   }
@@ -217,9 +217,14 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Run follow-up provision with exported config files matching DB');
 
+    $this->assertFilesWildcardDoNotExist('config/default/*.yml');
     $this->cmd('ahoy drush cex -y', '* ../config/default', 'Export configuration should complete successfully');
+    $this->syncToHost('config');
+    $this->assertFilesWildcardExists('config/default/*.yml');
+
     $this->cmd('ahoy export-db db.sql', '* Exported database dump saved', 'Export database should complete successfully');
-    $this->syncToHost();
+    $this->syncToHost('.data');
+    $this->assertFileExists('.data/db.sql', 'Database dump file should exist after export');
 
     $this->cmd(
       'ahoy provision',
@@ -238,8 +243,9 @@ trait SubtestAhoyTrait {
     $this->logSubstep('Run provision with exported config files different to DB');
 
     $this->logNote('Make a change to the configuration.');
+    $this->fileBackup('config/default/system.site.yml');
     File::replaceContentInFile('config/default/system.site.yml', 'admin_compact_mode: false', 'admin_compact_mode: true');
-    $this->syncToContainer();
+    $this->syncToContainer('config');
 
     $this->cmd('ahoy drush config:status', 'Different', 'Config files should differ from the DB');
 
@@ -252,6 +258,7 @@ trait SubtestAhoyTrait {
       ],
       'Provision with updated config should complete successfully'
     );
+    $this->fileRestore('config/default/system.site.yml');
 
     $this->logSubstep('Test that provision works without DB');
     $this->cmd('ahoy drush sql:drop -y', txt: 'Database should be dropped successfully');
@@ -268,8 +275,11 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
-  protected function subtestAhoyExportDb(string $filename = '', bool $export_source_is_file = TRUE): void {
+  protected function subtestAhoyExportDb(string $filename = '', bool $is_container_image_archive = FALSE): void {
     $this->logStepStart();
+
+    $this->removePathHostAndContainer('.data');
+    $this->assertDirectoryDoesNotExist('.data', 'Data directory should not exist before running `ahoy export-db`');
 
     $has_argument = $filename !== '';
 
@@ -278,16 +288,25 @@ trait SubtestAhoyTrait {
       'ahoy export-db',
       arg: $has_argument ? [$filename] : [],
       out: [
-        $export_source_is_file ? '* Exported database dump saved' : '* Exported database image saved to archive file',
+        $is_container_image_archive ? '* Exported database image saved to archive file' : '* Exported database dump saved',
         '! Containers are not running.',
       ],
       txt: 'Export database dump ' . ($has_argument ? sprintf("to file '%s'", $filename) : 'to a default file')
     );
 
+    // File export happens inside the container, so we need to sync the
+    // .data folder. Image export happens on the host, so no need to sync.
+    if (!$is_container_image_archive) {
+      $this->syncToHost('.data');
+    }
+
     if ($has_argument) {
       $this->assertFileExists('.data/' . $filename, 'Export file should exist after export');
     }
-    elseif ($export_source_is_file) {
+    elseif ($is_container_image_archive) {
+      $this->assertFilesWildcardExists('.data/*.tar');
+    }
+    else {
       $this->assertFilesWildcardExists('.data/export_db_*');
     }
 
@@ -298,6 +317,9 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $has_argument = $filename !== '';
+
+    $this->assertDirectoryExists('.data', 'Data directory should exist before running `ahoy import-db`');
+    $this->syncToContainer('.data');
 
     $this->cmd(
       'ahoy import-db',
@@ -325,17 +347,27 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->logSubstep('Assert that BE lint failure works');
-    File::dump($webroot . '/modules/custom/sw_base/sw_base.module', File::read($webroot . '/modules/custom/sw_base/sw_base.module') . '$a=1;');
-    $this->syncToContainer();
+    $test_file = $webroot . '/modules/custom/sw_base/sw_base.module';
+    $this->fileBackup($test_file);
+    $this->fileAppend($test_file, '$a=1;');
+    $this->syncToContainer($test_file);
+
     $this->cmdFail('ahoy lint-be', tio: 120, ito: 90, txt: '`ahoy lint-be` fails as expected on code with linting issues');
 
     $this->logSubstep('Assert that BE lint tool disabling works');
     // Replace with some valid XML element to avoid XML parsing errors.
-    File::replaceContentInFile('phpcs.xml', '<file>' . $webroot . '/modules/custom</file>', '<exclude-pattern>somefile</exclude-pattern>');
-    $this->syncToContainer();
+    $config_file = 'phpcs.xml';
+    $this->fileBackup($config_file);
+    File::replaceContentInFile($config_file, '<file>' . $webroot . '/modules/custom</file>', '<exclude-pattern>somefile</exclude-pattern>');
+    $this->syncToContainer($config_file);
+
     $this->cmd('ahoy lint-be', tio: 120, ito: 90, txt: '`ahoy lint-be` runs successfully after disabling the custom module folder in phpcs.xml');
 
-    // @todo Add restoring of the file.
+    $this->fileRestore($test_file);
+    $this->syncToContainer($test_file);
+    $this->fileRestore($config_file);
+    $this->syncToContainer($config_file);
+
     $this->logStepFinish();
   }
 
@@ -343,27 +375,25 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->logSubstep('Assert that FE lint failure works for npm lint');
-    File::dump($webroot . '/themes/custom/star_wars/scss/components/_test.scss', '.abc{margin: 0px;}');
-    $this->syncToContainer();
+    $test_file = $webroot . '/themes/custom/star_wars/scss/components/_test.scss';
+    File::dump($test_file, '.abc{margin: 0px;}');
+    $this->syncToContainer($test_file);
+
     $this->cmdFail('ahoy lint-fe', tio: 120, ito: 90, txt: '`ahoy lint-fe` fails as expected for NPM linters on code with linting issues');
-    // Cleanup.
-    File::remove($webroot . '/themes/custom/star_wars/scss/components/_test.scss');
-    $this->cmd('ahoy cli rm -f ' . $webroot . '/themes/custom/star_wars/scss/components/_test.scss');
-    $this->syncToContainer();
+
+    $this->removePathHostAndContainer($test_file);
 
     $this->logSubstep('Assert that FE lint failure works for Twig CS Fixer');
-    File::dump($webroot . '/modules/custom/sw_base/templates/block/test1.twig', "{{ set a='a' }}");
-    File::dump($webroot . '/themes/custom/star_wars/templates/block/test2.twig', "{{ set b='b' }}");
-    $this->syncToContainer();
-    $this->cmdFail('ahoy lint-fe', tio: 120, ito: 90, txt: '`ahoy lint-fe` fails for Twig CS Fixer as expected on code with linting issues');
-    // Cleanup.
-    File::remove([
-      $webroot . '/modules/custom/sw_base/templates/block/test1.twig',
-      $webroot . '/themes/custom/star_wars/templates/block/test2.twig',
-    ]);
-    $this->cmd('ahoy cli rm -f ' . $webroot . '/modules/custom/sw_base/templates/block/test1.twig');
-    $this->cmd('ahoy cli rm -f ' . $webroot . '/themes/custom/star_wars/templates/block/test2.twig');
-    $this->syncToContainer();
+    $test_file1 = $webroot . '/modules/custom/sw_base/templates/block/test1.twig';
+    $test_file2 = $webroot . '/themes/custom/star_wars/templates/block/test2.twig';
+    File::dump($test_file1, "{{ set a='a' }}");
+    File::dump($test_file2, "{{ set b='b' }}");
+    $this->syncToContainer([$test_file1, $test_file2]);
+
+    $this->cmdFail('ahoy lint-fe', tio: 120, ito: 90, txt: '`ahoy lint-fe` should fail for Twig CS Fixer as expected on code with linting issues');
+
+    $this->removePathHostAndContainer($test_file1);
+    $this->removePathHostAndContainer($test_file2);
 
     $this->logStepFinish();
   }
@@ -375,13 +405,13 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy lint-tests', txt: '`ahoy lint-tests` runs successfully');
 
     $this->logSubstep('Assert that Test lint failure works for Gherkin Lint');
-    File::dump('tests/behat/features/test.feature', 'Feature:');
-    $this->syncToContainer();
-    $this->cmdFail('ahoy lint-tests', txt: '`ahoy lint-tests` fails as expected on code with linting issues');
-    // Cleanup.
-    File::remove('tests/behat/features/test.feature');
-    $this->cmd('ahoy cli rm -f tests/behat/features/test.feature');
-    $this->syncToContainer();
+    $test_file = 'tests/behat/features/test.feature';
+    File::dump($test_file, 'Feature:');
+    $this->syncToContainer($test_file);
+
+    $this->cmdFail('ahoy lint-tests', txt: '`ahoy lint-tests` should fail as expected on code with linting issues');
+
+    $this->removePathHostAndContainer($test_file);
 
     $this->logStepFinish();
   }
@@ -389,10 +419,15 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyTest(): void {
     $this->logStepStart();
 
+    $this->removePathHostAndContainer('.logs');
+
     $this->cmd('ahoy test', tio: 300, ito: 240, txt: 'All tests passed');
-    $this->syncToHost();
+
+    $this->syncToHost('.logs');
     $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml', 'PHPUnit test results XML file should exist');
     $this->assertDirectoryExists('.logs/screenshots', 'Screenshots directory should exist after BDD tests');
+
+    $this->removePathHostAndContainer('.logs');
 
     $this->logStepFinish();
   }
@@ -400,25 +435,7 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyTestUnit(string $webroot = 'web'): void {
     $this->logStepStart();
 
-    $this->logSubstep('Run all Unit tests');
-    $this->cmd('ahoy test-unit --no-coverage', 'OK (');
-    $this->syncToHost();
-    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
-
-    $this->logSubstep('Assert that Drupal Unit test failure works');
-    // Prepare failing test.
-    $unit_test_file = $webroot . '/modules/custom/sw_base/tests/src/Unit/ExampleTest.php';
-    $content = File::read($unit_test_file);
-    $content = str_replace('assertEquals', 'assertNotEquals', $content);
-    File::dump($unit_test_file, $content);
-
-    File::remove('.logs/test_results');
-    $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
-    $this->syncToContainer();
-
-    $this->cmdFail('ahoy test-unit');
-    $this->syncToHost();
-    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+    $this->runAhoyTestPhpunit('unit', $webroot . '/modules/custom/sw_base/tests/src/Unit/ExampleTest.php');
 
     $this->logStepFinish();
   }
@@ -426,25 +443,7 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyTestKernel(string $webroot = 'web'): void {
     $this->logStepStart();
 
-    $this->logSubstep('Run all Kernel tests');
-    $this->cmd('ahoy test-kernel --no-coverage', 'OK (', tio: 120, ito: 90);
-    $this->syncToHost();
-    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
-
-    $this->logSubstep('Assert that Kernel test failure works');
-    // Prepare failing test.
-    $kernel_test_file = $webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php';
-    $content = File::read($kernel_test_file);
-    $content = str_replace('assertEquals', 'assertNotEquals', $content);
-    File::dump($kernel_test_file, $content);
-
-    File::remove('.logs/test_results');
-    $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
-    $this->syncToContainer();
-
-    $this->cmdFail('ahoy test-kernel', tio: 120, ito: 90);
-    $this->syncToHost();
-    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+    $this->runAhoyTestPhpunit('kernel', $webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php');
 
     $this->logStepFinish();
   }
@@ -452,27 +451,35 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyTestFunctional(string $webroot = 'web'): void {
     $this->logStepStart();
 
-    $this->logSubstep('Run all Functional tests');
-    $this->cmd('ahoy test-functional --no-coverage', 'OK (', tio: 120, ito: 90);
-    $this->syncToHost();
-    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
-
-    $this->logSubstep('Assert that Functional test failure works');
-    // Prepare failing test.
-    $functional_test_file = $webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php';
-    $content = File::read($functional_test_file);
-    $content = str_replace('assertEquals', 'assertNotEquals', $content);
-    File::dump($functional_test_file, $content);
-
-    File::remove('.logs/test_results');
-    $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
-    $this->syncToContainer();
-
-    $this->cmdFail('ahoy test-functional');
-    $this->syncToHost();
-    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+    $this->runAhoyTestPhpunit('functional', $webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php');
 
     $this->logStepFinish();
+  }
+
+  protected function runAhoyTestPhpunit(string $type, string $file): void {
+    $this->removePathHostAndContainer('.logs');
+
+    $this->assertFileExists($file);
+
+    $this->logSubstep('Run all ' . ucfirst($type) . ' tests');
+    $this->cmd('ahoy test-' . $type . ' --no-coverage', 'OK (');
+    $this->syncToHost('.logs');
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->removePathHostAndContainer('.logs');
+
+    $this->logSubstep('Assert that Drupal ' . $type . ' test failure works');
+    $this->fileBackup($file);
+    File::replaceContentInFile($file, 'assertEquals', 'assertNotEquals');
+    $this->syncToContainer($file);
+
+    $this->cmdFail('ahoy test-' . $type);
+    $this->syncToHost('.logs');
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->fileRestore($file);
+    $this->syncToContainer($file);
+    $this->removePathHostAndContainer('.logs');
   }
 
   protected function subtestAhoyTestBdd(string $webroot = 'web'): void {
@@ -480,62 +487,48 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Run all BDD tests');
 
-    // Sometimes, tests fail for random reasons. A workaround is to run BDD
-    // tests to "cache" the environment and then run the tests again.
-    $this->cmd('ahoy test-bdd || true');
-
     $this->cmd('ahoy test-bdd', tio: 120, ito: 90);
-    $this->syncToHost();
+    $this->syncToHost('.logs');
     $this->assertDirectoryExists('.logs/screenshots');
-
-    $this->logSubstep('Assert that screenshots and test results are created');
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://nginx:8080/');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Feature: Behat configuration');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: save screenshot with name');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Datetime:');
-
-    File::remove('.logs/screenshots');
-    $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
     $this->assertDirectoryExists('.logs/test_results');
     $this->assertFileExists('.logs/test_results/behat/default.xml');
-    File::remove('.logs/test_results');
-    $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
+
+    $this->removePathHostAndContainer('.logs');
 
     $this->logSubstep('Run tagged BDD tests');
 
     $this->cmd('ahoy test-bdd -- --tags=smoke');
-    $this->syncToHost();
+    $this->syncToHost('.logs');
     $this->assertDirectoryExists('.logs/test_results');
     $this->assertFileExists('.logs/test_results/behat/default.xml');
-    File::remove('.logs/test_results');
-    $this->cmd('ahoy cli rm -rf /app/test_results/*');
     $this->assertDirectoryExists('.logs/screenshots');
     $this->assertFilesWildcardExists('.logs/screenshots/*html');
     $this->assertFilesWildcardExists('.logs/screenshots/*png');
-    File::remove('.logs/screenshots');
-    $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
+
+    $this->removePathHostAndContainer('.logs');
 
     $this->logSubstep('Assert that Behat tests failure works');
-    File::dump('tests/behat/features/homepage.feature', File::read('tests/behat/features/homepage.feature') . "\nAnd the path should be \"some-non-existing-page\"");
-    $this->syncToContainer();
+
+    $test_file = 'tests/behat/features/homepage.feature';
+
+    $this->fileBackup($test_file);
+    $this->fileAppend($test_file, "\nAnd the path should be \"some-non-existing-page\"");
+    $this->syncToContainer($test_file);
 
     $this->cmdFail('ahoy test-bdd');
-    $this->syncToHost();
+    $this->syncToHost('.logs');
     $this->assertDirectoryExists('.logs/test_results');
     $this->assertFileExists('.logs/test_results/behat/default.xml');
-    File::remove('.logs/test_results');
-    $this->cmd('ahoy cli rm -rf /app/test_results/*');
     $this->assertDirectoryExists('.logs/screenshots');
-    File::remove('.logs/screenshots');
-    $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
 
-    // Remove failing step from the feature.
-    $this->trimFile('tests/behat/features/homepage.feature');
-    $this->syncToContainer();
-    $this->restoreFile('.env');
-    $this->cmd('ahoy up cli');
-    $this->syncToContainer();
+    $this->fileRestore($test_file);
+    $this->syncToContainer($test_file);
+    $this->removePathHostAndContainer('.logs');
 
     $this->logStepFinish();
   }
@@ -547,17 +540,11 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Run all BDD tests');
     $this->cmd('ahoy test-bdd', arg: $tags !== NULL ? ['--', '--tags=' . $tags] : [], txt: '`ahoy test-bdd` runs successfully');
-
-    $this->syncToHost();
-
-    $this->logSubstep('Check that BDD tests have created screenshots and test results');
+    $this->syncToHost('.logs');
     $this->assertDirectoryContainsString('.logs/screenshots', 'html', message: 'Screenshots directory should not be empty after BDD tests');
     $this->assertFileExists('.logs/test_results/behat/default.xml', 'Behat test results XML file should exist');
 
-    $this->logSubstep('Clean up after the test');
-    File::remove(['.logs/screenshots', '.logs/test_results/behat']);
-    $this->cmd('ahoy cli rm -rf /app/.logs/screenshots/*');
-    $this->cmd('ahoy cli rm -rf /app/.logs/test_results/*');
+    $this->removePathHostAndContainer('.logs');
 
     $this->logStepFinish();
   }
@@ -566,16 +553,18 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->logSubstep('Remove existing node_modules');
-    File::remove('node_modules');
+
+    $this->removePathHostAndContainer('node_modules');
     $this->assertDirectoryDoesNotExist('node_modules', 'Root node_modules should not exist before `ahoy fei`');
-    File::remove($webroot . '/themes/custom/star_wars/node_modules');
+    $this->removePathHostAndContainer($webroot . '/themes/custom/star_wars/node_modules');
     $this->assertDirectoryDoesNotExist($webroot . '/themes/custom/star_wars/node_modules', 'Theme node_modules should not exist before `ahoy fei`');
-    $this->syncToContainer();
 
     $this->logSubstep('Run `ahoy fei` to install all frontend dependencies');
+
     $this->cmd('ahoy fei');
-    $this->syncToHost();
+    $this->syncToHost('node_modules');
     $this->assertDirectoryExists('node_modules', 'Root node_modules should exist after `ahoy fei`');
+    $this->syncToHost($webroot . '/themes/custom/star_wars/node_modules');
     $this->assertDirectoryExists($webroot . '/themes/custom/star_wars/node_modules', 'Theme node_modules should exist after `ahoy fei`');
 
     $this->logStepFinish();
@@ -589,37 +578,34 @@ trait SubtestAhoyTrait {
     $test_color1 = '#7e57e2';
     $test_color2 = '#91ea5e';
     $variables_file = $webroot . '/themes/custom/star_wars/scss/_variables.scss';
-    $this->backupFile($variables_file);
+    $this->fileBackup($variables_file);
     $minified_file = $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css';
-    $this->backupFile($minified_file);
+    $this->fileBackup($minified_file);
 
     $this->assertFileNotContainsString($minified_file, $test_color1, 'Minified CSS file should not contain test color before build');
-
-    $original_content = File::read($variables_file);
-    $new_content = $original_content . "\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n";
-    File::remove($variables_file);
-    File::dump($variables_file, $new_content);
-    $this->syncToContainer();
+    $this->fileAppend($variables_file, "\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n");
+    $this->syncToContainer($variables_file);
 
     $this->cmd('ahoy fe');
-    $this->syncToHost();
+    $this->syncToHost($minified_file);
     $this->assertFileContainsString($minified_file, 'background:' . $test_color1, 'Assets compiled for production are minified (no spaces between properties and their values)');
+
+    $this->fileRestore($minified_file);
+    $this->fileRestore($variables_file);
 
     $this->logSubstep('Build FE assets for development');
 
     $this->assertFileNotContainsString($minified_file, $test_color2, 'Minified CSS file should not contain second test color before development build');
 
-    $dev_content = $new_content . "\$color-please: {$test_color2};\n\$color-primary: \$color-please;\n";
-    File::remove($variables_file);
-    File::dump($variables_file, $dev_content);
-    $this->syncToContainer();
+    $this->fileAppend($variables_file, "\$color-please: {$test_color2};\n\$color-primary: \$color-please;\n");
+    $this->syncToContainer($variables_file);
 
     $this->cmd('ahoy fed');
-    $this->syncToHost();
+    $this->syncToHost($minified_file);
     $this->assertFileContainsString($minified_file, 'background: ' . $test_color2, 'Assets compiled for development are not minified (contains spaces between properties and their values)');
 
-    $this->restoreFile($variables_file);
-    $this->restoreFile($minified_file);
+    $this->fileRestore($variables_file);
+    $this->fileRestore($minified_file);
 
     $this->logStepFinish();
   }
@@ -743,8 +729,8 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy flush-redis', 'OK', 'Redis service should be running initially');
 
     $this->logSubstep('Disable Redis Drupal integration');
-    $this->addVarToFile('.env', 'DRUPAL_REDIS_ENABLED', '0');
-    $this->syncToContainer();
+    $this->fileAddVar('.env', 'DRUPAL_REDIS_ENABLED', '0');
+    $this->syncToContainer('.env');
     $this->cmd('ahoy up');
     sleep(10);
     $this->cmd('ahoy flush-redis', txt: 'Redis service should be running after integration was disabled');
@@ -754,12 +740,12 @@ trait SubtestAhoyTrait {
     $this->cmd('docker compose exec -T redis redis-cli --scan', '! config', 'Redis should be empty after caches are warmed with integration disabled');
     $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'Warning', 'Redis should not be connected in Drupal');
 
-    $this->restoreFile('.env');
-    $this->syncToContainer();
+    $this->fileRestore('.env');
+    $this->syncToContainer('.env');
 
     $this->logSubstep('Enable Redis Drupal integration');
-    $this->addVarToFile('.env', 'DRUPAL_REDIS_ENABLED', '1');
-    $this->syncToContainer();
+    $this->fileAddVar('.env', 'DRUPAL_REDIS_ENABLED', '1');
+    $this->syncToContainer('.env');
 
     $this->cmd('ahoy up');
     sleep(10);
@@ -771,8 +757,8 @@ trait SubtestAhoyTrait {
     $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'OK', 'Redis should be connected in Drupal');
 
     $this->logSubstep('Cleanup after test');
-    $this->restoreFile('.env');
-    $this->syncToContainer();
+    $this->fileRestore('.env');
+    $this->syncToContainer('.env');
     $this->cmd('ahoy up cli');
 
     $this->logStepFinish();
@@ -782,6 +768,16 @@ trait SubtestAhoyTrait {
     $this->logNote('Warming up caches');
     $this->cmd('ahoy drush cr');
     $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080 | grep -q 200');
+  }
+
+  protected function assertWebpageContains(string $path, string $content, string $message = ''): void {
+    $fetched = $this->fetchWebpageContent($path);
+    $this->assertStringContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should contain: %s', $path, $content));
+  }
+
+  protected function assertWebpageNotContains(string $path, string $content, string $message = ''): void {
+    $fetched = $this->fetchWebpageContent($path);
+    $this->assertStringNotContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should not contain: %s', $path, $content));
   }
 
 }

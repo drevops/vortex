@@ -12,6 +12,12 @@ use PHPUnit\Framework\Attributes\Group;
  */
 class AhoyConfigTest extends FunctionalTestCase {
 
+  protected function setUp(): void {
+    parent::setUp();
+
+    $this->prepareSut();
+  }
+
   #[Group('p0')]
   public function testLocalConfigAbsent(): void {
     $this->cmd(

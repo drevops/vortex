@@ -10,8 +10,11 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\LocationsTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase;
 use DrevOps\Vortex\Tests\Traits\GitTrait;
+use DrevOps\Vortex\Tests\Traits\HelpersTrait;
 use DrevOps\Vortex\Tests\Traits\ProcessTrait;
 use DrevOps\Vortex\Tests\Traits\SutTrait;
+use PHPUnit\Framework\TestStatus\Error;
+use PHPUnit\Framework\TestStatus\Failure;
 
 /**
  * Base class for functional tests.
@@ -24,6 +27,7 @@ class FunctionalTestCase extends UnitTestCase {
   use LocationsTrait;
   use ProcessTrait;
   use SutTrait;
+  use HelpersTrait;
 
   protected function setUp(): void {
     // Initialize locations with the project root as the base directory.
@@ -51,25 +55,25 @@ class FunctionalTestCase extends UnitTestCase {
     static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
 
     chdir(static::$sut);
-
-    $this->prepareSut();
-
-    $this->dockerCleanup();
   }
 
   protected function tearDown(): void {
     static::logSection('TEST DONE | ' . $this->name(), double_border: TRUE);
 
-    if ($this->tearDownShouldCleanup()) {
-      // Deliberately using shell_exec to avoid issues with nested process
-      // handling in the ProcessTrait.
-      $this->dockerCleanup();
+    $test_failed = $this->status() instanceof Failure || $this->status() instanceof Error;
 
-      $this->processTearDown();
+    if ($test_failed) {
+      $this->logNote('Skipping cleanup as test has failed.');
+      $this->log(static::locationsInfo());
+    }
+    elseif (static::isDebug()) {
+      $this->logNote('Skipping cleanup as debug mode is on.');
+      $this->log(static::locationsInfo());
     }
     else {
-      $this->logNote('Skipping cleanup as test has failed or debug mode is on.');
-      $this->log(static::locationsInfo());
+      // Test passed and debug mode is off → cleanup.
+      $this->dockerCleanup();
+      $this->processTearDown();
     }
 
     parent::tearDown();
@@ -90,6 +94,46 @@ class FunctionalTestCase extends UnitTestCase {
    */
   public static function isDebug(): bool {
     return !empty(getenv('TEST_VORTEX_DEBUG')) || parent::isDebug();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function ignoredPaths(): array {
+    return [
+      '.7z',
+      '.avif',
+      '.bz2',
+      '.gz',
+      '.heic',
+      '.heif',
+      '.pdf',
+      '.rar',
+      '.tar',
+      '.woff',
+      '.woff2',
+      '.xz',
+      '.zip',
+      '.bmp',
+      '.gif',
+      '.ico',
+      '.jpeg',
+      '.jpg',
+      '.png',
+      '.svg',
+      '.svgz',
+      '.tif',
+      '.tiff',
+      '.webp',
+      '/core/',
+      '/libraries/',
+      '/modules/contrib/',
+      'modules.README.txt',
+      'modules/README.txt',
+      '/themes/contrib/',
+      'themes.README.txt',
+      'themes/README.txt',
+    ];
   }
 
   public function dockerCleanup(): void {
