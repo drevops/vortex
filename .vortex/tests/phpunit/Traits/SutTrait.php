@@ -34,7 +34,7 @@ trait SutTrait {
   /**
    * Environment variables to set when running the installer.
    *
-   * @var array <string, string>
+   * @var array <string, string|int|float|bool>
    */
   protected static $sutInstallerEnv = [];
 
@@ -72,9 +72,9 @@ trait SutTrait {
     $this->logNote('Switch to the project root directory');
     chdir(static::locationsRoot());
 
-    if (!is_dir('.vortex/installer/vendor')) {
+    if (!is_dir(static::$root . '/.vortex/installer/vendor')) {
       $this->logNote('Installing dependencies of the Vortex installer');
-      $this->cmd('composer --working-dir=.vortex/installer install --no-interaction --no-progress');
+      $this->cmd('composer --working-dir=' . static::$root . '/.vortex/installer install --no-interaction --no-progress');
     }
 
     $arguments = array_merge([
@@ -82,6 +82,7 @@ trait SutTrait {
       static::locationsSut(),
     ], $arguments);
 
+    $this->logNote('Run the installer script');
     $this->cmd(
       'php .vortex/installer/installer.php',
       arg: $arguments,
@@ -126,6 +127,25 @@ trait SutTrait {
     $this->assertDirectoryNotContainsString('.', '#;');
     $this->assertDirectoryNotContainsString('.', '#;<');
     $this->assertDirectoryNotContainsString('.', '#;>');
+  }
+
+  protected function buildInstaller(): string {
+    $installer_dir = static::$root . '/.vortex/installer';
+    $installer_phar = $installer_dir . '/build/installer.phar';
+
+    if (!is_dir($installer_dir)) {
+      $this->logNote('Installing dependencies of the Vortex installer');
+      $this->cmd('composer --working-dir=' . $installer_dir . ' install --no-interaction --no-progress');
+      $this->assertDirectoryExists($installer_dir . '/vendor', 'Vortex installer vendor directory should exist after installing dependencies');
+    }
+
+    $this->cmd('composer --working-dir=' . $installer_dir . ' build', env: ['SHELL_VERBOSITY' => -1], txt: 'Build the Vortex installer PHAR');
+    $this->assertFileExists($installer_phar, 'Installer PHAR should be built');
+
+    $this->cmd('php ' . $installer_phar . ' --version');
+    $this->logNote('Built Vortex installer: ' . trim($this->processGet()->getOutput()));
+
+    return $installer_phar;
   }
 
   protected function downloadDatabase(bool $copy_to_container = FALSE): void {
@@ -205,7 +225,7 @@ trait SutTrait {
     );
   }
 
-  protected function assertCommonFilesPresent(string $webroot = 'web', string $project_name = 'star_wars'): void {
+  protected function assertCommonFilesPresent(string $webroot = 'web', string $project_name = 'star_wars', string $vortex_version = 'develop'): void {
     $this->assertVortexFilesPresent($webroot);
 
     // Assert that project name is correct.
@@ -214,7 +234,6 @@ trait SutTrait {
 
     // Assert that Vortex version was replaced in README.md.
     $this->assertFileExists('README.md');
-    $vortex_version = getenv('TEST_VORTEX_VERSION') ?: 'develop';
     $this->assertFileContainsString('README.md', sprintf('badge/Vortex-%s-65ACBC.svg', $vortex_version));
     $this->assertFileContainsString('README.md', 'https://github.com/drevops/vortex/tree/' . $vortex_version);
     $this->assertFileNotContainsString('README.md', 'The following list includes');
@@ -566,6 +585,28 @@ EOT;
     ]);
     $this->assertFileDoesNotExist($webroot . '/sites/default/settings.local.php', 'Manually created local settings file has been removed.');
     $this->assertFileDoesNotExist($webroot . '/sites/default/services.local.yml', 'Manually created local services file has been removed.');
+  }
+
+  public function createInstalledDependenciesStub(string $webroot = 'web'): void {
+    File::dump('composer.lock');
+
+    File::dump($webroot . '/modules/contrib/somemodule/somemodule.info.yml');
+    File::dump($webroot . '/themes/contrib/sometheme/sometheme.info.yml');
+    File::dump($webroot . '/profiles/contrib/someprofile/someprofile.info.yml');
+    File::dump($webroot . '/sites/default/somesettingsfile.php');
+    File::dump($webroot . '/sites/default/files/somepublicfile.php');
+    File::dump('vendor/somevendor/somepackage/somepackage.php');
+    File::dump('vendor/somevendor/somepackage/somepackage with spaces.php');
+    File::dump('vendor/somevendor/somepackage/composer.json');
+    File::dump($webroot . '/themes/custom/zzzsomecustomtheme/node_modules/somevendor/somepackage/somepackage.js');
+
+    File::dump($webroot . '/modules/themes/custom/zzzsomecustomtheme/build/js/zzzsomecustomtheme.min.js');
+    File::dump('.logs/screenshots/s1.jpg');
+    File::dump('.data/db.sql');
+
+    File::dump($webroot . '/sites/default/services.local.yml');
+    File::dump($webroot . '/sites/default/settings.local.php');
+    File::dump("docker-compose.override.yml", 'version: "2.3"');
   }
 
 }

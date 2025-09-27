@@ -66,7 +66,6 @@ case ${index} in
 
   2)
     phpunit "${TEST_DIR}"/phpunit --group=p2
-    bats "${TEST_DIR}"/bats/e2e/update-vortex.bats
     ;;
 
   3)
