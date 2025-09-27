@@ -577,6 +577,7 @@ trait SubtestAhoyTrait {
     $test_color2 = '#91ea5e';
     $variables_file = $webroot . '/themes/custom/star_wars/scss/_variables.scss';
     $minified_file = $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css';
+    $this->fileBackup($minified_file);
 
     $this->assertFileNotContainsString($minified_file, $test_color1, 'Minified CSS file should not contain test color before build');
     $this->fileAppend($variables_file, "\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n");
@@ -586,7 +587,6 @@ trait SubtestAhoyTrait {
     $this->syncToHost($minified_file);
     $this->assertFileContainsString($minified_file, 'background:' . $test_color1, 'Assets compiled for production are minified (no spaces between properties and their values)');
 
-    $this->fileRestore($minified_file);
     $this->fileRestore($variables_file);
 
     $this->logSubstep('Build FE assets for development');
