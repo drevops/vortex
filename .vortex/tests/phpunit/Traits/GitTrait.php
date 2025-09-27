@@ -264,11 +264,15 @@ trait GitTrait {
    *   Path to repository.
    * @param string $message
    *   Commit message.
+   *
+   * @return string
+   *   Hash of created commit.
    */
-  protected function gitCommitAll(string $path, string $message): void {
-    (new Git())->open($path)
+  protected function gitCommitAll(string $path, string $message): string {
+    return (new Git())->open($path)
       ->addAllChanges()
-      ->commit($message);
+      ->commit($message)
+      ->getLastCommit()->getId()->toString();
   }
 
   /**
@@ -368,6 +372,36 @@ trait GitTrait {
     $tracked_files = array_filter($tracked_files);
 
     $this->assertArrayNotContainsArray($tracked_files, $files);
+  }
+
+  /**
+   * Assert git working tree is clean.
+   *
+   * @param string|null $path
+   *   Optional path to the repository directory. If not provided, fixture
+   *   directory is used.
+   * @param string|null $message
+   *   Optional message to display on failure.
+   */
+  protected function gitAssertClean(?string $path = NULL, ?string $message = NULL): void {
+    $path = $path ?: File::cwd();
+    $status = (new Git())->open($path)->run(['status'])->getOutput();
+    $this->assertStringContainsString('nothing to commit', implode("\n", $status), $message ?: 'Git working tree should be clean');
+  }
+
+  /**
+   * Assert git working tree is not clean.
+   *
+   * @param string|null $path
+   *   Optional path to the repository directory. If not provided, fixture
+   *   directory is used.
+   * @param string|null $message
+   *   Optional message to display on failure.
+   */
+  protected function gitAssertNotClean(?string $path = NULL, ?string $message = NULL): void {
+    $path = $path ?: File::cwd();
+    $status = (new Git())->open($path)->run(['status'])->getOutput();
+    $this->assertStringNotContainsString('nothing to commit', implode("\n", $status), $message ?: 'Git working tree should not be clean');
   }
 
   /**

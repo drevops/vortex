@@ -101,7 +101,8 @@ class Downloader {
       throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
     }
 
-    // Local download does not support version discovery.
+    // Local download does not support version discovery, but it still supports
+    // downloading from a specific ref.
     $ref = $ref === Downloader::REF_STABLE ? Downloader::REF_HEAD : $ref;
     $version = $ref;
 
