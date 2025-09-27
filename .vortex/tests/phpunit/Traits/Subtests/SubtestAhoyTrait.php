@@ -348,7 +348,6 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that BE lint failure works');
     $test_file = $webroot . '/modules/custom/sw_base/sw_base.module';
-    $this->fileBackup($test_file);
     $this->fileAppend($test_file, '$a=1;');
     $this->syncToContainer($test_file);
 
@@ -516,7 +515,6 @@ trait SubtestAhoyTrait {
 
     $test_file = 'tests/behat/features/homepage.feature';
 
-    $this->fileBackup($test_file);
     $this->fileAppend($test_file, "\nAnd the path should be \"some-non-existing-page\"");
     $this->syncToContainer($test_file);
 
@@ -578,9 +576,7 @@ trait SubtestAhoyTrait {
     $test_color1 = '#7e57e2';
     $test_color2 = '#91ea5e';
     $variables_file = $webroot . '/themes/custom/star_wars/scss/_variables.scss';
-    $this->fileBackup($variables_file);
     $minified_file = $webroot . '/themes/custom/star_wars/build/css/star_wars.min.css';
-    $this->fileBackup($minified_file);
 
     $this->assertFileNotContainsString($minified_file, $test_color1, 'Minified CSS file should not contain test color before build');
     $this->fileAppend($variables_file, "\$color-tester: {$test_color1};\n\$color-primary: \$color-tester;\n");

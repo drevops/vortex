@@ -123,20 +123,20 @@ trait HelpersTrait {
 
   protected function fileRestore(string $file): void {
     $backup_file = static::$tmp . '/bkp/' . basename($file);
-    if (File::exists($backup_file)) {
+    if (!File::exists($backup_file)) {
       throw new \InvalidArgumentException('No backup file exists for: ' . $file);
     }
     File::copy($backup_file, $file);
   }
 
   protected function fileAppend(string $path, string $content): void {
-    $this->assertFileExists($path, sprintf('File to append to (%s) should exist', $path));
-    File::dump($path, File::read($path) . $content);
+    $this->fileBackup($path);
+    File::append($path, $content);
   }
 
   protected function fileAddVar(string $file, string $var, string|int|float $value): void {
     $this->fileBackup($file);
-    $this->fileAppend($file, sprintf(PHP_EOL . '%s=%s' . PHP_EOL, $var, strval($value)));
+    File::append($file, sprintf(PHP_EOL . '%s=%s' . PHP_EOL, $var, strval($value)));
   }
 
   protected function fetchWebpageContent(string $path): string {
