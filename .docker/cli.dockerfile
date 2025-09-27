@@ -2,7 +2,7 @@
 #
 # All CLI operations performed in this container.
 #
-# hadolint global ignore=DL3018
+# hadolint global ignore=DL3018,SC2174
 #
 # @see https://hub.docker.com/r/uselagoon/php-8.3-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
@@ -83,8 +83,7 @@ RUN --mount=type=secret,id=package_token \
 COPY . /app
 
 # Create file directories and set correct permissions.
-RUN mkdir -p "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}" && \
-    chmod 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
+RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 #;< DRUPAL_THEME
 RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
