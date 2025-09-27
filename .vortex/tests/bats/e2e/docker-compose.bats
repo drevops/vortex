@@ -8,6 +8,86 @@
 
 load ../_helper.bash
 
+# Prepare current docker compose file for testing.
+prepare_docker_compose() {
+  cp "${ROOT_DIR}/docker-compose.yml" docker-compose.yml
+
+  unset PACKAGE_TOKEN
+
+  # In order for tests to pass locally and in CI, we need to replicate the
+  # environment locally to be the same as in CI.
+  export CI=true
+
+  # Process codebase to run in CI
+  sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+}
+
+# Prepare fixtures docker-compose for testing.
+prepare_docker_compose_fixtures() {
+  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.env.json" docker-compose.env.json
+  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.env_mod.json" docker-compose.env_mod.json
+  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.noenv.json" docker-compose.noenv.json
+  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.env_local.json" docker-compose.env_local.json
+  replace_string_content "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}" "${CURRENT_PROJECT_DIR}"
+
+  # Replace symlink /private paths in MacOS.
+  replace_string_content "/private/var/" "/var/" "${CURRENT_PROJECT_DIR}"
+}
+
+process_docker_compose_json() {
+  local from="${1}"
+  local to="${2:-${1}}"
+
+  # Sort all values recursively by key in the alphabetical order to avoid
+  # sorting issues between Docker Compose versions.
+  php -r "
+      \$data = json_decode(\$argv[1], true);
+      function ksort_multi(&\$array) {
+        foreach (\$array as &\$value) {
+          if (is_array(\$value)) {
+            ksort_multi(\$value);
+          }
+        }
+        ksort(\$array);
+      }
+      ksort_multi(\$data);
+
+      # Remove YAML anchors starting with 'x-'.
+      \$data = array_filter(\$data, function(\$key) {
+        return strpos(\$key, 'x-') !== 0;
+      }, ARRAY_FILTER_USE_KEY);
+
+      array_walk_recursive(\$data, function (&\$value) {
+        if (\$value !== null && preg_match('/:\d+\.\d+(\.\d+)?/', \$value)) {
+          \$value = preg_replace('/:\d+\.\d+(?:\.\d+)?/', ':VERSION', \$value);
+        }
+      });
+
+      array_walk_recursive(\$data, function (&\$value) {
+        if (\$value !== null && str_contains(\$value, \"${HOME}\")) {
+        \$value = str_replace(\"${HOME}\", 'HOME', \$value);
+      }
+    });
+
+    \$data = json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+    print \$data;
+  " "$(cat "${from}")" "${CURRENT_PROJECT_DIR}" >"${to}"
+  echo "" >>"${to}"
+}
+
+# Helper to update fixtures.
+# Using the test system instead of a standlone script to avoid duplication of
+# file processing logic.
+# Run the tests with UPDATE_FIXTURES=1 to update the fixtures.
+update_docker_compose_fixture() {
+  if [ -n "${UPDATE_FIXTURES:-}" ]; then
+    step "Updating fixtures"
+    replace_string_content "${CURRENT_PROJECT_DIR}" "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}"
+    cp -Rf "${1}" "${ROOT_DIR}/.vortex/tests/bats/fixtures/${2}"
+  fi
+}
+
 @test "Docker Compose: default without .env" {
   prepare_docker_compose
 
@@ -90,84 +170,4 @@ load ../_helper.bash
   update_docker_compose_fixture "${PWD}"/docker-compose.actual.json docker-compose.env_local.json
 
   assert_files_equal docker-compose.actual.json docker-compose.env_local.json
-}
-
-# Prepare current docker compose file for testing.
-prepare_docker_compose() {
-  cp "${ROOT_DIR}/docker-compose.yml" docker-compose.yml
-
-  unset PACKAGE_TOKEN
-
-  # In order for tests to pass locally and in CI, we need to replicate the
-  # environment locally to be the same as in CI.
-  export CI=true
-
-  # Process codebase to run in CI
-  sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
-}
-
-# Prepare fixtures docker-compose for testing.
-prepare_docker_compose_fixtures() {
-  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.env.json" docker-compose.env.json
-  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.env_mod.json" docker-compose.env_mod.json
-  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.noenv.json" docker-compose.noenv.json
-  cp "${ROOT_DIR}/.vortex/tests/bats/fixtures/docker-compose.env_local.json" docker-compose.env_local.json
-  replace_string_content "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}" "${CURRENT_PROJECT_DIR}"
-
-  # Replace symlink /private paths in MacOS.
-  replace_string_content "/private/var/" "/var/" "${CURRENT_PROJECT_DIR}"
-}
-
-process_docker_compose_json() {
-  local from="${1}"
-  local to="${2:-${1}}"
-
-  # Sort all values recursively by key in the alphabetical order to avoid
-  # sorting issues between Docker Compose versions.
-  php -r "
-    \$data = json_decode(\$argv[1], true);
-    function ksort_multi(&\$array) {
-      foreach (\$array as &\$value) {
-        if (is_array(\$value)) {
-          ksort_multi(\$value);
-        }
-      }
-      ksort(\$array);
-    }
-    ksort_multi(\$data);
-
-    # Remove YAML anchors starting with 'x-'.
-    \$data = array_filter(\$data, function(\$key) {
-      return strpos(\$key, 'x-') !== 0;
-    }, ARRAY_FILTER_USE_KEY);
-
-    array_walk_recursive(\$data, function (&\$value) {
-      if (\$value !== null && preg_match('/:\d+\.\d+(\.\d+)?/', \$value)) {
-        \$value = preg_replace('/:\d+\.\d+(?:\.\d+)?/', ':VERSION', \$value);
-      }
-    });
-
-    array_walk_recursive(\$data, function (&\$value) {
-      if (\$value !== null && str_contains(\$value, \"${HOME}\")) {
-        \$value = str_replace(\"${HOME}\", 'HOME', \$value);
-      }
-    });
-
-    \$data = json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-    print \$data;
-  " "$(cat "${from}")" "${CURRENT_PROJECT_DIR}" >"${to}"
-  echo "" >>"${to}"
-}
-
-# Helper to update fixtures.
-# Using the test system instead of a standlone script to avoid duplication of
-# file processing logic.
-# Run the tests with UPDATE_FIXTURES=1 to update the fixtures.
-update_docker_compose_fixture() {
-  if [ -n "${UPDATE_FIXTURES:-}" ]; then
-    step "Updating fixtures"
-    replace_string_content "${CURRENT_PROJECT_DIR}" "FIXTURE_CUR_DIR" "${CURRENT_PROJECT_DIR}"
-    cp -Rf "${1}" "${ROOT_DIR}/.vortex/tests/bats/fixtures/${2}"
-  fi
 }
