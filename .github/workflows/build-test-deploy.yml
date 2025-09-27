@@ -58,7 +58,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
+      image: drevops/ci-runner:25.9.0@sha256:94e278c994808d966dd28143fe990b19351697a5915a0ab346f39434aec28b27
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -78,9 +78,6 @@ jobs:
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
 
     steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
       - name: Check out code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
@@ -174,7 +171,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
+      image: drevops/ci-runner:25.9.0@sha256:94e278c994808d966dd28143fe990b19351697a5915a0ab346f39434aec28b27
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -197,9 +194,6 @@ jobs:
         #;> !PROVISION_TYPE_PROFILE
 
     steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
       - name: Check out code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
@@ -412,7 +406,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
+      image: drevops/ci-runner:25.9.0@sha256:94e278c994808d966dd28143fe990b19351697a5915a0ab346f39434aec28b27
       env:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
