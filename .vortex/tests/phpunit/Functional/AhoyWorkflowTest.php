@@ -8,7 +8,7 @@ use DrevOps\Vortex\Tests\Traits\Subtests\SubtestAhoyTrait;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests DB-driven workflow.
+ * Tests Ahoy workflows.
  */
 class AhoyWorkflowTest extends FunctionalTestCase {
 
@@ -16,6 +16,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   protected function setUp(): void {
     parent::setUp();
+
+    static::$sutInstallerEnv = [];
 
     $this->dockerCleanup();
   }

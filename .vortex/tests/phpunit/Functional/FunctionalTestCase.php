@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestStatus\Error;
 use PHPUnit\Framework\TestStatus\Failure;
 
 /**
- * Base class for functional tests.
+ * Base class for all functional tests.
  */
 class FunctionalTestCase extends UnitTestCase {
 

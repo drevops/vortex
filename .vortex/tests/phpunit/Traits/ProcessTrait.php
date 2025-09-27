@@ -12,8 +12,6 @@ use Symfony\Component\Process\Process;
  * Trait ProcessTrait.
  *
  * Runs a test process and provides assertions for its output.
- *
- * @mixin \PHPUnit\Framework\TestCase
  */
 trait ProcessTrait {
 

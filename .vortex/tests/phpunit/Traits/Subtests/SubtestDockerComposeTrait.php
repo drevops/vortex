@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits\Subtests;
 
 /**
- * Provides Docker Compose subtests.
+ * Steps and assertions for Docker Compose-based workflows.
  */
 trait SubtestDockerComposeTrait {
 

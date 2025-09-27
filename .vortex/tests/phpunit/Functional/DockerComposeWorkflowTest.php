@@ -8,12 +8,17 @@ use AlexSkrypnyk\File\File;
 use DrevOps\Vortex\Tests\Traits\Subtests\SubtestDockerComposeTrait;
 use PHPUnit\Framework\Attributes\Group;
 
+/**
+ * Tests Docker Compose workflows.
+ */
 class DockerComposeWorkflowTest extends FunctionalTestCase {
 
   use SubtestDockerComposeTrait;
 
   protected function setUp(): void {
     parent::setUp();
+
+    static::$sutInstallerEnv = [];
 
     // Docker Compose tests replicate read-only environments.
     $this->forceVolumesUnmounted();
@@ -113,16 +118,16 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $package_token = getenv('TEST_PACKAGE_TOKEN');
     $this->assertNotEmpty($package_token, 'TEST_PACKAGE_TOKEN environment variable must be set');
 
-    $this->logSubstep('Adding private package to test GitHub token');
+    $this->logSubstep('Adding private package to composer.json');
     File::remove('composer.lock');
     $this->cmd('composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git');
     $this->cmd('composer require --no-update drevops/test-private-package:^1');
 
     $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
-    $this->cmdFail('docker compose build cli --no-cache', txt: 'Build stack images without token', tio: 15 * 60);
+    $this->cmdFail('docker compose build cli --no-cache', txt: 'Build stack images without token should fail', tio: 15 * 60);
 
     $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
-    $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token', env: ['PACKAGE_TOKEN' => $package_token], tio: 15 * 60);
+    $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 15 * 60);
   }
 
 }

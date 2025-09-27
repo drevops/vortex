@@ -8,7 +8,7 @@ use AlexSkrypnyk\File\File;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests local Ahoy workflow functionality.
+ * Tests Ahoy configuration functionality.
  */
 class AhoyConfigTest extends FunctionalTestCase {
 

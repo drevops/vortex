@@ -8,6 +8,11 @@ use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 
+/**
+ * Helper methods for functional tests.
+ *
+ * These are not related to specific workflows.
+ */
 trait HelpersTrait {
 
   use DirectoryAssertionsTrait;

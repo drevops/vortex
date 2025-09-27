@@ -7,7 +7,7 @@ namespace DrevOps\Vortex\Tests\Traits\Subtests;
 use AlexSkrypnyk\File\File;
 
 /**
- * Provides Ahoy command subtests.
+ * Steps and assertions for testing Ahoy-based workflows.
  */
 trait SubtestAhoyTrait {
 

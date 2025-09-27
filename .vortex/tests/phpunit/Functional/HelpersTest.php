@@ -7,6 +7,9 @@ namespace DrevOps\Vortex\Tests\Functional;
 use AlexSkrypnyk\File\File;
 use PHPUnit\Framework\Attributes\Group;
 
+/**
+ * Tests helper methods used in the testing framework. Tests for tests.
+ */
 #[Group('smoke')]
 class HelpersTest extends FunctionalTestCase {
 

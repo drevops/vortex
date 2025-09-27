@@ -9,7 +9,9 @@ use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
 
 /**
- * Provides system under test preparations.
+ * Generic methods for setting up and testing SUT.
+ *
+ * Workflow-specific methods are withing Subtest\*Trait traits.
  */
 trait SutTrait {
 
