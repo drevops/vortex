@@ -18,22 +18,13 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     // Docker Compose tests replicate read-only environments.
     $this->forceVolumesUnmounted();
 
-    // A bit hacky way to set a different installer theme for NoFe tests here
-    // rather than within the test as the installer runs in the parent::setUp().
-    if (str_contains($this->name(), 'NoTheme')) {
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_THEME'] = 'olivero';
-    }
-    else {
-      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_THEME']);
-    }
-
-    $this->prepareSut();
-
     $this->dockerCleanup();
   }
 
   #[Group('p0')]
   public function testDockerComposeWorkflowFull(): void {
+    $this->prepareSut();
+
     $this->logSubstep('Building stack with Docker Compose');
     $this->subtestDockerComposeBuild();
 
@@ -70,6 +61,9 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
   #[Group('p0')]
   public function testDockerComposeWorkflowNoTheme(): void {
+    static::$sutInstallerEnv = ['VORTEX_INSTALLER_PROMPT_THEME' => 'olivero'];
+    $this->prepareSut();
+
     $this->logSubstep('Building stack with Docker Compose');
     $this->subtestDockerComposeBuild(build_theme: FALSE);
 
@@ -99,6 +93,8 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
   #[Group('p0')]
   public function testDockerComposeWorkflowNoFe(): void {
+    $this->prepareSut();
+
     $this->logSubstep('Building stack with Docker Compose');
     $this->subtestDockerComposeBuild(env: ['VORTEX_FRONTEND_BUILD_SKIP' => '1'], build_theme: FALSE);
   }
@@ -112,6 +108,8 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
    */
   #[Group('p0')]
   public function testDockerComposePackageToken(): void {
+    $this->prepareSut();
+
     $package_token = getenv('TEST_PACKAGE_TOKEN');
     $this->assertNotEmpty($package_token, 'TEST_PACKAGE_TOKEN environment variable must be set');
 

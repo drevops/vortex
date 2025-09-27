@@ -17,38 +17,15 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    // A bit hacky way to set a different installer theme for NoFe tests here
-    // rather than within the test as the installer runs in the parent::setUp().
-    if (str_contains($this->name(), 'DiSi')) {
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE'] = 'container_registry';
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE'] = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest';
-    }
-    elseif (str_contains($this->name(), 'ProfileStandard')) {
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER'] = 'install_profile_core';
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE'] = 'profile';
-    }
-    elseif (str_contains($this->name(), 'ProfileDrupalCms')) {
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER'] = 'install_profile_drupalcms';
-      static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE'] = 'profile';
-    }
-    else {
-      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE']);
-      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE']);
-      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_STARTER']);
-      unset(static::$sutInstallerEnv['VORTEX_INSTALLER_PROMPT_PROVISION_TYPE']);
-
-      static::$sutInstallerEnv['VORTEX_INSTALLER_IS_DEMO'] = '1';
-    }
-
-    $this->prepareSut();
-
     $this->dockerCleanup();
-
-    $this->adjustAhoyForUnmountedVolumes();
   }
 
   #[Group('p1')]
   public function testAhoyWorkflowStateless(): void {
+    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
     $this->subtestAhoyBuild();
 
     $this->subtestAhoyLogin();
@@ -92,6 +69,10 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p1')]
   public function testAhoyWorkflowStateful(): void {
+    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
     $this->subtestAhoyBuild();
 
     $this->subtestAhoyImportDb();
@@ -127,6 +108,10 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p1')]
   public function testAhoyBuildIdempotence(): void {
+    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
     $this->logSubstep('Initial build of the project.');
     $this->subtestAhoyBuild();
     $this->assertFilesTrackedInGit();
@@ -144,13 +129,16 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p4')]
   public function testAhoyWorkflowDiSi(): void {
-    $this->logStepStart();
-
-    $db_image = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest';
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE' => 'container_registry',
+      'VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE' => self::VORTEX_DB_IMAGE_TEST,
+    ];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
 
     $this->logSubstep('Verify environment configuration');
     $this->assertFileContainsString('.env', 'VORTEX_DB_DOWNLOAD_SOURCE=container_registry', '.env should contain container registry source');
-    $this->assertFileContainsString('.env', 'VORTEX_DB_IMAGE=' . $db_image, '.env should contain correct database image');
+    $this->assertFileContainsString('.env', 'VORTEX_DB_IMAGE=' . self::VORTEX_DB_IMAGE_TEST, '.env should contain correct database image');
     // Assert that demo config was removed as a part of the installation.
     $this->assertFileNotContainsString('.env', 'VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest', '.env should not contain demo database image');
     $this->assertFileNotContainsString('.env', 'VORTEX_DB_DOWNLOAD_URL=', '.env should not contain database download URL');
@@ -166,7 +154,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyBuild();
 
-    $this->subtestAhoyInfo(db_image: $db_image);
+    $this->subtestAhoyInfo(db_image: self::VORTEX_DB_IMAGE_TEST);
 
     // Assert that the database was not downloaded
     // because VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP was set.
@@ -188,7 +176,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // website size, traffic, etc.
     // @see https://www.drupal.org/project/redis/issues/2765895
     $this->cmd('ahoy flush-redis', txt: "`ahoy flush-redis` flushes Redis cache after database reload", tio: 30);
-    $this->subtestAhoyInfo(db_image: $db_image);
+    $this->subtestAhoyInfo(db_image: self::VORTEX_DB_IMAGE_TEST);
     $this->assertWebpageContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should show initial test content after database reload');
 
     // Other stack assertions - these run only for this container
@@ -204,13 +192,16 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // Cannot run all the tests as DB was refreshed and the provisioning
     // did not run (the post-provisioning hooks did not enable the modules).
     $this->subtestAhoyTestBddFast(tags: 'smoke');
-
-    $this->logStepFinish();
   }
 
   #[Group('p2')]
   public function testAhoyWorkflowProfileStandard(): void {
-    $this->logStepStart();
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_PROMPT_STARTER' => 'install_profile_core',
+      'VORTEX_INSTALLER_PROMPT_PROVISION_TYPE' => 'profile',
+    ];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
 
     $this->logSubstep('Verify environment configuration');
     $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
@@ -227,13 +218,16 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // Cannot run all the tests as DB was refreshed and the provisioning
     // did not run (the post-provisioning hooks did not enable the modules).
     $this->subtestAhoyTestBddFast(tags: 'smoke');
-
-    $this->logStepFinish();
   }
 
   #[Group('p3')]
   public function testAhoyWorkflowProfileDrupalCms(): void {
-    $this->logStepStart();
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_PROMPT_STARTER' => 'install_profile_drupalcms',
+      'VORTEX_INSTALLER_PROMPT_PROVISION_TYPE' => 'profile',
+    ];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
 
     $this->logSubstep('Verify environment configuration');
     $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
@@ -254,8 +248,6 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // Cannot run all the tests as DB was refreshed and the provisioning
     // did not run (the post-provisioning hooks did not enable the modules).
     $this->subtestAhoyTestBddFast(tags: 'smoke,counter');
-
-    $this->logStepFinish();
   }
 
 }
