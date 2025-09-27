@@ -108,7 +108,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
-  #[Group('p1')]
+  #[Group('p2')]
   public function testAhoyBuildIdempotence(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
@@ -129,7 +129,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyTestBddFast();
   }
 
-  #[Group('p4')]
+  #[Group('p3')]
   public function testAhoyWorkflowDiSi(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE' => 'container_registry',
@@ -196,7 +196,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyTestBddFast(tags: 'smoke');
   }
 
-  #[Group('p2')]
+  #[Group('p3')]
   public function testAhoyWorkflowProfileStandard(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_PROMPT_STARTER' => 'install_profile_core',
@@ -222,7 +222,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyTestBddFast(tags: 'smoke');
   }
 
-  #[Group('p3')]
+  #[Group('p4')]
   public function testAhoyWorkflowProfileDrupalCms(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_PROMPT_STARTER' => 'install_profile_drupalcms',
