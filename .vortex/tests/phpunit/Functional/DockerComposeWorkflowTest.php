@@ -122,9 +122,11 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     File::remove('composer.lock');
     $this->cmd('composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git');
     $this->cmd('composer require --no-update drevops/test-private-package:^1');
+    $this->assertFileContainsString('composer.json', 'drevops/test-private-package', 'composer.json should contain private package');
+    File::remove('composer.lock');
 
     $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
-    $this->cmdFail('docker compose build cli --no-cache', txt: 'Build stack images without token should fail', tio: 15 * 60);
+    $this->cmdFail('docker compose build cli --no-cache', out: '* Permission denied', txt: 'Build stack images without token should fail', env: ['PACKAGE_TOKEN' => FALSE], tio: 15 * 60);
 
     $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
     $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 15 * 60);
