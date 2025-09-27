@@ -134,6 +134,7 @@ jobs:
 
       - name: Generate video for installer (not used in the final artifact)
         run: |
+          sudo apt-get update
           sudo apt install asciinema expect
           npm i -g svg-term-cli sharp-cli
           ./update-installer-video.sh

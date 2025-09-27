@@ -233,7 +233,7 @@ services:
     #;> HOSTING_LAGOON
 
   # Helper container to wait for services to become available.
-  wait_dependencies:
+  wait-for-dependencies:
     image: drevops/docker-wait-for-dependencies:25.1.1
     depends_on:
       - cli

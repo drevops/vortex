@@ -141,6 +141,12 @@
                 ]
             },
             "command": null,
+            "depends_on": {
+                "wait-for-dependencies": {
+                    "condition": "service_completed_successfully",
+                    "required": true
+                }
+            },
             "entrypoint": null,
             "environment": {
                 "CI": "true",
@@ -386,22 +392,10 @@
         },
         "solr": {
             "build": {
-                "additional_contexts": {
-                    "cli": "service:cli"
-                },
-                "args": {
-                    "CLI_IMAGE": "star_wars"
-                },
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/solr.dockerfile"
             },
             "command": null,
-            "depends_on": {
-                "cli": {
-                    "condition": "service_started",
-                    "required": true
-                }
-            },
             "entrypoint": null,
             "environment": {
                 "CI": "true",
@@ -448,18 +442,16 @@
                 }
             ]
         },
-        "wait_dependencies": {
+        "wait-for-dependencies": {
             "command": [
-                "database:3306",
                 "clamav:3310",
-                "redis:6379"
+                "database:3306",
+                "redis:6379",
+                "solr:8983",
+                "curl -s \"http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json\" | grep response"
             ],
             "depends_on": {
                 "clamav": {
-                    "condition": "service_started",
-                    "required": true
-                },
-                "cli": {
                     "condition": "service_started",
                     "required": true
                 },
@@ -468,6 +460,10 @@
                     "required": true
                 },
                 "redis": {
+                    "condition": "service_started",
+                    "required": true
+                },
+                "solr": {
                     "condition": "service_started",
                     "required": true
                 }

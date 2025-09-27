@@ -12,6 +12,8 @@ load ../_helper.bash
 @test "No VORTEX_SSH_PREFIX => failure" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  export VORTEX_DEBUG=1
+
   setup_ssh_key_fixture
 
   run scripts/vortex/setup-ssh.sh
@@ -23,6 +25,8 @@ load ../_helper.bash
 
 @test "SSH setup in not required => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
   export VORTEX_SSH_PREFIX="TEST"
@@ -37,6 +41,8 @@ load ../_helper.bash
 
 @test "Default SSH Key, SSH Key missing => failure" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
   export VORTEX_SSH_PREFIX="TEST"
@@ -54,6 +60,8 @@ load ../_helper.bash
 
 @test "Default SSH Key, SSH Key exists => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
   provision_default_ssh_key
@@ -83,6 +91,8 @@ load ../_helper.bash
 
 @test "Use SSH Prefix, SSH Key with suffix, SSH Key exists => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
   local suffix="TEST"
@@ -115,6 +125,8 @@ load ../_helper.bash
 @test "Use SSH Fingerprint, No matching SSH Key, Cannot load to agent => failure" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  export VORTEX_DEBUG=1
+
   setup_ssh_key_fixture
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_TEST_SSH_FINGERPRINT="DOES_NOT_EXIST"
@@ -134,6 +146,8 @@ load ../_helper.bash
 
 @test "Use SSH Fingerprint, SSH Key provided => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
   # Assert using fingerprint with ssh key
@@ -166,6 +180,8 @@ load ../_helper.bash
 
 @test "Loading SSH key to SSH Agent, Key exists, No strict host checking => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
 
@@ -204,6 +220,8 @@ load ../_helper.bash
 
 @test "Loading SSH key to SSH Agent, Key exists, Remove existing keys => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
 
@@ -244,6 +262,8 @@ load ../_helper.bash
 @test "Key provided, MD5 Fingerprint, Key not found => failure" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  export VORTEX_DEBUG=1
+
   setup_ssh_key_fixture
   local suffix="TEST"
   provision_ssh_key_with_suffix "${suffix}"
@@ -277,6 +297,8 @@ load ../_helper.bash
 
 @test "Key provided, SHA256 fingerprint => failure" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
 
   setup_ssh_key_fixture
   local suffix="TEST"

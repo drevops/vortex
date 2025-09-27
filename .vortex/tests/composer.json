@@ -12,8 +12,8 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "alexskrypnyk/file": "^0.11.0",
-        "alexskrypnyk/phpunit-helpers": "^0.10",
+        "alexskrypnyk/file": "^0.12.0",
+        "alexskrypnyk/phpunit-helpers": "^0.12.2",
         "alexskrypnyk/shellvar": "^1.2",
         "czproject/git-php": "^4.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",

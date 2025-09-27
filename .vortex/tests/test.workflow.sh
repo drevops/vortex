@@ -41,7 +41,7 @@ bats() {
 
 phpunit() {
   pushd "${TEST_DIR}" >/dev/null || exit 1
-  "./vendor/bin/phpunit" "$@"
+  php -d memory_limit=-1 "./vendor/bin/phpunit" "$@"
   popd >/dev/null || exit 1
 }
 
@@ -57,36 +57,30 @@ fi
 case ${index} in
 
   0)
-    phpunit "${TEST_DIR}"/phpunit --exclude-filter=testDbDrivenWorkflow
+    phpunit "${TEST_DIR}"/phpunit --group=p0
     ;;
 
   1)
-    phpunit "${TEST_DIR}"/phpunit --filter=testDbDrivenWorkflow
+    phpunit "${TEST_DIR}"/phpunit --group=p1
     ;;
 
   2)
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
+    phpunit "${TEST_DIR}"/phpunit --group=p2
+    bats "${TEST_DIR}"/bats/e2e/update-vortex.bats
     ;;
 
   3)
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
+    phpunit "${TEST_DIR}"/phpunit --group=p3
     ;;
 
   4)
-    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
+    phpunit "${TEST_DIR}"/phpunit --group=p4
     # Disabled due to intermittent failures.
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
     ;;
 
   *)
     phpunit "${TEST_DIR}"/phpunit
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.profile_drupalcms.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.docker-compose.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.install.provision.bats
-    bats "${TEST_DIR}"/bats/e2e/workflow.storage.image.bats
     # Disabled due to intermittent failures.
     # bats "${TEST_DIR}"/bats/e2e/workflow.storage.image_cached.bats
     ;;

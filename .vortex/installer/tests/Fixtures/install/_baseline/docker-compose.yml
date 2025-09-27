@@ -99,6 +99,9 @@ services:
     # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+    depends_on:
+      wait-for-dependencies:
+        condition: service_completed_successfully
     user: root
 
   nginx:
@@ -153,16 +156,10 @@ services:
     build:
       context: .
       dockerfile: .docker/solr.dockerfile
-      args:
-        CLI_IMAGE: *cli-image
-      additional_contexts:
-        cli: "service:cli"
     environment:
       <<: *default-environment
     volumes:
       - solr:/var/solr
-    depends_on:
-      - cli
     ports:
       - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 
@@ -190,14 +187,19 @@ services:
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
 
   # Helper container to wait for services to become available.
-  wait_dependencies:
+  wait-for-dependencies:
     image: drevops/docker-wait-for-dependencies:__VERSION__
     depends_on:
       - clamav
-      - cli
       - database
       - redis
-    command: database:3306 clamav:3310 redis:6379
+      - solr
+    command:
+      - clamav:3310
+      - database:3306
+      - redis:6379
+      - solr:8983
+      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
 
 networks:           ### Use external networks locally. Automatically removed in CI.
   amazeeio-network: ### Automatically removed in CI.

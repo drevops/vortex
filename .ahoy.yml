@@ -131,17 +131,15 @@ commands:
     usage: Reload the database container using local database image.
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
-      docker compose rm --force --stop --volumes database && \
-      ahoy up -- --build database && \
-      ahoy up wait_dependencies && \
-      sleep 15 && \
-      ahoy provision && \
-      VORTEX_SHOW_LOGIN=1 ahoy info
+      docker compose rm --force --stop --volumes database
+      docker compose build database
+      ahoy up
 
   provision:
     usage: Provision a site from the database dump or profile.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
+      [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
       ahoy cli ./scripts/vortex/provision.sh
 
   export-db:
@@ -160,7 +158,7 @@ commands:
     usage: Remove containers, all build files. Use with `hard` to reset repository to the last commit.
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
-      AHOY_CONFIRM_RESPONSE=y ahoy down
+      AHOY_CONFIRM_RESPONSE=y ahoy down || true
       ./scripts/vortex/reset.sh "$@"
 
   fei:
@@ -264,7 +262,9 @@ commands:
 
   debug:
     usage: Enable PHP Xdebug.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable."
+    cmd: |
+      ahoy cli php -v | grep -q Xdebug && echo "Debug configuration is already enabled. Use 'ahoy up' to disable." || \
+      (XDEBUG_ENABLE=true ahoy up cli php nginx && sleep 1 && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable.")
 
   deploy:
     usage: Run remote deployment procedures.

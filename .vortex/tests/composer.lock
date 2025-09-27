@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc22670886a902fdcd8911f876bbab23",
+    "content-hash": "6e4ee8ebc593f048400cd0230f6d8307",
     "packages": [],
     "packages-dev": [
         {
@@ -65,16 +65,16 @@
         },
         {
             "name": "alexskrypnyk/file",
-            "version": "0.11.0",
+            "version": "0.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895"
+                "reference": "f7e00dc3570b35f07a9f9dbb3e62b40e678a94b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
-                "reference": "3719d79a6ea64a76f8856bc2ff9d2029a4a3d895",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/f7e00dc3570b35f07a9f9dbb3e62b40e678a94b0",
+                "reference": "f7e00dc3570b35f07a9f9dbb3e62b40e678a94b0",
                 "shasum": ""
             },
             "require": {
@@ -82,7 +82,7 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.10.0",
+                "alexskrypnyk/phpunit-helpers": "^0.12.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
@@ -127,20 +127,20 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-14T00:12:13+00:00"
+            "time": "2025-09-27T00:47:28+00:00"
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.10.0",
+            "version": "0.12.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "4967a0dae2f31d286ac66e069290cbed7c969bd0"
+                "reference": "99012db4d4f8dd0cf3b21a2e9931719490d3c7ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/4967a0dae2f31d286ac66e069290cbed7c969bd0",
-                "reference": "4967a0dae2f31d286ac66e069290cbed7c969bd0",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/99012db4d4f8dd0cf3b21a2e9931719490d3c7ef",
+                "reference": "99012db4d4f8dd0cf3b21a2e9931719490d3c7ef",
                 "shasum": ""
             },
             "require": {
@@ -194,7 +194,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-12T03:20:47+00:00"
+            "time": "2025-09-27T02:35:38+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",

@@ -50,7 +50,7 @@ function the_force_base_deploy_place_counter_block(): string {
  *
  * @codeCoverageIgnore
  */
-function the_force_base_deploy_install_theme(): void {
+function the_force_base_deploy_install_active_theme(): void {
   \Drupal::service('theme_installer')->install(['olivero']);
   \Drupal::service('config.factory')->getEditable('system.theme')->set('default', 'olivero')->save();
   \Drupal::service('theme_installer')->install(['lightsaber']);
