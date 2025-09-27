@@ -118,18 +118,15 @@ trait HelpersTrait {
   }
 
   protected function fileBackup(string $file): void {
-    $backup_dir = static::$tmp . '/bkp';
-    if (!is_dir($backup_dir)) {
-      mkdir($backup_dir, 0755, TRUE);
-    }
-    File::copy($file, $backup_dir . '/' . basename($file));
+    File::copy($file, static::$tmp . '/bkp/' . basename($file), 0755);
   }
 
   protected function fileRestore(string $file): void {
     $backup_file = static::$tmp . '/bkp/' . basename($file);
-    if (file_exists($backup_file)) {
-      File::copy($backup_file, $file);
+    if (File::exists($backup_file)) {
+      throw new \InvalidArgumentException('No backup file exists for: ' . $file);
     }
+    File::copy($backup_file, $file);
   }
 
   protected function fileAppend(string $path, string $content): void {
