@@ -96,7 +96,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/behat', txt: 'Run Behat tests');
   }
 
-  #[Group('p0')]
+  #[Group('p3')]
   public function testDockerComposeWorkflowNoFe(): void {
     $this->prepareSut();
 
@@ -111,7 +111,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
    * export TEST_PACKAGE_TOKEN=real_github_token_with_access_to_private_package
    * or this test will fail.
    */
-  #[Group('p0')]
+  #[Group('p4')]
   public function testDockerComposePackageToken(): void {
     $this->prepareSut();
 
