@@ -18,15 +18,15 @@ trait HelpersTrait {
   use DirectoryAssertionsTrait;
   use FileAssertionsTrait;
 
-  protected function volumesMounted(): bool {
+  public function volumesMounted(): bool {
     return getenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT') != 1;
   }
 
-  protected function forceVolumesUnmounted(): void {
+  public function forceVolumesUnmounted(): void {
     putenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT=1');
   }
 
-  protected function syncToHost(string|array $paths = []): void {
+  public function syncToHost(string|array $paths = []): void {
     if ($this->volumesMounted()) {
       return;
     }
@@ -82,7 +82,7 @@ trait HelpersTrait {
     }
   }
 
-  protected function syncToContainer(string|array $paths = []): void {
+  public function syncToContainer(string|array $paths = []): void {
     if ($this->volumesMounted()) {
       return;
     }
@@ -117,16 +117,16 @@ trait HelpersTrait {
     }
   }
 
-  protected function removePathHostAndContainer(string $path): void {
+  public function removePathHostAndContainer(string $path): void {
     File::remove($path);
     shell_exec(sprintf('docker compose exec -T cli rm -rf %s', escapeshellarg('/app/' . ltrim($path, '/'))));
   }
 
-  protected function fileBackup(string $file): void {
+  public function fileBackup(string $file): void {
     File::copy($file, static::$tmp . '/bkp/' . basename($file), 0755);
   }
 
-  protected function fileRestore(string $file): void {
+  public function fileRestore(string $file): void {
     $backup_file = static::$tmp . '/bkp/' . basename($file);
     if (!File::exists($backup_file)) {
       throw new \InvalidArgumentException('No backup file exists for: ' . $file);
@@ -134,17 +134,17 @@ trait HelpersTrait {
     File::copy($backup_file, $file);
   }
 
-  protected function fileAppend(string $path, string $content): void {
+  public function fileAppend(string $path, string $content): void {
     $this->fileBackup($path);
     File::append($path, $content);
   }
 
-  protected function fileAddVar(string $file, string $var, string|int|float $value): void {
+  public function fileAddVar(string $file, string $var, string|int|float $value): void {
     $this->fileBackup($file);
     File::append($file, sprintf(PHP_EOL . '%s=%s' . PHP_EOL, $var, strval($value)));
   }
 
-  protected function fetchWebpageContent(string $path): string {
+  public function fetchWebpageContent(string $path): string {
     $this->cmd('docker compose exec -T cli curl -L -s ' . escapeshellarg('http://nginx:8080' . $path), txt: 'Fetch webpage content');
 
     $content = $this->processGet()->getOutput();

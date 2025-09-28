@@ -52,6 +52,7 @@
             "phpcbf"
         ],
         "reset": "rm -Rf vendor",
-        "test": "phpunit"
+        "test": "phpunit",
+        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testDockerComposeConfig"
     }
 }

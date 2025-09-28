@@ -65,7 +65,7 @@ trait ProcessTrait {
     array $env = [],
     int $tio = 900,
     int $ito = 180,
-  ): ?Process {
+  ): Process {
     $this->processRun($cmd, $arg, $inp, $env, $tio, $ito);
     $this->assertProcessSuccessful($txt);
     if ($txt) {
@@ -76,7 +76,7 @@ trait ProcessTrait {
       $this->assertProcessAnyOutputContainsOrNot($out);
     }
 
-    return $this->process;
+    return $this->processGet();
   }
 
   public function cmdFail(
@@ -88,7 +88,7 @@ trait ProcessTrait {
     array $env = [],
     int $tio = 900,
     int $ito = 180,
-  ): ?Process {
+  ): Process {
     $this->processRun($cmd, $arg, $inp, $env, $tio, $ito);
     $this->assertProcessFailed($txt);
     if ($txt) {
@@ -99,7 +99,7 @@ trait ProcessTrait {
       $this->assertProcessAnyOutputContainsOrNot($out);
     }
 
-    return $this->process;
+    return $this->processGet();
   }
 
 }
