@@ -79,6 +79,13 @@ class FunctionalTestCase extends UnitTestCase {
     parent::tearDown();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function locationsFixturesDir(): string {
+    return '.vortex/tests/phpunit/Fixtures';
+  }
+
   public function fixtureExportCodebase(string $src, string $dst): void {
     $current_dir = File::cwd();
     if (!File::exists($dst)) {

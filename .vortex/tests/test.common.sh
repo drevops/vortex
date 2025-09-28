@@ -37,4 +37,3 @@ bats() {
 }
 
 bats "${TEST_DIR}/bats/unit"
-bats "${TEST_DIR}/bats/e2e/docker-compose.bats"
