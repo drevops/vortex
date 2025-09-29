@@ -8,8 +8,8 @@
 name: Database, Build, Test and Deploy
 
 on:
-  # Pushes to the following branches will trigger the workflow.
   push:
+    # Pushes to the following branches will trigger the workflow.
     branches:
       - production
       - main
@@ -18,7 +18,9 @@ on:
       - release/**
       - hotfix/**
       - project/**
-
+    # Pushes of tags will also trigger the workflow.
+    tags:
+      - '*'
   # Pull requests to the following branches will trigger the workflow.
   pull_request:
     types:
@@ -455,6 +457,7 @@ jobs:
       - name: Deploy
         run: ./scripts/vortex/deploy.sh
         env:
+          VORTEX_DEPLOY_MODE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || 'branch' }}
           # Get branch for PR from 'head_ref' or for branch from 'ref_name'.
           VORTEX_DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
           VORTEX_DEPLOY_PR: ${{ github.event.number }}
