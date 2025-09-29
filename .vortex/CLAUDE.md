@@ -237,7 +237,7 @@ cd .vortex/docs
 yarn install
 
 # Development workflow
-yarn start              # Start dev server  
+yarn start              # Start dev server
 yarn build              # Build documentation
 
 # Testing workflow
@@ -454,7 +454,7 @@ When script output changes, update corresponding test files:
 **Important**: Each system has independent dependencies and must be set up separately:
 
 1. **Documentation** (`.vortex/docs/`): Requires Node.js/Yarn
-2. **Installer** (`.vortex/installer/`): Requires PHP/Composer  
+2. **Installer** (`.vortex/installer/`): Requires PHP/Composer
 3. **Template** (`.vortex/tests/`): Requires PHP/Composer + Node.js + BATS
 
 **Full Setup** (from `.vortex/`):
@@ -757,7 +757,7 @@ Each system:
 # Build failures
 yarn build --verbose           # Check for detailed build errors
 
-# Spellcheck failures  
+# Spellcheck failures
 yarn spellcheck                # Review American English violations
 npx cspell "content/**/*.md"   # Check specific files
 
@@ -983,7 +983,7 @@ $this->cmd('ahoy info', ['Docker', 'Compose']);  // Both must be found in output
 // ✅ CORRECT - all strings have prefixes
 $this->cmd('ahoy info', [
   '* Xdebug',      // Must contain "Xdebug"
-  '* Disabled',    // Must contain "Disabled" 
+  '* Disabled',    // Must contain "Disabled"
   '! Enabled'      // Must NOT contain "Enabled"
 ]);
 

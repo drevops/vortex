@@ -59,6 +59,9 @@ commands:
   lint-markdown:
     cmd: ./tests/lint.markdown.sh
 
+  lint-markdown-fix:
+    cmd: ./tests/lint.markdown.sh --fix
+
   lint-docs:
     cmd: yarn --cwd=docs run lint
 
