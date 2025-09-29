@@ -1,4 +1,4 @@
-@@ -263,11 +263,6 @@
+@@ -265,11 +265,6 @@
          run: docker compose exec -T cli vendor/bin/phpstan
          continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
  

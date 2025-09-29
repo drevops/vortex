@@ -1,4 +1,4 @@
-@@ -38,8 +38,6 @@
+@@ -40,8 +40,6 @@
          description: 'Enable terminal session.'
          required: false
          default: false
@@ -7,7 +7,7 @@
  
  defaults:
    run:
-@@ -46,108 +44,10 @@
+@@ -48,108 +46,10 @@
      shell: bash
  
  jobs:
@@ -116,7 +116,7 @@
  
      strategy:
        # A matrix to run multiple jobs in parallel.
-@@ -168,14 +68,6 @@
+@@ -170,14 +70,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -131,7 +131,7 @@
  
      steps:
        - name: Check out code
-@@ -191,29 +83,6 @@
+@@ -193,29 +85,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -161,7 +161,7 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -365,7 +234,6 @@
+@@ -367,7 +236,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: build
