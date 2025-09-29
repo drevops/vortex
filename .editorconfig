@@ -24,3 +24,6 @@ indent_size = 2
 
 [.prettierrc.json]
 indent_size = 2
+
+[package.json]
+indent_size = 2
