@@ -1,7 +1,7 @@
 # To ignore OS temporary files use global .gitignore
 # https://help.github.com/articles/ignoring-files/#create-a-global-gitignore
 
-# Ignore Drupal web, but preserve custom modules, themes and settings.
+# Ignore Drupal webroot, but preserve custom modules, themes and settings.
 # To add an override file, explicitly un-ignore it below and add to the
 # repository (useful for robots.txt and .htaccess file overrides).
 
