@@ -1,4 +1,4 @@
-@@ -182,7 +182,6 @@
+@@ -183,7 +183,6 @@
    lint-be:
      usage: Lint back-end code.
      cmd: |
@@ -6,7 +6,7 @@
        ahoy cli vendor/bin/phpstan
        ahoy cli vendor/bin/rector --clear-cache --dry-run
        ahoy cli vendor/bin/phpmd . text phpmd.xml
-@@ -209,7 +208,6 @@
+@@ -210,7 +209,6 @@
      usage: Fix lint issues of back-end code.
      cmd: |
        ahoy cli vendor/bin/rector --clear-cache

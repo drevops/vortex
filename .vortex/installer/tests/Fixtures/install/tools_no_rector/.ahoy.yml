@@ -1,4 +1,4 @@
-@@ -184,7 +184,6 @@
+@@ -185,7 +185,6 @@
      cmd: |
        ahoy cli vendor/bin/phpcs
        ahoy cli vendor/bin/phpstan
@@ -6,7 +6,7 @@
        ahoy cli vendor/bin/phpmd . text phpmd.xml
  
    lint-fe:
-@@ -208,7 +207,6 @@
+@@ -209,7 +208,6 @@
    lint-be-fix:
      usage: Fix lint issues of back-end code.
      cmd: |
