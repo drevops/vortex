@@ -22,7 +22,7 @@ commands:
       ahoy composer install               # Install Composer dependencies.
       ahoy fei                            # Install front-end dependencies.
       ahoy fe                             # Build front-end assets.
-      ahoy provision                      # Provision the site.
+      VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
       VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
 
   info:
@@ -132,6 +132,7 @@ commands:
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
       [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
       ahoy cli ./scripts/vortex/provision.sh
+      [ "${VORTEX_SHOW_LOGIN:-1}" = "1" ] && ahoy login || true
 
   export-db:
     usage: Export database dump or database image (if VORTEX_DB_IMAGE variable is set).
