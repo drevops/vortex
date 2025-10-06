@@ -1,0 +1,12 @@
+@@ -55,9 +55,9 @@
+       api_driver: drupal
+       drush_driver: drush
+       drupal:
+-        drupal_root: web
++        drupal_root: docroot
+       drush:
+-        root: web
++        root: docroot
+       region_map:
+         header: '#header'
+         primary_menu: '.header-nav'
