@@ -38,15 +38,6 @@ abstract class FunctionalTestCase extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp(): void {
-    parent::setUp();
-
-    static::applicationInitFromCommand(InstallCommand::class);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function tearDown(): void {
     static::tuiTearDown();
 

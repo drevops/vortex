@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
+use DrevOps\VortexInstaller\Command\InstallCommand;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\File;
 use Laravel\SerializableClosure\SerializableClosure;
@@ -25,6 +26,8 @@ abstract class AbstractInstallTestCase extends FunctionalTestCase {
 
   protected function setUp(): void {
     parent::setUp();
+
+    static::applicationInitFromCommand(InstallCommand::class);
 
     // Use a two-words name for the sut directory.
     static::$sut = File::mkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
