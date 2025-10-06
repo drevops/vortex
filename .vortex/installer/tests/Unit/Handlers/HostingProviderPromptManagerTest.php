@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
@@ -29,6 +30,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
         [],
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
+          HostingProjectName::id() => 'myproject',
           Webroot::id() => Webroot::DOCROOT,
           DeployType::id() => [DeployType::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
@@ -42,6 +44,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
         [],
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
+          HostingProjectName::id() => 'myproject',
           Webroot::id() => Webroot::DOCROOT,
           DeployType::id() => [DeployType::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
@@ -55,6 +58,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
         [],
         [
           HostingProvider::id() => HostingProvider::LAGOON,
+          HostingProjectName::id() => 'myproject',
           DeployType::id() => [DeployType::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,

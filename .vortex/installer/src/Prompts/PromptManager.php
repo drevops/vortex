@@ -16,6 +16,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -62,7 +63,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 25;
+  const TOTAL_RESPONSES = 26;
 
   /**
    * Array of responses.
@@ -158,6 +159,11 @@ class PromptManager {
 
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
+      ->addIf(
+          fn($r): bool => $this->handlers[HostingProjectName::id()]->shouldRun($r),
+          fn($r, $pr, $n): string => text(...$this->args(HostingProjectName::class, NULL, $r)),
+          HostingProjectName::id()
+        )
       ->add(
           function (array $r, $pr, $n): string {
             return $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r)));
@@ -278,6 +284,7 @@ class PromptManager {
       ProfileCustom::id(),
       Profile::id(),
       Domain::id(),
+      HostingProjectName::id(),
       ModulePrefix::id(),
       ThemeCustom::id(),
       Theme::id(),
@@ -379,6 +386,9 @@ class PromptManager {
 
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
     $values['Hosting provider'] = $responses[HostingProvider::id()];
+    if (in_array($this->responses[HostingProvider::id()], [HostingProvider::LAGOON, HostingProvider::ACQUIA])) {
+      $values['Hosting project name'] = $responses[HostingProjectName::id()];
+    }
 
     $values['Deployment'] = Tui::LIST_SECTION_TITLE;
     $values['Deployment types'] = Converter::toList($responses[DeployType::id()]);

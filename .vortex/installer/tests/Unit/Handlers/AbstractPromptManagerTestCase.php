@@ -16,6 +16,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
@@ -130,6 +131,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
       Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT],
       HostingProvider::id() => HostingProvider::NONE,
+      HostingProjectName::id() => NULL,
       Webroot::id() => Webroot::WEB,
       DeployType::id() => [DeployType::WEBHOOK],
       ProvisionType::id() => ProvisionType::DATABASE,
