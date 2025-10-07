@@ -147,7 +147,7 @@ jobs:
           node-version: 22.17.1
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: composer install
         working-directory: .vortex/tests
 
       - name: Install Ahoy
@@ -158,85 +158,11 @@ jobs:
           ahoy --version
 
       - name: Run tests
-        run: ./tests/test.workflow.sh
-        working-directory: .vortex
-        env:
-          TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
-
-      - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
-        with:
-          name: ${{github.job}}-${{ matrix.batch }}-code-coverage-report
-          path: /tmp/.vortex-coverage-html
-          include-hidden-files: true
-          if-no-files-found: error
-
-      - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5
-        with:
-          directory: /tmp/.vortex-coverage-html
-          fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  vortex-test-deployment:
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        batch: [0, 1]
-
-    container:
-      image: drevops/ci-runner:25.10.0@sha256:03f2722e141b4939b390abad9443ed96304a8ec7bda0b2eab9dac56f9e9b7b91
-      env:
-        # Prevent GitHub overriding the Docker config.
-        DOCKER_CONFIG: /root/.docker
-        VORTEX_DOCTOR_CHECK_MINIMAL: 1
-        TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
-        TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
-        TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
-        VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
-        VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
-        TEST_NODE_INDEX: ${{ matrix.batch }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-
-      - name: Adjust git config to allow running git-related tests
-        run: git config --global safe.directory '*'
-
-      - name: Generate test SSH key pair used for deployment tests
         run: |
-          mkdir -p "$HOME/.ssh"
-          ssh-keygen -t rsa -b 4096 -m PEM -N '' -f "$HOME/.ssh/id_rsa"
-          chmod 600 "$HOME/.ssh/id_rsa"
-          ssh-agent -a "${HOME}/ssh-agent.sock" > ssh-agent-output
-          export SSH_AUTH_SOCK="$(grep SSH_AUTH_SOCK ssh-agent-output | cut -d';' -f1 | cut -d= -f2)"
-          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+          # Create an empty coverage directory to avoid errors. @see https://github.com/actions/upload-artifact/issues/255
+          mkdir -p /tmp/.vortex-coverage-html && touch "/tmp/.vortex-coverage-html/.empty-$(date +%Y%m%d%H%M%S)"
+          php -d memory_limit=-1 vendor/bin/phpunit phpunit --group="${TEST_NODE_INDEX:-*}"
         working-directory: .vortex/tests
-
-      - name: Install Ahoy
-        run: |
-          version=2.4.0 && \
-          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
-          chmod +x /usr/local/bin/ahoy && \
-          ahoy --version
-
-      - name: Run tests
-        run: ./tests/test.deployment.sh
-        working-directory: .vortex
-        timeout-minutes: 10
         env:
           TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
 

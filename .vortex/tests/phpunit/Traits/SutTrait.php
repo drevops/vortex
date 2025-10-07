@@ -38,7 +38,7 @@ trait SutTrait {
    */
   protected static $sutInstallerEnv = [];
 
-  protected function prepareSut(): void {
+  protected function prepareSut(string $webroot = 'web'): void {
     $this->logStepStart();
 
     $this->logSubstep('Prepare global gitconfig');
@@ -48,13 +48,13 @@ trait SutTrait {
     $this->prepareGlobalGitignore();
 
     $this->logSubstep('Assert that SUT does not have common files before installation');
-    $this->assertCommonFilesAbsent();
+    $this->assertCommonFilesAbsent($webroot);
 
     $this->logSubstep('Run the installer to initialise the project with the default settings');
     $this->runInstaller();
 
     $this->logSubstep('Assert that SUT has common files after installation');
-    $this->assertCommonFilesPresent();
+    $this->assertCommonFilesPresent($webroot);
 
     $this->logSubstep('Assert that created SUT is a git repository');
     $this->gitAssertIsRepository(static::$sut);
