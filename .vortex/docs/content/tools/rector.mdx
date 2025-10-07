@@ -13,6 +13,22 @@ for Drupal projects. The configuration is based on
 the configuration provided
 by [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 
+## What is Rector?
+
+Rector automatically refactors your PHP and Drupal code to:
+
+- **Fix deprecated Drupal APIs** - Prepares code for Drupal major version upgrades
+- **Modernize PHP syntax** - Leverages PHP 8.3 language features
+- **Improve code quality** - Enhances readability and maintainability
+- **Reduce technical debt** - Automated cleanup and optimization
+
+## When to Use Rector
+
+- **Before Drupal Upgrades**: Run before upgrading Drupal major versions to fix deprecations
+- **During Development**: Run periodically (weekly/monthly) to catch deprecations early
+- **Code Reviews**: Include in CI pipeline for automated quality checks
+- **Refactoring Legacy Code**: When modernizing older codebases
+
 ## Usage
 
 ### Check for violations
@@ -71,23 +87,6 @@ The config sets are meant to be adjusted per-project as needed.
 A full list of available config sets can be found in
 the [Rules overview](https://getrector.com/documentation/rules-overview) page.
 
-```php
-$rectorConfig->sets([
-    // Provided by Rector.
-    SetList::PHP_80,
-    SetList::PHP_81,
-    SetList::CODE_QUALITY,
-    SetList::CODING_STYLE,
-    SetList::DEAD_CODE,
-    SetList::INSTANCEOF,
-    SetList::TYPE_DECLARATION,
-    // Provided by Drupal Rector.
-    Drupal8SetList::DRUPAL_8,
-    Drupal9SetList::DRUPAL_9,
-    Drupal10SetList::DRUPAL_10,
-]);
-```
-
 ## Ignoring
 
 See more
@@ -98,29 +97,92 @@ Ignoring rules **globally** takes place in
 the [`rector.php`](https://github.com/drevops/vortex/blob/develop/rector.php) file:
 
 ```php
-$rectorConfig->skip([
+->withSkip([
   SimplifyIfReturnBoolRector::class,
-]);
+])
 ```
 
 To ignore **all Rector rules** within a file:
 
 ```php
-$rectorConfig->skip([
+->withSkip([
   'file.php',
   '*/other_file.php',
-]);
+])
 ```
 
 To ignore **a specific rule** within a file:
 
 ```php
-$rectorConfig->skip([
+->withSkip([
   SimplifyIfReturnBoolRector::class => ['file.php'],
-]);
+])
 ```
 
 Rector does not support ignoring of the **code blocks**.
+
+## Cache Management
+
+### How Caching Works
+
+Rector caches parsed file information and analysis results to speed up subsequent runs:
+
+- **Cache location**: `/tmp/_rector` (system temp directory)
+- **Stores**: Parsed AST, file metadata, rule analysis results
+- **Performance**: Subsequent runs are ~40-60% faster by reusing results for unchanged files
+
+### When to Clear Cache
+
+Clear Rector cache in these situations:
+
+1. **After changing `rector.php` configuration**
+   - Added/removed rules
+   - Changed skip list
+   - Modified paths
+
+2. **After updating Rector or Drupal Rector packages**
+   ```bash
+   composer update rector/rector palantirnet/drupal-rector
+   ```
+
+3. **When seeing unexpected behavior**
+   - Rules not applying when they should
+   - Stale results
+   - False negatives in CI
+
+4. **After switching git branches** with different Rector configurations
+
+### Clear Cache
+
+To clear cache and check for violations:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy cli vendor/bin/rector process --clear-cache --dry-run
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/rector process --clear-cache --dry-run
+    ```
+  </TabItem>
+</Tabs>
+
+To clear cache and apply changes:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy cli vendor/bin/rector process --clear-cache
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/rector process --clear-cache
+    ```
+  </TabItem>
+</Tabs>
 
 ## Ignoring fail in continuous integration pipeline
 

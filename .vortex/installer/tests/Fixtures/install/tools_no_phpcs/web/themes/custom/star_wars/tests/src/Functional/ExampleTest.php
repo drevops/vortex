@@ -4,5 +4,5 @@
     *
 -   * @phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
     */
+   #[\Override]
    protected function setUp(): void {
-     parent::setUp();

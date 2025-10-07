@@ -1,8 +1,8 @@
-@@ -43,7 +43,6 @@
- 
-   $rectorConfig->paths([
-     $drupalRoot . '/modules/custom',
--    $drupalRoot . '/themes/custom',
-     $drupalRoot . '/sites/default/settings.php',
-     $drupalRoot . '/sites/default/includes',
+@@ -37,7 +37,6 @@
+ return RectorConfig::configure()
+   ->withPaths([
+     __DIR__ . '/web/modules/custom',
+-    __DIR__ . '/web/themes/custom',
+     __DIR__ . '/web/sites/default/settings.php',
+     __DIR__ . '/web/sites/default/includes',
      __DIR__ . '/tests',

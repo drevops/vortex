@@ -21,6 +21,7 @@ class ExampleTest extends TheForceBaseFunctionalTestBase {
    *
    * @phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
    */
+  #[\Override]
   protected function setUp(): void {
     parent::setUp();
     // DrevOps does not support Functional tests due to permission issues.

@@ -208,7 +208,7 @@ class Theme extends AbstractHandler {
     File::removeLine($tmpDir . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
     File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
 
-    File::removeLine($tmpDir . '/rector.php', "\$drupalRoot . '/themes/custom',");
+    File::removeLine($tmpDir . '/rector.php', "__DIR__ . '/web/themes/custom',");
 
     File::removeLine($tmpDir . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
 
