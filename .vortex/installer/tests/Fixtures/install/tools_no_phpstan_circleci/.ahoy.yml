@@ -3,6 +3,6 @@
      cmd: |
        ahoy cli vendor/bin/phpcs
 -      ahoy cli vendor/bin/phpstan
-       ahoy cli vendor/bin/rector --clear-cache --dry-run
+       ahoy cli vendor/bin/rector --dry-run
        ahoy cli vendor/bin/phpmd . text phpmd.xml
  

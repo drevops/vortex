@@ -32,13 +32,13 @@ $databases = [
     [
       'default' =>
         [
-          'database' => getenv('DATABASE_NAME') ?: getenv('DATABASE_DATABASE') ?: getenv('MARIADB_DATABASE') ?: 'drupal',
-          'username' => getenv('DATABASE_USERNAME') ?: getenv('MARIADB_USERNAME') ?: 'drupal',
-          'password' => getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD') ?: 'drupal',
-          'host' => getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost',
-          'port' => getenv('DATABASE_PORT') ?: getenv('MARIADB_PORT') ?: '3306',
-          'charset' => getenv('DATABASE_CHARSET') ?: getenv('MARIADB_CHARSET') ?: getenv('MYSQL_CHARSET') ?: 'utf8mb4',
-          'collation' => getenv('DATABASE_COLLATION') ?: getenv('MARIADB_COLLATION') ?: getenv('MYSQL_COLLATION') ?: 'utf8mb4_general_ci',
+          'database' => (getenv('DATABASE_NAME') ?: getenv('DATABASE_DATABASE') ?: getenv('MARIADB_DATABASE')) ?: 'drupal',
+          'username' => (getenv('DATABASE_USERNAME') ?: getenv('MARIADB_USERNAME')) ?: 'drupal',
+          'password' => (getenv('DATABASE_PASSWORD') ?: getenv('MARIADB_PASSWORD')) ?: 'drupal',
+          'host' => (getenv('DATABASE_HOST') ?: getenv('MARIADB_HOST')) ?: 'localhost',
+          'port' => (getenv('DATABASE_PORT') ?: getenv('MARIADB_PORT')) ?: '3306',
+          'charset' => (getenv('DATABASE_CHARSET') ?: getenv('MARIADB_CHARSET') ?: getenv('MYSQL_CHARSET')) ?: 'utf8mb4',
+          'collation' => (getenv('DATABASE_COLLATION') ?: getenv('MARIADB_COLLATION') ?: getenv('MYSQL_COLLATION')) ?: 'utf8mb4_general_ci',
           'prefix' => '',
           'driver' => 'mysql',
         ],
@@ -50,8 +50,8 @@ $databases = [
 ////////////////////////////////////////////////////////////////////////////////
 // @see https://www.vortextemplate.com/docs/drupal/settings#general
 
-$app_root = $app_root ?? DRUPAL_ROOT;
-$site_path = $site_path ?? 'sites/default';
+$app_root ??= DRUPAL_ROOT;
+$site_path ??= 'sites/default';
 $contrib_path = $app_root . '/' . (is_dir($app_root . '/modules/contrib') ? 'modules/contrib' : 'modules');
 
 // Public files directory relative to the Drupal root.
@@ -61,7 +61,7 @@ $settings['file_public_path'] = getenv('DRUPAL_PUBLIC_FILES') ?: 'sites/default/
 $settings['file_private_path'] = getenv('DRUPAL_PRIVATE_FILES') ?: 'sites/default/files/private';
 
 // Temporary file directory.
-$settings['file_temp_path'] = getenv('DRUPAL_TEMPORARY_FILES') ?: getenv('TMP') ?: '/tmp';
+$settings['file_temp_path'] = (getenv('DRUPAL_TEMPORARY_FILES') ?: getenv('TMP')) ?: '/tmp';
 
 // Location of the site configuration files relative to the Drupal root.
 $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: '../config/default';
@@ -73,11 +73,11 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: hash('sha256', $databases['default']['default']['host']);
 
 // Timezone settings.
-ini_set('date.timezone', getenv('DRUPAL_TIMEZONE') ?: getenv('TZ') ?: 'UTC');
-date_default_timezone_set(getenv('DRUPAL_TIMEZONE') ?: getenv('TZ') ?: 'UTC');
+ini_set('date.timezone', (getenv('DRUPAL_TIMEZONE') ?: getenv('TZ')) ?: 'UTC');
+date_default_timezone_set((getenv('DRUPAL_TIMEZONE') ?: getenv('TZ')) ?: 'UTC');
 
 // Maintenance theme.
-$settings['maintenance_theme'] = getenv('DRUPAL_MAINTENANCE_THEME') ?: getenv('DRUPAL_THEME') ?: 'claro';
+$settings['maintenance_theme'] = (getenv('DRUPAL_MAINTENANCE_THEME') ?: getenv('DRUPAL_THEME')) ?: 'claro';
 
 // Trusted Host Patterns.
 // See https://www.drupal.org/node/2410395 for more information on how to
@@ -135,8 +135,8 @@ $settings['environment'] = ENVIRONMENT_LOCAL;
 if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   $files = glob($app_root . '/' . $site_path . '/includes/providers/settings.*.php');
   if ($files) {
-    foreach ($files as $filename) {
-      require $filename;
+    foreach ($files as $file) {
+      require $file;
     }
   }
 }
@@ -154,8 +154,8 @@ if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
 if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
   $files = glob($app_root . '/' . $site_path . '/includes/modules/settings.*.php');
   if ($files) {
-    foreach ($files as $filename) {
-      require $filename;
+    foreach ($files as $file) {
+      require $file;
     }
   }
 }

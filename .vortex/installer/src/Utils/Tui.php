@@ -247,7 +247,7 @@ class Tui {
     $mblen = mb_strlen($char);
 
     // @see https://youtrack.jetbrains.com/issue/IJPL-101568/Terminal-display-Python-icon-in-wrong-width
-    if (str_contains((string) getenv('TERMINAL_EMULATOR'), 'JetBrains') && ($mblen == 1 && $len < 4)) {
+    if (str_contains((string) getenv('TERMINAL_EMULATOR'), 'JetBrains') && ($mblen === 1 && $len < 4)) {
       $padding = ' ';
     }
 
