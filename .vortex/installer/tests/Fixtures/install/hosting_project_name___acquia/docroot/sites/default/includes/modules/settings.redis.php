@@ -35,9 +35,9 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED
   $settings['redis.connection']['interface'] = 'PhpRedis';
 
   // Do not set the cache backend during installations of Drupal, but allow
-  // to override this by setting VORTEX_REDIS_EXTENSION_LOADED to non-zero.
+  // to override this by setting VORTEX_REDIS_EXTENSION_LOADED = '1'.
   // Redis uses `redis` PHP extension.
-  if ((extension_loaded('redis') && getenv('VORTEX_REDIS_EXTENSION_LOADED') === FALSE) || !empty(getenv('VORTEX_REDIS_EXTENSION_LOADED'))) {
+  if (extension_loaded('redis') || getenv('VORTEX_REDIS_EXTENSION_LOADED') === '1') {
 
     // Set Redis as the default backend for any cache bin not otherwise
     // specified.
