@@ -74,6 +74,9 @@ jobs:
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
 
     steps:
+      - name: Preserve $HOME set in the container
+        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
@@ -180,6 +183,9 @@ jobs:
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
 
     steps:
+      - name: Preserve $HOME set in the container
+        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
 

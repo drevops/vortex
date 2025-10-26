@@ -1,4 +1,4 @@
-@@ -304,10 +304,6 @@
+@@ -310,10 +310,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
          timeout-minutes: 30
  
