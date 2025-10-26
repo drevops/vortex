@@ -13,7 +13,7 @@ declare(strict_types=1);
 // Add custom domains to trusted host patterns if specified.
 $trusted_hosts = getenv('DRUPAL_TRUSTED_HOSTS');
 if (!empty($trusted_hosts)) {
-  $domains = array_map('trim', explode(',', $trusted_hosts));
+  $domains = array_map(trim(...), explode(',', $trusted_hosts));
   foreach ($domains as $domain) {
     if (!empty($domain)) {
       $domain = strtolower($domain);
