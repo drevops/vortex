@@ -1,4 +1,4 @@
-@@ -280,11 +280,6 @@
+@@ -286,11 +286,6 @@
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
  
@@ -10,7 +10,7 @@
        - name: Lint module code with NodeJS linters
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli bash -c "yarn run lint"
-@@ -307,18 +302,6 @@
+@@ -313,18 +308,6 @@
        - name: Test with PHPUnit
          run: docker compose exec -T cli vendor/bin/phpunit
          continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
