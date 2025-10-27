@@ -118,13 +118,13 @@ class PromptManager {
     $form = form()
       ->intro('General information')
       ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class)), Name::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, NULL, $r)), Org::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(Org::class, NULL, $r)), Org::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
 
       ->intro('Drupal')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
+      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
       ->add(
           function (array $r, $pr, $n): string {
             return $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class)));
@@ -132,11 +132,11 @@ class PromptManager {
           Profile::id()
         )
         ->addIf(
-            fn($r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
             fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class)),
             ProfileCustom::id()
           )
-      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
       ->add(
           function (array $r, $pr, $n): string {
             return $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class)));
@@ -144,8 +144,8 @@ class PromptManager {
           Theme::id()
         )
         ->addIf(
-            fn($r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
-            fn($r, $pr, $n): string => text(...$this->args(ThemeCustom::class, NULL, $r)),
+            fn(array $r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
+            fn(array $r, $pr, $n): string => text(...$this->args(ThemeCustom::class, NULL, $r)),
             ThemeCustom::id()
           )
 
@@ -160,8 +160,8 @@ class PromptManager {
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
       ->addIf(
-          fn($r): bool => $this->handlers[HostingProjectName::id()]->shouldRun($r),
-          fn($r, $pr, $n): string => text(...$this->args(HostingProjectName::class, NULL, $r)),
+          fn(array $r): bool => $this->handlers[HostingProjectName::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): string => text(...$this->args(HostingProjectName::class, NULL, $r)),
           HostingProjectName::id()
         )
       ->add(
@@ -172,18 +172,18 @@ class PromptManager {
         )
 
       ->intro('Deployment')
-      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, NULL, $r)), DeployType::id())
+      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(DeployType::class, NULL, $r)), DeployType::id())
 
       ->intro('Workflow')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class)), ProvisionType::id())
       ->addIf(
-          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
-          fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, NULL, $r)),
+          fn(array $r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, NULL, $r)),
           DatabaseDownloadSource::id()
         )
         ->addIf(
-            fn($r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
-            fn($r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
+            fn(array $r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
+            fn(array $r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
             DatabaseImage::id()
           )
 
