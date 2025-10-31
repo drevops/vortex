@@ -23,6 +23,7 @@
     "eslint-plugin-prettier": "__VERSION__",
     "eslint-plugin-yml": "__VERSION__",
     "prettier": "__VERSION__",
+    "prettier-plugin-jsdoc": "__VERSION__",
     "stylelint": "__VERSION__",
     "stylelint-config-standard": "__VERSION__",
     "stylelint-order": "__VERSION__"
