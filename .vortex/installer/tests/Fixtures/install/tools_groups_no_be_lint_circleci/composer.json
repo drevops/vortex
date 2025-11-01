@@ -1,4 +1,4 @@
-@@ -31,7 +31,6 @@
+@@ -31,23 +31,15 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -6,7 +6,7 @@
          "drevops/behat-format-progress-fail": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
-@@ -38,15 +37,9 @@
+-        "drevops/phpcs-standard": "__VERSION__",
          "drupal/core-dev": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
@@ -22,7 +22,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -74,12 +67,10 @@
+@@ -75,12 +67,10 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

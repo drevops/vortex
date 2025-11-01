@@ -6,7 +6,7 @@
      <file>web/sites/default/settings.php</file>
      <file>web/sites/default/includes</file>
      <file>tests</file>
-@@ -24,10 +23,6 @@
+@@ -26,10 +25,6 @@
      <config name="testVersion" value="8.3"/>
  
      <!-- Exclude theme assets. -->

@@ -43,18 +43,18 @@ trait GitTrait {
     try {
       (new Git())->open($path)->checkout($branch);
     }
-    catch (GitException $gitException) {
+    catch (GitException $git_exception) {
       $allowed_fails = [
         sprintf("error: pathspec '%s' did not match any file(s) known to git", $branch),
       ];
 
-      if ($gitException->getRunnerResult()) {
-        $output = $gitException->getRunnerResult()->getErrorOutput();
+      if ($git_exception->getRunnerResult()) {
+        $output = $git_exception->getRunnerResult()->getErrorOutput();
       }
 
       // Re-throw exception if it is not one of the allowed ones.
       if (!isset($output) || empty(array_intersect($output, $allowed_fails))) {
-        throw $gitException;
+        throw $git_exception;
       }
     }
   }

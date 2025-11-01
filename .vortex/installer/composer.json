@@ -34,6 +34,7 @@
         "alexskrypnyk/phpunit-helpers": "^0.13",
         "bamarni/composer-bin-plugin": "^1.8",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "drevops/phpcs-standard": "^0.2",
         "drupal/coder": "^8.3",
         "ergebnis/composer-normalize": "^2.45",
         "laravel/serializable-closure": "^2.0",

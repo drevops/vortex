@@ -2,12 +2,14 @@
 <ruleset name="custom">
     <description>Custom PHPCS standard.</description>
 
-    <!-- Coding standard. -->
     <rule ref="Drupal">
         <exclude name="Drupal.Commenting.ClassComment" />
         <exclude name="Drupal.Commenting.FunctionComment.Missing" />
         <exclude name="Drupal.Commenting.VariableComment.Missing" />
     </rule>
+    <rule ref="Generic.PHP.RequireStrictTypes" />
+    <rule ref="DrevOps.NamingConventions.LocalVariableSnakeCase"/>
+    <rule ref="DrevOps.NamingConventions.ParameterSnakeCase"/>
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>

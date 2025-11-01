@@ -1,4 +1,4 @@
-@@ -29,14 +29,8 @@
+@@ -29,15 +29,9 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -8,6 +8,7 @@
 -        "drevops/behat-format-progress-fail": "__VERSION__",
 -        "drevops/behat-screenshot": "__VERSION__",
 -        "drevops/behat-steps": "__VERSION__",
+         "drevops/phpcs-standard": "__VERSION__",
          "drupal/core-dev": "__VERSION__",
 -        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",

@@ -1,4 +1,4 @@
-@@ -29,24 +29,10 @@
+@@ -29,25 +29,10 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -8,6 +8,7 @@
 -        "drevops/behat-format-progress-fail": "__VERSION__",
 -        "drevops/behat-screenshot": "__VERSION__",
 -        "drevops/behat-steps": "__VERSION__",
+-        "drevops/phpcs-standard": "__VERSION__",
          "drupal/core-dev": "__VERSION__",
 -        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
@@ -23,7 +24,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -65,21 +51,14 @@
+@@ -66,21 +51,14 @@
              "scripts/composer/ScriptHandler.php"
          ]
      },
