@@ -14,7 +14,7 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
 
   run scripts/vortex/setup-ssh.sh
   assert_failure
@@ -28,7 +28,7 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_TEST_SSH_FILE=false
 
@@ -44,7 +44,7 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
   local file=${HOME}/.ssh/id_rsa
 
@@ -63,8 +63,8 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
   export VORTEX_SSH_PREFIX="TEST"
   local file=${HOME}/.ssh/id_rsa
 
@@ -94,9 +94,9 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   local suffix="TEST"
-  provision_ssh_key_with_suffix "${suffix}"
+  fixture_ssh_key_with_suffix "${suffix}"
   export VORTEX_SSH_PREFIX="KEY_IDENTIFIER"
   export VORTEX_KEY_IDENTIFIER_SSH_FILE="${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
 
@@ -127,7 +127,7 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_TEST_SSH_FINGERPRINT="DOES_NOT_EXIST"
 
@@ -149,10 +149,10 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   # Assert using fingerprint with ssh key
   export VORTEX_TEST_SSH_FINGERPRINT="TEST"
-  provision_ssh_key_with_suffix ${VORTEX_TEST_SSH_FINGERPRINT}
+  fixture_ssh_key_with_suffix ${VORTEX_TEST_SSH_FINGERPRINT}
   export VORTEX_SSH_PREFIX="TEST"
   local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${VORTEX_TEST_SSH_FINGERPRINT}"
 
@@ -183,12 +183,12 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
 
   # Assert does not have key loaded
   export VORTEX_SSH_PREFIX="IDENTIFIER"
   export VORTEX_IDENTIFIER_SSH_FINGERPRINT="TEST"
-  provision_ssh_key_with_suffix ${VORTEX_IDENTIFIER_SSH_FINGERPRINT}
+  fixture_ssh_key_with_suffix ${VORTEX_IDENTIFIER_SSH_FINGERPRINT}
   local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${VORTEX_IDENTIFIER_SSH_FINGERPRINT}"
 
   # Override the values that could be coming from the environment with defaults.
@@ -223,12 +223,12 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
 
   # Assert does not have key loaded
   export VORTEX_SSH_PREFIX="IDENTIFIER"
   export VORTEX_IDENTIFIER_SSH_FINGERPRINT="TEST"
-  provision_ssh_key_with_suffix ${VORTEX_IDENTIFIER_SSH_FINGERPRINT}
+  fixture_ssh_key_with_suffix ${VORTEX_IDENTIFIER_SSH_FINGERPRINT}
   local file="${SSH_KEY_FIXTURE_DIR}/id_rsa_${VORTEX_IDENTIFIER_SSH_FINGERPRINT}"
 
   # Override the values that could be coming from the environment with defaults.
@@ -264,9 +264,9 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   local suffix="TEST"
-  provision_ssh_key_with_suffix "${suffix}"
+  fixture_ssh_key_with_suffix "${suffix}"
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_TEST_SSH_FINGERPRINT="$(ssh-keygen -l -E md5 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
   export VORTEX_TEST_SSH_FILE="${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}"
@@ -300,9 +300,9 @@ load ../_helper.bash
 
   export VORTEX_DEBUG=1
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   local suffix="TEST"
-  provision_ssh_key_with_suffix "${suffix}"
+  fixture_ssh_key_with_suffix "${suffix}"
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_TEST_SSH_FINGERPRINT="$(ssh-keygen -l -E sha256 -f "${SSH_KEY_FIXTURE_DIR}/id_rsa_${suffix}" | awk '{print $2}')"
 

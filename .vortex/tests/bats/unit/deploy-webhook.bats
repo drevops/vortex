@@ -5,7 +5,6 @@
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 
 load ../_helper.bash
-load ../_helper.deployment.bash
 
 @test "Missing variable checks" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1

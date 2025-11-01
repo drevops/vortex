@@ -5,7 +5,6 @@
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 
 load ../_helper.bash
-load ../_helper.deployment.bash
 
 @test "VORTEX_CONTAINER_REGISTRY value is not valid" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -34,7 +33,7 @@ load ../_helper.deployment.bash
   export VORTEX_CONTAINER_REGISTRY="https://www.example.com"
 
   # Mock the Docker configuration file.
-  create_docker_config_file "${VORTEX_CONTAINER_REGISTRY}"
+  fixture_docker_config_file "${VORTEX_CONTAINER_REGISTRY}"
   export DOCKER_CONFIG="${BUILD_DIR}/.docker"
 
   run scripts/vortex/login-container-registry.sh
