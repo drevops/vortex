@@ -128,7 +128,7 @@ class TaskTest extends UnitTestCase {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Action must be callable.');
 
-    Task::action('Test label', NULL);
+    Task::action('Test label');
   }
 
 }

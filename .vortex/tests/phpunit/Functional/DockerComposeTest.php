@@ -108,9 +108,7 @@ class DockerComposeTest extends FunctionalTestCase {
     $this->ksortRecursive($data);
 
     // Remove YAML anchors starting with 'x-'.
-    $data = array_filter($data, function ($key): bool {
-      return !str_starts_with($key, 'x-');
-    }, ARRAY_FILTER_USE_KEY);
+    $data = array_filter($data, fn($key): bool => !str_starts_with((string) $key, 'x-'), ARRAY_FILTER_USE_KEY);
 
     array_walk_recursive($data, function (&$value): void {
       if ($value !== NULL && is_string($value) && preg_match('/:\d+\.\d+(\.\d+)?/', $value)) {

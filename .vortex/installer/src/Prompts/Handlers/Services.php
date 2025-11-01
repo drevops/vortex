@@ -58,7 +58,7 @@ class Services extends AbstractHandler {
     try {
       $dc = Yaml::parseFile($this->dstDir . '/docker-compose.yml');
     }
-    catch (\Exception $exception) {
+    catch (\Exception) {
       return NULL;
     }
 

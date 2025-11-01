@@ -83,7 +83,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
   }
 
   protected function runNonInteractiveInstall(?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
-    $dst = $dst ?? static::$sut;
+    $dst ??= static::$sut;
 
     if ($dst !== '' && $dst !== '0') {
       $args[InstallCommand::ARG_DESTINATION] = $dst;

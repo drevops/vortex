@@ -64,7 +64,7 @@ class ConfigTest extends UnitTestCase {
   }
 
   public function testConstructorWithNullParameters(): void {
-    $config = new Config(NULL, NULL, NULL);
+    $config = new Config();
 
     $this->assertEquals(File::cwd(), $config->getRoot());
     $this->assertEquals(File::cwd(), $config->getDst());

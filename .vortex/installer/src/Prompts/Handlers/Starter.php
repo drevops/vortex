@@ -149,9 +149,8 @@ DOC;
     // @todo Update to use separate steps for hosting and CI/CD configuration.
     $output .= 'Setup integration with your hosting and CI/CD providers:' . PHP_EOL;
     $output .= '  See https://www.vortextemplate.com/docs/getting-started/installation';
-    $output .= PHP_EOL;
 
-    return $output;
+    return $output . PHP_EOL;
   }
 
 }
