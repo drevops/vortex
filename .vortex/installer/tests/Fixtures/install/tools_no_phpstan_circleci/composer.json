@@ -1,4 +1,4 @@
-@@ -38,13 +38,10 @@
+@@ -39,13 +39,10 @@
          "drupal/core-dev": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
@@ -12,7 +12,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -79,7 +76,6 @@
+@@ -80,7 +77,6 @@
              "ergebnis/composer-normalize": true,
              "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,

@@ -171,8 +171,8 @@ class Env {
     }
     else {
       // Format the new value with proper quoting.
-      $newValue = static::formatValueForDotenv($value);
-      $replacement = '$1=' . $newValue;
+      $new_value = static::formatValueForDotenv($value);
+      $replacement = '$1=' . $new_value;
 
       if (preg_match($pattern, $contents)) {
         // Replace existing variable value.
@@ -183,7 +183,7 @@ class Env {
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
-        $contents .= $name . '=' . $newValue . "\n";
+        $contents .= $name . '=' . $new_value . "\n";
       }
     }
 

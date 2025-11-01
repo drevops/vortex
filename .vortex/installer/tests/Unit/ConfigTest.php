@@ -184,36 +184,36 @@ class ConfigTest extends UnitTestCase {
 
   public function testSetWithEnvironmentVariable(): void {
     $config = new Config();
-    $envKey = 'TEST_ENV_VAR';
-    $envValue = 'env_value';
-    $setValue = 'set_value';
+    $env_key = 'TEST_ENV_VAR';
+    $env_value = 'env_value';
+    $set_value = 'set_value';
 
     // Set environment variable.
-    putenv($envKey . '=' . $envValue);
+    putenv($env_key . '=' . $env_value);
 
     // Environment variable should take precedence.
-    $config->set($envKey, $setValue);
-    $this->assertEquals($envValue, $config->get($envKey));
+    $config->set($env_key, $set_value);
+    $this->assertEquals($env_value, $config->get($env_key));
 
     // Clean up.
-    putenv($envKey);
+    putenv($env_key);
   }
 
   public function testSetSkipEnvironment(): void {
     $config = new Config();
-    $envKey = 'TEST_ENV_VAR_SKIP';
-    $envValue = 'env_value';
-    $setValue = 'set_value';
+    $env_key = 'TEST_ENV_VAR_SKIP';
+    $env_value = 'env_value';
+    $set_value = 'set_value';
 
     // Set environment variable.
-    putenv($envKey . '=' . $envValue);
+    putenv($env_key . '=' . $env_value);
 
     // Skip environment check.
-    $config->set($envKey, $setValue, TRUE);
-    $this->assertEquals($setValue, $config->get($envKey));
+    $config->set($env_key, $set_value, TRUE);
+    $this->assertEquals($set_value, $config->get($env_key));
 
     // Clean up.
-    putenv($envKey);
+    putenv($env_key);
   }
 
   public function testGetRoot(): void {

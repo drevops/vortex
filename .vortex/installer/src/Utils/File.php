@@ -72,8 +72,8 @@ class File extends UpstreamFile {
           $replacements = [$replacements => $replace];
         }
 
-        foreach ($replacements as $search => $replaceValue) {
-          $content = static::replaceContent($content, $search, $replaceValue);
+        foreach ($replacements as $search => $replace_value) {
+          $content = static::replaceContent($content, $search, $replace_value);
         }
       }
 

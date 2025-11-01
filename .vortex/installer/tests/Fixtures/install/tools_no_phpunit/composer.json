@@ -1,4 +1,4 @@
-@@ -42,7 +42,6 @@
+@@ -43,7 +43,6 @@
          "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
          "phpmd/phpmd": "__VERSION__",
@@ -6,7 +6,7 @@
          "phpstan/extension-installer": "__VERSION__",
          "phpstan/phpstan": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
-@@ -63,11 +62,6 @@
+@@ -64,11 +63,6 @@
      "autoload": {
          "classmap": [
              "scripts/composer/ScriptHandler.php"

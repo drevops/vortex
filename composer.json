@@ -31,10 +31,11 @@
     "require-dev": {
         "behat/behat": "^3.23",
         "dantleech/gherkin-lint": "^0.2.3",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
         "drevops/behat-format-progress-fail": "^1.3",
         "drevops/behat-screenshot": "^2.1",
         "drevops/behat-steps": "^3.1",
+        "drevops/phpcs-standard": "^0.2",
         "drupal/core-dev": "~11.2.3",
         "drupal/drupal-extension": "^5.1",
         "ergebnis/composer-normalize": "^2.48",

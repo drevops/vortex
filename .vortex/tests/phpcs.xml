@@ -4,8 +4,9 @@
 
     <!-- Using Drupal coding standard as a base-fix. -->
     <rule ref="Drupal"/>
-    <!-- Checks that the strict_types has been declared. -->
     <rule ref="Generic.PHP.RequireStrictTypes" />
+    <rule ref="DrevOps.NamingConventions.LocalVariableSnakeCase"/>
+    <rule ref="DrevOps.NamingConventions.ParameterSnakeCase"/>
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>

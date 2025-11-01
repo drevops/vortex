@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
+use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
 use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
@@ -42,6 +43,7 @@ return static function (RectorConfig $config): void {
 
   $config->skip([
     // Rules added by Rector's rule sets.
+    CatchExceptionNameMatchingTypeRector::class,
     CountArrayToEmptyArrayComparisonRector::class,
     DisallowedEmptyRuleFixerRector::class,
     InlineArrayReturnAssignRector::class,
