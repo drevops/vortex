@@ -819,11 +819,11 @@ This project includes automated deployment via:
 
 [//]: # (#;> HOSTING_ACQUIA)
 
-[//]: # (#;< DEPLOY_TYPE_CONTAINER_REGISTRY)
+[//]: # (#;< DEPLOY_TYPES_CONTAINER_REGISTRY)
 
 - **Container Registry** - Docker-based deployments
 
-[//]: # (#;> DEPLOY_TYPE_CONTAINER_REGISTRY)
+[//]: # (#;> DEPLOY_TYPES_CONTAINER_REGISTRY)
 
 ### Manual Deployment Commands
 

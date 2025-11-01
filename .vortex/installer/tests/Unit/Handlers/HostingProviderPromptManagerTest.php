@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
@@ -32,7 +32,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
           HostingProvider::id() => HostingProvider::ACQUIA,
           HostingProjectName::id() => 'myproject',
           Webroot::id() => Webroot::DOCROOT,
-          DeployType::id() => [DeployType::ARTIFACT],
+          DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
@@ -46,7 +46,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
           HostingProvider::id() => HostingProvider::ACQUIA,
           HostingProjectName::id() => 'myproject',
           Webroot::id() => Webroot::DOCROOT,
-          DeployType::id() => [DeployType::ARTIFACT],
+          DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
@@ -59,7 +59,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
         [
           HostingProvider::id() => HostingProvider::LAGOON,
           HostingProjectName::id() => 'myproject',
-          DeployType::id() => [DeployType::LAGOON],
+          DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {

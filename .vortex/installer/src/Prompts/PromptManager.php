@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
@@ -172,7 +172,7 @@ class PromptManager {
         )
 
       ->intro('Deployment')
-      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(DeployType::class, NULL, $r)), DeployType::id())
+      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(DeployTypes::class, NULL, $r)), DeployTypes::id())
 
       ->intro('Workflow')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class)), ProvisionType::id())
@@ -274,7 +274,7 @@ class PromptManager {
       DatabaseImage::id(),
       DatabaseDownloadSource::id(),
       ProvisionType::id(),
-      DeployType::id(),
+      DeployTypes::id(),
       HostingProvider::id(),
       Tools::id(),
       Services::id(),
@@ -391,7 +391,7 @@ class PromptManager {
     }
 
     $values['Deployment'] = Tui::LIST_SECTION_TITLE;
-    $values['Deployment types'] = Converter::toList($responses[DeployType::id()]);
+    $values['Deployment types'] = Converter::toList($responses[DeployTypes::id()]);
 
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
     $values['Provision type'] = $responses[ProvisionType::id()];
