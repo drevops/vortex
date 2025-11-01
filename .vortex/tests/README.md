@@ -71,9 +71,6 @@ For parallel execution, tests can be run across multiple CI nodes using the
 convenience script wrappers:
 
 - [`test.common.sh]`(test.common.sh) - Common tests for all environments
-- [`test.deployment.sh`](test.deployment.sh) - Deployment tests
-- [`test.postbuild.sh`](test.postbuild.sh) - Post-build tests
-- [`test.workflow.sh`](test.workflow.sh) - Workflow tests
 - [`lint.scripts.sh`](lint.scripts.sh) - Linting for shell scripts
 - [`lint.dockerfiles.sh`](lint.dockerfiles.sh) - Linting for Dockerfiles
 
@@ -112,4 +109,3 @@ phpunit/
         ├── SubtestAhoyTrait.php         # Steps and assertions for testing Ahoy-based workflows
         └── SubtestDockerComposeTrait.php # Steps and assertions for Docker Compose-based workflows
 ```
-
