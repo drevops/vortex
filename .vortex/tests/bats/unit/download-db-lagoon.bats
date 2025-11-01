@@ -38,7 +38,7 @@ load ../_helper.bash
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_DB_DOWNLOAD_SSH_FILE=false
 
@@ -91,7 +91,7 @@ load ../_helper.bash
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_DB_DOWNLOAD_SSH_FILE=false
 
@@ -144,7 +144,7 @@ load ../_helper.bash
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
-  setup_ssh_key_fixture
+  fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_DB_DOWNLOAD_SSH_FILE=false
 

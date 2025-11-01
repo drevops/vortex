@@ -5,7 +5,16 @@
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
 load ../_helper.bash
-load ../_helper.deployment.bash
+setup_robo_fixture() {
+  export HOME="${BUILD_DIR}"
+  fixture_prepare_dir "${HOME}/.composer/vendor/bin"
+  touch "${HOME}/.composer/vendor/bin/robo"
+  chmod +x "${HOME}/.composer/vendor/bin/robo"
+
+  # Also create a mock for git-artifact
+  touch "${HOME}/.composer/vendor/bin/git-artifact"
+  chmod +x "${HOME}/.composer/vendor/bin/git-artifact"
+}
 
 @test "Missing VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP - deployment should not proceed" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -33,7 +42,7 @@ load ../_helper.deployment.bash
   export DOCKER_CONFIG=/dev/null
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  create_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
+  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1,service2=image2,service3=image3"
@@ -87,7 +96,7 @@ load ../_helper.deployment.bash
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
   export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  create_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
+  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
 
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1"
 
