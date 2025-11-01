@@ -537,18 +537,22 @@ jobs:
             ahoy --version
 
       - run:
-          name: Run CircleCI tests (long)
-          command: VORTEX_DEV_VOLUMES_SKIP_MOUNT=1 VORTEX_DEV_TEST_COVERAGE_DIR=/tmp/artifacts/coverage .vortex/tests/test.postbuild.sh
+          name: Install test dependencies
+          command: |
+            cd .vortex/tests
+            composer install --no-interaction --prefer-dist
+
+      - run:
+          name: Run CircleCI post-build tests
+          command: |
+            cd .vortex/tests
+            ./vendor/bin/phpunit --group=postbuild
 
       - store_test_results:
           path: *test_results
 
       - store_artifacts:
           path: *artifacts
-
-      - run:
-          name: Upload code coverage reports to Codecov
-          command: codecov -Z -s /tmp/artifacts/coverage
 
   #-----------------------------------------------------------------------------
   # Launching and testing databases stored within Docker data image.
