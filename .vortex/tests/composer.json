@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.3"
     },
     "require-dev": {
         "alexskrypnyk/file": "^0.12.0",

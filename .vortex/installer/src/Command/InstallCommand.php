@@ -132,9 +132,7 @@ EOF
           return $version;
         },
         hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
-        success: function (string $return): string {
-          return sprintf('Vortex downloaded (%s)', $return);
-        }
+        success: fn(string $return): string => sprintf('Vortex downloaded (%s)', $return)
       );
 
       Task::action(
@@ -298,18 +296,18 @@ EOF
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
 
-    foreach ($valid_files as $filename) {
-      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $filename);
+    foreach ($valid_files as $valid_file) {
+      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $valid_file);
 
       if (File::isInternal($relative_file)) {
-        unlink($filename);
+        unlink($valid_file);
       }
     }
 
     // Remove skipped files.
-    foreach ($ignored_files as $skipped_file) {
-      if (is_readable($skipped_file)) {
-        unlink($skipped_file);
+    foreach ($ignored_files as $ignored_file) {
+      if (is_readable($ignored_file)) {
+        unlink($ignored_file);
       }
     }
 

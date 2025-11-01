@@ -117,9 +117,7 @@ class Tui {
 
   protected static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
     $lines = explode("\n", $text);
-    $colored_lines = array_map(function (string $line) use ($color_code, $end_code): string {
-      return sprintf("\033[%sm%s\033[%sm", $color_code, $line, $end_code);
-    }, $lines);
+    $colored_lines = array_map(fn(string $line): string => sprintf("\033[%sm%s\033[%sm", $color_code, $line, $end_code), $lines);
     return implode("\n", $colored_lines);
   }
 
@@ -133,7 +131,7 @@ class Tui {
 
   public static function caretEol(string $text): string {
     $lines = explode(PHP_EOL, $text);
-    $longest = max(array_map('strlen', $lines));
+    $longest = max(array_map(strlen(...), $lines));
 
     return "\033[" . $longest . "C";
   }
@@ -174,7 +172,7 @@ class Tui {
   public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
     $rows = [];
 
-    $width = $width ?? static::terminalWidth();
+    $width ??= static::terminalWidth();
 
     // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
     $offset = 6;
@@ -232,7 +230,7 @@ class Tui {
 
     $text = preg_replace('/\s{2,}/', ' ', $text);
 
-    preg_match_all('/\X/u', $text, $matches);
+    preg_match_all('/\X/u', (string) $text, $matches);
 
     $utf8_chars = $matches[0];
     $utf8_chars = array_map(fn(string $char): string => Strings::isAsciiStart($char) ? $char : $char . static::utfPadding($char), $utf8_chars);

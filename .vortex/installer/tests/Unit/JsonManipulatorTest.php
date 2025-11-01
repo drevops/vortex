@@ -15,7 +15,7 @@ class JsonManipulatorTest extends UnitTestCase {
   /**
    * Sample JSON content for testing.
    */
-  private const SAMPLE_JSON = '{
+  private const string SAMPLE_JSON = '{
     "name": "test/package",
     "description": "A test package",
     "version": "1.0.0",
@@ -39,7 +39,7 @@ class JsonManipulatorTest extends UnitTestCase {
   /**
    * Invalid JSON content for testing error cases.
    */
-  private const INVALID_JSON = '{
+  private const string INVALID_JSON = '{
     "name": "test/package",
     "description": "A test package"
     "invalid": missing comma

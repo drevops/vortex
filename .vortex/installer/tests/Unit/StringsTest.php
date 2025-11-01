@@ -539,18 +539,18 @@ class StringsTest extends UnitTestCase {
         "/**\n\t * Description here.\n\t *\n\t * @param string \$param\n\t */",
       ],
       'json_string_with_docblock_pattern_should_not_be_modified' => [
-        <<<'JSON'
+        <<<'JSON_WRAP'
         {
           "lint-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\"",
           "description": "Some /** comment */ in JSON"
         }
-        JSON,
-        <<<'JSON'
+        JSON_WRAP,
+        <<<'JSON_WRAP'
         {
           "lint-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\"",
           "description": "Some /** comment */ in JSON"
         }
-        JSON,
+        JSON_WRAP,
       ],
       'inline_docblock_pattern_should_not_be_modified' => [
         'const foo = "/** some comment */"; // Not a real docblock',

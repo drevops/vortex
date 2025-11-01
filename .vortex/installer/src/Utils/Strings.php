@@ -12,7 +12,7 @@ class Strings {
 
   public static function strlenPlain(string $text): int {
     $clean_text = preg_replace('/\e\[[0-9;]*m/', '', $text);
-    return mb_strwidth($clean_text, 'UTF-8');
+    return mb_strwidth((string) $clean_text, 'UTF-8');
   }
 
   public static function stripAnsiColors(string $text): string {
@@ -97,12 +97,12 @@ class Strings {
     $following_newline = $matches[3] ?? '';
 
     // Single-line docblocks - return unchanged.
-    if (!str_contains($comment_content, "\n")) {
+    if (!str_contains((string) $comment_content, "\n")) {
       return $full_match;
     }
 
     // Split into lines and process.
-    $lines = explode("\n", $comment_content);
+    $lines = explode("\n", (string) $comment_content);
 
     // Remove leading/trailing empty lines and check for content in one pass.
     $start = 0;
@@ -146,9 +146,9 @@ class Strings {
     $result_lines = [];
     $prev_empty = FALSE;
 
-    foreach ($work_lines as $line) {
-      $line_content = preg_replace('/^\s*\*\s*/', '', $line);
-      $is_empty = trim($line_content) === '';
+    foreach ($work_lines as $work_line) {
+      $line_content = preg_replace('/^\s*\*\s*/', '', $work_line);
+      $is_empty = trim((string) $line_content) === '';
 
       if ($is_empty) {
         if (!$prev_empty) {
@@ -157,7 +157,7 @@ class Strings {
         $prev_empty = TRUE;
       }
       else {
-        $result_lines[] = $line;
+        $result_lines[] = $work_line;
         $prev_empty = FALSE;
       }
     }
@@ -169,7 +169,7 @@ class Strings {
 
     // Get closing indentation from original match.
     $closing_indent = ' ';
-    if (preg_match('/\n(\s*)\*\/$/', $full_match, $close_matches)) {
+    if (preg_match('/\n(\s*)\*\/$/', (string) $full_match, $close_matches)) {
       $closing_indent = $close_matches[1];
     }
 

@@ -24,9 +24,10 @@
             ignoreIndirectDeprecations="true">
         <include>
             <directory>src</directory>
+            <directory suffix="TestCase.php">tests</directory>
         </include>
         <exclude>
-            <directory>tests</directory>
+            <directory suffix="Test.php">tests</directory>
             <file>src/app.php</file>
         </exclude>
     </source>

@@ -101,17 +101,17 @@ trait HelpersTrait {
 
       if (is_dir($path)) {
         $this->logNote('Syncing directory contents from host to container: ' . $path);
-        $cmd = sprintf('docker compose cp -L %s/. cli:/app/%s > /dev/null 2>&1', escapeshellarg($path), escapeshellarg($path));
+        $cmd = sprintf('docker compose cp -L %s/. cli:/app/%s > /dev/null 2>&1', escapeshellarg((string) $path), escapeshellarg((string) $path));
         shell_exec($cmd);
       }
       else {
         $this->logNote('Syncing file from host to container: ' . $path);
         $cmd = sprintf('docker compose exec -T cli bash -lc %s > /dev/null 2>&1',
-          escapeshellarg(sprintf('mkdir -p %s', escapeshellarg('/app/' . dirname($path))))
+          escapeshellarg(sprintf('mkdir -p %s', escapeshellarg('/app/' . dirname((string) $path))))
         );
         shell_exec($cmd);
 
-        $cmd = sprintf('docker compose cp -L %s cli:/app/%s > /dev/null 2>&1', escapeshellarg($path), escapeshellarg($path));
+        $cmd = sprintf('docker compose cp -L %s cli:/app/%s > /dev/null 2>&1', escapeshellarg((string) $path), escapeshellarg((string) $path));
         shell_exec($cmd);
       }
     }

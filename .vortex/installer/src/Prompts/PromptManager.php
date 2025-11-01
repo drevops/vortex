@@ -126,9 +126,7 @@ class PromptManager {
       ->intro('Drupal')
       ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
       ->add(
-          function (array $r, $pr, $n): string {
-            return $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class)));
-          },
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class))),
           Profile::id()
         )
         ->addIf(
@@ -138,9 +136,7 @@ class PromptManager {
           )
       ->add(fn(array $r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
       ->add(
-          function (array $r, $pr, $n): string {
-            return $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class)));
-          },
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class))),
           Theme::id()
         )
         ->addIf(
@@ -165,9 +161,7 @@ class PromptManager {
           HostingProjectName::id()
         )
       ->add(
-          function (array $r, $pr, $n): string {
-            return $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r)));
-          },
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r))),
           Webroot::id()
         )
 
@@ -210,9 +204,7 @@ class PromptManager {
     $responses = $form->submit();
 
     // Filter out elements with numeric keys returned from intro()'s.
-    $responses = array_filter($responses, function ($key): bool {
-      return !is_numeric($key);
-    }, ARRAY_FILTER_USE_KEY);
+    $responses = array_filter($responses, fn($key): bool => !is_numeric($key), ARRAY_FILTER_USE_KEY);
 
     // Handle Profile custom name merging.
     if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
@@ -473,13 +465,11 @@ class PromptManager {
       throw new \RuntimeException(sprintf('Could not read the directory "%s".', $dir));
     }
 
-    $handler_files = array_filter($files, function (string $file): bool {
-      return !in_array($file, ['.', '..']);
-    });
+    $handler_files = array_filter($files, fn(string $file): bool => !in_array($file, ['.', '..']));
 
     $classes = [];
-    foreach ($handler_files as $file) {
-      $class = 'DrevOps\\VortexInstaller\\Prompts\\Handlers\\' . basename($file, '.php');
+    foreach ($handler_files as $handler_file) {
+      $class = 'DrevOps\\VortexInstaller\\Prompts\\Handlers\\' . basename($handler_file, '.php');
 
       if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class) || $class === AbstractHandler::class) {
         continue;

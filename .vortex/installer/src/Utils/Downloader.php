@@ -126,7 +126,7 @@ class Downloader {
       throw new \RuntimeException(sprintf('Invalid repository URL: "%s".', $repo_url));
     }
 
-    $path = ltrim($path, '/');
+    $path = ltrim((string) $path, '/');
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 

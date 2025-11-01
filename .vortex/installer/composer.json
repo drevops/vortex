@@ -17,7 +17,7 @@
         "source": "https://github.com/drevops/vortex-installer"
     },
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "alexskrypnyk/file": "^0.13",
         "alexskrypnyk/str2name": "^1.4",
         "composer/composer": "^2.8",
@@ -40,7 +40,7 @@
         "laravel/serializable-closure": "^2.0",
         "mockery/mockery": "^1.6",
         "phpstan/phpstan": "^2",
-        "phpunit/phpunit": "^11",
+        "phpunit/phpunit": "^12",
         "rector/rector": "^2",
         "symfony/finder": "^7.2"
     },

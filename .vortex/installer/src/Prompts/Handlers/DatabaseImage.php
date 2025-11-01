@@ -86,7 +86,7 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function transform(): ?callable {
-    return fn($v): string => trim($v);
+    return fn($v): string => trim((string) $v);
   }
 
   /**

@@ -158,7 +158,6 @@ class EnvTest extends UnitTestCase {
   public function testFormatValueForDotenv(string $input, string $expected): void {
     $reflection = new \ReflectionClass(Env::class);
     $method = $reflection->getMethod('formatValueForDotenv');
-    $method->setAccessible(TRUE);
 
     $result = $method->invoke(NULL, $input);
     $this->assertEquals($expected, $result);

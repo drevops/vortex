@@ -112,7 +112,7 @@ class File extends UpstreamFile {
    *   The relative path.
    */
   public static function toRelative(string $path, ?string $base = NULL): string {
-    $base = $base ?? (string) getcwd();
+    $base ??= (string) getcwd();
     $absolute = static::absolute($path, $base);
 
     return str_replace($base . DIRECTORY_SEPARATOR, '', $absolute);
