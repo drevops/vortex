@@ -542,9 +542,9 @@ Content that gets removed if user doesn't select this feature
 
 **Deployment Types**:
 
-- `DEPLOY_TYPE_CONTAINER_REGISTRY` - Container registry deployments
-- `DEPLOY_TYPE_WEBHOOK` - Webhook deployments
-- `DEPLOY_TYPE_ARTIFACT` - Artifact deployments
+- `DEPLOY_TYPES_CONTAINER_REGISTRY` - Container registry deployments
+- `DEPLOY_TYPES_WEBHOOK` - Webhook deployments
+- `DEPLOY_TYPES_ARTIFACT` - Artifact deployments
 
 **Dependencies**:
 

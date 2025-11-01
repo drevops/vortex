@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -133,7 +133,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       HostingProvider::id() => HostingProvider::NONE,
       HostingProjectName::id() => NULL,
       Webroot::id() => Webroot::WEB,
-      DeployType::id() => [DeployType::WEBHOOK],
+      DeployTypes::id() => [DeployTypes::WEBHOOK],
       ProvisionType::id() => ProvisionType::DATABASE,
       DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
       DatabaseImage::id() => NULL,
@@ -201,7 +201,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Tools::id() => static::TUI_DEFAULT,
       HostingProvider::id() => static::TUI_DEFAULT,
       Webroot::id() => static::TUI_DEFAULT,
-      DeployType::id() => static::TUI_DEFAULT,
+      DeployTypes::id() => static::TUI_DEFAULT,
       ProvisionType::id() => static::TUI_DEFAULT,
       DatabaseDownloadSource::id() => static::TUI_DEFAULT,
       DatabaseImage::id() => static::TUI_SKIP,

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
@@ -30,7 +30,7 @@ class HostingProjectNamePromptManagerTest extends AbstractPromptManagerTestCase 
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
           HostingProjectName::id() => 'my_acquia-project',
-          DeployType::id() => [DeployType::ARTIFACT],
+          DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
         ] + $expected_defaults,
@@ -48,7 +48,7 @@ class HostingProjectNamePromptManagerTest extends AbstractPromptManagerTestCase 
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
           HostingProjectName::id() => 'discovered_acquia-project',
-          DeployType::id() => [DeployType::ARTIFACT],
+          DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
         ] + $expected_defaults,
@@ -64,7 +64,7 @@ class HostingProjectNamePromptManagerTest extends AbstractPromptManagerTestCase 
         [
           HostingProvider::id() => HostingProvider::ACQUIA,
           HostingProjectName::id() => 'discovered_from_settings',
-          DeployType::id() => [DeployType::ARTIFACT],
+          DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
         ] + $expected_defaults,
@@ -85,7 +85,7 @@ PHP
         [
           HostingProvider::id() => HostingProvider::LAGOON,
           HostingProjectName::id() => 'my_lagoon-project',
-          DeployType::id() => [DeployType::LAGOON],
+          DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
       ],
@@ -102,7 +102,7 @@ PHP
         [
           HostingProvider::id() => HostingProvider::LAGOON,
           HostingProjectName::id() => 'discovered_lagoon-project',
-          DeployType::id() => [DeployType::LAGOON],
+          DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
@@ -117,7 +117,7 @@ PHP
         [
           HostingProvider::id() => HostingProvider::LAGOON,
           HostingProjectName::id() => 'discovered_from_drush',
-          DeployType::id() => [DeployType::LAGOON],
+          DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {

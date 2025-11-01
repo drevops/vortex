@@ -10,7 +10,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
@@ -41,7 +41,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(DatabaseDownloadSource::class)]
 #[CoversClass(DatabaseImage::class)]
 #[CoversClass(DependencyUpdatesProvider::class)]
-#[CoversClass(DeployType::class)]
+#[CoversClass(DeployTypes::class)]
 #[CoversClass(Domain::class)]
 #[CoversClass(HostingProvider::class)]
 #[CoversClass(Internal::class)]

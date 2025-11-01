@@ -8,7 +8,7 @@ use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
-class DeployType extends AbstractHandler {
+class DeployTypes extends AbstractHandler {
 
   const ARTIFACT = 'artifact';
 
