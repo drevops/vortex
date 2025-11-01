@@ -141,6 +141,15 @@ jobs:
       - name: Adjust git config to allow running git-related tests
         run: git config --global safe.directory '*'
 
+      - name: Generate test SSH key pair used for deployment tests
+        run: |
+          mkdir -p "$HOME/.ssh"
+          ssh-keygen -t rsa -b 4096 -m PEM -N '' -f "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+          ssh-agent -a "${HOME}/ssh-agent.sock" > ssh-agent-output
+          export SSH_AUTH_SOCK=$(grep SSH_AUTH_SOCK ssh-agent-output | cut -d';' -f1 | cut -d= -f2)
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
+
       - name: Setup Node.js
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
@@ -161,7 +170,15 @@ jobs:
         run: |
           # Create an empty coverage directory to avoid errors. @see https://github.com/actions/upload-artifact/issues/255
           mkdir -p /tmp/.vortex-coverage-html && touch "/tmp/.vortex-coverage-html/.empty-$(date +%Y%m%d%H%M%S)"
-          php -d memory_limit=-1 vendor/bin/phpunit phpunit --group="${TEST_NODE_INDEX:-*}"
+
+          # Configure git username and email if it is not set.
+          [ "$(git config --global user.name)" = "" ] && echo "==> Configuring global test git user name" && git config --global user.name "Test user"
+          [ "$(git config --global user.email)" = "" ] && echo "==> Configuring global test git user email" && git config --global user.email "someone@example.com"
+
+          # Create stub of local network.
+          docker network create amazeeio-network 2>/dev/null || true
+
+          php -d memory_limit=-1 vendor/bin/phpunit --group="p${TEST_NODE_INDEX:-*}"
         working-directory: .vortex/tests
         env:
           TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}

@@ -29,6 +29,7 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitAssertClean(static::$repo, 'Git working tree of the Vortex template repository should be clean');
   }
 
+  #[Group('p0')]
   public function testInstallFromLatest(): void {
     $this->logSubstep('Add custom files to SUT');
     File::dump('test1.txt', 'test content');
