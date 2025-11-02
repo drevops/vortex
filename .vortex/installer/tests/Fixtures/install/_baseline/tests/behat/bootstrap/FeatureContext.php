@@ -30,6 +30,7 @@ use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\ElementTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
+use DrevOps\BehatSteps\JavascriptTrait;
 use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\PathTrait;
@@ -55,6 +56,7 @@ class FeatureContext extends DrupalContext {
   use FieldTrait;
   use FileDownloadTrait;
   use FileTrait;
+  use JavascriptTrait;
   use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
