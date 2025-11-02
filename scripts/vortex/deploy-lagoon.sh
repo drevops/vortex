@@ -2,7 +2,7 @@
 ##
 # Deploy via Lagoon CLI.
 #
-# @see https://github.com/amazeeio/lagoon-cli
+# @see https://github.com/uselagoon/lagoon-cli
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #

@@ -2,7 +2,7 @@
 ##
 # Run custom Lagoon task.
 #
-# @see https://github.com/amazeeio/lagoon-cli
+# @see https://github.com/uselagoon/lagoon-cli
 #
 # shellcheck disable=SC1090,SC1091
 
