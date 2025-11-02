@@ -9,14 +9,15 @@
         }
     ],
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.3"
     },
     "require-dev": {
-        "alexskrypnyk/file": "^0.7.0",
-        "alexskrypnyk/phpunit-helpers": "^0.8.3",
+        "alexskrypnyk/file": "^0.12.0",
+        "alexskrypnyk/phpunit-helpers": "^0.12.2",
         "alexskrypnyk/shellvar": "^1.2",
         "czproject/git-php": "^4.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "drevops/phpcs-standard": "^0.2",
         "drupal/coder": "^8.3",
         "ergebnis/composer-normalize": "^2.47",
         "phpstan/phpstan": "^2",
@@ -38,7 +39,7 @@
             "ergebnis/composer-normalize": true
         },
         "discard-changes": true,
-        "process-timeout": 600,
+        "process-timeout": 0,
         "sort-packages": true
     },
     "scripts": {
@@ -52,6 +53,7 @@
             "phpcbf"
         ],
         "reset": "rm -Rf vendor",
-        "test": "phpunit"
+        "test": "phpunit",
+        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testDockerComposeConfig"
     }
 }

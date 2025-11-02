@@ -12,10 +12,11 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -24,7 +25,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
-use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
@@ -32,6 +32,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
@@ -62,7 +63,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 25;
+  const TOTAL_RESPONSES = 26;
 
   /**
    * Array of responses.
@@ -117,26 +118,32 @@ class PromptManager {
     $form = form()
       ->intro('General information')
       ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class)), Name::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Org::class, NULL, $r)), Org::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(Org::class, NULL, $r)), Org::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
 
       ->intro('Drupal')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
+      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
       ->add(
-          function (array $r, $pr, $n): string {
-            return $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class)));
-          },
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class))),
           Profile::id()
         )
         ->addIf(
-            fn($r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
             fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class)),
             ProfileCustom::id()
           )
-      ->add(fn($r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Theme::class, NULL, $r)), Theme::id())
+      ->add(fn(array $r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
+      ->add(
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class))),
+          Theme::id()
+        )
+        ->addIf(
+            fn(array $r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
+            fn(array $r, $pr, $n): string => text(...$this->args(ThemeCustom::class, NULL, $r)),
+            ThemeCustom::id()
+          )
 
       ->intro('Code repository')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
@@ -148,26 +155,29 @@ class PromptManager {
 
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
+      ->addIf(
+          fn(array $r): bool => $this->handlers[HostingProjectName::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): string => text(...$this->args(HostingProjectName::class, NULL, $r)),
+          HostingProjectName::id()
+        )
       ->add(
-          function (array $r, $pr, $n): string {
-            return $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r)));
-          },
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r))),
           Webroot::id()
         )
 
       ->intro('Deployment')
-      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(DeployType::class, NULL, $r)), DeployType::id())
+      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(DeployTypes::class, NULL, $r)), DeployTypes::id())
 
       ->intro('Workflow')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class)), ProvisionType::id())
       ->addIf(
-          fn($r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
-          fn($r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, NULL, $r)),
+          fn(array $r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, NULL, $r)),
           DatabaseDownloadSource::id()
         )
         ->addIf(
-            fn($r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
-            fn($r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
+            fn(array $r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
+            fn(array $r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
             DatabaseImage::id()
           )
 
@@ -181,7 +191,6 @@ class PromptManager {
 
       ->intro('Documentation')
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class)), PreserveDocsProject::id())
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsOnboarding::class)), PreserveDocsOnboarding::id())
 
       ->intro('AI')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id());
@@ -195,9 +204,7 @@ class PromptManager {
     $responses = $form->submit();
 
     // Filter out elements with numeric keys returned from intro()'s.
-    $responses = array_filter($responses, function ($key): bool {
-      return !is_numeric($key);
-    }, ARRAY_FILTER_USE_KEY);
+    $responses = array_filter($responses, fn($key): bool => !is_numeric($key), ARRAY_FILTER_USE_KEY);
 
     // Handle Profile custom name merging.
     if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
@@ -206,6 +213,14 @@ class PromptManager {
 
     // Always remove ProfileCustom key (it's only used for internal merging)
     unset($responses[ProfileCustom::id()]);
+
+    // Handle Theme custom name merging.
+    if (isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM && isset($responses[ThemeCustom::id()])) {
+      $responses[Theme::id()] = $responses[ThemeCustom::id()];
+    }
+
+    // Always remove ThemeCustom key (it's only used for internal merging)
+    unset($responses[ThemeCustom::id()]);
 
     // Handle DatabaseDownloadSource when ProvisionType is PROFILE.
     if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
@@ -243,7 +258,6 @@ class PromptManager {
       Dotenv::id(),
       Webroot::id(),
       AiCodeInstructions::id(),
-      PreserveDocsOnboarding::id(),
       PreserveDocsProject::id(),
       LabelMergeConflictsPr::id(),
       AssignAuthorPr::id(),
@@ -252,7 +266,7 @@ class PromptManager {
       DatabaseImage::id(),
       DatabaseDownloadSource::id(),
       ProvisionType::id(),
-      DeployType::id(),
+      DeployTypes::id(),
       HostingProvider::id(),
       Tools::id(),
       Services::id(),
@@ -262,7 +276,9 @@ class PromptManager {
       ProfileCustom::id(),
       Profile::id(),
       Domain::id(),
+      HostingProjectName::id(),
       ModulePrefix::id(),
+      ThemeCustom::id(),
       Theme::id(),
       OrgMachineName::id(),
       MachineName::id(),
@@ -362,9 +378,12 @@ class PromptManager {
 
     $values['Hosting'] = Tui::LIST_SECTION_TITLE;
     $values['Hosting provider'] = $responses[HostingProvider::id()];
+    if (in_array($this->responses[HostingProvider::id()], [HostingProvider::LAGOON, HostingProvider::ACQUIA])) {
+      $values['Hosting project name'] = $responses[HostingProjectName::id()];
+    }
 
     $values['Deployment'] = Tui::LIST_SECTION_TITLE;
-    $values['Deployment types'] = Converter::toList($responses[DeployType::id()]);
+    $values['Deployment types'] = Converter::toList($responses[DeployTypes::id()]);
 
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
     $values['Provision type'] = $responses[ProvisionType::id()];
@@ -387,7 +406,6 @@ class PromptManager {
 
     $values['Documentation'] = Tui::LIST_SECTION_TITLE;
     $values['Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
-    $values['Preserve onboarding checklist'] = Converter::bool($responses[PreserveDocsOnboarding::id()]);
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
     $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
@@ -447,13 +465,11 @@ class PromptManager {
       throw new \RuntimeException(sprintf('Could not read the directory "%s".', $dir));
     }
 
-    $handler_files = array_filter($files, function (string $file): bool {
-      return !in_array($file, ['.', '..']);
-    });
+    $handler_files = array_filter($files, fn(string $file): bool => !in_array($file, ['.', '..']));
 
     $classes = [];
-    foreach ($handler_files as $file) {
-      $class = 'DrevOps\\VortexInstaller\\Prompts\\Handlers\\' . basename($file, '.php');
+    foreach ($handler_files as $handler_file) {
+      $class = 'DrevOps\\VortexInstaller\\Prompts\\Handlers\\' . basename($handler_file, '.php');
 
       if (!class_exists($class) || !is_subclass_of($class, HandlerInterface::class) || $class === AbstractHandler::class) {
         continue;

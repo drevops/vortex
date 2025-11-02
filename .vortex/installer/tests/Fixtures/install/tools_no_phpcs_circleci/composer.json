@@ -1,4 +1,4 @@
-@@ -31,7 +31,6 @@
+@@ -31,11 +31,9 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -6,3 +6,15 @@
          "drevops/behat-format-progress-fail": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
+-        "drevops/phpcs-standard": "__VERSION__",
+         "drupal/core-dev": "__VERSION__",
+         "drupal/drupal-extension": "__VERSION__",
+         "ergebnis/composer-normalize": "__VERSION__",
+@@ -75,7 +73,6 @@
+         "allow-plugins": {
+             "composer/installers": true,
+             "cweagans/composer-patches": true,
+-            "dealerdirect/phpcodesniffer-composer-installer": true,
+             "drupal/core-composer-scaffold": true,
+             "ergebnis/composer-normalize": true,
+             "oomphinc/composer-installers-extender": true,

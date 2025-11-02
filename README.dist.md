@@ -31,15 +31,6 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 </div>
 
-[//]: # (#;< DOCS_ONBOARDING)
-
-## Onboarding to Vortex
-
-Use [Onboarding checklist](docs/onboarding.md) to track the project onboarding
-to Vortex progress. Remove this section once onboarding is finished.
-
-[//]: # (#;> DOCS_ONBOARDING)
-
 ## Environments
 
 - DEV: https://dev.your-site-domain.example

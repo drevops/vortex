@@ -1,4 +1,4 @@
-@@ -257,36 +257,11 @@
+@@ -261,36 +261,11 @@
          run: docker compose exec -T cli composer normalize --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
  
@@ -35,7 +35,7 @@
        - name: Lint module code with NodeJS linters
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli bash -c "yarn run lint"
-@@ -304,22 +279,6 @@
+@@ -308,22 +283,6 @@
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh

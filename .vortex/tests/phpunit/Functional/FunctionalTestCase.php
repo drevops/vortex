@@ -8,103 +8,143 @@ use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\PhpunitHelpers\Traits\AssertArrayTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\LocationsTrait;
-use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase;
-use DrevOps\Vortex\Tests\Traits\AssertFilesTrait;
 use DrevOps\Vortex\Tests\Traits\GitTrait;
-use DrevOps\Vortex\Tests\Traits\LoggerTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepBuildTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepDownloadDbTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepPrepareSutTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepTestBddAllTrait;
-use DrevOps\Vortex\Tests\Traits\Steps\StepTestBddTrait;
-use Symfony\Component\Process\Process;
+use DrevOps\Vortex\Tests\Traits\HelpersTrait;
+use DrevOps\Vortex\Tests\Traits\ProcessTrait;
+use DrevOps\Vortex\Tests\Traits\SutTrait;
+use PHPUnit\Framework\TestStatus\Error;
+use PHPUnit\Framework\TestStatus\Failure;
 
 /**
- * Base class for functional tests.
+ * Base class for all functional tests.
  */
 class FunctionalTestCase extends UnitTestCase {
 
   use AssertArrayTrait;
-  use AssertFilesTrait;
   use EnvTrait;
   use GitTrait;
   use LocationsTrait;
-  use LoggerTrait;
   use ProcessTrait;
-  use StepBuildTrait;
-  use StepDownloadDbTrait;
-  use StepPrepareSutTrait;
-  use StepTestBddAllTrait;
-  use StepTestBddTrait;
+  use SutTrait;
+  use HelpersTrait;
 
   protected function setUp(): void {
-    self::locationsInit(File::cwd() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..');
+    // Initialize locations with the project root as the base directory.
+    self::locationsInit(File::cwd() . '/../..');
 
-    // We use 'Star Wars' theme for the tests, so setting up SUT directory
-    // so that the installer can gather the answers from the directory name.
-    static::$sut = static::locationsMkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
+    // We use 'Star Wars'-themed test assertions, so we need to create a named
+    // SUT directory for the installer to gather the answers from the directory
+    // name.
+    static::$sut = static::locationsMkdir(static::$workspace . '/star_wars');
 
+    // Export the current codebase to a fixture remote repository.
+    // Any uncommitted changes will not be included, so make sure to commit
+    // any changes you want to test against.
     $this->fixtureExportCodebase(static::$root, static::$repo);
 
-    $is_verbose = !empty(getenv('TEST_VORTEX_DEBUG')) || static::isDebug();
-    $this->processStreamOutput = $is_verbose;
+    // Always show logger information.
     $this->loggerSetVerbose(TRUE);
+
+    // Show process output based on the debug flags.
+    $this->processStreamOutput = static::isDebug();
+
+    // Setting up logger step method prefix.
+    static::$loggerStepMethodPrefix = 'subtest';
+
+    static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
+
+    chdir(static::$sut);
   }
 
   protected function tearDown(): void {
-    $cmd = 'docker compose -p star_wars down --remove-orphans --volumes --timeout 1 > /dev/null 2>&1';
-    shell_exec($cmd);
+    static::logSection('TEST DONE | ' . $this->name(), double_border: TRUE);
+
+    $test_failed = $this->status() instanceof Failure || $this->status() instanceof Error;
+
+    if ($test_failed) {
+      $this->logNote('Skipping cleanup as test has failed.');
+      $this->log(static::locationsInfo());
+    }
+    elseif (static::isDebug()) {
+      $this->logNote('Skipping cleanup as debug mode is on.');
+      $this->log(static::locationsInfo());
+    }
+    else {
+      // Test passed and debug mode is off → cleanup.
+      $this->dockerCleanup();
+      $this->processTearDown();
+    }
 
     parent::tearDown();
+  }
 
-    $this->processTearDown();
+  /**
+   * {@inheritdoc}
+   */
+  public static function locationsFixturesDir(): string {
+    return '.vortex/tests/phpunit/Fixtures';
   }
 
   public function fixtureExportCodebase(string $src, string $dst): void {
     $current_dir = File::cwd();
+    if (!File::exists($dst)) {
+      throw new \RuntimeException('Fixture export destination directory does not exist: ' . $dst);
+    }
     chdir($src);
     shell_exec(sprintf('git archive --format=tar HEAD | (cd %s && tar -xf -)', escapeshellarg($dst)));
     chdir($current_dir);
   }
 
-  public function syncToHost(): void {
-    if ($this->volumesMounted()) {
-      return;
-    }
-
-    $this->logSubstep('Syncing files from container to host');
-    shell_exec('docker compose cp -L cli:/app/. .');
+  /**
+   * {@inheritdoc}
+   */
+  public static function isDebug(): bool {
+    return !empty(getenv('TEST_VORTEX_DEBUG')) || parent::isDebug();
   }
 
-  public function syncToContainer(): void {
-    if ($this->volumesMounted()) {
-      return;
-    }
-
-    $this->logSubstep('Syncing files from host to container');
-    shell_exec('docker compose cp -L . cli:/app/');
+  /**
+   * {@inheritdoc}
+   */
+  public function ignoredPaths(): array {
+    return [
+      '.7z',
+      '.avif',
+      '.bz2',
+      '.gz',
+      '.heic',
+      '.heif',
+      '.pdf',
+      '.rar',
+      '.tar',
+      '.woff',
+      '.woff2',
+      '.xz',
+      '.zip',
+      '.bmp',
+      '.gif',
+      '.ico',
+      '.jpeg',
+      '.jpg',
+      '.png',
+      '.svg',
+      '.svgz',
+      '.tif',
+      '.tiff',
+      '.webp',
+      '/core/',
+      '/libraries/',
+      '/modules/contrib/',
+      'modules.README.txt',
+      'modules/README.txt',
+      '/themes/contrib/',
+      'themes.README.txt',
+      'themes/README.txt',
+    ];
   }
 
-  public function processRunInContainer(
-    string $command,
-    array $arguments = [],
-    array $inputs = [],
-    array $env = [],
-    int $timeout = 60,
-    int $idle_timeout = 30,
-  ): Process {
-    return $this->processRun('ahoy cli -- ' . $command, $arguments, $inputs, $env, $timeout, $idle_timeout);
-  }
-
-  public function volumesMounted(): bool {
-    return getenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT') != 1;
-  }
-
-  protected function assertFilesExist(string $directory, array $files): void {
-    foreach ($files as $file) {
-      $this->assertFileExists($directory . DIRECTORY_SEPARATOR . $file);
-    }
+  public function dockerCleanup(): void {
+    shell_exec('docker compose -p star_wars down --remove-orphans --volumes --timeout 1 > /dev/null 2>&1');
   }
 
 }

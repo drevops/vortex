@@ -28,7 +28,7 @@ class Profile extends AbstractHandler {
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Use ⬆, ⬇ and Space bar to select which Drupal profile to use.';
+    return 'Use ⬆ and ⬇ to select which Drupal profile to use.';
   }
 
   /**

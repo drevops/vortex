@@ -23,8 +23,6 @@ function _your_site_theme_preprocess_admin_toolbar(array &$variables): void {
   // Hide admin toolbar.
   if (Settings::get('hide_admin_toolbar') && !empty($variables['attributes']['class'])) {
     unset($variables['page_top']['toolbar']);
-    $variables['attributes']['class'] = array_filter($variables['attributes']['class'], static function ($value): bool {
-      return !str_starts_with($value, 'toolbar-');
-    });
+    $variables['attributes']['class'] = array_filter($variables['attributes']['class'], static fn($value): bool => !str_starts_with((string) $value, 'toolbar-'));
   }
 }

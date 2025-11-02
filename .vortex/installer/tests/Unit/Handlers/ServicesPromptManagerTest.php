@@ -21,7 +21,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
     return [
       'services - prompt' => [
         [Services::id() => Key::ENTER],
-        [Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY]] + $expected_defaults,
+        [Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR]] + $expected_defaults,
       ],
 
       'services - discovery - solr' => [
@@ -33,12 +33,12 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
         },
       ],
 
-      'services - discovery - valkey' => [
+      'services - discovery - redis' => [
         [],
-        [Services::id() => [Services::VALKEY]] + $expected_installed,
+        [Services::id() => [Services::REDIS]] + $expected_installed,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::VALKEY => []]]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::REDIS => []]]));
         },
       ],
 
@@ -54,11 +54,11 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
       'services - discovery - all' => [
         [],
         [
-          Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
+          Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
         ] + $expected_installed,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::VALKEY => [], Services::SOLR => []]]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
         },
       ],
 
@@ -88,7 +88,7 @@ YAML
         [],
         $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::VALKEY => [], Services::CLAMAV => [], Services::SOLR => []]]));
+          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]]));
         },
       ],
     ];

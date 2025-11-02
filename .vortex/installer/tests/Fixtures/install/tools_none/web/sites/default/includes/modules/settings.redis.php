@@ -1,5 +1,5 @@
 @@ -8,9 +8,6 @@
-  * interchangeable. We use `DRUPAL_REDIS_` environment variables as the Drupal
+  * We use `DRUPAL_REDIS_` environment variables as the Drupal
   * module name is `redis`.
   *
 - * @phpcs:disable DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter

@@ -5,11 +5,7 @@
 # @see https://hub.docker.com/r/uselagoon/solr-8/tags
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr/8.Dockerfile
 
-ARG CLI_IMAGE
-# hadolint ignore=DL3006
-FROM ${CLI_IMAGE:-cli} AS cli
-
-FROM uselagoon/solr-8:25.8.0
+FROM uselagoon/solr-8:25.9.0
 
 # Solr jump-start config needs to be manually copied from the search_api_solr
 # Drupal module to .docker/config/solr/config-set.

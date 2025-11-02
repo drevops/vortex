@@ -19,7 +19,7 @@
          displayDetailsOnPhpunitDeprecations="true"
          failOnPhpunitDeprecation="true"
          cacheResult="false"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          cacheDirectory=".phpunit.cache">
     <php>
         <!-- Set error reporting to E_ALL. -->

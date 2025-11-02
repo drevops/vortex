@@ -87,6 +87,11 @@ default:
       always_fullscreen: true                # Always capture full page screenshots.
       fullscreen_algorithm: resize           # Options: 'stitch' or 'resize'
       purge: false                           # Purge screenshots before each run. Use `BEHAT_SCREENSHOT_PURGE=true` to override.
+      info_types:                            # Additional information to include in screenshots.
+        - url
+        - feature
+        - step
+        - datetime
 
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~

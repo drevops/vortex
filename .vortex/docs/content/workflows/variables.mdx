@@ -30,13 +30,14 @@ or skipping a certain code branch deployment within CI.
 
 ## Variables list
 
+
 ### `AHOY_CONFIRM_RESPONSE`
 
 Set to `y` to suppress Ahoy prompts.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`
+Defined or used in: `.env.local.example`
 
 ### `AHOY_CONFIRM_WAIT_SKIP`
 
@@ -44,7 +45,7 @@ When Ahoy prompts are suppressed ([`$AHOY_CONFIRM_RESPONSE`](#ahoy_confirm_respo
 
 Default value: `1`
 
-Defined in: `.env.local.example`
+Defined or used in: `.env.local.example`
 
 ### `COMPOSE_PROJECT_NAME`
 
@@ -56,7 +57,7 @@ Defaults to the name of the project directory.
 
 Default value: `UNDEFINED`
 
-Defined in: `ENVIRONMENT`
+Defined or used in: `ENVIRONMENT`
 
 ### `DATABASE_CHARSET`
 
@@ -66,7 +67,7 @@ Variable is not used in hosting environment.
 
 Default value: `utf8mb4`
 
-Defined in: `docker-compose.yml`
+Defined or used in: `docker-compose.yml`
 
 ### `DATABASE_COLLATION`
 
@@ -76,7 +77,7 @@ Variable is not used in hosting environment.
 
 Default value: `utf8mb4_general_ci`
 
-Defined in: `docker-compose.yml`
+Defined or used in: `docker-compose.yml`
 
 ### `DATABASE_DATABASE`
 
@@ -84,7 +85,7 @@ Database name.
 
 Default value: `UNDEFINED`
 
-Defined in: `LAGOON ENVIRONMENT`
+Defined or used in: `LAGOON ENVIRONMENT`
 
 ### `DATABASE_HOST`
 
@@ -94,7 +95,7 @@ Variable is not used in hosting environment.
 
 Default value: `database`
 
-Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+Defined or used in: `docker-compose.yml`, `scripts/vortex/info.sh`
 
 ### `DATABASE_NAME`
 
@@ -104,7 +105,7 @@ Variable is not used in hosting environment.
 
 Default value: `drupal`
 
-Defined in: `docker-compose.yml`
+Defined or used in: `docker-compose.yml`
 
 ### `DATABASE_PASSWORD`
 
@@ -114,7 +115,7 @@ Variable is not used in hosting environment.
 
 Default value: `drupal`
 
-Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+Defined or used in: `docker-compose.yml`, `scripts/vortex/info.sh`
 
 ### `DATABASE_PORT`
 
@@ -124,7 +125,7 @@ Variable is not used in hosting environment.
 
 Default value: `3306`
 
-Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+Defined or used in: `docker-compose.yml`, `scripts/vortex/info.sh`
 
 ### `DATABASE_USERNAME`
 
@@ -134,7 +135,7 @@ Variable is not used in hosting environment.
 
 Default value: `drupal`
 
-Defined in: `docker-compose.yml`, `scripts/vortex/info.sh`
+Defined or used in: `docker-compose.yml`, `scripts/vortex/info.sh`
 
 ### `DOCKER_CONFIG`
 
@@ -142,7 +143,7 @@ Path to Docker configuration directory.
 
 Default value: `${HOME}/.docker`
 
-Defined in: `scripts/vortex/login-container-registry.sh`
+Defined or used in: `scripts/vortex/login-container-registry.sh`
 
 ### `DRUPAL_ADMIN_EMAIL`
 
@@ -150,7 +151,7 @@ Drupal admin email. May need to be reset if database was sanitized.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_CLAMAV_ENABLED`
 
@@ -158,7 +159,7 @@ Enable ClamAV integration.
 
 Default value: `1`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_CLAMAV_MODE`
 
@@ -168,7 +169,7 @@ Run ClamAV in either daemon mode by setting it to `0` (or 'daemon') or in<br/>ex
 
 Default value: `daemon`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_CONFIG_PATH`
 
@@ -178,7 +179,7 @@ Path from the web root directory to the configuration directory.<br/>If not set,
 
 Default value: `../config/default`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_ENVIRONMENT`
 
@@ -188,7 +189,7 @@ Used in the application to override the automatically detected environment type.
 
 Default value: `UNDEFINED`
 
-Defined in: `ENVIRONMENT`
+Defined or used in: `ENVIRONMENT`
 
 ### `DRUPAL_MAINTENANCE_THEME`
 
@@ -196,7 +197,7 @@ Drupal maintenance theme name.
 
 Default value: `your_site_theme`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_PRIVATE_FILES`
 
@@ -204,7 +205,7 @@ Path to private files.
 
 Default value: `${DRUPAL_PUBLIC_FILES}/private`
 
-Defined in: `docker-compose.yml`
+Defined or used in: `docker-compose.yml`
 
 ### `DRUPAL_PROFILE`
 
@@ -212,7 +213,7 @@ Drupal profile name.
 
 Default value: `standard`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/provision.sh`
 
 ### `DRUPAL_PUBLIC_FILES`
 
@@ -220,15 +221,15 @@ Path to public files.
 
 Default value: `./${WEBROOT}/sites/default/files`
 
-Defined in: `docker-compose.yml`
+Defined or used in: `docker-compose.yml`
 
 ### `DRUPAL_REDIS_ENABLED`
 
-Enable Redis/Valkey integration.<br/>See settings.redis.php for details.
+Enable Redis integration.<br/>See settings.redis.php for details.
 
 Default value: `1`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_SHIELD_PRINT`
 
@@ -236,7 +237,7 @@ Shield message.
 
 Default value: `Restricted access.`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_SITE_EMAIL`
 
@@ -244,7 +245,7 @@ Drupal site email.<br/>Used only when installing from profile.
 
 Default value: `webmaster@your-site-domain.example`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/provision.sh`
 
 ### `DRUPAL_SITE_NAME`
 
@@ -252,7 +253,7 @@ Drupal site name.<br/>Used only when installing from profile.
 
 Default value: `${VORTEX_PROJECT}`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/provision.sh`
 
 ### `DRUPAL_STAGE_FILE_PROXY_ORIGIN`
 
@@ -262,7 +263,7 @@ If using Shield, the HTTP authentication credentials will be automatically<br/>a
 
 Default value: `https://www.your-site-domain.example`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_TEMPORARY_FILES`
 
@@ -270,7 +271,7 @@ Path to temporary files.
 
 Default value: `${DRUPAL_PRIVATE_FILES}/tmp`
 
-Defined in: `docker-compose.yml`
+Defined or used in: `docker-compose.yml`
 
 ### `DRUPAL_THEME`
 
@@ -278,7 +279,7 @@ Drupal theme name.
 
 Default value: `your_site_theme`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `DRUPAL_TRUSTED_HOSTS`
 
@@ -288,7 +289,7 @@ Comma-separated list of domains for trusted host patterns. These domains will<br
 
 Default value: `your-site-domain.example,www.your-site-domain.example`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `LAGOON_PROJECT`
 
@@ -298,7 +299,7 @@ Update drush/sites/lagoon.site.yml if you update this value.
 
 Default value: `your_site`
 
-Defined in: `.env`, `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `.env`, `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/download-db-lagoon.sh`
 
 ### `NEWRELIC_ENABLED`
 
@@ -308,7 +309,7 @@ Set as project-wide variable.
 
 Default value: `UNDEFINED`
 
-Defined in: `LAGOON ENVIRONMENT`
+Defined or used in: `LAGOON ENVIRONMENT`
 
 ### `NEWRELIC_LICENSE`
 
@@ -318,7 +319,7 @@ Set as project-wide variable.
 
 Default value: `UNDEFINED`
 
-Defined in: `LAGOON ENVIRONMENT`
+Defined or used in: `LAGOON ENVIRONMENT`
 
 ### `PACKAGE_TOKEN`
 
@@ -326,7 +327,7 @@ GitHub token used to overcome API rate limits or access private repositories.<br
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`
+Defined or used in: `.env.local.example`
 
 ### `RENOVATE_DEPENDENCY_DASHBOARD`
 
@@ -334,7 +335,7 @@ Whether to enable self-hosted Renovate bot dashboard.
 
 Default value: `false`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `RENOVATE_DRY_RUN`
 
@@ -342,7 +343,7 @@ Whether to allow self-hosted Renovate bot make changes to the repository.
 
 Default value: `false`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `RENOVATE_GIT_AUTHOR`
 
@@ -350,7 +351,7 @@ Commit author for self-hosted Renovate bot.
 
 Default value: `'Renovate Self Hosted <renovatebot@your-site-domain.example>'`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `RENOVATE_REPOSITORIES`
 
@@ -358,7 +359,7 @@ Renovate repositories to manage.<br/>Set as "organization/repository".
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `RENOVATE_TOKEN`
 
@@ -366,7 +367,7 @@ Self-hosted Renovate bot token.<br/>Create a GitHub token with a permission to w
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `TARGET_ENV_REMAP`
 
@@ -374,7 +375,7 @@ Special variable to remap target env to the sub-domain prefix based on UI name.
 
 Default value: `${target_env}`
 
-Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `TZ`
 
@@ -382,7 +383,7 @@ The timezone used within the containers.
 
 Default value: `UTC`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `VORTEX_ACQUIA_APP_NAME`
 
@@ -390,7 +391,7 @@ Acquia application name.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/task-copy-db-acquia.sh`, `scripts/vortex/task-copy-files-acquia.sh`, `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/task-copy-db-acquia.sh`, `scripts/vortex/task-copy-files-acquia.sh`, `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_ACQUIA_KEY`
 
@@ -398,7 +399,7 @@ Acquia Cloud API key.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/task-copy-db-acquia.sh`, `scripts/vortex/task-copy-files-acquia.sh`, `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/task-copy-db-acquia.sh`, `scripts/vortex/task-copy-files-acquia.sh`, `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_ACQUIA_SECRET`
 
@@ -406,7 +407,7 @@ Acquia Cloud API secret.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/task-copy-db-acquia.sh`, `scripts/vortex/task-copy-files-acquia.sh`, `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/task-copy-db-acquia.sh`, `scripts/vortex/task-copy-files-acquia.sh`, `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_CI_ARTIFACTS`
 
@@ -414,7 +415,7 @@ Directory to store test artifacts in CI.
 
 Default value: `/tmp/artifacts`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_BEHAT_IGNORE_FAILURE`
 
@@ -422,7 +423,7 @@ Ignore Behat test failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_BEHAT_PROFILE`
 
@@ -430,7 +431,7 @@ Test Behat profile to use in CI. If not set, the `default` profile will be used.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE`
 
@@ -438,7 +439,7 @@ Ignore `composer normalize` failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`
 
@@ -446,7 +447,7 @@ Ignore `composer validate` failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_DCLINT_IGNORE_FAILURE`
 
@@ -454,7 +455,7 @@ Ignore DCLint failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`
 
@@ -462,7 +463,7 @@ Ignore Gherkin Lint failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_HADOLINT_IGNORE_FAILURE`
 
@@ -470,7 +471,7 @@ Ignore Hadolint failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`
 
@@ -478,7 +479,7 @@ Ignore NodeJS linters failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_PHPCS_IGNORE_FAILURE`
 
@@ -486,7 +487,7 @@ Ignore PHPCS failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_PHPMD_IGNORE_FAILURE`
 
@@ -494,7 +495,7 @@ Ignore PHPMD failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`
 
@@ -502,7 +503,7 @@ Ignore PHPStan failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`
 
@@ -510,7 +511,7 @@ Ignore PHPUnit test failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_RECTOR_IGNORE_FAILURE`
 
@@ -518,7 +519,7 @@ Ignore Rector failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_TEST_RESULTS`
 
@@ -526,7 +527,7 @@ Directory to store test results in CI.
 
 Default value: `/tmp/tests`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`
 
@@ -534,7 +535,7 @@ Ignore Twig CS Fixer failures.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_CONTAINER_REGISTRY`
 
@@ -544,7 +545,7 @@ Provide port, if required as `<server_name>:<port>`.
 
 Default value: `docker.io`
 
-Defined in: `.env`, `scripts/vortex/login-container-registry.sh`
+Defined or used in: `.env`, `scripts/vortex/login-container-registry.sh`
 
 ### `VORTEX_CONTAINER_REGISTRY_PASS`
 
@@ -552,7 +553,7 @@ The password (token) to log into the container registry.
 
 Default value: `${DOCKER_PASS}`
 
-Defined in: `.env.local.example`, `scripts/vortex/login-container-registry.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/login-container-registry.sh`
 
 ### `VORTEX_CONTAINER_REGISTRY_USER`
 
@@ -560,7 +561,7 @@ The username to log into the container registry.
 
 Default value: `${DOCKER_USER}`
 
-Defined in: `.env.local.example`, `scripts/vortex/login-container-registry.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/login-container-registry.sh`
 
 ### `VORTEX_DB_DIR`
 
@@ -570,7 +571,7 @@ The directory is used to store the database dump files for import and export.
 
 Default value: `./.data`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/download-db.sh`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/download-db.sh`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
@@ -578,7 +579,7 @@ Acquia database name to download the database from.
 
 Default value: `your_site`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-acquia.sh`
 
 ### `VORTEX_DB_DOWNLOAD_ENVIRONMENT`
 
@@ -588,7 +589,7 @@ Applies to hosting environments.<br/>Note that depending on the hosting provider
 
 Default value: `prod`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FORCE`
 
@@ -596,7 +597,7 @@ Always override existing downloaded DB dump.
 
 Default value: `1`
 
-Defined in: `.env.local.example`, `.env.local.example`, `scripts/vortex/download-db.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/download-db.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FTP_FILE`
 
@@ -604,7 +605,7 @@ Database dump FTP file name.
 
 Default value: `db.sql`
 
-Defined in: `.env`, `scripts/vortex/download-db-ftp.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-ftp.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FTP_HOST`
 
@@ -612,7 +613,7 @@ Database dump FTP host.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/download-db-ftp.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-ftp.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FTP_PASS`
 
@@ -620,7 +621,7 @@ Database dump FTP password.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/vortex/download-db-ftp.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/download-db-ftp.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FTP_PORT`
 
@@ -628,7 +629,7 @@ Database dump FTP port.
 
 Default value: `21`
 
-Defined in: `.env`, `scripts/vortex/download-db-ftp.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-ftp.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FTP_USER`
 
@@ -636,7 +637,7 @@ Database dump FTP user.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`, `scripts/vortex/download-db-ftp.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/download-db-ftp.sh`
 
 ### `VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR`
 
@@ -644,7 +645,7 @@ Remote DB dump directory location.
 
 Default value: `/tmp`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE`
 
@@ -652,7 +653,7 @@ Remote DB dump file name. Cached by the date suffix.
 
 Default value: `db_$(date +%Y%m%d).sql`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP`
 
@@ -662,7 +663,7 @@ Cleanup runs only if the variable is set and [`$VORTEX_DB_DOWNLOAD_LAGOON_REMOTE
 
 Default value: `db_*.sql`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST`
 
@@ -670,7 +671,7 @@ The SSH host of the Lagoon environment.
 
 Default value: `ssh.lagoon.amazeeio.cloud`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_LAGOON_SSH_PORT`
 
@@ -678,7 +679,7 @@ The SSH port of the Lagoon environment.
 
 Default value: `32222`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER`
 
@@ -686,7 +687,7 @@ The SSH user of the Lagoon environment.
 
 Default value: `${LAGOON_PROJECT}-${VORTEX_DB_DOWNLOAD_ENVIRONMENT}`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_NO_CACHE`
 
@@ -694,7 +695,7 @@ Flag to download a fresh copy of the database.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_PROCEED`
 
@@ -702,7 +703,7 @@ Proceed with download.
 
 Default value: `1`
 
-Defined in: `scripts/vortex/download-db.sh`
+Defined or used in: `scripts/vortex/download-db.sh`
 
 ### `VORTEX_DB_DOWNLOAD_SOURCE`
 
@@ -710,7 +711,7 @@ Database download source.
 
 Default value: `url`
 
-Defined in: `.env`, `scripts/vortex/download-db.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db.sh`
 
 ### `VORTEX_DB_DOWNLOAD_SSH_FILE`
 
@@ -718,7 +719,7 @@ Default SSH file used if custom fingerprint is not provided.
 
 Default value: `${HOME}/.ssh/id_rsa`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT`
 
@@ -726,7 +727,7 @@ SSH key fingerprint used to connect to a remote.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/download-db-lagoon.sh`
+Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_UNZIP_PASSWORD`
 
@@ -734,7 +735,7 @@ Password for unzipping password-protected zip files.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/download-db-url.sh`
+Defined or used in: `scripts/vortex/download-db-url.sh`
 
 ### `VORTEX_DB_DOWNLOAD_URL`
 
@@ -744,7 +745,7 @@ HTTP Basic Authentication credentials should be embedded into the value.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/download-db-url.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-url.sh`
 
 ### `VORTEX_DB_EXPORT_CONTAINER_REGISTRY`
 
@@ -752,7 +753,7 @@ Container registry name.
 
 Default value: `docker.io`
 
-Defined in: `scripts/vortex/export-db-image.sh`
+Defined or used in: `scripts/vortex/export-db-image.sh`
 
 ### `VORTEX_DB_EXPORT_FILE_DIR`
 
@@ -760,7 +761,7 @@ Directory with database dump file.
 
 Default value: `./.data`
 
-Defined in: `scripts/vortex/export-db-file.sh`
+Defined or used in: `scripts/vortex/export-db-file.sh`
 
 ### `VORTEX_DB_EXPORT_IMAGE`
 
@@ -768,7 +769,7 @@ Container image to store in a form of `<org>/<repository>`.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/export-db-image.sh`, `scripts/vortex/export-db.sh`
+Defined or used in: `scripts/vortex/export-db-image.sh`, `scripts/vortex/export-db.sh`
 
 ### `VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE`
 
@@ -776,7 +777,7 @@ Container image archive file name.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/export-db-image.sh`
+Defined or used in: `scripts/vortex/export-db-image.sh`
 
 ### `VORTEX_DB_EXPORT_IMAGE_DIR`
 
@@ -784,7 +785,7 @@ Directory with database image archive file.
 
 Default value: `${VORTEX_DB_DIR}`
 
-Defined in: `scripts/vortex/export-db-image.sh`
+Defined or used in: `scripts/vortex/export-db-image.sh`
 
 ### `VORTEX_DB_EXPORT_SERVICE_NAME`
 
@@ -792,7 +793,7 @@ The service name to capture.
 
 Default value: `database`
 
-Defined in: `scripts/vortex/export-db-image.sh`
+Defined or used in: `scripts/vortex/export-db-image.sh`
 
 ### `VORTEX_DB_FILE`
 
@@ -802,7 +803,7 @@ The file is used to import the database into an empty database container.
 
 Default value: `db.sql`
 
-Defined in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_DB_IMAGE`
 
@@ -812,7 +813,7 @@ See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/export-db.sh`, `scripts/vortex/info.sh`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/export-db.sh`, `scripts/vortex/info.sh`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_DB_IMAGE_BASE`
 
@@ -822,7 +823,7 @@ If the image specified in [`$VORTEX_DB_IMAGE`](#vortex_db_image) does not exist 
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/download-db-container-registry.sh`
+Defined or used in: `.env`, `scripts/vortex/download-db-container-registry.sh`
 
 ### `VORTEX_DEBUG`
 
@@ -830,7 +831,7 @@ Set to `1` to print debug information in Vortex scripts.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env.local.example`
+Defined or used in: `.env.local.example`
 
 ### `VORTEX_DEPLOY_ACTION`
 
@@ -843,7 +844,7 @@ Values can be one of: deploy, deploy_override_db, destroy.
 
 Default value: `create`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/deploy.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_ALLOW_SKIP`
 
@@ -851,7 +852,7 @@ Flag to allow skipping of a deployment using additional flags.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy.sh`
+Defined or used in: `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH`
 
@@ -859,7 +860,7 @@ Remote repository branch. Can be a specific branch or a token.<br/>@see https://
 
 Default value: `[branch]`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE`
 
@@ -867,7 +868,7 @@ Remote repository to push code to.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`
 
@@ -875,7 +876,7 @@ Name of the user who will be committing to a remote repository.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME`
 
@@ -883,7 +884,7 @@ Email address of the user who will be committing to a remote repository.
 
 Default value: `Deployment Robot`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_LOG`
 
@@ -891,7 +892,7 @@ Deployment log file name.
 
 Default value: `${VORTEX_DEPLOY_ARTIFACT_ROOT}/deployment_log.txt`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_ROOT`
 
@@ -899,7 +900,7 @@ The root directory where the deployment script should run from. Defaults to<br/>
 
 Default value: `$(pwd)`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_SRC`
 
@@ -907,7 +908,7 @@ Source of the code to be used for artifact building.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`
 
 ### `VORTEX_DEPLOY_BRANCH`
 
@@ -915,7 +916,7 @@ The Lagoon branch to deploy.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/deploy.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_CONTAINER_REGISTRY`
 
@@ -925,7 +926,7 @@ Provide port, if required as `<server_name>:<port>`.
 
 Default value: `docker.io`
 
-Defined in: `scripts/vortex/deploy-container-registry.sh`
+Defined or used in: `scripts/vortex/deploy-container-registry.sh`
 
 ### `VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG`
 
@@ -933,7 +934,7 @@ The tag of the container image.
 
 Default value: `latest`
 
-Defined in: `scripts/vortex/deploy-container-registry.sh`
+Defined or used in: `scripts/vortex/deploy-container-registry.sh`
 
 ### `VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP`
 
@@ -941,7 +942,7 @@ Comma-separated map of container services and images to use for deployment in<br
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-container-registry.sh`, `scripts/vortex/export-db.sh`
+Defined or used in: `scripts/vortex/deploy-container-registry.sh`, `scripts/vortex/export-db.sh`
 
 ### `VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS`
 
@@ -949,7 +950,7 @@ The password to login into the container registry.
 
 Default value: `${VORTEX_CONTAINER_REGISTRY_PASS}`
 
-Defined in: `scripts/vortex/deploy-container-registry.sh`
+Defined or used in: `scripts/vortex/deploy-container-registry.sh`
 
 ### `VORTEX_DEPLOY_CONTAINER_REGISTRY_USER`
 
@@ -957,7 +958,7 @@ The username to login into the container registry.
 
 Default value: `${VORTEX_CONTAINER_REGISTRY_USER}`
 
-Defined in: `scripts/vortex/deploy-container-registry.sh`
+Defined or used in: `scripts/vortex/deploy-container-registry.sh`
 
 ### `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED`
 
@@ -965,7 +966,7 @@ Flag to control failure behavior when Lagoon environment limits are exceeded.<br
 
 Default value: `0`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_LAGOON_INSTANCE`
 
@@ -973,7 +974,7 @@ The Lagoon instance name to interact with.
 
 Default value: `amazeeio`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_LAGOON_INSTANCE_GRAPHQL`
 
@@ -981,7 +982,7 @@ The Lagoon instance GraphQL endpoint to interact with.
 
 Default value: `https://api.lagoon.amazeeio.cloud/graphql`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_LAGOON_INSTANCE_HOSTNAME`
 
@@ -989,7 +990,7 @@ The Lagoon instance hostname to interact with.
 
 Default value: `ssh.lagoon.amazeeio.cloud`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_LAGOON_INSTANCE_PORT`
 
@@ -997,7 +998,7 @@ The Lagoon instance port to interact with.
 
 Default value: `32222`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_MODE`
 
@@ -1007,7 +1008,7 @@ Values can be one of: branch, tag.
 
 Default value: `branch`
 
-Defined in: `scripts/vortex/deploy.sh`
+Defined or used in: `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_PR`
 
@@ -1015,7 +1016,7 @@ The PR number to deploy.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/deploy.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_PR_BASE_BRANCH`
 
@@ -1023,7 +1024,7 @@ The PR base branch (the branch the PR is raised against). Defaults to 'develop'.
 
 Default value: `develop`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_PR_HEAD`
 
@@ -1031,7 +1032,7 @@ The PR head branch to deploy.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_SKIP`
 
@@ -1039,7 +1040,7 @@ Skip all deployments.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_DEPLOY_SSH_FILE`
 
@@ -1047,7 +1048,7 @@ Default SSH file used if custom fingerprint is not provided.
 
 Default value: `${HOME}/.ssh/id_rsa`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`, `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`, `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_SSH_FINGERPRINT`
 
@@ -1055,7 +1056,7 @@ SSH key fingerprint used to connect to remote.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-artifact.sh`, `scripts/vortex/deploy-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-artifact.sh`, `scripts/vortex/deploy-lagoon.sh`
 
 ### `VORTEX_DEPLOY_TYPES`
 
@@ -1063,7 +1064,7 @@ Deployment occurs when tests pass in the CI environment.<br/>@see https://www.vo
 
 Default value: `artifact`
 
-Defined in: `.env`, `scripts/vortex/deploy.sh`
+Defined or used in: `.env`, `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_WEBHOOK_METHOD`
 
@@ -1071,7 +1072,7 @@ Webhook call method.
 
 Default value: `GET`
 
-Defined in: `scripts/vortex/deploy-webhook.sh`
+Defined or used in: `scripts/vortex/deploy-webhook.sh`
 
 ### `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`
 
@@ -1079,7 +1080,7 @@ The status code of the expected response.
 
 Default value: `200`
 
-Defined in: `scripts/vortex/deploy-webhook.sh`
+Defined or used in: `scripts/vortex/deploy-webhook.sh`
 
 ### `VORTEX_DEPLOY_WEBHOOK_URL`
 
@@ -1087,19 +1088,19 @@ The URL of the webhook to call.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-webhook.sh`
+Defined or used in: `scripts/vortex/deploy-webhook.sh`
 
 ### `VORTEX_DOCTOR_CHECK_BOOTSTRAP`
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_CONTAINERS`
 
 Default value: `0`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_MINIMAL`
 
@@ -1107,37 +1108,37 @@ Check minimal Doctor requirements.
 
 Default value: `0`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_PORT`
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_PYGMY`
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_SSH`
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_TOOLS`
 
 Default value: `1`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOCTOR_CHECK_WEBSERVER`
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY`
 
@@ -1147,7 +1148,7 @@ Provide port, if required as `<server_name>:<port>`.
 
 Default value: `docker.io`
 
-Defined in: `scripts/vortex/download-db-container-registry.sh`
+Defined or used in: `scripts/vortex/download-db-container-registry.sh`
 
 ### `VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS`
 
@@ -1155,7 +1156,7 @@ The password to login into the container registry.
 
 Default value: `${VORTEX_CONTAINER_REGISTRY_PASS}`
 
-Defined in: `scripts/vortex/download-db-container-registry.sh`
+Defined or used in: `scripts/vortex/download-db-container-registry.sh`
 
 ### `VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER`
 
@@ -1163,7 +1164,7 @@ The username to login into the container registry.
 
 Default value: `${VORTEX_CONTAINER_REGISTRY_USER}`
 
-Defined in: `scripts/vortex/download-db-container-registry.sh`
+Defined or used in: `scripts/vortex/download-db-container-registry.sh`
 
 ### `VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED`
 
@@ -1171,7 +1172,7 @@ Proceed with container image deployment after it was exported.
 
 Default value: `UNDEFINED`
 
-Defined in: `CI config`
+Defined or used in: `CI config`
 
 ### `VORTEX_FRONTEND_BUILD_SKIP`
 
@@ -1179,7 +1180,7 @@ Skip building of the frontend.
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `VORTEX_INSTALLER_PATH`
 
@@ -1187,7 +1188,7 @@ The path to the installer script.<br/>If set, this will override the VORTEX_INST
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/update-vortex.sh`
+Defined or used in: `scripts/vortex/update-vortex.sh`
 
 ### `VORTEX_INSTALLER_TEMPLATE_REPO`
 
@@ -1197,7 +1198,7 @@ Examples:<br/>https://github.com/drevops/vortex.git          # Will auto-discove
 
 Default value: `https://github.com/drevops/vortex.git@stable`
 
-Defined in: `scripts/vortex/update-vortex.sh`
+Defined or used in: `scripts/vortex/update-vortex.sh`
 
 ### `VORTEX_INSTALLER_URL`
 
@@ -1205,7 +1206,7 @@ The URL of the installer script.
 
 Default value: `https://www.vortextemplate.com/install`
 
-Defined in: `scripts/vortex/update-vortex.sh`
+Defined or used in: `scripts/vortex/update-vortex.sh`
 
 ### `VORTEX_INSTALLER_URL_CACHE_BUST`
 
@@ -1213,7 +1214,7 @@ Cache busting parameter for the installer URL.
 
 Default value: `$(date +%s)`
 
-Defined in: `scripts/vortex/update-vortex.sh`
+Defined or used in: `scripts/vortex/update-vortex.sh`
 
 ### `VORTEX_LAGOONCLI_FORCE_INSTALL`
 
@@ -1221,7 +1222,7 @@ Flag to force the installation of Lagoon CLI.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_LAGOONCLI_PATH`
 
@@ -1229,7 +1230,7 @@ Location of the Lagoon CLI binary.
 
 Default value: `/tmp`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_LAGOONCLI_VERSION`
 
@@ -1237,7 +1238,7 @@ Lagoon CLI version to use.
 
 Default value: `v0.32.0`
 
-Defined in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/deploy-lagoon.sh`, `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_LAGOON_PRODUCTION_BRANCH`
 
@@ -1245,7 +1246,7 @@ Dedicated branch to identify the production environment.
 
 Default value: `main`
 
-Defined in: `.env`
+Defined or used in: `.env`
 
 ### `VORTEX_LOCALDEV_URL`
 
@@ -1257,7 +1258,7 @@ Override only if you need to use a different URL than the default.
 
 Default value: `example-site.docker.amazee.io`
 
-Defined in: `.env.local.example`, `scripts/vortex/info.sh`
+Defined or used in: `.env.local.example`, `scripts/vortex/info.sh`
 
 ### `VORTEX_NOTIFY_BRANCH`
 
@@ -1265,7 +1266,7 @@ Deployment reference branch.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_CHANNELS`
 
@@ -1275,7 +1276,7 @@ A combination of comma-separated values: email,newrelic,github,jira
 
 Default value: `email`
 
-Defined in: `.env`, `scripts/vortex/notify.sh`
+Defined or used in: `.env`, `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL`
 
@@ -1283,7 +1284,7 @@ Environment URL to notify about.
 
 Default value: `${VORTEX_NOTIFY_ENVIRONMENT_URL}`
 
-Defined in: `scripts/vortex/notify-email.sh`
+Defined or used in: `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_FROM`
 
@@ -1293,7 +1294,7 @@ Applies to email notifications.
 
 Default value: `webmaster@your-site-domain.example`
 
-Defined in: `.env`, `scripts/vortex/notify-email.sh`
+Defined or used in: `.env`, `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_PROJECT`
 
@@ -1301,7 +1302,7 @@ Project name to notify.
 
 Default value: `${VORTEX_NOTIFY_PROJECT}`
 
-Defined in: `scripts/vortex/notify-email.sh`
+Defined or used in: `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_PR_NUMBER`
 
@@ -1309,7 +1310,7 @@ Git reference to notify about.
 
 Default value: `${VORTEX_NOTIFY_PR_NUMBER}`
 
-Defined in: `scripts/vortex/notify-email.sh`
+Defined or used in: `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_RECIPIENTS`
 
@@ -1321,7 +1322,7 @@ Multiple names can be specified as a comma-separated list of email addresses<br/
 
 Default value: `webmaster@your-site-domain.example|Webmaster`
 
-Defined in: `.env`, `scripts/vortex/notify-email.sh`
+Defined or used in: `.env`, `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_EMAIL_REF`
 
@@ -1329,7 +1330,7 @@ Git reference to notify about.
 
 Default value: `${VORTEX_NOTIFY_REF}`
 
-Defined in: `scripts/vortex/notify-email.sh`
+Defined or used in: `scripts/vortex/notify-email.sh`
 
 ### `VORTEX_NOTIFY_ENVIRONMENT_TYPE`
 
@@ -1337,7 +1338,7 @@ Deployment environment type: production, uat, dev, pr.
 
 Default value: `PR`
 
-Defined in: `scripts/vortex/notify-github.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`
 
 ### `VORTEX_NOTIFY_ENVIRONMENT_URL`
 
@@ -1345,7 +1346,7 @@ Deployment environment URL.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`, `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`, `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_EVENT`
 
@@ -1353,7 +1354,7 @@ The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_GITHUB_TOKEN`
 
@@ -1361,7 +1362,7 @@ Deployment GitHub token.
 
 Default value: `${GITHUB_TOKEN}`
 
-Defined in: `scripts/vortex/notify-github.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`
 
 ### `VORTEX_NOTIFY_JIRA_ASSIGNEE`
 
@@ -1371,7 +1372,7 @@ If left empty - no assignment will be performed.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_COMMENT_PREFIX`
 
@@ -1379,7 +1380,7 @@ Deployment comment prefix.
 
 Default value: `Deployed to `
 
-Defined in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_ENDPOINT`
 
@@ -1387,7 +1388,7 @@ JIRA API endpoint.
 
 Default value: `https://jira.atlassian.com`
 
-Defined in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_TOKEN`
 
@@ -1395,7 +1396,7 @@ JIRA token.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_TRANSITION`
 
@@ -1405,7 +1406,7 @@ If left empty - no transition will be performed.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_USER`
 
@@ -1413,7 +1414,7 @@ JIRA user.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APIKEY`
 
@@ -1421,7 +1422,7 @@ NewRelic API key, usually of type 'USER'.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APPID`
 
@@ -1431,7 +1432,7 @@ Will be discovered automatically from application name if not provided.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APP_NAME`
 
@@ -1439,7 +1440,7 @@ NewRelic application name as it appears in the dashboard.
 
 Default value: `${VORTEX_NOTIFY_NEWRELIC_PROJECT}-${VORTEX_NOTIFY_NEWRELIC_REF}`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_CHANGELOG`
 
@@ -1449,7 +1450,7 @@ Defaults to the description.
 
 Default value: `${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION`
 
@@ -1457,7 +1458,7 @@ Optional NewRelic notification description.
 
 Default value: `${VORTEX_NOTIFY_NEWRELIC_REF} deployed`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_ENDPOINT`
 
@@ -1465,7 +1466,7 @@ Optional NewRelic endpoint.
 
 Default value: `https://api.newrelic.com/v2`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_PROJECT`
 
@@ -1473,7 +1474,7 @@ Project name to notify.
 
 Default value: `${VORTEX_NOTIFY_PROJECT}`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_REF`
 
@@ -1481,7 +1482,7 @@ Deployment reference, such as a git branch or pr.
 
 Default value: `${VORTEX_NOTIFY_REF}`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_SHA`
 
@@ -1489,7 +1490,7 @@ Deployment commit reference, such as a git SHA.
 
 Default value: `${VORTEX_NOTIFY_SHA}`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_USER`
 
@@ -1497,7 +1498,7 @@ Optional name of the user performing the deployment.
 
 Default value: `Deployment robot`
 
-Defined in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_PROJECT`
 
@@ -1505,7 +1506,7 @@ Project name to notify.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-webhook.sh`, `scripts/vortex/notify.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`, `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_PR_NUMBER`
 
@@ -1515,7 +1516,7 @@ If set, the environment type will be set to 'pr-[`${VORTEX_NOTIFY_PR_NUMBER}`](#
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-github.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`
 
 ### `VORTEX_NOTIFY_REF`
 
@@ -1523,7 +1524,7 @@ Git reference to notify about.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_REPOSITORY`
 
@@ -1531,7 +1532,7 @@ Deployment repository.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-github.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`
 
 ### `VORTEX_NOTIFY_SKIP`
 
@@ -1539,7 +1540,7 @@ Flag to skip running of all notifications.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify.sh`
+Defined or used in: `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_HEADERS`
 
@@ -1547,7 +1548,7 @@ Webhook headers.<br/>Separate multiple headers with a pipe `|`.<br/>Example: `Co
 
 Default value: `Content-type: application/json`
 
-Defined in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_METHOD`
 
@@ -1555,7 +1556,7 @@ Webhook method like POST, GET, PUT.
 
 Default value: `POST`
 
-Defined in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`
 
@@ -1563,7 +1564,7 @@ Webhook message body as json format.
 
 Default value: `${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-{\"channel\": \"Channel 1\", \"message\": \"%message%\", \"project\": \"%project%\", \"ref\": \"%ref%\", \"timestamp\": \"%timestamp%\", \"environment_url\": \"%environment_url%\"}}`
 
-Defined in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS`
 
@@ -1571,7 +1572,7 @@ The pattern of response code return by curl.
 
 Default value: `200`
 
-Defined in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_URL`
 
@@ -1579,7 +1580,7 @@ Webhook URL.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_PROJECT`
 
@@ -1589,7 +1590,7 @@ Drives internal naming within the codebase.<br/>Does not affect the names of con
 
 Default value: `your_site`
 
-Defined in: `.env`, `scripts/vortex/info.sh`
+Defined or used in: `.env`, `scripts/vortex/info.sh`
 
 ### `VORTEX_PROVISION_ACQUIA_SKIP`
 
@@ -1597,7 +1598,7 @@ Skip Drupal site provisioning in Acquia environment.
 
 Default value: `UNDEFINED`
 
-Defined in: `ACQUIA ENVIRONMENT`
+Defined or used in: `ACQUIA ENVIRONMENT`
 
 ### `VORTEX_PROVISION_DB`
 
@@ -1605,7 +1606,7 @@ Provision database dump file.<br/>If not set, it will be auto-discovered from th
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/provision.sh`
+Defined or used in: `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_OVERRIDE_DB`
 
@@ -1615,7 +1616,7 @@ Usually set to `0` in deployed environments and can be temporary set to `1` for<
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `.env.local.example`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `.env.local.example`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_POST_OPERATIONS_SKIP`
 
@@ -1623,7 +1624,7 @@ Flag to skip running of operations after site provision is complete.<br/>Useful 
 
 Default value: `0`
 
-Defined in: `scripts/vortex/provision.sh`
+Defined or used in: `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE`
 
@@ -1633,7 +1634,7 @@ To skip custom sanitization, remove the file defined in<br/>VORTEX_PROVISION_SAN
 
 Default value: `./scripts/sanitize.sql`
 
-Defined in: `scripts/vortex/provision-sanitize-db.sh`
+Defined or used in: `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_EMAIL`
 
@@ -1643,7 +1644,7 @@ Applied if database sanitization is enabled.<br/>@see https://www.vortextemplate
 
 Default value: `user_%uid@your-site-domain.example`
 
-Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
+Defined or used in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_PASSWORD`
 
@@ -1651,7 +1652,7 @@ Password replacement used for sanitized database.
 
 Default value: `<RANDOM STRING>`
 
-Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
+Defined or used in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL`
 
@@ -1659,7 +1660,7 @@ Replace username with email after database sanitization. Useful when email<br/>i
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
+Defined or used in: `.env`, `scripts/vortex/provision-sanitize-db.sh`
 
 ### `VORTEX_PROVISION_SANITIZE_DB_SKIP`
 
@@ -1669,7 +1670,7 @@ Database sanitization is enabled by default in all non-production<br/>environmen
 
 Default value: `UNDEFINED`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_SCRIPTS_DIR`
 
@@ -1677,7 +1678,7 @@ Directory with custom provision scripts.
 
 Default value: `./scripts/custom`
 
-Defined in: `scripts/vortex/provision.sh`
+Defined or used in: `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_SKIP`
 
@@ -1685,7 +1686,7 @@ Flag to skip site provisioning.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/provision.sh`
+Defined or used in: `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_TYPE`
 
@@ -1693,7 +1694,7 @@ Set to 'profile' to install a site from profile instead of the database dump.
 
 Default value: `database`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_PROVISION_USE_MAINTENANCE_MODE`
 
@@ -1701,7 +1702,7 @@ Put the site into a maintenance mode during site provisioning.
 
 Default value: `1`
 
-Defined in: `.env`, `scripts/vortex/provision.sh`
+Defined or used in: `.env`, `scripts/vortex/provision.sh`
 
 ### `VORTEX_PURGE_CACHE_ACQUIA_SKIP`
 
@@ -1709,7 +1710,7 @@ Skip purging of edge cache in Acquia environment.
 
 Default value: `UNDEFINED`
 
-Defined in: `ACQUIA ENVIRONMENT`
+Defined or used in: `ACQUIA ENVIRONMENT`
 
 ### `VORTEX_SHOW_LOGIN`
 
@@ -1717,7 +1718,7 @@ Show one-time login link.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/info.sh`
+Defined or used in: `scripts/vortex/info.sh`
 
 ### `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`
 
@@ -1725,7 +1726,7 @@ Disable strict host key checking in SSH.
 
 Default value: `0`
 
-Defined in: `scripts/vortex/setup-ssh.sh`
+Defined or used in: `scripts/vortex/setup-ssh.sh`
 
 ### `VORTEX_SSH_FILE`
 
@@ -1733,7 +1734,7 @@ Default SSH key file.
 
 Default value: `${HOME}/.ssh/id_rsa`
 
-Defined in: `scripts/vortex/doctor.sh`
+Defined or used in: `scripts/vortex/doctor.sh`
 
 ### `VORTEX_SSH_PREFIX`
 
@@ -1744,7 +1745,7 @@ key file path.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/setup-ssh.sh`
+Defined or used in: `scripts/vortex/setup-ssh.sh`
 
 ### `VORTEX_SSH_REMOVE_ALL_KEYS`
 
@@ -1752,7 +1753,7 @@ Remove all SSH keys from the SSH agent before loading the new one.
 
 Default value: `0`
 
-Defined in: `scripts/vortex/setup-ssh.sh`
+Defined or used in: `scripts/vortex/setup-ssh.sh`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_DST`
 
@@ -1760,7 +1761,7 @@ Destination environment name to copy DB to.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-copy-db-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-db-acquia.sh`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_NAME`
 
@@ -1768,7 +1769,7 @@ Database name to copy.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-copy-db-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-db-acquia.sh`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_SKIP`
 
@@ -1776,7 +1777,7 @@ Skip copying of database between Acquia environment.
 
 Default value: `UNDEFINED`
 
-Defined in: `ACQUIA ENVIRONMENT`
+Defined or used in: `ACQUIA ENVIRONMENT`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_SRC`
 
@@ -1784,7 +1785,7 @@ Source environment name to copy DB from.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-copy-db-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-db-acquia.sh`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL`
 
@@ -1792,7 +1793,7 @@ Interval in seconds to check task status.
 
 Default value: `10`
 
-Defined in: `scripts/vortex/task-copy-db-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-db-acquia.sh`
 
 ### `VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES`
 
@@ -1800,7 +1801,7 @@ Number of status retrieval retries. If this limit reached and task has not<br/>y
 
 Default value: `600`
 
-Defined in: `scripts/vortex/task-copy-db-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-db-acquia.sh`
 
 ### `VORTEX_TASK_COPY_FILES_ACQUIA_DST`
 
@@ -1808,7 +1809,7 @@ Destination environment name to copy to.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-copy-files-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-files-acquia.sh`
 
 ### `VORTEX_TASK_COPY_FILES_ACQUIA_SKIP`
 
@@ -1816,7 +1817,7 @@ Skip copying of files between Acquia environment.
 
 Default value: `UNDEFINED`
 
-Defined in: `ACQUIA ENVIRONMENT`
+Defined or used in: `ACQUIA ENVIRONMENT`
 
 ### `VORTEX_TASK_COPY_FILES_ACQUIA_SRC`
 
@@ -1824,7 +1825,7 @@ Source environment name to copy from.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-copy-files-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-files-acquia.sh`
 
 ### `VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL`
 
@@ -1832,7 +1833,7 @@ Interval in seconds to check task status.
 
 Default value: `10`
 
-Defined in: `scripts/vortex/task-copy-files-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-files-acquia.sh`
 
 ### `VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES`
 
@@ -1840,7 +1841,7 @@ Number of status retrieval retries. If this limit reached and task has not<br/>y
 
 Default value: `300`
 
-Defined in: `scripts/vortex/task-copy-files-acquia.sh`
+Defined or used in: `scripts/vortex/task-copy-files-acquia.sh`
 
 ### `VORTEX_TASK_LAGOON_BRANCH`
 
@@ -1848,7 +1849,7 @@ The Lagoon branch to run the task on.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_COMMAND`
 
@@ -1856,7 +1857,7 @@ The task command to execute.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_INSTANCE`
 
@@ -1864,7 +1865,7 @@ The Lagoon instance name to interact with.
 
 Default value: `amazeeio`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_INSTANCE_GRAPHQL`
 
@@ -1872,7 +1873,7 @@ The Lagoon instance GraphQL endpoint to interact with.
 
 Default value: `https://api.lagoon.amazeeio.cloud/graphql`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_INSTANCE_HOSTNAME`
 
@@ -1880,7 +1881,7 @@ The Lagoon instance hostname to interact with.
 
 Default value: `ssh.lagoon.amazeeio.cloud`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_INSTANCE_PORT`
 
@@ -1888,7 +1889,7 @@ The Lagoon instance port to interact with.
 
 Default value: `32222`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_NAME`
 
@@ -1896,7 +1897,7 @@ The task name.
 
 Default value: `Automation task`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_LAGOON_PROJECT`
 
@@ -1904,7 +1905,7 @@ The Lagoon project to run tasks for.
 
 Default value: `${LAGOON_PROJECT}`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE`
 
@@ -1912,7 +1913,7 @@ File with a list of domains that should be purged.
 
 Default value: `domains.txt`
 
-Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV`
 
@@ -1920,7 +1921,7 @@ An environment name to purge cache for.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL`
 
@@ -1928,7 +1929,7 @@ Interval in seconds to check task status.
 
 Default value: `10`
 
-Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES`
 
@@ -1936,7 +1937,7 @@ Number of status retrieval retries. If this limit reached and task has not<br/>y
 
 Default value: `300`
 
-Defined in: `scripts/vortex/task-purge-cache-acquia.sh`
+Defined or used in: `scripts/vortex/task-purge-cache-acquia.sh`
 
 ### `VORTEX_TASK_SSH_FILE`
 
@@ -1944,7 +1945,7 @@ Default SSH file used if custom fingerprint is not provided.
 
 Default value: `${HOME}/.ssh/id_rsa`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_TASK_SSH_FINGERPRINT`
 
@@ -1952,7 +1953,7 @@ SSH key fingerprint used to connect to a remote.
 
 Default value: `UNDEFINED`
 
-Defined in: `scripts/vortex/task-custom-lagoon.sh`
+Defined or used in: `scripts/vortex/task-custom-lagoon.sh`
 
 ### `VORTEX_UNBLOCK_ADMIN`
 
@@ -1960,7 +1961,7 @@ Unblock admin account when logging in.
 
 Default value: `1`
 
-Defined in: `.env`, `scripts/vortex/login.sh`, `scripts/vortex/logout.sh`
+Defined or used in: `.env`, `scripts/vortex/login.sh`, `scripts/vortex/logout.sh`
 
 ### `WEBROOT`
 
@@ -1968,7 +1969,6 @@ Name of the web root directory containing a Drupal codebase.
 
 Default value: `web`
 
-Defined in: `.env`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/info.sh`, `scripts/vortex/provision.sh`, `scripts/vortex/reset.sh`
-
+Defined or used in: `.env`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/info.sh`, `scripts/vortex/provision.sh`, `scripts/vortex/reset.sh`
 ---
 Variable list generated with [Shellvar - Utility to work with shell variables](https://github.com/AlexSkrypnyk/shellvar)

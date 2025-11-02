@@ -59,8 +59,8 @@ class Env {
       }
     }
 
-    $GLOBALS['_ENV'] = $GLOBALS['_ENV'] ?? [];
-    $GLOBALS['_SERVER'] = $GLOBALS['_SERVER'] ?? [];
+    $GLOBALS['_ENV'] ??= [];
+    $GLOBALS['_SERVER'] ??= [];
 
     if ($override_existing) {
       $GLOBALS['_ENV'] = $values + $GLOBALS['_ENV'];
@@ -107,14 +107,12 @@ class Env {
       return TRUE;
     });
 
-    $result = parse_ini_string($contents);
+    $result = parse_ini_string((string) $contents);
 
     restore_error_handler();
 
     if ($result === FALSE) {
-      $message = array_reduce($errors ?? [], function (string $carry, array $error): string {
-        return $carry . $error['message'] . PHP_EOL;
-      }, '');
+      $message = array_reduce($errors ?? [], fn(string $carry, array $error): string => $carry . $error['message'] . PHP_EOL, '');
 
       throw new \RuntimeException(sprintf('Unable to parse file %s: %s', $filename, $message));
     }
@@ -159,7 +157,7 @@ class Env {
         // Remove existing variable line.
         $contents = preg_replace($pattern, '', $contents);
         // Clean up any double newlines that might result from removal.
-        $contents = preg_replace('/\n\n+/', "\n\n", $contents);
+        $contents = preg_replace('/\n\n+/', "\n\n", (string) $contents);
       }
       else {
         // Add empty line if it doesn't exist.
@@ -171,8 +169,8 @@ class Env {
     }
     else {
       // Format the new value with proper quoting.
-      $newValue = static::formatValueForDotenv($value);
-      $replacement = '$1=' . $newValue;
+      $new_value = static::formatValueForDotenv($value);
+      $replacement = '$1=' . $new_value;
 
       if (preg_match($pattern, $contents)) {
         // Replace existing variable value.
@@ -183,7 +181,7 @@ class Env {
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
-        $contents .= $name . '=' . $newValue . "\n";
+        $contents .= $name . '=' . $new_value . "\n";
       }
     }
 

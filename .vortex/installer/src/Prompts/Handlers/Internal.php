@@ -107,9 +107,7 @@ class Internal extends AbstractHandler {
         }
 
         if (isset($composer_json->repositories)) {
-          $composer_json->repositories = array_values(array_filter($composer_json->repositories, function ($repo): bool {
-            return !isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package');
-          }));
+          $composer_json->repositories = array_values(array_filter($composer_json->repositories, fn($repo): bool => !isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package')));
         }
 
         file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");

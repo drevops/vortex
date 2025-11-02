@@ -2,32 +2,26 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
--  # Valkey integration flag.
+-  # Redis integration flag.
 -  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -146,37 +144,6 @@
+@@ -149,31 +147,6 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
--  valkey:
+-  redis:
 -    image: uselagoon/valkey-8:__VERSION__
 -
 -  solr:
 -    build:
 -      context: .
 -      dockerfile: .docker/solr.dockerfile
--      args:
--        CLI_IMAGE: *cli-image
--      additional_contexts:
--        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    volumes:
 -      - solr:/var/solr
--    depends_on:
--      - cli
 -    ports:
 -      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 -
@@ -45,20 +39,24 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -193,11 +160,9 @@
-   wait_dependencies:
+@@ -190,16 +163,9 @@
+   wait-for-dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
 -      - clamav
-       - cli
        - database
--      - valkey
--    command: database:3306 clamav:3310 valkey:6379
-+    command: database:3306
+-      - redis
+-      - solr
+     command:
+-      - clamav:3310
+       - database:3306
+-      - redis:6379
+-      - solr:8983
+-      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -206,7 +171,6 @@
+@@ -208,7 +174,6 @@
  volumes:
    app: {}
    files: {}

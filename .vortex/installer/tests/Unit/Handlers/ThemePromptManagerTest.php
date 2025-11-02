@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
+use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Theme::class)]
@@ -16,23 +17,67 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
 
+    $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
+
     return [
-      'theme - prompt' => [
-        [Theme::id() => 'mytheme'],
+      'theme - prompt - olivero' => [
+        [Theme::id() => Key::DOWN . Key::ENTER],
+        [Theme::id() => Theme::OLIVERO] + $expected_defaults,
+      ],
+
+      'theme - prompt - claro' => [
+        [Theme::id() => Key::DOWN . Key::DOWN . Key::ENTER],
+        [Theme::id() => Theme::CLARO] + $expected_defaults,
+      ],
+
+      'theme - prompt - stark' => [
+        [Theme::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER],
+        [Theme::id() => Theme::STARK] + $expected_defaults,
+      ],
+
+      'theme - prompt - custom' => [
+        [Theme::id() => Key::ENTER . $clear_keys . 'mytheme'],
         [Theme::id() => 'mytheme'] + $expected_defaults,
       ],
 
-      'theme - prompt - invalid' => [
-        [Theme::id() => 'my theme'],
+      'theme - prompt - custom - invalid' => [
+        [Theme::id() => Key::ENTER . $clear_keys . 'my theme'],
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
-      'theme - prompt - invalid - capitalization' => [
-        [Theme::id() => 'MyTheme'],
+      'theme - prompt - custom - invalid - capitalization' => [
+        [Theme::id() => Key::ENTER . $clear_keys . 'MyTheme'],
         'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
       ],
 
-      'theme - discovery' => [
+      'theme - discovery - olivero' => [
+        [],
+        [Theme::id() => Theme::OLIVERO] + $expected_installed,
+        function (AbstractPromptManagerTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubDotenvValue('DRUPAL_THEME', Theme::OLIVERO);
+        },
+      ],
+
+      'theme - discovery - claro' => [
+        [],
+        [Theme::id() => Theme::CLARO] + $expected_installed,
+        function (AbstractPromptManagerTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubDotenvValue('DRUPAL_THEME', Theme::CLARO);
+        },
+      ],
+
+      'theme - discovery - stark' => [
+        [],
+        [Theme::id() => Theme::STARK] + $expected_installed,
+        function (AbstractPromptManagerTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          $test->stubDotenvValue('DRUPAL_THEME', Theme::STARK);
+        },
+      ],
+
+      'theme - discovery - custom' => [
         [],
         [Theme::id() => 'discovered_project'] + $expected_installed,
         function (AbstractPromptManagerTestCase $test, Config $config): void {

@@ -5,7 +5,6 @@
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 
 load ../_helper.bash
-load ../_helper.deployment.bash
 
 @test "Deploy fails when LAGOON_PROJECT variable is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -44,8 +43,8 @@ load ../_helper.deployment.bash
 @test "Branch: Deploy fresh environment no existing environment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -77,8 +76,8 @@ load ../_helper.deployment.bash
 @test "Branch: Redeploy existing environment preserve database" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -113,8 +112,8 @@ load ../_helper.deployment.bash
 @test "Branch: Redeploy existing environment with database override" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -158,8 +157,8 @@ load ../_helper.deployment.bash
 @test "PR: Deploy fresh environment no existing environment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_PR="123"
@@ -193,8 +192,8 @@ load ../_helper.deployment.bash
 @test "PR: Redeploy existing environment preserve database" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_PR="123"
@@ -234,8 +233,8 @@ load ../_helper.deployment.bash
 @test "PR: Redeploy existing environment with database override" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_PR="456"
@@ -281,8 +280,8 @@ load ../_helper.deployment.bash
 @test "Environment: Destroy existing environment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -312,8 +311,8 @@ load ../_helper.deployment.bash
 @test "Branch: Environment limit exceeded with FAIL flag set to 0 (continue successfully)" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -347,8 +346,8 @@ load ../_helper.deployment.bash
 @test "Branch: Environment limit exceeded with FAIL flag set to 1 (fail deployment)" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_BRANCH="test-branch"
@@ -382,8 +381,8 @@ load ../_helper.deployment.bash
 @test "PR: Environment limit exceeded with FAIL flag set to 0 (continue successfully)" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
 
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_PR="133"

@@ -1,4 +1,4 @@
-@@ -29,24 +29,10 @@
+@@ -29,25 +29,10 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -8,6 +8,7 @@
 -        "drevops/behat-format-progress-fail": "__VERSION__",
 -        "drevops/behat-screenshot": "__VERSION__",
 -        "drevops/behat-steps": "__VERSION__",
+-        "drevops/phpcs-standard": "__VERSION__",
          "drupal/core-dev": "__VERSION__",
 -        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
@@ -23,7 +24,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -65,11 +51,6 @@
+@@ -66,21 +51,14 @@
              "scripts/composer/ScriptHandler.php"
          ]
      },
@@ -35,7 +36,9 @@
      "config": {
          "allow-plugins": {
              "composer/installers": true,
-@@ -79,7 +60,6 @@
+             "cweagans/composer-patches": true,
+-            "dealerdirect/phpcodesniffer-composer-installer": true,
+             "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
              "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,

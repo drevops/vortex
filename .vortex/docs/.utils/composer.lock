@@ -64,16 +64,16 @@
         },
         {
             "name": "alexskrypnyk/shellvar",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/shellvar.git",
-                "reference": "2e9865ab3e0b51e43bd387fa813d5e6bc344a014"
+                "reference": "33363affb90f87d58e0bc875af5bd4b143ef6a5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/2e9865ab3e0b51e43bd387fa813d5e6bc344a014",
-                "reference": "2e9865ab3e0b51e43bd387fa813d5e6bc344a014",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/33363affb90f87d58e0bc875af5bd4b143ef6a5a",
+                "reference": "33363affb90f87d58e0bc875af5bd4b143ef6a5a",
                 "shasum": ""
             },
             "require": {
@@ -92,7 +92,7 @@
                 "mikey179/vfsstream": "^1.6",
                 "opis/closure": "^4.0",
                 "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^11",
+                "phpunit/phpunit": "^12",
                 "rector/rector": "^2"
             },
             "bin": [
@@ -128,7 +128,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-01-10T00:16:56+00:00"
+            "time": "2025-09-28T22:35:36+00:00"
         },
         {
             "name": "psr/container",

@@ -22,7 +22,7 @@ class Validator {
   public static function domain(string $value): bool {
     return !filter_var($value, FILTER_VALIDATE_IP)
       && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-      && strpos($value, '.') !== FALSE;
+      && str_contains($value, '.');
   }
 
   public static function githubProject(string $value): bool {

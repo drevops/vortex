@@ -94,7 +94,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     foreach ($patterns as $pattern => $replacement) {
       $original_content = $content;
 
-      $content = preg_replace($pattern, $replacement, $content);
+      $content = preg_replace($pattern, $replacement, (string) $content);
 
       if ($content !== $original_content) {
         $replaced++;

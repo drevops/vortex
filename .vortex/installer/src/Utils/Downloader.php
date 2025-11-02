@@ -101,7 +101,8 @@ class Downloader {
       throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
     }
 
-    // Local download does not support version discovery.
+    // Local download does not support version discovery, but it still supports
+    // downloading from a specific ref.
     $ref = $ref === Downloader::REF_STABLE ? Downloader::REF_HEAD : $ref;
     $version = $ref;
 
@@ -125,7 +126,7 @@ class Downloader {
       throw new \RuntimeException(sprintf('Invalid repository URL: "%s".', $repo_url));
     }
 
-    $path = ltrim($path, '/');
+    $path = ltrim((string) $path, '/');
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 

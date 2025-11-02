@@ -61,6 +61,9 @@ VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 # Database dump file name.
 VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
+# Name of the pre-built database container image.
+VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -120,7 +123,7 @@ note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
 note "Config files path              : ${config_path}"
 note "DB dump file path              : ${VORTEX_PROVISION_DB} ($([ -f "${VORTEX_PROVISION_DB}" ] && echo "present" || echo "absent"))"
 if [ -n "${VORTEX_DB_IMAGE:-}" ]; then
-  note "DB dump container image        : ${VORTEX_DB_IMAGE}"
+  note "DB dump container image        : ${VORTEX_DB_IMAGE-}"
 fi
 echo
 note "Profile                        : ${DRUPAL_PROFILE}"
@@ -191,9 +194,15 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   note "Dump file path: ${VORTEX_PROVISION_DB}"
 
   if [ "${site_is_installed}" = "1" ]; then
-    note "Existing site was found when provisioning from the database dump file."
+    note "Existing site was found."
 
-    if [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
+    if [ -n "${VORTEX_DB_IMAGE-}" ]; then
+      note "Database is baked into the container image."
+      note "Site content will be preserved."
+      # Container image restarts with a fresh database. Let the downstream
+      # scripts know that the database is fresh.
+      export VORTEX_PROVISION_OVERRIDE_DB=1
+    elif [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
       note "Existing site content will be removed and fresh content will be imported from the database dump file."
       provision_from_db
     else
@@ -202,10 +211,18 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
       export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
     fi
   else
-    note "Existing site was not found when installing from the database dump file."
+    note "Existing site was not found."
+
+    if [ -n "${VORTEX_DB_IMAGE-}" ]; then
+      note "Database is baked into the container image."
+      note "Looks like the database in the container image is corrupted."
+      note "Site content was not changed."
+      exit 1
+    fi
+
     note "Fresh site content will be imported from the database dump file."
     provision_from_db
-    # Let the downstream scripts know that the database was imported.
+    # Let the downstream scripts know that the database is fresh.
     export VORTEX_PROVISION_OVERRIDE_DB=1
   fi
 else
@@ -213,12 +230,12 @@ else
   note "Profile: ${DRUPAL_PROFILE}."
 
   if [ "${site_is_installed}" = "1" ]; then
-    note "Existing site was found when provisioning from the profile."
+    note "Existing site was found."
 
     if [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
       note "Existing site content will be removed and new content will be created from the profile."
       provision_from_profile
-      # Let the downstream scripts know that the database was imported.
+      # Let the downstream scripts know that the database is fresh.
       export VORTEX_PROVISION_OVERRIDE_DB=1
     else
       note "Site content will be preserved."
@@ -226,7 +243,7 @@ else
       export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
     fi
   else
-    note "Existing site was not found when provisioning from the profile."
+    note "Existing site was not found."
     note "Fresh site content will be created from the profile."
     provision_from_profile
     export VORTEX_PROVISION_OVERRIDE_DB=1

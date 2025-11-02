@@ -211,7 +211,7 @@ Vortex:
 - `database` - a container that runs a database server. This container is used to
   store the application data. It can be accessed from the host via a randomly
   assigned port - run `docker compose port database 3306` to get the port number.
-- `valkey` - an optional container that runs a Valkey server. This container is
+- `redis` - an optional container that runs a Redis server. This container is
   used to store the application cache.
 - `solr` - an optional container that runs a Solr server. This container is used
   to store the application search index. It can be accessed from the host via a
@@ -222,7 +222,7 @@ Vortex:
 - `chrome` - container that runs a Chrome browser. This container is
   used to run Behat tests. It is based on the official Selenium image which has
   additional required tools, like virtual desktop, installed.
-- `wait_dependencies` - a container that runs a script to wait for applications
+- `wait-for-dependencies` - a container that runs a script to wait for applications
   within other containers to become available. Docker itself can coordinate
   startup of containers, but it does not know when the application within the
   container is ready to accept connections. This container is used to wait for

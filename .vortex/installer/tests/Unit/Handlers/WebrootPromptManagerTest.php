@@ -63,6 +63,14 @@ class WebrootPromptManagerTest extends AbstractPromptManagerTestCase {
         },
       ],
 
+      'webroot - discovery - composer, relative' => [
+        [],
+        [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
+        function (AbstractPromptManagerTestCase $test, Config $config): void {
+          $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['locations' => ['web-root' => './discovered_webroot']]]);
+        },
+      ],
+
       'webroot - discovery - invalid' => [
         [],
         $expected_defaults,

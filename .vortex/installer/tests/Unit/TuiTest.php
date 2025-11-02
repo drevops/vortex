@@ -502,15 +502,15 @@ EXPECTED,
   }
 
   #[DataProvider('dataProviderList')]
-  public function testList(array $values, ?string $title, array $expectedStrings): void {
+  public function testList(array $values, ?string $title, array $expected_strings): void {
     $output = new BufferedOutput();
     Tui::init($output);
 
     Tui::list($values, $title);
 
     $actual = $output->fetch();
-    foreach ($expectedStrings as $expected) {
-      $this->assertStringContainsString($expected, $actual);
+    foreach ($expected_strings as $expected_string) {
+      $this->assertStringContainsString($expected_string, $actual);
     }
   }
 
@@ -519,12 +519,12 @@ EXPECTED,
       'simple list' => [
         'values' => ['key1' => 'value1', 'key2' => 'value2'],
         'title' => 'Test List',
-        'expectedStrings' => ['key1', 'value1', 'key2', 'value2', 'Test List'],
+        'expected_strings' => ['key1', 'value1', 'key2', 'value2', 'Test List'],
       ],
       'list with array values' => [
         'values' => ['items' => ['item1', 'item2', 'item3']],
         'title' => 'Array Test',
-        'expectedStrings' => ['items', 'item1, item2, item3', 'Array Test'],
+        'expected_strings' => ['items', 'item1, item2, item3', 'Array Test'],
       ],
       'list with section title' => [
         'values' => [
@@ -532,7 +532,7 @@ EXPECTED,
           'key1' => 'value1',
         ],
         'title' => 'Section Test',
-        'expectedStrings' => ['Section A', 'key1', 'value1'],
+        'expected_strings' => ['Section A', 'key1', 'value1'],
       ],
     ];
   }
@@ -567,7 +567,6 @@ EXPECTED,
       // Use reflection to access the protected method.
       $reflection = new \ReflectionClass(Tui::class);
       $method = $reflection->getMethod('utfPadding');
-      $method->setAccessible(TRUE);
 
       $result = $method->invoke(NULL, $char);
       $this->assertSame($expected_padding, $result);

@@ -17,18 +17,29 @@
      },
      "require-dev": {
          "behat/behat": "__VERSION__",
-@@ -81,7 +84,9 @@
+@@ -59,7 +62,7 @@
+             "url": "https://packages.drupal.org/8"
+         }
+     ],
+-    "minimum-stability": "beta",
++    "minimum-stability": "alpha",
+     "prefer-stable": true,
+     "autoload": {
+         "classmap": [
+@@ -82,7 +85,11 @@
              "php-http/discovery": true,
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
 -            "tbachert/spi": true
 +            "tbachert/spi": true,
 +            "drupal/core-project-message": true,
++            "drupal/core-recipe-unpack": true,
++            "drupal/core-vendor-hardening": true,
 +            "wikimedia/composer-merge-plugin": true
          },
          "discard-changes": true,
          "platform": {
-@@ -158,7 +163,20 @@
+@@ -159,7 +166,20 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },

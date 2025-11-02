@@ -10,33 +10,62 @@ use DrevOps\VortexInstaller\Utils\File;
 
 class Theme extends AbstractHandler {
 
+  const OLIVERO = 'olivero';
+
+  const CLARO = 'claro';
+
+  const STARK = 'stark';
+
+  const CUSTOM = 'custom';
+
   /**
    * {@inheritdoc}
    */
   public function label(): string {
-    return 'Theme machine name';
+    return 'Theme';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Name for the theme directory. Leave empty to skip scaffolding.';
+    return 'Use ⬆ and ⬇ to select which Drupal theme to use.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function placeholder(array $responses): ?string {
-    return 'E.g. mytheme';
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::OLIVERO => 'Olivero',
+      self::CLARO => 'Claro',
+      self::STARK => 'Stark',
+      self::CUSTOM => 'Custom (next prompt)',
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
-      return Converter::machine($responses[MachineName::id()]);
+    return self::CUSTOM;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    $value = $this->discoverName();
+
+    if (!is_null($value)) {
+      return in_array($value, [self::OLIVERO, self::CLARO, self::STARK]) ? $value : self::CUSTOM;
     }
 
     return NULL;
@@ -45,7 +74,34 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function discover(): null|string|bool|array {
+  public function resolvedValue(array $responses): null|string|bool|array {
+    $discovered = $this->discover();
+
+    if (!is_null($discovered)) {
+      return $discovered;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Theme will be set to "%s".', $resolved);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Discover the theme name from the filesystem or environment.
+   *
+   * @return null|string|bool|array
+   *   The theme name if found, NULL if not found.
+   */
+  public function discoverName(): null|string|bool|array {
     if ($this->isInstalled()) {
       $value = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);
       if (!empty($value)) {
@@ -65,68 +121,45 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function validate(): ?callable {
-    return fn($v): ?string => !empty($v) && Converter::machine($v) !== $v ? 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function transform(): ?callable {
-    return fn(string $v): string => trim($v);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function process(): void {
     $v = $this->getResponseAsString();
+
+    // If user selected 'custom', use the ThemeCustom response instead.
+    if ($v === self::CUSTOM && isset($this->responses[ThemeCustom::id()])) {
+      $v = $this->responses[ThemeCustom::id()];
+    }
+
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    if (empty($v)) {
+    // Handle core themes (no custom theme files needed)
+    if (in_array($v, [self::OLIVERO, self::CLARO, self::STARK])) {
+      // Remove custom theme files if they exist.
       $file_tmpl = static::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::rmdir(dirname($file_tmpl));
         File::rmdirEmpty(dirname($file_tmpl));
 
-        File::removeLine($t . '/phpcs.xml', '<file>web/themes/custom</file>');
-        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>');
-        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>');
-        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>');
-        File::removeLine($t . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>');
-
-        File::removeLine($t . '/phpstan.neon', '- web/themes/custom');
-
-        File::removeLine($t . '/phpmd.xml', '<exclude-pattern>*/web/themes/contrib/*</exclude-pattern>');
-
-        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
-        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');
-        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
-        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom</directory>');
-        File::removeLine($t . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
-        File::removeLine($t . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
-
-        File::removeLine($t . '/rector.php', "\$drupalRoot . '/themes/custom',");
-
-        File::removeLine($t . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
-
-        File::replaceContentInFile($t . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
-        File::replaceContentInFile($t . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
+        $this->removeThemeConfigLines($t);
       }
 
       File::removeTokenAsync('DRUPAL_THEME');
 
+      File::replaceContentInFile($t . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
+      File::replaceContentInFile($t . '/.env', '/DRUPAL_MAINTENANCE_THEME=.*/', 'DRUPAL_MAINTENANCE_THEME=' . $v);
+
       return;
     }
 
-    File::replaceContentInFile($this->tmpDir . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
+    // Handle custom themes.
+    File::replaceContentInFile($t . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
+    File::replaceContentInFile($t . '/.env', '/DRUPAL_MAINTENANCE_THEME=.*/', 'DRUPAL_MAINTENANCE_THEME=' . $v);
 
     // Find the theme file in the destination directory.
     $file_dst = static::findThemeFile($this->dstDir, $w, $v);
 
-    // Remove the theme files from the template if not found OR if found, but
-    // the theme is not from Vortex.
+    // Remove the theme-related files from the template if not found OR
+    // if found, but the theme is not from Vortex.
     if (
       $this->isInstalled()
       &&
@@ -152,6 +185,35 @@ class Theme extends AbstractHandler {
 
     File::renameInDir($t, 'your_site_theme', $v);
     File::renameInDir($t, 'YourSiteTheme', Converter::pascal($v));
+  }
+
+  /**
+   * Remove theme-related configuration lines from various files.
+   */
+  protected function removeThemeConfigLines(string $tmpDir): void {
+    File::removeLine($tmpDir . '/phpcs.xml', '<file>web/themes/custom</file>');
+    File::removeLine($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>');
+    File::removeLine($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>');
+    File::removeLine($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>');
+    File::removeLine($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>');
+
+    File::removeLine($tmpDir . '/phpstan.neon', '- web/themes/custom');
+
+    File::removeLine($tmpDir . '/phpmd.xml', '<exclude-pattern>*/web/themes/contrib/*</exclude-pattern>');
+
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
+
+    File::removeLine($tmpDir . '/rector.php', "__DIR__ . '/web/themes/custom',");
+
+    File::removeLine($tmpDir . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
+
+    File::replaceContentInFile($tmpDir . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
+    File::replaceContentInFile($tmpDir . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
   }
 
   protected static function findThemeFile(string $dir, string $webroot, ?string $text = NULL): ?string {

@@ -9,11 +9,8 @@ use Composer\Json\JsonManipulator as ComposerJsonManipulator;
 
 class JsonManipulator extends ComposerJsonManipulator {
 
-  protected string $contents;
-
-  public function __construct(string $contents) {
-    $this->contents = $contents;
-    parent::__construct($contents);
+  public function __construct(protected string $contents) {
+    parent::__construct($this->contents);
   }
 
   public static function fromFile(string $composer_json): ?self {

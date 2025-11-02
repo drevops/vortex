@@ -82,7 +82,7 @@ docker save -o "${archive_file}" "${new_image}"
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${archive_file}" ] && [ -s "${archive_file}" ]; then
-  note "Saved exported database image archive file ${archive_file}."
+  note "Exported database image saved to archive file ${archive_file}."
 else
   # LCOV_EXCL_START
   fail "Unable to save database image archive file ${archive_file}." && exit 1

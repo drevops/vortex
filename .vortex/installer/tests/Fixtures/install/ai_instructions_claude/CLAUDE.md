@@ -305,13 +305,13 @@ ahoy drush search-api:index
 ahoy drush search-api:server-status
 ```
 
-### Valkey/Redis Caching Service
+### Redis Caching Service
 
 ```bash
-# Clear all caches (includes Valkey/Redis)
+# Clear all caches (includes Redis)
 ahoy drush cache:rebuild
 
-# Check Redis/Valkey connection status
+# Check Redis connection status
 ahoy drush php:script -- redis_status
 
 # Flush Redis cache specifically
@@ -346,6 +346,188 @@ ahoy composer require --dev drupal/devel
 # Enable installed modules
 ahoy drush pm:install admin_toolbar pathauto
 ```
+
+### Patching Contributed Modules
+
+When contributed modules need fixes or customizations, use the proper patching workflow with `cweagans/composer-patches`.
+
+#### Prerequisites for Patching
+
+- Project uses `cweagans/composer-patches` package
+- Git is available for version control
+- Access to Drupal.org git repositories
+
+#### Patch Storage and Configuration
+
+Patches are defined in `composer.json` under the `extra.patches` section:
+
+```json
+{
+  "extra": {
+    "patches": {
+      "drupal/module_name": {
+        "Description of fix": "patches/module-name-description.patch",
+        "Another fix": "https://www.drupal.org/files/issues/external-patch.patch"
+      }
+    }
+  }
+}
+```
+
+- **Local patches**: Store in `patches/` directory in project root
+- **External patches**: Reference URLs directly in composer.json
+- **Naming convention**: Use descriptive names like `module-name-description.patch`
+
+#### Creating Module Patches
+
+Step 1: Identify Module Version
+
+Always work with the exact version and state used in your project:
+
+```bash
+# Check installed version
+ahoy composer show drupal/module_name
+
+# Verify version in composer.lock
+grep -A 20 "drupal/module_name" composer.lock
+```
+
+Step 2: Clone Module from Git
+
+**CRITICAL**: Always use the official Drupal git repository, not tarball downloads:
+
+```bash
+# Create working directory
+cd /tmp && mkdir module_patch_work && cd module_patch_work
+
+# Clone the module
+git clone https://git.drupalcode.org/project/module_name.git
+
+# Navigate to module directory
+cd module_name
+
+# Checkout the exact version/tag used in project
+git checkout 1.2.3  # Replace with actual version
+
+# Create working branch
+git checkout -b fix-description
+```
+
+Step 3: Apply Existing Patches
+
+If your project already has patches for this module, apply them first to match the current state:
+
+```bash
+# Apply each existing patch in order
+curl -s https://example.com/patch1.patch | patch -p1
+curl -s https://example.com/patch2.patch | patch -p1
+
+# Commit the patches to establish baseline
+git add .
+git commit -m "Apply existing patches to match project state"
+```
+
+Step 4: Make Required Changes
+
+Edit the necessary files to implement your fix:
+
+```bash
+# Make your changes using your preferred editor
+vim path/to/file.php
+
+# Or use automated tools if applicable
+sed -i 's/old_code/new_code/' path/to/file.php
+```
+
+Step 5: Generate Clean Patch
+
+Create a proper git-based patch:
+
+```bash
+# Stage your changes
+git add .
+
+# Generate patch from staged changes
+git diff --cached > /path/to/project/patches/module-name-fix-description.patch
+```
+
+Step 6: Test Patch Application
+
+**ALWAYS test that your patch applies cleanly**:
+
+```bash
+# Reset to test patch application
+git reset --hard HEAD
+
+# Test patch applies without conflicts
+git apply /path/to/project/patches/module-name-fix-description.patch
+
+# Verify changes were applied correctly
+git status
+git diff
+```
+
+Step 7: Integrate into Project
+
+Add the patch to your project's composer configuration and test:
+
+```bash
+# Update the specific module to apply patch
+ahoy composer require drupal/module_name
+
+# Verify no patch application errors
+# Check that functionality works as expected
+```
+
+Step 8: Clean Up
+
+Remove temporary working directory:
+
+```bash
+rm -rf /tmp/module_patch_work
+```
+
+#### Patching Best Practices
+
+**✅ Do This:**
+
+- Use descriptive patch names that explain what they fix
+- Keep patches focused - one fix per patch when possible
+- Follow Drupal coding standards in your changes
+- Test locally before committing patches
+- Document the issue being fixed in composer.json description
+- Include issue URLs when available from drupal.org
+
+**❌ Avoid These Mistakes:**
+
+- Working with tarball downloads instead of git repositories
+- Creating patches from modified project files
+- Skipping patch application testing
+- Creating patches without applying existing patches first
+- Assuming patches work across different module versions
+
+#### Troubleshooting Patch Issues
+
+**Patch Won't Apply:**
+
+1. Check module version matches between patch creation and application
+2. Verify existing patches are applied in correct order
+3. Check for whitespace issues in patch file
+4. Ensure patch paths are correct (usually relative to module root)
+
+**Patch Conflicts:**
+
+1. Identify conflicting patches by applying them individually
+2. Update patch order in composer.json if needed
+3. Recreate patches against the current patched state
+4. Merge patches if they modify the same areas
+
+**Performance Issues:**
+
+1. Minimize external patch URLs to reduce download time
+2. Store frequently used patches locally in patches directory
+3. Keep patch files small and focused
+4. Remove obsolete patches when updating modules
 
 ### Adding JavaScript/CSS Libraries
 

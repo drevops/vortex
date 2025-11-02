@@ -72,8 +72,8 @@ class File extends UpstreamFile {
           $replacements = [$replacements => $replace];
         }
 
-        foreach ($replacements as $search => $replaceValue) {
-          $content = static::replaceContent($content, $search, $replaceValue);
+        foreach ($replacements as $search => $replace_value) {
+          $content = static::replaceContent($content, $search, $replace_value);
         }
       }
 
@@ -97,6 +97,25 @@ class File extends UpstreamFile {
       $file->setContent($content);
       return $file;
     });
+  }
+
+  /**
+   * Convert a path to a relative path.
+   *
+   * @param string $path
+   *   The path to convert.
+   * @param string|null $base
+   *   The base path to resolve relative paths against. If NULL, the current
+   *   working directory is used.
+   *
+   * @return string
+   *   The relative path.
+   */
+  public static function toRelative(string $path, ?string $base = NULL): string {
+    $base ??= (string) getcwd();
+    $absolute = static::absolute($path, $base);
+
+    return str_replace($base . DIRECTORY_SEPARATOR, '', $absolute);
   }
 
 }

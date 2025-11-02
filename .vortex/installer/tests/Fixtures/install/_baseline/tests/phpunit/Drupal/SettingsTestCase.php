@@ -62,7 +62,7 @@ abstract class SettingsTestCase extends TestCase {
   const ALLOWED_ENV_VARS = [
     // Service variables.
     'DATABASE_',
-    'VALKEY_',
+    'REDIS_',
     'COMPOSE_',
     'GITHUB_',
     'PACKAGE_',

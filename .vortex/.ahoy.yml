@@ -6,12 +6,14 @@ commands:
   install:
     name: Install test dependencies.
     cmd: |
+      [ -d ./tests/vendor ] && rm -rf ./tests/vendor
+      composer --working-dir tests install
       [ -d ./tests/node_modules ] && rm -rf ./tests/node_modules
       yarn --cwd=tests install --frozen-lockfile
-      [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
-      yarn --cwd=docs install --frozen-lockfile
       [ -d ./installer/vendor ] && rm -rf ./installer/vendor
       composer --working-dir installer install
+      [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
+      yarn --cwd=docs install --frozen-lockfile
 
   docs:
     name: Start documentation server.
@@ -57,6 +59,9 @@ commands:
   lint-markdown:
     cmd: ./tests/lint.markdown.sh
 
+  lint-markdown-fix:
+    cmd: ./tests/lint.markdown.sh --fix
+
   lint-docs:
     cmd: yarn --cwd=docs run lint
 
@@ -89,12 +94,11 @@ commands:
   # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
   update-fixtures:
     cmd: |
-      export UPDATE_FIXTURES=1
-      tests/node_modules/.bin/bats tests/bats/e2e/docker-compose.bats || tests/node_modules/.bin/bats tests/e2e/bats/docker-compose.bats
       export XDEBUG_MODE=off
       export COMPOSER_PROCESS_TIMEOUT=600
-      composer --working-dir=installer test -- --filter=testInstall@baseline || exit 1
-      composer --working-dir=installer test -- --filter=testInstall || composer --working-dir=installer test -- --filter=testInstall
+      composer --working-dir=tests test-fixtures || composer --working-dir=tests test-fixtures
+      composer --working-dir=installer test-baseline || exit 1
+      composer --working-dir=installer test-fixtures || composer --working-dir=installer test-fixtures
 
   update-fixtures-install:
     cmd: |

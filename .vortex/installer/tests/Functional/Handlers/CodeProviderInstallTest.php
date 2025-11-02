@@ -19,7 +19,7 @@ class CodeProviderInstallTest extends AbstractInstallTestCase {
         static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.dist.md');
-          $test->assertFileContainsString('Checklist before requesting a review', static::$sut . '/.github/PULL_REQUEST_TEMPLATE.md');
+          $test->assertFileContainsString(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.md', 'Checklist before requesting a review');
         }),
       ],
 

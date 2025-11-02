@@ -12,22 +12,23 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
-use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
@@ -127,11 +128,12 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Theme::id() => 'myproject',
       CodeProvider::id() => CodeProvider::GITHUB,
       Timezone::id() => 'UTC',
-      Services::id() => [Services::CLAMAV, Services::SOLR, Services::VALKEY],
+      Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
       Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT],
       HostingProvider::id() => HostingProvider::NONE,
+      HostingProjectName::id() => NULL,
       Webroot::id() => Webroot::WEB,
-      DeployType::id() => [DeployType::WEBHOOK],
+      DeployTypes::id() => [DeployTypes::WEBHOOK],
       ProvisionType::id() => ProvisionType::DATABASE,
       DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
       DatabaseImage::id() => NULL,
@@ -140,7 +142,6 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
-      PreserveDocsOnboarding::id() => TRUE,
       AiCodeInstructions::id() => AiCodeInstructions::NONE,
     ];
   }
@@ -156,7 +157,6 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
       PreserveDocsProject::id() => FALSE,
-      PreserveDocsOnboarding::id() => FALSE,
     ];
     return $overrides + static::getExpectedDefaults();
   }
@@ -194,13 +194,14 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Profile::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
+      ThemeCustom::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
       Tools::id() => static::TUI_DEFAULT,
       HostingProvider::id() => static::TUI_DEFAULT,
       Webroot::id() => static::TUI_DEFAULT,
-      DeployType::id() => static::TUI_DEFAULT,
+      DeployTypes::id() => static::TUI_DEFAULT,
       ProvisionType::id() => static::TUI_DEFAULT,
       DatabaseDownloadSource::id() => static::TUI_DEFAULT,
       DatabaseImage::id() => static::TUI_SKIP,
@@ -209,7 +210,6 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       AssignAuthorPr::id() => static::TUI_DEFAULT,
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
-      PreserveDocsOnboarding::id() => static::TUI_DEFAULT,
       AiCodeInstructions::id() => static::TUI_DEFAULT,
     ];
   }

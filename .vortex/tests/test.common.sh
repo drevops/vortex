@@ -37,7 +37,3 @@ bats() {
 }
 
 bats "${TEST_DIR}/bats/unit"
-bats "${TEST_DIR}/bats/e2e/env.bats"
-bats "${TEST_DIR}/bats/e2e/docker-compose.bats"
-bats "${TEST_DIR}/bats/e2e/reset.bats"
-bats "${TEST_DIR}/bats/e2e/update-vortex.bats"

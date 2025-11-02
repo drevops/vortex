@@ -10,7 +10,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DeployType;
+use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
@@ -20,7 +20,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
-use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsOnboarding;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
@@ -42,7 +41,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(DatabaseDownloadSource::class)]
 #[CoversClass(DatabaseImage::class)]
 #[CoversClass(DependencyUpdatesProvider::class)]
-#[CoversClass(DeployType::class)]
+#[CoversClass(DeployTypes::class)]
 #[CoversClass(Domain::class)]
 #[CoversClass(HostingProvider::class)]
 #[CoversClass(Internal::class)]
@@ -52,7 +51,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Name::class)]
 #[CoversClass(Org::class)]
 #[CoversClass(OrgMachineName::class)]
-#[CoversClass(PreserveDocsOnboarding::class)]
 #[CoversClass(PreserveDocsProject::class)]
 #[CoversClass(Profile::class)]
 #[CoversClass(ProvisionType::class)]
@@ -102,7 +100,7 @@ class BaselineInstallTest extends AbstractInstallTestCase {
             // Test overriding scalar value.
             PromptManager::makeEnvName(Org::id()) => 'My other custom org',
             // Test overriding array value.
-            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::VALKEY],
+            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::REDIS],
           ]);
           $test->installOptions['config'] = $config_string;
         }),

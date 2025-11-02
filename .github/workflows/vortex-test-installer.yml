@@ -17,21 +17,21 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['8.2', '8.3', '8.4']
+        php-versions: ['8.3', '8.4']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2
         with:
           php-version: ${{ matrix.php-versions }}
           coverage: pcov
           ini-values: pcov.directory=.
 
       - name: Setup Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
           node-version: 22.17.1
 
@@ -58,13 +58,14 @@ jobs:
 
       - name: Generate video for installer (not used in the final artifact)
         run: |
+          sudo apt-get update
           sudo apt install asciinema expect
           npm i -g svg-term-cli sharp-cli
           ./update-installer-video.sh
         working-directory: .vortex/docs/.utils
 
       - name: Upload coverage reports as an artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.php-versions }}
           path: .vortex/installer/.logs

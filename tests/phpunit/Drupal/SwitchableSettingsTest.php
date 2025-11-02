@@ -231,23 +231,23 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
-  // phpcs:ignore #;< SERVICE_VALKEY
+  // phpcs:ignore #;< SERVICE_REDIS
 
   /**
-   * Test Valkey settings.
+   * Test Redis settings.
    */
-  public function testValkey(): void {
+  public function testRedis(): void {
     $this->setEnvVars([
       'DRUPAL_REDIS_ENABLED' => 1,
-      'VALKEY_HOST' => 'valkey_host',
-      'VALKEY_SERVICE_PORT' => 1234,
+      'REDIS_HOST' => 'redis_host',
+      'REDIS_SERVICE_PORT' => 1234,
       'VORTEX_REDIS_EXTENSION_LOADED' => 1,
     ]);
 
     $this->requireSettingsFile();
 
     $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'valkey_host';
+    $settings['redis.connection']['host'] = 'redis_host';
     $settings['redis.connection']['port'] = 1234;
     $settings['cache']['default'] = 'cache.backend.redis';
 
@@ -255,30 +255,6 @@ class SwitchableSettingsTest extends SettingsTestCase {
     unset($this->settings['bootstrap_container_definition']);
 
     $this->assertSettingsContains($settings);
-  }
-
-  /**
-   * Test Valkey partial settings.
-   */
-  public function testValkeyPartial(): void {
-    $this->setEnvVars([
-      'DRUPAL_REDIS_ENABLED' => 1,
-      'VALKEY_HOST' => 'valkey_host',
-      'VALKEY_SERVICE_PORT' => 1234,
-      'VORTEX_REDIS_EXTENSION_LOADED' => 0,
-    ]);
-
-    $this->requireSettingsFile();
-
-    $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'valkey_host';
-    $settings['redis.connection']['port'] = 1234;
-    $no_settings['cache']['default'] = 'cache.backend.redis';
-
-    $this->assertArrayNotHasKey('bootstrap_container_definition', $this->settings);
-
-    $this->assertSettingsContains($settings);
-    $this->assertSettingsNotContains($no_settings);
   }
 
   /**
@@ -306,24 +282,22 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   /**
-   * Test Redis fallback when both VALKEY_* and REDIS_* variables are set.
+   * Test Redis settings with custom port.
    */
-  public function testRedisValkeyPrecedence(): void {
+  public function testRedisCustomPort(): void {
     $this->setEnvVars([
       'DRUPAL_REDIS_ENABLED' => 1,
-      'VALKEY_HOST' => 'valkey_host',
-      'VALKEY_SERVICE_PORT' => 1234,
-      'REDIS_HOST' => 'redis_host',
+      'REDIS_HOST' => 'custom_redis_host',
       'REDIS_SERVICE_PORT' => 6380,
       'VORTEX_REDIS_EXTENSION_LOADED' => 1,
     ]);
 
     $this->requireSettingsFile();
 
-    // VALKEY_* variables should take precedence over REDIS_* variables.
+    // Test custom Redis configuration.
     $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'valkey_host';
-    $settings['redis.connection']['port'] = 1234;
+    $settings['redis.connection']['host'] = 'custom_redis_host';
+    $settings['redis.connection']['port'] = 6380;
     $settings['cache']['default'] = 'cache.backend.redis';
 
     $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
@@ -332,7 +306,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->assertSettingsContains($settings);
   }
 
-  // phpcs:ignore #;> SERVICE_VALKEY
+  // phpcs:ignore #;> SERVICE_REDIS
 
   /**
    * Test Shield config.

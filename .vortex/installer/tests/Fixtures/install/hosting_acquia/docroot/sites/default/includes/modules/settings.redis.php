@@ -4,8 +4,8 @@
  * @file
  * Redis configuration.
  *
- * Redis module can work with Redis or Valkey services as they are
- * interchangeable. We use `DRUPAL_REDIS_` environment variables as the Drupal
+ * Redis module works with Redis services.
+ * We use `DRUPAL_REDIS_` environment variables as the Drupal
  * module name is `redis`.
  *
  * @phpcs:disable DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter
@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 // Using 'DRUPAL_REDIS_ENABLED' variable to resolve deployment concurrency:
 // Redis module needs to be enabled without the configuration below applied
-// while the Redis/Valkey service gets provisioned (deployment #1), then the
-// cache needs to be switched to Redis/Valkey with setting
+// while the Redis service gets provisioned (deployment #1), then the
+// cache needs to be switched to Redis with setting
 // 'DRUPAL_REDIS_ENABLED=1' for environments and triggering another deployment
 // (deployment #2) to get that env variable applied.
 // Once all environments were redeployed twice, the 'DRUPAL_REDIS_ENABLED=1'
@@ -28,16 +28,16 @@ declare(strict_types=1);
 // per-env variable - there will be no change in how code works).
 if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED'))) {
   // Some providers use `REDIS_`-prefixed environment variables.
-  $settings['redis.connection']['host'] = getenv('VALKEY_HOST') ?: getenv('REDIS_HOST') ?: 'valkey';
-  $settings['redis.connection']['port'] = getenv('VALKEY_SERVICE_PORT') ?: getenv('REDIS_SERVICE_PORT') ?: '6379';
+  $settings['redis.connection']['host'] = getenv('REDIS_HOST') ?: 'redis';
+  $settings['redis.connection']['port'] = getenv('REDIS_SERVICE_PORT') ?: '6379';
 
   // Customize used interface.
   $settings['redis.connection']['interface'] = 'PhpRedis';
 
   // Do not set the cache backend during installations of Drupal, but allow
-  // to override this by setting VORTEX_REDIS_EXTENSION_LOADED to non-zero.
-  // Note that Valkey uses `redis` PHP extension.
-  if ((extension_loaded('redis') && getenv('VORTEX_REDIS_EXTENSION_LOADED') === FALSE) || !empty(getenv('VORTEX_REDIS_EXTENSION_LOADED'))) {
+  // to override this by setting VORTEX_REDIS_EXTENSION_LOADED = '1'.
+  // Redis uses `redis` PHP extension.
+  if (extension_loaded('redis') || getenv('VORTEX_REDIS_EXTENSION_LOADED') === '1') {
 
     // Set Redis as the default backend for any cache bin not otherwise
     // specified.

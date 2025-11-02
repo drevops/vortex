@@ -1,9 +1,0 @@
-@@ -41,8 +41,6 @@
-   DATABASE_COLLATION: utf8mb4_general_ci
-   # Trusted host patterns.
-   DRUPAL_TRUSTED_HOSTS: ${DRUPAL_TRUSTED_HOSTS:-}
--  # Drupal theme name.
--  DRUPAL_THEME: ${DRUPAL_THEME:-}
-   # Drupal file paths.
-   DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
-   DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}

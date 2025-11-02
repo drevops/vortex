@@ -1,5 +1,4 @@
-/**
- * @file
+/*
  * YS Base module JavaScript behaviors.
  */
 
@@ -12,19 +11,19 @@
     /**
      * Counter block functionality.
      *
-     * @param {HTMLElement} context
-     *   Context element to search for counter blocks.
+     * @param {HTMLElement} context Context element to search for counter
+     *   blocks.
      */
     initCounterBlock(context) {
-      const counterBlocks = context.querySelectorAll('[data-ys-base-counter]');
+      const counterBlocks = context.querySelectorAll('[data-the-force-base-counter]');
 
       counterBlocks.forEach(function processBlock(block) {
         // Skip if already processed.
-        if (block.classList.contains('ys-base-counter-processed')) {
+        if (block.classList.contains('the-force-base-counter-processed')) {
           return;
         }
 
-        block.classList.add('ys-base-counter-processed');
+        block.classList.add('the-force-base-counter-processed');
 
         const valueElement = block.querySelector('[data-counter-value]');
         const buttons = block.querySelectorAll('[data-counter-action]');
@@ -75,8 +74,7 @@
     /**
      * Remove updated class after a delay for visual feedback.
      *
-     * @param {HTMLElement} element
-     *   The element to remove the class from.
+     * @param {HTMLElement} element The element to remove the class from.
      */
     removeUpdatedClassAfterDelay(element) {
       setTimeout(function removeUpdatedClass() {

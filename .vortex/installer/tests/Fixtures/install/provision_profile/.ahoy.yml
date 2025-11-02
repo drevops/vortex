@@ -1,4 +1,4 @@
-@@ -112,13 +112,6 @@
+@@ -111,13 +111,6 @@
      usage: Unblock user 1 and generate a one time login link.
      cmd: ahoy cli ./scripts/vortex/login.sh
  

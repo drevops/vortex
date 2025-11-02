@@ -49,10 +49,8 @@ x-environment: &default-environment
   DATABASE_COLLATION: utf8mb4_general_ci
   # Trusted host patterns.
   DRUPAL_TRUSTED_HOSTS: ${DRUPAL_TRUSTED_HOSTS:-}
-  #;< DRUPAL_THEME
   # Drupal theme name.
-  DRUPAL_THEME: ${DRUPAL_THEME:-}
-  #;> DRUPAL_THEME
+  DRUPAL_THEME: ${DRUPAL_THEME:-olivero}
   # Drupal file paths.
   DRUPAL_PUBLIC_FILES: ${DRUPAL_PUBLIC_FILES:-sites/default/files}
   DRUPAL_PRIVATE_FILES: ${DRUPAL_PRIVATE_FILES:-sites/default/files/private}
@@ -62,10 +60,10 @@ x-environment: &default-environment
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
-  #;< SERVICE_VALKEY
-  # Valkey integration flag.
+  #;< SERVICE_REDIS
+  # Redis integration flag.
   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
-  #;> SERVICE_VALKEY
+  #;> SERVICE_REDIS
 
 # The default user under which the containers should run.
 x-user: &default-user
@@ -111,6 +109,9 @@ services:
     # Mount volumes from the ssh-agent running in Pygmy to inject host SSH key into container. See https://pygmy.readthedocs.io/en/master/ssh_agent/
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+    depends_on:
+      wait-for-dependencies:
+        condition: service_completed_successfully
     user: root
     #;< HOSTING_LAGOON
     labels:
@@ -171,7 +172,7 @@ services:
       context: .
       dockerfile: .docker/database.dockerfile
       args:
-        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.8.0}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.10.0}" # Use custom database image (if defined) or fallback to standard database image.
     environment:
       <<: *default-environment
     <<: *default-user
@@ -182,30 +183,24 @@ services:
       lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> HOSTING_LAGOON
 
-  #;< SERVICE_VALKEY
-  valkey:
-    image: uselagoon/valkey-8:25.8.0
+  #;< SERVICE_REDIS
+  redis:
+    image: uselagoon/valkey-8:25.10.0
     #;< HOSTING_LAGOON
     labels:
-      lagoon.type: redis # Change to 'none' if dedicated Valkey service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
+      lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> HOSTING_LAGOON
-  #;> SERVICE_VALKEY
+  #;> SERVICE_REDIS
 
   #;< SERVICE_SOLR
   solr:
     build:
       context: .
       dockerfile: .docker/solr.dockerfile
-      args:
-        CLI_IMAGE: *cli-image
-      additional_contexts:
-        cli: "service:cli"
     environment:
       <<: *default-environment
     volumes:
       - solr:/var/solr
-    depends_on:
-      - cli
     ports:
       - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
     #;< HOSTING_LAGOON
@@ -235,7 +230,7 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:139.0
+    image: selenium/standalone-chromium:142.0
     environment:
       <<: *default-environment
     <<: *default-volumes
@@ -250,18 +245,31 @@ services:
     #;> HOSTING_LAGOON
 
   # Helper container to wait for services to become available.
-  wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:25.3.0
+  wait-for-dependencies:
+    image: drevops/docker-wait-for-dependencies:25.9.0
     depends_on:
       #;< SERVICE_CLAMAV
       - clamav
       #;> SERVICE_CLAMAV
-      - cli
       - database
-      #;< SERVICE_VALKEY
-      - valkey
-      #;> SERVICE_VALKEY
-    command: database:3306 clamav:3310 valkey:6379
+      #;< SERVICE_REDIS
+      - redis
+      #;> SERVICE_REDIS
+      #;< SERVICE_SOLR
+      - solr
+      #;> SERVICE_SOLR
+    command:
+      #;< SERVICE_CLAMAV
+      - clamav:3310
+      #;> SERVICE_CLAMAV
+      - database:3306
+      #;< SERVICE_REDIS
+      - redis:6379
+      #;> SERVICE_REDIS
+      #;< SERVICE_SOLR
+      - solr:8983
+      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+      #;> SERVICE_SOLR
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: none # Do not deploy in Lagoon.

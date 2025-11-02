@@ -5,7 +5,6 @@
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
 load ../_helper.bash
-load ../_helper.deployment.bash
 
 @test "Deployment is skipped when VORTEX_DEPLOY_SKIP=1" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -24,7 +23,7 @@ load ../_helper.deployment.bash
 }
 
 @test "Missing or Invalid VORTEX_DEPLOY_TYPES" {
-  substep "Swap to ${LOCAL_REPO_DIR}"
+  echo "Move to ${LOCAL_REPO_DIR}"
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DEPLOY_TYPES=""
@@ -73,9 +72,9 @@ load ../_helper.deployment.bash
 @test "Artifact deployment, global git username and email configured, default SSH Key" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  setup_ssh_key_fixture
-  setup_robo_fixture
-  provision_default_ssh_key
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  fixture_robo
   export VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE="git@github.com:yourorg/your-repo-destination.git"
   export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="main"
   export VORTEX_DEPLOY_ARTIFACT_SRC="dist"
@@ -97,8 +96,6 @@ load ../_helper.deployment.bash
     "@git config --global user.email #"
     "Configuring global git user email."
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
-    "Did not find fingerprint variable VORTEX_DEPLOY_SSH_FINGERPRINT."
-    "Found variable VORTEX_DEPLOY_SSH_FILE with value ${file}."
     "Using SSH key file ${file}."
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."

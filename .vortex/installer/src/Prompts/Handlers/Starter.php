@@ -93,12 +93,19 @@ DOC;
     if ($this->response == self::INSTALL_PROFILE_DRUPALCMS) {
       $cj = JsonManipulator::fromFile($this->tmpDir . '/composer.json');
 
-      $cj->addLink('require', 'drupal/cms', '^1.0', TRUE);
+      $cj->addLink('require', 'drupal/cms', '^1.2', TRUE);
       $cj->addLink('require', 'wikimedia/composer-merge-plugin', '^2.1', TRUE);
       $cj->addLink('require', 'symfony/http-client', '^6.4 || ^7.0', TRUE);
 
+      $cj->addConfigSetting('allow-plugins.composer/installers', TRUE);
+      $cj->addConfigSetting('allow-plugins.drupal/core-composer-scaffold', TRUE);
       $cj->addConfigSetting('allow-plugins.drupal/core-project-message', TRUE);
+      $cj->addConfigSetting('allow-plugins.drupal/core-recipe-unpack', TRUE);
+      $cj->addConfigSetting('allow-plugins.drupal/core-vendor-hardening', TRUE);
+      $cj->addConfigSetting('allow-plugins.php-http/discovery', TRUE);
       $cj->addConfigSetting('allow-plugins.wikimedia/composer-merge-plugin', TRUE);
+
+      $cj->addProperty('minimum-stability', 'alpha');
 
       $cj->addProperty('extra.merge-plugin.ignore-duplicates', FALSE);
       $cj->addProperty('extra.merge-plugin.merge-false', TRUE);
@@ -142,9 +149,8 @@ DOC;
     // @todo Update to use separate steps for hosting and CI/CD configuration.
     $output .= 'Setup integration with your hosting and CI/CD providers:' . PHP_EOL;
     $output .= '  See https://www.vortextemplate.com/docs/getting-started/installation';
-    $output .= PHP_EOL;
 
-    return $output;
+    return $output . PHP_EOL;
   }
 
 }

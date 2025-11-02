@@ -1,28 +1,36 @@
-@@ -149,23 +149,6 @@
-   valkey:
+@@ -152,17 +152,6 @@
+   redis:
      image: uselagoon/valkey-8:__VERSION__
  
 -  solr:
 -    build:
 -      context: .
 -      dockerfile: .docker/solr.dockerfile
--      args:
--        CLI_IMAGE: *cli-image
--      additional_contexts:
--        cli: "service:cli"
 -    environment:
 -      <<: *default-environment
 -    volumes:
 -      - solr:/var/solr
--    depends_on:
--      - cli
 -    ports:
 -      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
 -
    clamav:
      build:
        context: .
-@@ -206,7 +189,6 @@
+@@ -193,13 +182,10 @@
+       - clamav
+       - database
+       - redis
+-      - solr
+     command:
+       - clamav:3310
+       - database:3306
+       - redis:6379
+-      - solr:8983
+-      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+ 
+ networks:           ### Use external networks locally. Automatically removed in CI.
+   amazeeio-network: ### Automatically removed in CI.
+@@ -208,7 +194,6 @@
  volumes:
    app: {}
    files: {}
