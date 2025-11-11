@@ -25,6 +25,8 @@ jobs:
 
       - name: Setup PHP
         uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2
+        with:
+          php-version: 8.3
 
       - name: Check docs up-to-date
         run: |
