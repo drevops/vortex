@@ -75,7 +75,7 @@ class DeploymentTest extends FunctionalTestCase {
       'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
     ]);
 
-    $this->logSubstep('Subtest 2: Run deployment with skip flag but no per-branch skip');
+    $this->logSubstep('Subtest 2: Run deployment with ALLOW_SKIP but no skip lists');
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
       '* Started WEBHOOK deployment.',
@@ -88,39 +88,99 @@ class DeploymentTest extends FunctionalTestCase {
       'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
     ]);
 
-    $this->logSubstep('Subtest 3: Run deployment with per-branch skip flag');
+    $this->logSubstep('Subtest 3: Skip deployment for single PR');
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
-      '* Found skip variable VORTEX_DEPLOY_SKIP_BRANCH_FEATURE_TEST',
+      '* Found PR 123 in skip list.',
       '* Skipping deployment webhook.',
       '! Started WEBHOOK deployment.',
-      '! Finished WEBHOOK deployment.',
-    ], txt: 'Deployment should be skipped for feature/test branch', env: [
-      'VORTEX_DEPLOY_TYPES' => 'webhook',
-      'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
-      'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
-      'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
-      'VORTEX_DEPLOY_BRANCH' => 'feature/test',
-      'VORTEX_DEPLOY_SKIP_BRANCH_FEATURE_TEST' => '1',
-    ]);
-
-    $this->logSubstep('Subtest 4: Run deployment with per-PR skip flag');
-    $this->cmd('ahoy deploy', [
-      '* Found flag to skip a deployment.',
-      '* Found skip variable VORTEX_DEPLOY_SKIP_PR_123',
-      '* Skipping deployment webhook.',
-      '! Started WEBHOOK deployment.',
-      '! Finished WEBHOOK deployment.',
-    ], txt: 'Deployment should be skipped for PR 123', env: [
+    ], txt: 'Deployment should be skipped for single PR', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
       'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
       'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
       'VORTEX_DEPLOY_PR' => '123',
-      'VORTEX_DEPLOY_SKIP_PR_123' => '1',
+      'VORTEX_DEPLOY_SKIP_PRS' => '123',
     ]);
 
-    $this->logSubstep('Subtest 5: Run deployment without skip flag but with per-PR');
+    $this->logSubstep('Subtest 4: Skip deployment for PR in comma-separated list');
+    $this->cmd('ahoy deploy', [
+      '* Found flag to skip a deployment.',
+      '* Found PR 123 in skip list.',
+      '* Skipping deployment webhook.',
+      '! Started WEBHOOK deployment.',
+    ], txt: 'Deployment should be skipped for PR 123 in list', env: [
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
+      'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
+      'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
+      'VORTEX_DEPLOY_PR' => '123',
+      'VORTEX_DEPLOY_SKIP_PRS' => '123,456,789',
+    ]);
+
+    $this->logSubstep('Subtest 5: Allow deployment for PR not in skip list');
+    $this->cmd('ahoy deploy', [
+      '* Found flag to skip a deployment.',
+      '* Started WEBHOOK deployment.',
+      '* Finished WEBHOOK deployment.',
+      '! Found PR 999 in skip list.',
+      '! Skipping deployment webhook.',
+    ], txt: 'Deployment should proceed for PR 999 not in skip list', env: [
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
+      'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
+      'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
+      'VORTEX_DEPLOY_PR' => '999',
+      'VORTEX_DEPLOY_SKIP_PRS' => '123,456,789',
+    ]);
+
+    $this->logSubstep('Subtest 6: Skip deployment for single branch');
+    $this->cmd('ahoy deploy', [
+      '* Found flag to skip a deployment.',
+      '* Found branch feature/test in skip list.',
+      '* Skipping deployment webhook.',
+      '! Started WEBHOOK deployment.',
+    ], txt: 'Deployment should be skipped for single branch', env: [
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
+      'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
+      'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
+      'VORTEX_DEPLOY_BRANCH' => 'feature/test',
+      'VORTEX_DEPLOY_SKIP_BRANCHES' => 'feature/test',
+    ]);
+
+    $this->logSubstep('Subtest 7: Skip deployment for branch in comma-separated list');
+    $this->cmd('ahoy deploy', [
+      '* Found flag to skip a deployment.',
+      '* Found branch feature/test in skip list.',
+      '* Skipping deployment webhook.',
+      '! Started WEBHOOK deployment.',
+    ], txt: 'Deployment should be skipped for branch in list', env: [
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
+      'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
+      'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
+      'VORTEX_DEPLOY_BRANCH' => 'feature/test',
+      'VORTEX_DEPLOY_SKIP_BRANCHES' => 'feature/test,hotfix/urgent,project/experimental',
+    ]);
+
+    $this->logSubstep('Subtest 8: Allow deployment for branch not in skip list');
+    $this->cmd('ahoy deploy', [
+      '* Found flag to skip a deployment.',
+      '* Started WEBHOOK deployment.',
+      '* Finished WEBHOOK deployment.',
+      '! Found branch develop in skip list.',
+      '! Skipping deployment webhook.',
+    ], txt: 'Deployment should proceed for branch not in skip list', env: [
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
+      'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
+      'VORTEX_DEPLOY_ALLOW_SKIP' => '1',
+      'VORTEX_DEPLOY_BRANCH' => 'develop',
+      'VORTEX_DEPLOY_SKIP_BRANCHES' => 'feature/test,hotfix/urgent',
+    ]);
+
+    $this->logSubstep('Subtest 9: Run deployment without ALLOW_SKIP despite skip lists');
     $this->cmd('ahoy deploy', [
       '* Started WEBHOOK deployment.',
       '* Finished WEBHOOK deployment.',
@@ -131,7 +191,9 @@ class DeploymentTest extends FunctionalTestCase {
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
       'VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS' => '200',
       'VORTEX_DEPLOY_PR' => '123',
-      'VORTEX_DEPLOY_SKIP_PR_123' => '1',
+      'VORTEX_DEPLOY_SKIP_PRS' => '123',
+      'VORTEX_DEPLOY_BRANCH' => 'feature/test',
+      'VORTEX_DEPLOY_SKIP_BRANCHES' => 'feature/test',
     ]);
 
     $this->logStepFinish();

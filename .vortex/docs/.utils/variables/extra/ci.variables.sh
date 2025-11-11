@@ -6,6 +6,15 @@
 # Skip all deployments.
 VORTEX_DEPLOY_SKIP=
 
+# Flag to allow skipping of a deployment using additional flags.
+VORTEX_DEPLOY_ALLOW_SKIP=
+
+# Pull request numbers to skip deployment for (single value or comma-separated list).
+VORTEX_DEPLOY_SKIP_PRS=
+
+# Branch names to skip deployment for (single value or comma-separated list).
+VORTEX_DEPLOY_SKIP_BRANCHES=
+
 # Proceed with container image deployment after it was exported.
 VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=
 

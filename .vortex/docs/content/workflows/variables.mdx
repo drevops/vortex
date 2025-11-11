@@ -852,7 +852,7 @@ Flag to allow skipping of a deployment using additional flags.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/deploy.sh`
+Defined or used in: `CI config`, `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH`
 
@@ -1041,6 +1041,22 @@ Skip all deployments.
 Default value: `UNDEFINED`
 
 Defined or used in: `CI config`
+
+### `VORTEX_DEPLOY_SKIP_BRANCHES`
+
+Branch names to skip deployment for (single value or comma-separated list).
+
+Default value: `UNDEFINED`
+
+Defined or used in: `CI config`, `scripts/vortex/deploy.sh`
+
+### `VORTEX_DEPLOY_SKIP_PRS`
+
+Pull request numbers to skip deployment for (single value or comma-separated list).
+
+Default value: `UNDEFINED`
+
+Defined or used in: `CI config`, `scripts/vortex/deploy.sh`
 
 ### `VORTEX_DEPLOY_SSH_FILE`
 
