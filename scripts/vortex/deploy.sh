@@ -72,36 +72,31 @@ fi
 if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
   note "Found flag to skip a deployment."
 
-  if [ -n "${VORTEX_DEPLOY_PR}" ]; then
-    # Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_PR_<NUMBER>`
-    # variable with value set to "1", where `<NUMBER>` is a PR number name with
-    # spaces, hyphens and forward slashes replaced with underscores and then
-    # capitalised.
+  if [ -n "${VORTEX_DEPLOY_PR}" ] && [ -n "${VORTEX_DEPLOY_SKIP_PRS:-}" ]; then
+    # Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_PRS` variable
+    # with PR numbers as a single value or comma-separated list.
     #
-    # Example:
-    # For PR named 'pr-123', the variable name is $VORTEX_DEPLOY_SKIP_PR_123
-    pr_skip_var="VORTEX_DEPLOY_SKIP_PR_${VORTEX_DEPLOY_PR}"
-    if [ -n "${!pr_skip_var}" ]; then
-      note "Found skip variable ${pr_skip_var} for PR ${VORTEX_DEPLOY_PR}."
+    # Examples:
+    # VORTEX_DEPLOY_SKIP_PRS=123
+    # VORTEX_DEPLOY_SKIP_PRS=123,456,789
+    if echo ",${VORTEX_DEPLOY_SKIP_PRS}," | grep -q ",${VORTEX_DEPLOY_PR},"; then
+      note "Found PR ${VORTEX_DEPLOY_PR} in skip list."
       note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
       exit 0
     fi
   fi
 
-  if [ -n "${VORTEX_DEPLOY_BRANCH:-}" ]; then
-    # Allow skipping deployment by providing 'VORTEX_DEPLOY_SKIP_BRANCH_<SAFE_BRANCH>'
-    # variable with value set to "1", where <SAFE_BRANCH> is a branch name with
-    # spaces, hyphens and forward slashes replaced with underscores and then
-    # capitalised.
+  if [ -n "${VORTEX_DEPLOY_BRANCH:-}" ] && [ -n "${VORTEX_DEPLOY_SKIP_BRANCHES:-}" ]; then
+    # Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_BRANCHES`
+    # variable with branch names as a single value or comma-separated list.
     #
-    # Example:
-    # For 'main' branch, the variable name is $VORTEX_DEPLOY_SKIP_BRANCH_MAIN
-    # For 'feature/my complex feature-123 update' branch, the variable name
-    # is $VORTEX_DEPLOY_SKIP_BRANCH_MY_COMPLEX_FEATURE_123_UPDATE
-    safe_branch_name="$(echo "${VORTEX_DEPLOY_BRANCH}" | tr -d '\n' | tr '[:space:]' '_' | tr '-' '_' | tr '/' '_' | tr -cd '[:alnum:]_' | tr '[:lower:]' '[:upper:]')"
-    branch_skip_var="VORTEX_DEPLOY_SKIP_BRANCH_${safe_branch_name}"
-    if [ -n "${!branch_skip_var:-}" ]; then
-      note "Found skip variable ${branch_skip_var} for branch ${VORTEX_DEPLOY_BRANCH}."
+    # Branch names must match exactly as they appear in the repository.
+    #
+    # Examples:
+    # VORTEX_DEPLOY_SKIP_BRANCHES=feature/test
+    # VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental
+    if echo ",${VORTEX_DEPLOY_SKIP_BRANCHES}," | grep -qF ",${VORTEX_DEPLOY_BRANCH},"; then
+      note "Found branch ${VORTEX_DEPLOY_BRANCH} in skip list."
       note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
       exit 0
     fi

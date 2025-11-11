@@ -1,4 +1,4 @@
-@@ -369,73 +369,3 @@
+@@ -369,76 +369,3 @@
          timeout-minutes: 120 # Cancel the action after 15 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -71,4 +71,7 @@
 -          VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
 -          VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
 -          VORTEX_DEPLOY_SKIP: ${{ vars.VORTEX_DEPLOY_SKIP }}
+-          VORTEX_DEPLOY_ALLOW_SKIP: ${{ vars.VORTEX_DEPLOY_ALLOW_SKIP }}
+-          VORTEX_DEPLOY_SKIP_PRS: ${{ vars.VORTEX_DEPLOY_SKIP_PRS }}
+-          VORTEX_DEPLOY_SKIP_BRANCHES: ${{ vars.VORTEX_DEPLOY_SKIP_BRANCHES }}
 -        timeout-minutes: 30

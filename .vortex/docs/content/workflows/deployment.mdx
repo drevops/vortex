@@ -75,31 +75,45 @@ variable to `1`.
 This is especially useful in continuous integration pipelines where you may want to build and test
 without triggering a deployment.
 
-### Skipping deployments for a specific Pull Requests or branches
+### Skipping deployments for specific Pull Requests or branches
 
-To skip a specific Pull Request or branch using the `$VORTEX_DEPLOY_SKIP`
-variable, you would define additional environment variables with a specific
-naming convention in your continuous integration pipeline configuration.
+To skip specific Pull Requests or branches, set `$VORTEX_DEPLOY_ALLOW_SKIP` to `1`
+and provide lists in the following variables:
 
-Here's an example of how this can be done:
+#### Skipping specific Pull Requests
 
-#### Skipping a specific Pull Request
+Set `$VORTEX_DEPLOY_SKIP_PRS` to a single PR number or comma-separated list:
 
-   Suppose you want to skip the deployment for Pull Request number 42. You would
-   set the following environment variable:
+```bash
+# Skip a single PR
+VORTEX_DEPLOY_ALLOW_SKIP=1
+VORTEX_DEPLOY_SKIP_PRS=42
 
-   ```bash
-   VORTEX_DEPLOY_SKIP_PR_42=1
-   ```
+# Skip multiple PRs
+VORTEX_DEPLOY_ALLOW_SKIP=1
+VORTEX_DEPLOY_SKIP_PRS=42,123,456
+```
 
-#### Skipping a specific branch
+#### Skipping specific branches
 
-   Suppose you want to skip the deployment for a branch named `feature-x`. You
-   would first create a "safe" version of the branch name by replacing any
-   special characters with underscores.
+Set `$VORTEX_DEPLOY_SKIP_BRANCHES` to a single branch name or comma-separated list:
 
-   Set the following environment variable:
+```bash
+# Skip a single branch
+VORTEX_DEPLOY_ALLOW_SKIP=1
+VORTEX_DEPLOY_SKIP_BRANCHES=feature/test
 
-   ```bash
-   VORTEX_DEPLOY_SKIP_BRANCH_FEATURE_X=1
-   ```
+# Skip multiple branches
+VORTEX_DEPLOY_ALLOW_SKIP=1
+VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental
+```
+
+#### Combined usage
+
+You can use both variables together:
+
+```bash
+VORTEX_DEPLOY_ALLOW_SKIP=1
+VORTEX_DEPLOY_SKIP_PRS=42,123
+VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
+```
