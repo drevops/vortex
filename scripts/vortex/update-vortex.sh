@@ -26,7 +26,7 @@ set -eu
 # /local/path/to/vortex.git@stable               # Will auto-discover the latest stable tag from local repo.
 # /local/path/to/vortex.git@1.2.3                # Will use specific release from local repo.
 # /local/path/to/vortex.git@abcd123              # Will use specific commit from local repo.
-VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-${1:-https://github.com/drevops/vortex.git@stable}}"
+VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-https://github.com/drevops/vortex.git@stable}"
 
 # The URL of the installer script.
 VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/install}"
@@ -37,6 +37,9 @@ VORTEX_INSTALLER_URL_CACHE_BUST="${VORTEX_INSTALLER_URL_CACHE_BUST:-"$(date +%s)
 # The path to the installer script.
 # If set, this will override the VORTEX_INSTALLER_URL.
 VORTEX_INSTALLER_PATH="${VORTEX_INSTALLER_PATH:-}"
+
+# Run installer in interactive mode.
+VORTEX_INSTALLER_INTERACTIVE="${VORTEX_INSTALLER_INTERACTIVE:-0}"
 
 # ------------------------------------------------------------------------------
 
@@ -54,6 +57,14 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
+for arg in "$@"; do
+  if [ "${arg}" = "--interactive" ]; then
+    VORTEX_INSTALLER_INTERACTIVE=1
+  else
+    VORTEX_INSTALLER_TEMPLATE_REPO="${arg}"
+  fi
+done
+
 if [ -n "${VORTEX_INSTALLER_PATH}" ]; then
   note "Using installer script from local path: ${VORTEX_INSTALLER_PATH}"
   if [ ! -f "${VORTEX_INSTALLER_PATH}" ]; then
@@ -70,4 +81,8 @@ else
   fi
 fi
 
-php "${VORTEX_INSTALLER_PATH}" --no-interaction --uri="${VORTEX_INSTALLER_TEMPLATE_REPO}"
+if [ "${VORTEX_INSTALLER_INTERACTIVE}" = "0" ]; then
+  php "${VORTEX_INSTALLER_PATH}" --no-interaction --uri="${VORTEX_INSTALLER_TEMPLATE_REPO}"
+else
+  php "${VORTEX_INSTALLER_PATH}" --uri="${VORTEX_INSTALLER_TEMPLATE_REPO}"
+fi

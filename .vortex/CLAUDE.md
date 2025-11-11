@@ -807,6 +807,151 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
 - **PHPUnit workflow tests**: Slower (integration level, ~minutes)
 - **Installer tests**: Slowest (full installation simulation, ~minutes)
 
+## Shell Script Development Patterns
+
+### Script Structure Best Practices
+
+Vortex shell scripts follow a consistent structure for maintainability and clarity:
+
+**Standard Script Structure**:
+
+1. **Shebang and header comments** - Script purpose and requirements
+2. **Environment loading** - Load `.env` and `.env.local` files
+3. **Shell options** - Set `set -eu` and optional debug mode
+4. **Variable declarations** - All variables with defaults in one section
+5. **Helper functions** - Output formatters and utility functions
+6. **Pre-flight checks** - Verify required commands are available
+7. **Argument parsing** - Parse command-line arguments (modifies variables)
+8. **Main execution** - Core script logic
+
+**Example Structure**:
+
+```bash
+#!/usr/bin/env bash
+##
+# Script purpose.
+#
+# shellcheck disable=SC1090,SC1091
+
+# Environment loading.
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Variable declarations with defaults.
+VARIABLE_ONE="${VARIABLE_ONE:-default_value}"
+VARIABLE_TWO="${VARIABLE_TWO:-0}"
+
+# ------------------------------------------------------------------------------
+
+# Helper functions.
+info() { printf "[INFO] %s\n" "${1}"; }
+fail() { printf "[FAIL] %s\n" "${1}"; }
+
+# Pre-flight checks.
+for cmd in required_cmd1 required_cmd2; do command -v "${cmd}" >/dev/null || {
+  fail "Command ${cmd} is not available"
+  exit 1
+}; done
+
+# Parse arguments.
+for arg in "$@"; do
+  if [ "${arg}" = "--flag" ]; then
+    VARIABLE_TWO=1
+  else
+    VARIABLE_ONE="${arg}"
+  fi
+done
+
+# ------------------------------------------------------------------------------
+
+# Main execution.
+# ... script logic here ...
+```
+
+**Key Principles**:
+
+- **Keep variable section clean**: Declare all variables with defaults together, don't mix with argument parsing
+- **Separate concerns**: Variable declarations → Pre-flight checks → Argument parsing → Execution
+- **Consistent ordering**: Maintain the same section order across all scripts
+- **Clear boundaries**: Use separator lines (`# ----...`) between major sections
+
+### Script Development Workflow
+
+When creating or modifying shell scripts, follow this workflow to ensure code quality and documentation consistency:
+
+1. **Create/Modify Script**: Make changes to the script in `scripts/vortex/` or `scripts/custom/`
+2. **Lint Scripts**: Run `ahoy lint-scripts` from the `.vortex/` directory to check shell script quality
+3. **Update Documentation**: Run `ahoy update-docs` from the `.vortex/` directory to regenerate documentation from script variables
+4. **Lint Documentation**: Run `ahoy lint-docs` from the `.vortex/` directory to ensure documentation formatting is correct
+5. **Lint Markdown Files**: Run `ahoy lint-markdown` from the `.vortex/` directory to check all markdown files for formatting issues
+
+**Example Workflow**:
+
+```bash
+# After modifying a script, navigate to .vortex directory
+cd .vortex
+
+# Run the quality checks
+ahoy lint-scripts        # Lint all shell scripts
+ahoy update-docs         # Update documentation from script variables
+ahoy lint-docs           # Lint documentation files
+ahoy lint-markdown       # Lint markdown files (or use ahoy lint-markdown-fix to auto-fix)
+```
+
+**Important Notes**:
+
+- **Commands must be run from `.vortex/` directory**: All commands (`lint-scripts`, `update-docs`, `lint-docs`, `lint-markdown`) must be executed from the `.vortex/` directory
+- **Scripts must be linted** before committing to ensure they follow shell script best practices
+- **Documentation must be updated** whenever script variables or structure changes
+- **Documentation must be linted** to maintain consistent formatting across all docs
+- **Markdown auto-fix available**: Use `ahoy lint-markdown-fix` to automatically fix markdown formatting issues
+
+### BATS Testing with Interactive Scripts
+
+**Critical Understanding**: BATS tests mock shell commands - they don't actually execute them.
+
+When testing scripts that would normally require user interaction (e.g., running with `--no-interaction` flag omitted):
+
+**How Mocking Works**:
+
+```bash
+# In BATS test:
+create_global_command_wrapper "php"
+
+# Later in test:
+"@php installer.php --uri=https://example.com # 0"
+```
+
+This creates a mock that:
+
+- Intercepts calls to `php` command
+- Returns immediately with exit code 0
+- Never actually executes the PHP script
+- **Does not hang waiting for user input**
+
+**Implication**: Scripts with interactive modes can be safely tested without hanging, because the test mocks prevent actual execution.
+
+### Simplicity Over Complexity
+
+**Lesson**: When implementing new features, start with the simplest solution that works.
+
+**Example from `update-vortex.sh`**:
+
+- ✅ **Simple**: Two conditional branches with explicit commands
+- ❌ **Complex**: Array building, argument iteration, dynamic construction
+
+**Why Simpler is Better**:
+
+- Easier to read and understand
+- More predictable behavior
+- Better test alignment (argument order is explicit)
+- Fewer edge cases to handle
+- Faster debugging when issues occur
+
+**When to Use Complexity**: Only when you need to handle many permutations or truly dynamic argument sets. For simple binary choices (interactive vs non-interactive), conditional execution is clearer.
+
 ## Installer Development Patterns
 
 ### Code Refactoring and Performance Optimization

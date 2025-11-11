@@ -46,6 +46,7 @@ commands:
       ahoy lint-scripts
       ahoy lint-dockerfiles
       ahoy lint-docs
+      ahoy lint-markdown
 
   lint-installer:
     cmd: composer --working-dir installer lint

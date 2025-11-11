@@ -203,3 +203,51 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Script runs in interactive mode when --interactive flag is provided" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  create_global_command_wrapper "curl"
+  create_global_command_wrapper "php"
+
+  export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
+
+  declare -a STEPS=(
+    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@php installer.php --uri=https://github.com/drevops/vortex.git@stable # 0"
+    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Downloading installer to installer.php"
+  )
+
+  mocks="$(run_steps "setup")"
+  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" --interactive
+  run_steps "assert" "${mocks[@]}"
+
+  assert_success
+
+  popd >/dev/null || exit 1
+}
+
+@test "Script runs in interactive mode with custom template repository" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  create_global_command_wrapper "curl"
+  create_global_command_wrapper "php"
+
+  export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
+
+  declare -a STEPS=(
+    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@php installer.php --uri=https://github.com/custom/repo.git@main # 0"
+    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Downloading installer to installer.php"
+  )
+
+  mocks="$(run_steps "setup")"
+  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" --interactive https://github.com/custom/repo.git@main
+  run_steps "assert" "${mocks[@]}"
+
+  assert_success
+
+  popd >/dev/null || exit 1
+}
