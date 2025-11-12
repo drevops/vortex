@@ -19,7 +19,9 @@ set -eu
 # JIRA user.
 VORTEX_NOTIFY_JIRA_USER="${VORTEX_NOTIFY_JIRA_USER:-}"
 
-# JIRA token.
+# JIRA API token.
+#
+# @see https://www.vortextemplate.com/docs/workflows/notifications#jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
 # Deployment reference, such as a git SHA.

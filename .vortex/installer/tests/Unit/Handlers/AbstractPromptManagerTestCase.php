@@ -20,6 +20,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
+use DrevOps\VortexInstaller\Prompts\Handlers\NotificationChannels;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
@@ -143,6 +144,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
       AiCodeInstructions::id() => AiCodeInstructions::NONE,
+      NotificationChannels::id() => [NotificationChannels::EMAIL],
     ];
   }
 
@@ -211,6 +213,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
       AiCodeInstructions::id() => static::TUI_DEFAULT,
+      NotificationChannels::id() => static::TUI_DEFAULT,
     ];
   }
 

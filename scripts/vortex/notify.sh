@@ -16,7 +16,7 @@ set -eu
 
 # The channels of the notifications.
 #
-# Can be a combination of comma-separated values: email,newrelic,github,jira
+# Can be a combination of comma-separated values: email,slack,newrelic,github,jira,webhook
 VORTEX_NOTIFY_CHANNELS="${VORTEX_NOTIFY_CHANNELS:-email}"
 
 # The event to notify about.
@@ -57,6 +57,10 @@ fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*email*}" ]; then
   ./scripts/vortex/notify-email.sh "$@"
+fi
+
+if [ -z "${VORTEX_NOTIFY_CHANNELS##*slack*}" ]; then
+  ./scripts/vortex/notify-slack.sh "$@"
 fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*newrelic*}" ]; then

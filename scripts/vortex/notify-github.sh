@@ -20,7 +20,7 @@ set -eu
 VORTEX_NOTIFY_GITHUB_TOKEN="${VORTEX_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN-}}"
 
 # Deployment repository.
-VORTEX_NOTIFY_REPOSITORY="${VORTEX_NOTIFY_REPOSITORY:-}"
+VORTEX_NOTIFY_GITHUB_REPOSITORY="${VORTEX_NOTIFY_GITHUB_REPOSITORY:-}"
 
 # Deployment reference branch.
 VORTEX_NOTIFY_BRANCH="${VORTEX_NOTIFY_BRANCH:-}"
@@ -55,7 +55,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 }; done
 
 [ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN" && exit 1
-[ -z "${VORTEX_NOTIFY_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_REPOSITORY" && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY" && exit 1
 [ -z "${VORTEX_NOTIFY_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_BRANCH" && exit 1
 [ -z "${VORTEX_NOTIFY_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_EVENT" && exit 1
 [ -z "${VORTEX_NOTIFY_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_TYPE" && exit 1
@@ -88,7 +88,7 @@ if [ "${VORTEX_NOTIFY_EVENT}" = "pre_deployment" ]; then
     -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_REPOSITORY}/deployments" \
+    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments" \
     -d "{\"ref\":\"${VORTEX_NOTIFY_BRANCH}\", \"environment\": \"${VORTEX_NOTIFY_ENVIRONMENT_TYPE}\", \"auto_merge\": false, \"required_contexts\": []}")"
 
   deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
@@ -110,7 +110,7 @@ else
     -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_REPOSITORY}/deployments?ref=${VORTEX_NOTIFY_BRANCH}")"
+    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments?ref=${VORTEX_NOTIFY_BRANCH}")"
 
   deployment_id="$(echo "${payload}" | extract_json_first_value "id" || true)"
 
@@ -126,7 +126,7 @@ else
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
     -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_REPOSITORY}/deployments/${deployment_id}/statuses" \
+    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" \
     -s \
     -d "{\"state\":\"success\", \"environment_url\": \"${VORTEX_NOTIFY_ENVIRONMENT_URL}\"}")"
 

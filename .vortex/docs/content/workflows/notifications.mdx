@@ -5,4 +5,229 @@ sidebar_position: 4
 
 # Notifications
 
-The documentation section is still a work in progress.
+**Vortex** provides a flexible notification system that sends updates
+across multiple channels.
+
+Notifications are triggered automatically during deployment to a
+hosting environment, and can be configured to suit your team's
+communication needs.
+
+## Channels
+
+Configure notification channels in your `.env` file:
+
+```bash title=".env"
+# Enable notification channels (comma-separated list)
+VORTEX_NOTIFY_CHANNELS=email,slack,github
+```
+
+Available channels: [`email`](#email), [`github`](#github),
+[`jira`](#jira), [`newrelic`](#new-relic), [`slack`](#slack),
+[`webhook`](#webhook)
+
+## Global environment variables
+
+These variables apply to all notification channels unless overridden by
+channel-specific settings.
+
+| Variable                | Required | Default          | Location | Description                        |
+|-------------------------|----------|------------------|----------|------------------------------------|
+| `VORTEX_NOTIFY_PROJECT` | No       | `VORTEX_PROJECT` | `.env`   | Project name used in notifications |
+| `VORTEX_NOTIFY_SKIP`    | No       |                  | Hosting  | Set to `1` to skip notifications   |
+
+## Email
+
+Send deployment notification via email.
+
+### Setup
+
+1. Add `VORTEX_NOTIFY_EMAIL_FROM` variable to `.env` file with the
+   value of the email address that is allowed to be sent from your
+   hosting.
+2. Add `VORTEX_NOTIFY_EMAIL_RECIPIENTS` variable to `.env` file with a
+   list of recipients in format
+   `webmaster@your-site-domain.example|Webmaster` (comma-separated for
+   multiple recipients).
+
+### Environment variables
+
+| Variable                         | Required | Default | Location | Description                             |
+|----------------------------------|----------|---------|----------|-----------------------------------------|
+| `VORTEX_NOTIFY_EMAIL_FROM`       | **Yes**  |         | `.env`   | Email address to send notifications from|
+| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes**  |         | `.env`   | Recipients (format: `email\|name`)      |
+
+### Example
+
+**Subject:**
+
+```text
+My Project deployment notification of "main" branch
+```
+
+**Body:**
+
+```text
+## This is an automated message ##
+
+Site My Project "main" branch has been deployed at 15/01/2025
+14:30:45 UTC and is available at https://example.com.
+
+Login at: https://example.com/user/login
+```
+
+## GitHub
+
+GitHub supports deployment statuses and environment links. **Vortex** can
+automatically post deployment status to GitHub pull requests.
+
+### Setup
+
+1. [Create a GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+2. Add `VORTEX_NOTIFY_GITHUB_TOKEN` variable to your hosting
+   provider's global environment variables.
+3. Add `VORTEX_NOTIFY_GITHUB_REPOSITORY` variable to your hosting
+   provider's global environment variables.
+
+### Environment variables
+
+| Variable                          | Required | Default | Location | Description                       |
+|-----------------------------------|----------|---------|----------|-----------------------------------|
+| `VORTEX_NOTIFY_GITHUB_TOKEN`      | **Yes**  |         | Hosting  | GitHub personal access token      |
+| `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes**  |         | Hosting  | Repository in `owner/repo` format |
+
+### Example
+
+The pull request page in GitHub has information about the deployment
+status.
+
+![notification-github-before.png](/img/notification-github-before.png)
+
+After deployment succeeds, a notification is posted to GitHub. You can use a
+`View deployment` button to quickly access the deployed environment.
+
+![notification-github-after.png](/img/notification-github-after.png)
+
+## JIRA
+
+Post a deployment comment and, optionally, update issue status and
+assignee in JIRA.
+
+### Setup
+
+1. [Create a JIRA API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+2. Add `VORTEX_NOTIFY_JIRA_TOKEN` variable to your hosting provider's
+   global environment variables.
+3. Add `VORTEX_NOTIFY_JIRA_USER` variable to `.env` file.
+4. Add `VORTEX_NOTIFY_JIRA_ASSIGNEE` variable to `.env` file if you
+   would like the issue to be assigned to this user once the deployment
+   is complete.
+5. Add `VORTEX_NOTIFY_JIRA_TRANSITION` variable to `.env` file with a
+   transition name if you would like the issue to be transitioned to
+   once the deployment is complete.
+6. Optionally, modify the comment prefix by adding
+   `VORTEX_NOTIFY_JIRA_COMMENT_PREFIX` variable to `.env` file.
+
+### Environment variables
+
+| Variable                            | Required | Default                      | Location | Description                |
+|-------------------------------------|----------|------------------------------|----------|----------------------------|
+| `VORTEX_NOTIFY_JIRA_TOKEN`          | **Yes**  |                              | Hosting  | JIRA API token             |
+| `VORTEX_NOTIFY_JIRA_USER`           | **Yes**  |                              | `.env`   | JIRA user email address    |
+| `VORTEX_NOTIFY_JIRA_ASSIGNEE`       | No       |                              | `.env`   | User email to assign to    |
+| `VORTEX_NOTIFY_JIRA_TRANSITION`     | No       |                              | `.env`   | State to transition to     |
+| `VORTEX_NOTIFY_JIRA_ENDPOINT`       | No       | `https://jira.atlassian.com` | `.env`   | JIRA API endpoint          |
+| `VORTEX_NOTIFY_JIRA_COMMENT_PREFIX` | No       | `"Deployed to "`             | `.env`   | Comment prefix             |
+
+### Example
+
+**Comment posted to JIRA issue:**
+
+```text
+Deployed to https://example.com
+```
+
+The environment URL is displayed as an inline card in JIRA.
+
+## New Relic
+
+[Deployment markers](https://docs.newrelic.com/docs/apm/apm-ui-pages/events/record-deployments/)
+help you track code changes in New Relic APM by associating them with
+application performance data. **Vortex** can automatically create deployment
+markers in New Relic APM when a deployment is performed.
+
+### Setup
+
+1. [Create a New Relic API key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/).
+2. Add `VORTEX_NOTIFY_NEWRELIC_APIKEY` variable to your hosting
+   provider's global environment variables.
+3. Optionally, add other New Relic-related variables to your `.env`
+   file to customize the notification.
+
+### Environment variables
+
+| Variable                             | Required | Default                              | Location | Description                |
+|--------------------------------------|----------|--------------------------------------|----------|----------------------------|
+| `VORTEX_NOTIFY_NEWRELIC_APIKEY`      | **Yes**  |                                      | Hosting  | New Relic API key          |
+| `VORTEX_NOTIFY_NEWRELIC_PROJECT`     | No       | `VORTEX_NOTIFY_PROJECT`              | `.env`   | Project name               |
+| `VORTEX_NOTIFY_NEWRELIC_APP_NAME`    | No       | `{PROJECT}-{REF}`                    | `.env`   | Application name           |
+| `VORTEX_NOTIFY_NEWRELIC_APPID`       | No       |                                      | `.env`   | Application ID (auto)      |
+| `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | No       | `"{ref} deployed"`                   | `.env`   | Deployment description     |
+| `VORTEX_NOTIFY_NEWRELIC_CHANGELOG`   | No       | `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | `.env`   | Deployment changelog       |
+| `VORTEX_NOTIFY_NEWRELIC_USER`        | No       | `Deployment robot`                   | `.env`   | User performing deployment |
+| `VORTEX_NOTIFY_NEWRELIC_ENDPOINT`    | No       | `https://api.newrelic.com/v2`        | `.env`   | API endpoint               |
+
+### Example
+
+Deployment marker created in New Relic APM:
+
+<img src="/img/notification-newrelic.png" alt="New Relic deployment marker" width="828"/>
+
+## Slack
+
+Post deployment notification to Slack a channel.
+
+### Setup
+
+1. [Create a Slack app and Incoming Webhook](https://api.slack.com/messaging/webhooks).
+2. Add `VORTEX_NOTIFY_SLACK_WEBHOOK` variable to your hosting
+   provider's global environment variables.
+3. Optionally, add other Slack-related variables to your `.env` file to
+   customize the notification.
+
+### Environment variables
+
+| Variable                         | Required | Default                 | Location | Description                 |
+|----------------------------------|----------|-------------------------|----------|-----------------------------|
+| `VORTEX_NOTIFY_SLACK_WEBHOOK`    | **Yes**  |                         | Hosting  | Slack Incoming Webhook URL  |
+| `VORTEX_NOTIFY_SLACK_PROJECT`    | No       | `VORTEX_NOTIFY_PROJECT` | `.env`   | Project name                |
+| `VORTEX_NOTIFY_SLACK_CHANNEL`    | No       |                         | `.env`   | Target channel (overrides)  |
+| `VORTEX_NOTIFY_SLACK_USERNAME`   | No       | `Deployment Bot`        | `.env`   | Bot display name            |
+| `VORTEX_NOTIFY_SLACK_ICON_EMOJI` | No       | `:rocket:`              | `.env`   | Bot icon emoji              |
+
+### Example
+
+Notification posted to Slack channel using custom "VortexBot" Slack app:
+
+<img src="/img/notification-slack.png" alt="Slack notification" width="528"/>
+
+## Webhook
+
+Send HTTP request to an arbitrary webhook URL.
+
+### Setup
+
+1. Add `VORTEX_NOTIFY_WEBHOOK_URL` variable to your `.env` file or
+   hosting provider's global environment variables.
+2. Optionally, add other webhook-related variables to your `.env` file
+   to customize the notification.
+
+### Environment variables
+
+| Variable                                | Required | Default                          | Location          | Description             |
+|-----------------------------------------|----------|----------------------------------|-------------------|-------------------------|
+| `VORTEX_NOTIFY_WEBHOOK_URL`             | **Yes**  |                                  | `.env` or Hosting | Webhook endpoint URL    |
+| `VORTEX_NOTIFY_WEBHOOK_PROJECT`         | No       | `VORTEX_NOTIFY_PROJECT`          | Hosting           | Project name            |
+| `VORTEX_NOTIFY_WEBHOOK_METHOD`          | No       | `POST`                           | `.env`            | HTTP method             |
+| `VORTEX_NOTIFY_WEBHOOK_HEADERS`         | No       | `Content-Type: application/json` | `.env`            | Pipe-separated headers  |
+| `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`         | No       | JSON with substitution variables | `.env`            | JSON payload            |
+| `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` | No       | `200`                            | `.env`            | Expected HTTP status    |

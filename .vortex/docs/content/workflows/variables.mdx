@@ -6,8 +6,8 @@ sidebar_position: 8
 
 <!-- markdownlint-disable -->
 
-**Vortex** uses environment variables to configure workflows without code
-changes.
+**Vortex** uses environment variables to configure workflows with the need to
+change the code to alter behavior.
 
 There are two main types of variables:
 
@@ -19,6 +19,19 @@ environments.
 **Workflow Control Variables** can be changed during the project lifecycle
 to alter workflow behavior. For example, changing how deployment behaves
 or skipping a certain code branch deployment within CI.
+
+## `.env` and `.env.local` files
+
+Only required variables are listed in `.env` to keep it concise. There are
+more optional variables set in scripts with sensible defaults. These are
+documented below - add them to your `.env` file as needed to override
+the defaults.
+
+The `.env.local` file is intended to store local overrides and sensitive
+information like passwords and API keys. This file is ignored by Git
+and should not be committed to the repository. It is a good practice to
+store local overrides and sensitive information in `.env.local` to keep them
+separate from the main `.env` file.
 
 ## Override order (bottom values win)
 
@@ -1296,7 +1309,7 @@ Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-ji
 
 The channels of the notifications.
 
-A combination of comma-separated values: email,newrelic,github,jira
+A combination of comma-separated values: email,slack,newrelic,github,jira,webhook
 
 Default value: `email`
 
@@ -1370,7 +1383,7 @@ Deployment environment URL.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`, `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-jira.sh`, `scripts/vortex/notify-slack.sh`, `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_EVENT`
 
@@ -1378,15 +1391,25 @@ The event to notify about. Can be 'pre_deployment' or 'post_deployment'.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-slack.sh`, `scripts/vortex/notify.sh`
+
+### `VORTEX_NOTIFY_GITHUB_REPOSITORY`
+
+Deployment repository.
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify-github.sh`
 
 ### `VORTEX_NOTIFY_GITHUB_TOKEN`
 
-Deployment GitHub token.
+GitHub token.
 
-Default value: `${GITHUB_TOKEN}`
+@see https://www.vortextemplate.com/docs/workflows/notifications#github
 
-Defined or used in: `scripts/vortex/notify-github.sh`
+Default value: `UNDEFINED`
+
+Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-github.sh`
 
 ### `VORTEX_NOTIFY_JIRA_ASSIGNEE`
 
@@ -1416,11 +1439,13 @@ Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_TOKEN`
 
-JIRA token.
+JIRA API token.
+
+@see https://www.vortextemplate.com/docs/workflows/notifications#jira
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_TRANSITION`
 
@@ -1434,19 +1459,21 @@ Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_USER`
 
-JIRA user.
+JIRA user email.
 
-Default value: `UNDEFINED`
+Default value: `user@example.com`
 
-Defined or used in: `scripts/vortex/notify-jira.sh`
+Defined or used in: `.env`, `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APIKEY`
 
 NewRelic API key, usually of type 'USER'.
 
+@see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
+
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APPID`
 
@@ -1526,11 +1553,11 @@ Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_PROJECT`
 
-Project name to notify.
+The project to notify about.
 
-Default value: `UNDEFINED`
+Default value: `${VORTEX_PROJECT}`
 
-Defined or used in: `scripts/vortex/notify-webhook.sh`, `scripts/vortex/notify.sh`
+Defined or used in: `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_PR_NUMBER`
 
@@ -1540,7 +1567,7 @@ If set, the environment type will be set to 'pr-[`${VORTEX_NOTIFY_PR_NUMBER}`](#
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-github.sh`
+Defined or used in: `scripts/vortex/notify-github.sh`, `scripts/vortex/notify-slack.sh`
 
 ### `VORTEX_NOTIFY_REF`
 
@@ -1548,15 +1575,15 @@ Git reference to notify about.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `scripts/vortex/notify-slack.sh`, `scripts/vortex/notify-webhook.sh`
 
-### `VORTEX_NOTIFY_REPOSITORY`
+### `VORTEX_NOTIFY_SHA`
 
-Deployment repository.
+Git commit SHA.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-github.sh`
+Defined or used in: `scripts/vortex/notify-slack.sh`
 
 ### `VORTEX_NOTIFY_SKIP`
 
@@ -1565,6 +1592,46 @@ Flag to skip running of all notifications.
 Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify.sh`
+
+### `VORTEX_NOTIFY_SLACK_CHANNEL`
+
+Slack channel to post to (optional, overrides webhook default).<br/>Format: #channel-name or @username
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
+### `VORTEX_NOTIFY_SLACK_ICON_EMOJI`
+
+Slack bot icon emoji (optional).
+
+Default value: `:rocket:`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
+### `VORTEX_NOTIFY_SLACK_PROJECT`
+
+Project name to notify.
+
+Default value: `${VORTEX_NOTIFY_PROJECT}`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
+### `VORTEX_NOTIFY_SLACK_USERNAME`
+
+Slack bot username (optional).
+
+Default value: `Deployment Bot`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
+### `VORTEX_NOTIFY_SLACK_WEBHOOK`
+
+Slack webhook URL.<br/>The incoming Webhook URL from your Slack app configuration.<br/>@see https://www.vortextemplate.com/docs/workflows/notifications#slack
+
+Default value: `UNDEFINED`
+
+Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-slack.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_HEADERS`
 
@@ -1590,6 +1657,14 @@ Default value: `${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-{\"channel\": \"Channel 1\", \"
 
 Defined or used in: `scripts/vortex/notify-webhook.sh`
 
+### `VORTEX_NOTIFY_WEBHOOK_PROJECT`
+
+Project name to notify.
+
+Default value: `${VORTEX_NOTIFY_PROJECT}`
+
+Defined or used in: `scripts/vortex/notify-webhook.sh`
+
 ### `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS`
 
 The pattern of response code return by curl.
@@ -1600,11 +1675,11 @@ Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_URL`
 
-Webhook URL.
+Webhook URL to send notifications to.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `scripts/vortex/notify-webhook.sh`
+Defined or used in: `.env`, `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_PROJECT`
 
