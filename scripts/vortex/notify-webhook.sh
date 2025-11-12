@@ -10,7 +10,7 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Project name to notify.
-VORTEX_NOTIFY_PROJECT="${VORTEX_NOTIFY_PROJECT:-}"
+VORTEX_NOTIFY_WEBHOOK_PROJECT="${VORTEX_NOTIFY_WEBHOOK_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
 # Git reference to notify about.
 VORTEX_NOTIFY_REF="${VORTEX_NOTIFY_REF:-}"
@@ -50,7 +50,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
-[ -z "${VORTEX_NOTIFY_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_PROJECT" && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_PROJECT" && exit 1
 [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF" && exit 1
 [ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL" && exit 1
 [ -z "${VORTEX_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_URL" && exit 1
@@ -65,13 +65,13 @@ message='## This is an automated message ##\nSite %project% \"%ref%\" branch has
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%message%', '${message}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%timestamp%', '${timestamp}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%ref%', '${VORTEX_NOTIFY_REF}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%project%', '${VORTEX_NOTIFY_PROJECT}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
+VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%project%', '${VORTEX_NOTIFY_WEBHOOK_PROJECT}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%environment_url%', '${VORTEX_NOTIFY_ENVIRONMENT_URL}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 
 info "Started Webhook notification."
 
 info "Webhook config:"
-note "Project                               : ${VORTEX_NOTIFY_PROJECT}"
+note "Project                               : ${VORTEX_NOTIFY_WEBHOOK_PROJECT}"
 note "Ref                                   : ${VORTEX_NOTIFY_REF}"
 note "Environment url                       : ${VORTEX_NOTIFY_ENVIRONMENT_URL}"
 note "Webhook url                           : ${VORTEX_NOTIFY_WEBHOOK_URL}"

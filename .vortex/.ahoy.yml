@@ -64,7 +64,9 @@ commands:
     cmd: ./tests/lint.markdown.sh --fix
 
   lint-docs:
-    cmd: yarn --cwd=docs run lint
+    cmd: |
+      yarn --cwd=docs run lint
+      yarn --cwd=./docs run spellcheck
 
   test:
     name: Test Vortex project.

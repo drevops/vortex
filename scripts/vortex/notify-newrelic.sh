@@ -13,6 +13,8 @@ set -eu
 VORTEX_NOTIFY_NEWRELIC_PROJECT="${VORTEX_NOTIFY_NEWRELIC_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
 # NewRelic API key, usually of type 'USER'.
+#
+# @see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
 VORTEX_NOTIFY_NEWRELIC_APIKEY="${VORTEX_NOTIFY_NEWRELIC_APIKEY:-}"
 
 # Deployment reference, such as a git branch or pr.

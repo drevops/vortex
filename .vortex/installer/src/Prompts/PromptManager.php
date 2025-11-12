@@ -23,6 +23,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
+use DrevOps\VortexInstaller\Prompts\Handlers\NotificationChannels;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\PreserveDocsProject;
@@ -63,7 +64,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 26;
+  const TOTAL_RESPONSES = 27;
 
   /**
    * Array of responses.
@@ -181,6 +182,9 @@ class PromptManager {
             DatabaseImage::id()
           )
 
+      ->intro('Notifications')
+      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(NotificationChannels::class)), NotificationChannels::id())
+
       ->intro('Continuous Integration')
       ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, NULL, $r)), CiProvider::id())
 
@@ -266,6 +270,7 @@ class PromptManager {
       DatabaseImage::id(),
       DatabaseDownloadSource::id(),
       ProvisionType::id(),
+      NotificationChannels::id(),
       DeployTypes::id(),
       HostingProvider::id(),
       Tools::id(),
@@ -395,6 +400,9 @@ class PromptManager {
         $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
+
+    $values['Notifications'] = Tui::LIST_SECTION_TITLE;
+    $values['Channels'] = Converter::toList($responses[NotificationChannels::id()]);
 
     $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
     $values['CI provider'] = $responses[CiProvider::id()];
