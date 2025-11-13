@@ -207,6 +207,83 @@ describe('AsciinemaPlayer Component', () => {
     });
   });
 
+  describe('Prop Variants - Terminal Line Height', () => {
+    test('renders with default terminalLineHeight', () => {
+      const { container } = render(
+        <AsciinemaPlayer src="/fixtures/test-cast.json" />
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+    });
+
+    test('renders with custom terminalLineHeight', () => {
+      const { container } = render(
+        <AsciinemaPlayer
+          src="/fixtures/test-cast.json"
+          terminalLineHeight={1.0}
+        />
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+    });
+
+    test('renders with different terminalLineHeight values', () => {
+      const lineHeights = [1.0, 1.1, 1.2, 1.33, 1.5];
+
+      lineHeights.forEach(terminalLineHeight => {
+        const { container } = render(
+          <AsciinemaPlayer
+            src="/fixtures/test-cast.json"
+            terminalLineHeight={terminalLineHeight}
+          />
+        );
+
+        expect(container.firstChild).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Prop Variants - Terminal Font Family', () => {
+    test('renders with default terminalFontFamily', () => {
+      const { container } = render(
+        <AsciinemaPlayer src="/fixtures/test-cast.json" />
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+    });
+
+    test('renders with custom terminalFontFamily', () => {
+      const { container } = render(
+        <AsciinemaPlayer
+          src="/fixtures/test-cast.json"
+          terminalFontFamily="Monaco, monospace"
+        />
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+    });
+
+    test('renders with different terminalFontFamily values', () => {
+      const fontFamilies = [
+        'Monaco, monospace',
+        'Menlo, monospace',
+        '"Courier New", Courier, monospace',
+        'Consolas, monospace',
+      ];
+
+      fontFamilies.forEach(terminalFontFamily => {
+        const { container } = render(
+          <AsciinemaPlayer
+            src="/fixtures/test-cast.json"
+            terminalFontFamily={terminalFontFamily}
+          />
+        );
+
+        expect(container.firstChild).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('Prop Variants - Poster Options', () => {
     test('renders with npt poster format', () => {
       const { container } = render(
@@ -317,6 +394,7 @@ describe('AsciinemaPlayer Component', () => {
           preload={true}
           controls={true}
           theme="monokai"
+          terminalLineHeight={1.2}
           className="full-config-player"
           id="full-player"
         />
@@ -351,6 +429,7 @@ describe('AsciinemaPlayer Component', () => {
           preload={true}
           controls={true}
           theme="asciinema"
+          terminalLineHeight={1.0}
         />
       );
 
@@ -529,6 +608,9 @@ describe('AsciinemaPlayer Component', () => {
           preload: true,
           controls: true,
           theme: 'asciinema',
+          terminalLineHeight: 1.0,
+          terminalFontFamily:
+            'Consolas, "Courier New", Courier, "Liberation Mono", monospace',
         })
       );
     });
@@ -562,6 +644,9 @@ describe('AsciinemaPlayer Component', () => {
           preload: true,
           controls: true,
           theme: 'monokai',
+          terminalLineHeight: 1.0,
+          terminalFontFamily:
+            'Consolas, "Courier New", Courier, "Liberation Mono", monospace',
         })
       );
     });
@@ -671,6 +756,91 @@ describe('AsciinemaPlayer Component', () => {
         container.firstChild,
         expect.objectContaining({
           startAt: 60,
+        })
+      );
+    });
+
+    test('passes terminalLineHeight option to player', async () => {
+      const mockCreate = jest.fn();
+      window.AsciinemaPlayer = { create: mockCreate };
+
+      const { container } = render(
+        <AsciinemaPlayer
+          src="/fixtures/test-cast.json"
+          terminalLineHeight={1.0}
+        />
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        '/fixtures/test-cast.json',
+        container.firstChild,
+        expect.objectContaining({
+          terminalLineHeight: 1.0,
+        })
+      );
+    });
+
+    test('uses default terminalLineHeight when not specified', async () => {
+      const mockCreate = jest.fn();
+      window.AsciinemaPlayer = { create: mockCreate };
+
+      const { container } = render(
+        <AsciinemaPlayer src="/fixtures/test-cast.json" />
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        '/fixtures/test-cast.json',
+        container.firstChild,
+        expect.objectContaining({
+          terminalLineHeight: 1.0,
+          terminalFontFamily:
+            'Consolas, "Courier New", Courier, "Liberation Mono", monospace',
+        })
+      );
+    });
+
+    test('passes terminalFontFamily option to player', async () => {
+      const mockCreate = jest.fn();
+      window.AsciinemaPlayer = { create: mockCreate };
+
+      const { container } = render(
+        <AsciinemaPlayer
+          src="/fixtures/test-cast.json"
+          terminalFontFamily="Monaco, monospace"
+        />
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        '/fixtures/test-cast.json',
+        container.firstChild,
+        expect.objectContaining({
+          terminalFontFamily: 'Monaco, monospace',
+        })
+      );
+    });
+
+    test('uses default terminalFontFamily when not specified', async () => {
+      const mockCreate = jest.fn();
+      window.AsciinemaPlayer = { create: mockCreate };
+
+      const { container } = render(
+        <AsciinemaPlayer src="/fixtures/test-cast.json" />
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        '/fixtures/test-cast.json',
+        container.firstChild,
+        expect.objectContaining({
+          terminalFontFamily:
+            'Consolas, "Courier New", Courier, "Liberation Mono", monospace',
         })
       );
     });

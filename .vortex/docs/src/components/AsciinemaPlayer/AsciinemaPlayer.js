@@ -9,6 +9,8 @@ const AsciinemaPlayer = ({
   preload = true,
   controls = true,
   theme = 'asciinema',
+  terminalLineHeight = 1.0,
+  terminalFontFamily = 'Consolas, "Courier New", Courier, "Liberation Mono", monospace',
   ...props
 }) => {
   const containerRef = useRef(null);
@@ -40,6 +42,8 @@ const AsciinemaPlayer = ({
                 preload,
                 controls,
                 theme,
+                terminalLineHeight,
+                terminalFontFamily,
               };
 
               if (poster) {
@@ -62,6 +66,8 @@ const AsciinemaPlayer = ({
               preload,
               controls,
               theme,
+              terminalLineHeight,
+              terminalFontFamily,
             };
 
             if (poster) {
@@ -81,7 +87,18 @@ const AsciinemaPlayer = ({
     };
 
     loadAsciinemaPlayer();
-  }, [src, poster, startAt, autoPlay, loop, preload, controls, theme]);
+  }, [
+    src,
+    poster,
+    startAt,
+    autoPlay,
+    loop,
+    preload,
+    controls,
+    theme,
+    terminalLineHeight,
+    terminalFontFamily,
+  ]);
 
   return <div ref={containerRef} {...props} />;
 };
