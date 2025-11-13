@@ -25,12 +25,10 @@ tasks:
         name: Notify about pre-deployment.
         command: |
           if [ -n "$LAGOON_PR_NUMBER" ]; then
-            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
             export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
             export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
             export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
           else
-            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
             export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
             export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
           fi
@@ -83,12 +81,10 @@ tasks:
         name: Send deployment notifications
         command: |
           if [ -n "$LAGOON_PR_NUMBER" ]; then
-            export VORTEX_NOTIFY_REF=$LAGOON_PR_NUMBER
             export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
             export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
             export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
           else
-            export VORTEX_NOTIFY_REF=$LAGOON_GIT_BRANCH
             export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
             export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
           fi

@@ -19,27 +19,30 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Project name to notify.
+# Email notification project name.
 VORTEX_NOTIFY_EMAIL_PROJECT="${VORTEX_NOTIFY_EMAIL_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
-# Email address to send notifications from.
+# Email notification sender address.
 VORTEX_NOTIFY_EMAIL_FROM="${VORTEX_NOTIFY_EMAIL_FROM:-${DRUPAL_SITE_EMAIL:-}}"
 
-# Email address(es) to send notifications to.
+# Email notification recipients.
 #
 # Multiple names can be specified as a comma-separated list of email addresses
 # with optional names in the format "email|name".
 # Example: "to1@example.com|Jane Doe, to2@example.com|John Doe"
 VORTEX_NOTIFY_EMAIL_RECIPIENTS="${VORTEX_NOTIFY_EMAIL_RECIPIENTS:-}"
 
-# Git reference to notify about.
-VORTEX_NOTIFY_EMAIL_REF="${VORTEX_NOTIFY_EMAIL_REF:-${VORTEX_NOTIFY_REF:-}}"
+# Email notification git branch name.
+VORTEX_NOTIFY_EMAIL_BRANCH="${VORTEX_NOTIFY_EMAIL_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
 
-# Git reference to notify about.
+# Email notification pull request number.
 VORTEX_NOTIFY_EMAIL_PR_NUMBER="${VORTEX_NOTIFY_EMAIL_PR_NUMBER:-${VORTEX_NOTIFY_PR_NUMBER:-}}"
 
-# Environment URL to notify about.
+# Email notification deployment environment URL.
 VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL="${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
+
+# Email notification event type. Can be 'pre_deployment' or 'post_deployment'.
+VORTEX_NOTIFY_EMAIL_EVENT="${VORTEX_NOTIFY_EMAIL_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
 
 #-------------------------------------------------------------------------------
 
@@ -54,10 +57,16 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 [ -z "${VORTEX_NOTIFY_EMAIL_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_PROJECT." && exit 1
 [ -z "${VORTEX_NOTIFY_EMAIL_FROM}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_FROM." && exit 1
 [ -z "${VORTEX_NOTIFY_EMAIL_RECIPIENTS}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_RECIPIENTS." && exit 1
-[ -z "${VORTEX_NOTIFY_EMAIL_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_REF." && exit 1
+[ -z "${VORTEX_NOTIFY_EMAIL_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_BRANCH." && exit 1
 [ -z "${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL." && exit 1
 
 info "Started email notification."
+
+# Skip if this is a pre-deployment event (email only for post-deployment).
+if [ "${VORTEX_NOTIFY_EMAIL_EVENT}" = "pre_deployment" ]; then
+  pass "Skipping email notification for pre_deployment event."
+  exit 0
+fi
 
 has_sendmail=0
 has_mail=0
@@ -72,7 +81,7 @@ else
   exit 1
 fi
 
-ref_info="\"${VORTEX_NOTIFY_EMAIL_REF}\" branch"
+ref_info="\"${VORTEX_NOTIFY_EMAIL_BRANCH}\" branch"
 if [ -n "${VORTEX_NOTIFY_EMAIL_PR_NUMBER}" ]; then
   ref_info="\"PR-${VORTEX_NOTIFY_EMAIL_PR_NUMBER}\""
 fi

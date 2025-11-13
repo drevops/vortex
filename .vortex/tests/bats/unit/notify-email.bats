@@ -13,7 +13,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PROJECT="testproject"
   export DRUPAL_SITE_EMAIL="testproject@example.com"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe, jim@example.com"
-  export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_BRANCH="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
   assert_success
@@ -40,7 +40,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PROJECT="testproject"
   export DRUPAL_SITE_EMAIL="testproject@example.com"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe, jane@example.com|Jane Doe"
-  export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_BRANCH="develop"
   export VORTEX_NOTIFY_PR_NUMBER="123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -56,6 +56,28 @@ load ../_helper.bash
   assert_output_contains 'Site testproject "PR-123" has been deployed'
   assert_output_contains "and is available at https://develop.testproject.com."
 
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, pre_deployment skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Started email notification."
+  assert_output_contains "Skipping email notification for pre_deployment event."
+  assert_output_not_contains "Notification email(s) sent"
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1

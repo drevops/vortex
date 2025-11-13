@@ -14,21 +14,36 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# The channels of the notifications.
+# Notification channels.
 #
 # Can be a combination of comma-separated values: email,slack,newrelic,github,jira,webhook
 VORTEX_NOTIFY_CHANNELS="${VORTEX_NOTIFY_CHANNELS:-email}"
 
-# The event to notify about.
+# Notification event type.
 #
-# Can be only 'pre_deployment' or 'post_deployment'. Used internally.
+# Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_EVENT="${VORTEX_NOTIFY_EVENT:-post_deployment}"
 
-# Flag to skip running of all notifications.
+# Notification skip flag.
 VORTEX_NOTIFY_SKIP="${VORTEX_NOTIFY_SKIP:-}"
 
-# The project to notify about.
+# Notification project name.
 VORTEX_NOTIFY_PROJECT="${VORTEX_NOTIFY_PROJECT:-${VORTEX_PROJECT:-}}"
+
+# Notification git branch name.
+VORTEX_NOTIFY_BRANCH="${VORTEX_NOTIFY_BRANCH:-}"
+
+# Notification pull request number.
+VORTEX_NOTIFY_PR_NUMBER="${VORTEX_NOTIFY_PR_NUMBER:-}"
+
+# Notification git commit SHA.
+VORTEX_NOTIFY_SHA="${VORTEX_NOTIFY_SHA:-}"
+
+# Notification deployment environment URL.
+VORTEX_NOTIFY_ENVIRONMENT_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL:-}"
+
+# Notification environment type: production, uat, dev, pr.
+VORTEX_NOTIFY_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_ENVIRONMENT_TYPE:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -44,14 +59,8 @@ info "Started dispatching notifications."
 
 [ -n "${VORTEX_NOTIFY_SKIP:-}" ] && pass "Skipping dispatching notifications." && exit 0
 
-# Narrow-down the notification type based on the event.
-# @note This logic may be moved into notification scripts in the future.
-if [ "${VORTEX_NOTIFY_EVENT:-}" == "pre_deployment" ]; then
-  VORTEX_NOTIFY_CHANNELS="github"
-elif [ "${VORTEX_NOTIFY_EVENT:-}" == "post_deployment" ]; then
-  # Preserve the value.
-  true
-else
+# Validate event type (scripts will handle event-specific logic).
+if [ "${VORTEX_NOTIFY_EVENT}" != "pre_deployment" ] && [ "${VORTEX_NOTIFY_EVENT}" != "post_deployment" ]; then
   fail "Unsupported event ${VORTEX_NOTIFY_EVENT} provided." && exit 1
 fi
 

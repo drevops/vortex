@@ -19,7 +19,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_APIKEY="key1234"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
-  export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_BRANCH="develop"
   export VORTEX_NOTIFY_SHA="123456"
 
   run ./scripts/vortex/notify.sh
@@ -44,6 +44,27 @@ load ../_helper.bash
 
   assert_output_contains "Finished New Relic notification."
 
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: newrelic, pre_deployment skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_NEWRELIC_APIKEY="key1234"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="123456"
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Started New Relic notification."
+  assert_output_contains "Skipping New Relic notification for pre_deployment event."
+  assert_output_not_contains "Discovering APP id"
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1

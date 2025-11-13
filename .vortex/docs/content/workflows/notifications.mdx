@@ -30,10 +30,17 @@ Available channels: [`email`](#email), [`github`](#github),
 These variables apply to all notification channels unless overridden by
 channel-specific settings.
 
-| Variable                | Required | Default          | Location | Description                        |
-|-------------------------|----------|------------------|----------|------------------------------------|
-| `VORTEX_NOTIFY_PROJECT` | No       | `VORTEX_PROJECT` | `.env`   | Project name used in notifications |
-| `VORTEX_NOTIFY_SKIP`    | No       |                  | Hosting  | Set to `1` to skip notifications   |
+| Variable                         | Required | Default           | Location | Description                                                                       |
+|----------------------------------|----------|-------------------|----------|-----------------------------------------------------------------------------------|
+| `VORTEX_NOTIFY_CHANNELS`         | No       | `email`           | `.env`   | Notification channels (comma-separated: email,slack,newrelic,github,jira,webhook) |
+| `VORTEX_NOTIFY_PROJECT`          | No       | `VORTEX_PROJECT`  | `.env`   | Notification project name                                                         |
+| `VORTEX_NOTIFY_BRANCH`           | No       |                   | Hosting  | Notification git branch name                                                      |
+| `VORTEX_NOTIFY_PR_NUMBER`        | No       |                   | Hosting  | Notification pull request number (if applicable)                                  |
+| `VORTEX_NOTIFY_SHA`              | No       |                   | Hosting  | Notification git commit SHA                                                       |
+| `VORTEX_NOTIFY_ENVIRONMENT_URL`  | No       |                   | Hosting  | Notification deployment environment URL                                           |
+| `VORTEX_NOTIFY_ENVIRONMENT_TYPE` | No       |                   | Hosting  | Notification environment type (production, uat, dev, pr)                          |
+| `VORTEX_NOTIFY_EVENT`            | No       | `post_deployment` | Hosting  | Notification event type (pre_deployment or post_deployment)                       |
+| `VORTEX_NOTIFY_SKIP`             | No       |                   | Hosting  | Notification skip flag (set to `1` to skip notifications)                         |
 
 ## Email
 
@@ -51,10 +58,10 @@ Send deployment notification via email.
 
 ### Environment variables
 
-| Variable                         | Required | Default | Location | Description                             |
-|----------------------------------|----------|---------|----------|-----------------------------------------|
-| `VORTEX_NOTIFY_EMAIL_FROM`       | **Yes**  |         | `.env`   | Email address to send notifications from|
-| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes**  |         | `.env`   | Recipients (format: `email\|name`)      |
+| Variable                         | Required | Default | Location | Description                                           |
+|----------------------------------|----------|---------|----------|-------------------------------------------------------|
+| `VORTEX_NOTIFY_EMAIL_FROM`       | **Yes**  |         | `.env`   | Email notification sender address                     |
+| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes**  |         | `.env`   | Email notification recipients (format: `email\|name`) |
 
 ### Example
 
@@ -92,8 +99,8 @@ automatically post deployment status to GitHub pull requests.
 
 | Variable                          | Required | Default | Location | Description                       |
 |-----------------------------------|----------|---------|----------|-----------------------------------|
-| `VORTEX_NOTIFY_GITHUB_TOKEN`      | **Yes**  |         | Hosting  | GitHub personal access token      |
-| `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes**  |         | Hosting  | Repository in `owner/repo` format |
+| `VORTEX_NOTIFY_GITHUB_TOKEN`      | **Yes**  |         | Hosting  | GitHub notification personal access token |
+| `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes**  |         | Hosting  | GitHub notification repository in `owner/repo` format |
 
 ### Example
 
@@ -129,14 +136,14 @@ assignee in JIRA.
 
 ### Environment variables
 
-| Variable                            | Required | Default                      | Location | Description                |
-|-------------------------------------|----------|------------------------------|----------|----------------------------|
-| `VORTEX_NOTIFY_JIRA_TOKEN`          | **Yes**  |                              | Hosting  | JIRA API token             |
-| `VORTEX_NOTIFY_JIRA_USER`           | **Yes**  |                              | `.env`   | JIRA user email address    |
-| `VORTEX_NOTIFY_JIRA_ASSIGNEE`       | No       |                              | `.env`   | User email to assign to    |
-| `VORTEX_NOTIFY_JIRA_TRANSITION`     | No       |                              | `.env`   | State to transition to     |
-| `VORTEX_NOTIFY_JIRA_ENDPOINT`       | No       | `https://jira.atlassian.com` | `.env`   | JIRA API endpoint          |
-| `VORTEX_NOTIFY_JIRA_COMMENT_PREFIX` | No       | `"Deployed to "`             | `.env`   | Comment prefix             |
+| Variable                            | Required | Default                      | Location | Description                              |
+|-------------------------------------|----------|------------------------------|----------|------------------------------------------|
+| `VORTEX_NOTIFY_JIRA_TOKEN`          | **Yes**  |                              | Hosting  | JIRA notification API token              |
+| `VORTEX_NOTIFY_JIRA_USER`           | **Yes**  |                              | `.env`   | JIRA notification user email address     |
+| `VORTEX_NOTIFY_JIRA_ASSIGNEE`       | No       |                              | `.env`   | JIRA notification assignee email         |
+| `VORTEX_NOTIFY_JIRA_TRANSITION`     | No       |                              | `.env`   | JIRA notification state to transition to |
+| `VORTEX_NOTIFY_JIRA_ENDPOINT`       | No       | `https://jira.atlassian.com` | `.env`   | JIRA notification API endpoint           |
+| `VORTEX_NOTIFY_JIRA_COMMENT_PREFIX` | No       | `"Deployed to "`             | `.env`   | JIRA notification comment prefix         |
 
 ### Example
 
@@ -165,16 +172,16 @@ markers in New Relic APM when a deployment is performed.
 
 ### Environment variables
 
-| Variable                             | Required | Default                              | Location | Description                |
-|--------------------------------------|----------|--------------------------------------|----------|----------------------------|
-| `VORTEX_NOTIFY_NEWRELIC_APIKEY`      | **Yes**  |                                      | Hosting  | New Relic API key          |
-| `VORTEX_NOTIFY_NEWRELIC_PROJECT`     | No       | `VORTEX_NOTIFY_PROJECT`              | `.env`   | Project name               |
-| `VORTEX_NOTIFY_NEWRELIC_APP_NAME`    | No       | `{PROJECT}-{REF}`                    | `.env`   | Application name           |
-| `VORTEX_NOTIFY_NEWRELIC_APPID`       | No       |                                      | `.env`   | Application ID (auto)      |
-| `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | No       | `"{ref} deployed"`                   | `.env`   | Deployment description     |
-| `VORTEX_NOTIFY_NEWRELIC_CHANGELOG`   | No       | `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | `.env`   | Deployment changelog       |
-| `VORTEX_NOTIFY_NEWRELIC_USER`        | No       | `Deployment robot`                   | `.env`   | User performing deployment |
-| `VORTEX_NOTIFY_NEWRELIC_ENDPOINT`    | No       | `https://api.newrelic.com/v2`        | `.env`   | API endpoint               |
+| Variable                             | Required | Default                              | Location | Description                                             |
+|--------------------------------------|----------|--------------------------------------|----------|---------------------------------------------------------|
+| `VORTEX_NOTIFY_NEWRELIC_APIKEY`      | **Yes**  |                                      | Hosting  | New Relic notification API key                          |
+| `VORTEX_NOTIFY_NEWRELIC_PROJECT`     | No       | `VORTEX_NOTIFY_PROJECT`              | `.env`   | New Relic notification project name                     |
+| `VORTEX_NOTIFY_NEWRELIC_APP_NAME`    | No       | `{PROJECT}-{BRANCH}`                 | `.env`   | New Relic notification application name                 |
+| `VORTEX_NOTIFY_NEWRELIC_APPID`       | No       |                                      | `.env`   | New Relic notification application ID (auto-discovered) |
+| `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | No       | `"{branch} deployed"`                | `.env`   | New Relic notification deployment description           |
+| `VORTEX_NOTIFY_NEWRELIC_CHANGELOG`   | No       | `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | `.env`   | New Relic notification deployment changelog             |
+| `VORTEX_NOTIFY_NEWRELIC_USER`        | No       | `Deployment robot`                   | `.env`   | New Relic notification user performing deployment       |
+| `VORTEX_NOTIFY_NEWRELIC_ENDPOINT`    | No       | `https://api.newrelic.com/v2`        | `.env`   | New Relic notification API endpoint                     |
 
 ### Example
 
@@ -196,13 +203,13 @@ Post deployment notification to Slack a channel.
 
 ### Environment variables
 
-| Variable                         | Required | Default                 | Location | Description                 |
-|----------------------------------|----------|-------------------------|----------|-----------------------------|
-| `VORTEX_NOTIFY_SLACK_WEBHOOK`    | **Yes**  |                         | Hosting  | Slack Incoming Webhook URL  |
-| `VORTEX_NOTIFY_SLACK_PROJECT`    | No       | `VORTEX_NOTIFY_PROJECT` | `.env`   | Project name                |
-| `VORTEX_NOTIFY_SLACK_CHANNEL`    | No       |                         | `.env`   | Target channel (overrides)  |
-| `VORTEX_NOTIFY_SLACK_USERNAME`   | No       | `Deployment Bot`        | `.env`   | Bot display name            |
-| `VORTEX_NOTIFY_SLACK_ICON_EMOJI` | No       | `:rocket:`              | `.env`   | Bot icon emoji              |
+| Variable                         | Required | Default                 | Location | Description                                                   |
+|----------------------------------|----------|-------------------------|----------|---------------------------------------------------------------|
+| `VORTEX_NOTIFY_SLACK_WEBHOOK`    | **Yes**  |                         | Hosting  | Slack notification webhook URL                                |
+| `VORTEX_NOTIFY_SLACK_PROJECT`    | No       | `VORTEX_NOTIFY_PROJECT` | `.env`   | Slack notification project name                               |
+| `VORTEX_NOTIFY_SLACK_CHANNEL`    | No       |                         | `.env`   | Slack notification target channel (overrides webhook default) |
+| `VORTEX_NOTIFY_SLACK_USERNAME`   | No       | `Deployment Bot`        | `.env`   | Slack notification bot display name                           |
+| `VORTEX_NOTIFY_SLACK_ICON_EMOJI` | No       | `:rocket:`              | `.env`   | Slack notification bot icon emoji                             |
 
 ### Example
 
@@ -223,11 +230,11 @@ Send HTTP request to an arbitrary webhook URL.
 
 ### Environment variables
 
-| Variable                                | Required | Default                          | Location          | Description             |
-|-----------------------------------------|----------|----------------------------------|-------------------|-------------------------|
-| `VORTEX_NOTIFY_WEBHOOK_URL`             | **Yes**  |                                  | `.env` or Hosting | Webhook endpoint URL    |
-| `VORTEX_NOTIFY_WEBHOOK_PROJECT`         | No       | `VORTEX_NOTIFY_PROJECT`          | Hosting           | Project name            |
-| `VORTEX_NOTIFY_WEBHOOK_METHOD`          | No       | `POST`                           | `.env`            | HTTP method             |
-| `VORTEX_NOTIFY_WEBHOOK_HEADERS`         | No       | `Content-Type: application/json` | `.env`            | Pipe-separated headers  |
-| `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`         | No       | JSON with substitution variables | `.env`            | JSON payload            |
-| `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` | No       | `200`                            | `.env`            | Expected HTTP status    |
+| Variable                                | Required | Default                          | Location          | Description                                 |
+|-----------------------------------------|----------|----------------------------------|-------------------|---------------------------------------------|
+| `VORTEX_NOTIFY_WEBHOOK_URL`             | **Yes**  |                                  | `.env` or Hosting | Webhook notification endpoint URL           |
+| `VORTEX_NOTIFY_WEBHOOK_PROJECT`         | No       | `VORTEX_NOTIFY_PROJECT`          | Hosting           | Webhook notification project name           |
+| `VORTEX_NOTIFY_WEBHOOK_METHOD`          | No       | `POST`                           | `.env`            | Webhook notification HTTP method            |
+| `VORTEX_NOTIFY_WEBHOOK_HEADERS`         | No       | `Content-Type: application/json` | `.env`            | Webhook notification pipe-separated headers |
+| `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`         | No       | JSON with substitution variables | `.env`            | Webhook notification JSON payload           |
+| `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` | No       | `200`                            | `.env`            | Webhook notification expected HTTP status   |
