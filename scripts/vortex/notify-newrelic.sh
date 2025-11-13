@@ -9,41 +9,44 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Project name to notify.
+# New Relic notification project name.
 VORTEX_NOTIFY_NEWRELIC_PROJECT="${VORTEX_NOTIFY_NEWRELIC_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
-# NewRelic API key, usually of type 'USER'.
+# New Relic notification API key, usually of type 'USER'.
 #
 # @see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
 VORTEX_NOTIFY_NEWRELIC_APIKEY="${VORTEX_NOTIFY_NEWRELIC_APIKEY:-}"
 
-# Deployment reference, such as a git branch or pr.
-VORTEX_NOTIFY_NEWRELIC_REF="${VORTEX_NOTIFY_NEWRELIC_REF:-${VORTEX_NOTIFY_REF:-}}"
+# New Relic notification git branch name.
+VORTEX_NOTIFY_NEWRELIC_BRANCH="${VORTEX_NOTIFY_NEWRELIC_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
 
-# Deployment commit reference, such as a git SHA.
+# New Relic notification git commit SHA.
 VORTEX_NOTIFY_NEWRELIC_SHA="${VORTEX_NOTIFY_NEWRELIC_SHA:-${VORTEX_NOTIFY_SHA:-}}"
 
-# NewRelic application name as it appears in the dashboard.
-VORTEX_NOTIFY_NEWRELIC_APP_NAME="${VORTEX_NOTIFY_NEWRELIC_APP_NAME:-"${VORTEX_NOTIFY_NEWRELIC_PROJECT}-${VORTEX_NOTIFY_NEWRELIC_REF}"}"
+# New Relic notification application name as it appears in the dashboard.
+VORTEX_NOTIFY_NEWRELIC_APP_NAME="${VORTEX_NOTIFY_NEWRELIC_APP_NAME:-"${VORTEX_NOTIFY_NEWRELIC_PROJECT}-${VORTEX_NOTIFY_NEWRELIC_BRANCH}"}"
 
-# Optional NewRelic Application ID.
+# New Relic notification application ID (auto-discovered if not provided).
 #
 # Will be discovered automatically from application name if not provided.
 VORTEX_NOTIFY_NEWRELIC_APPID="${VORTEX_NOTIFY_NEWRELIC_APPID:-}"
 
-# Optional NewRelic notification description.
-VORTEX_NOTIFY_NEWRELIC_DESCRIPTION="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION:-"${VORTEX_NOTIFY_NEWRELIC_REF} deployed"}"
+# New Relic notification deployment description.
+VORTEX_NOTIFY_NEWRELIC_DESCRIPTION="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION:-"${VORTEX_NOTIFY_NEWRELIC_BRANCH} deployed"}"
 
-# Optional NewRelic notification changelog.
+# New Relic notification deployment changelog.
 #
 # Defaults to the description.
 VORTEX_NOTIFY_NEWRELIC_CHANGELOG="${VORTEX_NOTIFY_NEWRELIC_CHANGELOG:-${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}}"
 
-# Optional name of the user performing the deployment.
+# New Relic notification user performing deployment.
 VORTEX_NOTIFY_NEWRELIC_USER="${VORTEX_NOTIFY_NEWRELIC_USER:-"Deployment robot"}"
 
-# Optional NewRelic endpoint.
+# New Relic notification API endpoint.
 VORTEX_NOTIFY_NEWRELIC_ENDPOINT="${VORTEX_NOTIFY_NEWRELIC_ENDPOINT:-https://api.newrelic.com/v2}"
+
+# New Relic notification event type. Can be 'pre_deployment' or 'post_deployment'.
+VORTEX_NOTIFY_NEWRELIC_EVENT="${VORTEX_NOTIFY_NEWRELIC_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
 
 # ------------------------------------------------------------------------------
 
@@ -63,7 +66,7 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 
 [ -z "${VORTEX_NOTIFY_NEWRELIC_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_PROJECT" && exit 1
 [ -z "${VORTEX_NOTIFY_NEWRELIC_APIKEY}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_APIKEY" && exit 1
-[ -z "${VORTEX_NOTIFY_NEWRELIC_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_REF" && exit 1
+[ -z "${VORTEX_NOTIFY_NEWRELIC_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_BRANCH" && exit 1
 [ -z "${VORTEX_NOTIFY_NEWRELIC_SHA}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_SHA" && exit 1
 [ -z "${VORTEX_NOTIFY_NEWRELIC_APP_NAME}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_APP_NAME" && exit 1
 [ -z "${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_DESCRIPTION" && exit 1
@@ -71,6 +74,12 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 [ -z "${VORTEX_NOTIFY_NEWRELIC_USER}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER" && exit 1
 
 info "Started New Relic notification."
+
+# Skip if this is a pre-deployment event (New Relic only for post-deployment).
+if [ "${VORTEX_NOTIFY_NEWRELIC_EVENT}" = "pre_deployment" ]; then
+  pass "Skipping New Relic notification for pre_deployment event."
+  exit 0
+fi
 
 task "Discovering APP id by name if it was not provided."
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${VORTEX_NOTIFY_NEWRELIC_APP_NAME}" ]; then

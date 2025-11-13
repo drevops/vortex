@@ -53,3 +53,24 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: jira, pre_deployment skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="jira"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_JIRA_USER="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Started JIRA notification."
+  assert_output_contains "Skipping JIRA notification for pre_deployment event."
+  assert_output_not_contains "Extracting issue"
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}

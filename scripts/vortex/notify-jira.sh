@@ -16,34 +16,37 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# JIRA user.
+# JIRA notification user email address.
 VORTEX_NOTIFY_JIRA_USER="${VORTEX_NOTIFY_JIRA_USER:-}"
 
-# JIRA API token.
+# JIRA notification API token.
 #
 # @see https://www.vortextemplate.com/docs/workflows/notifications#jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
-# Deployment reference, such as a git SHA.
-VORTEX_NOTIFY_BRANCH="${VORTEX_NOTIFY_BRANCH:-}"
+# JIRA notification git branch name.
+VORTEX_NOTIFY_JIRA_BRANCH="${VORTEX_NOTIFY_JIRA_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
 
-# Deployment environment URL.
-VORTEX_NOTIFY_ENVIRONMENT_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL:-}"
+# JIRA notification deployment environment URL.
+VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
 
-# Deployment comment prefix.
+# JIRA notification event type. Can be 'pre_deployment' or 'post_deployment'.
+VORTEX_NOTIFY_JIRA_EVENT="${VORTEX_NOTIFY_JIRA_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
+
+# JIRA notification comment prefix.
 VORTEX_NOTIFY_JIRA_COMMENT_PREFIX="${VORTEX_NOTIFY_JIRA_COMMENT_PREFIX:-"Deployed to "}"
 
-# State to move the ticket to.
+# JIRA notification state to transition to.
 #
 # If left empty - no transition will be performed.
 VORTEX_NOTIFY_JIRA_TRANSITION="${VORTEX_NOTIFY_JIRA_TRANSITION:-}"
 
-# Assign the ticket to this account.
+# JIRA notification assignee email.
 #
 # If left empty - no assignment will be performed.
 VORTEX_NOTIFY_JIRA_ASSIGNEE="${VORTEX_NOTIFY_JIRA_ASSIGNEE:-}"
 
-# JIRA API endpoint.
+# JIRA notification API endpoint.
 VORTEX_NOTIFY_JIRA_ENDPOINT="${VORTEX_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassian.com}"
 
 # ------------------------------------------------------------------------------
@@ -63,9 +66,15 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 [ -z "${VORTEX_NOTIFY_JIRA_USER}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_USER" && exit 1
 [ -z "${VORTEX_NOTIFY_JIRA_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_TOKEN" && exit 1
-[ -z "${VORTEX_NOTIFY_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_BRANCH" && exit 1
+[ -z "${VORTEX_NOTIFY_JIRA_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_BRANCH" && exit 1
 
 info "Started JIRA notification."
+
+# Skip if this is a pre-deployment event (JIRA only processes post-deployment).
+if [ "${VORTEX_NOTIFY_JIRA_EVENT}" = "pre_deployment" ]; then
+  pass "Skipping JIRA notification for pre_deployment event."
+  exit 0
+fi
 
 #
 # Function to extract last value from JSON object passed via STDIN.
@@ -102,8 +111,8 @@ extract_issue() {
 }
 
 task "Extracting issue"
-issue="$(extract_issue "${VORTEX_NOTIFY_BRANCH}")"
-[ "${issue}" = "" ] && pass "Branch ${VORTEX_NOTIFY_BRANCH} does not contain issue number." && exit 0
+issue="$(extract_issue "${VORTEX_NOTIFY_JIRA_BRANCH}")"
+[ "${issue}" = "" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
 note "Found issue ${issue}."
 
 task "Creating API token"
@@ -126,9 +135,9 @@ echo "success"
 if [ -n "${VORTEX_NOTIFY_JIRA_COMMENT_PREFIX}" ]; then
   task "Posting a comment."
 
-  [ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL." && exit 1
+  [ -z "${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL." && exit 1
 
-  comment="[{\"type\": \"text\",\"text\": \"${VORTEX_NOTIFY_JIRA_COMMENT_PREFIX}\"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"${VORTEX_NOTIFY_ENVIRONMENT_URL}\"}}]"
+  comment="[{\"type\": \"text\",\"text\": \"${VORTEX_NOTIFY_JIRA_COMMENT_PREFIX}\"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}\"}}]"
   payload="$(curl \
     -s \
     -X POST \

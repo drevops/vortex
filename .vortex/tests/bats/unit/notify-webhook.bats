@@ -14,7 +14,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_BRANCH="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
 
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
@@ -44,7 +44,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_REF="develop"
+  export VORTEX_NOTIFY_BRANCH="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
 
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
@@ -54,6 +54,29 @@ load ../_helper.bash
 
   run ./scripts/vortex/notify.sh
   assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: webhook, pre_deployment skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="webhook"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
+  export VORTEX_NOTIFY_WEBHOOK_METHOD="POST"
+  export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
+  export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Started Webhook notification."
+  assert_output_contains "Skipping Webhook notification for pre_deployment event."
+  assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
 }

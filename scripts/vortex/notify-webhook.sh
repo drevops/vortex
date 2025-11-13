@@ -9,30 +9,33 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Project name to notify.
+# Webhook notification project name.
 VORTEX_NOTIFY_WEBHOOK_PROJECT="${VORTEX_NOTIFY_WEBHOOK_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
-# Git reference to notify about.
-VORTEX_NOTIFY_REF="${VORTEX_NOTIFY_REF:-}"
+# Webhook notification git branch name.
+VORTEX_NOTIFY_WEBHOOK_BRANCH="${VORTEX_NOTIFY_WEBHOOK_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
 
-# Deployment environment URL.
-VORTEX_NOTIFY_ENVIRONMENT_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL:-}"
+# Webhook notification deployment environment URL.
+VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL="${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
 
-# Webhook URL.
+# Webhook notification event type. Can be 'pre_deployment' or 'post_deployment'.
+VORTEX_NOTIFY_WEBHOOK_EVENT="${VORTEX_NOTIFY_WEBHOOK_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
+
+# Webhook notification endpoint URL.
 VORTEX_NOTIFY_WEBHOOK_URL="${VORTEX_NOTIFY_WEBHOOK_URL:-}"
 
-# Webhook method like POST, GET, PUT.
+# Webhook notification HTTP method like POST, GET, PUT.
 VORTEX_NOTIFY_WEBHOOK_METHOD="${VORTEX_NOTIFY_WEBHOOK_METHOD:-POST}"
 
-# Webhook headers.
+# Webhook notification pipe-separated headers.
 # Separate multiple headers with a pipe `|`.
 # Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
 VORTEX_NOTIFY_WEBHOOK_HEADERS="${VORTEX_NOTIFY_WEBHOOK_HEADERS:-Content-type: application/json}"
 
-# Webhook message body as json format.
+# Webhook notification JSON payload.
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-{\"channel\": \"Channel 1\", \"message\": \"%message%\", \"project\": \"%project%\", \"ref\": \"%ref%\", \"timestamp\": \"%timestamp%\", \"environment_url\": \"%environment_url%\"}}"
 
-# The pattern of response code return by curl.
+# Webhook notification expected HTTP status.
 VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS="${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS:-200}"
 
 # ------------------------------------------------------------------------------
@@ -51,8 +54,8 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 }; done
 
 [ -z "${VORTEX_NOTIFY_WEBHOOK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_PROJECT" && exit 1
-[ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF" && exit 1
-[ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL" && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_BRANCH" && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL" && exit 1
 [ -z "${VORTEX_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_URL" && exit 1
 [ -z "${VORTEX_NOTIFY_WEBHOOK_METHOD}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_METHOD" && exit 1
 [ -z "${VORTEX_NOTIFY_WEBHOOK_HEADERS}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_HEADERS" && exit 1
@@ -64,16 +67,22 @@ message='## This is an automated message ##\nSite %project% \"%ref%\" branch has
 
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%message%', '${message}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%timestamp%', '${timestamp}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%ref%', '${VORTEX_NOTIFY_REF}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
+VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%ref%', '${VORTEX_NOTIFY_WEBHOOK_BRANCH}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%project%', '${VORTEX_NOTIFY_WEBHOOK_PROJECT}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%environment_url%', '${VORTEX_NOTIFY_ENVIRONMENT_URL}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
+VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(php -r "echo str_replace('%environment_url%', '${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}', '${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}');")
 
 info "Started Webhook notification."
 
+# Skip if this is a pre-deployment event (webhook only for post-deployment).
+if [ "${VORTEX_NOTIFY_WEBHOOK_EVENT}" = "pre_deployment" ]; then
+  pass "Skipping Webhook notification for pre_deployment event."
+  exit 0
+fi
+
 info "Webhook config:"
 note "Project                               : ${VORTEX_NOTIFY_WEBHOOK_PROJECT}"
-note "Ref                                   : ${VORTEX_NOTIFY_REF}"
-note "Environment url                       : ${VORTEX_NOTIFY_ENVIRONMENT_URL}"
+note "Branch                                : ${VORTEX_NOTIFY_WEBHOOK_BRANCH}"
+note "Environment url                       : ${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}"
 note "Webhook url                           : ${VORTEX_NOTIFY_WEBHOOK_URL}"
 note "Webhook method                        : ${VORTEX_NOTIFY_WEBHOOK_METHOD}"
 note "Webhook headers                       : ${VORTEX_NOTIFY_WEBHOOK_HEADERS}"
