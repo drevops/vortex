@@ -138,9 +138,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt install asciinema expect
-          npm i -g svg-term-cli sharp-cli
-          ./update-installer-video.sh
-        working-directory: .vortex/docs/.utils
+          npm i -g sharp-cli
+          yarn install --frozen-lockfile
+          ./.utils/update-installer-video.sh
+        working-directory: .vortex/docs
 
       - name: Upload documentation site
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4

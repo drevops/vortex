@@ -312,11 +312,13 @@ record_installer() {
   local output_svg="${output_cast%.*}.svg"
   note "Cast file: $output_cast"
   note "SVG file: $output_svg"
+
   if [ ! -f "$output_cast" ]; then
     fail "Cast file not found for SVG conversion"
     return 1
   fi
-  if ! npx svg-term --out="$output_svg" <"$output_cast"; then
+
+  if ! node "${SCRIPT_DIR}/svg-term-render.js" "$output_cast" "$output_svg" --line-height 1.1; then
     fail "Failed to convert cast to SVG"
     return 1
   fi
@@ -326,10 +328,12 @@ record_installer() {
   local output_png="${output_cast%.*}.png"
   note "PNG file: $output_png"
   note "Extracting frame SVG"
-  if ! npx svg-term --at=1000 --out="$output_png.svg" <"$output_cast"; then
+
+  if ! node "${SCRIPT_DIR}/svg-term-render.js" "$output_cast" "$output_png.svg" --line-height 1.1 --at 1000; then
     fail "Failed to extract frame at timestamp"
     return 1
   fi
+
   note "Converting frame SVG to PNG"
   if ! npx sharp-cli -i "$output_png.svg" -o "$output_png" -f png resize 1280; then
     fail "Failed to convert frame SVG to PNG"
