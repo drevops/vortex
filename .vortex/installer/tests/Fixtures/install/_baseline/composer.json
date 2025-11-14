@@ -91,7 +91,6 @@
         "sort-packages": true
     },
     "extra": {
-        "composer-exit-on-patch-failure": true,
         "drupal-scaffold": {
             "file-mapping": {
                 "[project-root]/.editorconfig": false,

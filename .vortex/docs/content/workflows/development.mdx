@@ -217,19 +217,93 @@ To override package installation paths, modify `composer.json`:
 
 ### Patching
 
-If you need to apply patches to included dependencies, use the `composer-patches` plugin. Add the patch definition in `composer.json` under the `extra.patches` section:
+Vortex uses [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) v2.x for applying patches to Composer dependencies. Version 2.x uses git-based patching with `git apply` for better cross-platform consistency.
 
-```json
-"extra": {
-    "patches": {
-        "drupal/foobar": {
-            "Patch description": "URL or local path to patch"
+:::tip
+
+For official documentation, visit: [Composer Patches Recommended Workflows](https://docs.cweagans.net/composer-patches/usage/recommended-workflows/)
+
+:::
+
+#### Understanding `patches.lock.json`
+
+Composer Patches v2.x automatically generates a `patches.lock.json` file that contains:
+
+- Patch metadata (URLs, descriptions, target packages)
+- SHA-256 checksums for patch verification
+
+**This file must be committed to version control** (like `composer.lock`).
+
+**Benefits:**
+
+- Ensures reproducible builds across teams and CI/CD environments
+- Verifies patch integrity with checksums
+- Prevents "works on my machine" issues with patches
+- Makes the patch state explicit and trackable
+
+#### Adding a New Patch
+
+1. Define the patch in `composer.json` under `extra.patches`:
+
+    ```json
+    "extra": {
+        "patches": {
+            "drupal/foobar": {
+                "Fix for issue #123": "https://www.drupal.org/files/issues/fix-123.patch"
+            }
         }
     }
-}
-```
+    ```
 
-Run `composer update drupal/foobar` after adding patches to apply them.
+2. Regenerate `patches.lock.json`:
+
+    ```bash
+    composer patches-relock
+    ```
+
+3. Remove and reinstall patched packages:
+
+    ```bash
+    composer patches-repatch
+    ```
+
+    :::warning
+    `composer patches-repatch` removes patched dependencies from `vendor/` and reinstalls them. Ensure you have no unsaved changes in those directories.
+    :::
+
+4. Update `composer.lock`:
+
+    ```bash
+    composer update --lock
+    ```
+
+#### Removing a Patch
+
+1. Delete the patch definition from `composer.json`
+
+2. Regenerate `patches.lock.json`:
+
+    ```bash
+    composer patches-relock
+    ```
+
+3. Manually delete the affected dependency:
+
+    ```bash
+    rm -rf vendor/drupal/foobar
+    ```
+
+4. Reinstall without the patch:
+
+    ```bash
+    composer patches-repatch
+    ```
+
+5. Update `composer.lock`:
+
+    ```bash
+    composer update --lock
+    ```
 
 ## Resetting the codebase
 
