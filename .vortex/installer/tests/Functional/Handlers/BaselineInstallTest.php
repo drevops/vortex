@@ -29,7 +29,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
-use DrevOps\VortexInstaller\Utils\Downloader;
+use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use DrevOps\VortexInstaller\Utils\Tui;

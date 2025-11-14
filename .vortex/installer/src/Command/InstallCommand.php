@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Command;
 
+use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
-use DrevOps\VortexInstaller\Utils\Downloader;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;

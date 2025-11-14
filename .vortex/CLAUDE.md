@@ -1082,6 +1082,163 @@ The installer tests have been refactored to use a modular, handler-focused archi
 
 **Usage with Fixture Updates**: The `UPDATE_FIXTURES=1` mechanism works seamlessly with the new architecture, allowing systematic fixture updates across all handler test scenarios.
 
+### PHPUnit Test Organization Best Practices
+
+**File Structure Convention**: PHPUnit test files should follow a consistent organization pattern for maintainability and readability:
+
+1. **Test methods first** - The actual test methods using `#[DataProvider]` attributes
+2. **Data providers next** - Static methods that provide test data
+3. **Protected helper methods last** - Helper methods at the bottom of the file
+
+**Example Structure**:
+
+```php
+class ExampleTest extends TestCase {
+  // 1. Test Methods First
+  #[DataProvider('providerValidInput')]
+  public function testValidInput(string $input, string $expected): void {
+    // Test implementation
+  }
+
+  #[DataProvider('providerInvalidInput')]
+  public function testInvalidInput(string $input, string $expectedMessage): void {
+    // Test implementation with exception handling
+  }
+
+  // 2. Data Providers Next
+  public static function providerValidInput(): array {
+    return [
+      'case 1' => ['input' => 'value1', 'expected' => 'result1'],
+      'case 2' => ['input' => 'value2', 'expected' => 'result2'],
+    ];
+  }
+
+  public static function providerInvalidInput(): array {
+    return [
+      'invalid case' => ['input' => 'bad', 'expectedMessage' => 'Error'],
+    ];
+  }
+
+  // 3. Protected Helper Methods Last
+  protected function createTestFixture(): string {
+    // Helper implementation
+  }
+}
+```
+
+### Data Provider Patterns
+
+**Consolidating Success and Error Cases**: Use conditional exception handling to merge success and error scenarios into a single test method, significantly reducing code duplication:
+
+```php
+public static function providerTestCases(): array {
+  return [
+    'success case' => [
+      'input' => 'valid',
+      'expectedResult' => 'success',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
+    ],
+    'error case' => [
+      'input' => 'invalid',
+      'expectedResult' => NULL,
+      'expectedException' => \RuntimeException::class,
+      'expectedMessage' => 'Invalid input',
+    ],
+  ];
+}
+
+#[DataProvider('providerTestCases')]
+public function testCases(string $input, ?string $expectedResult, ?string $expectedException, ?string $expectedMessage): void {
+  if ($expectedException !== NULL) {
+    /** @var class-string<\Throwable> $expectedException */
+    $this->expectException($expectedException);
+    $this->expectExceptionMessage($expectedMessage);
+  }
+
+  $result = $this->systemUnderTest->process($input);
+
+  if ($expectedResult !== NULL) {
+    $this->assertEquals($expectedResult, $result);
+  }
+}
+```
+
+**Benefits of This Pattern**:
+
+- Eliminates duplicate test setup code
+- Makes test scenarios easier to understand and compare
+- Reduces overall test file length by 50-85%
+- Maintains clear test output with descriptive scenario names
+- Simplifies adding new test cases
+
+**When to Use**:
+
+- When multiple tests share identical setup but differ only in input/output
+- When testing both success and failure paths of the same method
+- When test scenarios can be parameterized effectively
+
+**When Not to Use**:
+
+- When tests require significantly different setup logic
+- When tests are testing fundamentally different behaviors
+- When conditional logic would make tests harder to understand
+
+### Cross-Platform File Operations in Tests
+
+**Critical**: Always use the `AlexSkrypnyk\File\File` class for file system operations in tests instead of native PHP functions. This ensures cross-platform compatibility across Windows, Linux, and macOS.
+
+**Required Import**:
+
+```php
+use AlexSkrypnyk\File\File;
+```
+
+**Test Temporary Directory**:
+
+All tests extending `UnitTestCase` have access to `self::$tmp` - a temporary directory that is automatically created before tests and cleaned up after. Always use this for test file operations instead of creating your own temporary directories.
+
+**File Operations Mapping**:
+
+| Native PHP Function | File Class Method | Purpose |
+|---------------------|-------------------|---------|
+| `mkdir($path)` | `File::mkdir($path)` | Create directory (with parents if needed) |
+| `file_put_contents($path, $content)` | `File::dump($path, $content)` | Write content to file |
+| `unlink($file)` | `File::remove($file)` | Remove file |
+| `rmdir($dir)` recursively | `File::rmdir($dir)` | Remove directory recursively |
+
+**Example Usage**:
+
+```php
+class MyTest extends UnitTestCase {
+  public function testSomething(): void {
+    // ✅ CORRECT - Cross-platform compatible using self::$tmp
+    $test_dir = self::$tmp . '/subdir_' . uniqid();
+    File::mkdir($test_dir);
+    File::dump($test_dir . '/file.txt', 'content');
+    $content = file_get_contents($test_dir . '/file.txt');
+    File::remove($test_dir . '/file.txt');
+    // No need to clean up - self::$tmp is auto-cleaned by UnitTestCase
+
+    // ❌ INCORRECT - Platform-dependent native PHP functions
+    $test_dir = sys_get_temp_dir() . '/test_' . uniqid();
+    mkdir($test_dir);
+    file_put_contents($test_dir . '/file.txt', 'content');
+    unlink($test_dir . '/file.txt');
+    rmdir($test_dir);
+  }
+}
+```
+
+**Benefits**:
+
+- **Cross-platform compatibility**: Handles path separators and permissions correctly on all OS
+- **Consistent error handling**: Throws `FileException` with clear messages
+- **Automatic cleanup**: `self::$tmp` is automatically cleaned up by UnitTestCase tearDown
+- **Better abstractions**: File class methods handle edge cases automatically
+
+**Reference**: Full File class documentation available at `.vortex/installer/vendor/alexskrypnyk/file/README.md`
+
 ## PHPUnit Helper Functions
 
 ### cmd() Function
@@ -1246,6 +1403,41 @@ $this->cmd('ahoy export-db', '! Containers are not running.', arg: $args);
 - Maintain BATS test assertion alignment with script output
 - Preserve Docker container isolation between tests
 - Use appropriate test types for different validation levels
+
+### General Coding Standards
+
+**Line Length**:
+
+- **Code**: Keep code on single lines as much as possible. There is no character limit per line for code.
+- **Comments**: Follow standard line length limits (typically 80-120 characters) for comments and documentation.
+
+**Rationale**: Code readability is enhanced by keeping logical units on single lines, while comments should be wrapped for readability.
+
+**Examples**:
+
+```php
+// ✅ GOOD - Single-line code
+throw new \RuntimeException(sprintf('Failed to download archive from: %s - %s', $url, $e->getMessage()));
+
+// ❌ AVOID - Multi-line code when not necessary
+throw new \RuntimeException(sprintf(
+  'Failed to download archive from: %s - %s',
+  $url,
+  $e->getMessage()
+));
+
+// ✅ GOOD - Wrapped comment for readability
+// This is a long comment that explains the reasoning behind the implementation
+// and should be wrapped at a reasonable character limit for easier reading
+// in various editor configurations.
+```
+
+**Exceptions**: Multi-line code is acceptable when:
+
+- Function signatures have many parameters
+- Array definitions with multiple elements
+- Chained method calls for fluent interfaces
+- Complex conditional expressions that benefit from line breaks
 
 ### Cross-System Considerations
 
