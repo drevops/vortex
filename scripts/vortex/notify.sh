@@ -4,9 +4,6 @@
 #
 # This is a router script to call relevant scripts based on type.
 #
-# Dynamic environment variables are passed from the callers.
-# Constant environment variables are expected to be set explicitly.
-#
 # shellcheck disable=SC1090,SC1091
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
@@ -30,20 +27,14 @@ VORTEX_NOTIFY_SKIP="${VORTEX_NOTIFY_SKIP:-}"
 # Notification project name.
 VORTEX_NOTIFY_PROJECT="${VORTEX_NOTIFY_PROJECT:-${VORTEX_PROJECT:-}}"
 
-# Notification git branch name.
-VORTEX_NOTIFY_BRANCH="${VORTEX_NOTIFY_BRANCH:-}"
+# Notification deployment label (branch name, PR number, or custom identifier).
+VORTEX_NOTIFY_LABEL="${VORTEX_NOTIFY_LABEL:-}"
 
-# Notification pull request number.
-VORTEX_NOTIFY_PR_NUMBER="${VORTEX_NOTIFY_PR_NUMBER:-}"
-
-# Notification git commit SHA.
-VORTEX_NOTIFY_SHA="${VORTEX_NOTIFY_SHA:-}"
-
-# Notification deployment environment URL.
+# Notification environment URL (where the site was deployed).
 VORTEX_NOTIFY_ENVIRONMENT_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL:-}"
 
-# Notification environment type: production, uat, dev, pr.
-VORTEX_NOTIFY_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_ENVIRONMENT_TYPE:-}"
+# Notification login URL (defaults to ENVIRONMENT_URL/user/login if not provided).
+VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_LOGIN_URL:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -58,6 +49,20 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Started dispatching notifications."
 
 [ -n "${VORTEX_NOTIFY_SKIP:-}" ] && pass "Skipping dispatching notifications." && exit 0
+
+# Validate required variables.
+[ -z "${VORTEX_NOTIFY_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_LABEL" && exit 1
+[ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL" && exit 1
+
+# Auto-generate LOGIN_URL if not provided.
+if [ -z "${VORTEX_NOTIFY_LOGIN_URL}" ]; then
+  VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL}/user/login"
+fi
+
+# Export variables so notification scripts can use them.
+export VORTEX_NOTIFY_LABEL
+export VORTEX_NOTIFY_ENVIRONMENT_URL
+export VORTEX_NOTIFY_LOGIN_URL
 
 # Validate event type (scripts will handle event-specific logic).
 if [ "${VORTEX_NOTIFY_EVENT}" != "pre_deployment" ] && [ "${VORTEX_NOTIFY_EVENT}" != "post_deployment" ]; then
