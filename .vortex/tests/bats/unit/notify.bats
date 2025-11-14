@@ -32,6 +32,8 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_NOTIFY_EVENT="customevent"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   run ./scripts/vortex/notify.sh
   assert_failure
 
@@ -54,8 +56,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="email,slack,github,newrelic,webhook,jira"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
-  export VORTEX_NOTIFY_SHA="abc123"
+  export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
   # Email required variables
@@ -70,13 +71,13 @@ load ../_helper.bash
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="owner/repo"
 
   # NewRelic required variables
-  export VORTEX_NOTIFY_NEWRELIC_APIKEY="test_key"
+  export VORTEX_NOTIFY_NEWRELIC_USER_KEY="test_key"
 
   # Webhook required variables
   export VORTEX_NOTIFY_WEBHOOK_URL="https://webhook.example.com"
 
   # JIRA required variables
-  export VORTEX_NOTIFY_JIRA_USER="test@example.com"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="test@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="test_token"
 
   run ./scripts/vortex/notify.sh
@@ -119,6 +120,8 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_NOTIFY_CHANNELS="customtype"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   run ./scripts/vortex/notify.sh
   assert_success
 

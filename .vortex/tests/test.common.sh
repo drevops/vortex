@@ -29,7 +29,7 @@ bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
   if [ -n "${VORTEX_DEV_TEST_COVERAGE_DIR:-}" ]; then
     mkdir -p "${VORTEX_DEV_TEST_COVERAGE_DIR}"
-    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}" --exclude-pattern=vendor,node_modules "${VORTEX_DEV_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
+    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${TEST_DIR}/bats" --exclude-pattern=vendor,node_modules "${VORTEX_DEV_TEST_COVERAGE_DIR}" "${TEST_DIR}/node_modules/.bin/bats" "$@"
   else
     "${TEST_DIR}/node_modules/.bin/bats" "$@"
   fi

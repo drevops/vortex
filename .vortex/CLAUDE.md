@@ -109,6 +109,7 @@ UPDATE_FIXTURES=1 composer test    # Update test fixtures
 - `phpunit/` - Functional tests for complete workflows
 - `bats/` - Unit tests for individual shell scripts
 - `bats/fixtures/` - Test fixtures and mock data
+- `manual/` - Manual integration tests with real external services
 
 **Commands** (from `.vortex/`):
 
@@ -120,7 +121,7 @@ cd tests && ./vendor/bin/phpunit      # Run PHPUnit workflow tests
 
 ## Testing Architecture Overview
 
-Vortex uses **three independent testing systems**, each serving different parts of the codebase:
+Vortex uses **four independent testing systems**, each serving different parts of the codebase:
 
 ### 1. Documentation Tests (.vortex/docs/)
 
@@ -177,6 +178,27 @@ Vortex uses **three independent testing systems**, each serving different parts 
 
 - **PHPUnit Functional**: End-to-end workflow testing
 - **BATS Unit**: Individual shell script testing with mocking
+
+### 4. Manual Integration Tests (.vortex/tests/manual/)
+
+**Scope**: Manual verification of notification integrations with real external services
+
+**Technology**: Bash scripts + Real service APIs (Slack, JIRA, etc.)
+
+**What it Tests**:
+
+- Actual notification message formatting in live services
+- Real API authentication and authorization
+- Service-specific rendering (Slack rich attachments, JIRA ADF)
+- End-to-end integration workflows (comment posting, issue transitions)
+
+**Test Types**:
+
+- **Manual Slack Tests**: Branch and PR deployment notifications to real Slack channels
+- **Manual JIRA Tests**: Comment creation, transitions, and assignments on real JIRA issues
+- **Authentication Verification**: API token validation and permission checks
+
+**Key Difference**: These tests use REAL services (not mocks) and require manual verification of output, complementing automated tests by validating actual service integration and message appearance.
 
 ## Template BATS Testing System (.vortex/tests/bats/)
 
@@ -304,6 +326,53 @@ bats tests/bats/unit/notify.bats
 ./test.workflow.sh      # Workflow tests
 ./lint.scripts.sh       # Shell script linting
 ```
+
+### 4. Manual Integration Tests (.vortex/tests/manual/)
+
+**Purpose**: Manually verify notification integrations with real external services
+
+**Technology**: Bash scripts that invoke actual notification endpoints
+
+**What to Test**:
+
+- Real Slack webhook message formatting and delivery
+- JIRA comment creation, issue transitions, and assignments
+- Actual service API authentication and responses
+
+**Available Scripts**:
+
+```bash
+# Slack notifications (requires SLACK_WEBHOOK_URL)
+export SLACK_WEBHOOK_URL="your-webhook-url"
+.vortex/tests/manual/try-slack-notification.sh branch    # Test branch deployment
+.vortex/tests/manual/try-slack-notification.sh pr        # Test PR deployment
+
+# JIRA notifications (requires JIRA_TOKEN)
+export JIRA_TOKEN="your-api-token"
+export JIRA_USER="your-email@example.com"                 # Optional (default: alex@drevops.com)
+export JIRA_ENDPOINT="https://your-domain.atlassian.net"  # Optional (default: https://drevops.atlassian.net)
+export JIRA_ISSUE="PROJECT-123"                           # Optional (default: DEMO-2)
+.vortex/tests/manual/try-jira-notification.sh branch      # Test branch deployment
+.vortex/tests/manual/try-jira-notification.sh pr          # Test PR deployment
+
+# JIRA authentication test (requires JIRA_TOKEN)
+export JIRA_TOKEN="your-api-token"
+.vortex/tests/manual/try-jira-auth.sh                     # Verify JIRA API access
+```
+
+**When to Use**:
+
+- During notification script refactoring to verify real output formatting
+- Before committing major notification changes
+- To debug integration issues with external services
+- After API updates to test compatibility
+
+**Important Notes**:
+
+- ⚠️ These send REAL notifications to live services (use test channels/projects)
+- 🔐 Never commit credentials to version control
+- 📚 See `.vortex/tests/manual/README.md` for comprehensive documentation
+- 🧪 Manual tests complement automated BATS tests (real services vs mocks)
 
 ## Installer Fixture System
 
@@ -710,6 +779,11 @@ Each system:
     ├── phpunit/                # Workflow functional tests
     │   ├── Functional/         # End-to-end workflow tests
     │   └── Traits/             # Shared test functionality
+    ├── manual/                 # Manual integration tests
+    │   ├── try-slack-notification.sh   # Slack webhook testing
+    │   ├── try-jira-notification.sh    # JIRA API testing
+    │   ├── try-jira-auth.sh            # JIRA authentication testing
+    │   └── README.md                   # Manual testing documentation
     ├── composer.json           # PHP dependencies for template tests
     └── [test scripts]          # Individual test executables
 ```
@@ -768,6 +842,14 @@ Each system:
 - Use `cmdFail()` for expected failures
 - Follow prefix rules: all-or-nothing for output assertions
 - Prefer named arguments for complex parameters
+
+**Manual Integration Tests**:
+
+- Use manual scripts in `.vortex/tests/manual/` when refactoring notification integrations
+- Always test with real services before updating automated BATS tests
+- Verify message formatting in actual Slack/JIRA UI, not just script output
+- Keep credentials in environment variables, never commit to version control
+- Use test channels/projects to avoid cluttering production systems
 
 ## System-Specific Troubleshooting
 
@@ -831,6 +913,41 @@ UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
 - **BATS tests**: Fast (unit level, ~seconds)
 - **PHPUnit workflow tests**: Slower (integration level, ~minutes)
 - **Installer tests**: Slowest (full installation simulation, ~minutes)
+
+### 4. Manual Integration Test Issues (.vortex/tests/manual/)
+
+**Missing Credentials**:
+
+```bash
+# Verify environment variables are set
+echo $SLACK_WEBHOOK_URL
+echo $JIRA_TOKEN
+
+# If not set, export them
+export SLACK_WEBHOOK_URL="your-webhook-url"
+export JIRA_TOKEN="your-api-token"
+```
+
+**Authentication Failures**:
+
+- Use try-jira-auth.sh to diagnose JIRA authentication issues
+- Verify API token has required permissions (comment, transition, assign)
+- Check endpoint URL format (https://domain.atlassian.net)
+- Ensure token hasn't expired or been revoked
+
+**Message Format Issues**:
+
+- Compare actual output in Slack/JIRA with expected format
+- Check for JSON encoding issues in JIRA ADF format
+- Verify URL formatting (links vs inline cards)
+- Test both branch and PR scenarios to catch conditional logic issues
+
+**Integration Failures**:
+
+- Confirm services are accessible (not blocked by firewall/VPN)
+- Verify webhook URLs are valid and not revoked
+- Check issue keys exist and are accessible by user
+- Review service-specific rate limits or quotas
 
 ## Shell Script Development Patterns
 

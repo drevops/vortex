@@ -22,19 +22,14 @@ tasks:
         shell: bash
 
     - run:
-        name: Notify about pre-deployment.
+        name: Send pre-deployment notifications
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then
-            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
-            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
-            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
-          else
-            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
-            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
-          fi
-          VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
-          VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
-          VORTEX_NOTIFY_EVENT=pre_deployment ./scripts/vortex/notify.sh || true
+          export VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT
+          export VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE
+          export VORTEX_NOTIFY_LABEL="$LAGOON_GIT_BRANCH"
+          [ -n "$LAGOON_PR_NUMBER" ] && export VORTEX_NOTIFY_LABEL="PR-${LAGOON_PR_NUMBER}"
+          export VORTEX_NOTIFY_EVENT=pre_deployment
+          ./scripts/vortex/notify.sh
         service: cli
         shell: bash
 
@@ -78,20 +73,14 @@ tasks:
         shell: bash
 
     - run:
-        name: Send deployment notifications
+        name: Send post-deployment notifications
         command: |
-          if [ -n "$LAGOON_PR_NUMBER" ]; then
-            export VORTEX_NOTIFY_SHA=${LAGOON_PR_HEAD_SHA#origin/}
-            export VORTEX_NOTIFY_BRANCH=$LAGOON_PR_HEAD_BRANCH
-            export VORTEX_NOTIFY_PR_NUMBER="${LAGOON_PR_NUMBER:-}"
-          else
-            export VORTEX_NOTIFY_SHA=$LAGOON_GIT_SHA
-            export VORTEX_NOTIFY_BRANCH=$LAGOON_GIT_BRANCH
-          fi
-          VORTEX_NOTIFY_EVENT=post_deployment \
-          VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT \
-          VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE \
-          ./scripts/vortex/notify.sh || true
+          export VORTEX_NOTIFY_PROJECT=$LAGOON_PROJECT
+          export VORTEX_NOTIFY_ENVIRONMENT_URL=$LAGOON_ROUTE
+          export VORTEX_NOTIFY_LABEL="$LAGOON_GIT_BRANCH"
+          [ -n "$LAGOON_PR_NUMBER" ] && export VORTEX_NOTIFY_LABEL="PR-${LAGOON_PR_NUMBER}"
+          export VORTEX_NOTIFY_EVENT=post_deployment
+          ./scripts/vortex/notify.sh
         service: cli
         shell: bash
 
