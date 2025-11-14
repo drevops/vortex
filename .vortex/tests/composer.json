@@ -1,6 +1,7 @@
 {
     "name": "drevops/vortex-tests",
     "description": "Test for the Vortex project",
+    "license": "GPL-2.0-or-later",
     "type": "project",
     "authors": [
         {
@@ -9,21 +10,22 @@
         }
     ],
     "require": {
-        "php": ">=8.3"
+        "php": ">=8.3",
+        "cweagans/composer-patches": "^2"
     },
     "require-dev": {
         "alexskrypnyk/file": "^0.12.0",
         "alexskrypnyk/phpunit-helpers": "^0.12.2",
-        "alexskrypnyk/shellvar": "^1.2",
-        "czproject/git-php": "^4.4",
-        "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "alexskrypnyk/shellvar": "^1.2.1",
+        "czproject/git-php": "^4.5",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.1.2",
         "drevops/phpcs-standard": "^0.2",
-        "drupal/coder": "^8.3",
-        "ergebnis/composer-normalize": "^2.47",
-        "phpstan/phpstan": "^2",
-        "phpunit/phpunit": "^12.1",
-        "rector/rector": "^2",
-        "squizlabs/php_codesniffer": "^3.12"
+        "drupal/coder": "^8.3.31",
+        "ergebnis/composer-normalize": "^2.48.2",
+        "phpstan/phpstan": "^2.1.31",
+        "phpunit/phpunit": "^12.4.2",
+        "rector/rector": "^2.2.7",
+        "squizlabs/php_codesniffer": "^3.13.4"
     },
     "minimum-stability": "alpha",
     "prefer-stable": true,
@@ -35,6 +37,7 @@
     },
     "config": {
         "allow-plugins": {
+            "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true
         },

@@ -6,7 +6,7 @@
     "require": {
         "php": ">=8.3",
         "composer/installers": "^2.3",
-        "cweagans/composer-patches": "^1.7.3",
+        "cweagans/composer-patches": "^2.0",
         "drupal/admin_toolbar": "^3.6.2",
         "drupal/clamav": "^2.1",
         "drupal/coffee": "^2.0.1",
@@ -91,7 +91,6 @@
         "sort-packages": true
     },
     "extra": {
-        "composer-exit-on-patch-failure": true,
         "drupal-scaffold": {
             "file-mapping": {
                 "[project-root]/.editorconfig": false,
