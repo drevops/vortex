@@ -30,7 +30,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutContains('VORTEX_NOTIFY_WEBHOOK_URL');
         }),
       ],
@@ -42,7 +42,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutNotContains('VORTEX_NOTIFY_WEBHOOK_URL');
         }),
       ],
@@ -54,7 +54,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutNotContains('VORTEX_NOTIFY_WEBHOOK_URL');
         }),
       ],
@@ -64,7 +64,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
           Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::JIRA], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
-          $test->assertSutContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
           $test->assertSutNotContains('VORTEX_NOTIFY_WEBHOOK_URL');
@@ -78,7 +78,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutNotContains('VORTEX_NOTIFY_WEBHOOK_URL');
         }),
       ],
@@ -90,7 +90,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutNotContains('VORTEX_NOTIFY_WEBHOOK_URL');
         }),
       ],
@@ -103,7 +103,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
           $test->assertSutContains('VORTEX_NOTIFY_WEBHOOK_URL');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
         }),
       ],
 
@@ -112,7 +112,7 @@ class NotificationChannelsInstallTest extends AbstractInstallTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
-          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER');
+          $test->assertSutNotContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
           $test->assertSutNotContains('VORTEX_NOTIFY_WEBHOOK_URL');
         }),
       ],

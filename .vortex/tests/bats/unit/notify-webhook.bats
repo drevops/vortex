@@ -14,7 +14,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
 
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
@@ -44,7 +44,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
 
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
@@ -64,7 +64,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
   export VORTEX_NOTIFY_WEBHOOK_METHOD="POST"

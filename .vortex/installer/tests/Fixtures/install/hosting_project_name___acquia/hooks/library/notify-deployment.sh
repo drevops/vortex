@@ -25,10 +25,9 @@ if [ -n "${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN}" ]; then
 fi
 
 export VORTEX_NOTIFY_PROJECT="${site}"
-export VORTEX_NOTIFY_BRANCH="${branch}"
-export VORTEX_NOTIFY_SHA="${target_env}"
+export VORTEX_NOTIFY_LABEL="${branch}"
 export VORTEX_NOTIFY_ENVIRONMENT_URL="${url}"
 
-./scripts/vortex/notify.sh || true
+./scripts/vortex/notify.sh
 
 popd >/dev/null || exit 1

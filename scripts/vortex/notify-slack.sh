@@ -14,17 +14,18 @@ set -eu
 # Slack notification project name.
 VORTEX_NOTIFY_SLACK_PROJECT="${VORTEX_NOTIFY_SLACK_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
-# Slack notification git branch name.
-VORTEX_NOTIFY_SLACK_BRANCH="${VORTEX_NOTIFY_SLACK_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
+# Slack notification deployment label (branch name, PR number, or custom identifier).
+VORTEX_NOTIFY_SLACK_LABEL="${VORTEX_NOTIFY_SLACK_LABEL:-${VORTEX_NOTIFY_LABEL:-}}"
 
-# Slack notification git commit SHA.
-VORTEX_NOTIFY_SLACK_SHA="${VORTEX_NOTIFY_SLACK_SHA:-${VORTEX_NOTIFY_SHA:-}}"
-
-# Slack notification pull request number.
-VORTEX_NOTIFY_SLACK_PR_NUMBER="${VORTEX_NOTIFY_SLACK_PR_NUMBER:-${VORTEX_NOTIFY_PR_NUMBER:-}}"
-
-# Slack notification deployment environment URL.
+# Slack notification environment URL.
 VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
+
+# Slack notification login URL.
+VORTEX_NOTIFY_SLACK_LOGIN_URL="${VORTEX_NOTIFY_SLACK_LOGIN_URL:-${VORTEX_NOTIFY_LOGIN_URL:-}}"
+
+# Slack notification message template (for fallback text).
+# Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%
+VORTEX_NOTIFY_SLACK_MESSAGE="${VORTEX_NOTIFY_SLACK_MESSAGE:-}"
 
 # Slack notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_SLACK_EVENT="${VORTEX_NOTIFY_SLACK_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
@@ -60,20 +61,32 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 }; done
 
 [ -z "${VORTEX_NOTIFY_SLACK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_PROJECT" && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_BRANCH" && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LABEL" && exit 1
 [ -z "${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL" && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LOGIN_URL" && exit 1
 [ -z "${VORTEX_NOTIFY_SLACK_WEBHOOK}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_WEBHOOK" && exit 1
 
 info "Started Slack notification."
 
-# Determine reference type and format for display.
-ref_info="\"${VORTEX_NOTIFY_SLACK_BRANCH}\" branch"
-if [ -n "${VORTEX_NOTIFY_SLACK_PR_NUMBER}" ]; then
-  ref_info="\"PR-${VORTEX_NOTIFY_SLACK_PR_NUMBER}\""
+# Set default message template if not provided.
+if [ -z "${VORTEX_NOTIFY_SLACK_MESSAGE}" ]; then
+  VORTEX_NOTIFY_SLACK_MESSAGE="## This is an automated message ##
+
+Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%.
+
+Login at: %login_url%"
 fi
 
 # Generate timestamp.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
+
+# Build fallback message by replacing tokens.
+fallback_message="${VORTEX_NOTIFY_SLACK_MESSAGE}"
+fallback_message=$(php -r "echo str_replace('%project%', '${VORTEX_NOTIFY_SLACK_PROJECT}', '${fallback_message}');")
+fallback_message=$(php -r "echo str_replace('%label%', '${VORTEX_NOTIFY_SLACK_LABEL}', '${fallback_message}');")
+fallback_message=$(php -r "echo str_replace('%timestamp%', '${timestamp}', '${fallback_message}');")
+fallback_message=$(php -r "echo str_replace('%environment_url%', '${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}', '${fallback_message}');")
+fallback_message=$(php -r "echo str_replace('%login_url%', '${VORTEX_NOTIFY_SLACK_LOGIN_URL}', '${fallback_message}');")
 
 # Determine color based on event type.
 color="good"
@@ -86,12 +99,6 @@ fi
 # Build the message title.
 title="${event_label}: ${VORTEX_NOTIFY_SLACK_PROJECT}"
 
-# Truncate SHA to 8 characters if available.
-short_sha=""
-if [ -n "${VORTEX_NOTIFY_SLACK_SHA}" ]; then
-  short_sha="${VORTEX_NOTIFY_SLACK_SHA:0:8}"
-fi
-
 # Build payload using PHP to properly escape JSON and avoid brace parsing issues.
 payload=$(php -r "
 \$data = array(
@@ -100,10 +107,10 @@ payload=$(php -r "
   'attachments' => array(
     array(
       'color' => '${color}',
-      'fallback' => '${event_label}: ${VORTEX_NOTIFY_SLACK_PROJECT} - ${VORTEX_NOTIFY_SLACK_BRANCH}',
+      'fallback' => '${fallback_message}',
       'title' => '${title}',
       'fields' => array(
-        array('title' => 'Branch', 'value' => '${VORTEX_NOTIFY_SLACK_BRANCH}', 'short' => true)
+        array('title' => 'Deployment', 'value' => '${VORTEX_NOTIFY_SLACK_LABEL}', 'short' => true)
       ),
       'footer' => 'Vortex Deployment',
       'ts' => time()
@@ -111,15 +118,8 @@ payload=$(php -r "
   )
 );
 
-if (!empty('${VORTEX_NOTIFY_SLACK_PR_NUMBER}')) {
-  \$data['attachments'][0]['fields'][] = array('title' => 'PR Number', 'value' => '#${VORTEX_NOTIFY_SLACK_PR_NUMBER}', 'short' => true);
-}
-
-if (!empty('${short_sha}')) {
-  \$data['attachments'][0]['fields'][] = array('title' => 'Commit', 'value' => '${short_sha}', 'short' => true);
-}
-
 \$data['attachments'][0]['fields'][] = array('title' => 'Environment', 'value' => '<${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}|View Site>', 'short' => true);
+\$data['attachments'][0]['fields'][] = array('title' => 'Login', 'value' => '<${VORTEX_NOTIFY_SLACK_LOGIN_URL}|Login Here>', 'short' => true);
 \$data['attachments'][0]['fields'][] = array('title' => 'Time', 'value' => '${timestamp}', 'short' => true);
 
 if (!empty('${VORTEX_NOTIFY_SLACK_CHANNEL}')) {
@@ -128,6 +128,19 @@ if (!empty('${VORTEX_NOTIFY_SLACK_CHANNEL}')) {
 
 echo json_encode(\$data, JSON_UNESCAPED_SLASHES);
 ")
+
+# Extract webhook domain for display (hide secret path).
+webhook_domain=$(echo "${VORTEX_NOTIFY_SLACK_WEBHOOK}" | sed -E 's|(https?://[^/]+).*|\1|')
+
+info "Slack notification summary:"
+note "Project        : ${VORTEX_NOTIFY_SLACK_PROJECT}"
+note "Deployment     : ${VORTEX_NOTIFY_SLACK_LABEL}"
+note "Environment URL: ${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}"
+note "Login URL      : ${VORTEX_NOTIFY_SLACK_LOGIN_URL}"
+note "Webhook        : ${webhook_domain}/***"
+note "Channel        : ${VORTEX_NOTIFY_SLACK_CHANNEL:-<default>}"
+note "Username       : ${VORTEX_NOTIFY_SLACK_USERNAME}"
+note "Event          : ${event_label}"
 
 # Send notification to Slack.
 response=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -143,7 +156,7 @@ fi
 
 note "Notification sent to Slack."
 note "Project: ${VORTEX_NOTIFY_SLACK_PROJECT}"
-note "Reference: ${ref_info}"
-note "Environment: ${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}"
+note "Deployment: ${VORTEX_NOTIFY_SLACK_LABEL}"
+note "Environment URL: ${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}"
 
 pass "Finished Slack notification."
