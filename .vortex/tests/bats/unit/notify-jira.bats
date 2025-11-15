@@ -24,7 +24,7 @@ load ../_helper.bash
     "Creating API token"
     "@curl -s -X GET -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json https://jira.atlassian.com/rest/api/3/myself # {\"accountId\": \"${account_id}\", \"othervar\": \"54321\"}"
     "Posting a comment."
-    "@curl -s -X POST -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/comment --data {\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": [{\"type\": \"text\",\"text\": \"Deployed to \"},{\"type\": \"inlineCard\",\"attrs\": {\"url\": \"https://develop.testproject.com\"}}]}]}} # {\"id\": \"${comment_id}\", \"othervar\": \"54321\"}"
+    "@curl * # {\"id\": \"${comment_id}\", \"othervar\": \"54321\"}"
     "Posted comment with ID ${comment_id}."
     "Transitioning issue to QA"
     "Discovering transition ID for QA"
@@ -40,12 +40,14 @@ load ../_helper.bash
   mocks="$(run_steps "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="jira"
-  export VORTEX_NOTIFY_JIRA_USER="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
-  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
   export VORTEX_NOTIFY_JIRA_TRANSITION="QA"
-  export VORTEX_NOTIFY_JIRA_ASSIGNEE="jane.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL="jane.doe@example.com"
   run ./scripts/vortex/notify.sh
   assert_success
 
@@ -59,9 +61,10 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="jira"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
-  export VORTEX_NOTIFY_JIRA_USER="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
-  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
   assert_success

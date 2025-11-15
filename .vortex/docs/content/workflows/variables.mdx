@@ -1297,14 +1297,6 @@ Default value: `example-site.docker.amazee.io`
 
 Defined or used in: `.env.local.example`, `scripts/vortex/info.sh`
 
-### `VORTEX_NOTIFY_BRANCH`
-
-Notification git branch name.
-
-Default value: `UNDEFINED`
-
-Defined or used in: `scripts/vortex/notify.sh`
-
 ### `VORTEX_NOTIFY_CHANNELS`
 
 The channels of the notifications.
@@ -1315,17 +1307,9 @@ Default value: `email`
 
 Defined or used in: `.env`, `scripts/vortex/notify.sh`
 
-### `VORTEX_NOTIFY_EMAIL_BRANCH`
-
-Email notification git branch name.
-
-Default value: `${VORTEX_NOTIFY_BRANCH}`
-
-Defined or used in: `scripts/vortex/notify-email.sh`
-
 ### `VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL`
 
-Email notification deployment environment URL.
+Email notification environment URL.
 
 Default value: `${VORTEX_NOTIFY_ENVIRONMENT_URL}`
 
@@ -1349,19 +1333,35 @@ Default value: `webmaster@your-site-domain.example`
 
 Defined or used in: `.env`, `scripts/vortex/notify-email.sh`
 
+### `VORTEX_NOTIFY_EMAIL_LABEL`
+
+Email notification deployment label (branch name, PR number, or custom identifier).
+
+Default value: `${VORTEX_NOTIFY_LABEL}`
+
+Defined or used in: `scripts/vortex/notify-email.sh`
+
+### `VORTEX_NOTIFY_EMAIL_LOGIN_URL`
+
+Email notification login URL.
+
+Default value: `${VORTEX_NOTIFY_LOGIN_URL}`
+
+Defined or used in: `scripts/vortex/notify-email.sh`
+
+### `VORTEX_NOTIFY_EMAIL_MESSAGE`
+
+Email notification message template.<br/>Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify-email.sh`
+
 ### `VORTEX_NOTIFY_EMAIL_PROJECT`
 
 Email notification project name.
 
 Default value: `${VORTEX_NOTIFY_PROJECT}`
-
-Defined or used in: `scripts/vortex/notify-email.sh`
-
-### `VORTEX_NOTIFY_EMAIL_PR_NUMBER`
-
-Email notification pull request number.
-
-Default value: `${VORTEX_NOTIFY_PR_NUMBER}`
 
 Defined or used in: `scripts/vortex/notify-email.sh`
 
@@ -1377,17 +1377,9 @@ Default value: `webmaster@your-site-domain.example|Webmaster`
 
 Defined or used in: `.env`, `scripts/vortex/notify-email.sh`
 
-### `VORTEX_NOTIFY_ENVIRONMENT_TYPE`
-
-Notification environment type: production, uat, dev, pr.
-
-Default value: `UNDEFINED`
-
-Defined or used in: `scripts/vortex/notify.sh`
-
 ### `VORTEX_NOTIFY_ENVIRONMENT_URL`
 
-Notification deployment environment URL.
+Notification environment URL (where the site was deployed).
 
 Default value: `UNDEFINED`
 
@@ -1403,17 +1395,9 @@ Default value: `post_deployment`
 
 Defined or used in: `scripts/vortex/notify.sh`
 
-### `VORTEX_NOTIFY_GITHUB_BRANCH`
-
-GitHub notification git branch name.
-
-Default value: `${VORTEX_NOTIFY_BRANCH}`
-
-Defined or used in: `scripts/vortex/notify-github.sh`
-
 ### `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE`
 
-GitHub notification environment type: production, uat, dev, pr.
+GitHub notification environment type: production, uat, dev, pr.<br/>Used as the 'environment' parameter in GitHub's Deployment API.
 
 Default value: `PR`
 
@@ -1435,13 +1419,11 @@ Default value: `${VORTEX_NOTIFY_EVENT}`
 
 Defined or used in: `scripts/vortex/notify-github.sh`
 
-### `VORTEX_NOTIFY_GITHUB_PR_NUMBER`
+### `VORTEX_NOTIFY_GITHUB_LABEL`
 
-GitHub notification pull request number.
+GitHub notification deployment label (branch name, PR number, or custom identifier).<br/>This will be used as the 'ref' parameter in GitHub's Deployment API.
 
-If set, the environment type will be set to 'pr-[`${VORTEX_NOTIFY_GITHUB_PR_NUMBER}`](#vortex_notify_github_pr_number)'.
-
-Default value: `${VORTEX_NOTIFY_PR_NUMBER}`
+Default value: `${VORTEX_NOTIFY_LABEL}`
 
 Defined or used in: `scripts/vortex/notify-github.sh`
 
@@ -1463,29 +1445,13 @@ Default value: `UNDEFINED`
 
 Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-github.sh`
 
-### `VORTEX_NOTIFY_JIRA_ASSIGNEE`
+### `VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL`
 
-JIRA notification assignee email.
+JIRA notification assignee email address.
 
 If left empty - no assignment will be performed.
 
 Default value: `UNDEFINED`
-
-Defined or used in: `scripts/vortex/notify-jira.sh`
-
-### `VORTEX_NOTIFY_JIRA_BRANCH`
-
-JIRA notification git branch name.
-
-Default value: `${VORTEX_NOTIFY_BRANCH}`
-
-Defined or used in: `scripts/vortex/notify-jira.sh`
-
-### `VORTEX_NOTIFY_JIRA_COMMENT_PREFIX`
-
-JIRA notification comment prefix.
-
-Default value: `Deployed to `
 
 Defined or used in: `scripts/vortex/notify-jira.sh`
 
@@ -1499,7 +1465,7 @@ Defined or used in: `scripts/vortex/notify-jira.sh`
 
 ### `VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL`
 
-JIRA notification deployment environment URL.
+JIRA notification environment URL.
 
 Default value: `${VORTEX_NOTIFY_ENVIRONMENT_URL}`
 
@@ -1510,6 +1476,38 @@ Defined or used in: `scripts/vortex/notify-jira.sh`
 JIRA notification event type. Can be 'pre_deployment' or 'post_deployment'.
 
 Default value: `post_deployment`
+
+Defined or used in: `scripts/vortex/notify-jira.sh`
+
+### `VORTEX_NOTIFY_JIRA_LABEL`
+
+JIRA notification deployment label (branch name, PR number, or custom identifier).
+
+Default value: `${VORTEX_NOTIFY_LABEL}`
+
+Defined or used in: `scripts/vortex/notify-jira.sh`
+
+### `VORTEX_NOTIFY_JIRA_LOGIN_URL`
+
+JIRA notification login URL.
+
+Default value: `${VORTEX_NOTIFY_LOGIN_URL}`
+
+Defined or used in: `scripts/vortex/notify-jira.sh`
+
+### `VORTEX_NOTIFY_JIRA_MESSAGE`
+
+JIRA notification message template (will be converted to ADF format).<br/>Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify-jira.sh`
+
+### `VORTEX_NOTIFY_JIRA_PROJECT`
+
+JIRA notification project name.
+
+Default value: `${VORTEX_NOTIFY_PROJECT}`
 
 Defined or used in: `scripts/vortex/notify-jira.sh`
 
@@ -1533,13 +1531,29 @@ Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify-jira.sh`
 
-### `VORTEX_NOTIFY_JIRA_USER`
+### `VORTEX_NOTIFY_JIRA_USER_EMAIL`
 
-JIRA user email.
+JIRA user email address.
 
 Default value: `user@example.com`
 
 Defined or used in: `.env`, `scripts/vortex/notify-jira.sh`
+
+### `VORTEX_NOTIFY_LABEL`
+
+Notification deployment label (branch name, PR number, or custom identifier).
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify.sh`
+
+### `VORTEX_NOTIFY_LOGIN_URL`
+
+Notification login URL (defaults to ENVIRONMENT_URL/user/login if not provided).
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APIKEY`
 
@@ -1549,7 +1563,7 @@ NewRelic API key, usually of type 'USER'.
 
 Default value: `UNDEFINED`
 
-Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-newrelic.sh`
+Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`
 
 ### `VORTEX_NOTIFY_NEWRELIC_APPID`
 
@@ -1565,33 +1579,23 @@ Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 New Relic notification application name as it appears in the dashboard.
 
-Default value: `${VORTEX_NOTIFY_NEWRELIC_PROJECT}-${VORTEX_NOTIFY_NEWRELIC_BRANCH}`
-
-Defined or used in: `scripts/vortex/notify-newrelic.sh`
-
-### `VORTEX_NOTIFY_NEWRELIC_BRANCH`
-
-New Relic notification git branch name.
-
-Default value: `${VORTEX_NOTIFY_BRANCH}`
+Default value: `${VORTEX_NOTIFY_NEWRELIC_PROJECT}-${VORTEX_NOTIFY_NEWRELIC_LABEL}`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_CHANGELOG`
 
-New Relic notification deployment changelog.
+New Relic notification deployment changelog.<br/>Defaults to the description.
 
-Defaults to the description.
-
-Default value: `${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}`
+Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
 ### `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION`
 
-New Relic notification deployment description.
+New Relic notification deployment description template.<br/>Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%
 
-Default value: `${VORTEX_NOTIFY_NEWRELIC_BRANCH} deployed`
+Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
@@ -1603,11 +1607,35 @@ Default value: `https://api.newrelic.com/v2`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
+### `VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL`
+
+New Relic notification environment URL.
+
+Default value: `${VORTEX_NOTIFY_ENVIRONMENT_URL}`
+
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
+
 ### `VORTEX_NOTIFY_NEWRELIC_EVENT`
 
 New Relic notification event type. Can be 'pre_deployment' or 'post_deployment'.
 
 Default value: `post_deployment`
+
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
+
+### `VORTEX_NOTIFY_NEWRELIC_LABEL`
+
+New Relic notification deployment label (branch name, PR number, or custom identifier).
+
+Default value: `${VORTEX_NOTIFY_LABEL}`
+
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
+
+### `VORTEX_NOTIFY_NEWRELIC_LOGIN_URL`
+
+New Relic notification login URL.
+
+Default value: `${VORTEX_NOTIFY_LOGIN_URL}`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
@@ -1619,11 +1647,11 @@ Default value: `${VORTEX_NOTIFY_PROJECT}`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
-### `VORTEX_NOTIFY_NEWRELIC_SHA`
+### `VORTEX_NOTIFY_NEWRELIC_REVISION`
 
-New Relic notification git commit SHA.
+New Relic notification deployment revision.<br/>If not provided, will be auto-generated as [LABEL]-[TIMESTAMP] for uniqueness.
 
-Default value: `${VORTEX_NOTIFY_SHA}`
+Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
@@ -1635,27 +1663,23 @@ Default value: `Deployment robot`
 
 Defined or used in: `scripts/vortex/notify-newrelic.sh`
 
+### `VORTEX_NOTIFY_NEWRELIC_USER_KEY`
+
+New Relic notification User API Key.
+
+To obtain your User API Key:<br/>`1`. Log in to New Relic<br/>`2`. Click on your profile icon (bottom left)<br/>`3`. Go to "API keys"<br/>`4`. Create or copy an existing "User key"<br/>`5`. The key format is: NRAK-XXXXXXXXXXXXXXXXXXXXXX
+
+@see https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key<br/>@see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
+
+Default value: `${NEWRELIC_USER_KEY}`
+
+Defined or used in: `scripts/vortex/notify-newrelic.sh`
+
 ### `VORTEX_NOTIFY_PROJECT`
 
 Notification project name.
 
 Default value: `${VORTEX_PROJECT}`
-
-Defined or used in: `scripts/vortex/notify.sh`
-
-### `VORTEX_NOTIFY_PR_NUMBER`
-
-Notification pull request number.
-
-Default value: `UNDEFINED`
-
-Defined or used in: `scripts/vortex/notify.sh`
-
-### `VORTEX_NOTIFY_SHA`
-
-Notification git commit SHA.
-
-Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify.sh`
 
@@ -1667,14 +1691,6 @@ Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify.sh`
 
-### `VORTEX_NOTIFY_SLACK_BRANCH`
-
-Slack notification git branch name.
-
-Default value: `${VORTEX_NOTIFY_BRANCH}`
-
-Defined or used in: `scripts/vortex/notify-slack.sh`
-
 ### `VORTEX_NOTIFY_SLACK_CHANNEL`
 
 Slack notification target channel (optional, overrides webhook default).<br/>Format: #channel-name or @username
@@ -1685,7 +1701,7 @@ Defined or used in: `scripts/vortex/notify-slack.sh`
 
 ### `VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL`
 
-Slack notification deployment environment URL.
+Slack notification environment URL.
 
 Default value: `${VORTEX_NOTIFY_ENVIRONMENT_URL}`
 
@@ -1707,27 +1723,35 @@ Default value: `:rocket:`
 
 Defined or used in: `scripts/vortex/notify-slack.sh`
 
+### `VORTEX_NOTIFY_SLACK_LABEL`
+
+Slack notification deployment label (branch name, PR number, or custom identifier).
+
+Default value: `${VORTEX_NOTIFY_LABEL}`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
+### `VORTEX_NOTIFY_SLACK_LOGIN_URL`
+
+Slack notification login URL.
+
+Default value: `${VORTEX_NOTIFY_LOGIN_URL}`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
+### `VORTEX_NOTIFY_SLACK_MESSAGE`
+
+Slack notification message template (for fallback text).<br/>Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/notify-slack.sh`
+
 ### `VORTEX_NOTIFY_SLACK_PROJECT`
 
 Slack notification project name.
 
 Default value: `${VORTEX_NOTIFY_PROJECT}`
-
-Defined or used in: `scripts/vortex/notify-slack.sh`
-
-### `VORTEX_NOTIFY_SLACK_PR_NUMBER`
-
-Slack notification pull request number.
-
-Default value: `${VORTEX_NOTIFY_PR_NUMBER}`
-
-Defined or used in: `scripts/vortex/notify-slack.sh`
-
-### `VORTEX_NOTIFY_SLACK_SHA`
-
-Slack notification git commit SHA.
-
-Default value: `${VORTEX_NOTIFY_SHA}`
 
 Defined or used in: `scripts/vortex/notify-slack.sh`
 
@@ -1747,17 +1771,9 @@ Default value: `UNDEFINED`
 
 Defined or used in: `ACQUIA ENVIRONMENT`, `LAGOON ENVIRONMENT`, `scripts/vortex/notify-slack.sh`
 
-### `VORTEX_NOTIFY_WEBHOOK_BRANCH`
-
-Webhook notification git branch name.
-
-Default value: `${VORTEX_NOTIFY_BRANCH}`
-
-Defined or used in: `scripts/vortex/notify-webhook.sh`
-
 ### `VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL`
 
-Webhook notification deployment environment URL.
+Webhook notification environment URL.
 
 Default value: `${VORTEX_NOTIFY_ENVIRONMENT_URL}`
 
@@ -1779,6 +1795,22 @@ Default value: `Content-type: application/json`
 
 Defined or used in: `scripts/vortex/notify-webhook.sh`
 
+### `VORTEX_NOTIFY_WEBHOOK_LABEL`
+
+Webhook notification deployment label (branch name, PR number, or custom identifier).
+
+Default value: `${VORTEX_NOTIFY_LABEL}`
+
+Defined or used in: `scripts/vortex/notify-webhook.sh`
+
+### `VORTEX_NOTIFY_WEBHOOK_LOGIN_URL`
+
+Webhook notification login URL.
+
+Default value: `${VORTEX_NOTIFY_LOGIN_URL}`
+
+Defined or used in: `scripts/vortex/notify-webhook.sh`
+
 ### `VORTEX_NOTIFY_WEBHOOK_METHOD`
 
 Webhook notification HTTP method like POST, GET, PUT.
@@ -1789,9 +1821,9 @@ Defined or used in: `scripts/vortex/notify-webhook.sh`
 
 ### `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`
 
-Webhook notification JSON payload.
+Webhook notification JSON payload.<br/>Available tokens: %message%, %project%, %label%, %timestamp%, %environment_url%, %login_url%
 
-Default value: `${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-{\"channel\": \"Channel 1\", \"message\": \"%message%\", \"project\": \"%project%\", \"ref\": \"%ref%\", \"timestamp\": \"%timestamp%\", \"environment_url\": \"%environment_url%\"}}`
+Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/notify-webhook.sh`
 
