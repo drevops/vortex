@@ -1497,6 +1497,28 @@ $this->cmd('ahoy export-db', '! Containers are not running.', arg: $args);
 
 ## Important AI Assistant Guidelines
 
+### CRITICAL: Commands That Require User Permission
+
+**NEVER run these commands without explicit user permission:**
+
+- `ahoy update-fixtures` - Updates all test fixtures (can take 10-15 minutes, runs full test suite twice)
+- `UPDATE_FIXTURES=1 ./vendor/bin/phpunit` - Updates installer test fixtures
+- `UPDATE_FIXTURES=1 composer test` - Updates any test fixtures
+- Any command with `UPDATE_FIXTURES=1` environment variable
+
+**Why**: These commands:
+
+- Modify many files across the codebase
+- Take significant time to complete (10-15 minutes)
+- Run full test suites multiple times
+- Should only be run when user explicitly requests fixture updates
+
+**When user needs fixture updates**:
+
+- Explain what the command does and how long it will take
+- Ask for explicit permission before running
+- Let the user run it themselves if they prefer
+
 ### System-Specific Restrictions
 
 **Documentation System** (`.vortex/docs/`):
