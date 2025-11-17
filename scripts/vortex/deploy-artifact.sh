@@ -79,7 +79,7 @@ info "Started ARTIFACT deployment."
 export VORTEX_SSH_PREFIX="DEPLOY" && . ./scripts/vortex/setup-ssh.sh
 
 task "Installing artifact builder."
-composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:^1
+composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1
 
 # Try resolving absolute paths.
 if command -v realpath >/dev/null 2>&1; then
