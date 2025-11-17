@@ -46,6 +46,7 @@ recipes/*
 #;< VORTEX_DEV
 #; Ignore these files in Vortex itself, but do not ignore in consumer site.
 /composer.lock
+/patches.lock.json
 #;> VORTEX_DEV
 
 # Ignore dependencies cache files.
