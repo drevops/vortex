@@ -213,10 +213,16 @@ Vortex:
   assigned port - run `docker compose port database 3306` to get the port number.
 - `redis` - an optional container that runs a Redis server. This container is
   used to store the application cache.
-- `solr` - an optional container that runs a Solr server. This container is used
-  to store the application search index. It can be accessed from the host via a
-  randomly assigned port - run `docker compose port solr 8983` to get the port
-  number.
+- `solr` - an optional container that runs Apache Solr 9 search server. This container
+  is used to store the application search index and provide full-text search
+  capabilities. It uses the `uselagoon/solr-drupal-9` image which includes
+  pre-configured modules (`extraction`, `langid`, `ltr`, `analysis-extras`) and is
+  optimized for Drupal workloads with the Search API Solr module. Configuration
+  files are maintained locally in `.docker/config/solr/config-set/` allowing site
+  owners to customize and version control their Solr schema. The container can be
+  accessed from the host via a randomly assigned port - run `docker compose port solr 8983`
+  to get the port number. The Solr admin interface is available at
+  `http://localhost:<port>/solr/`.
 - `clamav` - an optional container that runs a ClamAV antivirus server. This
   container is used to scan uploaded files for viruses.
 - `chrome` - container that runs a Chrome browser. This container is

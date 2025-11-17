@@ -78,6 +78,13 @@
 <dynamicField name="tus_X3b_en_*" type="text_unstemmed_en" stored="true" indexed="true" multiValued="false" termVectors="true" omitNorms="false" />
 <dynamicField name="tum_X3b_en_*" type="text_unstemmed_en" stored="true" indexed="true" multiValued="true" termVectors="true" omitNorms="false" />
 <dynamicField name="sort_X3b_en_*" type="collated_en" stored="false" indexed="false" docValues="true" useDocValuesAsStored="false" />
+<dynamicField name="ts_X3b_et_*" type="text_et" stored="true" indexed="true" multiValued="false" termVectors="true" omitNorms="false" />
+<dynamicField name="tm_X3b_et_*" type="text_et" stored="true" indexed="true" multiValued="true" termVectors="true" omitNorms="false" />
+<dynamicField name="tos_X3b_et_*" type="text_et" stored="true" indexed="true" multiValued="false" termVectors="true" omitNorms="true" />
+<dynamicField name="tom_X3b_et_*" type="text_et" stored="true" indexed="true" multiValued="true" termVectors="true" omitNorms="true" />
+<dynamicField name="tus_X3b_et_*" type="text_unstemmed_et" stored="true" indexed="true" multiValued="false" termVectors="true" omitNorms="false" />
+<dynamicField name="tum_X3b_et_*" type="text_unstemmed_et" stored="true" indexed="true" multiValued="true" termVectors="true" omitNorms="false" />
+<dynamicField name="sort_X3b_et_*" type="collated_et" stored="false" indexed="false" docValues="true" useDocValuesAsStored="false" />
 <dynamicField name="ts_X3b_fi_*" type="text_fi" stored="true" indexed="true" multiValued="false" termVectors="true" omitNorms="false" />
 <dynamicField name="tm_X3b_fi_*" type="text_fi" stored="true" indexed="true" multiValued="true" termVectors="true" omitNorms="false" />
 <dynamicField name="tos_X3b_fi_*" type="text_fi" stored="true" indexed="true" multiValued="false" termVectors="true" omitNorms="true" />
