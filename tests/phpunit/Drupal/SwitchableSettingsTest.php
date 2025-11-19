@@ -78,6 +78,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> SERVICE_CLAMAV
+  // phpcs:ignore #;< MODULE_CONFIG_SPLIT
 
   /**
    * Test Config Split config.
@@ -166,6 +167,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
+  // phpcs:ignore #;> MODULE_CONFIG_SPLIT
+  // phpcs:ignore #;< MODULE_ENVIRONMENT_INDICATOR
+
   /**
    * Test Environment Indicator config.
    */
@@ -231,6 +235,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
+  // phpcs:ignore #;> MODULE_ENVIRONMENT_INDICATOR
   // phpcs:ignore #;< SERVICE_REDIS
 
   /**
@@ -307,6 +312,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> SERVICE_REDIS
+  // phpcs:ignore #;< MODULE_SHIELD
 
   /**
    * Test Shield config.
@@ -540,6 +546,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
     ];
   }
 
+  // phpcs:ignore #;> MODULE_SHIELD
+  // phpcs:ignore #;< MODULE_STAGE_FILE_PROXY
+
   /**
    * Test Stage File Proxy config.
    */
@@ -666,6 +675,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
     ];
   }
+
+  // phpcs:ignore #;> MODULE_STAGE_FILE_PROXY
 
   /**
    * Test trusted host patterns settings.

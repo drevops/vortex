@@ -1,0 +1,94 @@
+@@ -76,93 +76,6 @@
+   }
+ 
+   /**
+-   * Test Config Split config.
+-   */
+-  #[DataProvider('dataProviderConfigSplit')]
+-  public function testConfigSplit(string $env, array $expected_present, array $expected_absent): void {
+-    $this->setEnvVars([
+-      'DRUPAL_ENVIRONMENT' => $env,
+-    ]);
+-
+-    $this->requireSettingsFile();
+-
+-    $this->assertConfigContains($expected_present);
+-    $this->assertConfigNotContains($expected_absent);
+-  }
+-
+-  /**
+-   * Data provider for testConfigSplit().
+-   */
+-  public static function dataProviderConfigSplit(): array {
+-    return [
+-      [
+-        self::ENVIRONMENT_LOCAL,
+-        [
+-          'config_split.config_split.local' => ['status' => TRUE],
+-        ],
+-        [
+-          'config_split.config_split.stage' => NULL,
+-          'config_split.config_split.dev' => NULL,
+-          'config_split.config_split.ci' => NULL,
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_CI,
+-        [
+-          'config_split.config_split.ci' => ['status' => TRUE],
+-        ],
+-        [
+-          'config_split.config_split.stage' => NULL,
+-          'config_split.config_split.dev' => NULL,
+-          'config_split.config_split.local' => NULL,
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_DEV,
+-        [
+-          'config_split.config_split.dev' => ['status' => TRUE],
+-        ],
+-        [
+-          'config_split.config_split.stage' => NULL,
+-          'config_split.config_split.ci' => NULL,
+-          'config_split.config_split.local' => NULL,
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_STAGE,
+-        [
+-          'config_split.config_split.stage' => ['status' => TRUE],
+-        ],
+-        [
+-          'config_split.config_split.dev' => NULL,
+-          'config_split.config_split.ci' => NULL,
+-          'config_split.config_split.local' => NULL,
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_PROD,
+-        [],
+-        [
+-          'config_split.config_split.stage' => NULL,
+-          'config_split.config_split.dev' => NULL,
+-          'config_split.config_split.ci' => NULL,
+-          'config_split.config_split.local' => NULL,
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_SUT,
+-        [],
+-        [
+-          'config_split.config_split.stage' => NULL,
+-          'config_split.config_split.dev' => NULL,
+-          'config_split.config_split.ci' => NULL,
+-          'config_split.config_split.local' => NULL,
+-        ],
+-      ],
+-    ];
+-  }
+-
+-  /**
+    * Test Environment Indicator config.
+    */
+   #[DataProvider('dataProviderEnvironmentIndicator')]

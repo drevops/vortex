@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "158f2ed92ad9e92e72a28ee43f8acf54",
+    "content-hash": "ac421faa34c47854cab8b601cf202279",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.13.1",
+            "version": "0.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "d627d930109743bd6a3810d598114ed3ddf898fa"
+                "reference": "a565c253a4c2b6ff2628c05eb1254b91c55177ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/d627d930109743bd6a3810d598114ed3ddf898fa",
-                "reference": "d627d930109743bd6a3810d598114ed3ddf898fa",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/a565c253a4c2b6ff2628c05eb1254b91c55177ee",
+                "reference": "a565c253a4c2b6ff2628c05eb1254b91c55177ee",
                 "shasum": ""
             },
             "require": {
@@ -27,8 +27,10 @@
             "require-dev": {
                 "alexskrypnyk/phpunit-helpers": "^0.13.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
+                "drevops/phpcs-standard": "^0.3",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
+                "phpbench/phpbench": "^1.4",
                 "phpstan/phpstan": "^2",
                 "phpunit/phpunit": "^11",
                 "rector/rector": "^2"
@@ -70,7 +72,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-10-06T23:45:44+00:00"
+            "time": "2025-11-19T02:51:08+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",

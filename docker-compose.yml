@@ -57,9 +57,11 @@ x-environment: &default-environment
   DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
   # Path to configuration files.
   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-../config/default}
+  #;< MODULE_SHIELD
   # Drupal Shield credentials.
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+  #;> MODULE_SHIELD
   #;< SERVICE_REDIS
   # Redis integration flag.
   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}

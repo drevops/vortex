@@ -1,0 +1,134 @@
+@@ -533,133 +533,6 @@
+   }
+ 
+   /**
+-   * Test Stage File Proxy config.
+-   */
+-  #[DataProvider('dataProviderStageFileProxy')]
+-  public function testStageFileProxy(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
+-    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+-
+-    $this->requireSettingsFile();
+-
+-    $this->assertConfigContains($expected_present);
+-    $this->assertConfigNotContains($expected_absent);
+-  }
+-
+-  /**
+-   * Data provider for testStageFileProxy().
+-   */
+-  public static function dataProviderStageFileProxy(): array {
+-    return [
+-      [
+-        self::ENVIRONMENT_LOCAL,
+-        [],
+-        [],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_LOCAL,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
+-        ],
+-        [],
+-      ],
+-      [
+-        self::ENVIRONMENT_LOCAL,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-        ],
+-        [],
+-      ],
+-      [
+-        self::ENVIRONMENT_LOCAL,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
+-        ],
+-        [],
+-      ],
+-
+-      [
+-        self::ENVIRONMENT_CI,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-        ],
+-        [],
+-      ],
+-
+-      [
+-        self::ENVIRONMENT_DEV,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-        ],
+-        [],
+-      ],
+-
+-      [
+-        self::ENVIRONMENT_STAGE,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-        ],
+-        [],
+-      ],
+-
+-      [
+-        self::ENVIRONMENT_PROD,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        ],
+-        [],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-        ],
+-      ],
+-
+-      [
+-        self::ENVIRONMENT_SUT,
+-        [
+-          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        ],
+-        [
+-          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-        ],
+-        [],
+-      ],
+-    ];
+-  }
+-
+-  /**
+    * Test trusted host patterns settings.
+    */
+   #[DataProvider('dataProviderTrustedHostPatterns')]

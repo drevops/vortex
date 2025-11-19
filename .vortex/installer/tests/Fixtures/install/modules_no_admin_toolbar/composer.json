@@ -1,0 +1,8 @@
+@@ -7,7 +7,6 @@
+         "php": "__VERSION__",
+         "composer/installers": "__VERSION__",
+         "cweagans/composer-patches": "__VERSION__",
+-        "drupal/admin_toolbar": "__VERSION__",
+         "drupal/clamav": "__VERSION__",
+         "drupal/coffee": "__VERSION__",
+         "drupal/config_split": "__VERSION__",

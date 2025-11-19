@@ -1,0 +1,72 @@
+@@ -163,71 +163,6 @@
+   }
+ 
+   /**
+-   * Test Environment Indicator config.
+-   */
+-  #[DataProvider('dataProviderEnvironmentIndicator')]
+-  public function testEnvironmentIndicator(string $env, array $expected_present, array $expected_absent = []): void {
+-    $this->setEnvVars([
+-      'DRUPAL_ENVIRONMENT' => $env,
+-    ]);
+-
+-    $this->requireSettingsFile();
+-
+-    $this->assertConfigContains($expected_present);
+-    $this->assertConfigNotContains($expected_absent);
+-  }
+-
+-  /**
+-   * Data provider for testEnvironmentIndicator().
+-   */
+-  public static function dataProviderEnvironmentIndicator(): array {
+-    return [
+-      [
+-        self::ENVIRONMENT_LOCAL,
+-        [
+-          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_LOCAL, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+-          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_CI,
+-        [
+-          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_CI, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+-          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_DEV,
+-        [
+-          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_DEV, 'bg_color' => '#4caf50', 'fg_color' => '#000000'],
+-          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_STAGE,
+-        [
+-          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_STAGE, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
+-          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_PROD,
+-        [
+-          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_PROD, 'bg_color' => '#ef5350', 'fg_color' => '#000000'],
+-          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_SUT,
+-        [
+-          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_SUT, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+-          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
+-        ],
+-      ],
+-    ];
+-  }
+-
+-  /**
+    * Test Redis settings.
+    */
+   public function testRedis(): void {
