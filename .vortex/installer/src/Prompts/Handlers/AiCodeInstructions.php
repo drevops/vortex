@@ -38,7 +38,7 @@ class AiCodeInstructions extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return self::NONE;
+    return self::CLAUDE;
   }
 
   /**

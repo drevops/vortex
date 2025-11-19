@@ -8,7 +8,8 @@ CRITICAL UNDERSTANDING:
 - Uses Docker for local development
 - Commands are executed via 'ahoy' (task runner)
 - Configuration is exported/imported via Drupal's config management
-- Testing includes both PHPUnit (unit) and Behat (BDD)
+- Testing includes PHPUnit
+- Testing includes Behat (BDD)
 - Deployment is automated via CI/CD pipelines
 
 KEY CONVENTIONS:
@@ -28,7 +29,7 @@ comprehensive Drupal project template by DrevOps that provides:
 
 - 🐳 **Docker-based development environment**
 - 🔄 **Automated CI/CD deployment workflows**
-- 🧪 **Comprehensive testing framework** (PHPUnit + Behat)
+- 🧪 **Comprehensive testing framework**
 - ⚙️ **Configuration management** (exportable configs)
 - 🚀 **Production hosting integration**
 
@@ -104,7 +105,7 @@ ahoy drush uli # Get login link
 ahoy composer [command]
 # Examples:
 ahoy composer install
-ahoy composer require drupal/admin_toolbar
+ahoy composer require drupal/webform
 ```
 
 ## Code Quality & Testing
@@ -124,12 +125,11 @@ ahoy lint-fix
 ```bash
 # Run PHPUnit tests (unit/integration tests)
 ahoy test-unit
+```
 
+```bash
 # Run Behat tests (behavioral/BDD tests)
 ahoy test-bdd
-
-# Run ALL tests (unit + BDD)
-ahoy test
 
 # Run specific Behat feature
 ahoy test-bdd tests/behat/features/homepage.feature
@@ -337,14 +337,10 @@ ahoy drush clamav:update
 
 ```bash
 # Add contributed modules
-ahoy composer require drupal/admin_toolbar
-ahoy composer require drupal/pathauto
+ahoy composer require drupal/webform
 
-# Add development-only modules
-ahoy composer require --dev drupal/devel
-
-# Enable installed modules
-ahoy drush pm:install admin_toolbar pathauto
+# Enable added modules
+ahoy drush pm:install webform
 ```
 
 ### Patching Contributed Modules
@@ -718,7 +714,7 @@ Scenario: View complete content with all fields
 
 ```bash
 # Enable development modules
-ahoy drush pm:install devel webprofiler stage_file_proxy
+ahoy drush pm:install devel
 
 # Get admin login URL
 ahoy login
@@ -832,13 +828,6 @@ ahoy drush updatedb && ahoy drush config:import && ahoy drush cache:rebuild
 ```bash
 # List all available ahoy commands
 ahoy --help
-
-# Get help for specific command
-ahoy [command] --help
-
-# Examples:
-ahoy build --help
-ahoy test-bdd --help
 ```
 
 ### Log Files & Debugging

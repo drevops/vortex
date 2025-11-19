@@ -20,7 +20,7 @@ class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase 
     return [
       'ai instructions - prompt' => [
         [AiCodeInstructions::id() => Key::ENTER],
-        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
+        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_defaults,
       ],
 
       'ai instructions - discovery' => [
@@ -42,7 +42,7 @@ class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase 
 
       'ai instructions - discovery - non-Vortex' => [
         [],
-        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_defaults,
+        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test, Config $config): void {
           File::dump(static::$sut . '/CLAUDE.md');
         },

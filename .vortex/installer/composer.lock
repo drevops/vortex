@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac421faa34c47854cab8b601cf202279",
+    "content-hash": "c5c2eb72d2b75f1a9158f660a34cf3d1",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.14.0",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "a565c253a4c2b6ff2628c05eb1254b91c55177ee"
+                "reference": "5d0f0eb3f8387fb9e77cc369027c039a039d82f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/a565c253a4c2b6ff2628c05eb1254b91c55177ee",
-                "reference": "a565c253a4c2b6ff2628c05eb1254b91c55177ee",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/5d0f0eb3f8387fb9e77cc369027c039a039d82f6",
+                "reference": "5d0f0eb3f8387fb9e77cc369027c039a039d82f6",
                 "shasum": ""
             },
             "require": {
@@ -72,7 +72,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-11-19T02:51:08+00:00"
+            "time": "2025-11-19T10:29:44+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",
