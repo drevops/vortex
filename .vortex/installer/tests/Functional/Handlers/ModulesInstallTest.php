@@ -21,7 +21,7 @@ class ModulesInstallTest extends AbstractInstallTestCase {
           $selected_modules = static::getModulesExcept('admin_toolbar');
           Env::put(PromptManager::makeEnvName(Modules::id()), Converter::toList($selected_modules));
         }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('admin_toolbar')),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/admin_toolbar')),
       ],
 
       'modules, no coffee' => [
@@ -61,7 +61,7 @@ class ModulesInstallTest extends AbstractInstallTestCase {
           $selected_modules = static::getModulesExcept('pathauto');
           Env::put(PromptManager::makeEnvName(Modules::id()), Converter::toList($selected_modules));
         }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('pathauto')),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/pathauto')),
       ],
 
       'modules, no redirect' => [

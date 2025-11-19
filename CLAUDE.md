@@ -18,7 +18,12 @@ CRITICAL UNDERSTANDING:
 - Uses Docker for local development
 - Commands are executed via 'ahoy' (task runner)
 - Configuration is exported/imported via Drupal's config management
-- Testing includes both PHPUnit (unit) and Behat (BDD)
+[//]: # (#;< TOOL_PHPUNIT)
+- Testing includes PHPUnit
+[//]: # (#;> TOOL_PHPUNIT)
+[//]: # (#;< TOOL_BEHAT)
+- Testing includes Behat (BDD)
+[//]: # (#;> TOOL_BEHAT)
 - Deployment is automated via CI/CD pipelines
 
 KEY CONVENTIONS:
@@ -38,7 +43,7 @@ comprehensive Drupal project template by DrevOps that provides:
 
 - 🐳 **Docker-based development environment**
 - 🔄 **Automated CI/CD deployment workflows**
-- 🧪 **Comprehensive testing framework** (PHPUnit + Behat)
+- 🧪 **Comprehensive testing framework**
 - ⚙️ **Configuration management** (exportable configs)
 - 🚀 **Production hosting integration**
 
@@ -118,7 +123,7 @@ ahoy drush uli # Get login link
 ahoy composer [command]
 # Examples:
 ahoy composer install
-ahoy composer require drupal/admin_toolbar
+ahoy composer require drupal/webform
 ```
 
 ## Code Quality & Testing
@@ -135,19 +140,26 @@ ahoy lint-fix
 
 ### Testing Framework
 
+[//]: # (#;< TOOL_PHPUNIT)
+
 ```bash
 # Run PHPUnit tests (unit/integration tests)
 ahoy test-unit
+```
 
+[//]: # (#;> TOOL_PHPUNIT)
+
+[//]: # (#;< TOOL_BEHAT)
+
+```bash
 # Run Behat tests (behavioral/BDD tests)
 ahoy test-bdd
-
-# Run ALL tests (unit + BDD)
-ahoy test
 
 # Run specific Behat feature
 ahoy test-bdd tests/behat/features/homepage.feature
 ```
+
+[//]: # (#;> TOOL_BEHAT)
 
 ## Configuration Management (Critical for Drupal)
 
@@ -210,10 +222,14 @@ your-project/
 │   └── index.php            # Drupal entry point
 │
 ├── tests/
+[//]: # (#;< TOOL_BEHAT)
 │   ├── behat/               # Behavioral tests (user scenarios)
 │   │   ├── features/        # Test scenarios (.feature files)
 │   │   └── behat.yml       # Behat configuration
+[//]: # (#;> TOOL_BEHAT)
+[//]: # (#;< TOOL_PHPUNIT)
 │   └── phpunit/            # Unit/integration tests
+[//]: # (#;> TOOL_PHPUNIT)
 │
 └── scripts/
     ├── vortex/             # Core Vortex scripts (don't modify)
@@ -367,14 +383,10 @@ ahoy drush clamav:update
 
 ```bash
 # Add contributed modules
-ahoy composer require drupal/admin_toolbar
-ahoy composer require drupal/pathauto
+ahoy composer require drupal/webform
 
-# Add development-only modules
-ahoy composer require --dev drupal/devel
-
-# Enable installed modules
-ahoy drush pm:install admin_toolbar pathauto
+# Enable added modules
+ahoy drush pm:install webform
 ```
 
 ### Patching Contributed Modules
@@ -655,6 +667,8 @@ yarn add --dev sass webpack
 
 ## Testing Best Practices
 
+[//]: # (#;< TOOL_BEHAT)
+
 ### Writing Behat Tests (BDD)
 
 #### User Story Format (Required)
@@ -746,13 +760,15 @@ Scenario: View complete content with all fields
   And I should see "[TEST] Topic 1"
 ```
 
+[//]: # (#;> TOOL_BEHAT)
+
 ## Debugging & Troubleshooting
 
 ### Development Tools
 
 ```bash
 # Enable development modules
-ahoy drush pm:install devel webprofiler stage_file_proxy
+ahoy drush pm:install devel
 
 # Get admin login URL
 ahoy login
@@ -892,13 +908,6 @@ ahoy drush updatedb && ahoy drush config:import && ahoy drush cache:rebuild
 ```bash
 # List all available ahoy commands
 ahoy --help
-
-# Get help for specific command
-ahoy [command] --help
-
-# Examples:
-ahoy build --help
-ahoy test-bdd --help
 ```
 
 ### Log Files & Debugging
@@ -952,7 +961,9 @@ CRITICAL CONCEPTS:
 - Always use ahoy prefix for commands
 - Never use drush php:eval directly
 - Test data must use [TEST] prefix
+[//]: # (#;< TOOL_BEHAT)
 - Behat tests need proper user story format
+[//]: # (#;> TOOL_BEHAT)
 
 The project uses Docker locally but deploys to various hosting platforms with automated CI/CD.
 CLAUDE_CONTEXT_SUMMARY -->

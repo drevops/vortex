@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48b8b5ee98ec4818d75cde58de9c7fe2",
+    "content-hash": "ae0822b1398d91e8c0588d31d99f70f2",
     "packages": [
         {
             "name": "cweagans/composer-configurable-plugin",
@@ -188,16 +188,16 @@
         },
         {
             "name": "alexskrypnyk/file",
-            "version": "0.12.0",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "f7e00dc3570b35f07a9f9dbb3e62b40e678a94b0"
+                "reference": "5d0f0eb3f8387fb9e77cc369027c039a039d82f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/f7e00dc3570b35f07a9f9dbb3e62b40e678a94b0",
-                "reference": "f7e00dc3570b35f07a9f9dbb3e62b40e678a94b0",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/5d0f0eb3f8387fb9e77cc369027c039a039d82f6",
+                "reference": "5d0f0eb3f8387fb9e77cc369027c039a039d82f6",
                 "shasum": ""
             },
             "require": {
@@ -205,10 +205,12 @@
                 "symfony/filesystem": "^7.2"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.12.0",
+                "alexskrypnyk/phpunit-helpers": "^0.13.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
+                "drevops/phpcs-standard": "^0.3",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
+                "phpbench/phpbench": "^1.4",
                 "phpstan/phpstan": "^2",
                 "phpunit/phpunit": "^11",
                 "rector/rector": "^2"
@@ -250,7 +252,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-27T00:47:28+00:00"
+            "time": "2025-11-19T10:29:44+00:00"
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
