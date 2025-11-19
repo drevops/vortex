@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
+use DrevOps\VortexInstaller\Utils\Config;
 use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -39,6 +40,14 @@ class StarterPromptManagerTest extends AbstractPromptManagerTestCase {
         [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
         function (AbstractPromptManagerTestCase $test): void {
           // Noop.
+        },
+      ],
+
+      'starter - installed project - skipped' => [
+        [],
+        [Starter::id() => Starter::LOAD_DATABASE_DEMO] + static::getExpectedInstalled(),
+        function (AbstractPromptManagerTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
         },
       ],
     ];

@@ -89,6 +89,13 @@ DOC;
   /**
    * {@inheritdoc}
    */
+  public function shouldRun(array $responses): bool {
+    return !$this->isInstalled();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     if ($this->response == self::INSTALL_PROFILE_DRUPALCMS) {
       $cj = JsonManipulator::fromFile($this->tmpDir . '/composer.json');

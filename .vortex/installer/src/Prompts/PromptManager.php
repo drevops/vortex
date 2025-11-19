@@ -126,7 +126,11 @@ class PromptManager {
       ->add(fn(array $r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
 
       ->intro('Drupal')
-      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)), Starter::id())
+      ->addIf(
+          fn(array $r): bool => $this->handlers[Starter::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)),
+          Starter::id()
+        )
       ->add(
           fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class))),
           Profile::id()
@@ -231,6 +235,11 @@ class PromptManager {
     // Handle DatabaseDownloadSource when ProvisionType is PROFILE.
     if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
       $responses[DatabaseDownloadSource::id()] = DatabaseDownloadSource::NONE;
+    }
+
+    // Handle Starter when the installer is running in update mode.
+    if ($this->config->isVortexProject() && !isset($responses[Starter::id()])) {
+      $responses[Starter::id()] = Starter::LOAD_DATABASE_DEMO;
     }
 
     if ($this->config->getNoInteraction()) {
