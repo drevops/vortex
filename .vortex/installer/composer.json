@@ -18,7 +18,7 @@
     },
     "require": {
         "php": ">=8.3",
-        "alexskrypnyk/file": "^0.13.1",
+        "alexskrypnyk/file": "^0.14",
         "alexskrypnyk/str2name": "^1.4",
         "composer/composer": "^2.9.1",
         "cweagans/composer-patches": "^2",
@@ -88,10 +88,10 @@
         "lint": [
             "phpcs",
             "phpstan",
-            "rector --clear-cache --dry-run"
+            "rector --dry-run"
         ],
         "lint-fix": [
-            "rector --clear-cache",
+            "rector",
             "phpcbf"
         ],
         "reset": "rm -Rf vendor vendor-bin",

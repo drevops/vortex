@@ -1,0 +1,10 @@
+@@ -49,9 +49,6 @@
+   DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
+   # Path to configuration files.
+   DRUPAL_CONFIG_PATH: ${DRUPAL_CONFIG_PATH:-../config/default}
+-  # Drupal Shield credentials.
+-  DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
+-  DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+   # Redis integration flag.
+   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
+ 

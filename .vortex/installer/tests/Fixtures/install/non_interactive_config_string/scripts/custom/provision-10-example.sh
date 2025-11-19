@@ -1,4 +1,4 @@
-@@ -45,10 +45,6 @@
+@@ -43,10 +43,6 @@
    task "Installing Redis module."
    drush pm:install redis || true
  

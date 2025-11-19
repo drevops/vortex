@@ -29,7 +29,15 @@ class JsonManipulator extends ComposerJsonManipulator {
       // @codeCoverageIgnoreEnd
     }
 
-    return new self($contents);
+    try {
+      $instance = new self($contents);
+    }
+    catch (\Exception) {
+      // Invalid JSON.
+      return NULL;
+    }
+
+    return $instance;
   }
 
   /**

@@ -1,13 +1,13 @@
-@@ -36,7 +36,7 @@
+@@ -35,7 +35,7 @@
+   note "Running example operations in non-production environment."
  
-   # Set site name.
    task "Setting site name."
 -  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
 +  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'New hope')->save();"
  
-   # Enable contrib modules.
    task "Installing contrib modules."
-@@ -57,9 +57,9 @@
+   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy
+@@ -55,9 +55,9 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."

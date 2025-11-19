@@ -1,0 +1,8 @@
+@@ -9,7 +9,6 @@
+         "cweagans/composer-patches": "__VERSION__",
+         "drupal/admin_toolbar": "__VERSION__",
+         "drupal/clamav": "__VERSION__",
+-        "drupal/coffee": "__VERSION__",
+         "drupal/config_split": "__VERSION__",
+         "drupal/config_update": "__VERSION__",
+         "drupal/core-composer-scaffold": "__VERSION__",

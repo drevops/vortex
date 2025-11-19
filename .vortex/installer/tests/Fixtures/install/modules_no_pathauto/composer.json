@@ -1,0 +1,8 @@
+@@ -15,7 +15,6 @@
+         "drupal/core-composer-scaffold": "__VERSION__",
+         "drupal/core-recommended": "__VERSION__",
+         "drupal/environment_indicator": "__VERSION__",
+-        "drupal/pathauto": "__VERSION__",
+         "drupal/redirect": "__VERSION__",
+         "drupal/redis": "__VERSION__",
+         "drupal/robotstxt": "__VERSION__",

@@ -22,6 +22,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
+use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\NotificationChannels;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
@@ -64,7 +65,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 27;
+  const TOTAL_RESPONSES = 28;
 
   /**
    * Array of responses.
@@ -135,6 +136,7 @@ class PromptManager {
             fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class)),
             ProfileCustom::id()
           )
+      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(Modules::class, NULL, $r)), Modules::id())
       ->add(fn(array $r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
       ->add(
           fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class))),
@@ -277,6 +279,7 @@ class PromptManager {
       Services::id(),
       Timezone::id(),
       CodeProvider::id(),
+      Modules::id(),
       Starter::id(),
       ProfileCustom::id(),
       Profile::id(),
@@ -368,6 +371,7 @@ class PromptManager {
 
     $values['Drupal'] = Tui::LIST_SECTION_TITLE;
     $values['Starter'] = $responses[Starter::id()];
+    $values['Modules'] = Converter::toList($responses[Modules::id()], ', ');
     $values['Webroot'] = $responses[Webroot::id()];
     $values['Profile'] = $responses[Profile::id()];
     $values['Module prefix'] = $responses[ModulePrefix::id()];
@@ -543,7 +547,7 @@ class PromptManager {
     }
 
     $options = $handler->options($responses);
-    if (is_array($options) && $options !== []) {
+    if (is_array($options)) {
       $args['options'] = $options;
       $args['scroll'] = 10;
     }

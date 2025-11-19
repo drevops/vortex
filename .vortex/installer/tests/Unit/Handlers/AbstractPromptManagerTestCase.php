@@ -19,6 +19,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
+use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\NotificationChannels;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
@@ -125,6 +126,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Domain::id() => 'myproject.com',
       Starter::id() => Starter::LOAD_DATABASE_DEMO,
       Profile::id() => Profile::STANDARD,
+      Modules::id() => array_keys(Modules::getAvailableModules()),
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
       CodeProvider::id() => CodeProvider::GITHUB,
@@ -194,6 +196,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Domain::id() => static::TUI_DEFAULT,
       Starter::id() => static::TUI_DEFAULT,
       Profile::id() => static::TUI_DEFAULT,
+      Modules::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
       ThemeCustom::id() => static::TUI_DEFAULT,
