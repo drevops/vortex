@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
-use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Validator;
 
 class DatabaseImage extends AbstractHandler {
@@ -95,11 +94,9 @@ class DatabaseImage extends AbstractHandler {
   public function process(): void {
     if (!empty($this->response)) {
       $v = $this->getResponseAsString();
+      $t = $this->tmpDir;
 
-      File::replaceContentInFile(
-        $this->tmpDir . '/.env', '/# VORTEX_DB_IMAGE=.*/',
-        'VORTEX_DB_IMAGE=' . $v
-      );
+      Env::writeValueDotenv('VORTEX_DB_IMAGE', $v, $t . '/.env');
     }
   }
 

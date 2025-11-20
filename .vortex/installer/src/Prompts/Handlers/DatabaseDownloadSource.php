@@ -94,9 +94,10 @@ class DatabaseDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $type = $this->getResponseAsString();
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
 
-    File::replaceContentInFile($this->tmpDir . '/.env', '/VORTEX_DB_DOWNLOAD_SOURCE=.*/', 'VORTEX_DB_DOWNLOAD_SOURCE=' . $type);
+    Env::writeValueDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $v, $t . '/.env');
 
     $types = [
       DatabaseDownloadSource::URL,
@@ -106,9 +107,9 @@ class DatabaseDownloadSource extends AbstractHandler {
       DatabaseDownloadSource::CONTAINER_REGISTRY,
     ];
 
-    foreach ($types as $t) {
-      $token = 'DB_DOWNLOAD_SOURCE_' . strtoupper($t);
-      if ($t === $type) {
+    foreach ($types as $type) {
+      $token = 'DB_DOWNLOAD_SOURCE_' . strtoupper($type);
+      if ($v === $type) {
         File::removeTokenAsync('!' . $token);
       }
       else {

@@ -39,9 +39,10 @@ class LabelMergeConflictsPr extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
 
     if (empty($v)) {
-      @unlink($this->tmpDir . '/.github/workflows/label-merge-conflict.yml');
+      @unlink($t . '/.github/workflows/label-merge-conflict.yml');
     }
   }
 

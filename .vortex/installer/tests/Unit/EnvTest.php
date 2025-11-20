@@ -420,6 +420,139 @@ class EnvTest extends UnitTestCase {
     unlink($filename);
   }
 
+  #[DataProvider('dataProviderWriteValueDotenvWithEnabled')]
+  public function testWriteValueDotenvWithEnabled(string $initial_content, string $name, ?string $value, bool $enabled, string $expected_content): void {
+    $filename = $this->createFixtureEnvFile($initial_content);
+
+    Env::writeValueDotenv($name, $value, $filename, $enabled);
+
+    $content = file_get_contents($filename);
+    $this->assertEquals($expected_content, $content);
+
+    unlink($filename);
+  }
+
+  public static function dataProviderWriteValueDotenvWithEnabled(): array {
+    return [
+      // Test commenting out an active variable.
+      'disable active variable' => [
+        "VAR=active_value\n",
+        'VAR',
+        'active_value',
+        FALSE,
+        "# VAR=active_value\n",
+      ],
+
+      // Test activating a commented variable.
+      'enable commented variable' => [
+        "# VAR=commented_value\n",
+        'VAR',
+        'new_value',
+        TRUE,
+        "VAR=new_value\n",
+      ],
+
+      // Test updating and commenting out an active variable.
+      'disable and update active variable' => [
+        "VAR=old_value\n",
+        'VAR',
+        'new_value',
+        FALSE,
+        "# VAR=new_value\n",
+      ],
+
+      // Test updating and activating a commented variable.
+      'enable and update commented variable' => [
+        "# VAR=old_value\n",
+        'VAR',
+        'new_value',
+        TRUE,
+        "VAR=new_value\n",
+      ],
+
+      // Test adding new disabled variable.
+      'add new disabled variable' => [
+        "EXISTING=value\n",
+        'NEW_VAR',
+        'new_value',
+        FALSE,
+        "EXISTING=value\n# NEW_VAR=new_value\n",
+      ],
+
+      // Test adding new active variable (default behavior).
+      'add new active variable' => [
+        "EXISTING=value\n",
+        'NEW_VAR',
+        'new_value',
+        TRUE,
+        "EXISTING=value\nNEW_VAR=new_value\n",
+      ],
+
+      // Test with commented variable with spaces after #.
+      'update variable commented with spaces' => [
+        "#  VAR=old_value\n",
+        'VAR',
+        'new_value',
+        TRUE,
+        "VAR=new_value\n",
+      ],
+
+      // Test disabled with NULL value (empty).
+      'disabled empty variable' => [
+        "EXISTING=value\n",
+        'NEW_VAR',
+        NULL,
+        FALSE,
+        "EXISTING=value\n# NEW_VAR=\n",
+      ],
+
+      // Test active with NULL value (empty).
+      'active empty variable' => [
+        "EXISTING=value\n",
+        'NEW_VAR',
+        NULL,
+        TRUE,
+        "EXISTING=value\nNEW_VAR=\n",
+      ],
+
+      // Test disabling variable with special characters.
+      'disable variable with special chars' => [
+        "VAR=value\n",
+        'VAR',
+        'value with spaces',
+        FALSE,
+        "# VAR=\"value with spaces\"\n",
+      ],
+
+      // Test enabling variable with special characters.
+      'enable variable with special chars' => [
+        "# VAR=old\n",
+        'VAR',
+        'value with spaces',
+        TRUE,
+        "VAR=\"value with spaces\"\n",
+      ],
+
+      // Test with multiple variables, disable one.
+      'disable one among multiple variables' => [
+        "VAR1=value1\nVAR2=value2\nVAR3=value3\n",
+        'VAR2',
+        'new_value2',
+        FALSE,
+        "VAR1=value1\n# VAR2=new_value2\nVAR3=value3\n",
+      ],
+
+      // Test with multiple variables, enable commented one.
+      'enable one among multiple variables' => [
+        "VAR1=value1\n# VAR2=value2\nVAR3=value3\n",
+        'VAR2',
+        'new_value2',
+        TRUE,
+        "VAR1=value1\nVAR2=new_value2\nVAR3=value3\n",
+      ],
+    ];
+  }
+
   public function testParseDotenvFileGetContentsFailure(): void {
     // Create a directory instead of a file (will cause file_get_contents
     // to fail).

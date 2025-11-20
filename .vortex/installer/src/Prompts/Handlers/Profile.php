@@ -142,7 +142,7 @@ class Profile extends AbstractHandler {
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    File::replaceContentInFile($t . '/.env', '/DRUPAL_PROFILE=.*/', 'DRUPAL_PROFILE=' . $v);
+    Env::writeValueDotenv('DRUPAL_PROFILE', $v, $t . '/.env');
 
     // Assume that profiles provided as a path are contrib profiles.
     $is_contrib_profile = str_contains($v, DIRECTORY_SEPARATOR);

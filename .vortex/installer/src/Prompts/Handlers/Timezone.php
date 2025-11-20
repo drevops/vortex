@@ -659,7 +659,7 @@ class Timezone extends AbstractHandler {
     $v = $this->getResponseAsString();
     $t = $this->tmpDir;
 
-    File::replaceContentInFile($t . '/.env', '/TZ=[A-Za-z0-9\/_\-+]+/', 'TZ=' . $v);
+    Env::writeValueDotenv('TZ', $v, $t . '/.env');
     File::replaceContentInFile($t . '/renovate.json', '/"timezone": "[A-Za-z0-9\/_\-+]+",/', sprintf('"timezone": "%s",', $v));
   }
 

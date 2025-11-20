@@ -81,9 +81,10 @@ class OrgMachineName extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
 
     File::replaceContentAsync('your_org', $v);
-    File::renameInDir($this->tmpDir, 'your_org', $v);
+    File::renameInDir($t, 'your_org', $v);
   }
 
 }

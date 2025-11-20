@@ -39,8 +39,10 @@ class AssignAuthorPr extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsBool();
+    $t = $this->tmpDir;
+
     if (!$v) {
-      @unlink($this->tmpDir . '/.github/workflows/assign-author.yml');
+      @unlink($t . '/.github/workflows/assign-author.yml');
     }
   }
 

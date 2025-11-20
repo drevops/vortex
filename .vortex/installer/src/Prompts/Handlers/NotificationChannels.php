@@ -97,48 +97,47 @@ class NotificationChannels extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $channels = $this->getResponseAsArray();
+    $v = $this->getResponseAsArray();
+    $t = $this->tmpDir;
+
+    if (!empty($v)) {
+      Env::writeValueDotenv('VORTEX_NOTIFY_CHANNELS', Converter::toList($v), $t . '/.env');
+    }
+    else {
+      // If no channels selected, set to empty value.
+      Env::writeValueDotenv('VORTEX_NOTIFY_CHANNELS', '', $t . '/.env', FALSE);
+    }
 
     // Build list of tokens to remove based on unselected channels.
-    $tokens_to_remove = [];
+    $tokens = [];
 
-    if (!in_array(self::EMAIL, $channels)) {
-      $tokens_to_remove[] = 'NOTIFICATIONS_EMAIL';
+    if (!in_array(self::EMAIL, $v)) {
+      $tokens[] = 'NOTIFICATIONS_EMAIL';
     }
 
-    if (!in_array(self::SLACK, $channels)) {
-      $tokens_to_remove[] = 'NOTIFICATIONS_SLACK';
+    if (!in_array(self::SLACK, $v)) {
+      $tokens[] = 'NOTIFICATIONS_SLACK';
     }
 
-    if (!in_array(self::WEBHOOK, $channels)) {
-      $tokens_to_remove[] = 'NOTIFICATIONS_WEBHOOK';
+    if (!in_array(self::WEBHOOK, $v)) {
+      $tokens[] = 'NOTIFICATIONS_WEBHOOK';
     }
 
-    if (!in_array(self::NEWRELIC, $channels)) {
-      $tokens_to_remove[] = 'NOTIFICATIONS_NEWRELIC';
+    if (!in_array(self::NEWRELIC, $v)) {
+      $tokens[] = 'NOTIFICATIONS_NEWRELIC';
     }
 
-    if (!in_array(self::JIRA, $channels)) {
-      $tokens_to_remove[] = 'NOTIFICATIONS_JIRA';
+    if (!in_array(self::JIRA, $v)) {
+      $tokens[] = 'NOTIFICATIONS_JIRA';
     }
 
-    if (!in_array(self::GITHUB, $channels)) {
-      $tokens_to_remove[] = 'NOTIFICATIONS_GITHUB';
+    if (!in_array(self::GITHUB, $v)) {
+      $tokens[] = 'NOTIFICATIONS_GITHUB';
     }
 
     // Remove tokens for unselected channels.
-    foreach ($tokens_to_remove as $token_to_remove) {
-      File::removeTokenAsync($token_to_remove);
-    }
-
-    // Update VORTEX_NOTIFY_CHANNELS variable in .env with selected channels.
-    if (!empty($channels)) {
-      $channels_list = Converter::toList($channels);
-      File::replaceContentInFile($this->tmpDir . '/.env', '/VORTEX_NOTIFY_CHANNELS=.*/', 'VORTEX_NOTIFY_CHANNELS=' . $channels_list);
-    }
-    else {
-      // If no channels selected, comment out the variable.
-      File::replaceContentInFile($this->tmpDir . '/.env', '/VORTEX_NOTIFY_CHANNELS=.*/', '# VORTEX_NOTIFY_CHANNELS=');
+    foreach ($tokens as $token) {
+      File::removeTokenAsync($token);
     }
   }
 

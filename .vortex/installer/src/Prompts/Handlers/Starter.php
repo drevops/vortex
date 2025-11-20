@@ -97,8 +97,11 @@ DOC;
    * {@inheritdoc}
    */
   public function process(): void {
-    if ($this->response == self::INSTALL_PROFILE_DRUPALCMS) {
-      $cj = JsonManipulator::fromFile($this->tmpDir . '/composer.json');
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    if ($v === self::INSTALL_PROFILE_DRUPALCMS) {
+      $cj = JsonManipulator::fromFile($t . '/composer.json');
 
       $cj->addLink('require', 'drupal/cms', '^1.2', TRUE);
       $cj->addLink('require', 'wikimedia/composer-merge-plugin', '^2.1', TRUE);
@@ -125,7 +128,7 @@ DOC;
       $cj->addProperty('extra.merge-plugin.require', ['vendor/drupal/cms/composer.json']);
 
       $c = $cj->getContents();
-      file_put_contents($this->tmpDir . '/composer.json', $c);
+      file_put_contents($t . '/composer.json', $c);
     }
   }
 
