@@ -97,10 +97,7 @@ class DeployTypes extends AbstractHandler {
     $t = $this->tmpDir;
 
     if (!empty($types)) {
-      File::replaceContentInFile(
-        $t . '/.env', '/VORTEX_DEPLOY_TYPES=.*/',
-        'VORTEX_DEPLOY_TYPES=' . Converter::toList($types)
-      );
+      Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($types), $t . '/.env');
 
       if (!in_array(self::ARTIFACT, $types)) {
         @unlink($t . '/.gitignore.deployment');

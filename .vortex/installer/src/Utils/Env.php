@@ -130,11 +130,16 @@ class Env {
    *   or added with just '=' if not present.
    * @param string $filename
    *   Filename to write to.
+   * @param bool $enabled
+   *   If TRUE, the variable will be written normally (e.g., VAR=value).
+   *   If FALSE, the variable will be written as commented
+   *   out (e.g., # VAR=value).
+   *   Default is TRUE.
    *
    * @return array<string,string>
    *   Array of parsed values after modification.
    */
-  public static function writeValueDotenv(string $name, ?string $value = NULL, string $filename = '.env'): array {
+  public static function writeValueDotenv(string $name, ?string $value = NULL, string $filename = '.env', bool $enabled = TRUE): array {
     if (!is_readable($filename)) {
       throw new \RuntimeException(sprintf('File %s is not readable.', $filename));
     }
@@ -147,9 +152,8 @@ class Env {
     }
 
     // Pattern to match the variable name and its value, including multiline
-    // quoted values.
-    $pattern = '/^(' . preg_quote($name, '/') . ')='
-      . '("(?:[^"\\\\]|\\\\.)*"|[^\r\n]*)/m';
+    // quoted values. Matches both normal and commented-out variables.
+    $pattern = '/^#?\s*(' . preg_quote($name, '/') . ')=("(?:[^"\\\\]|\\\\.)*"|[^\r\n]*)/m';
 
     if ($value === NULL) {
       // Remove the variable if setting to null and it exists.
@@ -164,13 +168,15 @@ class Env {
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
-        $contents .= $name . "=\n";
+        $prefix = $enabled ? '' : '# ';
+        $contents .= $prefix . $name . "=\n";
       }
     }
     else {
       // Format the new value with proper quoting.
       $new_value = static::formatValueForDotenv($value);
-      $replacement = '$1=' . $new_value;
+      $prefix = $enabled ? '' : '# ';
+      $replacement = $prefix . '$1=' . $new_value;
 
       if (preg_match($pattern, $contents)) {
         // Replace existing variable value.
@@ -181,7 +187,7 @@ class Env {
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
-        $contents .= $name . '=' . $new_value . "\n";
+        $contents .= $prefix . $name . '=' . $new_value . "\n";
       }
     }
 

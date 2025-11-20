@@ -84,21 +84,27 @@ class HostingProvider extends AbstractHandler {
     if ($v === static::ACQUIA) {
       File::removeTokenAsync('!HOSTING_ACQUIA');
       File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
+
       $this->removeLagoon();
     }
     elseif ($v === static::LAGOON) {
       File::removeTokenAsync('!HOSTING_LAGOON');
       File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
+
       $this->removeAcquia();
+
       @unlink(sprintf('%s/%s/.htaccess', $t, $w));
-      $cj = JsonManipulator::fromFile($this->tmpDir . '/composer.json');
+
+      $cj = JsonManipulator::fromFile($t . '/composer.json');
       $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
-      file_put_contents($this->tmpDir . '/composer.json', $cj->getContents());
+      file_put_contents($t . '/composer.json', $cj->getContents());
     }
     else {
       $this->removeAcquia();
       $this->removeLagoon();
+
       File::removeTokenAsync('HOSTING');
+
       @unlink(sprintf('%s/%s/.htaccess', $t, $w));
     }
   }

@@ -145,15 +145,15 @@ class Theme extends AbstractHandler {
 
       File::removeTokenAsync('DRUPAL_THEME');
 
-      File::replaceContentInFile($t . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
-      File::replaceContentInFile($t . '/.env', '/DRUPAL_MAINTENANCE_THEME=.*/', 'DRUPAL_MAINTENANCE_THEME=' . $v);
+      Env::writeValueDotenv('DRUPAL_THEME', $v, $t . '/.env');
+      Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
 
       return;
     }
 
     // Handle custom themes.
-    File::replaceContentInFile($t . '/.env', '/DRUPAL_THEME=.*/', 'DRUPAL_THEME=' . $v);
-    File::replaceContentInFile($t . '/.env', '/DRUPAL_MAINTENANCE_THEME=.*/', 'DRUPAL_MAINTENANCE_THEME=' . $v);
+    Env::writeValueDotenv('DRUPAL_THEME', $v, $t . '/.env');
+    Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
 
     // Find the theme file in the destination directory.
     $file_dst = static::findThemeFile($this->dstDir, $w, $v);

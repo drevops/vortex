@@ -41,12 +41,13 @@ class PreserveDocsProject extends AbstractHandler {
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
 
     if (!empty($v)) {
       File::removeTokenAsync('!DOCS_PROJECT');
     }
     else {
-      File::rmdir($this->tmpDir . '/docs');
+      File::rmdir($t . '/docs');
       File::removeTokenAsync('DOCS_PROJECT');
     }
   }

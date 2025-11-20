@@ -81,21 +81,14 @@ DOC;
    */
   public function process(): void {
     $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    Env::writeValueDotenv('VORTEX_PROVISION_TYPE', $v, $t . '/.env');
 
     if ($v === static::PROFILE) {
-      File::replaceContentInFile(
-        $this->tmpDir . '/.env', '/VORTEX_PROVISION_TYPE=.*/',
-        "VORTEX_PROVISION_TYPE=" . static::PROFILE
-      );
-
       File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
     }
     else {
-      File::replaceContentInFile(
-        $this->tmpDir . '/.env', '/VORTEX_PROVISION_TYPE=.*/',
-        "VORTEX_PROVISION_TYPE=" . static::DATABASE
-      );
-
       File::removeTokenAsync('PROVISION_TYPE_PROFILE');
     }
   }
