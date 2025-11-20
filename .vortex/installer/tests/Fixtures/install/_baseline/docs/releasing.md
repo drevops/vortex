@@ -4,7 +4,7 @@
 manage releases.
 
 Note: after completing the release, commits must be manually pushed
-from `master` to `production` branch.
+from `main` to `production` branch.
 
 Refer to https://www.vortextemplate.com/docs/workflows/releasing for more information.
 
@@ -12,31 +12,16 @@ Refer to https://www.vortextemplate.com/docs/workflows/releasing for more inform
 
 1. Release branch exists as `release/X.Y.Z` in GitHub repository.
 2. Release tag exists as `X.Y.Z` in GitHub repository.
-3. The `HEAD` of the `master` branch has `X.Y.Z` tag.
-4. The hash of the `HEAD` of the `master` branch exists in the `develop` branch.
-   This is to ensure that everything pushed to `master` exists in `develop` (in
-   case if `master` had any hot-fixes that not yet have been merged
+3. The `HEAD` of the `main` branch has `X.Y.Z` tag.
+4. The hash of the `HEAD` of the `main` branch exists in the `develop` branch.
+   This is to ensure that everything pushed to `main` exists in `develop` (in
+   case if `main` had any hot-fixes that not yet have been merged
    to `develop`).
 5. There are no PRs in GitHub related to the release.
 6. The hash of the `HEAD` of the `production` branch matches the hash of
-   the `HEAD` of `master` branch.
+   the `HEAD` of `main` branch.
 
-## Version Number - Semantic Versioning
-
-Release versions are numbered according to [Semantic Versioning](https://semver.org/).
-
-Given a version number `X.Y.Z`:
-
-- `X` = Major release version. No leading zeroes.
-- `Y` = Minor Release version. No leading zeroes.
-- `Z` = Hotfix/patch version. No leading zeroes.
-
-Examples:
-
-- Correct: `0.1.0`, `1.0.0` , `1.0.1` , `1.0.10`
-- Incorrect: `0.1` , `1` , `1.0` , `1.0.01` , `1.0.010`
-
-## Version Number - CalVer
+## Version Number - Calendar Versioning (CalVer)
 
 Release versions are numbered according to [CalVer Versioning](https://calver.org/).
 
@@ -48,5 +33,5 @@ Given a version number `YY.M.Z`:
 
 Examples:
 
-- Correct: `24.1.0`, `24.11.1` , `24.1.10`, `24.10.1`, `9.12.0`
-- Incorrect: `24.0.0`, `2024.1.1` , `24` , `24.1.00` , `24.01.0`, `24.0.0`, `01.1.0`
+- Correct: `25.1.0`, `25.11.1` , `25.1.10`, `25.10.1`, `9.12.0`
+- Incorrect: `25.0.0`, `2025.1.1` , `25` , `25.1.00` , `25.01.0`, `25.0.0`, `01.1.0`
