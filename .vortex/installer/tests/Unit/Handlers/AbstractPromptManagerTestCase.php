@@ -33,6 +33,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
+use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
@@ -130,6 +131,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       ModulePrefix::id() => 'mypr',
       Theme::id() => 'myproject',
       CodeProvider::id() => CodeProvider::GITHUB,
+      VersionScheme::id() => VersionScheme::CALVER,
       Timezone::id() => 'UTC',
       Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
       Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT],
@@ -202,6 +204,7 @@ abstract class AbstractPromptManagerTestCase extends UnitTestCase {
       Theme::id() => static::TUI_DEFAULT,
       ThemeCustom::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
+      VersionScheme::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
       Services::id() => static::TUI_DEFAULT,
       Tools::id() => static::TUI_DEFAULT,

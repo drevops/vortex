@@ -37,6 +37,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
+use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
@@ -65,7 +66,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 28;
+  const TOTAL_RESPONSES = 29;
 
   /**
    * Array of responses.
@@ -154,6 +155,7 @@ class PromptManager {
 
       ->intro('Code repository')
       ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
+      ->add(fn($r, $pr, $n): int|string => select(...$this->args(VersionScheme::class)), VersionScheme::id())
 
       ->intro('Environment')
       ->add(fn($r, $pr, $n): string => suggest(...$this->args(Timezone::class)), Timezone::id())
@@ -287,6 +289,7 @@ class PromptManager {
       Tools::id(),
       Services::id(),
       Timezone::id(),
+      VersionScheme::id(),
       CodeProvider::id(),
       Modules::id(),
       Starter::id(),
@@ -388,6 +391,7 @@ class PromptManager {
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;
     $values['Code provider'] = $responses[CodeProvider::id()];
+    $values['Version scheme'] = $responses[VersionScheme::id()];
 
     $values['Environment'] = Tui::LIST_SECTION_TITLE;
     $values['Timezone'] = $responses[Timezone::id()];
