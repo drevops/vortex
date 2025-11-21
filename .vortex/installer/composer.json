@@ -11,10 +11,10 @@
             "role": "Maintainer"
         }
     ],
-    "homepage": "https://github.com/drevops/vortex-installer",
+    "homepage": "https://github.com/drevops/vortex",
     "support": {
-        "issues": "https://github.com/drevops/vortex-installer/issues",
-        "source": "https://github.com/drevops/vortex-installer"
+        "issues": "https://github.com/drevops/vortex/issues",
+        "source": "https://github.com/drevops/vortex"
     },
     "require": {
         "php": ">=8.3",
