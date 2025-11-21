@@ -3,13 +3,34 @@
 /**
  * @file
  * Helper functions for Vortex tooling scripts.
+ *
+ * This file provides reusable PHP helper functions for Vortex notification
+ * and utility scripts, enabling consistent behavior across all tooling.
+ *
+ * ## Why We Use These Helpers
+ *
+ * These helper functions serve several critical purposes:
+ *
+ * 1. **Consistency**: Standardized output formatting (info, task, pass, fail)
+ *    ensures all Vortex scripts produce uniform, recognizable messages.
+ *
+ * 2. **Reusability**: Common operations (HTTP requests, environment loading,
+ *    token replacement) are centralized to avoid code duplication.
+ *
+ * 3. **Testability**: All functions are designed to be mockable and testable,
+ *    with comprehensive unit tests ensuring reliability.
+ *
+ * 4. **Maintainability**: Changes to core functionality (e.g., output
+ *    formatting, HTTP client behavior) only need to be made in one place.
  */
 
 declare(strict_types=1);
 
 namespace DrevOps\VortexTooling;
 
+// @codeCoverageIgnoreStart
 load_dotenv(['.env', '.env.local']);
+// @codeCoverageIgnoreEnd
 
 /**
  * Check if current script has an override and execute it if found.
@@ -25,7 +46,7 @@ function execute_override(string $name): void {
     $path = $dir . DIRECTORY_SEPARATOR . $name;
     if (file_exists($path) && is_executable($path)) {
       passthru(sprintf('"%s"', $path), $exit_code);
-      exit($exit_code);
+      quit($exit_code);
     }
   }
 }
@@ -42,7 +63,9 @@ function load_dotenv(array $env_files = ['.env']): void {
       $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
       if ($lines === FALSE) {
+        // @codeCoverageIgnoreStart
         continue;
+        // @codeCoverageIgnoreEnd
       }
 
       foreach ($lines as $line) {
@@ -148,7 +171,7 @@ function fail_no_exit(string $format, ...$args): void {
  */
 function fail(string $format, ...$args): void {
   fail_no_exit($format, ...$args);
-  exit(1);
+  quit(1);
 }
 
 /**
@@ -206,7 +229,9 @@ function replace_tokens(string $template, array $replacements): string {
  * Check if debug mode is enabled.
  */
 function is_debug(): bool {
+  // @codeCoverageIgnoreStart
   return getenv('VORTEX_DEBUG') === '1';
+  // @codeCoverageIgnoreEnd
 }
 
 /**
@@ -292,11 +317,11 @@ function request_post(string $url, $body = NULL, array $headers = [], int $timeo
  *   - info: Request info array
  */
 function request(string $url, array $options = []): array {
+  // @codeCoverageIgnoreStart
   if (!function_exists('curl_init')) {
     fail('curl extension is not available.');
-    exit(1);
   }
-
+  // @codeCoverageIgnoreEnd
   $ch = curl_init($url);
 
   try {
@@ -329,7 +354,9 @@ function request(string $url, array $options = []): array {
 
     // Handle curl_getinfo failure.
     if ($info === FALSE) {
+      // @codeCoverageIgnoreStart
       $info = ['http_code' => 0];
+      // @codeCoverageIgnoreEnd
     }
 
     return [
@@ -355,6 +382,7 @@ function request(string $url, array $options = []): array {
 // like passthru() and exec() which are *not defined in this namespace*. We only
 // defined quit() in a namespace because mocking of global functions can only
 // be done if they are defined in a namespace.
+// @codeCoverageIgnoreStart
 if (!function_exists('DrevOps\VortexTooling\quit') && !class_exists('PHPUnit\\Framework\\TestCase')) {
 
   /**
@@ -371,3 +399,4 @@ if (!function_exists('DrevOps\VortexTooling\quit') && !class_exists('PHPUnit\\Fr
   }
 
 }
+// @codeCoverageIgnoreEnd
