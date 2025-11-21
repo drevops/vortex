@@ -56,6 +56,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
+      - name: Run playground scripts
+        run: |
+          echo "Running playground scripts for manual verification..."
+          cd playground
+          for script in *.php; do
+            if [ -f "$script" ]; then
+              echo ""
+              echo "========================================"
+              echo "Running: $script"
+              echo "========================================"
+              if [[ "$script" == *"request"* ]]; then
+                # Network-dependent scripts, allow failure
+                ./"$script" || echo "⚠️  $script failed (network required)"
+              else
+                # All other scripts should succeed
+                ./"$script"
+              fi
+              echo ""
+            fi
+          done
+        working-directory: .vortex/tooling
+
       - name: Upload coverage reports as an artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:

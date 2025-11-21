@@ -22,6 +22,7 @@
     <file>src/notify-newrelic</file>
     <file>src/notify-slack</file>
     <file>src/notify-webhook</file>
+    <file>playground</file>
     <file>tests</file>
 
     <!-- Allow long array lines in tests. -->
