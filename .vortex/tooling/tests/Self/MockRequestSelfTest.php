@@ -18,15 +18,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(UnitTestCase::class)]
 class MockRequestSelfTest extends UnitTestCase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp(): void {
-    parent::setUp();
-    // Load helpers.php to make request_get/request_post/request available.
-    require_once __DIR__ . '/../../src/helpers.php';
-  }
-
   public function testMockRequestGetSuccess(): void {
     $this->mockRequestGet(
       'https://example.com/api',
@@ -34,6 +25,9 @@ class MockRequestSelfTest extends UnitTestCase {
       10,
       ['status' => 200, 'body' => 'success response']
     );
+
+    // Load helpers.php AFTER setting up mocks.
+    require_once __DIR__ . '/../../src/helpers.php';
 
     $result = \DrevOps\VortexTooling\request_get('https://example.com/api');
 
