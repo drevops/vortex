@@ -44,6 +44,7 @@ return RectorConfig::configure()
     __DIR__ . '/src/notify-newrelic',
     __DIR__ . '/src/notify-slack',
     __DIR__ . '/src/notify-webhook',
+    __DIR__ . '/playground',
     __DIR__ . '/tests',
   ])
   ->withSkip([
