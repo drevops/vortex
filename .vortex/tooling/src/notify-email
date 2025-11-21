@@ -1,0 +1,162 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notification dispatch to email recipients.
+ */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// Email notification project name.
+$project = getenv('VORTEX_NOTIFY_EMAIL_PROJECT') ?: getenv('VORTEX_NOTIFY_PROJECT');
+
+// Email notification sender address.
+$from = getenv('VORTEX_NOTIFY_EMAIL_FROM') ?: getenv('DRUPAL_SITE_EMAIL');
+
+// Email notification recipients.
+//
+// Multiple names can be specified as a comma-separated list of email addresses
+// with optional names in the format "email|name".
+// Example: "to1@example.com|Jane Doe, to2@example.com|John Doe".
+$recipients = getenv('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
+
+// Email notification deployment label (branch name, PR number, or custom).
+$label = getenv('VORTEX_NOTIFY_EMAIL_LABEL') ?: getenv('VORTEX_NOTIFY_LABEL');
+
+// Email notification environment URL.
+$env_url = getenv('VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL') ?: getenv('VORTEX_NOTIFY_ENVIRONMENT_URL');
+
+// Email notification login URL.
+$login_url = getenv('VORTEX_NOTIFY_EMAIL_LOGIN_URL') ?: getenv('VORTEX_NOTIFY_LOGIN_URL');
+
+// Email notification message template.
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+// - %environment_url% - Environment URL
+// - %login_url% - Login URL.
+$message = getenv('VORTEX_NOTIFY_EMAIL_MESSAGE');
+
+// Email notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$event = getenv('VORTEX_NOTIFY_EMAIL_EVENT') ?: getenv('VORTEX_NOTIFY_EVENT') ?: 'post_deployment';
+
+// ------------------------------------------------------------------------------
+validate_variable('VORTEX_NOTIFY_EMAIL_PROJECT');
+validate_variable('VORTEX_NOTIFY_EMAIL_FROM');
+validate_variable('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
+validate_variable('VORTEX_NOTIFY_EMAIL_LABEL');
+validate_variable('VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL');
+validate_variable('VORTEX_NOTIFY_EMAIL_LOGIN_URL');
+
+info('Started email notification.');
+
+// Skip if this is a pre-deployment event (email only for post-deployment).
+if ($event === 'pre_deployment') {
+  pass('Skipping email notification for pre_deployment event.');
+  exit(0);
+}
+
+// Check for mail command availability.
+$has_sendmail = FALSE;
+$has_mail = FALSE;
+
+exec('command -v sendmail 2>/dev/null', $output, $return_var);
+if ($return_var === 0) {
+  note('Using sendmail command to send emails.');
+  $has_sendmail = TRUE;
+}
+else {
+  exec('command -v mail 2>/dev/null', $output, $return_var);
+  if ($return_var === 0) {
+    note('Using mail command to send emails.');
+    $has_mail = TRUE;
+  }
+}
+
+if (!$has_sendmail && !$has_mail) {
+  fail('Neither mail nor sendmail commands are available.');
+}
+
+$message = $message ?: <<< EOT
+## This is an automated message ##
+
+Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%.
+Login at: %login_url%
+EOT;
+
+$timestamp = date('d/m/Y H:i:s T');
+$subject = sprintf('%s deployment notification of %s', $project, $label);
+
+// Replace tokens in message template.
+$content = replace_tokens($message, [
+  'project' => $project,
+  'label' => $label,
+  'timestamp' => $timestamp,
+  'environment_url' => $env_url,
+  'login_url' => $login_url,
+]);
+
+info('Email notification summary:');
+note('Project        : ' . $project);
+note('Deployment     : ' . $label);
+note('Environment URL: ' . $env_url);
+note('Login URL      : ' . $login_url);
+note('From           : ' . $from);
+note('Recipients     : ' . $recipients);
+note('Subject        : ' . $subject);
+note('Content        : ' . $content);
+
+// Parse and send to each recipient.
+$sent = [];
+$recipients = array_map(trim(...), explode(',', $recipients));
+
+foreach ($recipients as $recipient) {
+  $parts = array_map(trim(...), explode('|', $recipient, 2));
+  $email = $parts[0];
+  $name = $parts[1] ?? '';
+
+  $to = empty($name) ? $email : sprintf('"%s" <%s>', $name, $email);
+
+  if ($has_sendmail) {
+    $mail_content = sprintf('To: %s%s', $to, PHP_EOL);
+    $mail_content .= sprintf('Subject: %s%s', $subject, PHP_EOL);
+    $mail_content .= sprintf('From: %s%s', $from, PHP_EOL);
+    $mail_content .= "\n";
+    $mail_content .= $content . PHP_EOL;
+
+    $cmd = sprintf('echo %s | sendmail -t -f %s', escapeshellarg($mail_content), escapeshellarg($from));
+    exec($cmd, $output, $return_var);
+
+    if ($return_var === 0) {
+      $sent[] = $email;
+    }
+  }
+  elseif ($has_mail) {
+    $mail_content = "From: {$from}\n\n{$content}";
+    $cmd = sprintf('echo %s | mail -s %s %s', escapeshellarg($mail_content), escapeshellarg($subject), escapeshellarg($to));
+    exec($cmd, $output, $return_var);
+
+    if ($return_var === 0) {
+      $sent[] = $email;
+    }
+  }
+}
+
+if (!empty($sent)) {
+  note('Notification email(s) sent to: ' . implode(', ', $sent));
+  note('Subject: ' . $subject);
+  note('Content: ' . $content);
+}
+else {
+  note('No notification emails were sent.');
+}
+
+pass('Finished email notification.');
