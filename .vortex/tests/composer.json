@@ -6,9 +6,16 @@
     "authors": [
         {
             "name": "Alex Skrypnyk",
-            "email": "alex@drevops.com"
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drevops.com",
+            "role": "Maintainer"
         }
     ],
+    "homepage": "https://github.com/drevops/vortex",
+    "support": {
+        "issues": "https://github.com/drevops/vortex/issues",
+        "source": "https://github.com/drevops/vortex"
+    },
     "require": {
         "php": ">=8.3",
         "cweagans/composer-patches": "^2"
@@ -49,10 +56,10 @@
         "lint": [
             "phpcs",
             "phpstan",
-            "rector --clear-cache --dry-run"
+            "rector --dry-run"
         ],
         "lint-fix": [
-            "rector --clear-cache",
+            "rector",
             "phpcbf"
         ],
         "reset": "rm -Rf vendor",
