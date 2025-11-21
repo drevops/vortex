@@ -1,0 +1,165 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notification dispatch to GitHub.
+ *
+ * Provides dispatching "deployments" notifications to GitHub.
+ * @see https://docs.github.com/en/rest/deployments/deployments
+ *
+ * GitHub deployments can only be created if all checks pass. Thus, the
+ * deployment notification dispatch will fail if CI hasn't completed and
+ * reported successful checks.
+ */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// GitHub notification personal access token.
+$token = getenv('VORTEX_NOTIFY_GITHUB_TOKEN') ?: getenv('GITHUB_TOKEN');
+
+// GitHub notification repository in owner/repo format.
+$repository = getenv('VORTEX_NOTIFY_GITHUB_REPOSITORY');
+
+// GitHub notification deployment label (branch name, PR number, or custom).
+// This will be used as the 'ref' parameter in GitHub's Deployment API.
+$label = getenv('VORTEX_NOTIFY_GITHUB_LABEL') ?: getenv('VORTEX_NOTIFY_LABEL');
+
+// GitHub notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$event = getenv('VORTEX_NOTIFY_GITHUB_EVENT') ?: getenv('VORTEX_NOTIFY_EVENT');
+
+// GitHub notification deployment environment URL.
+$env_url = getenv('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL') ?: getenv('VORTEX_NOTIFY_ENVIRONMENT_URL');
+
+// GitHub notification environment type: production, uat, dev, pr.
+// Used as the 'environment' parameter in GitHub's Deployment API.
+$env_type = getenv('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE') ?: 'PR';
+
+// ------------------------------------------------------------------------------
+validate_variable('VORTEX_NOTIFY_GITHUB_TOKEN');
+validate_variable('VORTEX_NOTIFY_GITHUB_REPOSITORY');
+validate_variable('VORTEX_NOTIFY_GITHUB_LABEL');
+validate_variable('VORTEX_NOTIFY_GITHUB_EVENT');
+validate_variable('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE');
+
+info('Started GitHub notification for %s event.', $event);
+
+/**
+ * Validate deployment ID.
+ *
+ * @param mixed $deployment_id
+ *   Deployment ID to validate.
+ *
+ * @return bool
+ *   TRUE if valid, FALSE otherwise.
+ */
+function validate_deployment_id($deployment_id): bool {
+  if (empty($deployment_id)) {
+    return FALSE;
+  }
+
+  $id_str = (string) $deployment_id;
+  $length = strlen($id_str);
+
+  // Check length (9-11 digits) and numeric format.
+  return $length >= 9 && $length <= 11 && ctype_digit($id_str);
+}
+
+if ($event === 'pre_deployment') {
+  info('GitHub pre-deployment notification summary:');
+  note('Repository      : ' . $repository);
+  note('Label (ref)     : ' . $label);
+  note('Environment Type: ' . $env_type);
+  note('Event           : ' . $event);
+
+  // Create deployment.
+  $payload_data = [
+    'ref' => $label,
+    'environment' => $env_type,
+    'auto_merge' => FALSE,
+    'required_contexts' => [],
+  ];
+
+  $url = sprintf('https://api.github.com/repos/%s/deployments', $repository);
+  $response = request_post($url, json_encode($payload_data), [
+    'Authorization: token ' . $token,
+    'Accept: application/vnd.github.v3+json',
+  ]);
+
+  $deployment_id = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    $deployment_id = $payload['id'] ?? NULL;
+  }
+
+  // Check deployment ID.
+  if (!validate_deployment_id($deployment_id)) {
+    fail('Failed to get a deployment ID for a %s operation. Payload: %s. Wait for GitHub checks to finish and try again.', $event, $response['body'] ?: 'empty');
+  }
+
+  note('Marked deployment as started.');
+}
+else {
+  validate_variable('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL');
+
+  // Returns all deployment for this ref sorted from the latest to the oldest.
+  $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $repository, urlencode($label));
+  $response = request_get($url, [
+    'Authorization: token ' . $token,
+    'Accept: application/vnd.github.v3+json',
+  ]);
+
+  // Get first (latest) deployment ID.
+  $deployment_id = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    if (is_array($payload) && !empty($payload)) {
+      $first = reset($payload);
+      $deployment_id = $first['id'] ?? NULL;
+    }
+  }
+
+  // Check deployment ID.
+  if (!validate_deployment_id($deployment_id)) {
+    fail('Failed to get a deployment ID for a %s operation. Payload: %s. Check that a pre_deployment notification was dispatched.', $event, $response['body'] ?: 'empty');
+  }
+
+  info('GitHub post-deployment notification summary:');
+  note('Repository         : ' . $repository);
+  note('Label (ref)        : ' . $label);
+  note('Environment Type   : ' . $env_type);
+  note('Environment URL    : ' . $env_url);
+  note('Deployment ID      : ' . $deployment_id);
+  note('Event              : ' . $event);
+
+  // Post status update.
+  $status_data = [
+    'state' => 'success',
+    'environment_url' => $env_url,
+  ];
+
+  $url = sprintf('https://api.github.com/repos/%s/deployments/%s/statuses', $repository, $deployment_id);
+  $response = request_post($url, json_encode($status_data), [
+    'Accept: application/vnd.github.v3+json',
+    'Authorization: token ' . $token,
+  ]);
+
+  $status = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    $status = $payload['state'] ?? NULL;
+  }
+
+  if ($status !== 'success') {
+    fail('Previous deployment was found, but was unable to update the deployment status. Payload: %s', $response['body'] ?: 'empty');
+  }
+
+  note('Marked deployment as finished.');
+}
+
+pass('Finished GitHub notification for %s event.', $event);
