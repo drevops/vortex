@@ -49,10 +49,12 @@
         }
     },
     "scripts": {
+        "check-no-exit": "php check-no-exit.php",
         "lint": [
             "phpcs",
             "phpstan",
-            "rector --dry-run"
+            "rector --dry-run",
+            "@check-no-exit"
         ],
         "lint-fix": [
             "rector",
