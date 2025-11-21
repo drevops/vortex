@@ -37,6 +37,7 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
   ->withPaths([
+    __DIR__ . '/check-no-exit.php',
     __DIR__ . '/src/notify',
     __DIR__ . '/src/notify-email',
     __DIR__ . '/src/notify-github',
