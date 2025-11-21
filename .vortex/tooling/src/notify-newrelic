@@ -1,0 +1,173 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notification dispatch to New Relic.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Flag to enable New Relic notifications.
+//
+// Set to "true" (not "1") in environments where New Relic is configured.
+$newrelic_enabled = getenv('VORTEX_NOTIFY_NEWRELIC_ENABLED') ?: getenv('NEWRELIC_ENABLED');
+
+// New Relic notification project name.
+$notify_project = getenv_required('VORTEX_NOTIFY_NEWRELIC_PROJECT', 'VORTEX_NOTIFY_PROJECT');
+
+// New Relic notification deployment label (branch name, PR number, or custom).
+$notify_label = getenv_required('VORTEX_NOTIFY_NEWRELIC_LABEL', 'VORTEX_NOTIFY_LABEL');
+
+// New Relic notification environment URL.
+$notify_env_url = getenv_required('VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
+
+// New Relic notification login URL.
+$notify_login_url = getenv_default('VORTEX_NOTIFY_NEWRELIC_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', $notify_env_url . '/user/login');
+
+// New Relic notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_default('VORTEX_NOTIFY_NEWRELIC_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
+
+// New Relic notification User API Key.
+//
+// To obtain your User API Key:
+// 1. Log in to New Relic
+// 2. Click on your profile icon (bottom left)
+// 3. Go to "API keys"
+// 4. Create or copy an existing "User key"
+// 5. The key format is: `NRAK-XXXXXXXXXXXXXXXXXXXXXX`.
+// @see https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key
+// @see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
+$newrelic_user_key = getenv_required('VORTEX_NOTIFY_NEWRELIC_USER_KEY', 'NEWRELIC_USER_KEY');
+
+// New Relic notification deployment revision.
+//
+// If not provided, will be auto-generated as [LABEL]-[TIMESTAMP].
+$newrelic_revision = getenv('VORTEX_NOTIFY_NEWRELIC_REVISION');
+
+// New Relic notification application name as it appears in the dashboard.
+$newrelic_app_name = getenv_default('VORTEX_NOTIFY_NEWRELIC_APP_NAME', sprintf('%s-%s', $notify_project, $notify_label));
+
+// New Relic notification application ID (auto-discovered if not provided).
+//
+// Will be discovered automatically from application name if not provided.
+$newrelic_appid = getenv('VORTEX_NOTIFY_NEWRELIC_APPID');
+
+// New Relic notification deployment description template.
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+// - %environment_url% - Environment URL
+// - %login_url% - Login URL.
+$newrelic_description = getenv_default('VORTEX_NOTIFY_NEWRELIC_DESCRIPTION', '"Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%"');
+
+// New Relic notification deployment changelog.
+// Defaults to the description.
+$newrelic_changelog = getenv('VORTEX_NOTIFY_NEWRELIC_CHANGELOG');
+
+// New Relic notification user name performing deployment.
+$newrelic_user_name = getenv_default('VORTEX_NOTIFY_NEWRELIC_USER_NAME', 'Deployment robot');
+
+// New Relic notification API endpoint.
+$newrelic_endpoint = getenv_default('VORTEX_NOTIFY_NEWRELIC_ENDPOINT', 'https://api.newrelic.com/v2');
+
+// ------------------------------------------------------------------------------
+
+if (empty($newrelic_enabled)) {
+  info('New Relic is not enabled. Set NEWRELIC_ENABLED or VORTEX_NOTIFY_NEWRELIC_ENABLED in your environment.');
+  quit();
+}
+
+info('Started New Relic notification.');
+
+// Skip if this is a pre-deployment event (New Relic only for post-deployment).
+if ($notify_event === 'pre_deployment') {
+  pass('Skipping New Relic notification for pre_deployment event.');
+  quit();
+}
+
+if (!$newrelic_revision) {
+  $revision_date = date('Ymd');
+  $revision_time = date('His');
+  $newrelic_revision = sprintf('%s-%s-%s', $notify_label, $revision_date, $revision_time);
+  note('Auto-generated revision: ' . $newrelic_revision);
+}
+
+if (!$newrelic_appid && $newrelic_app_name) {
+  task('Discovering APP id by name as it was not provided.');
+
+  $url = sprintf('%s/applications.json?filter[name]=%s&exclude_links=true', $newrelic_endpoint, urlencode($newrelic_app_name));
+  $response = request_get($url, [
+    'Api-Key: ' . $newrelic_user_key,
+  ]);
+
+  if ($response['ok'] && $response['body']) {
+    $data = json_decode((string) $response['body'], TRUE);
+    if (isset($data['applications'][0]['id'])) {
+      $newrelic_appid = $data['applications'][0]['id'];
+    }
+
+    if (!$newrelic_appid) {
+      pass('Notification skipped: No New Relic application ID found for %s. This is expected for non-configured environments.', $newrelic_app_name);
+      quit();
+    }
+  }
+
+  pass('Discovered application ID: %s', $newrelic_appid);
+}
+
+$newrelic_description = replace_tokens($newrelic_description, [
+  'project' => $notify_project,
+  'label' => $notify_label,
+  'timestamp' => date('d/m/Y H:i:s T'),
+  'environment_url' => $notify_env_url,
+  'login_url' => $notify_login_url,
+]);
+
+$newrelic_changelog = $newrelic_changelog ?: $newrelic_description;
+
+note('New Relic notification summary:');
+note('Project          : ' . $notify_project);
+note('Deployment       : ' . $notify_label);
+note('App Name         : ' . $newrelic_app_name);
+note('App ID (resolved): ' . $newrelic_appid);
+note('Revision         : ' . $newrelic_revision);
+note('User             : ' . $newrelic_user_name);
+note('Endpoint         : ' . $newrelic_endpoint);
+note('Description      : ' . $newrelic_description);
+
+task('Creating a deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid);
+
+$payload_data = [
+  'deployment' => [
+    'revision' => $newrelic_revision,
+    'changelog' => $newrelic_changelog,
+    'description' => $newrelic_description,
+    'user' => $newrelic_user_name,
+  ],
+];
+
+$url = sprintf('%s/applications/%s/deployments.json', $newrelic_endpoint, $newrelic_appid);
+$response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
+  'Api-Key: ' . $newrelic_user_key,
+  'Content-Type: application/json',
+]);
+
+if ($response['status'] !== 201) {
+  fail('Failed to create a deployment notification for application %s with ID %s', $newrelic_app_name, $newrelic_appid);
+}
+
+pass('Created deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid);
+
+info('Finished New Relic notification.');
