@@ -1,0 +1,127 @@
+# CircleCI 2.0 configuration file.
+#
+# Vortex - Test (Post-build)
+#
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+#
+# Run Vortex tests after 'build' job to test CircleCI's configuration.
+#;
+#; Comments starting with '#;<' and '#;>' are internal Vortex comments
+#; and will be removed during installation or update of Vortex.
+version: '2.1'
+
+aliases:
+  # Shared runner container configuration applied to each job.
+  - &runner_config
+    working_directory: &working_directory ~/project
+    environment:
+      VORTEX_DEPLOY_SSH_FINGERPRINT: "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
+    docker:
+      # Using the 'runner' container where each job will be executed.
+      # This container has all the necessary tools to run a dockerized environment.
+      # https://github.com/drevops/ci-runner
+      # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
+      - image: drevops/ci-runner:25.10.0
+        auth:
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+        environment:
+          # Set runner timezone via UI to ensure that executed operations use correct timestamps.
+          # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+          TZ: UTC
+          # Set runner terminal capabilities.
+          TERM: xterm-256color
+          # Disable strict host key checking for SSH connections.
+          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+          # Remove all SSH keys from the runner container.
+          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+          # Directory to store test results.
+          VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
+          # Directory to store test artifacts.
+          VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
+          # Directory to use for artifact deployments.
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+          # Source code location for artifact deployments.
+          VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
+          # Report file location for artifact deployments.
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          # Check only minimal stack requirements.
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    # CI runner resource class.
+    # https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    # Change to 'large' for faster builds.
+    resource_class: medium
+
+  - &step_setup_remote_docker
+    setup_remote_docker:
+      # Docker Layer Caching allows to significantly speed up builds by caching
+      # images built during previous runs.
+      # https://circleci.com/docs/2.0/docker-layer-caching/
+      docker_layer_caching: false
+      version: default
+
+  - &step_process_codebase_for_ci
+    run:
+      name: Process codebase to run in CI
+      command: |
+        find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+        mkdir -p /tmp/workspace/code
+
+  - &load_variables_from_dotenv
+    run:
+      name: Load environment variables from .env file
+      # Load variables from .env file, respecting existing values, and make them available for the next steps.
+      command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
+
+################################################################################
+# JOBS
+################################################################################
+
+jobs:
+  vortex-test-postbuild:
+    <<: *runner_config
+    steps:
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+      - *step_setup_remote_docker
+
+      - run:
+          name:  Install Ahoy
+          command: |
+            version=2.4.0 && \
+            set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+            chmod +x /usr/local/bin/ahoy && \
+            ahoy --version
+
+      - run:
+          name: Install test dependencies
+          command: |
+            cd .vortex/tests
+            composer install --no-interaction --prefer-dist
+
+      - run:
+          name: Run CircleCI post-build tests
+          command: |
+            cd .vortex/tests
+            ./vendor/bin/phpunit --group=postbuild
+
+      - store_test_results:
+          path: *test_results
+
+      - store_artifacts:
+          path: *artifacts
+
+################################################################################
+# WORKFLOWS
+################################################################################
+
+workflows:
+  version: 2
+  # Run post-build tests for Vortex.
+  vortex-test-postbuild:
+    jobs:
+      - vortex-test-postbuild:
+          filters:
+            tags:
+              only: /.*/
