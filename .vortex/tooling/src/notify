@@ -1,0 +1,80 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notify about events.
+ *
+ * This is a router script to call relevant scripts based on type.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Notification channels.
+//
+// Comma-separated values: email,slack,newrelic,github,jira,webhook.
+$channels = (string) getenv('VORTEX_NOTIFY_CHANNELS') ?: 'email';
+
+// Notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$event = getenv('VORTEX_NOTIFY_EVENT') ?: 'post_deployment';
+
+// Notification project name.
+$project = getenv('VORTEX_NOTIFY_PROJECT') ?: getenv('VORTEX_PROJECT');
+
+// Notification deployment label (branch name, PR number, or custom identifier).
+$label = getenv_required('VORTEX_NOTIFY_LABEL');
+
+// Notification environment URL (where the site was deployed).
+$env_url = getenv('VORTEX_NOTIFY_ENVIRONMENT_URL');
+
+// Notification login URL (defaults to ENVIRONMENT_URL/user/login).
+$login_url = getenv_default('VORTEX_NOTIFY_LOGIN_URL', $env_url . '/user/login');
+
+// Notification skip flag.
+$skip = getenv('VORTEX_NOTIFY_SKIP');
+
+// -----------------------------------------------------------------------------
+
+info('Started dispatching notifications.');
+
+if ($skip) {
+  pass('Skipping dispatching notifications.');
+  quit(0);
+}
+
+$channels = array_filter(array_map(trim(...), explode(',', $channels)));
+
+if (empty($channels)) {
+  pass('No notification channels specified, skipping notifications.');
+  quit(0);
+}
+
+if (!in_array($event, ['pre_deployment', 'post_deployment'])) {
+  fail('Unsupported event %s provided.', $event);
+}
+
+foreach ($channels as $channel) {
+  $script = __DIR__ . ('/notify-' . $channel);
+
+  if (!file_exists($script) || !is_executable($script)) {
+    fail("Notification script for channel '%s' not found or is not executable: %s", $channel, $script);
+  }
+
+  $exit_code = 0;
+  passthru(sprintf('"%s"', $script), $exit_code);
+
+  if ($exit_code !== 0) {
+    fail('Notification to %s failed with exit code %s', $channel, $exit_code);
+  }
+}
+
+pass('Finished dispatching notifications.');
