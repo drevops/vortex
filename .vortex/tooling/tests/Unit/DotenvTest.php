@@ -6,6 +6,7 @@ namespace DrevOps\VortexTooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for environment management functions.
@@ -13,26 +14,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
 #[CoversFunction('DrevOps\VortexTooling\load_dotenv')]
-class EnvTest extends UnitTestCase {
+#[Group('helpers')]
+class DotenvTest extends UnitTestCase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp(): void {
     parent::setUp();
-    // Load helpers to make functions available.
+
     require_once __DIR__ . '/../../src/helpers.php';
   }
 
-  /**
-   * Test load_dotenv() with various environment file contents.
-   *
-   * @param array<string, string> $env_content
-   *   Environment file content as key => value pairs.
-   * @param array<string, string> $expected
-   *   Expected environment variables.
-   */
-  #[DataProvider('providerLoadDotenv')]
+  #[DataProvider('dataProviderLoadDotenv')]
   public function testLoadDotenv(array $env_content, array $expected): void {
     $env_file = self::$tmp . '/.env.test';
     $lines = [];
@@ -48,13 +39,7 @@ class EnvTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for testLoadDotenv().
-   *
-   * @return array<string, array<string, array<string, string>>>
-   *   Test cases.
-   */
-  public static function providerLoadDotenv(): array {
+  public static function dataProviderLoadDotenv(): array {
     return [
       'simple values' => [
         'env_content' => [
@@ -95,9 +80,6 @@ class EnvTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test load_dotenv() skips comments and empty lines.
-   */
   public function testLoadDotenvSkipsCommentsAndEmpty(): void {
     $env_file = self::$tmp . '/.env.test';
     file_put_contents($env_file, "# Comment\nTEST_VAR=value\n\n# Another comment\nTEST_VAR2=value2");
@@ -108,9 +90,6 @@ class EnvTest extends UnitTestCase {
     $this->assertEquals('value2', getenv('TEST_VAR2'));
   }
 
-  /**
-   * Test load_dotenv() handles non-existent files gracefully.
-   */
   public function testLoadDotenvNonExistentFile(): void {
     $this->expectNotToPerformAssertions();
 

@@ -7,6 +7,7 @@ namespace DrevOps\VortexTooling\Tests\Unit;
 use DrevOps\VortexTooling\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for output formatter functions.
@@ -19,27 +20,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('DrevOps\VortexTooling\pass')]
 #[CoversFunction('DrevOps\VortexTooling\fail_no_exit')]
 #[CoversFunction('DrevOps\VortexTooling\fail')]
-#[CoversFunction('DrevOps\VortexTooling\_supports_color')]
+#[CoversFunction('DrevOps\VortexTooling\term_supports_color')]
+#[Group('helpers')]
 class FormatterTest extends UnitTestCase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp(): void {
     parent::setUp();
-    // Load helpers to make functions available.
+
     require_once __DIR__ . '/../../src/helpers.php';
   }
 
-  /**
-   * Test output formatter functions.
-   *
-   * @param string $function
-   *   Function name to test.
-   * @param string $expected_prefix
-   *   Expected output prefix (when colors are disabled).
-   */
-  #[DataProvider('providerOutputFormatters')]
+  #[DataProvider('dataProviderOutputFormatters')]
   public function testOutputFormatters(string $function, string $expected_prefix): void {
     putenv('TERM=dumb');
 
@@ -58,13 +49,7 @@ class FormatterTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for testOutputFormatters().
-   *
-   * @return array<string, array<int, string>>
-   *   Test cases.
-   */
-  public static function providerOutputFormatters(): array {
+  public static function dataProviderOutputFormatters(): array {
     return [
       'note' => ['note', '       '],
       'task' => ['task', '[TASK] '],
@@ -74,15 +59,7 @@ class FormatterTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test output formatters with color support.
-   *
-   * @param string $function
-   *   Function name to test.
-   * @param string $expected_prefix
-   *   Expected output prefix.
-   */
-  #[DataProvider('providerOutputFormattersWithColor')]
+  #[DataProvider('dataProviderOutputFormattersWithColor')]
   public function testOutputFormattersWithColor(string $function, string $expected_prefix): void {
     putenv('TERM=xterm-256color');
 
@@ -97,13 +74,7 @@ class FormatterTest extends UnitTestCase {
     $this->assertStringContainsString('Test', $output);
   }
 
-  /**
-   * Data provider for testOutputFormattersWithColor().
-   *
-   * @return array<string, array<int, string>>
-   *   Test cases.
-   */
-  public static function providerOutputFormattersWithColor(): array {
+  public static function dataProviderOutputFormattersWithColor(): array {
     return [
       'task' => ['task', '[TASK]'],
       'info' => ['info', '[INFO]'],
@@ -111,9 +82,6 @@ class FormatterTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test fail() function exits with code 1.
-   */
   public function testFail(): void {
     $this->mockQuit(1);
 
@@ -129,16 +97,8 @@ class FormatterTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Test _supports_color() with various TERM values.
-   *
-   * @param string|false $term_value
-   *   Value to set for TERM.
-   * @param bool $expected
-   *   Expected result.
-   */
-  #[DataProvider('providerSupportsColor')]
-  public function testSupportsColor(string|bool $term_value, bool $expected): void {
+  #[DataProvider('dataProviderTermSupportsColor')]
+  public function testTermSupportsColor(string|bool $term_value, bool $expected): void {
     if ($term_value === FALSE) {
       putenv('TERM');
     }
@@ -146,17 +106,11 @@ class FormatterTest extends UnitTestCase {
       putenv('TERM=' . $term_value);
     }
 
-    $result = \DrevOps\VortexTooling\_supports_color();
+    $result = \DrevOps\VortexTooling\term_supports_color();
     $this->assertEquals($expected, $result);
   }
 
-  /**
-   * Data provider for testSupportsColor().
-   *
-   * @return array<string, array<string, mixed>>
-   *   Test cases.
-   */
-  public static function providerSupportsColor(): array {
+  public static function dataProviderTermSupportsColor(): array {
     return [
       'dumb terminal' => ['term_value' => 'dumb', 'expected' => FALSE],
       'no terminal' => ['term_value' => FALSE, 'expected' => FALSE],

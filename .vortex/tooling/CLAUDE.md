@@ -35,7 +35,7 @@ This document describes the Vortex tooling package - a collection of PHP helper 
 │   │   ├── UnitTestCase.php     # Base test case
 │   │   ├── ExitException.php    # Exit exception for testing
 │   │   ├── ExitMockTest.php     # Exit mocking tests
-│   │   ├── EnvTest.php          # Environment tests
+│   │   ├── DotenvTest.php          # Environment tests
 │   │   └── SelfTest.php         # Self-tests for core functions
 │   └── Traits/
 │       └── MockTrait.php        # Mock infrastructure (passthru, quit, request)
@@ -107,6 +107,96 @@ The package uses **three types of tests**:
 1. **Unit Tests** (`tests/Unit/`) - Test individual helper functions
 2. **Self Tests** (`tests/Self/`) - Test the mock infrastructure itself
 3. **Fixture Scripts** (`tests/Fixtures/`) - External scripts for integration testing
+
+### Test Development Best Practices
+
+**Environment Variable Management**:
+- Use `$this->envSet('VAR', 'value')` for setting single variables
+- Use `$this->envSetMultiple(['VAR1' => 'value1', 'VAR2' => 'value2'])` for multiple variables
+- Use `$this->envUnset('VAR')` for unsetting single variables
+- Use `$this->envUnsetMultiple(['VAR1', 'VAR2'])` for unsetting multiple variables
+- Use `$this->envUnsetPrefix('PREFIX_')` for unsetting all variables with a prefix
+- NEVER use `putenv()` directly - always use EnvTrait methods for automatic cleanup
+
+**Documentation**:
+- Data provider method names should start with `dataProvider` prefix (e.g., `dataProviderHttpMethods`, not `providerHttpMethods`)
+- Block comments (PHPDoc /** ... */) are ONLY allowed on test classes, NOT on methods
+- Do NOT add block comments to test methods, data provider methods, or helper methods
+- Inline comments (// ...) are acceptable for explaining logic within method bodies
+- Keep test method names descriptive enough that block comments aren't needed
+
+**Allowed Comments**:
+```php
+// ✅ CORRECT - Block comment on class only
+/**
+ * Tests for webhook notification script.
+ */
+#[RunTestsInSeparateProcesses]
+class NotifyWebhookTest extends UnitTestCase {
+
+  // ✅ CORRECT - No block comment on methods, only inline comments
+  public function testSuccessfulNotification(): void {
+    // Mock HTTP request
+    $this->mockRequest('https://example.com', [], ['status' => 200]);
+    // ... test code ...
+  }
+
+  // ✅ CORRECT - No block comment on data provider
+  public static function dataProviderHttpMethods(): array {
+    return ['POST' => ['POST'], 'GET' => ['GET']];
+  }
+}
+
+// ❌ INCORRECT - Block comments on methods
+/**
+ * Test successful notification.  // <-- Remove this
+ */
+public function testSuccessfulNotification(): void {
+  // ...
+}
+```
+
+**Example**:
+```php
+protected function setUp(): void {
+  parent::setUp();
+  require_once __DIR__ . '/../../src/helpers.php';
+
+  // ✅ CORRECT - Use envSetMultiple for multiple variables
+  $this->envSetMultiple([
+    'VORTEX_NOTIFY_PROJECT' => 'test-project',
+    'VORTEX_NOTIFY_LABEL' => 'main',
+    'VORTEX_NOTIFY_URL' => 'https://example.com',
+  ]);
+}
+
+public function testCustomConfiguration(): void {
+  // ✅ CORRECT - Use envSet for single variable
+  $this->envSet('VORTEX_NOTIFY_CUSTOM', 'value');
+
+  // ... test code ...
+}
+
+public function testFallbackVariables(): void {
+  // ✅ CORRECT - Use envUnsetMultiple for unsetting multiple variables
+  $this->envUnsetMultiple([
+    'VORTEX_NOTIFY_SPECIFIC',
+    'VORTEX_NOTIFY_ANOTHER',
+  ]);
+
+  // ✅ CORRECT - Set fallback variable
+  $this->envSet('VORTEX_NOTIFY_GENERIC', 'fallback-value');
+
+  // ... test code ...
+}
+
+public static function dataProviderHttpMethods(): array {
+  return [
+    'POST' => ['POST'],
+    'GET' => ['GET'],
+  ];
+}
+```
 
 ### Mock System (MockTrait.php)
 

@@ -3,10 +3,13 @@
     <description>Custom PHPCS standard.</description>
 
     <!-- Using Drupal coding standard as a base-fix. -->
-    <rule ref="Drupal"/>
+    <rule ref="Drupal" />
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="DrevOps.NamingConventions.LocalVariableSnakeCase"/>
     <rule ref="DrevOps.NamingConventions.ParameterSnakeCase"/>
+    <rule ref="DrevOps.TestingPractices.DataProviderPrefix" />
+    <rule ref="DrevOps.TestingPractices.DataProviderMatchesTestName"/>
+    <rule ref="DrevOps.TestingPractices.DataProviderOrder" />
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>
@@ -25,6 +28,11 @@
     <file>src/notify-webhook</file>
     <file>playground</file>
     <file>tests</file>
+
+    <!-- Allow delimiter spacing in inline comments in source files. -->
+    <rule ref="Drupal.Commenting.InlineComment.SpacingAfter">
+        <exclude-pattern>src\/.*</exclude-pattern>
+    </rule>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">

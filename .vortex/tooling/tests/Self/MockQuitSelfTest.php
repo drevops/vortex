@@ -64,7 +64,7 @@ class MockQuitSelfTest extends UnitTestCase {
     $this->expectException(QuitSuccessException::class);
     $this->expectExceptionCode(0);
 
-    $output = $this->runScript('test-quit-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-quit-passing');
 
     $this->assertStringContainsString('Script will exit with code 0', $output);
     $this->assertStringNotContainsString('ERROR Script continued after quit()', $output);
@@ -76,7 +76,7 @@ class MockQuitSelfTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('quit() called with unexpected exit code. Expected 0, got 1.');
 
-    $output = $this->runScript('test-quit-failing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-quit-failing');
 
     $this->assertStringContainsString('Script will exit with code 1', $output);
     $this->assertStringNotContainsString('ERROR Script continued after quit()', $output);
@@ -88,7 +88,7 @@ class MockQuitSelfTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $output = $this->runScript('test-quit-failing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-quit-failing');
 
     $this->assertStringContainsString('Script will exit with code 1', $output);
     $this->assertStringNotContainsString('ERROR Script continued after quit()', $output);
@@ -100,7 +100,7 @@ class MockQuitSelfTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('quit() called with unexpected exit code. Expected 1, got 0.');
 
-    $output = $this->runScript('test-quit-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-quit-passing');
 
     $this->assertStringContainsString('Script will exit with code 0', $output);
     $this->assertStringNotContainsString('ERROR Script continued after quit()', $output);

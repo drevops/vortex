@@ -274,7 +274,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ]
     );
 
-    $output = $this->runScript('test-request-get-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-get-passing');
 
     $this->assertStringContainsString('Script will call request_get', $output);
     $this->assertStringContainsString('Response status: 200', $output);
@@ -294,7 +294,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ]
     );
 
-    $output = $this->runScript('test-request-get-failing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-get-failing');
 
     $this->assertStringContainsString('Script will call request_get expecting failure', $output);
     $this->assertStringContainsString('Response status: 404', $output);
@@ -313,7 +313,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ]
     );
 
-    $output = $this->runScript('test-request-get-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-get-passing');
 
     $this->assertStringContainsString('Response status: 201', $output);
     $this->assertStringContainsString('Response body: custom response', $output);
@@ -327,7 +327,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('test-request-get-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-get-passing');
 
     $this->assertStringContainsString('Response status: 200', $output);
     $this->assertStringContainsString('Response ok: true', $output);
@@ -346,7 +346,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ]
     );
 
-    $output = $this->runScript('test-request-get-failing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-get-failing');
 
     $this->assertStringContainsString('Response status: 0', $output);
     $this->assertStringContainsString('Response ok: false', $output);
@@ -364,7 +364,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ]
     );
 
-    $output = $this->runScript('test-request-post-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-post-passing');
 
     $this->assertStringContainsString('Script will call request_post', $output);
     $this->assertStringContainsString('Response status: 201', $output);
@@ -385,7 +385,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ]
     );
 
-    $output = $this->runScript('test-request-post-failing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-post-failing');
 
     $this->assertStringContainsString('Script will call request_post expecting failure', $output);
     $this->assertStringContainsString('Response status: 500', $output);
@@ -415,7 +415,7 @@ class MockRequestSelfTest extends UnitTestCase {
       ['status' => 200, 'body' => 'third']
     );
 
-    $output = $this->runScript('test-request-multiple', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-request-multiple');
 
     $this->assertStringContainsString('Script will call request functions multiple times', $output);
     $this->assertStringContainsString('First call status: 200', $output);
@@ -435,7 +435,7 @@ class MockRequestSelfTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('curl_init() called more times than mocked responses. Expected 1 request(s), but attempting request #2');
 
-    $this->runScript('test-request-multiple', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-request-multiple');
   }
 
   public function testMockRequestMultipleScriptLessCallsFailure(): void {
@@ -470,7 +470,7 @@ class MockRequestSelfTest extends UnitTestCase {
     $this->expectException(\PHPUnit\Framework\AssertionFailedError::class);
     $this->expectExceptionMessage('Not all mocked request responses were consumed. Expected 4 request(s), but only 3 request(s) were made.');
 
-    $this->runScript('test-request-multiple', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-request-multiple');
 
     // Manually trigger the check that normally happens in tearDown().
     $this->mockRequestAssertAllMocksConsumed();
@@ -487,7 +487,7 @@ class MockRequestSelfTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('request made to unexpected URL. Expected "https://wrong.com/api", got "https://example.com/api".');
 
-    $this->runScript('test-request-get-passing', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-request-get-passing');
   }
 
   public function testMockRequestFailureMissingUrlKey(): void {

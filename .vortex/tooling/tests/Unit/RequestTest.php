@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexTooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for HTTP request functions.
@@ -17,20 +18,15 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 #[CoversFunction('DrevOps\VortexTooling\request_get')]
 #[CoversFunction('DrevOps\VortexTooling\request_post')]
 #[CoversFunction('DrevOps\VortexTooling\request')]
+#[Group('helpers')]
 class RequestTest extends UnitTestCase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp(): void {
     parent::setUp();
-    // Load helpers to make functions available.
+
     require_once __DIR__ . '/../../src/helpers.php';
   }
 
-  /**
-   * Test request_get() with real network call to example.com.
-   */
   public function testRequestGetReal(): void {
     $result = \DrevOps\VortexTooling\request_get('http://example.com/');
 
@@ -41,9 +37,6 @@ class RequestTest extends UnitTestCase {
     $this->assertNull($result['error']);
   }
 
-  /**
-   * Test request_get() with custom headers to example.com.
-   */
   public function testRequestGetWithHeaders(): void {
     $result = \DrevOps\VortexTooling\request_get(
       'http://example.com/',
@@ -55,13 +48,6 @@ class RequestTest extends UnitTestCase {
     $this->assertEquals(200, $result['status']);
   }
 
-  /**
-   * Test request_post() with real network call to example.com.
-   *
-   * Note: example.com may return various error codes (403, 411, etc.)
-   * depending on headers and rate limiting. We just verify the function
-   * works and returns a valid response structure.
-   */
   public function testRequestPostReal(): void {
     $result = \DrevOps\VortexTooling\request_post(
       'http://example.com/',
@@ -80,11 +66,6 @@ class RequestTest extends UnitTestCase {
     $this->assertLessThan(500, $result['status']);
   }
 
-  /**
-   * Test request() with custom method.
-   *
-   * Note: Testing with HEAD method to example.com.
-   */
   public function testRequestCustomMethod(): void {
     $result = \DrevOps\VortexTooling\request('http://example.com/', [
       'method' => 'HEAD',
@@ -101,9 +82,6 @@ class RequestTest extends UnitTestCase {
     $this->assertLessThan(500, $result['status']);
   }
 
-  /**
-   * Test request() handles 404 errors.
-   */
   public function testRequestNotFound(): void {
     $result = \DrevOps\VortexTooling\request('http://example.com/nonexistent-page-12345');
 
@@ -111,9 +89,6 @@ class RequestTest extends UnitTestCase {
     $this->assertEquals(404, $result['status']);
   }
 
-  /**
-   * Test request() with very short timeout triggers error.
-   */
   public function testRequestTimeout(): void {
     // Use a very short timeout to a slow endpoint.
     $result = \DrevOps\VortexTooling\request('http://example.com:81/', [

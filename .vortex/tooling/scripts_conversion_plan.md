@@ -71,7 +71,7 @@ Scripts should be **readable but compact**:
   info('Started notification');
 
   // ✓ Good - double quotes for interpolation
-  info("Started $event notification");
+  info("Started $notify_event notification");
 
   // ✓ Good - double quotes when string contains single quote
   $message = "It's an automated message";
