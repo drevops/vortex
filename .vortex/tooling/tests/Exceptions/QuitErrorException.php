@@ -16,13 +16,28 @@ class QuitErrorException extends \Exception {
    *
    * @param int $code
    *   The exit code.
+   * @param string $output
+   *   The captured output.
    */
-  public function __construct(int $code) {
+  public function __construct(
+    int $code,
+    protected string $output = '',
+  ) {
     if ($code === 0) {
       throw new \InvalidArgumentException('QuitErrorException can only be used for non-zero exit codes.');
     }
 
     parent::__construct('quit() was called with non-zero exit code: ' . $code, $code);
+  }
+
+  /**
+   * Gets the captured output.
+   *
+   * @return string
+   *   The captured output.
+   */
+  public function getOutput(): string {
+    return $this->output;
   }
 
 }

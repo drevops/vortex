@@ -19,9 +19,9 @@
     "require-dev": {
         "php": ">=8.2",
         "alexskrypnyk/file": "^0.15",
-        "alexskrypnyk/phpunit-helpers": "^0.13.0",
+        "alexskrypnyk/phpunit-helpers": "^0.14.0",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.1.2",
-        "drevops/phpcs-standard": "^0.4",
+        "drevops/phpcs-standard": "^0.5",
         "drupal/coder": "^9@alpha",
         "ergebnis/composer-normalize": "^2.48.2",
         "php-mock/php-mock-phpunit": "^2.14",
@@ -52,7 +52,7 @@
         "check-no-exit": "php check-no-exit.php",
         "lint": [
             "phpcs",
-            "phpstan",
+            "phpstan --memory-limit=2G",
             "rector --dry-run",
             "@check-no-exit"
         ],

@@ -13,33 +13,42 @@ namespace DrevOps\VortexTooling;
 require_once __DIR__ . '/helpers.php';
 execute_override(basename(__FILE__));
 
+// -----------------------------------------------------------------------------
+
 // Webhook notification project name.
-$project = getenv('VORTEX_NOTIFY_WEBHOOK_PROJECT') ?: getenv('VORTEX_NOTIFY_PROJECT');
+$notify_project = getenv_required('VORTEX_NOTIFY_WEBHOOK_PROJECT', 'VORTEX_NOTIFY_PROJECT');
 
 // Webhook notification deployment label (branch name, PR number, or custom).
-$label = getenv('VORTEX_NOTIFY_WEBHOOK_LABEL') ?: getenv('VORTEX_NOTIFY_LABEL');
+$notify_label = getenv_required('VORTEX_NOTIFY_WEBHOOK_LABEL', 'VORTEX_NOTIFY_LABEL');
 
 // Webhook notification environment URL.
-$env_url = getenv('VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL') ?: getenv('VORTEX_NOTIFY_ENVIRONMENT_URL');
+$notify_env_url = getenv_required('VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
 // Webhook notification login URL.
-$login_url = getenv('VORTEX_NOTIFY_WEBHOOK_LOGIN_URL') ?: getenv('VORTEX_NOTIFY_LOGIN_URL');
+$notify_login_url = getenv_default('VORTEX_NOTIFY_WEBHOOK_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', $notify_env_url . '/user/login');
 
 // Webhook notification event type.
 //
 // Can be 'pre_deployment' or 'post_deployment'.
-$event = getenv('VORTEX_NOTIFY_WEBHOOK_EVENT') ?: getenv('VORTEX_NOTIFY_EVENT') ?: 'post_deployment';
+$notify_event = getenv_default('VORTEX_NOTIFY_WEBHOOK_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
 
 // Webhook notification endpoint URL.
-$webhook_url = getenv('VORTEX_NOTIFY_WEBHOOK_URL');
+$webhook_url = getenv_required('VORTEX_NOTIFY_WEBHOOK_URL');
 
 // Webhook notification HTTP method like POST, GET, PUT.
-$method = getenv('VORTEX_NOTIFY_WEBHOOK_METHOD') ?: 'POST';
+$webhook_method = getenv_default('VORTEX_NOTIFY_WEBHOOK_METHOD', 'POST');
+
+// Webhook notification expected HTTP status.
+$webhook_expected_status = getenv_default('VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS', '200');
 
 // Webhook notification pipe-separated headers.
+//
 // Separate multiple headers with a pipe `|`.
 // Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
-$headers = getenv('VORTEX_NOTIFY_WEBHOOK_HEADERS') ?: 'Content-type: application/json';
+$webhook_headers = getenv_default('VORTEX_NOTIFY_WEBHOOK_HEADERS', 'Content-type: application/json');
+
+// Webhook notification message template.
+$webhook_message = getenv_default('VORTEX_NOTIFY_WEBHOOK_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%");
 
 // Webhook notification JSON payload.
 //
@@ -49,92 +58,53 @@ $headers = getenv('VORTEX_NOTIFY_WEBHOOK_HEADERS') ?: 'Content-type: application
 // - %timestamp% - Deployment timestamp
 // - %environment_url% - Environment URL
 // - %login_url% - Login URL.
-$payload = getenv('VORTEX_NOTIFY_WEBHOOK_PAYLOAD');
+$webhook_payload = getenv_default('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"channel": "Channel 1", "message": "%message%", "project": "%project%", "label": "%label%", "timestamp": "%timestamp%", "environment_url": "%environment_url%", "login_url": "%login_url%"}');
 
-// Webhook notification expected HTTP status.
-$expected_status = getenv('VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS') ?: '200';
-
-// ------------------------------------------------------------------------------
-validate_variable('VORTEX_NOTIFY_WEBHOOK_PROJECT');
-validate_variable('VORTEX_NOTIFY_WEBHOOK_LABEL');
-validate_variable('VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL');
-validate_variable('VORTEX_NOTIFY_WEBHOOK_LOGIN_URL');
-validate_variable('VORTEX_NOTIFY_WEBHOOK_URL');
-validate_variable('VORTEX_NOTIFY_WEBHOOK_METHOD');
-validate_variable('VORTEX_NOTIFY_WEBHOOK_HEADERS');
+// -----------------------------------------------------------------------------
 
 info('Started Webhook notification.');
 
-// Skip if this is a pre-deployment event (webhook only for post-deployment).
-if ($event === 'pre_deployment') {
+if ($notify_event === 'pre_deployment') {
   pass('Skipping Webhook notification for pre_deployment event.');
-  exit(0);
+  quit();
 }
 
-// Set default payload template if not provided.
-if (!$payload) {
-  $payload = '{"channel": "Channel 1", "message": "%message%", "project": "%project%", "label": "%label%", "timestamp": "%timestamp%", "environment_url": "%environment_url%", "login_url": "%login_url%"}';
-}
-
-/**
- * JSON-escape a value for insertion into JSON template.
- *
- * @param string $value
- *   Value to escape.
- *
- * @return string
- *   JSON-escaped value without surrounding quotes.
- */
-function json_escape_value(string $value): string {
-  $escaped = json_encode($value);
-  // Remove surrounding quotes.
-  return substr($escaped, 1, -1);
-}
-
-// Build and replace tokens (%variable_name%) for webhook payload.
-$timestamp = date('d/m/Y H:i:s T');
-$message = "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%";
-
-// JSON-escape each replacement value before substituting into JSON template.
-$replacements = [
-  'message' => json_escape_value($message),
-  'timestamp' => json_escape_value($timestamp),
-  'label' => json_escape_value($label),
-  'project' => json_escape_value($project),
-  'environment_url' => json_escape_value($env_url),
-  'login_url' => json_escape_value($login_url),
-];
-
-foreach ($replacements as $token => $value) {
-  $payload = str_replace(sprintf('%%%s%%', $token), $value, $payload);
-}
+$webhook_payload = replace_tokens($webhook_payload, [
+  'message' => $webhook_message,
+  'timestamp' => date('d/m/Y H:i:s T'),
+  'label' => $notify_label,
+  'project' => $notify_project,
+  'environment_url' => $notify_env_url,
+  'login_url' => $notify_login_url,
+]);
 
 // Sanitize webhook URL (extract domain, hide path that may contain secrets).
 $webhook_domain = preg_replace('|(https?://[^/]+).*|', '$1', $webhook_url);
 
-info('Webhook notification summary:');
-note('Project            : ' . $project);
-note('Deployment         : ' . $label);
-note('Environment URL    : ' . $env_url);
-note('Login URL          : ' . $login_url);
+note('Webhook notification summary:');
+note('Project            : ' . $notify_project);
+note('Deployment         : ' . $notify_label);
+note('Environment URL    : ' . $notify_env_url);
+note('Login URL          : ' . $notify_login_url);
 note('Webhook URL        : %s/***', $webhook_domain);
-note('Method             : ' . $method);
-note('Headers            : ' . $headers);
-note('Expected Status    : ' . $expected_status);
-note('Payload (first 200): ' . substr($payload, 0, 200) . '...');
+note('Method             : ' . $webhook_method);
+note('Headers            : ' . $webhook_headers);
+note('Expected Status    : ' . $webhook_expected_status);
+note('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
 
-// Build headers array.
-$headers_array = array_map(trim(...), explode('|', $headers));
+task('Sending webhook notification to %s', $webhook_domain);
 
 // Send webhook notification.
 $response = request($webhook_url, [
-  'method' => $method,
-  'headers' => $headers_array,
-  'body' => $payload,
+  'method' => $webhook_method,
+  'headers' => array_map(trim(...), explode('|', $webhook_headers)),
+  'body' => $webhook_payload,
 ]);
 
-if ($response['status'] !== (int) $expected_status) {
-  fail(sprintf('Unable to send notification to webhook %s.', $webhook_url));
+if ($response['status'] !== (int) $webhook_expected_status) {
+  fail('Webhook notification failed. Expected status %s but got %s.', $webhook_expected_status, $response['status']);
 }
 
-pass('Finished Webhook notification.');
+pass('Webhook notification sent successfully with status %s.', $response['status']);
+
+info('Finished Webhook notification.');

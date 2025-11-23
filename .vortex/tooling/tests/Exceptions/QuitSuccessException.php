@@ -16,13 +16,28 @@ class QuitSuccessException extends \Exception {
    *
    * @param int $code
    *   The exit code.
+   * @param string $output
+   *   The captured output.
    */
-  public function __construct(int $code) {
+  public function __construct(
+    int $code,
+    protected string $output = '',
+  ) {
     if ($code !== 0) {
       throw new \InvalidArgumentException('QuitSuccessException can only be used for exit code 0.');
     }
 
     parent::__construct('quit() was called with exit code 0', $code);
+  }
+
+  /**
+   * Gets the captured output.
+   *
+   * @return string
+   *   The captured output.
+   */
+  public function getOutput(): string {
+    return $this->output;
   }
 
 }

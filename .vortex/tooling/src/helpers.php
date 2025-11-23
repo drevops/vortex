@@ -37,15 +37,20 @@ load_dotenv(['.env', '.env.local']);
  *
  * Call this at the start of your script to allow it to be overridden.
  *
- * @param string $name
- *   Name of current script.
+ * @param string $path
+ *   Path to the script file relative to the custom directory
+ *   specified in VORTEX_TOOLING_CUSTOM_DIR.
  */
-function execute_override(string $name): void {
+function execute_override(string $path): void {
   $dir = getenv('VORTEX_TOOLING_CUSTOM_DIR');
   if ($dir) {
-    $path = $dir . DIRECTORY_SEPARATOR . $name;
-    if (file_exists($path) && is_executable($path)) {
-      passthru(sprintf('"%s"', $path), $exit_code);
+    if (!is_dir($dir)) {
+      fail('Custom directory specified in VORTEX_TOOLING_CUSTOM_DIR does not exist: %s', $dir);
+    }
+
+    $full_path = $dir . DIRECTORY_SEPARATOR . $path;
+    if (file_exists($full_path) && is_executable($full_path)) {
+      passthru(sprintf('"%s"', $full_path), $exit_code);
       quit($exit_code);
     }
   }
@@ -94,6 +99,94 @@ function load_dotenv(array $env_files = ['.env']): void {
 }
 
 /**
+ * Get environment variable with fallback and default value.
+ *
+ * Checks multiple environment variable names in order and returns the first
+ * non-empty value. The last argument is used as the default value if all
+ * environment variables are empty or undefined.
+ *
+ * Empty strings are considered as unset values.
+ *
+ * @param string ...$args
+ *   Variable names to check, with the last argument being the default value.
+ *
+ * @return string
+ *   The first non-empty environment variable value or the default.
+ *
+ * @code
+ * // Check SPECIFIC, then GENERIC, fallback to 'default'
+ * $value = getenv_default('SPECIFIC_VAR', 'GENERIC_VAR', 'default');
+ *
+ * // Check single var with default
+ * $value = getenv_default('MY_VAR', 'default');
+ * @endcode
+ */
+function getenv_default(...$args): string {
+  if (count($args) < 2) {
+    throw new \InvalidArgumentException('getenv_default() requires at least 2 arguments: one or more variable names and a default value');
+  }
+
+  // Last argument is the default value.
+  $default = array_pop($args);
+
+  // Check each environment variable.
+  foreach ($args as $var_name) {
+    $value = getenv($var_name);
+    if ($value !== FALSE && $value !== '') {
+      return $value;
+    }
+  }
+
+  return $default;
+}
+
+/**
+ * Get required environment variable with fallback support.
+ *
+ * Checks multiple environment variable names in order and returns the first
+ * non-empty value. If all variables are empty or undefined, fails with an
+ * error listing all checked variables.
+ *
+ * Empty strings are considered as unset values.
+ *
+ * @param string ...$var_names
+ *   Variable names to check.
+ *
+ * @return string|never
+ *   The first non-empty environment variable value.
+ *
+ * @code
+ * // Check SPECIFIC, then GENERIC (at least one must be set)
+ * $value = getenv_required('SPECIFIC_VAR', 'GENERIC_VAR');
+ *
+ * // Check single required var
+ * $value = getenv_required('REQUIRED_VAR');
+ * @endcode
+ */
+function getenv_required(...$var_names): string {
+  if (count($var_names) < 1) {
+    throw new \InvalidArgumentException('getenv_required() requires at least 1 argument');
+  }
+
+  // Check each environment variable.
+  foreach ($var_names as $var_name) {
+    $value = getenv($var_name);
+    if ($value !== FALSE && $value !== '') {
+      return $value;
+    }
+  }
+
+  // None found, fail with error.
+  $var_list = implode(', ', $var_names);
+  fail('Missing required value for %s', $var_list);
+
+  // Never reached, but satisfies return type.
+  // @codeCoverageIgnoreStart
+  return '';
+  // @codeCoverageIgnoreEnd
+}
+
+/**
  * Output a note message.
  *
  * @param string $format
@@ -114,7 +207,7 @@ function note(string $format, ...$args): void {
  *   Arguments for sprintf().
  */
 function task(string $format, ...$args): void {
-  echo _supports_color() ?
+  echo term_supports_color() ?
     "\033[34m[TASK] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[TASK] %s%s', sprintf($format, ...$args), PHP_EOL);
 }
@@ -128,7 +221,7 @@ function task(string $format, ...$args): void {
  *   Arguments for sprintf().
  */
 function info(string $format, ...$args): void {
-  echo _supports_color() ?
+  echo term_supports_color() ?
     "\033[36m[INFO] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[INFO] %s%s', sprintf($format, ...$args), PHP_EOL);
 }
@@ -142,7 +235,7 @@ function info(string $format, ...$args): void {
  *   Arguments for sprintf().
  */
 function pass(string $format, ...$args): void {
-  echo _supports_color() ?
+  echo term_supports_color() ?
     "\033[32m[ OK ] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[ OK ] %s%s', sprintf($format, ...$args), PHP_EOL);
 }
@@ -156,7 +249,7 @@ function pass(string $format, ...$args): void {
  *   Arguments for sprintf().
  */
 function fail_no_exit(string $format, ...$args): void {
-  echo _supports_color() ?
+  echo term_supports_color() ?
     "\033[31m[FAIL] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[FAIL] %s%s', sprintf($format, ...$args), PHP_EOL);
 }
@@ -175,18 +268,10 @@ function fail(string $format, ...$args): void {
 }
 
 /**
- * Require an environment variable to be set.
- *
- * @param string $name
- *   Environment variable name.
- * @param string|null $message
- *   Custom error message (optional).
+ * Check if terminal supports colors.
  */
-function validate_variable(string $name, ?string $message = NULL): void {
-  $value = getenv($name);
-  if ($value === FALSE || $value === '') {
-    fail($message ?? sprintf('Missing required value for variable %s', $name));
-  }
+function term_supports_color(): bool {
+  return getenv('TERM') === 'dumb' || getenv('TERM') === FALSE ? FALSE : function_exists('posix_isatty') && @posix_isatty(STDOUT);
 }
 
 /**
@@ -195,7 +280,7 @@ function validate_variable(string $name, ?string $message = NULL): void {
  * @param string $command
  *   Command name.
  */
-function validate_command(string $command): void {
+function command_exists(string $command): void {
   exec(sprintf('command -v %s 2>/dev/null', $command), $output, $code);
   if ($code !== 0) {
     fail(sprintf("Command '%s' is not available", $command));
@@ -218,8 +303,14 @@ function replace_tokens(string $template, array $replacements): string {
   $replace = [];
 
   foreach ($replacements as $token => $value) {
+    $escaped = json_encode($value);
+    if ($escaped === FALSE) {
+      // @codeCoverageIgnoreStart
+      continue;
+      // @codeCoverageIgnoreEnd
+    }
+    $replace[] = substr($escaped, 1, -1);
     $search[] = sprintf('%%%s%%', $token);
-    $replace[] = $value;
   }
 
   return str_replace($search, $replace, $template);
@@ -232,13 +323,6 @@ function is_debug(): bool {
   // @codeCoverageIgnoreStart
   return getenv('VORTEX_DEBUG') === '1';
   // @codeCoverageIgnoreEnd
-}
-
-/**
- * Check if terminal supports colors.
- */
-function _supports_color(): bool {
-  return getenv('TERM') === 'dumb' || getenv('TERM') === FALSE ? FALSE : function_exists('posix_isatty') && @posix_isatty(STDOUT);
 }
 
 /**

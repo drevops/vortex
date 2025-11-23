@@ -244,7 +244,7 @@ class MockPassthruSelfTest extends UnitTestCase {
       'return' => NULL,
     ]);
 
-    $output = $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-passthru-passing');
 
     $this->assertStringContainsString('Script should return code 0', $output);
     $this->assertStringContainsString('Script actually returned code 0', $output);
@@ -258,7 +258,7 @@ class MockPassthruSelfTest extends UnitTestCase {
       'return' => NULL,
     ]);
 
-    $output = $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-passthru-passing');
 
     $this->assertStringContainsString('Script should return code 0', $output);
     $this->assertStringNotContainsString('Script actually returned code 0', $output);
@@ -272,7 +272,7 @@ class MockPassthruSelfTest extends UnitTestCase {
       'return' => FALSE,
     ]);
 
-    $output = $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-passthru-passing');
 
     $this->assertStringContainsString('Script should return code 0', $output);
     $this->assertStringContainsString('Script actually returned code 255', $output);
@@ -283,7 +283,7 @@ class MockPassthruSelfTest extends UnitTestCase {
       'cmd' => 'echo "success"',
     ]);
 
-    $output = $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-passthru-passing');
 
     $this->assertStringContainsString('Script should return code 0', $output);
     $this->assertStringContainsString('Script actually returned code 0', $output);
@@ -299,7 +299,7 @@ class MockPassthruSelfTest extends UnitTestCase {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Mocked passthru response must include "cmd" key to specify expected command.');
 
-    $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-passthru-passing');
   }
 
   public function testMockPassthruScriptFailureArgumentExceptionReturn(): void {
@@ -313,7 +313,7 @@ class MockPassthruSelfTest extends UnitTestCase {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Mocked passthru response "return" key must be either NULL or FALSE, but got string.');
 
-    $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-passthru-passing');
   }
 
   public function testMockPassthruScriptPassingFailureAssertUnexpectedCmd(): void {
@@ -327,7 +327,7 @@ class MockPassthruSelfTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('passthru() called with unexpected command. Expected "echo "failure"", got "echo "success"".');
 
-    $this->runScript('test-passthru-passing', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-passthru-passing');
   }
 
   public function testMockPassthruScriptMultipleSuccess(): void {
@@ -345,7 +345,7 @@ class MockPassthruSelfTest extends UnitTestCase {
       'return' => FALSE,
     ]);
 
-    $output = $this->runScript('test-passthru-multiple', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-passthru-multiple');
 
     $this->assertStringContainsString('Script will call passthru twice', $output);
     $this->assertStringContainsString('First call returned code 11', $output);
@@ -364,7 +364,7 @@ class MockPassthruSelfTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('passthru() called more times than mocked responses. Expected 1 call(s), but attempting call #2');
 
-    $this->runScript('test-passthru-multiple', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-passthru-multiple');
   }
 
   public function testMockPassthruScriptMultipleLessCallsFailure(): void {
@@ -392,7 +392,7 @@ class MockPassthruSelfTest extends UnitTestCase {
     $this->expectException(AssertionFailedError::class);
     $this->expectExceptionMessage('Not all mocked passthru responses were consumed. Expected 3 call(s), but only 2 call(s) were made.');
 
-    $this->runScript('test-passthru-multiple', 'tests/Fixtures');
+    $this->runScript('tests/Fixtures/test-passthru-multiple');
 
     // Manually trigger the check that normally happens in tearDown().
     $this->mockPassthruAssertAllMocksConsumed();
@@ -406,7 +406,7 @@ class MockPassthruSelfTest extends UnitTestCase {
       'return' => NULL,
     ]);
 
-    $output = $this->runScript('test-passthru-failing', 'tests/Fixtures');
+    $output = $this->runScript('tests/Fixtures/test-passthru-failing');
 
     $this->assertStringContainsString('Script should return code 1', $output);
     $this->assertStringContainsString('Script actually returned code 1', $output);

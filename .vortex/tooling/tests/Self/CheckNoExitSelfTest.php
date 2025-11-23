@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexTooling\Tests\Self;
 
 use DrevOps\VortexTooling\Tests\Unit\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversNothing;
 
 /**
  * Self-tests for check-exit-usage.php script.
