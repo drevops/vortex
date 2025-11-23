@@ -72,31 +72,6 @@ if ($notify_event === 'pre_deployment') {
   quit();
 }
 
-// Check for mail command availability.
-$has_sendmail = FALSE;
-$has_mail = FALSE;
-
-task('Checking for mail command availability...');
-
-exec('command -v sendmail 2>/dev/null', $output, $return_var);
-if ($return_var === 0) {
-  note('Using sendmail command to send emails.');
-  $has_sendmail = TRUE;
-}
-else {
-  exec('command -v mail 2>/dev/null', $output, $return_var);
-  if ($return_var === 0) {
-    note('Using mail command to send emails.');
-    $has_mail = TRUE;
-  }
-}
-
-if (!$has_sendmail && !$has_mail) {
-  fail('Neither "mail" nor "sendmail" commands are available.');
-}
-
-pass('Mail command is available.');
-
 $email_subject = replace_tokens($email_subject, [
   'project' => $notify_project,
   'label' => $notify_label,
@@ -135,28 +110,13 @@ foreach ($email_recipients as $email_recipient) {
 
   $to = empty($name) ? $email : sprintf('"%s" <%s>', $name, $email);
 
-  if ($has_sendmail) {
-    $mail_content = sprintf('To: %s%s', $to, PHP_EOL);
-    $mail_content .= sprintf('Subject: %s%s', $email_subject, PHP_EOL);
-    $mail_content .= sprintf('From: %s%s', $email_from, PHP_EOL);
-    $mail_content .= "\n";
-    $mail_content .= $email_message . PHP_EOL;
+  $headers = [
+    'From: ' . $email_from,
+    'Content-Type: text/plain; charset=UTF-8',
+  ];
 
-    $cmd = sprintf('echo %s | sendmail -t -f %s', escapeshellarg($mail_content), escapeshellarg($email_from));
-    exec($cmd, $output, $return_var);
-
-    if ($return_var === 0) {
-      $sent[] = $email;
-    }
-  }
-  elseif ($has_mail) {
-    $mail_content = "From: {$email_from}\n\n{$email_message}";
-    $cmd = sprintf('echo %s | mail -s %s %s', escapeshellarg($mail_content), escapeshellarg($email_subject), escapeshellarg($to));
-    exec($cmd, $output, $return_var);
-
-    if ($return_var === 0) {
-      $sent[] = $email;
-    }
+  if (mail($to, $email_subject, $email_message, $headers)) {
+    $sent[] = $email;
   }
 }
 

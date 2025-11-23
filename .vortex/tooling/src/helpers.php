@@ -303,7 +303,7 @@ function replace_tokens(string $template, array $replacements): string {
   $replace = [];
 
   foreach ($replacements as $token => $value) {
-    $escaped = json_encode($value);
+    $escaped = json_encode($value, JSON_UNESCAPED_SLASHES);
     if ($escaped === FALSE) {
       // @codeCoverageIgnoreStart
       continue;

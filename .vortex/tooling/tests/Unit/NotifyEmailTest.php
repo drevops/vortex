@@ -31,90 +31,41 @@ class NotifyEmailTest extends UnitTestCase {
     ]);
   }
 
-  public function testSuccessfulNotificationWithSendmail(): void {
-    // Mock exec() calls for command checking and email sending.
-    $exec_calls = 0;
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var) use (&$exec_calls): void {
-        $exec_calls++;
-        if ($exec_calls === 1 && str_contains($cmd, 'sendmail')) {
-          // First call: check for sendmail command.
-          $return_var = 0;
-          return;
-        }
-        elseif ($exec_calls === 2) {
-          // Second call: send email via sendmail.
-          $return_var = 0;
-          return;
-        }
-        $return_var = 1;
-      });
+  public function testSuccessfulNotificationSingleRecipient(): void {
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
 
     $output = $this->runScript('src/notify-email');
 
     $this->assertStringContainsString('Started email notification', $output);
-    $this->assertStringContainsString('Using sendmail command', $output);
     $this->assertStringContainsString('Project        : test-project', $output);
     $this->assertStringContainsString('From           : noreply@example.com', $output);
     $this->assertStringContainsString('Recipients     : to@example.com', $output);
-
     $this->assertStringContainsString('Sending email notification', $output);
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
     $this->assertStringContainsString('Finished email notification', $output);
   }
 
-  public function testSuccessfulNotificationWithMailCommand(): void {
-    // Mock exec() to show sendmail not available, but mail is.
-    $exec_calls = 0;
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var) use (&$exec_calls): void {
-        $exec_calls++;
-        if ($exec_calls === 1 && str_contains($cmd, 'sendmail')) {
-          // First call: sendmail not available.
-          $return_var = 1;
-          return;
-        }
-        elseif ($exec_calls === 2 && str_contains($cmd, 'command -v mail')) {
-          // Second call: check for mail command.
-          $return_var = 0;
-          return;
-        }
-        elseif ($exec_calls === 3) {
-          // Third call: send email via mail.
-          $return_var = 0;
-          return;
-        }
-        $return_var = 1;
-      });
-
-    $output = $this->runScript('src/notify-email');
-
-    $this->assertStringContainsString('Sending email notification', $output);
-    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
-    $this->assertStringContainsString('Finished email notification', $output);
-  }
-
-  public function testSuccessfulNotificationWithMultipleRecipients(): void {
+  public function testSuccessfulNotificationMultipleRecipients(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com|Jane Doe, to2@example.com|John Doe');
 
-    // Mock exec() calls for command checking and email sending.
-    $exec_calls = 0;
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var) use (&$exec_calls): void {
-        $exec_calls++;
-        if ($exec_calls === 1 && str_contains($cmd, 'sendmail')) {
-          $return_var = 0;
-          return;
-        }
-        // Calls 2 and 3: send emails.
-        $return_var = 0;
-      });
+    $this->mockMail([
+      'to' => '"Jane Doe" <to1@example.com>',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => '"John Doe" <to2@example.com>',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
 
     $output = $this->runScript('src/notify-email');
 
@@ -126,12 +77,12 @@ class NotifyEmailTest extends UnitTestCase {
   public function testSuccessfulNotificationWithCustomMessage(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_MESSAGE', 'Custom deployment of %project% to %label% at %timestamp%');
 
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var): void {
-        $return_var = 0;
-      });
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => 'Custom deployment of test-project to main at ' . date('d/m/Y H:i:s T'),
+      'result' => TRUE,
+    ]);
 
     $output = $this->runScript('src/notify-email');
 
@@ -139,22 +90,26 @@ class NotifyEmailTest extends UnitTestCase {
     $this->assertStringContainsString('Finished email notification', $output);
   }
 
+  public function testSuccessfulNotificationWithCustomSubject(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_SUBJECT', '[%project%] Deployed %label%');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => '[test-project] Deployed main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Subject        : [test-project] Deployed main', $output);
+    $this->assertStringContainsString('Finished email notification', $output);
+  }
+
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_EVENT', 'pre_deployment');
 
     $this->runScriptEarlyPass('src/notify-email', 'Skipping email notification for pre_deployment event');
-  }
-
-  public function testFailureWhenNoMailCommandAvailable(): void {
-    // Mock exec() to show neither command is available.
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var): void {
-        $return_var = 1;
-      });
-
-    $this->runScriptError('src/notify-email', 'Neither "mail" nor "sendmail" commands are available');
   }
 
   #[DataProvider('dataProviderMissingRequiredVariables')]
@@ -190,12 +145,12 @@ class NotifyEmailTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_LOGIN_URL', 'https://generic.example.com/login');
     $this->envSet('VORTEX_NOTIFY_EVENT', 'post_deployment');
 
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var): void {
-        $return_var = 0;
-      });
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'generic-project deployment notification of develop',
+      'message' => "## This is an automated message ##\nSite generic-project develop has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://generic.example.com.\nLogin at: https://generic.example.com/login",
+      'result' => TRUE,
+    ]);
 
     $output = $this->runScript('src/notify-email');
 
@@ -207,17 +162,105 @@ class NotifyEmailTest extends UnitTestCase {
   public function testTokenReplacementInMessage(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_MESSAGE', '%project% deployed to %label% at %timestamp% - Visit: %environment_url%');
 
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec
-      ->expects($this->any())
-      ->willReturnCallback(function ($cmd, &$output, &$return_var): void {
-        $return_var = 0;
-      });
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => 'test-project deployed to main at ' . date('d/m/Y H:i:s T') . ' - Visit: https://example.com',
+      'result' => TRUE,
+    ]);
 
     $output = $this->runScript('src/notify-email');
 
     $this->assertStringContainsString('test-project deployed to main at', $output);
     $this->assertStringContainsString('example.com', $output);
+  }
+
+  public function testTokenReplacementInSubject(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_SUBJECT', 'Deployed %label% to %environment_url%');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'Deployed main to https://example.com',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Subject        : Deployed main to https://example.com', $output);
+  }
+
+  public function testTokenReplacementWithLoginUrl(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_MESSAGE', 'Login here: %login_url%');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => 'Login here: https://example.com/login',
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Login here: https://example.com/login', $output);
+  }
+
+  public function testRecipientsWithoutNames(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com, to2@example.com, to3@example.com');
+
+    $this->mockMail([
+      'to' => 'to1@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => 'to2@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => 'to3@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Email notification sent successfully to 3 recipient(s)', $output);
+  }
+
+  public function testRecipientsMixedWithAndWithoutNames(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com, to2@example.com|Jane Doe, to3@example.com');
+
+    $this->mockMail([
+      'to' => 'to1@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => '"Jane Doe" <to2@example.com>',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => 'to3@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Email notification sent successfully to 3 recipient(s)', $output);
   }
 
 }

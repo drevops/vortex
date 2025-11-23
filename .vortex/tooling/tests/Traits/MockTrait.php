@@ -60,6 +60,30 @@ trait MockTrait {
    */
   protected bool $mockRequestChecked = FALSE;
 
+  /**
+   * Stores the mail mock object.
+   *
+   * @var \PHPUnit\Framework\MockObject\MockObject|null
+   */
+  protected $mockMail;
+
+  /**
+   * Stores mail responses for the mock.
+   *
+   * @var array<int, array{to: string, subject: string, message: string, result: bool}>
+   */
+  protected array $mockMailResponses = [];
+
+  /**
+   * Current index for mail responses.
+   */
+  protected int $mockMailIndex = 0;
+
+  /**
+   * Flag to track if mail mocks were already checked.
+   */
+  protected bool $mockMailChecked = FALSE;
+
   protected function mockTearDown(): void {
     // Verify all mocked passthru responses were consumed.
     $this->mockPassthruAssertAllMocksConsumed();
@@ -69,6 +93,15 @@ trait MockTrait {
     $this->mockPassthruResponses = [];
     $this->mockPassthruIndex = 0;
     $this->mockPassthruChecked = FALSE;
+
+    // Verify all mocked mail responses were consumed.
+    $this->mockMailAssertAllMocksConsumed();
+
+    // Reset mail mock.
+    $this->mockMail = NULL;
+    $this->mockMailResponses = [];
+    $this->mockMailIndex = 0;
+    $this->mockMailChecked = FALSE;
 
     // Verify all mocked request responses were consumed.
     $this->mockRequestAssertAllMocksConsumed();
@@ -209,6 +242,115 @@ trait MockTrait {
 
         throw new QuitSuccessException($code);
       });
+  }
+
+  /**
+   * Mock mail() function to return predefined results.
+   *
+   * @param array<int, array{to: string, subject: string, message: string, result?: bool}> $responses
+   *   Array of responses to return for each mail call.
+   *   Each response should have:
+   *   - to: Expected recipient (required)
+   *   - subject: Expected subject (required)
+   *   - message: Expected message (required)
+   *   - result: Return value (TRUE for success, FALSE for failure, default: TRUE).
+   * @param string $namespace
+   *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
+   *
+   * @throws \RuntimeException
+   *   When more mail calls are made than mocked responses available.
+   */
+  protected function mockMailMultiple(array $responses, string $namespace = 'DrevOps\\VortexTooling'): void {
+    // Normalize responses by applying defaults before storing.
+    $normalized_responses = [];
+    foreach ($responses as $response) {
+      $response += [
+        'result' => TRUE,
+      ];
+      $normalized_responses[] = $response;
+    }
+
+    // Add normalized responses to the class property.
+    $this->mockMailResponses = array_merge($this->mockMailResponses, $normalized_responses);
+
+    // If mock already exists, just add to responses and return.
+    if ($this->mockMail !== NULL) {
+      return;
+    }
+
+    // Create and store the mock.
+    $this->mockMail = $this->getFunctionMock($namespace, 'mail');
+    $this->mockMail
+      ->expects($this->any())
+      ->willReturnCallback(function (string $to, string $subject, string $message, array|string $additional_headers = [], string $additional_params = ''): bool {
+        $total_responses = count($this->mockMailResponses);
+
+        if ($this->mockMailIndex >= $total_responses) {
+          throw new \RuntimeException(sprintf('mail() called more times than mocked responses. Expected %d call(s), but attempting call #%d.', $total_responses, $this->mockMailIndex + 1));
+        }
+
+        $response = $this->mockMailResponses[$this->mockMailIndex++];
+
+        // Validate response structure.
+        // @phpstan-ignore-next-line isset.offset
+        if (!isset($response['to'])) {
+          throw new \InvalidArgumentException('Mocked mail response must include "to" key to specify expected recipient.');
+        }
+        // @phpstan-ignore-next-line isset.offset
+        if (!isset($response['subject'])) {
+          throw new \InvalidArgumentException('Mocked mail response must include "subject" key to specify expected subject.');
+        }
+        // @phpstan-ignore-next-line isset.offset
+        if (!isset($response['message'])) {
+          throw new \InvalidArgumentException('Mocked mail response must include "message" key to specify expected message.');
+        }
+
+        // Expectation errors.
+        if ($response['to'] !== $to) {
+          throw new \RuntimeException(sprintf('mail() called with unexpected recipient. Expected "%s", got "%s".', $response['to'], $to));
+        }
+
+        if ($response['subject'] !== $subject) {
+          throw new \RuntimeException(sprintf('mail() called with unexpected subject. Expected "%s", got "%s".', $response['subject'], $subject));
+        }
+
+        if ($response['message'] !== $message) {
+          throw new \RuntimeException(sprintf('mail() called with unexpected message. Expected "%s", got "%s".', $response['message'], $message));
+        }
+
+        return $response['result'];
+      });
+  }
+
+  /**
+   * Mock single mail call.
+   *
+   * @param array{to: string, subject: string, message: string, result?: bool} $response
+   *   Response with recipient, subject, message, and result.
+   * @param string $namespace
+   *   Namespace to mock the function in.
+   */
+  protected function mockMail(array $response, string $namespace = 'DrevOps\\VortexTooling'): void {
+    $this->mockMailMultiple([$response], $namespace);
+  }
+
+  /**
+   * Verify all mocked mail responses were consumed.
+   *
+   * @throws \PHPUnit\Framework\AssertionFailedError
+   *   When not all mocked responses were consumed.
+   */
+  protected function mockMailAssertAllMocksConsumed(): void {
+    if ($this->mockMail !== NULL && !$this->mockMailChecked) {
+      $this->mockMailChecked = TRUE;
+
+      $total_responses = count($this->mockMailResponses);
+      $consumed_responses = $this->mockMailIndex;
+
+      if ($consumed_responses < $total_responses) {
+        $this->fail(sprintf('Not all mocked mail responses were consumed. Expected %d call(s), but only %d call(s) were made.', $total_responses, $consumed_responses));
+      }
+    }
   }
 
   /**
