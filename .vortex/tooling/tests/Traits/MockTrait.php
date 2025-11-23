@@ -253,7 +253,7 @@ trait MockTrait {
    *   - to: Expected recipient (required)
    *   - subject: Expected subject (required)
    *   - message: Expected message (required)
-   *   - result: Return value (TRUE for success, FALSE for failure, default: TRUE).
+   *   - result: Return value (defaults to TRUE).
    * @param string $namespace
    *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
    *
@@ -318,6 +318,29 @@ trait MockTrait {
           throw new \RuntimeException(sprintf('mail() called with unexpected message. Expected "%s", got "%s".', $response['message'], $message));
         }
 
+        // Validate headers if specified in response.
+        // @phpstan-ignore-next-line isset.offset
+        if (isset($response['headers'])) {
+          $expected_headers = $response['headers'];
+          $actual_headers = $additional_headers;
+
+          // Normalize both to arrays for comparison.
+          if (is_string($expected_headers)) {
+            $expected_headers = array_filter(array_map(trim(...), explode("\r\n", $expected_headers)));
+          }
+          if (is_string($actual_headers)) {
+            $actual_headers = array_filter(array_map(trim(...), explode("\r\n", $actual_headers)));
+          }
+
+          // Sort both arrays for consistent comparison.
+          sort($expected_headers);
+          sort($actual_headers);
+
+          if ($expected_headers !== $actual_headers) {
+            throw new \RuntimeException(sprintf('mail() called with unexpected headers. Expected "%s", got "%s".', print_r($expected_headers, TRUE), print_r($actual_headers, TRUE)));
+          }
+        }
+
         return $response['result'];
       });
   }
@@ -325,8 +348,8 @@ trait MockTrait {
   /**
    * Mock single mail call.
    *
-   * @param array{to: string, subject: string, message: string, result?: bool} $response
-   *   Response with recipient, subject, message, and result.
+   * @param array{to: string, subject: string, message: string, headers?: array<string>|string, result?: bool} $response
+   *   Response with recipient, subject, message, optional headers, and result.
    * @param string $namespace
    *   Namespace to mock the function in.
    */

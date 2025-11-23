@@ -263,4 +263,238 @@ class NotifyEmailTest extends UnitTestCase {
     $this->assertStringContainsString('Email notification sent successfully to 3 recipient(s)', $output);
   }
 
+  public function testCcSingleRecipient(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_CC', 'cc@example.com');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Cc: cc@example.com',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('CC             : cc@example.com', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testCcMultipleRecipients(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_CC', 'cc1@example.com|Jane Doe, cc2@example.com|John Doe');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Cc: "Jane Doe" <cc1@example.com>, "John Doe" <cc2@example.com>',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('CC             : cc1@example.com|Jane Doe, cc2@example.com|John Doe', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testBccSingleRecipient(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_BCC', 'bcc@example.com');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Bcc: bcc@example.com',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('BCC            : bcc@example.com', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testBccMultipleRecipients(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_BCC', 'bcc1@example.com, bcc2@example.com');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Bcc: bcc1@example.com, bcc2@example.com',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('BCC            : bcc1@example.com, bcc2@example.com', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testCcAndBccTogether(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_CC', 'cc@example.com|CC User');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_BCC', 'bcc@example.com|BCC User');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Bcc: "BCC User" <bcc@example.com>',
+        'Cc: "CC User" <cc@example.com>',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('CC             : cc@example.com|CC User', $output);
+    $this->assertStringContainsString('BCC            : bcc@example.com|BCC User', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testCcWithMultipleToRecipients(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com, to2@example.com');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_CC', 'cc@example.com');
+
+    $this->mockMail([
+      'to' => 'to1@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Cc: cc@example.com',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => 'to2@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Cc: cc@example.com',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('CC             : cc@example.com', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 2 recipient(s)', $output);
+  }
+
+  public function testCcAndBccMixedFormats(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_CC', 'cc1@example.com, cc2@example.com|Named User');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_BCC', 'bcc1@example.com|First BCC, bcc2@example.com');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Bcc: "First BCC" <bcc1@example.com>, bcc2@example.com',
+        'Cc: cc1@example.com, "Named User" <cc2@example.com>',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('CC             : cc1@example.com, cc2@example.com|Named User', $output);
+    $this->assertStringContainsString('BCC            : bcc1@example.com|First BCC, bcc2@example.com', $output);
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testRecipientsWithExtraSpaces(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', '  to1@example.com  ,  to2@example.com | Jane Doe  ');
+
+    $this->mockMail([
+      'to' => 'to1@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $this->mockMail([
+      'to' => '"Jane Doe" <to2@example.com>',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Email notification sent successfully to 2 recipient(s)', $output);
+  }
+
+  public function testEmailWithPlusSignAndSubdomain(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'user+tag@mail.example.com|Tagged User');
+
+    $this->mockMail([
+      'to' => '"Tagged User" <user+tag@mail.example.com>',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
+  public function testNameWithApostrophe(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', "user@example.com|O'Brien");
+
+    $this->mockMail([
+      'to' => '"O\'Brien" <user@example.com>',
+      'subject' => 'test-project deployment notification of main',
+      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'headers' => [
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: noreply@example.com',
+      ],
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
+  }
+
 }
