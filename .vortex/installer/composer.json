@@ -77,6 +77,7 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true
         },
+        "process-timeout": 0,
         "sort-packages": true
     },
     "scripts": {
@@ -96,8 +97,8 @@
         ],
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
-        "test-baseline": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline || UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall@baseline",
         "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
-        "test-fixtures": "UPDATE_FIXTURES=1 phpunit --no-coverage --filter=testInstall"
+        "update-baseline": "./update-fixtures.sh baseline",
+        "update-fixtures": "./update-fixtures.sh $@"
     }
 }

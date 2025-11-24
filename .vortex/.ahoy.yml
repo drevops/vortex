@@ -98,10 +98,8 @@ commands:
   update-fixtures:
     cmd: |
       export XDEBUG_MODE=off
-      export COMPOSER_PROCESS_TIMEOUT=600
-      composer --working-dir=tests test-fixtures || composer --working-dir=tests test-fixtures
-      composer --working-dir=installer test-baseline || exit 1
-      composer --working-dir=installer test-fixtures || composer --working-dir=installer test-fixtures
+      composer --working-dir=tests update-fixtures
+      composer --working-dir=installer update-fixtures
 
   update-fixtures-install:
     cmd: |
