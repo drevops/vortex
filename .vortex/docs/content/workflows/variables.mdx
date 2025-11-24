@@ -586,6 +586,22 @@ Default value: `./.data`
 
 Defined or used in: `.env`, `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-container-registry.sh`, `scripts/vortex/download-db-ftp.sh`, `scripts/vortex/download-db-lagoon.sh`, `scripts/vortex/download-db-url.sh`, `scripts/vortex/download-db.sh`, `scripts/vortex/provision.sh`
 
+### `VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_MAX_WAIT`
+
+Maximum time in seconds to wait for backup completion.
+
+Default value: `600`
+
+Defined or used in: `scripts/vortex/download-db-acquia.sh`
+
+### `VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_WAIT_INTERVAL`
+
+Interval in seconds to wait between backup status checks.
+
+Default value: `10`
+
+Defined or used in: `scripts/vortex/download-db-acquia.sh`
+
 ### `VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME`
 
 Acquia database name to download the database from.
@@ -611,6 +627,14 @@ Always override existing downloaded DB dump.
 Default value: `1`
 
 Defined or used in: `.env.local.example`, `scripts/vortex/download-db.sh`
+
+### `VORTEX_DB_DOWNLOAD_FRESH`
+
+Flag to download a fresh copy of the database by triggering a new backup.
+
+Default value: `UNDEFINED`
+
+Defined or used in: `scripts/vortex/download-db-acquia.sh`, `scripts/vortex/download-db-lagoon.sh`
 
 ### `VORTEX_DB_DOWNLOAD_FTP_FILE`
 
@@ -699,14 +723,6 @@ Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 The SSH user of the Lagoon environment.
 
 Default value: `${LAGOON_PROJECT}-${VORTEX_DB_DOWNLOAD_ENVIRONMENT}`
-
-Defined or used in: `scripts/vortex/download-db-lagoon.sh`
-
-### `VORTEX_DB_DOWNLOAD_NO_CACHE`
-
-Flag to download a fresh copy of the database.
-
-Default value: `UNDEFINED`
 
 Defined or used in: `scripts/vortex/download-db-lagoon.sh`
 

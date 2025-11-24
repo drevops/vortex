@@ -140,7 +140,7 @@ load ../_helper.bash
 
   export LAGOON_PROJECT="testproject"
   export VORTEX_DB_DOWNLOAD_ENVIRONMENT="main"
-  export VORTEX_DB_DOWNLOAD_NO_CACHE="1"
+  export VORTEX_DB_DOWNLOAD_FRESH="1"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 

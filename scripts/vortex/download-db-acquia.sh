@@ -46,6 +46,15 @@ VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 # Database dump file name.
 VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
+# Flag to download a fresh copy of the database by triggering a new backup.
+VORTEX_DB_DOWNLOAD_FRESH="${VORTEX_DB_DOWNLOAD_FRESH:-}"
+
+# Interval in seconds to wait between backup status checks.
+VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_WAIT_INTERVAL="${VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_WAIT_INTERVAL:-10}"
+
+# Maximum time in seconds to wait for backup completion.
+VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_MAX_WAIT="${VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_MAX_WAIT:-600}"
+
 #-------------------------------------------------------------------------------
 
 # @formatter:off
@@ -129,6 +138,63 @@ fi
 env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted environment ID: ${env_id}"
 [ -z "${env_id}" ] && fail "Unable to retrieve an environment ID for '${VORTEX_DB_DOWNLOAD_ENVIRONMENT}'. API response: ${envs_json}" && exit 1
+
+# If fresh backup requested, create a new backup and wait for it to complete.
+if [ "$VORTEX_DB_DOWNLOAD_FRESH" = "1" ]; then
+  task "Creating new database backup for ${VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME}."
+
+  # Trigger backup creation
+  create_backup_json=$(curl -s -L -X POST -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME}/backups")
+  [ "${VORTEX_DEBUG-}" = "1" ] && note "Create backup API response: ${create_backup_json}"
+
+  # Check for errors
+  if echo "${create_backup_json}" | grep -q '"error"'; then
+    fail "Failed to create backup for database '${VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME}'. API response: ${create_backup_json}"
+    exit 1
+  fi
+
+  # Extract notification URL for status checking
+  notification_url=$(echo "${create_backup_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
+  [ "${VORTEX_DEBUG-}" = "1" ] && note "Notification URL: ${notification_url}"
+
+  if [ -z "${notification_url}" ]; then
+    fail "Unable to get notification URL for backup creation. API response: ${create_backup_json}"
+    exit 1
+  fi
+
+  task "Waiting for backup to complete."
+  max_wait="${VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_MAX_WAIT}"
+  wait_interval="${VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_WAIT_INTERVAL}"
+  elapsed=0
+
+  while [ ${elapsed} -lt "${max_wait}" ]; do
+    sleep "${wait_interval}"
+    elapsed=$((elapsed + wait_interval))
+
+    # Check backup status
+    status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
+    [ "${VORTEX_DEBUG-}" = "1" ] && note "Status check (${elapsed}s): ${status_json}"
+
+    status=$(echo "${status_json}" | extract_json_value "status")
+
+    if [ "${status}" = "completed" ]; then
+      pass "Backup completed successfully."
+      break
+    elif [ "${status}" = "failed" ]; then
+      fail "Backup creation failed. API response: ${status_json}"
+      exit 1
+    fi
+
+    note "Backup in progress (${elapsed}s elapsed)..."
+  done
+
+  if [ ${elapsed} -ge "${max_wait}" ]; then
+    fail "Backup creation timed out after ${max_wait} seconds."
+    exit 1
+  fi
+
+  note "Fresh backup will be downloaded."
+fi
 
 task "Discovering latest backup ID for DB ${VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME}."
 backups_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME}/backups?sort=created")
