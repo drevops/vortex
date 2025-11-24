@@ -112,10 +112,10 @@ commands:
     cmd: ahoy cli ./scripts/vortex/login.sh
 
   download-db:
-    usage: Download database. Run with "--no-cache" option to force fresh database backup.
+    usage: Download database. Run with "--fresh" option to force fresh database backup.
     aliases: [fetch-db]
     cmd: |
-      case " $* " in *" --no-cache "*) export VORTEX_DB_DOWNLOAD_NO_CACHE=1;; esac
+      case " $* " in *" --fresh "*) export VORTEX_DB_DOWNLOAD_FRESH=1;; esac
       ./scripts/vortex/download-db.sh
 
   reload-db:
