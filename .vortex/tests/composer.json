@@ -26,7 +26,7 @@
         "alexskrypnyk/shellvar": "^1.2.1",
         "czproject/git-php": "^4.5",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.1.2",
-        "drevops/phpcs-standard": "^0.2",
+        "drevops/phpcs-standard": "^0.6",
         "drupal/coder": "^8.3.31",
         "ergebnis/composer-normalize": "^2.48.2",
         "phpstan/phpstan": "^2.1.31",
