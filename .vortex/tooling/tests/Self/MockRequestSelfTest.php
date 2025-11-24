@@ -243,7 +243,7 @@ class MockRequestSelfTest extends UnitTestCase {
     \DrevOps\VortexTooling\request_get('https://example.com/second');
 
     $this->expectException(\PHPUnit\Framework\AssertionFailedError::class);
-    $this->expectExceptionMessage('Not all mocked request responses were consumed. Expected 3 request(s), but only 2 request(s) were made.');
+    $this->expectExceptionMessage('Not all mocked request responses were consumed. Expected 3 call(s), but only 2 call(s) were made.');
 
     // Manually trigger the check that normally happens in tearDown().
     $this->mockRequestAssertAllMocksConsumed();
@@ -468,7 +468,7 @@ class MockRequestSelfTest extends UnitTestCase {
     );
 
     $this->expectException(\PHPUnit\Framework\AssertionFailedError::class);
-    $this->expectExceptionMessage('Not all mocked request responses were consumed. Expected 4 request(s), but only 3 request(s) were made.');
+    $this->expectExceptionMessage('Not all mocked request responses were consumed. Expected 4 call(s), but only 3 call(s) were made.');
 
     $this->runScript('tests/Fixtures/test-request-multiple');
 
