@@ -12,8 +12,7 @@
     <rule ref="DrupalPractice"/>
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="PHPCompatibility"/>
-    <rule ref="DrevOps.NamingConventions.LocalVariableSnakeCase"/>
-    <rule ref="DrevOps.NamingConventions.ParameterSnakeCase"/>
+    <rule ref="DrevOps"/>
 
     <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
     <arg name="colors"/>

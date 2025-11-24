@@ -5,8 +5,7 @@
     <!-- Using Drupal coding standard as a base-fix. -->
     <rule ref="Drupal"/>
     <rule ref="Generic.PHP.RequireStrictTypes" />
-    <rule ref="DrevOps.NamingConventions.LocalVariableSnakeCase"/>
-    <rule ref="DrevOps.NamingConventions.ParameterSnakeCase"/>
+    <rule ref="DrevOps"/>
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>
