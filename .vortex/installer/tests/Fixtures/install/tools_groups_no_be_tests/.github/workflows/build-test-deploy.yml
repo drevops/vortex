@@ -1,4 +1,4 @@
-@@ -286,11 +286,6 @@
+@@ -290,11 +290,6 @@
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
  
@@ -10,7 +10,7 @@
        - name: Lint module code with NodeJS linters
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli bash -c "yarn run lint"
-@@ -308,22 +303,6 @@
+@@ -312,22 +307,6 @@
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh

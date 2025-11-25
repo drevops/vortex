@@ -15,7 +15,7 @@
  ## What should I do to switch to a "clean" branch environment?
  
  Provided that your stack is already running:
-@@ -139,11 +129,3 @@
+@@ -158,11 +148,3 @@
  
  The maintenance theme should be a valid Drupal theme that is already installed
  and enabled on your site.

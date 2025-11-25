@@ -1,4 +1,4 @@
-@@ -276,11 +276,6 @@
+@@ -280,11 +280,6 @@
          run: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
  
