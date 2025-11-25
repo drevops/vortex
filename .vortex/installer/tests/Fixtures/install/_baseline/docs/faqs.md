@@ -123,6 +123,25 @@ composer require drupal/module_name
 
 See https://www.vortextemplate.com/docs/workflows/development#working-with-composer-packages
 
+## What should I do when Composer blocks package installation due to security vulnerabilities?
+
+Starting with Composer 2.9.0, Composer can automatically block the installation
+or update of packages with known security vulnerabilities. If you encounter this
+issue, you have several options:
+
+1. **Update the affected packages**: Try updating to newer versions that don't
+   have known vulnerabilities: `composer update vendor/package-name`
+2. **Review the vulnerability**: Run `composer audit` to see details about the
+   security issues and determine if they affect your project.
+3. **Adjust security settings**: If you need to proceed with installation despite
+   warnings (for example, if no secure version is available or the vulnerability
+   doesn't affect your use case), you can configure the `audit.block-insecure`
+   setting in your `composer.json`.
+
+See the [Composer configuration documentation](https://www.vortextemplate.com/docs/drupal/composer#config)
+for detailed information about the `audit` configuration option and guidance on
+choosing the right security settings for your project.
+
 ## How to set a custom maintenance theme?
 
 To set a custom theme for Drupal's maintenance mode (when the site is offline

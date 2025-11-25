@@ -226,6 +226,23 @@ specifies key configurations for Composer's behavior in the project.
   This setting specifies which Composer plugins are allowed to run. It's a
   security measure to prevent the execution of untrusted code from third-party
   plugins. Each plugin needs to be explicitly allowed to ensure it can execute.
+- [`audit`](https://getcomposer.org/doc/06-config.md#audit): Introduced in
+  Composer 2.9.0, this setting controls automatic security auditing of
+  dependencies during `composer install` and `composer update`. **Vortex**
+  enforces security best practices with the following configuration:
+  - `block-insecure` (default: `true`): Blocks installation of packages with
+    known security vulnerabilities unless explicitly ignored. This ensures
+    security issues are addressed before deployment.
+  - `abandoned` (default: `report`): Shows warnings for abandoned packages
+    without failing the build. Allows visibility into package maintenance status
+    while not blocking installations.
+  - `ignore` (default: `{}`): Empty object ready for adding assessed and
+    documented vulnerability exceptions. Use this to explicitly allow specific
+    CVE/GHSA advisories that have been reviewed and accepted.
+  - See
+    [Composer Security Auditing](../workflows/development#composer-security-auditing)
+    for comprehensive guidance on configuration options, ignoring specific
+    advisories, running audits, and best practices.
 - [`discard-changes`](https://getcomposer.org/doc/06-config.md#discard-changes):
   When set to `true`, any local changes made to the dependencies (packages under
   version control like Git) are discarded without prompting when you run

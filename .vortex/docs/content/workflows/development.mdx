@@ -80,7 +80,7 @@ file to `.data/db.sql` and run `ahoy import-db`.
 
 See [Drupal > Provision](../drupal/provision) for more details.
 
-## Environment Variable Updates
+## Environment variable updates
 
 To update environment variables in your local development environment:
 
@@ -304,6 +304,118 @@ Composer Patches v2.x automatically generates a `patches.lock.json` file that co
     ```bash
     composer update --lock
     ```
+
+### Composer security auditing
+
+Composer 2.9.0 introduced automatic security auditing that checks your dependencies for known security vulnerabilities and abandoned packages. This feature helps you maintain a secure codebase by alerting you to potential issues during package installation and updates.
+
+#### Configuration Options
+
+Configure audit behavior in your `composer.json` under the `config` section:
+
+```json
+{
+    "config": {
+        "audit": {
+            "abandoned": "report",
+            "block-insecure": true,
+            "ignore": {
+                "CVE-2024-1234": "The affected component is not in use in our application.",
+                "GHSA-xxxx-yyyy-zzzz": "Mitigated by additional security measures."
+            }
+        }
+    }
+}
+```
+
+**Available Options:**
+
+- **`block-insecure`**: Controls whether packages with security vulnerabilities block installation
+  - `true` (**Vortex** default): Blocks installation/update of vulnerable packages unless ignored
+  - `false`: Shows warnings but allows installation to proceed
+- **`abandoned`**: Controls how abandoned packages are handled
+  - `report` (**Vortex** default): Shows abandoned packages as warnings but doesn't fail
+  - `fail`: Audit command fails with non-zero exit code
+  - `ignore`: Skips abandoned packages in audit reports
+- **`ignore`**: Ignores specific security advisories by CVE or GHSA identifier (empty by default)
+
+#### When to Use `block-insecure: false`
+
+**Vortex** sets `block-insecure` to `true` by default to enforce security best practices. However, you may want to set it to `false` when:
+
+- You need flexibility to evaluate vulnerabilities on your timeline
+- No secure version is immediately available
+- The vulnerability doesn't affect your specific use case
+- You're in active development and need uninterrupted workflow
+
+Keep it `true` (Vortex default) when:
+
+- Working on production sites with strict security requirements
+- Your deployment process can handle blocked installations
+- You want to enforce immediate action on security vulnerabilities
+- Your team has resources to quickly address security issues
+
+:::warning Vortex Security-First Philosophy
+
+**Vortex** adopts a security-first approach by setting `block-insecure: true` as the default. This prioritizes safety in automated deployments by preventing vulnerable packages from being installed without explicit review.
+
+If you need to override this setting for backwards compatibility, you can modify the `audit.block-insecure` configuration in your project's `composer.json` file. However, we strongly recommend addressing vulnerabilities by updating packages or using the `ignore` configuration for assessed exceptions, rather than routinely disabling security blocking.
+
+This approach ensures security issues are explicitly acknowledged and reviewed before being accepted into your codebase.
+
+:::
+
+#### Ignoring Specific Advisories
+
+When you've assessed a vulnerability and determined it doesn't affect your project, you can ignore it:
+
+```json
+{
+    "config": {
+        "audit": {
+            "ignore": {
+                "CVE-2024-1234": "Component is not used in our implementation.",
+                "GHSA-xxxx-yyyy-zzzz": "Patched via custom security fix."
+            }
+        }
+    }
+}
+```
+
+:::tip Document Your Decisions
+
+Always include reasons when ignoring advisories into your Git commit messages. This helps your team understand why a vulnerability was deemed acceptable and makes it easier to review these decisions in the future.
+
+:::
+
+#### Running Audit Command
+
+Check your dependencies for security issues manually:
+
+```bash
+# Audit all installed packages
+composer audit
+
+# Audit only production dependencies (exclude dev)
+composer audit --no-dev
+
+# Audit packages from lock file (faster)
+composer audit --locked
+
+# Control abandoned package behavior
+composer audit --abandoned=ignore  # Skip abandoned packages
+composer audit --abandoned=report  # Show but don't fail
+```
+
+##### CI/CD Integration
+
+**Vortex** automatically runs `composer audit` as part of the CI/CD pipeline to
+check for security vulnerabilities during builds.
+
+By default, audit failures will cause the CI build to fail. You can control this
+behavior using a repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`
+set to `1`. When this variable is set to `1`, the audit step will run but won't
+fail the build if vulnerabilities are found.
 
 ## Resetting the codebase
 

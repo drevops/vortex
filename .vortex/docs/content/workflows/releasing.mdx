@@ -47,6 +47,7 @@ Code goes "up" (from lower to higher environments) while database goes "down" (f
 This means that the production database is the primary source of truth - it's what code is applied to. When performing a release, you are applying a new version of code to a database within a specific environment.
 
 To ensure that code changes work correctly with real data structures, the following process is followed in lower environments:
+
 1. Database is copied from a higher environment to a lower one (e.g., production → stage → development)
 2. Code is deployed to that environment to be tested against the copied database
 3. Testing is performed to ensure everything works correctly
@@ -136,9 +137,11 @@ gitGraph
 Below are the typical steps to perform a release using git-flow. See [cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/) for a quick reference on git-flow commands.
 
 1. **Start Release**
+
    ```bash
    git flow release start X.Y.Z
    ```
+
    Creates a `release/X.Y.Z` branch from `develop`. It is recommended to push
    the branch to remote.
 
@@ -148,9 +151,11 @@ Below are the typical steps to perform a release using git-flow. See [cheat shee
    - Release notes preparation
 
 3. **Finish Release**
+
    ```bash
    git flow release finish X.Y.Z
    ```
+
    - Merges release branch to `main`
    - Tags the release
    - Merges back to `develop`
@@ -159,6 +164,7 @@ Below are the typical steps to perform a release using git-flow. See [cheat shee
 4. **Deploy to Production**
    - **Tag-based hosting:** Deploy the tag directly
    - **Branch-based hosting (e.g., Lagoon):** Manually sync to `production` branch
+
      ```bash
      git push origin main:production
      ```
@@ -190,12 +196,14 @@ During installation, you can choose between Calendar Versioning (CalVer), Semant
 - `Z` = Hotfix/patch version (no leading zeroes)
 
 #### Why CalVer
+
 - **Release frequency transparency**: When you have multiple releases per month, dates make it easy to identify when a release happened
 - **Intuitive tracking**: Stakeholders can immediately understand "this is from January 2025" vs memorizing version numbers
 - **Natural progression**: No ambiguity about major vs minor changes - just the chronological order
 - **Marketing alignment**: Easier to communicate to non-technical audiences ("our Q1 2025 release")
 
-#### Examples:
+#### Examples
+
 - ✅ Correct: `25.1.0`, `25.11.1`, `25.1.10`, `25.10.1`, `9.12.0`
 - ❌ Incorrect: `25.0.0` (no month 0), `2025.1.1` (full year), `25.01.0` (leading zero), `01.1.0` (leading zero in year)
 
@@ -210,12 +218,14 @@ Learn more: [CalVer.org](https://calver.org/)
 - `Z` = Hotfix/patch version (no leading zeroes)
 
 #### Why SemVer
+
 - **Breaking change communication**: Major version bump signals incompatible API changes
 - **Dependency management**: Package managers can enforce compatible version ranges
 - **Developer expectations**: Well-understood convention in the development community
 - **Predictable upgrades**: Minor versions add functionality, patches fix bugs
 
-#### Examples:
+#### Examples
+
 - ✅ Correct: `0.1.0`, `1.0.0`, `1.0.1`, `1.0.10`
 - ❌ Incorrect: `0.1` (missing patch), `1` (missing minor and patch), `1.0.01` (leading zero)
 
@@ -263,6 +273,7 @@ Your project includes a `docs/releasing.md` file that serves as the canonical re
 - **Release procedures** - Custom workflows specific to your project
 
 You can extend this file with:
+
 - **Detailed release procedures** - A comprehensive outline of _what_ actions to take during releases:
   - Steps to create and finish releases
   - Steps to deploy to production
@@ -279,6 +290,7 @@ You can extend this file with:
 **Deployment Markers**: When configured, **Vortex** automatically creates deployment markers in New Relic when releases are deployed to your environments. These markers help correlate performance changes, errors, and other metrics with specific releases.
 
 **Benefits**:
+
 - Visualize before/after release performance
 - Correlate errors with specific deployments
 - Track deployment frequency

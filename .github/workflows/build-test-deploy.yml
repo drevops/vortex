@@ -274,6 +274,10 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
+      - name: Audit Composer packages
+        run: docker compose exec -T cli composer audit
+        continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
+
       - name: Validate Composer configuration is normalized
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli composer normalize --dry-run
