@@ -1,0 +1,262 @@
+# CircleCI 2.0 configuration file.
+#
+# Vortex - Test (DIDI from file)
+#
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+#
+# Test workflow to test VORTEX_DB_IMAGE workflow for DB from file.
+# Switching between "database in file" (DIF, mounted data volume) and
+# "database-in-image" (DIDI, data volume is a part of the image) is
+# done by providing the value of VORTEX_DB_IMAGE environment variable,
+# which would be set in .env file for consumer projects.
+#;
+#; Comments starting with '#;<' and '#;>' are internal Vortex comments
+#; and will be removed during installation or update of Vortex.
+version: '2.1'
+
+aliases:
+  # SSH key fingerprint to download the database.
+  - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
+
+  # SSH key fingerprint to deploy code.
+  - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
+
+  # Shared runner container configuration applied to each job.
+  - &runner_config
+    working_directory: &working_directory ~/project
+    environment:
+      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+    docker:
+      # Using the 'runner' container where each job will be executed.
+      # This container has all the necessary tools to run a dockerized environment.
+      # https://github.com/drevops/ci-runner
+      # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
+      - image: drevops/ci-runner:25.10.0
+        auth:
+          username: ${VORTEX_CONTAINER_REGISTRY_USER}
+          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+        environment:
+          # Set runner timezone via UI to ensure that executed operations use correct timestamps.
+          # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+          TZ: UTC
+          # Set runner terminal capabilities.
+          TERM: xterm-256color
+          # Disable strict host key checking for SSH connections.
+          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+          # Remove all SSH keys from the runner container.
+          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+          # How often to refresh the cache of the DB dump. Refer to `date` command.
+          VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+          # Use previous database caches on this branch as a fallback if the above cache
+          # does not match (for example, the cache is available only from the previous
+          # day). If "no" is set, the cache will be rebuilt from scratch.
+          VORTEX_CI_DB_CACHE_FALLBACK: "yes"
+          # Which branch to use as a source of DB caches.
+          VORTEX_CI_DB_CACHE_BRANCH: "develop"
+          # Directory to store test results.
+          VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
+          # Directory to store test artifacts.
+          VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
+          # Directory to use for artifact deployments.
+          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
+          # Source code location for artifact deployments.
+          VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
+          # Report file location for artifact deployments.
+          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          # Check only minimal stack requirements.
+          VORTEX_DOCTOR_CHECK_MINIMAL: 1
+    # CI runner resource class.
+    # https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    # Change to 'large' for faster builds.
+    resource_class: medium
+
+  - &step_setup_remote_docker
+    setup_remote_docker:
+      # Docker Layer Caching allows to significantly speed up builds by caching
+      # images built during previous runs.
+      # https://circleci.com/docs/2.0/docker-layer-caching/
+      docker_layer_caching: false
+      version: default
+
+  - &step_process_codebase_for_ci
+    run:
+      name: Process codebase to run in CI
+      command: |
+        find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+        mkdir -p /tmp/workspace/code
+
+  - &load_variables_from_dotenv
+    run:
+      name: Load environment variables from .env file
+      # Load variables from .env file, respecting existing values, and make them available for the next steps.
+      command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
+
+  # Base database job definition.
+  - &job-database
+    <<: *runner_config
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+
+      - add_ssh_keys:
+          fingerprints:
+            - *db_ssh_fingerprint
+
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+      - *step_setup_remote_docker
+
+      - run:
+          name: Create cache keys for database caching as files
+          command: |
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
+            date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee /tmp/db_cache_timestamp
+            echo "yes" | tee /tmp/db_cache_fallback_yes
+
+      - restore_cache:
+          keys:
+            # Restore DB cache based on the cache strategy set by the cache keys below.
+            # https://circleci.com/docs/2.0/caching/#restoring-cache
+            # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+            - v25.10.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v25.10.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+
+      - run:
+          name: Download DB
+          command: VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+          no_output_timeout: 30m
+
+      - run:
+          name: Export DB after download
+          command: |
+            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            ./scripts/vortex/login-container-registry.sh
+            docker compose up --detach && sleep 15
+            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            ./scripts/vortex/export-db.sh db.sql
+          no_output_timeout: 30m
+
+      - save_cache:
+          key: v25.10.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          paths:
+            - /root/project/.data
+
+  # Base build job definition (simplified - not all steps included for brevity).
+  - &job_build
+    <<: *runner_config
+    parallelism: 2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+
+      - run:
+          name: Set cache keys for database caching
+          command: |
+            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
+            echo "yes" | tee /tmp/db_cache_fallback_yes
+            echo "$(date ${VORTEX_CI_DB_CACHE_TIMESTAMP})" | tee /tmp/db_cache_timestamp
+
+      - restore_cache:
+          keys:
+            - v25.10.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v25.10.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+
+      - *step_setup_remote_docker
+
+      - run:
+          name: Login to container registry
+          command: ./scripts/vortex/login-container-registry.sh
+
+      - run:
+          name: Build stack
+          command: docker compose up -d
+
+      - run:
+          name: Install development dependencies
+          command: |
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+
+      - run:
+          name: Provision site
+          command: |
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+          no_output_timeout: 30m
+
+      - store_test_results:
+          path: *test_results
+
+      - store_artifacts:
+          path: *artifacts
+
+################################################################################
+# JOBS
+################################################################################
+
+jobs:
+  # Job to test creation of the image from DB dump file when using
+  # VORTEX_DB_IMAGE workflow.
+  vortex-test-didi-database-fi:
+    <<: *job-database
+    environment:
+      VORTEX_DB_DOWNLOAD_SOURCE: url
+      VORTEX_DB_DOWNLOAD_FORCE: 1
+      # Use container image database storage despite that the file is coming
+      # from CURL - this is to make sure that image is exported into cache
+      # to be used between jobs. Note that in consumer project .env file would
+      # have VORTEX_DB_IMAGE variable set and this environment variable
+      # would not be required.
+      #
+      # Note that here and below we are using "destination" demo image - this
+      # is to allow updating of this image from CI tests without jeopardizing
+      # main demo image.
+      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
+      # Use a separate tag to make sure that pushed image does not affect
+      # other tests (pushing broken image as 'latest' would fail other tests).
+      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
+      # Also, use this job to test pushing of the DB image to the container
+      # registry to replicate what database-nightly job would do.
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      # Use custom cache key for this workflow to make sure that caches from
+      # the main workflow are separated from this one.
+      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
+
+  # Job to test build of the image from the previous stage of the image when
+  # using database-in-image workflow. Overwriting just the VORTEX_DB_IMAGE
+  # variable should change the storage mechanisms, but preserve application-level
+  # stack operation.
+  vortex-test-didi-build-fi:
+    <<: *job_build
+    environment:
+      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
+      # Use custom cache key for this workflow to make sure that caches from
+      # the main workflow are separated from this one.
+      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
+
+################################################################################
+# WORKFLOWS
+################################################################################
+
+workflows:
+  version: 2
+  # Test workflow to test VORTEX_DB_IMAGE workflow for DB from file.
+  vortex-test-didi-fi:
+    jobs:
+      - vortex-test-didi-database-fi
+      - vortex-test-didi-build-fi:
+          requires:
+            - vortex-test-didi-database-fi
