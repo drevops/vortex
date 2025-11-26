@@ -26,7 +26,7 @@ class GitTest extends UnitTestCase {
    * @param bool $with_commits
    *   Whether to add commits to the repository.
    *
-   * @return array{string, Git}
+   * @return array{string, \DrevOps\VortexInstaller\Utils\Git}
    *   Array with temp directory path and Git object.
    */
   protected function createTempGitRepo(bool $with_remote = FALSE, bool $with_commits = FALSE): array {
@@ -123,7 +123,8 @@ class GitTest extends UnitTestCase {
       // Test with another command.
       $result = $repo->run('log', '--oneline', '--max-count=1');
       $this->assertInstanceOf(RunnerResult::class, $result);
-    } finally {
+    }
+    finally {
       $this->cleanupTempGitRepo($temp_dir);
     }
   }
@@ -134,7 +135,8 @@ class GitTest extends UnitTestCase {
     try {
       $remotes = $repo->listRemotes();
       $this->assertEmpty($remotes);
-    } finally {
+    }
+    finally {
       $this->cleanupTempGitRepo($temp_dir);
     }
   }
@@ -148,7 +150,8 @@ class GitTest extends UnitTestCase {
       $this->assertArrayHasKey('upstream', $remotes);
       $this->assertEquals('https://github.com/owner/repo.git', $remotes['origin']);
       $this->assertEquals('https://github.com/upstream/repo.git', $remotes['upstream']);
-    } finally {
+    }
+    finally {
       $this->cleanupTempGitRepo($temp_dir);
     }
   }
@@ -162,7 +165,8 @@ class GitTest extends UnitTestCase {
 
     try {
       Git::getTrackedFiles($temp_dir);
-    } finally {
+    }
+    finally {
       rmdir($temp_dir);
     }
   }
@@ -173,7 +177,8 @@ class GitTest extends UnitTestCase {
     try {
       $tracked = Git::getTrackedFiles($temp_dir);
       $this->assertEmpty($tracked);
-    } finally {
+    }
+    finally {
       $this->cleanupTempGitRepo($temp_dir);
     }
   }
@@ -186,7 +191,8 @@ class GitTest extends UnitTestCase {
       $this->assertCount(2, $tracked);
       $this->assertContains($temp_dir . DIRECTORY_SEPARATOR . 'test.txt', $tracked);
       $this->assertContains($temp_dir . DIRECTORY_SEPARATOR . 'another.txt', $tracked);
-    } finally {
+    }
+    finally {
       $this->cleanupTempGitRepo($temp_dir);
     }
   }
@@ -198,7 +204,8 @@ class GitTest extends UnitTestCase {
       $short_id = $repo->getLastShortCommitId();
       $this->assertEquals(7, strlen($short_id));
       $this->assertMatchesRegularExpression('/^[0-9a-f]{7}$/', $short_id);
-    } finally {
+    }
+    finally {
       $this->cleanupTempGitRepo($temp_dir);
     }
   }

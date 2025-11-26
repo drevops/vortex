@@ -52,6 +52,7 @@ $databases = [
 
 $app_root ??= DRUPAL_ROOT;
 $site_path ??= 'sites/default';
+// @phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $contrib_path = $app_root . '/' . (is_dir($app_root . '/modules/contrib') ? 'modules/contrib' : 'modules');
 
 // Public files directory relative to the Drupal root.

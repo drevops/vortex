@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for CircleCI configurations.
  *
- * @SuppressWarnings(PHPMD)
+ * @SuppressWarnings(\PHPMD)
  *
  */
 #[Group('ci')]

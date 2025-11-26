@@ -38,7 +38,7 @@ class DownloaderTest extends UnitTestCase {
 
   public function testDownloadWithMockedArchiver(): void {
     $mock_http_client = $this->createMockHttpClient();
-    /** @var \PHPUnit\Framework\MockObject\MockObject&ArchiverInterface $mock_archiver */
+    /** @var \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\ArchiverInterface $mock_archiver */
     $mock_archiver = $this->createMockArchiver();
     $mock_archiver->expects($this->once())->method('validate');
     $mock_archiver->expects($this->once())->method('extract');
@@ -222,7 +222,7 @@ class DownloaderTest extends UnitTestCase {
       $expectedVersion = $ref;
     }
 
-    /** @var \PHPUnit\Framework\MockObject\MockObject&ArchiverInterface $mock_archiver */
+    /** @var \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\ArchiverInterface $mock_archiver */
     $mock_archiver = $this->createMockArchiverWithExtract();
     $downloader = new Downloader(NULL, $mock_archiver);
     $version = $downloader->download($temp_repo_dir, $ref, $destination);

@@ -141,6 +141,10 @@ effective development environment.
   Behavior-Driven Development (BDD), allowing you to write human-readable
   stories that describe the behavior of your application. It facilitates
   communication between developers, stakeholders, and clients.
+- [`dantleech/gherkin-lint`](https://github.com/dantleech/gherkin-lint): A
+  linting tool for Gherkin feature files used in Behat tests. Ensures
+  consistency and quality in BDD test scenarios by checking syntax and
+  formatting.
 - [`dealerdirect/phpcodesniffer-composer-installer`](https://github.com/Dealerdirect/phpcodesniffer-composer-installer):
   This tool automatically configures PHP_CodeSniffer to use the coding
   standards (like PSR-2 or Drupal coding standards) installed in a project.
@@ -154,10 +158,12 @@ effective development environment.
   collection of pre-defined step definitions for Behat. This package speeds up
   the process of writing new Behat tests by providing common step
   implementations.
-- [`drupal/core-dev`](https://www.drupal.org/project/drupal): Includes
-  development-specific dependencies and tools primarily for testing and code
-  analysis, including PHPUnit, PHP_CodeSniffer with rules (
-  via [Coder](https://www.drupal.org/project/coder) module).
+- [`drevops/phpcs-standard`](https://github.com/drevops/phpcs-standard): A
+  custom PHP_CodeSniffer coding standard that extends Drupal coding standards
+  with additional rules and best practices specific to DrevOps projects.
+- [`drupal/coder`](https://www.drupal.org/project/coder): Provides
+  PHP_CodeSniffer rules for Drupal coding standards. Version 9.x supports
+  PHP_CodeSniffer 4.x and includes updated rules for modern Drupal development.
 - [`drupal/drupal-extension`](https://github.com/jhedstrom/drupalextension): A
   Behat extension that provides integration with Drupal, offering step
   definitions specific to Drupal functionality. It facilitates the creation and
@@ -173,7 +179,7 @@ effective development environment.
 - [`phpcompatibility/php-compatibility`](https://github.com/PHPCompatibility/PHPCompatibility):
   Provides a collection of sniffs for PHP_CodeSniffer to check PHP code for
   compatibility with different PHP versions, crucial for ensuring long-term
-  maintainability.
+  maintainability. Version 10.x supports PHP_CodeSniffer 4.x.
 - [`phpmd/phpmd`](https://github.com/phpmd/phpmd): PHP Mess Detector is a
   user-friendly tool that helps you detect several potential problems in your
   PHP code, including possible bugs, suboptimal code, and overcomplicated
@@ -184,10 +190,22 @@ effective development environment.
 - [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer):
   This package automatically installs and enables PHPStan extensions,
   streamlining the setup process for PHPStan in your project.
+- [`phpstan/phpstan`](https://github.com/phpstan/phpstan): A static analysis
+  tool for PHP that focuses on finding bugs in code without running it. Helps
+  catch type errors, incorrect method calls, and other potential issues during
+  development.
+- [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit): The
+  industry-standard testing framework for PHP. Provides a comprehensive set of
+  tools for writing and running unit tests, integration tests, and functional
+  tests.
 - [`pyrech/composer-changelogs`](https://github.com/pyrech/composer-changelogs):
   Provides a summary of package changes (like updates, removals, and additions)
   after running `composer update`, improving the visibility of package changes
   and updates in your project.
+- [`rector/rector`](https://github.com/rectorphp/rector): An automated
+  refactoring tool that instantly upgrades and refactors PHP code. Helps with
+  code modernization, framework migrations, and automated application of coding
+  standards.
 - [`vincentlanglet/twig-cs-fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
   ensures that Twig templates adhere to a set coding standard, helping maintain
   consistency and readability in template files.

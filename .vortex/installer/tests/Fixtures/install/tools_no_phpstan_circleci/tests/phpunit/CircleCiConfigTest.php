@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for CircleCI configurations.
  *
- * @SuppressWarnings(PHPMD)
+ * @SuppressWarnings(\PHPMD)
  *
  * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
  * phpcs:disable Drupal.NamingConventions.ValidGlobal.GlobalUnderScore

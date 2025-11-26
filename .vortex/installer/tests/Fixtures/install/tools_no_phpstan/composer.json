@@ -1,18 +1,19 @@
-@@ -39,13 +39,10 @@
-         "drupal/core-dev": "__VERSION__",
-         "drupal/drupal-extension": "__VERSION__",
+@@ -41,14 +41,11 @@
          "ergebnis/composer-normalize": "__VERSION__",
+         "lullabot/mink-selenium2-driver": "__VERSION__",
+         "lullabot/php-webdriver": "__VERSION__",
 -        "mglaman/phpstan-drupal": "__VERSION__",
+         "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
          "phpmd/phpmd": "__VERSION__",
          "phpspec/prophecy-phpunit": "__VERSION__",
 -        "phpstan/extension-installer": "__VERSION__",
 -        "phpstan/phpstan": "__VERSION__",
+         "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
-         "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -80,7 +77,6 @@
+@@ -84,7 +81,6 @@
              "ergebnis/composer-normalize": true,
              "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,
