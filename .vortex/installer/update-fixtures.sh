@@ -21,6 +21,7 @@ set -eu
 DATASET="${1:-}"
 TIMEOUT=30
 MAX_RETRIES=3
+START_TIME=$(date +%s)
 
 # Trap to handle Ctrl+C and cleanup.
 trap 'printf "\nInterrupted by user\n"; exit 130' INT TERM
@@ -201,6 +202,58 @@ done <<< "${datasets}"
 # Summary.
 printf "Total: %s | Succeeded: %s | Failed: %s | Timed out: %s\n" "${total_datasets}" "${succeeded}" "${failed}" "${timedout}"
 
+# If there were failures or timeouts, check for additional uncommitted fixture changes and amend the baseline commit.
 if [ "${failed}" -gt 0 ] || [ "${timedout}" -gt 0 ]; then
+  # Navigate to git root (two levels up from installer directory).
+  cd ../.. || exit 1
+
+  # Check if there are uncommitted changes in fixtures directory.
+  fixtures_path=".vortex/installer/tests/Fixtures/install"
+  has_changes=0
+
+  # Check for modified files (unstaged).
+  if ! git diff --quiet "${fixtures_path}" 2>/dev/null; then
+    has_changes=1
+  fi
+
+  # Check for staged files.
+  if ! git diff --cached --quiet "${fixtures_path}" 2>/dev/null; then
+    has_changes=1
+  fi
+
+  # Check for untracked files.
+  if [ -n "$(git ls-files --others --exclude-standard "${fixtures_path}" 2>/dev/null)" ]; then
+    has_changes=1
+  fi
+
+  if [ "${has_changes}" -eq 1 ]; then
+    # Stage all fixture changes.
+    if git add "${fixtures_path}"; then
+      # Amend the baseline commit with all fixture changes.
+      if git commit --amend -m "Updated fixtures."; then
+        printf "Note: Amended previous commit to include all fixture updates.\n"
+      else
+        printf "Failed to amend commit with fixture changes.\n"
+      fi
+    else
+      printf "Failed to stage fixture changes.\n"
+    fi
+  fi
+
+  # Navigate back to installer directory.
+  cd .vortex/installer || exit 1
+
+  # Calculate and display execution time.
+  ELAPSED=$(($(date +%s) - START_TIME))
+  MINUTES=$((ELAPSED / 60))
+  SECONDS=$((ELAPSED % 60))
+  printf "Total execution time: %d minutes %d seconds\n" "${MINUTES}" "${SECONDS}"
+
   exit 1
 fi
+
+# Calculate and display execution time.
+ELAPSED=$(($(date +%s) - START_TIME))
+MINUTES=$((ELAPSED / 60))
+SECONDS=$((ELAPSED % 60))
+printf "Total execution time: %d minutes %d seconds\n" "${MINUTES}" "${SECONDS}"

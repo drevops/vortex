@@ -27,12 +27,12 @@
         "czproject/git-php": "^4.5",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.1.2",
         "drevops/phpcs-standard": "^0.6",
-        "drupal/coder": "^8.3.31",
+        "drupal/coder": "^9@alpha",
         "ergebnis/composer-normalize": "^2.48.2",
         "phpstan/phpstan": "^2.1.31",
         "phpunit/phpunit": "^12.4.2",
         "rector/rector": "^2.2.7",
-        "squizlabs/php_codesniffer": "^3.13.4"
+        "squizlabs/php_codesniffer": "^4.0"
     },
     "minimum-stability": "alpha",
     "prefer-stable": true,

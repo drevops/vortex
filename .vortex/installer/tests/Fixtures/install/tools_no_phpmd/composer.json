@@ -1,5 +1,5 @@
-@@ -42,7 +42,6 @@
-         "mglaman/phpstan-drupal": "__VERSION__",
+@@ -45,7 +45,6 @@
+         "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
 -        "phpmd/phpmd": "__VERSION__",

@@ -189,7 +189,8 @@ TEXT;
 
       $this->assertSame($expected_clean, $actual_clean);
 
-    } finally {
+    }
+    finally {
       // Restore environment.
       if ($original_columns !== FALSE) {
         putenv('COLUMNS=' . $original_columns);
@@ -571,7 +572,8 @@ EXPECTED,
       $result = $method->invoke(NULL, $char);
       $this->assertSame($expected_padding, $result);
 
-    } finally {
+    }
+    finally {
       // Restore original environment variables.
       if ($original_terminal_emulator !== FALSE) {
         putenv('TERMINAL_EMULATOR=' . $original_terminal_emulator);

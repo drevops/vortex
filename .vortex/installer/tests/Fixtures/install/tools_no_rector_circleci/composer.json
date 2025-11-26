@@ -1,14 +1,14 @@
-@@ -40,7 +40,6 @@
-         "drupal/drupal-extension": "__VERSION__",
-         "ergebnis/composer-normalize": "__VERSION__",
+@@ -43,7 +43,6 @@
+         "lullabot/php-webdriver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
+         "mikey179/vfsstream": "__VERSION__",
 -        "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
          "phpmd/phpmd": "__VERSION__",
          "phpspec/prophecy-phpunit": "__VERSION__",
-@@ -47,7 +46,6 @@
-         "phpstan/extension-installer": "__VERSION__",
+@@ -51,7 +50,6 @@
          "phpstan/phpstan": "__VERSION__",
+         "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
 -        "rector/rector": "__VERSION__",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"

@@ -181,12 +181,16 @@ class Tools extends AbstractHandler {
         'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'dealerdirect/phpcodesniffer-composer-installer') ||
         File::contains($this->dstDir . '/composer.json', 'drupal/coder') ||
         File::contains($this->dstDir . '/composer.json', 'squizlabs/php_codesniffer') ||
+        File::contains($this->dstDir . '/composer.json', 'phpcompatibility/php-compatibility') ||
+        File::contains($this->dstDir . '/composer.json', 'drevops/phpcs-standard') ||
         File::exists($this->dstDir . '/phpcs.xml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'dealerdirect/phpcodesniffer-composer-installer');
           $cj->removeConfigSetting('allow-plugins.dealerdirect/phpcodesniffer-composer-installer');
           $cj->removeSubNode('require-dev', 'drupal/coder');
           $cj->removeSubNode('require-dev', 'squizlabs/php_codesniffer');
+          $cj->removeSubNode('require-dev', 'phpcompatibility/php-compatibility');
+          $cj->removeSubNode('require-dev', 'drevops/phpcs-standard');
         },
         'files' => ['phpcs.xml'],
         'strings' => [
@@ -200,10 +204,13 @@ class Tools extends AbstractHandler {
         'title' => 'PHPStan',
         'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpstan/phpstan') ||
         File::contains($this->dstDir . '/composer.json', 'mglaman/phpstan-drupal') ||
+        File::contains($this->dstDir . '/composer.json', 'phpstan/extension-installer') ||
         File::exists($this->dstDir . '/phpstan.neon'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpstan/phpstan');
           $cj->removeSubNode('require-dev', 'mglaman/phpstan-drupal');
+          $cj->removeSubNode('require-dev', 'phpstan/extension-installer');
+          $cj->removeConfigSetting('allow-plugins.phpstan/extension-installer');
         },
         'files' => ['phpstan.neon'],
         'strings' => [
@@ -220,6 +227,7 @@ class Tools extends AbstractHandler {
         File::exists($this->dstDir . '/rector.php'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'rector/rector');
+          $cj->removeSubNode('require-dev', 'palantirnet/drupal-rector');
         },
         'files' => ['rector.php'],
         'strings' => ['/^.*\brector\b.*\n?/m'],
@@ -244,9 +252,11 @@ class Tools extends AbstractHandler {
       self::PHPUNIT => [
         'title' => 'PHPUnit',
         'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpunit/phpunit') ||
+        File::contains($this->dstDir . '/composer.json', 'phpspec/prophecy-phpunit') ||
         File::exists($this->dstDir . '/phpunit.xml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpunit/phpunit');
+          $cj->removeSubNode('require-dev', 'phpspec/prophecy-phpunit');
           $cj->removeProperty('autoload-dev.classmap');
           $cj->removeMainKeyIfEmpty('autoload-dev');
         },
@@ -273,11 +283,17 @@ class Tools extends AbstractHandler {
         'title' => 'Behat',
         'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'behat/behat') ||
         File::contains($this->dstDir . '/composer.json', 'drupal/drupal-extension') ||
+        File::contains($this->dstDir . '/composer.json', 'drevops/behat-format-progress-fail') ||
+        File::contains($this->dstDir . '/composer.json', 'drevops/behat-screenshot') ||
+        File::contains($this->dstDir . '/composer.json', 'drevops/behat-steps') ||
         File::exists($this->dstDir . '/behat.yml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'behat/behat');
           $cj->removeSubNode('require-dev', 'drupal/drupal-extension');
           $cj->removeSubNode('require-dev', 'dantleech/gherkin-lint');
+          $cj->removeSubNode('require-dev', 'drevops/behat-format-progress-fail');
+          $cj->removeSubNode('require-dev', 'drevops/behat-screenshot');
+          $cj->removeSubNode('require-dev', 'drevops/behat-steps');
         },
         'files' => [
           'behat.yml',

@@ -1,4 +1,4 @@
-@@ -31,11 +31,9 @@
+@@ -31,12 +31,9 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -7,10 +7,19 @@
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
 -        "drevops/phpcs-standard": "__VERSION__",
-         "drupal/core-dev": "__VERSION__",
+-        "drupal/coder": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
-@@ -75,7 +73,6 @@
+         "lullabot/mink-selenium2-driver": "__VERSION__",
+@@ -44,7 +41,6 @@
+         "mglaman/phpstan-drupal": "__VERSION__",
+         "mikey179/vfsstream": "__VERSION__",
+         "palantirnet/drupal-rector": "__VERSION__",
+-        "phpcompatibility/php-compatibility": "__VERSION__",
+         "phpmd/phpmd": "__VERSION__",
+         "phpspec/prophecy-phpunit": "__VERSION__",
+         "phpstan/extension-installer": "__VERSION__",
+@@ -79,7 +75,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,
