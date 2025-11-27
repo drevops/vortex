@@ -21,7 +21,7 @@
              "url": "https://packages.drupal.org/8"
          }
      ],
--    "minimum-stability": "beta",
+-    "minimum-stability": "stable",
 +    "minimum-stability": "alpha",
      "prefer-stable": true,
      "autoload": {
