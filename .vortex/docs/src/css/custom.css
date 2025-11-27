@@ -384,12 +384,18 @@
 }
 
 /* Footer accessibility improvements */
-[data-theme='light'] .footer--dark .footer__link-item {
-  text-decoration: underline;
-}
-
 [data-theme='light'] .footer--dark .footer__link-item:hover {
   --ifm-footer-link-hover-color: #92a4ed;
+}
+
+[data-theme='light'] .footer--dark .copyright_link {
+  text-decoration: underline;
+  color: var(--ifm-footer-link-color);
+}
+
+[data-theme='light'] .footer--dark .copyright_link:hover {
+  --ifm-footer-link-hover-color: #92a4ed;
+  color: var(--ifm-footer-link-hover-color);
 }
 
 .footer__bottom {

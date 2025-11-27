@@ -164,9 +164,7 @@ const VerticalTabs = ({ children }) => {
     <div className="vertical-features">
       <div className="vertical-layout">
         <div className="sidebar">
-          <div className="sidebar-header">
-            <h3>Feature Categories</h3>
-          </div>
+          <div className="sidebar-header">Select a feature tab below</div>
           <div className="tab-list" role="tablist">
             {tabs.map((tab, index) => (
               <div

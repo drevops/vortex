@@ -59,7 +59,6 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       );
 
       // Check sidebar structure
-      expect(screen.getByText('Feature Categories')).toBeInTheDocument();
       expect(screen.getByText('Drupal Foundation')).toBeInTheDocument();
       expect(screen.getByText('Docker Services')).toBeInTheDocument();
 
