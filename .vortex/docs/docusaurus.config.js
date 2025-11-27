@@ -174,7 +174,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright ©${new Date().getFullYear()} DrevOps&reg;. Built with Docusaurus.`,
+        copyright: `Vortex version: ${process.env.RELEASE_VERSION || 'development'} <br/>Drupal is a <a class="footer__link-item" href="https://www.drupal.org/about/trademark">registered trademark</a> of <a class="footer__link-item" href="https://dri.es/">Dries Buytaert</a>.<br/>Copyright ©${new Date().getFullYear()} <a class="footer__link-item" href="https://www.drevops.com/">DrevOps&reg;</a>. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,

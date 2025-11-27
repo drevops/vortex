@@ -384,6 +384,10 @@
 }
 
 /* Footer accessibility improvements */
+[data-theme='light'] .footer--dark .footer__link-item {
+  text-decoration: underline;
+}
+
 [data-theme='light'] .footer--dark .footer__link-item:hover {
   --ifm-footer-link-hover-color: #92a4ed;
 }

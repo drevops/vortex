@@ -400,7 +400,7 @@ trait SutTrait {
     $this->assertFileExists('.github/workflows/label-merge-conflict.yml');
     $this->assertFileExists('.github/workflows/draft-release-notes.yml');
 
-    $this->assertFileDoesNotExist('.github/workflows/vortex-release-docs.yml');
+    $this->assertFileDoesNotExist('.github/workflows/vortex-release.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-docs.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-common.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-installer.yml');
