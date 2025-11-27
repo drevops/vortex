@@ -63,7 +63,7 @@
             "url": "https://packages.drupal.org/8"
         }
     ],
-    "minimum-stability": "beta",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "autoload": {
         "classmap": [
