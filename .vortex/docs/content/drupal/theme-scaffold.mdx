@@ -13,12 +13,12 @@ custom styling and front-end functionality specific to your site.
 The theme uses the site machine name convention (`your_site_theme` in this case),
 while modules use the abbreviated prefix (`ys_` for `your_site`).
 
-:::note
+:::info
 
 We understand that front-end theming is often highly project-specific and
 subject to team preferences. The provided `your_site_theme` scaffold is not
 intended to dictate how your theme should be built — it simply demonstrates how
-custom themes can integrate with the **Vortex** tooling and workflows.
+custom themes can _integrate_ with the **Vortex** tooling and workflows.
 
 Feel free to adapt or replace it with your preferred theme.
 
@@ -26,12 +26,12 @@ Feel free to adapt or replace it with your preferred theme.
 
 ## Build system
 
-The theme includes a complete Node.js-based build system using Grunt:
+The theme includes a complete Node.js-based build system using [Grunt](https://gruntjs.com/):
 
-- **SCSS compilation** with Sass globbing support
+- **SCSS compilation**
 - **JavaScript concatenation and minification**
 - **CSS auto-prefixing** for browser compatibility
-- **Linting** for both CSS (Stylelint) and JavaScript (ESLint)
+- **Linting** for both CSS ([Stylelint](https://stylelint.io/)) and JavaScript ([ESLint](https://eslint.org/))
 - **Watch mode** for development workflow
 
 ### Build commands
@@ -81,7 +81,7 @@ ahoy lint-fe
 These commands run within the container to use the Node.js environment
 and tools installed there, ensuring consistency across development environments.
 
-:::note
+:::tip
 
 When adding your own theme with a custom build system, it's a good idea to
 follow the same command structure and naming conventions. This keeps things
@@ -129,7 +129,7 @@ The `tests` directory contains working examples of tests that can be used as a
 starting point in your project.
 
 It also has a set of helper `Traits` that you may find useful when writing your
-tests. Simply remove them if you do not find them useful.
+tests. Simply remove them if you do not need them.
 
 ---
 

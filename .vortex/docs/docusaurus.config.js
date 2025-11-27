@@ -94,12 +94,12 @@ const config = {
         },
         items: [
           {
-            label: 'Features',
-            href: '/features',
+            label: 'Get started',
+            href: '/docs/getting-started',
           },
           {
-            label: 'Get Started',
-            href: '/docs/getting-started/installation',
+            label: 'Features',
+            href: '/docs/features',
           },
           {
             label: 'Documentation',
@@ -107,7 +107,7 @@ const config = {
           },
           {
             label: 'Support',
-            href: '/support',
+            href: '/docs/support',
           },
           {
             href: 'https://github.com/drevops/vortex',
@@ -134,12 +134,16 @@ const config = {
             title: 'Product',
             items: [
               {
-                label: 'Features',
-                href: '/features',
+                label: 'Get started',
+                href: '/docs/getting-started',
               },
               {
-                label: 'Get Started',
-                href: '/docs/getting-started/installation',
+                label: 'Install',
+                href: '/docs/installation',
+              },
+              {
+                label: 'Features',
+                href: '/docs/features',
               },
             ],
           },
@@ -152,7 +156,7 @@ const config = {
               },
               {
                 label: 'Support',
-                href: '/support',
+                href: '/docs/support',
               },
             ],
           },
@@ -195,36 +199,60 @@ const config = {
       {
         redirects: [
           {
-            from: '/quickstart',
-            to: '/docs/getting-started/installation',
+            from: ['/quickstart'],
+            to: '/docs/installation',
           },
           {
-            from: '/ci',
+            from: ['/ci'],
             to: '/docs/continuous-integration',
           },
           {
-            from: '/drupal',
+            from: ['/drupal'],
             to: '/docs/drupal',
           },
           {
-            from: '/hosting',
+            from: ['/hosting'],
             to: '/docs/hosting',
           },
           {
-            from: '/tools',
+            from: ['/tools'],
             to: '/docs/tools',
           },
           {
-            from: '/workflows',
+            from: ['/workflows'],
             to: '/docs/workflows',
           },
           {
-            from: '/getting-started',
+            from: ['/getting-started'],
             to: '/docs/getting-started',
           },
           {
-            from: '/contributing',
+            from: ['/contributing'],
             to: '/docs/contributing',
+          },
+          {
+            from: ['/docs/getting-started/architecture'],
+            to: '/docs/architecture',
+          },
+          {
+            from: ['/docs/getting-started/features'],
+            to: '/docs/features',
+          },
+          {
+            from: ['/docs/getting-started/installation'],
+            to: '/docs/installation',
+          },
+          {
+            from: ['/docs/getting-started/faqs'],
+            to: '/docs/faqs',
+          },
+          {
+            from: '/support',
+            to: '/docs/support',
+          },
+          {
+            from: '/features',
+            to: '/docs/features',
           },
         ],
       },

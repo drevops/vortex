@@ -804,6 +804,7 @@ Each system:
 - Run spellcheck before committing content changes
 - Test interactive components in both development and production builds
 - Maintain consistent terminology across all documentation
+- **Use sentence case for all headings** - only the first letter is capitalized, except for proper nouns (Vortex, GitHub, Drupal, Docker Compose, CircleCI, etc.) and acronyms (CI/CD, SSH, API, BDD, PHPUnit, etc.)
 
 ### 2. Installer System (.vortex/installer/)
 

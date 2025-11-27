@@ -7,7 +7,7 @@ This page provides a high-level overview of how the template is structured, how
 its components work together, and how your project benefits from its
 architecture.
 
-## Design Principles
+## Design principles
 
 **Vortex** is guided by principles that prioritize simplicity, visibility, and
 maintainability:
@@ -21,7 +21,7 @@ maintainability:
 - **Explicit logging helps**: Scripts log every major step, so it’s easy to
   follow what’s going on.
 
-## System Components
+## System components
 
 The system is made up of several modular pieces that work together:
 
@@ -41,7 +41,7 @@ You can see how these parts connect in the diagram below:
 <img src="/img/diagram-light.png#gh-light-mode-only" alt="System components"/>
 </picture>
 
-## Local Development Environment
+## Local development environment
 
 Your project includes a containerized local environment using Docker Compose and
 production-grade Lagoon images. This ensures consistency between local, CI, and
@@ -66,9 +66,9 @@ Because provisioning is centralized, it runs exactly in the same way in every
 environment: local, CI, or hosting. This eliminates "works on my machine"
 problems and makes the process predictable for everyone.
 
-➡️ See [Drupal > Provision](../drupal/provision)
+➡️ See [Drupal > Provision](./drupal/provision)
 
-### Module and Theme Scaffolds
+### Module and theme scaffolds
 
 We include examples of a custom module and theme, each fully integrated with
 tests. These show you how to:
@@ -79,10 +79,10 @@ tests. These show you how to:
 
 Use these scaffolds as starting points for your own work.
 
-➡️ See [Drupal > Module Scaffold](../drupal/module-scaffold)
-and [Drupal > Theme Scaffold](../drupal/theme-scaffold)
+➡️ See [Drupal > Module Scaffold](./drupal/module-scaffold)
+and [Drupal > Theme Scaffold](./drupal/theme-scaffold)
 
-### Settings Management
+### Settings management
 
 **Vortex** includes a structured way to manage Drupal settings per environment.
 Here's how it works:
@@ -95,9 +95,9 @@ Here's how it works:
 This structure gives you clarity, avoids config sprawl, and lets you remove a
 module’s settings cleanly when no longer needed.
 
-➡️ See [Drupal > Settings](../drupal/settings)
+➡️ See [Drupal > Settings](./drupal/settings)
 
-## Code Quality and Testing
+## Code quality and testing
 
 **Vortex** ships with pre-configured tools for maintaining code quality:
 
@@ -111,10 +111,10 @@ You’ll also find scaffolds for:
 - **PHPUnit**: Unit and kernel testing
 - **Behat**: Behavior-driven testing with screenshot capture and extra steps
 
-➡️ See [Tools > PHPStan](../tools/phpstan), [Tools > PHPCS](../tools/phpcs),
-[Tools > Behat](../tools/behat), and [Tools > PHPUnit](../tools/phpunit)
+➡️ See [Tools > PHPStan](./tools/phpstan), [Tools > PHPCS](./tools/phpcs),
+[Tools > Behat](./tools/behat), and [Tools > PHPUnit](./tools/phpunit)
 
-## Continuous Integration Workflows
+## Continuous integration workflows
 
 **Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
 project. The workflows include:
@@ -128,9 +128,9 @@ project. The workflows include:
 Each continuous integration configuration mirrors what happens locally and in hosting to ensure
 uniformity.
 
-➡️ See [Continuous Integration](../continuous-integration)
+➡️ See [Continuous Integration](./continuous-integration)
 
-## Hosting Integrations
+## Hosting integrations
 
 Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
 
@@ -140,9 +140,9 @@ Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integration
 You can use **Vortex** with other platforms too, but these are first-class
 integrations.
 
-➡️ See [Hosting](../hosting)
+➡️ See [Hosting](./hosting)
 
-## Automated Dependency Updates
+## Automated dependency updates
 
 **Vortex** includes configuration for RenovateBot to automate dependency upgrades:
 
@@ -153,14 +153,25 @@ integrations.
 You can host RenovateBot yourself or use the cloud version, and you can tweak
 the schedule as needed.
 
-➡️ See [Tools > Renovate](../tools/renovate)
+➡️ See [Tools > Renovate](./tools/renovate)
 
-## Documentation & Onboarding
+## Documentation & onboarding
 
 **Vortex** includes centralized documentation (what you’re reading now), as well as
 a scaffold for adding project-specific docs within your own repository.
 
-## Workflow Scripts
+## Complete code lifecycle
+
+<details>
+<summary>Expand to see the complete code lifecycle diagram</summary>
+
+import CodeLifecycle from './workflows/_code-lifecycle.mdx';
+
+<CodeLifecycle />
+
+</details>
+
+## Workflow scripts
 
 A workflow is a sequence of steps to achieve a goal. In **Vortex**, those are
 defined via POSIX-compliant Bash scripts in `scripts/vortex`.
@@ -180,12 +191,12 @@ During initial project setup, `.env` file is updated with project-specific
 values like project name, email etc. Then, environment variables (secrets,
 tokens, etc.) are set in CI or hosting environments.
 
-Refer to the [Workflows](../workflows) section for more details.
+Refer to the [Workflows](./workflows) section for more details.
 
 ### Router scripts
 
-Most ****Vortex**** commands are implemented as router scripts entry points like
-`download-db.sh` or `deploy.sh—that` dynamically invoke a more specific logic
+Most **Vortex** commands are implemented as router scripts entry points like
+`download-db.sh` or `deploy.sh` that dynamically invoke a more specific logic
 for your setup, based on configuration or environment variables.
 
 For example:
@@ -207,4 +218,4 @@ For example:
 
 </details>
 
-➡️ See [Workflows](../workflows)
+➡️ See [Workflows](./workflows)

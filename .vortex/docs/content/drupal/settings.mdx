@@ -49,10 +49,10 @@ settings are applied in a specific environment.
 **Vortex** addresses this problem with a clear and maintainable approach:
 
 - The _environment type_ is [detected](#environment-type-detection) based on the
-  environment where the site is running. This detection step is isolated and
-  does not apply any configuration overrides.
+environment where the site is running. This detection step is isolated and
+does not apply any configuration overrides.
 - Configuration overrides are defined in [per-module override files](#per-module-overrides),
-  with conditions applied based on the detected _environment type_.
+with conditions applied based on the detected _environment type_.
 
 This structure offers several benefits:
 
@@ -69,30 +69,30 @@ the configuration.
 When working with settings, follow these guidelines to ensure clarity, consistency, and maintainability:
 
 - **Do not modify `settings.php` directly.<br/>**
-  Use environment variables for [general](#general) settings or [per-module override files](#per-module-overrides)
-  for any custom or environment-aware configuration.
+Use environment variables for [general](#general) settings or [per-module override files](#per-module-overrides)
+for any custom or environment-aware configuration.
 
 - **Keep all overrides isolated by module.**<br/>
-  Each file should encapsulate logic for a single module only. If a module is
-  removed, its override file should be removable without affecting unrelated
-  settings.
+Each file should encapsulate logic for a single module only. If a module is
+removed, its override file should be removable without affecting unrelated
+settings.
 
 - **Use environment variables for configuration that changes by environment.**<br/>
-  Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to easily
-  distinguish them from other environment variables.<br/>
-  Always define a default hardcoded value for each environment variable.
+Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to easily
+distinguish them from other environment variables.<br/>
+Always define a default hardcoded value for each environment variable.
 
 - **Use conditions based on _environment type_ within per-module override files.**<br/>
-  This allows for environment-specific configuration without cluttering the main
-  `settings.php` file.<br/>
-  Use the `$settings['environment']` variable to check the current _environment type_.
+This allows for environment-specific configuration without cluttering the main
+`settings.php` file.<br/>
+Use the `$settings['environment']` variable to check the current _environment type_.
 
 import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.environment_indicator.php';
 
 <details>
-  <summary>Example of the `Environment indicator` module settings file</summary>
+  <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
 
-<CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
+  <CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
 
 </details>
 
@@ -156,7 +156,7 @@ The following environment variables can be used to customize general settings:
 | `DRUPAL_PRIVATE_FILES`      |                       | `sites/default/files/private`  | Private files directory path             |
 | `DRUPAL_TEMPORARY_FILES`    |                       | `/tmp`                         | Temporary files directory path           |
 | `DRUPAL_HASH_SALT`          |                       | _Generated from database host_ | Cryptographic salt for security          |
-| `DRUPAL_TIMEZONE`           | `TZ`                  | `UTC`          | Site timezone                            |
+| `DRUPAL_TIMEZONE`           | `TZ`                  | `UTC`                          | Runtime timezone                         |
 | `DRUPAL_MAINTENANCE_THEME`  | `DRUPAL_THEME`        | `claro`                        | Theme used during maintenance mode       |
 | `DRUPAL_CACHE_PAGE_MAX_AGE` |                       | `900`                          | Page cache expiration time (seconds)     |
 
@@ -167,13 +167,13 @@ Drupal site is running — such as local, CI, development, staging, or productio
 This concept allows the system to conditionally adjust settings and behaviors
 depending on the runtime environment.
 
-The _environment type_ is detected automatically based on known hosting provider
+The _environment type_ is detected automatically based on known _hosting provider_
 indicators or predefined environment variables. Detection logic is intentionally
 isolated from configuration logic — it identifies the context but does not apply
 any overrides directly.
 
-Once detected, the environment type is stored in the `$settings['environment']`
-value, which can be used by modules, settings overrides, and shell scripts to
+Once detected, the environment type value is stored in the `$settings['environment']`
+, which can be used by modules, settings overrides, and shell scripts to
 drive environment-specific behavior.
 
 #### Environment type constants
@@ -186,7 +186,7 @@ drive environment-specific behavior.
 - `ENVIRONMENT_STAGE`
 - `ENVIRONMENT_PROD`
 
-These constants are used consistently across settings files and scripts to
+These constants are used consistently throughout settings files and scripts to
 determine conditional behavior.
 
 #### Detection mechanism
@@ -203,8 +203,9 @@ file in that directory with the relevant detection logic.
 
 It is important to note that this detection logic is only responsible for
 identifying the environment type. It does not apply any configuration changes.
-Those are handled separately in per-module override files, making the setup
-modular and independent of the cloud hosting platforms.
+Those are handled separately in per-module override files located in
+`includes/providers`, making the setup modular and independent of the cloud
+hosting platforms.
 
 #### Overriding environment type
 
@@ -246,9 +247,9 @@ Each settings file should:
 - Be self-contained and removable without affecting other modules
 
 <details>
-  <summary>Example of the `Environment indicator` module settings file</summary>
+  <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
 
-<CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
+  <CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
 
 </details>
 

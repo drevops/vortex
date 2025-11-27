@@ -9,7 +9,7 @@ import React from 'react';
  * Usage:
  *
  * // Create a content extractor for your features page
- * import FeaturesPageContent from '../../content/getting-started/features.mdx';
+ * import FeaturesPageContent from '../../content/features.mdx';
  *
  * <ContentExtractor>
  *   <FeaturesPageContent />
