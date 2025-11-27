@@ -29,7 +29,7 @@ tools, CI/CD pipeline configurations, and integrations with popular hosting
 platforms. Everything is pre-configured and ready to use, so teams can focus on
 building features instead of setting up infrastructure.
 
-By standardizing project structure and tooling, Vortex ensures a consistent
+By standardizing project structure and tooling, **Vortex** ensures a consistent
 developer experience across every project that uses it. Whether you’re starting
 fresh or joining an existing Vortex-based site, you can get up to speed quickly
 and start contributing right away.
@@ -44,7 +44,7 @@ Track our current progress and view planned updates on [the GitHub project board
 ## Installation
 
 Our installer simplifies setup, letting you choose only the features you need.
-It will integrate the latest Vortex release into your codebase, and you will
+It will integrate the latest **Vortex** release into your codebase, and you will
 choose which changes to commit.
 
 ```bash
@@ -98,6 +98,6 @@ We provide paid support for **Vortex**:
 - Support plans with SLAs
 - Priority feature implementation
 - Updates to the latest version of the platform
-- Vortex consulting and custom implementations
+- **Vortex** consulting and custom implementations
 
 Contact us at support@drevops.com

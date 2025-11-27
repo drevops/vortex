@@ -18,7 +18,7 @@ A typical release process consists of several key components:
 
 **Vortex** provides comprehensive support for all these components, with sensible defaults and integration points for popular hosting platforms.
 
-## Release Flow
+## Release flow
 
 Projects typically follow a three-tier environment strategy with clear directional flows:
 
@@ -66,7 +66,7 @@ through the release process.
 Finally, the actual deployment to production is handled via Automated Deployment
 where, based on your hosting provider, the deployment process is fully automated.
 
-## GitFlow Versioning Workflow
+## GitFlow versioning workflow
 
 [git-flow](https://nvie.com/posts/a-successful-git-branching-model/) is a
 versioning workflow that allows you to maintain clean separation between development
@@ -108,7 +108,7 @@ gitGraph
     merge hotfix/1.0.1
 ```
 
-### Branch Structure
+### Branch structure
 
 - **`develop`** - Development branch where features are integrated
 - **`main`** - Production-ready code, always stable and tagged with releases
@@ -132,7 +132,7 @@ gitGraph
 
 </details>
 
-### Release Operations
+### Release operations
 
 Below are the typical steps to perform a release using git-flow. See [cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/) for a quick reference on git-flow commands.
 
@@ -169,7 +169,7 @@ Below are the typical steps to perform a release using git-flow. See [cheat shee
      git push origin main:production
      ```
 
-#### Expected Release Outcome
+#### Expected release outcome
 
 A successful release should meet these criteria:
 
@@ -181,13 +181,13 @@ A successful release should meet these criteria:
    - Important if `main` had any hotfixes not yet merged to `develop`
 5. There are no open PRs in GitHub related to the release
 
-## Version Scheme
+## Version scheme
 
 **Vortex** supports [CalVer](https://calver.org/) and [SemVer](https://semver.org/) version numbering schemes to fit different project needs.
 
 During installation, you can choose between Calendar Versioning (CalVer), Semantic Versioning (SemVer), or a custom scheme.
 
-### Calendar Versioning (CalVer)
+### Calendar versioning (CalVer)
 
 **Format:** `YY.M.Z` (e.g., `25.1.0`, `25.11.1`)
 
@@ -209,7 +209,7 @@ During installation, you can choose between Calendar Versioning (CalVer), Semant
 
 Learn more: [CalVer.org](https://calver.org/)
 
-### Semantic Versioning (SemVer)
+### Semantic versioning (SemVer)
 
 **Format:** `X.Y.Z` (e.g., `1.0.0`, `2.3.5`)
 
@@ -243,7 +243,7 @@ Your project's version scheme is configured once during installation and stored 
 VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
 ```
 
-#### Release Notes Publishing
+#### Release notes publishing
 
 For CalVer and SemVer projects, **Vortex** provides a GitHub Actions workflow to automate release notes drafting:
 
@@ -252,7 +252,7 @@ For CalVer and SemVer projects, **Vortex** provides a GitHub Actions workflow to
 - Release notes accumulate changes until the release is finalized
 - On release finish, you can use the draft to publish the final release notes
 
-## Production Deployment Process
+## Production deployment process
 
 Once code is finalized and pushed, the deployment process to production is technically identical to deploying to other environments and is **fully automated**.
 
@@ -283,7 +283,7 @@ You can extend this file with:
 
 ## Monitoring
 
-### New Relic Integration
+### New relic integration
 
 **Vortex** provides integration with New Relic for release tracking and monitoring.
 
@@ -298,7 +298,7 @@ You can extend this file with:
 
 See the [Notifications documentation](/docs/workflows/notifications#new-relic) for configuration details.
 
-## Best Practices
+## Best practices
 
 1. **Always use release branches** - Never release directly from `develop` or feature branches
 2. **Backup before release** - Ensure you have recent backups of code and data

@@ -1,6 +1,6 @@
 # Release
 
-Follow the steps below to release a new version of the Vortex:
+Follow the steps below to release a new version of **Vortex**:
 
 1. Run renovate bot locally to update all dependencies outside of the schedule:
 ```
@@ -13,6 +13,6 @@ renovate --schedule= --force-cli=true drevops/vortex
 6. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`.
 7. Update minor version of dependencies in theme's `package.json`.
 8. Increment the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
-9. Updated documentation with `cd .vortex && ahoy update-docs`.
+9. Update documentation with `cd .vortex && ahoy update-docs`.
 10. Update installer video with `cd .vortex && ahoy update-installer-video`.
 11. Create new release notes using [release template](./release_template.md).

@@ -1,119 +1,64 @@
-## What's new since [PREVIOUS_VERSION]
+## [VERSION] — [SHORT TITLE]
 
-[SHORT SUMMARY]
+[Very short summary, 1–3 sentences. E.g. “This release updates the base template to Drupal X.Y, improves the installer UX, and expands documentation for local dev.”]
 
-## Notable changes
+---
 
-None
+## 🔍 Highlights
+
+- [1–3 top-level items that matter most to users]
+- [Optional: link to detailed docs if relevant]
 
 ---
 
 ## 💥 Breaking changes
 
-None
+- [Describe any breaking changes and upgrade steps]
+- [If none] None.
 
 ---
 
-## 💧 Drupal
+## What's new since [PREVIOUS_VERSION]
 
-### New features
+### 🌀 Template
 
-None
+- ✨ **New**
+  - [New features or major additions in the project template]
 
-### Fixes
+- 🛠 **Changed**
+  - [Improvements, refactors, behaviour changes (but not fully breaking)]
 
-None
+- 🐞 **Fixed**
+  - [Bug fixes]
 
-### Updates
+- ⬆️ **Updated**
+  - [Dependency bumps, version updates, etc.]
 
-None
+---
 
+### 📖 Documentation
 
-## ☁️ Hosting
+- ✨ **New**
+  - [New pages, guides, sections]
 
-### New features
+- 🛠 **Changed**
+  - [Rewrites, restructuring, clarifications]
 
-None
+- 🐞 **Fixed**
+  - [Typos, incorrect examples, broken links]
 
-### Fixes
+---
 
-None
+### 🎛 Installer
 
-### Updates
+- ✨ **New**
+  - [New installer options, flows, flags]
 
-None
+- 🛠 **Changed**
+  - [Improved UX, default choices, messages]
 
-
-## 🏗 Continuous Integration
-
-### New features
-
-None
-
-### Fixes
-
-None
-
-### Updates
-
-None
-
-
-## 💻 Local Development and containers
-
-### New features
-
-None
-
-### Fixes
-
-None
-
-### Updates
-
-None
-
-
-## 🛠️ Tools
-
-### New features
-
-None
-
-### Fixes
-
-None
-
-### Updates
-
-None
-
-
-## ⚙️ Workflow
-
-### New features
-
-None
-
-### Fixes
-
-None
-
-### Updates
-
-None
-
-
-## 🌀 Vortex
-
-- 📖 Documentation:
-  -
-
-- 🎛️ Installer:
-  -
-
-- 🔧 Vortex maintenance:
-  -
+- 🐞 **Fixed**
+  - [Installer bugs, edge cases]
 
 ---
 

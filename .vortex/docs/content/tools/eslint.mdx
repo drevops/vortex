@@ -2,7 +2,7 @@
 sidebar_label: ESLint
 ---
 
-# ESLint - JavaScript Linter
+# ESLint - JavaScript linter
 
 - https://eslint.org/
 - https://github.com/eslint/eslint
@@ -12,7 +12,7 @@ sidebar_label: ESLint
 **Vortex** comes with [pre-configured ESLint ruleset](https://github.com/drevops/vortex/blob/develop/.eslintrc.json) for Drupal projects, along with [Prettier](https://prettier.io/) integration for automatic code formatting.
 
 :::info
-ESLint in Vortex is configured to lint **custom modules only** (`web/modules/custom`). Custom themes should maintain their own ESLint configuration within the theme directory.
+ESLint in **Vortex** is configured to lint **custom modules only** (`web/modules/custom`). Custom themes should maintain their own ESLint configuration within the theme directory.
 :::
 
 ## Usage
@@ -91,7 +91,7 @@ Adding or removing targets in `package.json`:
 }
 ```
 
-### Prettier Integration
+### Prettier integration
 
 Prettier is integrated via `eslint-plugin-prettier` and provides automatic code formatting. The rule `"prettier/prettier": "error"` ensures that all code formatting issues are caught by ESLint.
 
@@ -99,7 +99,7 @@ When you run `ahoy lint-fe-fix`, both ESLint's `--fix` and Prettier's formatting
 
 ## Ignoring
 
-### Global Ignoring
+### Global ignoring
 
 Ignoring paths **globally** takes place in the [`.eslintignore`](https://github.com/drevops/vortex/blob/develop/.eslintignore) file:
 
@@ -113,7 +113,7 @@ web/themes/contrib/
 *.min.js
 ```
 
-### Inline Ignoring
+### Inline ignoring
 
 To ignore **all ESLint rules** within a file, place in the file header:
 

@@ -20,7 +20,14 @@ variable as a comma-separated list of one or multiple supported deployment types
   Lagoon.
 - `docker` - a container image is built and pushed to a remote registry.
 
-## Using deployments
+<details>
+<summary>Expand to see deployment in the complete code lifecycle</summary>
+
+import CodeLifecycle from './_code-lifecycle.mdx';
+
+<CodeLifecycle />
+
+</details>
 
 ## Deployment targets
 
@@ -75,12 +82,12 @@ variable to `1`.
 This is especially useful in continuous integration pipelines where you may want to build and test
 without triggering a deployment.
 
-### Skipping deployments for specific Pull Requests or branches
+### Skipping deployments for specific pull requests or branches
 
 To skip specific Pull Requests or branches, set `$VORTEX_DEPLOY_ALLOW_SKIP` to `1`
 and provide lists in the following variables:
 
-#### Skipping specific Pull Requests
+#### Skipping specific pull requests
 
 Set `$VORTEX_DEPLOY_SKIP_PRS` to a single PR number or comma-separated list:
 

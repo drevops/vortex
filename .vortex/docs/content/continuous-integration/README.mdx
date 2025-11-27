@@ -5,9 +5,9 @@ sidebar_position: 1
 
 # Continuous Integration
 
-**Vortex** offers continuous integration configurations for GitHub Actions and
-CircleCI providers that allows to automate the process of building, testing, and
-deploying your site.
+**Vortex** offers continuous integration configurations for [GitHub Actions](/docs/continuous-integration/github-actions)
+and [CircleCI](/docs/continuous-integration/circleci) providers that allow you to
+automate the process of building, testing, and deploying your site.
 
 The workflow configuration is identical for both continuous integration
 providers. You would need to choose one of them and follow the setup
@@ -16,7 +16,7 @@ instructions.
 The continuous integration pipeline consists of multiple jobs executed in a
 containerized environment to ensure consistency across runs.
 
-## Trigger Conditions
+## Trigger conditions
 
 The continuous integration pipeline is triggered by:
 
@@ -31,7 +31,16 @@ The continuous integration pipeline is triggered by:
 - **Pull requests** to these branches
 - **Scheduled runs** for automatic database caching
 
-## Workflow Structure
+## Workflow structure
+
+<details>
+<summary>Expand to see the complete code lifecycle diagram</summary>
+
+import CodeLifecycle from '../workflows/_code-lifecycle.mdx';
+
+<CodeLifecycle />
+
+</details>
 
 ### 1. Database
 
@@ -43,6 +52,8 @@ The continuous integration pipeline is triggered by:
 
 - Runs after the `database` job
 - Uses Docker Compose to set up the environment
+- Validates Composer lock and audits dependencies
+- Assembles the codebase by installing dependencies
 - Provisions a website
 - Lints code (only on the first instance)
 - Runs unit tests
@@ -57,7 +68,7 @@ The continuous integration pipeline is triggered by:
 - Adds required secrets and environment variables
 - Triggers a deployment using a router script
 
-## Caching Strategy
+## Caching strategy
 
 Database is downloaded overnight and cached so that the next continuous integration run on the same
 day uses the cached database dump.

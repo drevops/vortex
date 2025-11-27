@@ -20,7 +20,7 @@ While `drush deploy` is a powerful tool for executing standard Drupal deployment
 steps (such as configuration import and database updates), it assumes that the
 site is already in a bootstrapped, stable state. In practice, especially during
 initial setup or provisioning in dynamic environments (like CI pipelines,
-container rebuilds, or multisite setups), additional orchestration is needed.
+container builds, or multisite setups), additional orchestration is needed.
 
 The `provision.sh` script addresses these gaps by:
 
@@ -37,23 +37,28 @@ In short, `provision.sh` wraps `drush deploy` in a consistent, repeatable, and
 configurable process — turning a manual setup step into a reliable automation
 layer.
 
-## Database Import vs Full Provisioning
+## Database import vs full provisioning
 
-Vortex provides two main approaches for setting up your database:
+**Vortex** provides two main approaches for setting up your database:
 
-### Full Provisioning (`ahoy provision`)
+### Full provisioning (`ahoy provision`)
 
 Runs the complete provisioning process including:
 
-- Database import (from dump or profile installation)
-- Configuration import (`drush config:import`)
-- Database updates (`drush updatedb`)
+- Database import from dump or profile installation
+- Configuration import via `drush config:import`
+- Database updates via `drush updatedb`
 - Post-provisioning custom scripts
 - Cache rebuilds
 
 Use this when you want a fully configured site ready for development or deployment.
 
-### Database Import Only (`ahoy import-db`)
+```bash
+# Full provisioning (recommended for most cases)
+ahoy provision
+```
+
+### Database import (`ahoy import-db`)
 
 Imports only the database dump without running deployment scripts:
 
@@ -63,16 +68,30 @@ Imports only the database dump without running deployment scripts:
 - Skips post-provisioning scripts
 
 ```bash
-# Import database only
+# Import database only from default dump in .data/db.sql
+ahoy import-db
+
+# Import database only from a specific dump file
 ahoy import-db path/to/dump.sql
 
-# Full provisioning (recommended for most cases)
-ahoy provision
 ```
+
+:::tip When to use which command
 
 Use `ahoy import-db` when you only need the raw database data without any configuration changes or updates.
 
+Use `ahoy provision` when you want the full setup including configuration and updates.
+
+:::
+
 ## Provisioning flow
+
+Below is a generic provisioning flow diagram illustrating the steps taken by the
+`provision.sh` script. The flow may vary based on environment variables and
+conditions that could alter the execution path.
+
+The numbered steps refer to the environment variables described in the next
+section.
 
 <picture style={{ display: 'block', textAlign: 'center' }}>
   <img src="/img/diagram-provision-dark.svg#gh-dark-mode-only" alt="Provision flow"/>
@@ -86,9 +105,16 @@ You can control the provisioning flow using the following environment variables:
 1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
 2. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
 3. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
-4. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `$(drush sql:connect) < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/><br/>
+4. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `$(drush sql:connect) < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/>`ahoy import-db` uses this flag to import DB and exit.<br/><br/>
 5. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
 6. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
+
+:::tip
+
+These variables can be set in your `.env` file to apply them globally or set
+in your CI or hosting provider's specific environment based on your needs.
+
+:::
 
 ### Maintenance mode
 
@@ -116,12 +142,13 @@ with access to the dump file can still see sensitive data.
 If your database has highly sensitive data, consider sanitizing the database
 dump before it can be downloaded (sanitize on export). There are tools
 available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-or [MTK](https://github.com/skpr/mtk).
+or [MTK](https://github.com/skpr/mtk). These tools can be easily integrated into **Vortex**-based projects
+without changing the provisioning process.
 
 :::
 
-The database sanitization step is enabled by default on all environments except
-production. To disable database sanitization, set the
+By default, the database sanitization step is enabled by default on all
+environments except production. To disable database sanitization, set the
 `VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the `.env` file or in your hosting
 provider's specific environment.
 
