@@ -33,7 +33,7 @@
         "symfony/yaml": "^7.3.5"
     },
     "require-dev": {
-        "alexskrypnyk/phpunit-helpers": "^0.14",
+        "alexskrypnyk/phpunit-helpers": "^0.15",
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/phpcs-standard": "^0.6",

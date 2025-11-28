@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6497c1e1d3894ddb90fecf9eba3e7ba4",
+    "content-hash": "5c8e3c6386e7c0d51fb46ea9990f6d60",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -3512,16 +3512,16 @@
     "packages-dev": [
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.14.0",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "1696f830a33441e55522089cbdb33279870f43f6"
+                "reference": "60242281d31b5abe2d2e025522dbdefadb227f03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/1696f830a33441e55522089cbdb33279870f43f6",
-                "reference": "1696f830a33441e55522089cbdb33279870f43f6",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/60242281d31b5abe2d2e025522dbdefadb227f03",
+                "reference": "60242281d31b5abe2d2e025522dbdefadb227f03",
                 "shasum": ""
             },
             "require": {
@@ -3533,6 +3533,7 @@
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
+                "drevops/phpcs-standard": "^0.6",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
                 "laravel/serializable-closure": "^2.0",
@@ -3575,7 +3576,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-11-22T23:33:35+00:00"
+            "time": "2025-11-28T12:21:28+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
