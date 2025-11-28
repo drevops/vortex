@@ -21,8 +21,7 @@
   display: flex;
   gap: 2rem;
   min-height: 800px;
-  border: 2px solid var(--ifm-color-emphasis-200);
-  border-radius: 12px;
+  border: 1px solid var(--ifm-color-emphasis-200);
   overflow: hidden;
 }
 

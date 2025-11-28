@@ -50,7 +50,7 @@ flowchart TB
         subgraph SUBGRAPH_CI_BUILD_JOB["Build Job"]
             direction TB
 
-            subgraph SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE["Assembly Phase"]
+            subgraph SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE["Code assembly Phase"]
                 direction LR
                 CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_DOCKER["Build Docker<br/>image"]
                   --> CI_BUILD_JOB_ASSEMBLY_PHASE_COMPOSER["Install<br/>Composer deps"]
@@ -60,14 +60,14 @@ flowchart TB
 
             subgraph SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE["Provision Phase"]
                 direction LR
-                CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD["Use cached<br/>database"]
+                CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD["Import cached<br/>database"]
 
                 subgraph SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS["Provision"]
                     direction LR
-                    CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI["Run DB updates<br/><code>drush updatedb</code>"]
-                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI["Import config<br/><code>drush cim</code>"]
-                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI["Clear caches<br/><code>drush cr</code>"]
-                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI["Run custom<br/>scripts"]
+                    CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI["<b>Run DB updates</b><br/><code>drush updatedb</code>"]
+                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI["<b>Import config</b><br/><code>drush cim</code>"]
+                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI["<b>Clear caches</b><br/><code>drush cr</code>"]
+                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI["<b>Run custom<br/>scripts</b>"]
                 end
 
                 CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD --> SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS
@@ -75,23 +75,21 @@ flowchart TB
 
             subgraph SUBGRAPH_CI_BUILD_JOB_TEST_PHASE["Testing Phase"]
                 direction LR
-                CI_BUILD_JOB_TEST_PHASE_LINT["Linting<br/>PHPCS, PHPStan"]
-                  --> CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK["Composer lock<br/>Check up-to-date"]
-                  --> CI_BUILD_JOB_TEST_PHASE_AUDIT["Composer audit<br/>Security check"]
-                  --> CI_BUILD_JOB_TEST_PHASE_UNIT["PHPUnit<br/>tests"]
-                  --> CI_BUILD_JOB_TEST_PHASE_BEHAT["Behat<br/>tests"]
+                CI_BUILD_JOB_TEST_PHASE_LINT["<b>Linting</b><br/>PHPCS, PHPStan, Rector"]
+                  --> CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK["<b>Composer lock</b><br/>Check up-to-date"]
+                  --> CI_BUILD_JOB_TEST_PHASE_AUDIT["<b>Composer audit</b><br/>Security check"]
+                  --> CI_BUILD_JOB_TEST_PHASE_UNIT["<b>PHPUnit<br/>tests<b>"]
+                  --> CI_BUILD_JOB_TEST_PHASE_BEHAT["<b>Behat<br/>tests</b>"]
             end
         end
 
         subgraph SUBGRAPH_CI_DEPLOYMENT_JOB["Deployment Job"]
             direction LR
-            CI_DEPLOYMENT_JOB_WEBHOOK["Webhook<br/>Call webhook URL"]
-              ~~~ CI_DEPLOYMENT_JOB_ARTIFACT["Artifact<br/>Git artifact"]
-              ~~~ CI_DEPLOYMENT_JOB_LAGOON["Lagoon<br/>Lagoon webhook"]
-              ~~~ CI_DEPLOYMENT_JOB_DOCKER["Docker<br/>Container image"]
+            CI_DEPLOYMENT_JOB_WEBHOOK["<b>Webhook</b><br/>Call webhook URL"]
+              ~~~ CI_DEPLOYMENT_JOB_ARTIFACT["<b>Artifact</b><br/>Package Git artifact"]
+              ~~~ CI_DEPLOYMENT_JOB_LAGOON["<b>Lagoon</b><br/>Call Lagoon webhook"]
+              ~~~ CI_DEPLOYMENT_JOB_DOCKER["<b>Docker</b><br/>Create container image"]
         end
-
-        CI_SUCCESS["Pipeline Success"]
     end
 
     subgraph SUBGRAPH_HOSTING["Hosting Platform"]
@@ -102,21 +100,21 @@ flowchart TB
 
         subgraph SUBGRAPH_HOSTING_PROVISION_OPS["Provision"]
             direction LR
-            HOSTING_PROVISION_OPS_PROV_DB_UPDATES["Run DB updates<br/><code>drush updatedb</code>"]
-              --> HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT["Import config<br/><code>drush cim</code>"]
-              --> HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR["Clear caches<br/><code>drush cr</code>"]
-              --> HOSTING_PROVISION_OPS_PROV_CUSTOM["Run custom<br/>scripts"]
+            HOSTING_PROVISION_OPS_PROV_DB_UPDATES["<b>Run DB updates</b><br/><code>drush updatedb</code>"]
+              --> HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT["<b>Import config</b><br/><code>drush cim</code>"]
+              --> HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR["<b>Clear caches</b><br/><code>drush cr</code>"]
+              --> HOSTING_PROVISION_OPS_PROV_CUSTOM["<b>Run custom<br/>scripts</b>"]
         end
 
-        HOSTING_SEND_NOTIFICATIONS["Send notifications"]
+        HOSTING_SEND_NOTIFICATIONS["<b>Send notifications</b><br/>Email, Slack, NewRelic"]
     end
 
     subgraph SUBGRAPH_ENVIRONMENTS["Available Environments"]
         direction LR
-        ENVIRONMENTS_PR_ENV["PR Environment<br/>Auto-removed"]
-          ~~~ ENVIRONMENTS_DEV_ENV["Dev<br/>develop branch"]
-          ~~~ ENVIRONMENTS_STAGE_ENV["Staging<br/>main branch"]
-          ~~~ ENVIRONMENTS_PROD_ENV["Production<br/>Release tags"]
+        ENVIRONMENTS_PR_ENV["<b>PR Environment</b><br/>Auto-removed"]
+          ~~~ ENVIRONMENTS_DEV_ENV["<b>Dev</b><br/><code>develop</code> branch"]
+          ~~~ ENVIRONMENTS_STAGE_ENV["<b>Staging</b><br/><code>main</code> branch"]
+          ~~~ ENVIRONMENTS_PROD_ENV["<b>Production</b><br/><code>production</code> branch or tag"]
     end
 
     %% Main Flow - Only OUTER Box to OUTER Box Connections
@@ -140,305 +138,430 @@ flowchart TB
     SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE --> SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE
     SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE --> SUBGRAPH_CI_BUILD_JOB_TEST_PHASE
     SUBGRAPH_CI_BUILD_JOB --> SUBGRAPH_CI_DEPLOYMENT_JOB
-    SUBGRAPH_CI_DEPLOYMENT_JOB --> CI_SUCCESS
 
     %% Internal flows within Hosting Platform
-    HOSTING_ENV_DECISION -->|No<br/>New environment| HOSTING_NEW_DB_SYNC
+    HOSTING_ENV_DECISION -->|No| HOSTING_NEW_DB_SYNC
     HOSTING_NEW_DB_SYNC --> SUBGRAPH_HOSTING_PROVISION_OPS
-    HOSTING_ENV_DECISION -.->|Yes<br/>Existing environment| SUBGRAPH_HOSTING_PROVISION_OPS
+    HOSTING_ENV_DECISION -.->|Yes| SUBGRAPH_HOSTING_PROVISION_OPS
     SUBGRAPH_HOSTING_PROVISION_OPS --> HOSTING_SEND_NOTIFICATIONS
 ```
 
 <style>{`
-  /* ============================================================================
-   * Light Mode Styles
-   * ============================================================================ */
 
-  /* Local Development - Light blue */
-  #SUBGRAPH_LOCAL > rect {
-    fill: #e1f5ff !important;
-  }
+/* ============================================================================
+ * Light Theme – Eraser-style color system
+ * ============================================================================ */
 
-  /* Git Repository - Light yellow */
-  #SUBGRAPH_GIT > rect {
-    fill: #fff4e1 !important;
-  }
+/* ---------- Local Development (blue family) ---------- */
+#SUBGRAPH_LOCAL > rect {
+  fill: #B3D7F2 !important;
+  stroke: #5BA6D1 !important;
+}
+#LOCAL_DEV > rect,
+#LOCAL_BUILD_LOCAL > rect,
+#LOCAL_COMMIT > rect {
+  fill: #E7F4FC !important;
+  stroke: #5BA6D1 !important;
+}
 
-  /* CI Pipeline - Gray */
-  #SUBGRAPH_CI > rect {
-    fill: #f0f0f0 !important;
-  }
+/* ---------- Git Repository (purple family) ---------- */
+#SUBGRAPH_GIT > rect {
+  fill: #D7C4EB !important;
+  stroke: #A47BD3 !important;
+}
+#GIT_PUSH > rect,
+#GIT_PR > rect {
+  fill: #F2EAFE !important;
+  stroke: #A47BD3 !important;
+}
 
-  /* CI Pipeline - Database Job (Nightly) - Light orange */
-  #SUBGRAPH_CI_DATABASE_JOB_NIGHTLY > rect {
-    fill: #fff3e0 !important;
-  }
+/* ---------- CI Pipeline container (warm gray) ---------- */
+#SUBGRAPH_CI > rect {
+  fill: #EAE7DF !important;
+  stroke: #C7C2B5 !important;
+}
 
-  /* CI Pipeline - Database Job - Orange */
-  #SUBGRAPH_CI_DATABASE_JOB > rect {
-    fill: #ffe0b2 !important;
-  }
+/* ---------- Database Job (Nightly – olive family) ---------- */
+#SUBGRAPH_CI_DATABASE_JOB_NIGHTLY > rect {
+  fill: #DCE8C5 !important;
+  stroke: #9CB870 !important;
+}
+#CI_DATABASE_JOB_NIGHTLY_SCHEDULE > rect,
+#CI_DATABASE_JOB_NIGHTLY_DB_PROD_DOWNLOAD > rect,
+#CI_DATABASE_JOB_NIGHTLY_DB_SANITIZE_NIGHTLY > rect,
+#CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY > rect {
+  fill: #F2F7E8 !important;
+  stroke: #9CB870 !important;
+}
+/* Nightly cache highlight */
+#CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY > rect {
+  fill: #C39BD3 !important;
+}
+#CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY text {
+  fill: #FFFFFF !important;
+}
 
-  /* CI Pipeline - Build Job - Light green */
-  #SUBGRAPH_CI_BUILD_JOB > rect {
-    fill: #e8f5e9 !important;
-  }
+/* ---------- Database Job (Main – brown family) ---------- */
+#SUBGRAPH_CI_DATABASE_JOB > rect {
+  fill: #E7D8C7 !important;
+  stroke: #C29B72 !important;
+}
+#CI_DATABASE_JOB_DB_DOWNLOAD_NEW > rect,
+#CI_DATABASE_JOB_DB_SANITIZE > rect,
+#CI_DATABASE_JOB_DB_IMPORT > rect,
+#CI_DATABASE_JOB_DB_EXPORT > rect,
+#CI_DATABASE_JOB_DB_PUT_CACHE > rect {
+  fill: #F7EFE6 !important;
+  stroke: #C29B72 !important;
+}
 
-  /* CI Pipeline - Assembly Phase - Green */
-  #SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE > rect {
-    fill: #d4edda !important;
-  }
+/* Database cache decision diamond */
+#CI_DATABASE_JOB_DB_CACHE_CHECK > path {
+  fill: #FFB74D !important;
+  stroke: #FB8C00 !important;
+}
 
-  /* CI Pipeline - Provision Phase - Light blue */
-  #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect {
-    fill: #e3f2fd !important;
-  }
+/* ---------- Build Job (navy/blue family) ---------- */
+#SUBGRAPH_CI_BUILD_JOB > rect {
+  fill: #C6D6EA !important;
+  stroke: #7FA5C8 !important;
+}
 
-  /* CI Pipeline - Provision Operations - Cyan */
-  #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect {
-    fill: #d1ecf1 !important;
-  }
+/* Assembly Phase (mint tint) */
+#SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE > rect {
+  fill: #D9F4E3 !important;
+  stroke: #7FA5C8 !important;
+}
+#CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_DOCKER > rect,
+#CI_BUILD_JOB_ASSEMBLY_PHASE_COMPOSER > rect,
+#CI_BUILD_JOB_ASSEMBLY_PHASE_NPM > rect,
+#CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_ASSETS > rect {
+  fill: #EDF7F1 !important;
+  stroke: #7FA5C8 !important;
+}
 
-  /* CI Pipeline - Test Phase - Light yellow */
-  #SUBGRAPH_CI_BUILD_JOB_TEST_PHASE > rect {
-    fill: #fff9c4 !important;
-  }
+/* ---------- Provision Phase (shared hue for ALL provisions) ---------- */
+#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect,
+#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
+#SUBGRAPH_HOSTING_PROVISION_OPS > rect {
+  fill: #DCE3F2 !important;
+  stroke: #9CB1D7 !important;
+}
 
-  /* CI Pipeline - Deployment Job - Light purple */
-  #SUBGRAPH_CI_DEPLOYMENT_JOB > rect {
-    fill: #f3e5f5 !important;
-  }
+#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
+#SUBGRAPH_HOSTING_PROVISION_OPS > rect {
+  stroke-dasharray: 10 5;
+}
 
-  /* Hosting Platform - Light pink */
-  #SUBGRAPH_HOSTING > rect {
-    fill: #fce4ec !important;
-  }
+#CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD > rect,
+#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI > rect,
+#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI > rect,
+#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI > rect,
+#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI > rect,
+#HOSTING_PROVISION_OPS_PROV_DB_UPDATES > rect,
+#HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT > rect,
+#HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR > rect,
+#HOSTING_PROVISION_OPS_PROV_CUSTOM > rect {
+  fill: #F4F7FD !important;
+  stroke: #9CB1D7 !important;
+}
 
-  /* Hosting Platform - Provision Operations - Cyan */
-  #SUBGRAPH_HOSTING_PROVISION_OPS > rect {
-    fill: #d1ecf1 !important;
-  }
+/* ---------- Testing Phase (gold family) ---------- */
+#SUBGRAPH_CI_BUILD_JOB_TEST_PHASE > rect {
+  fill: #F3E9C7 !important;
+  stroke: #D2B462 !important;
+}
+#CI_BUILD_JOB_TEST_PHASE_LINT > rect,
+#CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK > rect,
+#CI_BUILD_JOB_TEST_PHASE_AUDIT > rect,
+#CI_BUILD_JOB_TEST_PHASE_UNIT > rect,
+#CI_BUILD_JOB_TEST_PHASE_BEHAT > rect {
+  fill: #FCF7E6 !important;
+  stroke: #D2B462 !important;
+}
 
-  /* Available Environments - Light green */
-  #SUBGRAPH_ENVIRONMENTS > rect {
-    fill: #c8e6c9 !important;
-  }
+/* ---------- Deployment Job (lavender family) ---------- */
+#SUBGRAPH_CI_DEPLOYMENT_JOB > rect {
+  fill: #E3DDF5 !important;
+  stroke: #AA99E2 !important;
+}
+#CI_DEPLOYMENT_JOB_WEBHOOK > rect,
+#CI_DEPLOYMENT_JOB_ARTIFACT > rect,
+#CI_DEPLOYMENT_JOB_LAGOON > rect,
+#CI_DEPLOYMENT_JOB_DOCKER > rect {
+  fill: #F5F2FC !important;
+  stroke: #AA99E2 !important;
+}
 
-  /* Regular nodes - Light gray */
-  #LOCAL_DEV > rect,
-  #LOCAL_BUILD_LOCAL > rect,
-  #LOCAL_COMMIT > rect,
-  #GIT_PUSH > rect,
-  #GIT_PR > rect,
-  #CI_DATABASE_JOB_NIGHTLY_SCHEDULE > rect,
-  #CI_DATABASE_JOB_NIGHTLY_DB_PROD_DOWNLOAD > rect,
-  #CI_DATABASE_JOB_NIGHTLY_DB_SANITIZE_NIGHTLY > rect,
-  #CI_DATABASE_JOB_DB_DOWNLOAD_NEW > rect,
-  #CI_DATABASE_JOB_DB_SANITIZE > rect,
-  #CI_DATABASE_JOB_DB_IMPORT > rect,
-  #CI_DATABASE_JOB_DB_EXPORT > rect,
-  #CI_DATABASE_JOB_DB_PUT_CACHE > rect,
-  #CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_DOCKER > rect,
-  #CI_BUILD_JOB_ASSEMBLY_PHASE_COMPOSER > rect,
-  #CI_BUILD_JOB_ASSEMBLY_PHASE_NPM > rect,
-  #CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_ASSETS > rect,
-  #CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD > rect,
-  #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI > rect,
-  #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI > rect,
-  #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI > rect,
-  #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI > rect,
-  #CI_BUILD_JOB_TEST_PHASE_LINT > rect,
-  #CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK > rect,
-  #CI_BUILD_JOB_TEST_PHASE_AUDIT > rect,
-  #CI_BUILD_JOB_TEST_PHASE_UNIT > rect,
-  #CI_BUILD_JOB_TEST_PHASE_BEHAT > rect,
-  #CI_DEPLOYMENT_JOB_WEBHOOK > rect,
-  #CI_DEPLOYMENT_JOB_ARTIFACT > rect,
-  #CI_DEPLOYMENT_JOB_LAGOON > rect,
-  #CI_DEPLOYMENT_JOB_DOCKER > rect,
-  #HOSTING_NEW_DB_SYNC > rect,
-  #HOSTING_SEND_NOTIFICATIONS > rect,
-  #HOSTING_PROVISION_OPS_PROV_DB_UPDATES > rect,
-  #HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT > rect,
-  #HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR > rect,
-  #HOSTING_PROVISION_OPS_PROV_CUSTOM > rect,
-  #ENVIRONMENTS_PR_ENV > rect,
-  #ENVIRONMENTS_DEV_ENV > rect,
-  #ENVIRONMENTS_STAGE_ENV > rect {
-    fill: #f5f5f5 !important;
-  }
+/* ---------- Hosting Platform (rose family) ---------- */
+#SUBGRAPH_HOSTING > rect {
+  fill: #F6DDE3 !important;
+  stroke: #D79AA5 !important;
+}
+#HOSTING_NEW_DB_SYNC > rect,
+#HOSTING_SEND_NOTIFICATIONS > rect {
+  fill: #FDF1F4 !important;
+  stroke: #D79AA5 !important;
+}
 
-  /* Success nodes - Green with white text */
-  #CI_SUCCESS > rect,
-  #CI_DATABASE_JOB_DB_CACHE_SUCCESS > rect,
-  #ENVIRONMENTS_PROD_ENV > rect {
-    fill: #4caf50 !important;
-  }
+/* Hosting environment decision diamond */
+#HOSTING_ENV_DECISION > path {
+  fill: #FFB74D !important;
+  stroke: #FB8C00 !important;
+}
 
-  #CI_SUCCESS text,
-  #CI_DATABASE_JOB_DB_CACHE_SUCCESS text,
-  #ENVIRONMENTS_PROD_ENV text {
-    fill: #fff !important;
-  }
+/* ---------- Available Environments (sage family) ---------- */
+#SUBGRAPH_ENVIRONMENTS > rect {
+  fill: #D7E8D7 !important;
+  stroke: #8FB48F !important;
+}
 
-  /* Cache node - Purple with white text */
-  #CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY > rect {
-    fill: #9c27b0 !important;
-  }
+[id^="flowchart-ENVIRONMENTS_PR_ENV"] > rect {
+  stroke-dasharray: 10 5;
+}
 
-  #CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY text {
-    fill: #fff !important;
-  }
+#ENVIRONMENTS_PR_ENV > rect,
+#ENVIRONMENTS_DEV_ENV > rect,
+#ENVIRONMENTS_STAGE_ENV > rect,
+#ENVIRONMENTS_PROD_ENV > rect {
+  fill: #F1F8F1 !important;
+  stroke: #8FB48F !important;
+}
 
-  /* Decision nodes - Orange */
-  #CI_DATABASE_JOB_DB_CACHE_CHECK > path,
-  #HOSTING_ENV_DECISION > path {
-    fill: #ff9800 !important;
-  }
+/* ---------- Success nodes ---------- */
+#CI_SUCCESS > rect,
+#CI_DATABASE_JOB_DB_CACHE_SUCCESS > rect {
+  fill: #4CAF50 !important;
+  stroke: #388E3C !important;
+}
+#CI_SUCCESS text,
+#CI_DATABASE_JOB_DB_CACHE_SUCCESS text {
+  fill: #FFFFFF !important;
+}
 
-  /* ============================================================================
-   * Dark Mode Styles
-   * ============================================================================ */
+/* ---------- Fallback for any remaining nodes ---------- */
+.node rect {
+  fill: #F7F7F7 !important;
+  stroke-width: 1px;
+}
 
-  /* Local Development - Dark blue */
-  [data-theme="dark"] #SUBGRAPH_LOCAL > rect {
-    fill: #1a4d5c !important;
-  }
+/* ============================================================================
+ * DARK THEME — Eraser-style color system
+ * ============================================================================ */
 
-  /* Git Repository - Dark yellow/brown */
-  [data-theme="dark"] #SUBGRAPH_GIT > rect {
-    fill: #4a3800 !important;
-  }
+/* -------------------------------------------
+   Local Development (blue family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_LOCAL > rect {
+  fill: #1C2E3A !important;
+  stroke: #4BA3D6 !important;
+}
+[data-theme="dark"] #LOCAL_DEV > rect,
+[data-theme="dark"] #LOCAL_BUILD_LOCAL > rect,
+[data-theme="dark"] #LOCAL_COMMIT > rect {
+  fill: #243B4A !important;
+  stroke: #4BA3D6 !important;
+}
 
-  /* CI Pipeline - Dark gray */
-  [data-theme="dark"] #SUBGRAPH_CI > rect {
-    fill: #2a2a2a !important;
-  }
+/* -------------------------------------------
+   Git Repository (purple family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_GIT > rect {
+  fill: #2A1C32 !important;
+  stroke: #B084D6 !important;
+}
+[data-theme="dark"] #GIT_PUSH > rect,
+[data-theme="dark"] #GIT_PR > rect {
+  fill: #332040 !important;
+  stroke: #B084D6 !important;
+}
 
-  /* CI Pipeline - Database Job (Nightly) - Dark orange */
-  [data-theme="dark"] #SUBGRAPH_CI_DATABASE_JOB_NIGHTLY > rect {
-    fill: #4a3000 !important;
-  }
+/* -------------------------------------------
+   CI Pipeline (warm gray – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI > rect {
+  fill: #2A2926 !important;
+  stroke: #A29D91 !important;
+}
 
-  /* CI Pipeline - Database Job - Dark orange */
-  [data-theme="dark"] #SUBGRAPH_CI_DATABASE_JOB > rect {
-    fill: #5a3800 !important;
-  }
+/* -------------------------------------------
+   Database Job (Nightly – olive family)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI_DATABASE_JOB_NIGHTLY > rect {
+  fill: #2E341F !important;
+  stroke: #A5C36E !important;
+}
+[data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_SCHEDULE > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_PROD_DOWNLOAD > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_SANITIZE_NIGHTLY > rect {
+  fill: #3A4224 !important;
+  stroke: #A5C36E !important;
+}
+/* Nightly cache highlight */
+[data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY > rect {
+  fill: #8E67A6 !important;
+  stroke: #CBA7E8 !important;
+}
+[data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY text {
+  fill: #FFFFFF !important;
+}
 
-  /* CI Pipeline - Build Job - Dark green */
-  [data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB > rect {
-    fill: #1a3a1a !important;
-  }
+/* -------------------------------------------
+   Database Job (Main – brown family)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI_DATABASE_JOB > rect {
+  fill: #3A2E26 !important;
+  stroke: #B88955 !important;
+}
+[data-theme="dark"] #CI_DATABASE_JOB_DB_DOWNLOAD_NEW > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_DB_SANITIZE > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_DB_IMPORT > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_DB_EXPORT > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_DB_PUT_CACHE > rect {
+  fill: #47392F !important;
+  stroke: #B88955 !important;
+}
 
-  /* CI Pipeline - Assembly Phase - Dark green */
-  [data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE > rect {
-    fill: #254a25 !important;
-  }
+/* DB decision diamond */
+[data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_CHECK > path {
+  fill: #C77D31 !important;
+  stroke: #E0913A !important;
+}
 
-  /* CI Pipeline - Provision Phase - Dark blue */
-  [data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect {
-    fill: #1a3a4a !important;
-  }
+/* -------------------------------------------
+   Build Job (navy/blue family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB > rect {
+  fill: #1C2533 !important;
+  stroke: #7AA4C5 !important;
+}
 
-  /* CI Pipeline - Provision Operations - Dark cyan */
-  [data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect {
-    fill: #1a4a4a !important;
-  }
+/* Assembly Phase */
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE > rect {
+  fill: #233140 !important;
+  stroke: #7AA4C5 !important;
+}
+[data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_DOCKER > rect,
+[data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_COMPOSER > rect,
+[data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_NPM > rect,
+[data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_ASSETS > rect {
+  fill: #2A3A4A !important;
+  stroke: #7AA4C5 !important;
+}
 
-  /* CI Pipeline - Test Phase - Dark yellow */
-  [data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_TEST_PHASE > rect {
-    fill: #4a4a1a !important;
-  }
+/* -------------------------------------------
+   Provision (shared hue for ALL provisions)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect,
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
+[data-theme="dark"] #SUBGRAPH_HOSTING_PROVISION_OPS > rect {
+  fill: #1F2738 !important;
+  stroke: #8CA3CF !important;
+}
 
-  /* CI Pipeline - Deployment Job - Dark purple */
-  [data-theme="dark"] #SUBGRAPH_CI_DEPLOYMENT_JOB > rect {
-    fill: #3a1a4a !important;
-  }
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
+[data-theme="dark"] #SUBGRAPH_HOSTING_PROVISION_OPS > rect {
+  stroke-dasharray: 10 5;
+}
 
-  /* Hosting Platform - Dark pink */
-  [data-theme="dark"] #SUBGRAPH_HOSTING > rect {
-    fill: #4a1a3a !important;
-  }
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD > rect,
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI > rect,
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI > rect,
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI > rect,
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI > rect,
+[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_DB_UPDATES > rect,
+[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT > rect,
+[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR > rect,
+[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CUSTOM > rect {
+  fill: #262F41 !important;
+  stroke: #8CA3CF !important;
+}
 
-  /* Hosting Platform - Provision Operations - Dark cyan */
-  [data-theme="dark"] #SUBGRAPH_HOSTING_PROVISION_OPS > rect {
-    fill: #1a4a4a !important;
-  }
+/* -------------------------------------------
+   Testing Phase (gold family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_TEST_PHASE > rect {
+  fill: #3D351E !important;
+  stroke: #C5A554 !important;
+}
+[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_LINT > rect,
+[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK > rect,
+[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_AUDIT > rect,
+[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_UNIT > rect,
+[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_BEHAT > rect {
+  fill: #473F24 !important;
+  stroke: #C5A554 !important;
+}
 
-  /* Available Environments - Dark green */
-  [data-theme="dark"] #SUBGRAPH_ENVIRONMENTS > rect {
-    fill: #2a4a2a !important;
-  }
+/* -------------------------------------------
+   Deployment Job (lavender family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_CI_DEPLOYMENT_JOB > rect {
+  fill: #2D263A !important;
+  stroke: #9C8AD4 !important;
+}
+[data-theme="dark"] #CI_DEPLOYMENT_JOB_WEBHOOK > rect,
+[data-theme="dark"] #CI_DEPLOYMENT_JOB_ARTIFACT > rect,
+[data-theme="dark"] #CI_DEPLOYMENT_JOB_LAGOON > rect,
+[data-theme="dark"] #CI_DEPLOYMENT_JOB_DOCKER > rect {
+  fill: #362E47 !important;
+  stroke: #9C8AD4 !important;
+}
 
-  /* Regular nodes - Dark gray */
-  [data-theme="dark"] #LOCAL_DEV > rect,
-  [data-theme="dark"] #LOCAL_BUILD_LOCAL > rect,
-  [data-theme="dark"] #LOCAL_COMMIT > rect,
-  [data-theme="dark"] #GIT_PUSH > rect,
-  [data-theme="dark"] #GIT_PR > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_SCHEDULE > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_PROD_DOWNLOAD > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_SANITIZE_NIGHTLY > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_DOWNLOAD_NEW > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_SANITIZE > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_IMPORT > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_EXPORT > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_PUT_CACHE > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_DOCKER > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_COMPOSER > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_NPM > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_ASSETS > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_LINT > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_AUDIT > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_UNIT > rect,
-  [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_BEHAT > rect,
-  [data-theme="dark"] #CI_DEPLOYMENT_JOB_WEBHOOK > rect,
-  [data-theme="dark"] #CI_DEPLOYMENT_JOB_ARTIFACT > rect,
-  [data-theme="dark"] #CI_DEPLOYMENT_JOB_LAGOON > rect,
-  [data-theme="dark"] #CI_DEPLOYMENT_JOB_DOCKER > rect,
-  [data-theme="dark"] #HOSTING_NEW_DB_SYNC > rect,
-  [data-theme="dark"] #HOSTING_SEND_NOTIFICATIONS > rect,
-  [data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_DB_UPDATES > rect,
-  [data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT > rect,
-  [data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR > rect,
-  [data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CUSTOM > rect,
-  [data-theme="dark"] #ENVIRONMENTS_PR_ENV > rect,
-  [data-theme="dark"] #ENVIRONMENTS_DEV_ENV > rect,
-  [data-theme="dark"] #ENVIRONMENTS_STAGE_ENV > rect {
-    fill: #3a3a3a !important;
-  }
+/* -------------------------------------------
+   Hosting Platform (rose family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_HOSTING > rect {
+  fill: #3A232A !important;
+  stroke: #D48A98 !important;
+}
+[data-theme="dark"] #HOSTING_NEW_DB_SYNC > rect,
+[data-theme="dark"] #HOSTING_SEND_NOTIFICATIONS > rect {
+  fill: #452B32 !important;
+  stroke: #D48A98 !important;
+}
 
-  /* Success nodes - Brighter green with white text for dark mode */
-  [data-theme="dark"] #CI_SUCCESS > rect,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_SUCCESS > rect,
-  [data-theme="dark"] #ENVIRONMENTS_PROD_ENV > rect {
-    fill: #2e7d32 !important;
-  }
+/* Hosting decision diamond */
+[data-theme="dark"] #HOSTING_ENV_DECISION > path {
+  fill: #C77D31 !important;
+  stroke: #E0913A !important;
+}
 
-  [data-theme="dark"] #CI_SUCCESS text,
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_SUCCESS text,
-  [data-theme="dark"] #ENVIRONMENTS_PROD_ENV text {
-    fill: #fff !important;
-  }
+/* -------------------------------------------
+   Environments (sage family – dark)
+-------------------------------------------- */
+[data-theme="dark"] #SUBGRAPH_ENVIRONMENTS > rect {
+  fill: #273328 !important;
+  stroke: #7BAA7B !important;
+}
+[data-theme="dark"] #ENVIRONMENTS_PR_ENV > rect,
+[data-theme="dark"] #ENVIRONMENTS_DEV_ENV > rect,
+[data-theme="dark"] #ENVIRONMENTS_STAGE_ENV > rect,
+[data-theme="dark"] #ENVIRONMENTS_PROD_ENV > rect {
+  fill: #2F3E31 !important;
+  stroke: #7BAA7B !important;
+}
 
-  /* Cache node - Brighter purple with white text for dark mode */
-  [data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY > rect {
-    fill: #7b1fa2 !important;
-  }
+/* -------------------------------------------
+   Success nodes
+-------------------------------------------- */
+[data-theme="dark"] #CI_SUCCESS > rect,
+[data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_SUCCESS > rect {
+  fill: #2E7D32 !important;
+  stroke: #1B5E20 !important;
+}
+[data-theme="dark"] #CI_SUCCESS text,
+[data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_SUCCESS text {
+  fill: #FFFFFF !important;
+}
 
-  [data-theme="dark"] #CI_DATABASE_JOB_NIGHTLY_DB_CACHE_NIGHTLY text {
-    fill: #fff !important;
-  }
+/* -------------------------------------------
+   Generic node fallback
+-------------------------------------------- */
+[data-theme="dark"] .node rect {
+  fill: #383838 !important;
+  stroke: #555 !important;
+  stroke-width: 1px;
+}
 
-  /* Decision nodes - Brighter orange for dark mode */
-  [data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_CHECK > path,
-  [data-theme="dark"] #HOSTING_ENV_DECISION > path {
-    fill: #fb8c00 !important;
-  }
 `}</style>
