@@ -218,7 +218,7 @@ class ConfigTest extends UnitTestCase {
       'boolean_true' => [TRUE, TRUE],
       'boolean_false' => [FALSE, FALSE],
       'string_true' => ['true', TRUE],
-    // Non-empty string is truthy.
+      // Non-empty string is truthy.
       'string_false' => ['false', TRUE],
       'string_empty' => ['', FALSE],
       'integer_zero' => [0, FALSE],
@@ -256,7 +256,7 @@ class ConfigTest extends UnitTestCase {
       'boolean_true' => [TRUE, TRUE],
       'boolean_false' => [FALSE, FALSE],
       'string_true' => ['true', TRUE],
-    // Non-empty string is truthy.
+      // Non-empty string is truthy.
       'string_false' => ['false', TRUE],
       'string_empty' => ['', FALSE],
       'integer_zero' => [0, FALSE],
@@ -294,7 +294,7 @@ class ConfigTest extends UnitTestCase {
       'boolean_true' => [TRUE, TRUE],
       'boolean_false' => [FALSE, FALSE],
       'string_true' => ['true', TRUE],
-    // Non-empty string is truthy.
+      // Non-empty string is truthy.
       'string_false' => ['false', TRUE],
       'string_empty' => ['', FALSE],
       'integer_zero' => [0, FALSE],
@@ -318,6 +318,7 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals('VORTEX_INSTALLER_NO_INTERACTION', Config::NO_INTERACTION);
     $this->assertEquals('VORTEX_INSTALLER_QUIET', Config::QUIET);
     $this->assertEquals('VORTEX_INSTALLER_NO_CLEANUP', Config::NO_CLEANUP);
+    $this->assertEquals('VORTEX_INSTALLER_BUILD_NOW', Config::BUILD_NOW);
   }
 
   public function testEnvironmentVariablePrecedenceInConstructor(): void {

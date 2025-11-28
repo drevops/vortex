@@ -871,4 +871,84 @@ EXPECTED,
     ];
   }
 
+  /**
+   * Test setOutput method.
+   */
+  public function testSetOutput(): void {
+    $output1 = new BufferedOutput();
+    $output2 = new BufferedOutput();
+
+    Tui::init($output1);
+    $this->assertSame($output1, Tui::output());
+
+    Tui::setOutput($output2);
+    $this->assertSame($output2, Tui::output());
+  }
+
+  /**
+   * Test success method.
+   */
+  public function testSuccess(): void {
+    $output = new BufferedOutput();
+    Tui::init($output);
+
+    Tui::success('Operation succeeded');
+
+    $actual = $output->fetch();
+    $this->assertStringContainsString('Operation succeeded', $actual);
+  }
+
+  /**
+   * Test line method.
+   */
+  public function testLine(): void {
+    $output = new BufferedOutput();
+    Tui::init($output);
+
+    Tui::line('Test line');
+
+    $actual = $output->fetch();
+    $this->assertStringContainsString('Test line', $actual);
+  }
+
+  /**
+   * Test line method with custom padding.
+   */
+  public function testLineWithPadding(): void {
+    $output = new BufferedOutput();
+    Tui::init($output);
+
+    Tui::line('Test line', 5);
+
+    $actual = $output->fetch();
+    $this->assertStringContainsString('     Test line', $actual);
+  }
+
+  /**
+   * Test confirm in non-interactive mode (returns default).
+   */
+  public function testConfirmNonInteractive(): void {
+    $output = new BufferedOutput();
+    Tui::init($output, FALSE);
+
+    // In non-interactive mode, confirm should return the default value.
+    $result = Tui::confirm('Confirm action?', TRUE);
+    $this->assertTrue($result);
+
+    $result = Tui::confirm('Confirm action?', FALSE);
+    $this->assertFalse($result);
+  }
+
+  /**
+   * Test getChar in non-interactive mode.
+   */
+  public function testGetCharNonInteractive(): void {
+    $output = new BufferedOutput();
+    Tui::init($output, FALSE);
+
+    // In non-interactive mode, getChar should return empty string.
+    $result = Tui::getChar();
+    $this->assertEquals('', $result);
+  }
+
 }

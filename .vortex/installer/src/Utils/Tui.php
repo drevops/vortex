@@ -7,7 +7,9 @@ namespace DrevOps\VortexInstaller\Utils;
 use Laravel\Prompts\Prompt;
 use Laravel\Prompts\Terminal;
 use Symfony\Component\Console\Output\OutputInterface;
+use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\table;
@@ -42,6 +44,11 @@ class Tui {
     return static::$output;
   }
 
+  public static function setOutput(OutputInterface $output): void {
+    static::$output = $output;
+    Prompt::setOutput($output);
+  }
+
   public static function info(string $message): void {
     intro($message);
   }
@@ -50,8 +57,24 @@ class Tui {
     note($message);
   }
 
+  public static function success(string $message): void {
+    info($message);
+  }
+
   public static function error(string $message): void {
     error('✕ ' . $message);
+  }
+
+  public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
+    if (!static::$isInteractive) {
+      return $default;
+    }
+
+    return confirm(
+      label: $label,
+      default: $default,
+      hint: $hint ?? '',
+    );
   }
 
   public static function line(string $message, int $padding = 1): void {
@@ -87,6 +110,8 @@ class Tui {
   }
 
   public static function dim(string $text): string {
+    // Replace reset codes with reset+dim to maintain dim through color resets.
+    $text = str_replace("\033[0m", "\033[0m\033[2m", $text);
     return static::escapeMultiline($text, 2, 22);
   }
 

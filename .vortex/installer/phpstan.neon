@@ -16,6 +16,8 @@ parameters:
   excludePaths:
     - vendor/*
 
+  treatPhpDocTypesAsCertain: false
+
   ignoreErrors:
     -
       # Since tests and data providers do not have to have parameter docblocks,

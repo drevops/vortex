@@ -8,6 +8,8 @@
 
 declare(strict_types=1);
 
+use DrevOps\VortexInstaller\Command\BuildCommand;
+use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Command\InstallCommand;
 use Symfony\Component\Console\Application;
 
@@ -15,8 +17,10 @@ require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.
 
 $application = new Application('Vortex Installer', '@vortex-installer-version@');
 
-$command = new InstallCommand();
-$application->add($command);
-$application->setDefaultCommand($command->getName(), TRUE);
+$application->add(new InstallCommand());
+$application->add(new CheckRequirementsCommand());
+$application->add(new BuildCommand());
+
+$application->setDefaultCommand('install');
 
 $application->run();

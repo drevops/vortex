@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Command;
 
 use DrevOps\VortexInstaller\Downloader\Downloader;
+use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Runner\CommandRunner;
+use DrevOps\VortexInstaller\Runner\ProcessRunner;
+use DrevOps\VortexInstaller\Runner\RunnerInterface;
+use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
-use DrevOps\VortexInstaller\Utils\Task;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -41,6 +45,8 @@ class InstallCommand extends Command {
 
   const OPTION_NO_CLEANUP = 'no-cleanup';
 
+  const OPTION_BUILD = 'build';
+
   /**
    * Defines default command name.
    *
@@ -59,10 +65,25 @@ class InstallCommand extends Command {
   protected PromptManager $promptManager;
 
   /**
+   * The command runner.
+   */
+  protected ?CommandRunner $runner = NULL;
+
+  /**
+   * The process runner.
+   */
+  protected ?ProcessRunner $processRunner = NULL;
+
+  /**
+   * The downloader.
+   */
+  protected ?Downloader $downloader = NULL;
+
+  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
-    $this->setName('Vortex Installer');
+    $this->setName('install');
     $this->setDescription('Install Vortex from remote or local repository.');
     $this->setHelp(<<<EOF
   Interactively install Vortex from the latest stable release into the current directory:
@@ -88,6 +109,7 @@ EOF
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
     $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
+    $this->addOption(static::OPTION_BUILD, 'b', InputOption::VALUE_NONE, 'Run auto-build after installation without prompting.');
   }
 
   /**
@@ -127,7 +149,7 @@ EOF
       Task::action(
         label: 'Downloading Vortex',
         action: function (): string {
-          $version = (new Downloader())->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
+          $version = $this->getDownloader()->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
           return $version;
         },
@@ -155,7 +177,7 @@ EOF
 
       Task::action(
         label: 'Preparing demo content',
-        action: fn(): string|array => $this->handleDemo(),
+        action: fn(): string|array => $this->prepareDemo(),
         success: 'Demo content prepared',
       );
     }
@@ -168,6 +190,34 @@ EOF
 
     $this->footer();
 
+    $should_build = $this->config->get(Config::BUILD_NOW);
+    if (!$should_build && !$this->config->getNoInteraction()) {
+      $should_build = Tui::confirm(
+        label: 'Run the site build now?',
+        default: TRUE,
+        hint: 'Takes ~5-10 min; output will be streamed. You can skip and run later with: ahoy build',
+      );
+    }
+
+    if ($should_build) {
+      $build_ok = Task::action(
+        label: 'Building site',
+        action: fn(): bool => $this->runBuildCommand($output),
+        streaming: TRUE,
+      );
+
+      if (!$build_ok) {
+        Tui::error('Build failed. The site was installed but build process encountered errors.');
+        Tui::line('');
+        Tui::line('Next steps:');
+        Tui::line('  - Run: ahoy build');
+        Tui::line('  - Or inspect logs for details');
+        Tui::line('');
+
+        return Command::FAILURE;
+      }
+    }
+
     // Cleanup should take place only in case of the successful installation.
     // Otherwise, the user should be able to re-run the installer.
     register_shutdown_function([$this, 'cleanup']);
@@ -176,19 +226,28 @@ EOF
   }
 
   protected function checkRequirements(): void {
-    if (passthru('command -v git >/dev/null') === FALSE) {
+    $runner = $this->getProcessRunner();
+
+    $runner->run('command -v git >/dev/null');
+    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
       throw new \RuntimeException('Missing git.');
     }
 
-    if (passthru('command -v curl >/dev/null') === FALSE) {
+    $runner->run('command -v curl >/dev/null');
+    // @phpstan-ignore-next-line notIdentical.alwaysFalse
+    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
       throw new \RuntimeException('Missing curl.');
     }
 
-    if (passthru('command -v tar >/dev/null') === FALSE) {
+    $runner->run('command -v tar >/dev/null');
+    // @phpstan-ignore-next-line notIdentical.alwaysFalse
+    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
       throw new \RuntimeException('Missing tar.');
     }
 
-    if (passthru('command -v composer >/dev/null') === FALSE) {
+    $runner->run('command -v composer >/dev/null');
+    // @phpstan-ignore-next-line notIdentical.alwaysFalse
+    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
       throw new \RuntimeException('Missing Composer.');
     }
   }
@@ -259,6 +318,9 @@ EOF
 
     // Set no-cleanup flag.
     $this->config->set(Config::NO_CLEANUP, (bool) $options[static::OPTION_NO_CLEANUP]);
+
+    // Set build-now flag.
+    $this->config->set(Config::BUILD_NOW, (bool) $options[static::OPTION_BUILD]);
   }
 
   protected function prepareDestination(): array {
@@ -327,7 +389,13 @@ EOF
     }
   }
 
-  protected function handleDemo(): array|string {
+  /**
+   * Prepare demo content if in demo mode.
+   *
+   * @return array|string
+   *   Array of messages or a single message.
+   */
+  protected function prepareDemo(): array|string {
     if (empty($this->config->get(Config::IS_DEMO))) {
       return 'Not a demo mode.';
     }
@@ -366,6 +434,26 @@ EOF
     $messages[] = sprintf('Downloaded demo database from %s.', $url);
 
     return $messages;
+  }
+
+  /**
+   * Run the 'build' command.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *   The output interface.
+   *
+   * @return bool
+   *   TRUE if the build command succeeded, FALSE otherwise.
+   */
+  protected function runBuildCommand(OutputInterface $output): bool {
+    $responses = $this->promptManager->getResponses();
+    $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
+    $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
+
+    $runner = $this->getRunner();
+    $runner->run('build', args: $is_profile ? ['--profile' => '1'] : [], output: $output);
+
+    return $runner->getExitCode() === Command::SUCCESS;
   }
 
   protected function header(): void {
@@ -546,6 +634,75 @@ EOT;
     if (!empty($phar_path) && file_exists($phar_path)) {
       @unlink($phar_path);
     }
+  }
+
+  /**
+   * Get the command runner.
+   *
+   * Provides a default CommandRunner instance or returns the injected one.
+   * This allows tests to inject mocks via setRunner().
+   *
+   * @return \DrevOps\VortexInstaller\Runner\CommandRunner
+   *   The command runner.
+   */
+  protected function getRunner(): CommandRunner {
+    return $this->runner ?? new CommandRunner($this->getApplication());
+  }
+
+  /**
+   * Set the command runner.
+   *
+   * @param \DrevOps\VortexInstaller\Runner\CommandRunner $runner
+   *   The command runner.
+   */
+  public function setRunner(CommandRunner $runner): void {
+    $this->runner = $runner;
+  }
+
+  /**
+   * Get the process runner.
+   *
+   * Provides a default ProcessRunner instance or returns the injected one.
+   * This allows tests to inject mocks via setProcessRunner().
+   *
+   * @return \DrevOps\VortexInstaller\Runner\ProcessRunner
+   *   The process runner.
+   */
+  protected function getProcessRunner(): ProcessRunner {
+    return $this->processRunner ?? (new ProcessRunner())->disableLog()->disableStreaming();
+  }
+
+  /**
+   * Set the process runner.
+   *
+   * @param \DrevOps\VortexInstaller\Runner\ProcessRunner $runner
+   *   The process runner.
+   */
+  public function setProcessRunner(ProcessRunner $runner): void {
+    $this->processRunner = $runner;
+  }
+
+  /**
+   * Get the downloader.
+   *
+   * Provides a default Downloader instance or returns the injected one.
+   * This allows tests to inject mocks via setDownloader().
+   *
+   * @return \DrevOps\VortexInstaller\Downloader\Downloader
+   *   The downloader.
+   */
+  protected function getDownloader(): Downloader {
+    return $this->downloader ?? new Downloader();
+  }
+
+  /**
+   * Set the downloader.
+   *
+   * @param \DrevOps\VortexInstaller\Downloader\Downloader $downloader
+   *   The downloader.
+   */
+  public function setDownloader(Downloader $downloader): void {
+    $this->downloader = $downloader;
   }
 
 }

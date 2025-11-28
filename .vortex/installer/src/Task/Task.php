@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\VortexInstaller\Utils;
+namespace DrevOps\VortexInstaller\Task;
 
+use DrevOps\VortexInstaller\Utils\Strings;
+use DrevOps\VortexInstaller\Utils\Tui;
 use function Laravel\Prompts\spin;
 
 class Task {
@@ -18,7 +20,8 @@ class Task {
     \Closure|string|null $hint = NULL,
     \Closure|string|null $success = NULL,
     \Closure|string|null $failure = NULL,
-  ): void {
+    bool $streaming = FALSE,
+  ): mixed {
     $label = is_callable($label) ? $label() : $label;
 
     if (!is_callable($action)) {
@@ -27,10 +30,30 @@ class Task {
 
     $label = Tui::normalizeText($label);
 
-    // @phpstan-ignore-next-line
-    $return = spin($action, Tui::yellow($label));
+    if ($streaming) {
+      $original_output = Tui::output();
 
-    self::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) ? 2 : 3);
+      $task_output = new TaskOutput($original_output);
+
+      static::start($label);
+
+      Tui::setOutput($task_output);
+
+      ob_start(function (string|iterable $buffer) use ($task_output): string {
+        $task_output->write($buffer);
+        return '';
+      }, 1);
+
+      $return = $action();
+
+      ob_end_clean();
+      Tui::setOutput($original_output);
+    }
+    else {
+      // @phpstan-ignore-next-line
+      $return = spin($action, Tui::yellow($label));
+      self::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) ? 2 : 3);
+    }
 
     if ($return === FALSE) {
       $failure = $failure && is_callable($failure) ? $failure() : $failure;
@@ -40,6 +63,8 @@ class Task {
       $success = $success && is_callable($success) ? $success($return) : $success;
       static::ok($success ? Tui::normalizeText($success) : 'OK');
     }
+
+    return $return;
   }
 
   protected static function label(string $message, ?string $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 3): void {
@@ -72,6 +97,11 @@ class Task {
     $ok = Tui::green(Tui::normalizeText('✓ ' . $text));
     Tui::note($ok);
     Tui::note(str_repeat(Tui::caretUp(), 4));
+  }
+
+  protected static function start(string $label): void {
+    $message = '✦ ' . $label;
+    Tui::line(Tui::blue(Tui::normalizeText($message)));
   }
 
 }
