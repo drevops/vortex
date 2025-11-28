@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d07f0fa0a62f9d6fe847936922a0750",
+    "content-hash": "de84fd16df3c77e8606959aab7cfd834",
     "packages": [
         {
             "name": "cweagans/composer-configurable-plugin",
@@ -256,16 +256,16 @@
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.12.2",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "99012db4d4f8dd0cf3b21a2e9931719490d3c7ef"
+                "reference": "60242281d31b5abe2d2e025522dbdefadb227f03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/99012db4d4f8dd0cf3b21a2e9931719490d3c7ef",
-                "reference": "99012db4d4f8dd0cf3b21a2e9931719490d3c7ef",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/60242281d31b5abe2d2e025522dbdefadb227f03",
+                "reference": "60242281d31b5abe2d2e025522dbdefadb227f03",
                 "shasum": ""
             },
             "require": {
@@ -277,6 +277,7 @@
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
+                "drevops/phpcs-standard": "^0.6",
                 "drupal/coder": "^8.3",
                 "ergebnis/composer-normalize": "^2.42",
                 "laravel/serializable-closure": "^2.0",
@@ -319,7 +320,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-09-27T02:35:38+00:00"
+            "time": "2025-11-28T12:21:28+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",
