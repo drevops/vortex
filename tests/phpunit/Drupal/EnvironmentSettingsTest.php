@@ -497,6 +497,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $this->assertSettings($settings);
   }
+
   // phpcs:ignore #;> SETTINGS_PROVIDER_CONTAINER
 
   // phpcs:ignore #;< SETTINGS_PROVIDER_CIRCLECI
@@ -546,6 +547,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $this->assertSettings($settings);
   }
+
   // phpcs:ignore #;> SETTINGS_PROVIDER_CIRCLECI
 
   // phpcs:ignore #;< SETTINGS_PROVIDER_GHA
@@ -595,6 +597,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $this->assertSettings($settings);
   }
+
   // phpcs:ignore #;> SETTINGS_PROVIDER_GHA
 
   // phpcs:ignore #;< SETTINGS_PROVIDER_ACQUIA
@@ -764,6 +767,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $this->assertSettings($settings);
   }
+
   // phpcs:ignore #;> SETTINGS_PROVIDER_ACQUIA
   // phpcs:ignore #;< SETTINGS_PROVIDER_LAGOON
   /**
@@ -973,6 +977,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ];
     $this->assertSettings($settings);
   }
+
   // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
 
 }

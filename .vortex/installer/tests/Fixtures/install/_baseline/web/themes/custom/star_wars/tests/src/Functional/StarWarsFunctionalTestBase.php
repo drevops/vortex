@@ -20,8 +20,11 @@ use Drupal\Tests\sw_base\Traits\ReflectionTrait;
 abstract class StarWarsFunctionalTestBase extends BrowserTestBase {
 
   use ArrayTrait;
+
   use AssertTrait;
+
   use MockTrait;
+
   use ReflectionTrait;
 
   /**
