@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Profile::class)]
-class ProfilePromptManagerTest extends AbstractPromptManagerTestCase {
+class ProfileHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -36,7 +36,7 @@ class ProfilePromptManagerTest extends AbstractPromptManagerTestCase {
       'profile - discovery' => [
         [],
         [Profile::id() => Profile::MINIMAL] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('DRUPAL_PROFILE', Profile::MINIMAL);
         },
@@ -45,7 +45,7 @@ class ProfilePromptManagerTest extends AbstractPromptManagerTestCase {
       'profile - discovery - non-Vortex project' => [
         [],
         [Profile::id() => 'discovered_profile'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/discovered_profile/discovered_profile.info');
         },
       ],
@@ -53,7 +53,7 @@ class ProfilePromptManagerTest extends AbstractPromptManagerTestCase {
       'profile - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No .env file and no profile info files - fall back to default.
         },
       ],

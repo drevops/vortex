@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Starter::class)]
-class StarterPromptManagerTest extends AbstractPromptManagerTestCase {
+class StarterHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -38,7 +38,7 @@ class StarterPromptManagerTest extends AbstractPromptManagerTestCase {
       'starter - discovery' => [
         [],
         [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // Noop.
         },
       ],
@@ -46,7 +46,7 @@ class StarterPromptManagerTest extends AbstractPromptManagerTestCase {
       'starter - installed project - skipped' => [
         [],
         [Starter::id() => Starter::LOAD_DATABASE_DEMO] + static::getExpectedInstalled(),
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],

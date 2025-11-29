@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(DependencyUpdatesProvider::class)]
-class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTestCase {
+class DependencyUpdatesProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -27,7 +27,7 @@ class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTe
       'dependency updates provider - discovery - renovate self-hosted - gha' => [
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
           File::dump(static::$sut . '/.github/workflows/update-dependencies.yml');
@@ -40,7 +40,7 @@ class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTe
           CiProvider::id() => CiProvider::CIRCLECI,
           DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_CI,
         ] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
           File::dump(static::$sut . '/.circleci/config.yml', 'update-dependencies');
@@ -50,7 +50,7 @@ class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTe
       'dependency updates provider - discovery - renovate app' => [
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
         },
@@ -59,7 +59,7 @@ class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTe
       'dependency updates provider - discovery - none' => [
         [],
         [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
@@ -67,7 +67,7 @@ class DependencyUpdatesProviderPromptManagerTest extends AbstractPromptManagerTe
       'dependency updates provider - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No renovate.json and not installed - should fall back to default.
         },
       ],

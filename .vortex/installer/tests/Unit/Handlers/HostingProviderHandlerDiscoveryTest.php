@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(HostingProvider::class)]
-class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
+class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -35,7 +35,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
           DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/hooks/somehook');
         },
       ],
@@ -49,7 +49,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
           DeployTypes::id() => [DeployTypes::ARTIFACT],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::ACQUIA);
         },
       ],
@@ -62,7 +62,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
           DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/.lagoon.yml');
         },
       ],
@@ -70,7 +70,7 @@ class HostingProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'hosting provider - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No hooks, .lagoon.yml, or ACQUIA env var - fall back to default.
         },
       ],

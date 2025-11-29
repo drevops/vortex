@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(DatabaseImage::class)]
-class DatabaseImagePromptManagerTest extends AbstractPromptManagerTestCase {
+class DatabaseImageHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -49,7 +49,7 @@ class DatabaseImagePromptManagerTest extends AbstractPromptManagerTestCase {
           DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
           DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
         },
       ],

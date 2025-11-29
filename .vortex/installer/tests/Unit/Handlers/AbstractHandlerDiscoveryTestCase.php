@@ -44,11 +44,11 @@ use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Abstract base class for PromptManager handler tests.
+ * Abstract base class for PromptManager handler discovery tests.
  *
  * Provides common test logic for all PromptManager test scenarios.
  */
-abstract class AbstractPromptManagerTestCase extends UnitTestCase {
+abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
   use UpstreamTuiTrait;
   use TuiTrait;

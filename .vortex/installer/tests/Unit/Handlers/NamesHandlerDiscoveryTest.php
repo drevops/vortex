@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(OrgMachineName::class)]
 #[CoversClass(Domain::class)]
 #[CoversClass(ModulePrefix::class)]
-class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
+class NamesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -47,7 +47,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'project name - discovery - dotenv' => [
         [],
         $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubDotenvValue('VORTEX_PROJECT', 'discovered_project');
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
@@ -56,7 +56,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'project name - discovery - description' => [
         [],
         $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
@@ -64,7 +64,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'project name - discovery - description short' => [
         [],
         $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project.');
         },
       ],
@@ -72,7 +72,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'project name - discovery - description unmatched' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('description', 'Some other description');
         },
       ],
@@ -99,7 +99,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
         ] + $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
       ],
@@ -111,7 +111,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
           MachineName::id() => 'discovered-project',
           Org::id() => 'myproject Org',
         ] + $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered-project');
         },
       ],
@@ -119,7 +119,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'project machine name - discovery - unmatched' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('name', 'invalid_composer_name_format');
         },
       ],
@@ -140,7 +140,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'org name - discovery' => [
         [],
         $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('description', 'Drupal 11 Standard installation of Discovered project for Discovered project Org');
         },
       ],
@@ -148,7 +148,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'org name - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('description', 'Some other description that does not match the expected pattern');
         },
       ],
@@ -170,7 +170,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
           MachineName::id() => 'discovered_project',
           Org::id() => 'myproject Org',
         ] + $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('name', 'discovered_project_org/discovered_project');
         },
       ],
@@ -183,7 +183,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
           Org::id() => 'myproject Org',
           OrgMachineName::id() => 'discovered-project-org',
         ] + $expected_discovered,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('name', 'discovered-project-org/discovered_project');
         },
       ],
@@ -191,7 +191,7 @@ class NamesPromptManagerTest extends AbstractPromptManagerTestCase {
       'org machine name - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubComposerJsonValue('name', 'invalid_format');
         },
       ],

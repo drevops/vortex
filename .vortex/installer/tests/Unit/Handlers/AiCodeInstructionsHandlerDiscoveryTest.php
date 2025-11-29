@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(AiCodeInstructions::class)]
-class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase {
+class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -26,7 +26,7 @@ class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase 
       'ai instructions - discovery' => [
         [],
         [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/CLAUDE.md');
         },
@@ -35,7 +35,7 @@ class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase 
       'ai instructions - discovery - removed' => [
         [],
         [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
@@ -43,7 +43,7 @@ class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase 
       'ai instructions - discovery - non-Vortex' => [
         [],
         [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/CLAUDE.md');
         },
       ],
@@ -51,7 +51,7 @@ class AiCodeInstructionsPromptManagerTest extends AbstractPromptManagerTestCase 
       'ai instructions - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No CLAUDE.md and not installed - should fall back to default.
         },
       ],

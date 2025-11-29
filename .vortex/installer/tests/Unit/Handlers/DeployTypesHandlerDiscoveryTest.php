@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(DeployTypes::class)]
-class DeployTypesPromptManagerTest extends AbstractPromptManagerTestCase {
+class DeployTypesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -25,7 +25,7 @@ class DeployTypesPromptManagerTest extends AbstractPromptManagerTestCase {
       'deploy types - discovery' => [
         [],
         [DeployTypes::id() => [DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]));
         },
       ],
@@ -33,7 +33,7 @@ class DeployTypesPromptManagerTest extends AbstractPromptManagerTestCase {
       'deploy types - discovery - order' => [
         [],
         [DeployTypes::id() => [DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployTypes::WEBHOOK, DeployTypes::ARTIFACT]));
         },
       ],
@@ -41,7 +41,7 @@ class DeployTypesPromptManagerTest extends AbstractPromptManagerTestCase {
       'deploy types - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No VORTEX_DEPLOY_TYPES in .env - should fall back to default.
         },
       ],

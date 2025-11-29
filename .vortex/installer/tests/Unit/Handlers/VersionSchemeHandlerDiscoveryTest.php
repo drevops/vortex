@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(VersionScheme::class)]
-class VersionSchemePromptManagerTest extends AbstractPromptManagerTestCase {
+class VersionSchemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -25,7 +25,7 @@ class VersionSchemePromptManagerTest extends AbstractPromptManagerTestCase {
       'version scheme - discovery - calver' => [
         [],
         [VersionScheme::id() => VersionScheme::CALVER] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_RELEASE_VERSION_SCHEME', VersionScheme::CALVER);
         },
@@ -34,7 +34,7 @@ class VersionSchemePromptManagerTest extends AbstractPromptManagerTestCase {
       'version scheme - discovery - semver' => [
         [],
         [VersionScheme::id() => VersionScheme::SEMVER] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_RELEASE_VERSION_SCHEME', VersionScheme::SEMVER);
         },
@@ -43,7 +43,7 @@ class VersionSchemePromptManagerTest extends AbstractPromptManagerTestCase {
       'version scheme - discovery - other' => [
         [],
         [VersionScheme::id() => VersionScheme::OTHER] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_RELEASE_VERSION_SCHEME', VersionScheme::OTHER);
         },
@@ -52,7 +52,7 @@ class VersionSchemePromptManagerTest extends AbstractPromptManagerTestCase {
       'version scheme - discovery - missing .env' => [
         [],
         $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],

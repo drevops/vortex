@@ -8,7 +8,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Domain::class)]
-class DomainPromptManagerTest extends AbstractPromptManagerTestCase {
+class DomainHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -47,7 +47,7 @@ class DomainPromptManagerTest extends AbstractPromptManagerTestCase {
       'domain - discovery' => [
         [],
         [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'https://discovered-project-dotenv.com');
         },
       ],
@@ -55,7 +55,7 @@ class DomainPromptManagerTest extends AbstractPromptManagerTestCase {
       'domain - discovery - www' => [
         [],
         [Domain::id() => 'discovered-project-dotenv.com'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', 'https://www.discovered-project-dotenv.com');
         },
       ],
@@ -63,7 +63,7 @@ class DomainPromptManagerTest extends AbstractPromptManagerTestCase {
       'domain - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubDotenvValue('DRUPAL_STAGE_FILE_PROXY_ORIGIN', '');
         },
       ],
