@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(DatabaseDownloadSource::class)]
-class DatabaseDownloadSourcePromptManagerTest extends AbstractPromptManagerTestCase {
+class DatabaseDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -23,7 +23,7 @@ class DatabaseDownloadSourcePromptManagerTest extends AbstractPromptManagerTestC
       'database download source - discovery' => [
         [],
         [DatabaseDownloadSource::id() => DatabaseDownloadSource::FTP] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::FTP);
         },
       ],
@@ -31,7 +31,7 @@ class DatabaseDownloadSourcePromptManagerTest extends AbstractPromptManagerTestC
       'database download source - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', 'invalid_source');
         },
       ],

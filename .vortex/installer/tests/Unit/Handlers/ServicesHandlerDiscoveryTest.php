@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(Services::class)]
-class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
+class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -27,7 +27,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
       'services - discovery - solr' => [
         [],
         [Services::id() => [Services::SOLR]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::SOLR => []]]));
         },
@@ -36,7 +36,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
       'services - discovery - redis' => [
         [],
         [Services::id() => [Services::REDIS]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::REDIS => []]]));
         },
@@ -45,7 +45,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
       'services - discovery - clamav' => [
         [],
         [Services::id() => [Services::CLAMAV]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => []]]));
         },
@@ -56,7 +56,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
         [
           Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
         ] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
         },
@@ -65,7 +65,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
       'services - discovery - none' => [
         [],
         [Services::id() => []] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['other_service' => []]]));
         },
@@ -74,7 +74,7 @@ class ServicesPromptManagerTest extends AbstractPromptManagerTestCase {
       'services - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // Invalid YAML causes discovery to fail and fall back to defaults.
           File::dump(static::$sut . '/docker-compose.yml', <<<'YAML'
 - !text |
@@ -87,7 +87,7 @@ YAML
       'services - discovery - non-Vortex project' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]]));
         },
       ],

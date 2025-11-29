@@ -10,7 +10,7 @@ use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(ModulePrefix::class)]
-class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
+class ModulePrefixHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -24,7 +24,7 @@ class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
       'module prefix - prompt - override' => [
         [ModulePrefix::id() => 'myprefix'],
         [ModulePrefix::id() => 'myprefix'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
         },
       ],
@@ -42,7 +42,7 @@ class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
       'module prefix - discovery' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/modules/custom/dp_base/dp_base.info');
         },
       ],
@@ -50,7 +50,7 @@ class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
       'module prefix - discovery - core' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/modules/custom/dp_core/dp_core.info');
         },
       ],
@@ -58,7 +58,7 @@ class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
       'module prefix - discovery - within profile' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_base/dp_base.info');
         },
       ],
@@ -66,7 +66,7 @@ class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
       'module prefix - discovery - within profile - core' => [
         [],
         [ModulePrefix::id() => 'dp'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/profiles/custom/discovered_profile/modules/custom/dp_core/dp_core.info');
         },
       ],
@@ -74,7 +74,7 @@ class ModulePrefixPromptManagerTest extends AbstractPromptManagerTestCase {
       'module prefix - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No *_base or *_core modules exist - should fall back to default.
         },
       ],

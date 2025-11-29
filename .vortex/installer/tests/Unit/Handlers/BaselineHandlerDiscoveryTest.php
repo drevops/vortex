@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(File::class)]
 #[CoversClass(Git::class)]
 #[CoversClass(Tui::class)]
-class BaselinePromptManagerTest extends AbstractPromptManagerTestCase {
+class BaselineHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -38,7 +38,7 @@ class BaselinePromptManagerTest extends AbstractPromptManagerTestCase {
       'installed project' => [
         [],
         $expected_installed,
-        function (BaselinePromptManagerTest $test, Config $config): void {
+        function (BaselineHandlerDiscoveryTest $test, Config $config): void {
           $test->stubComposerJsonValue('type', 'drupal-project');
           $test->stubComposerJsonValue('name', 'myproject_org/myproject');
           $test->stubVortexProject($config);
@@ -48,7 +48,7 @@ class BaselinePromptManagerTest extends AbstractPromptManagerTestCase {
       'installed project - minimal' => [
         [],
         $expected_installed,
-        function (BaselinePromptManagerTest $test, Config $config): void {
+        function (BaselineHandlerDiscoveryTest $test, Config $config): void {
           $test->stubComposerJsonValue('name', 'myproject_org/myproject');
           $test->stubVortexProject($config);
         },

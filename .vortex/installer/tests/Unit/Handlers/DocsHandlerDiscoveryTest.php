@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(PreserveDocsProject::class)]
-class DocsPromptManagerTest extends AbstractPromptManagerTestCase {
+class DocsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -26,7 +26,7 @@ class DocsPromptManagerTest extends AbstractPromptManagerTestCase {
       'preserve project documentation - discovery' => [
         [],
         [PreserveDocsProject::id() => TRUE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/docs/README.md');
         },
@@ -35,7 +35,7 @@ class DocsPromptManagerTest extends AbstractPromptManagerTestCase {
       'preserve project documentation - discovery - removed' => [
         [],
         [PreserveDocsProject::id() => FALSE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
@@ -43,7 +43,7 @@ class DocsPromptManagerTest extends AbstractPromptManagerTestCase {
       'preserve project documentation - discovery - non-Vortex' => [
         [],
         [PreserveDocsProject::id() => TRUE] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/docs/README.md');
         },
       ],
@@ -51,7 +51,7 @@ class DocsPromptManagerTest extends AbstractPromptManagerTestCase {
       'preserve project documentation - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No docs/README.md and not installed - should fall back to default.
         },
       ],

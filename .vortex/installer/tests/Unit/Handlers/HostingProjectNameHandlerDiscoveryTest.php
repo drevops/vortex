@@ -15,7 +15,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProjectName::class)]
-class HostingProjectNamePromptManagerTest extends AbstractPromptManagerTestCase {
+class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -52,7 +52,7 @@ class HostingProjectNamePromptManagerTest extends AbstractPromptManagerTestCase 
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_ACQUIA_APP_NAME', 'discovered_acquia-project');
         },
       ],
@@ -68,7 +68,7 @@ class HostingProjectNamePromptManagerTest extends AbstractPromptManagerTestCase 
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
           Webroot::id() => Webroot::DOCROOT,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/sites/default/includes/providers/settings.acquia.php', <<<PHP
 <?php
 // Acquia settings file.
@@ -105,7 +105,7 @@ PHP
           DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('LAGOON_PROJECT', 'discovered_lagoon-project');
         },
       ],
@@ -120,7 +120,7 @@ PHP
           DeployTypes::id() => [DeployTypes::LAGOON],
           DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
         ] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/drush/sites/lagoon.site.yml', <<<YAML
 '*':
   host: ssh.lagoon.amazeeio.cloud

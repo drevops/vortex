@@ -13,7 +13,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(CodeProvider::class)]
-class CodeProviderPromptManagerTest extends AbstractPromptManagerTestCase {
+class CodeProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -36,7 +36,7 @@ class CodeProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'code repo - discovery' => [
         [],
         [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           File::dump(static::$sut . '/.github/workflows/ci.yml');
         },
       ],
@@ -44,7 +44,7 @@ class CodeProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'code repo - discovery - other' => [
         [],
         [CodeProvider::id() => CodeProvider::OTHER] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           Git::init(static::$sut);
         },
@@ -53,7 +53,7 @@ class CodeProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'code repo - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No .github directory and no .git directory - fall back to default.
         },
       ],

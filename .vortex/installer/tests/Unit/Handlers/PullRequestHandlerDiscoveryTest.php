@@ -13,7 +13,7 @@ use Laravel\Prompts\Key;
 
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(LabelMergeConflictsPr::class)]
-class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
+class PullRequestHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -28,7 +28,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'auto assign pr - discovery' => [
         [],
         [AssignAuthorPr::id() => TRUE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
         },
@@ -37,7 +37,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'auto assign pr - discovery - removed' => [
         [],
         [AssignAuthorPr::id() => FALSE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
@@ -45,7 +45,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'auto assign pr - discovery - non-Vortex' => [
         [],
         [AssignAuthorPr::id() => TRUE] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/.github/workflows/assign-author.yml');
         },
       ],
@@ -53,7 +53,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'auto assign pr - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No assign-author.yml workflow and not installed - fall back.
         },
       ],
@@ -66,7 +66,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'label merge conflicts - discovery' => [
         [],
         [LabelMergeConflictsPr::id() => TRUE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
         },
@@ -75,7 +75,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'label merge conflicts - discovery - removed' => [
         [],
         [LabelMergeConflictsPr::id() => FALSE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
@@ -83,7 +83,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'label merge conflicts - discovery - non-Vortex' => [
         [],
         [LabelMergeConflictsPr::id() => TRUE] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/.github/workflows/label-merge-conflict.yml');
         },
       ],
@@ -91,7 +91,7 @@ class PullRequestPromptManagerTest extends AbstractPromptManagerTestCase {
       'label merge conflicts - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No label-merge-conflict.yml workflow and not installed - fall back.
         },
       ],

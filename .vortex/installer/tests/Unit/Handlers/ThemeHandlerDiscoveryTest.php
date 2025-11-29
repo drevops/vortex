@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Theme::class)]
-class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
+class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -53,7 +53,7 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
       'theme - discovery - olivero' => [
         [],
         [Theme::id() => Theme::OLIVERO] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('DRUPAL_THEME', Theme::OLIVERO);
         },
@@ -62,7 +62,7 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
       'theme - discovery - claro' => [
         [],
         [Theme::id() => Theme::CLARO] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('DRUPAL_THEME', Theme::CLARO);
         },
@@ -71,7 +71,7 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
       'theme - discovery - stark' => [
         [],
         [Theme::id() => Theme::STARK] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('DRUPAL_THEME', Theme::STARK);
         },
@@ -80,7 +80,7 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
       'theme - discovery - custom' => [
         [],
         [Theme::id() => 'discovered_project'] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
         },
@@ -89,7 +89,7 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
       'theme - discovery - non-Vortex project' => [
         [],
         [Theme::id() => 'discovered_project'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           File::dump(static::$sut . '/web/themes/custom/discovered_project/discovered_project.info');
         },
       ],
@@ -97,7 +97,7 @@ class ThemePromptManagerTest extends AbstractPromptManagerTestCase {
       'theme - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No theme files exist and no DRUPAL_THEME in .env - fall back.
         },
       ],

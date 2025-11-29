@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
 #[CoversClass(CiProvider::class)]
-class CiProviderPromptManagerTest extends AbstractPromptManagerTestCase {
+class CiProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -26,7 +26,7 @@ class CiProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'ci provider - discovery - gha' => [
         [],
         [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/.github/workflows/build-test-deploy.yml');
         },
@@ -35,7 +35,7 @@ class CiProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'ci provider - discovery - circleci' => [
         [],
         [CiProvider::id() => CiProvider::CIRCLECI] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/.circleci/config.yml');
         },
@@ -44,7 +44,7 @@ class CiProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'ci provider - discovery - none' => [
         [],
         [CiProvider::id() => CiProvider::NONE] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
       ],
@@ -52,7 +52,7 @@ class CiProviderPromptManagerTest extends AbstractPromptManagerTestCase {
       'ci provider - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No CI files and not installed - should fall back to default.
         },
       ],

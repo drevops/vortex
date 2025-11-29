@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(NotificationChannels::class)]
-class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCase {
+class NotificationChannelsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -26,7 +26,7 @@ class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCas
       'notification channels - discovery - email only' => [
         [],
         [NotificationChannels::id() => [NotificationChannels::EMAIL]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_NOTIFY_CHANNELS', Converter::toList([NotificationChannels::EMAIL]));
         },
@@ -35,7 +35,7 @@ class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCas
       'notification channels - discovery - slack only' => [
         [],
         [NotificationChannels::id() => [NotificationChannels::SLACK]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_NOTIFY_CHANNELS', Converter::toList([NotificationChannels::SLACK]));
         },
@@ -44,7 +44,7 @@ class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCas
       'notification channels - discovery - multiple' => [
         [],
         [NotificationChannels::id() => [NotificationChannels::EMAIL, NotificationChannels::GITHUB, NotificationChannels::SLACK]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_NOTIFY_CHANNELS', Converter::toList([NotificationChannels::EMAIL, NotificationChannels::SLACK, NotificationChannels::GITHUB]));
         },
@@ -62,7 +62,7 @@ class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCas
             NotificationChannels::WEBHOOK,
           ],
         ] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('VORTEX_NOTIFY_CHANNELS', Converter::toList([
             NotificationChannels::EMAIL,
@@ -78,7 +78,7 @@ class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCas
       'notification channels - discovery - order' => [
         [],
         [NotificationChannels::id() => [NotificationChannels::EMAIL, NotificationChannels::SLACK]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           // Test that order is normalized (alphabetically sorted).
           $test->stubDotenvValue('VORTEX_NOTIFY_CHANNELS', Converter::toList([NotificationChannels::SLACK, NotificationChannels::EMAIL]));
@@ -88,7 +88,7 @@ class NotificationChannelsPromptManagerTest extends AbstractPromptManagerTestCas
       'notification channels - discovery - invalid' => [
         [],
         [NotificationChannels::id() => [NotificationChannels::EMAIL]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           // No VORTEX_NOTIFY_CHANNELS in .env - should fall back to default.
         },

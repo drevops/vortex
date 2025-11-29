@@ -9,7 +9,7 @@ use DrevOps\VortexInstaller\Utils\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Timezone::class)]
-class TimezonePromptManagerTest extends AbstractPromptManagerTestCase {
+class TimezoneHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -24,7 +24,7 @@ class TimezonePromptManagerTest extends AbstractPromptManagerTestCase {
       'timezone - discovery' => [
         [],
         [Timezone::id() => 'Europe/London'] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubDotenvValue('TZ', 'Europe/London');
         },
@@ -33,7 +33,7 @@ class TimezonePromptManagerTest extends AbstractPromptManagerTestCase {
       'timezone - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No TZ in .env - should fall back to default.
         },
       ],

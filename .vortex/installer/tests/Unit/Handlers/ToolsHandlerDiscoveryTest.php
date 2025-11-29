@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Tools::class)]
-class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
+class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -26,7 +26,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - all tools' => [
         [],
         [Tools::id() => [Tools::BEHAT, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $dependencies = [
             'squizlabs/php_codesniffer' => '*',
@@ -43,7 +43,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - none' => [
         [],
         [Tools::id() => []] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           // No tool dependencies in composer.json.
         },
@@ -52,7 +52,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - non-Vortex project' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $dependencies = [
             'squizlabs/php_codesniffer' => '*',
             'phpmd/phpmd' => '*',
@@ -68,7 +68,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpcs' => [
         [],
         [Tools::id() => [Tools::PHPCS]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['drupal/coder' => '*'], TRUE);
         },
@@ -76,7 +76,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpcs, alt' => [
         [],
         [Tools::id() => [Tools::PHPCS]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['squizlabs/php_codesniffer' => '*'], TRUE);
         },
@@ -84,7 +84,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpcs, alt2' => [
         [],
         [Tools::id() => [Tools::PHPCS]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/phpcs.xml');
         },
@@ -93,7 +93,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpstan' => [
         [],
         [Tools::id() => [Tools::PHPSTAN]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['phpstan/phpstan' => '*'], TRUE);
         },
@@ -101,7 +101,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpstan, alt' => [
         [],
         [Tools::id() => [Tools::PHPSTAN]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['mglaman/phpstan-drupal' => '*'], TRUE);
         },
@@ -109,7 +109,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpstan, alt2' => [
         [],
         [Tools::id() => [Tools::PHPSTAN]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/phpstan.neon');
         },
@@ -118,7 +118,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - rector' => [
         [],
         [Tools::id() => [Tools::RECTOR]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['rector/rector' => '*'], TRUE);
         },
@@ -126,7 +126,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - rector, alt' => [
         [],
         [Tools::id() => [Tools::RECTOR]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['palantirnet/drupal-rector' => '*'], TRUE);
         },
@@ -134,7 +134,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - rector, alt2' => [
         [],
         [Tools::id() => [Tools::RECTOR]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/rector.php');
         },
@@ -143,7 +143,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpmd' => [
         [],
         [Tools::id() => [Tools::PHPMD]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['phpmd/phpmd' => '*'], TRUE);
         },
@@ -151,7 +151,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpmd, alt' => [
         [],
         [Tools::id() => [Tools::PHPMD]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/phpmd.xml');
         },
@@ -160,7 +160,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpunit' => [
         [],
         [Tools::id() => [Tools::PHPUNIT]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['phpunit/phpunit' => '*'], TRUE);
         },
@@ -168,7 +168,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - phpunit, alt' => [
         [],
         [Tools::id() => [Tools::PHPUNIT]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/phpunit.xml');
         },
@@ -177,7 +177,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - behat' => [
         [],
         [Tools::id() => [Tools::BEHAT]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['behat/behat' => '*'], TRUE);
         },
@@ -185,7 +185,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - behat, alt' => [
         [],
         [Tools::id() => [Tools::BEHAT]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $test->stubComposerJsonDependencies(['drupal/drupal-extension' => '*'], TRUE);
         },
@@ -193,7 +193,7 @@ class ToolsPromptManagerTest extends AbstractPromptManagerTestCase {
       'tools - discovery - behat, alt2' => [
         [],
         [Tools::id() => [Tools::BEHAT]] + $expected_installed,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/behat.yml');
         },

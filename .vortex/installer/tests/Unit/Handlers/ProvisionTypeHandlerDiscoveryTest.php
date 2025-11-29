@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(ProvisionType::class)]
-class ProvisionTypePromptManagerTest extends AbstractPromptManagerTestCase {
+class ProvisionTypeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -25,7 +25,7 @@ class ProvisionTypePromptManagerTest extends AbstractPromptManagerTestCase {
       'provision type - discovery - database' => [
         [],
         [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::DATABASE);
         },
       ],
@@ -33,7 +33,7 @@ class ProvisionTypePromptManagerTest extends AbstractPromptManagerTestCase {
       'provision type - discovery - profile' => [
         [],
         [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
         },
       ],
@@ -41,7 +41,7 @@ class ProvisionTypePromptManagerTest extends AbstractPromptManagerTestCase {
       'provision type - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No VORTEX_PROVISION_TYPE in .env - should fall back to default.
         },
       ],

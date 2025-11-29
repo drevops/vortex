@@ -11,7 +11,7 @@ use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Webroot::class)]
-class WebrootPromptManagerTest extends AbstractPromptManagerTestCase {
+class WebrootHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): array {
     $expected_defaults = static::getExpectedDefaults();
@@ -50,7 +50,7 @@ class WebrootPromptManagerTest extends AbstractPromptManagerTestCase {
       'webroot - discovery' => [
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubDotenvValue('WEBROOT', 'discovered_webroot');
         },
       ],
@@ -58,7 +58,7 @@ class WebrootPromptManagerTest extends AbstractPromptManagerTestCase {
       'webroot - discovery - composer' => [
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['locations' => ['web-root' => 'discovered_webroot']]]);
         },
       ],
@@ -66,7 +66,7 @@ class WebrootPromptManagerTest extends AbstractPromptManagerTestCase {
       'webroot - discovery - composer, relative' => [
         [],
         [Webroot::id() => 'discovered_webroot'] + $expected_defaults,
-        function (AbstractPromptManagerTestCase $test, Config $config): void {
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubComposerJsonValue('extra', ['drupal-scaffold' => ['locations' => ['web-root' => './discovered_webroot']]]);
         },
       ],
@@ -74,7 +74,7 @@ class WebrootPromptManagerTest extends AbstractPromptManagerTestCase {
       'webroot - discovery - invalid' => [
         [],
         $expected_defaults,
-        function (AbstractPromptManagerTestCase $test): void {
+        function (AbstractHandlerDiscoveryTestCase $test): void {
           // No WEBROOT in .env and no composer.json scaffold - fall back.
         },
       ],
