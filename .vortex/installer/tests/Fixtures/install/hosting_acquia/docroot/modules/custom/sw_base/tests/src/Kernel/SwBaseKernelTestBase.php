@@ -20,8 +20,11 @@ use Drupal\Tests\sw_base\Traits\ReflectionTrait;
 abstract class SwBaseKernelTestBase extends KernelTestBase {
 
   use ArrayTrait;
+
   use AssertTrait;
+
   use MockTrait;
+
   use ReflectionTrait;
 
 }

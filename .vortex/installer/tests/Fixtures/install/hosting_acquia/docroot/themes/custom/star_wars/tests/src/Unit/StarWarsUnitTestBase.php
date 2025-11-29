@@ -20,8 +20,11 @@ use Drupal\Tests\sw_base\Traits\ReflectionTrait;
 abstract class StarWarsUnitTestBase extends UnitTestCase {
 
   use ArrayTrait;
+
   use AssertTrait;
+
   use MockTrait;
+
   use ReflectionTrait;
 
 }

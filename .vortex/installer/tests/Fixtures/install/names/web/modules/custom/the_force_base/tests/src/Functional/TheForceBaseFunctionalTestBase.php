@@ -20,8 +20,11 @@ use Drupal\Tests\the_force_base\Traits\ReflectionTrait;
 abstract class TheForceBaseFunctionalTestBase extends BrowserTestBase {
 
   use ArrayTrait;
+
   use AssertTrait;
+
   use MockTrait;
+
   use ReflectionTrait;
 
   /**

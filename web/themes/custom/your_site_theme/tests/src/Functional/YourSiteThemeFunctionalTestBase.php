@@ -20,8 +20,11 @@ use Drupal\Tests\ys_base\Traits\ReflectionTrait;
 abstract class YourSiteThemeFunctionalTestBase extends BrowserTestBase {
 
   use ArrayTrait;
+
   use AssertTrait;
+
   use MockTrait;
+
   use ReflectionTrait;
 
   /**
