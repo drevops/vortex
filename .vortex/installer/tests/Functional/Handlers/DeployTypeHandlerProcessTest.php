@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DeployTypes::class)]
-class DeployTypeInstallTest extends AbstractInstallTestCase {
+class DeployTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [

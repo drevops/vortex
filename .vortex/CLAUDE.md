@@ -290,12 +290,12 @@ composer install
 UPDATE_FIXTURES=1 composer test
 
 # Run specific scenarios
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testInstall.*baseline"
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"services.*no.*clamav"'
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"services.*no.*clamav"'
 
 # Run handler-specific tests
 ./vendor/bin/phpunit --filter "Handlers\\\\"
-./vendor/bin/phpunit --filter "ServicesInstallTest"
+./vendor/bin/phpunit --filter "ServicesHandlerProcessTest"
 ```
 
 ### 3. Template Tests (.vortex/tests/)
@@ -428,8 +428,8 @@ For specific fixture updates or debugging, you can use manual commands:
 cd .vortex/installer
 
 # Update specific test fixtures
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testInstall.*baseline"
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"services.*no.*clamav"'
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"services.*no.*clamav"'
 ```
 
 **How it works**:
@@ -882,8 +882,8 @@ ahoy update-fixtures
 
 # ALTERNATIVE: Manual updates for specific scenarios
 cd .vortex/installer
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testInstall.*baseline"
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testInstall.*"scenario_name"'
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"scenario_name"'
 
 # Check for test timeouts - increase if needed
 ./vendor/bin/phpunit --timeout=600
@@ -1176,10 +1176,10 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 
 The installer tests have been refactored to use a modular, handler-focused architecture that improves maintainability and test execution flexibility.
 
-**Abstract Base Class**: `AbstractInstallTestCase` provides shared test logic for all installer test scenarios, including:
+**Abstract Base Class**: `AbstractHandlerProcessTestCase` provides shared test logic for all installer test scenarios, including:
 
 - Common setup and teardown procedures
-- Core `testInstall()` method with data provider integration
+- Core `testHandlerProcess()` method with data provider integration
 - Fixture management and assertion helpers
 - Version replacement utilities
 

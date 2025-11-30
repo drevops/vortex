@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Timezone::class)]
-class TimezoneInstallTest extends AbstractInstallTestCase {
+class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [

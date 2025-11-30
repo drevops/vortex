@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  * Provides common test logic for all installer test scenarios.
  * Run with `UPDATE_FIXTURES=1` to update test fixtures.
  */
-abstract class AbstractInstallTestCase extends FunctionalTestCase {
+abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
 
   /**
    * Override options to pass to the install command.
@@ -38,7 +38,7 @@ abstract class AbstractInstallTestCase extends FunctionalTestCase {
 
   #[DataProvider('dataProviderInstall')]
   #[RunInSeparateProcess]
-  public function testInstall(
+  public function testHandlerProcess(
     ?SerializableClosure $before = NULL,
     ?SerializableClosure $after = NULL,
     array $expected = [],

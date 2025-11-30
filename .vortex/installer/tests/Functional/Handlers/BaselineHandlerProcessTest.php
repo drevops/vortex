@@ -63,7 +63,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Config::class)]
 #[CoversClass(Git::class)]
 #[CoversClass(Tui::class)]
-class BaselineInstallTest extends AbstractInstallTestCase {
+class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [
@@ -80,7 +80,7 @@ class BaselineInstallTest extends AbstractInstallTestCase {
       ],
 
       'non-interactive, config file' => [
-        static::cw(function (AbstractInstallTestCase $test): void {
+        static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_file = static::$tmp . DIRECTORY_SEPARATOR . 'config.json';
           File::dump($config_file, (string) json_encode([
             // Test overriding scalar value.
@@ -95,7 +95,7 @@ class BaselineInstallTest extends AbstractInstallTestCase {
       ],
 
       'non-interactive, config string' => [
-        static::cw(function (AbstractInstallTestCase $test): void {
+        static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_string = (string) json_encode([
             // Test overriding scalar value.
             PromptManager::makeEnvName(Org::id()) => 'My other custom org',
