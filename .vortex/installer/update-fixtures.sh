@@ -93,7 +93,7 @@ cd "$(dirname "${0}")" || exit 1
 if [ -n "${DATASET}" ]; then
   printf "Scanning for dataset: %s\n" "${DATASET}"
 
-  if UPDATE_FIXTURES=1 ./vendor/bin/phpunit --no-coverage --filter="testInstall@${DATASET}"; then
+  if UPDATE_FIXTURES=1 ./vendor/bin/phpunit --no-coverage --filter="testHandlerProcess@${DATASET}"; then
     printf "Completed successfully\n"
     exit 0
   else
@@ -106,7 +106,7 @@ fi
 printf "Discovering datasets...\n"
 
 # Get list of all tests with datasets from PHPUnit.
-test_list=$(./vendor/bin/phpunit --list-tests tests/Functional/Handlers 2>/dev/null | grep "testInstall" || true)
+test_list=$(./vendor/bin/phpunit --list-tests tests/Functional/Handlers 2>/dev/null | grep "testHandlerProcess" || true)
 
 if [ -z "${test_list}" ]; then
   printf "No datasets found\n"
@@ -114,8 +114,8 @@ if [ -z "${test_list}" ]; then
 fi
 
 # Extract dataset names from test list.
-# Format: " - ClassName::testInstall"dataset_name""
-datasets=$(echo "${test_list}" | sed -E 's/.*testInstall"([^"]+)".*/\1/' | sort -u)
+# Format: " - ClassName::testHandlerProcess"dataset_name""
+datasets=$(echo "${test_list}" | sed -E 's/.*testHandlerProcess"([^"]+)".*/\1/' | sort -u)
 
 # Ensure "baseline" dataset runs first.
 if echo "${datasets}" | grep -q "^baseline$"; then
@@ -139,7 +139,7 @@ while IFS= read -r dataset; do
 
   # Run PHPUnit for this specific dataset with timeout and retries.
   set +e
-  run_with_timeout "testInstall@${dataset}" "${current}" "${total_datasets}" "${dataset}"
+  run_with_timeout "testHandlerProcess@${dataset}" "${current}" "${total_datasets}" "${dataset}"
   result=$?
 
   # After baseline dataset runs, check if baseline fixtures were updated and commit them.
@@ -149,7 +149,7 @@ while IFS= read -r dataset; do
     cd ../.. || exit 1
 
     # Check if there are changes in baseline fixtures (modified, staged, or untracked).
-    baseline_path=".vortex/installer/tests/Fixtures/install/_baseline"
+    baseline_path=".vortex/installer/tests/Fixtures/handler_process/_baseline"
     has_changes=0
 
     # Check for modified files (unstaged).
@@ -208,7 +208,7 @@ if [ "${failed}" -gt 0 ] || [ "${timedout}" -gt 0 ]; then
   cd ../.. || exit 1
 
   # Check if there are uncommitted changes in fixtures directory.
-  fixtures_path=".vortex/installer/tests/Fixtures/install"
+  fixtures_path=".vortex/installer/tests/Fixtures/handler_process"
   has_changes=0
 
   # Check for modified files (unstaged).

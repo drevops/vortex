@@ -47,7 +47,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
 
     $is_failure = $this->status() instanceof Failure || $this->status() instanceof Error;
     $has_message = str_contains($this->status()->message(), 'Differences between directories') || str_contains($this->status()->message(), 'Failed to apply patch');
-    $fixture_exists = str_contains(static::$fixtures, DIRECTORY_SEPARATOR . 'install' . DIRECTORY_SEPARATOR);
+    $fixture_exists = str_contains(static::$fixtures, DIRECTORY_SEPARATOR . 'handler_process' . DIRECTORY_SEPARATOR);
     $update_requested = getenv('UPDATE_FIXTURES');
 
     if ($is_failure && $has_message && $fixture_exists && $update_requested) {

@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DatabaseDownloadSource::class)]
 #[CoversClass(DatabaseImage::class)]
-class DatabaseDownloadSourceInstallTest extends AbstractInstallTestCase {
+class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [

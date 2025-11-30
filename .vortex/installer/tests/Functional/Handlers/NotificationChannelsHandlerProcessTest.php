@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(NotificationChannels::class)]
-class NotificationChannelsInstallTest extends AbstractInstallTestCase {
+class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [

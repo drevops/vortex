@@ -11,7 +11,7 @@ use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(VersionScheme::class)]
-class VersionSchemeInstallTest extends AbstractInstallTestCase {
+class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [

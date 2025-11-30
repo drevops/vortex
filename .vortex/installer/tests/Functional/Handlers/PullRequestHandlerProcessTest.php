@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(LabelMergeConflictsPr::class)]
-class PullRequestInstallTest extends AbstractInstallTestCase {
+class PullRequestHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderInstall(): array {
     return [
