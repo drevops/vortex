@@ -20,11 +20,8 @@ use Drupal\Tests\ys_base\Traits\ReflectionTrait;
 abstract class YsBaseKernelTestBase extends KernelTestBase {
 
   use ArrayTrait;
-
   use AssertTrait;
-
   use MockTrait;
-
   use ReflectionTrait;
 
 }

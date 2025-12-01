@@ -20,11 +20,8 @@ use Drupal\Tests\ys_base\Traits\ReflectionTrait;
 abstract class YsBaseUnitTestBase extends UnitTestCase {
 
   use ArrayTrait;
-
   use AssertTrait;
-
   use MockTrait;
-
   use ReflectionTrait;
 
 }
