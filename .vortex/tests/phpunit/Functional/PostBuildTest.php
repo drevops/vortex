@@ -53,37 +53,37 @@ class PostBuildTest extends FunctionalTestCase {
    */
   #[Group('postbuild')]
   public function testCircleCiArtifactsAreSaved(): void {
-    $currentJobNumber = (int) getenv('CIRCLE_BUILD_NUM');
-    $previousJobNumbers = $this->circleCiGetPreviousJobNumbers($currentJobNumber);
+    $current_job_number = (int) getenv('CIRCLE_BUILD_NUM');
+    $previous_job_numbers = $this->circleCiGetPreviousJobNumbers($current_job_number);
 
-    $this->assertNotEmpty($previousJobNumbers, 'No previous job numbers found');
+    $this->assertNotEmpty($previous_job_numbers, 'No previous job numbers found');
 
-    foreach ($previousJobNumbers as $previousJobNumber) {
-      $artifactsData = $this->circleCiGetJobArtifacts($previousJobNumber);
+    foreach ($previous_job_numbers as $previou_job_number) {
+      $artifacts_data = $this->circleCiGetJobArtifacts($previou_job_number);
 
       // Verify runner 0 artifacts.
-      $artifactPathsRunner0 = $this->circleCiExtractArtifactPaths($artifactsData, 0);
-      $artifactPathsRunner0Str = implode("\n", $artifactPathsRunner0);
+      $artifact_paths_runner0 = $this->circleCiExtractArtifactPaths($artifacts_data, 0);
+      $artifact_paths_runner0_str = implode("\n", $artifact_paths_runner0);
 
-      $this->assertStringContainsString('coverage/phpunit/cobertura.xml', $artifactPathsRunner0Str, 'Runner 0 should have PHPUnit cobertura coverage');
-      $this->assertStringContainsString('coverage/phpunit/.coverage-html/index.html', $artifactPathsRunner0Str, 'Runner 0 should have PHPUnit HTML coverage');
+      $this->assertStringContainsString('coverage/phpunit/cobertura.xml', $artifact_paths_runner0_str, 'Runner 0 should have PHPUnit cobertura coverage');
+      $this->assertStringContainsString('coverage/phpunit/.coverage-html/index.html', $artifact_paths_runner0_str, 'Runner 0 should have PHPUnit HTML coverage');
 
-      $this->assertStringContainsString('homepage.feature', $artifactPathsRunner0Str, 'Runner 0 should have homepage.feature');
-      $this->assertStringContainsString('login.feature', $artifactPathsRunner0Str, 'Runner 0 should have login.feature');
-      $this->assertStringContainsString('clamav.feature', $artifactPathsRunner0Str, 'Runner 0 should have clamav.feature');
-      $this->assertStringNotContainsString('search.feature', $artifactPathsRunner0Str, 'Runner 0 should NOT have search.feature');
+      $this->assertStringContainsString('homepage.feature', $artifact_paths_runner0_str, 'Runner 0 should have homepage.feature');
+      $this->assertStringContainsString('login.feature', $artifact_paths_runner0_str, 'Runner 0 should have login.feature');
+      $this->assertStringContainsString('clamav.feature', $artifact_paths_runner0_str, 'Runner 0 should have clamav.feature');
+      $this->assertStringNotContainsString('search.feature', $artifact_paths_runner0_str, 'Runner 0 should NOT have search.feature');
 
       // Verify runner 1 artifacts.
-      $artifactPathsRunner1 = $this->circleCiExtractArtifactPaths($artifactsData, 1);
-      $artifactPathsRunner1Str = implode("\n", $artifactPathsRunner1);
+      $artifact_paths_runner1 = $this->circleCiExtractArtifactPaths($artifacts_data, 1);
+      $artifact_paths_runner1_str = implode("\n", $artifact_paths_runner1);
 
-      $this->assertStringContainsString('coverage/phpunit/cobertura.xml', $artifactPathsRunner1Str, 'Runner 1 should have PHPUnit cobertura coverage');
-      $this->assertStringContainsString('coverage/phpunit/.coverage-html/index.html', $artifactPathsRunner1Str, 'Runner 1 should have PHPUnit HTML coverage');
+      $this->assertStringContainsString('coverage/phpunit/cobertura.xml', $artifact_paths_runner1_str, 'Runner 1 should have PHPUnit cobertura coverage');
+      $this->assertStringContainsString('coverage/phpunit/.coverage-html/index.html', $artifact_paths_runner1_str, 'Runner 1 should have PHPUnit HTML coverage');
 
-      $this->assertStringContainsString('homepage.feature', $artifactPathsRunner1Str, 'Runner 1 should have homepage.feature');
-      $this->assertStringContainsString('login.feature', $artifactPathsRunner1Str, 'Runner 1 should have login.feature');
-      $this->assertStringNotContainsString('clamav.feature', $artifactPathsRunner1Str, 'Runner 1 should NOT have clamav.feature');
-      $this->assertStringContainsString('search.feature', $artifactPathsRunner1Str, 'Runner 1 should have search.feature');
+      $this->assertStringContainsString('homepage.feature', $artifact_paths_runner1_str, 'Runner 1 should have homepage.feature');
+      $this->assertStringContainsString('login.feature', $artifact_paths_runner1_str, 'Runner 1 should have login.feature');
+      $this->assertStringNotContainsString('clamav.feature', $artifact_paths_runner1_str, 'Runner 1 should NOT have clamav.feature');
+      $this->assertStringContainsString('search.feature', $artifact_paths_runner1_str, 'Runner 1 should have search.feature');
     }
   }
 
@@ -96,30 +96,30 @@ class PostBuildTest extends FunctionalTestCase {
    */
   #[Group('postbuild')]
   public function testCircleCiTestResultsAreSaved(): void {
-    $currentJobNumber = (int) getenv('CIRCLE_BUILD_NUM');
-    $previousJobNumbers = $this->circleCiGetPreviousJobNumbers($currentJobNumber);
+    $current_job_number = (int) getenv('CIRCLE_BUILD_NUM');
+    $previous_job_numbers = $this->circleCiGetPreviousJobNumbers($current_job_number);
 
-    $this->assertNotEmpty($previousJobNumbers, 'No previous job numbers found');
+    $this->assertNotEmpty($previous_job_numbers, 'No previous job numbers found');
 
-    foreach ($previousJobNumbers as $previousJobNumber) {
-      $testsData = $this->circleCiGetJobTestMetadata($previousJobNumber);
-      $testPaths = $this->circleCiExtractTestPaths($testsData);
-      $testPathsStr = implode("\n", $testPaths);
+    foreach ($previous_job_numbers as $previou_job_number) {
+      $tests_data = $this->circleCiGetJobTestMetadata($previou_job_number);
+      $test_paths = $this->circleCiExtractTestPaths($tests_data);
+      $test_paths_str = implode("\n", $test_paths);
 
       // Verify PHPUnit test results.
-      $this->assertStringContainsString('tests/phpunit/CircleCiConfigTest.php', $testPathsStr, 'Should have CircleCiConfigTest results');
-      $this->assertStringContainsString('tests/phpunit/Drupal/DatabaseSettingsTest.php', $testPathsStr, 'Should have DatabaseSettingsTest results');
-      $this->assertStringContainsString('tests/phpunit/Drupal/EnvironmentSettingsTest.php', $testPathsStr, 'Should have EnvironmentSettingsTest results');
-      $this->assertStringContainsString('tests/phpunit/Drupal/SwitchableSettingsTest.php', $testPathsStr, 'Should have SwitchableSettingsTest results');
-      $this->assertStringContainsString('web/modules/custom/ys_base/tests/src/Functional/ExampleTest.php', $testPathsStr, 'Should have custom module Functional test results');
-      $this->assertStringContainsString('web/modules/custom/ys_base/tests/src/Kernel/ExampleTest.php', $testPathsStr, 'Should have custom module Kernel test results');
-      $this->assertStringContainsString('web/modules/custom/ys_base/tests/src/Unit/ExampleTest.php', $testPathsStr, 'Should have custom module Unit test results');
+      $this->assertStringContainsString('tests/phpunit/CircleCiConfigTest.php', $test_paths_str, 'Should have CircleCiConfigTest results');
+      $this->assertStringContainsString('tests/phpunit/Drupal/DatabaseSettingsTest.php', $test_paths_str, 'Should have DatabaseSettingsTest results');
+      $this->assertStringContainsString('tests/phpunit/Drupal/EnvironmentSettingsTest.php', $test_paths_str, 'Should have EnvironmentSettingsTest results');
+      $this->assertStringContainsString('tests/phpunit/Drupal/SwitchableSettingsTest.php', $test_paths_str, 'Should have SwitchableSettingsTest results');
+      $this->assertStringContainsString('web/modules/custom/ys_base/tests/src/Functional/ExampleTest.php', $test_paths_str, 'Should have custom module Functional test results');
+      $this->assertStringContainsString('web/modules/custom/ys_base/tests/src/Kernel/ExampleTest.php', $test_paths_str, 'Should have custom module Kernel test results');
+      $this->assertStringContainsString('web/modules/custom/ys_base/tests/src/Unit/ExampleTest.php', $test_paths_str, 'Should have custom module Unit test results');
 
       // Verify Behat test results.
-      $this->assertStringContainsString('homepage.feature', $testPathsStr, 'Should have homepage.feature results');
-      $this->assertStringContainsString('login.feature', $testPathsStr, 'Should have login.feature results');
-      $this->assertStringContainsString('clamav.feature', $testPathsStr, 'Should have clamav.feature results');
-      $this->assertStringContainsString('search.feature', $testPathsStr, 'Should have search.feature results');
+      $this->assertStringContainsString('homepage.feature', $test_paths_str, 'Should have homepage.feature results');
+      $this->assertStringContainsString('login.feature', $test_paths_str, 'Should have login.feature results');
+      $this->assertStringContainsString('clamav.feature', $test_paths_str, 'Should have clamav.feature results');
+      $this->assertStringContainsString('search.feature', $test_paths_str, 'Should have search.feature results');
     }
   }
 
