@@ -20,11 +20,8 @@ use Drupal\Tests\sw_base\Traits\ReflectionTrait;
 abstract class LightSaberFunctionalTestBase extends BrowserTestBase {
 
   use ArrayTrait;
-
   use AssertTrait;
-
   use MockTrait;
-
   use ReflectionTrait;
 
   /**

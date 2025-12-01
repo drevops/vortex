@@ -20,11 +20,8 @@ use Drupal\Tests\sw_base\Traits\ReflectionTrait;
 abstract class LightSaberUnitTestBase extends UnitTestCase {
 
   use ArrayTrait;
-
   use AssertTrait;
-
   use MockTrait;
-
   use ReflectionTrait;
 
 }

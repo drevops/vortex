@@ -44,61 +44,33 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 class FeatureContext extends DrupalContext {
 
   use BigPipeTrait;
-
   use BlockTrait;
-
   use ContentBlockTrait;
-
   use ContentTrait;
-
   use CookieTrait;
-
   use DateTrait;
-
   use DraggableviewsTrait;
-
   use EckTrait;
-
   use ElementTrait;
-
   use EmailTrait;
-
   use FieldTrait;
-
   use FileDownloadTrait;
-
   use FileTrait;
-
   use JavascriptTrait;
-
   use KeyboardTrait;
-
   use LinkTrait;
-
   use MediaTrait;
-
   use MenuTrait;
-
   use MetatagTrait;
-
   use OverrideTrait;
-
   use ParagraphsTrait;
-
   use PathTrait;
-
   use ResponseTrait;
-
   use SearchApiTrait;
-
   use TaxonomyTrait;
-
   use TestmodeTrait;
-
   use UserTrait;
-
   use WaitTrait;
-
   use WatchdogTrait;
 
 }
