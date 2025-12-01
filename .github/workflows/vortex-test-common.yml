@@ -159,6 +159,13 @@ jobs:
         run: composer install
         working-directory: .vortex/tests
 
+      - name: Lint code
+        run: |
+          php -d memory_limit=-1 ./vendor/bin/phpcs
+          php -d memory_limit=-1 ./vendor/bin/phpstan
+          php -d memory_limit=-1 ./vendor/bin/rector --dry-run
+        working-directory: .vortex/tests
+
       - name: Install Ahoy
         run: |
           version=2.4.0 && \
