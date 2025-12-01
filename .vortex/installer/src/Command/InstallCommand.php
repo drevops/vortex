@@ -17,7 +17,6 @@ use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class InstallCommand extends Command {
 
-  const ARG_DESTINATION = 'destination';
+  const OPTION_DESTINATION = 'destination';
 
   const OPTION_ROOT = 'root';
 
@@ -87,23 +86,22 @@ class InstallCommand extends Command {
     $this->setDescription('Install Vortex from remote or local repository.');
     $this->setHelp(<<<EOF
   Interactively install Vortex from the latest stable release into the current directory:
-  php installer destination
+  php installer --destination=.
 
   Non-interactively install Vortex from the latest stable release into the specified directory:
-  php installer --no-interaction destination
+  php installer --no-interaction --destination=path/to/destination
 
   Install Vortex from the stable branch into the specified directory:
-  php installer --uri=https://github.com/drevops/vortex.git@stable destination
+  php installer --uri=https://github.com/drevops/vortex.git@stable --destination=path/to/destination
 
   Install Vortex from a specific release into the specified directory:
-  php installer --uri=https://github.com/drevops/vortex.git@1.2.3 destination
+  php installer --uri=https://github.com/drevops/vortex.git@1.2.3 --destination=path/to/destination
 
   Install Vortex from a specific commit into the specified directory:
-  php installer --uri=https://github.com/drevops/vortex.git@abcd123 destination
+  php installer --uri=https://github.com/drevops/vortex.git@abcd123 --destination=path/to/destination
 EOF
     );
-    $this->addArgument(static::ARG_DESTINATION, InputArgument::OPTIONAL, 'Destination directory. Optional. Defaults to the current directory.');
-
+    $this->addOption(static::OPTION_DESTINATION, NULL, InputOption::VALUE_REQUIRED, 'Destination directory. Defaults to the current directory.');
     $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
     $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
@@ -116,8 +114,7 @@ EOF
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    // @see https://github.com/drevops/vortex/issues/1502
-    if ($input->getOption('help') || $input->getArgument('destination') == 'help') {
+    if ($input->getOption('help')) {
       $output->write($this->getHelp());
 
       return Command::SUCCESS;
@@ -207,11 +204,11 @@ EOF
       );
 
       if (!$build_ok) {
-        Tui::error('Build failed. The site was installed but build process encountered errors.');
+        Tui::error('Site build failed. Vortex was installed, but the site build process encountered errors.');
         Tui::line('');
         Tui::line('Next steps:');
         Tui::line('  - Run: ahoy build');
-        Tui::line('  - Or inspect logs for details');
+        Tui::line('  - Or inspect logs for details with `ahoy logs`');
         Tui::line('');
 
         return Command::FAILURE;
@@ -286,7 +283,7 @@ EOF
     }
 
     // Set destination directory.
-    $dst = !empty($arguments['destination']) && is_scalar($arguments[static::ARG_DESTINATION]) ? strval($arguments[static::ARG_DESTINATION]) : NULL;
+    $dst = !empty($options[static::OPTION_DESTINATION]) && is_scalar($options[static::OPTION_DESTINATION]) ? strval($options[static::OPTION_DESTINATION]) : NULL;
     $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
     $dst = File::realpath($dst);
     $this->config->set(Config::DST, $dst, TRUE);

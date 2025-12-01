@@ -77,14 +77,13 @@ trait SutTrait {
       $this->cmd('composer --working-dir=' . static::$root . '/.vortex/installer install --no-interaction --no-progress');
     }
 
-    $arguments = array_merge([
-      '--no-interaction',
-      static::locationsSut(),
-    ], $arguments);
+    // @todo Convert options to $arguments once
+    // ProcessTrait::processParseCommand() is fixed.
+    $cmd = sprintf('php .vortex/installer/installer.php --no-interaction --destination=%s', static::locationsSut());
 
     $this->logNote('Run the installer script');
     $this->cmd(
-      'php .vortex/installer/installer.php',
+      $cmd,
       arg: $arguments,
       env: static::$sutInstallerEnv + [
         // Use a unique temporary directory for each installer run.

@@ -90,8 +90,7 @@ class InstallCommandTest extends FunctionalTestCase {
 
     if ($download_should_fail) {
       $mock_downloader = $this->createMock(Downloader::class);
-      $mock_downloader->method('download')
-        ->willThrowException(new \RuntimeException('Failed to download Vortex.'));
+      $mock_downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
       $command->setDownloader($mock_downloader);
     }
     else {
@@ -112,7 +111,7 @@ class InstallCommandTest extends FunctionalTestCase {
     $build_command->setRunner($build_runner);
     $this->applicationGet()->add($build_command);
 
-    $command_inputs[InstallCommand::ARG_DESTINATION] = self::$sut;
+    $command_inputs['--' . InstallCommand::OPTION_DESTINATION] = self::$sut;
 
     $this->applicationRun($command_inputs, [], $expect_failure);
 
