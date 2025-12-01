@@ -54,12 +54,12 @@ class PostBuildTest extends FunctionalTestCase {
   #[Group('postbuild')]
   public function testCircleCiArtifactsAreSaved(): void {
     $current_job_number = (int) getenv('CIRCLE_BUILD_NUM');
-    $previous_job_numbers = $this->circleCiGetPreviousJobNumbers($current_job_number);
+    $job_numbers = $this->circleCiGetPreviousJobNumbers($current_job_number);
 
-    $this->assertNotEmpty($previous_job_numbers, 'No previous job numbers found');
+    $this->assertNotEmpty($job_numbers, 'No previous job numbers found');
 
-    foreach ($previous_job_numbers as $previous_job_number) {
-      $artifacts_data = $this->circleCiGetJobArtifacts($previous_job_number);
+    foreach ($job_numbers as $job_number) {
+      $artifacts_data = $this->circleCiGetJobArtifacts($job_number);
 
       // Verify runner 0 artifacts.
       $artifact_paths_runner0 = $this->circleCiExtractArtifactPaths($artifacts_data, 0);
@@ -97,12 +97,12 @@ class PostBuildTest extends FunctionalTestCase {
   #[Group('postbuild')]
   public function testCircleCiTestResultsAreSaved(): void {
     $current_job_number = (int) getenv('CIRCLE_BUILD_NUM');
-    $previous_job_numbers = $this->circleCiGetPreviousJobNumbers($current_job_number);
+    $job_numbers = $this->circleCiGetPreviousJobNumbers($current_job_number);
 
-    $this->assertNotEmpty($previous_job_numbers, 'No previous job numbers found');
+    $this->assertNotEmpty($job_numbers, 'No previous job numbers found');
 
-    foreach ($previous_job_numbers as $previous_job_number) {
-      $tests_data = $this->circleCiGetJobTestMetadata($previous_job_number);
+    foreach ($job_numbers as $job_number) {
+      $tests_data = $this->circleCiGetJobTestMetadata($job_number);
       $test_paths = $this->circleCiExtractTestPaths($tests_data);
       $test_paths_str = implode("\n", $test_paths);
 
