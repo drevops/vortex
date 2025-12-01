@@ -16,6 +16,7 @@ use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
+use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
 use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\FunctionLike\FunctionLikeToFirstClassCallableRector;
@@ -56,6 +57,7 @@ return RectorConfig::configure()
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
+    NewlineBetweenClassLikeStmtsRector::class,
     PrivatizeFinalClassMethodRector::class,
     PrivatizeFinalClassPropertyRector::class,
     PrivatizeLocalGetterToPropertyRector::class,
@@ -91,4 +93,3 @@ return RectorConfig::configure()
   ])
   // Import configuration.
   ->withImportNames(importNames: false, importDocBlockNames: false);
-
