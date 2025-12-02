@@ -181,11 +181,19 @@ EOF
 
     $this->footer();
 
-    $should_build = $this->config->get(Config::BUILD_NOW);
-    if (!$should_build && !$this->config->getNoInteraction()) {
+    // Should build by default.
+    $should_build = TRUE;
+    // Requested build via `--build` option. Defaults to FALSE.
+    $requested_build = (bool) $this->config->get(Config::BUILD_NOW);
+    // Non-interactive: respect the `--build` option.
+    if ($this->config->getNoInteraction()) {
+      $should_build = $requested_build;
+    }
+    // Interactive: ask only if `--build` option was not provided.
+    elseif (!$requested_build) {
       $should_build = Tui::confirm(
         label: 'Run the site build now?',
-        default: TRUE,
+        default: (bool) Env::get('VORTEX_INSTALLER_PROMPT_BUILD_NOW', TRUE),
         hint: 'Takes ~5-10 min; output will be streamed. You can skip and run later with: ahoy build',
       );
     }
