@@ -65,7 +65,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Tui::class)]
 class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       static::BASELINE_DATASET => [
         NULL,

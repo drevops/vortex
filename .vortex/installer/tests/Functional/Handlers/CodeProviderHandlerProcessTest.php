@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(CodeProvider::class)]
 class CodeProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'code provider, github' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(CodeProvider::id()), CodeProvider::GITHUB)),

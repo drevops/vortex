@@ -36,7 +36,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
     chdir(static::$sut);
   }
 
-  #[DataProvider('dataProviderInstall')]
+  #[DataProvider('dataProviderHandlerProcess')]
   #[RunInSeparateProcess]
   public function testHandlerProcess(
     ?SerializableClosure $before = NULL,
@@ -67,7 +67,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
     }
   }
 
-  abstract public static function dataProviderInstall(): array;
+  abstract public static function dataProviderHandlerProcess(): array;
 
   protected function assertCommon(): void {
     $this->assertDirectoryEqualsDirectory(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');

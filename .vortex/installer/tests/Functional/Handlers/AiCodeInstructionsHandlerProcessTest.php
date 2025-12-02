@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(AiCodeInstructions::class)]
 class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'ai instructions, claude' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE)),

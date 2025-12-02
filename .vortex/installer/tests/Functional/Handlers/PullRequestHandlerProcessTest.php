@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(LabelMergeConflictsPr::class)]
 class PullRequestHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'assign author PR, enabled' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(AssignAuthorPr::id()), Env::TRUE)),

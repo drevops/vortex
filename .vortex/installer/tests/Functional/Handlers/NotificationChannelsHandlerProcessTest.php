@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(NotificationChannels::class)]
 class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'notification_channels, all' => [
         static::cw(function (): void {

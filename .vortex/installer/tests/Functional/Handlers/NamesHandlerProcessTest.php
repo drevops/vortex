@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Name::class)]
 class NamesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'names' => [
         static::cw(function (): void {

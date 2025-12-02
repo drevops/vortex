@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(HostingProjectName::class)]
 class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'hosting project name - acquia' => [
         static::cw(function (): void {
