@@ -60,6 +60,14 @@ Read
 the [installation guide](https://www.vortextemplate.com/docs/getting-started/installation)
 for more details.
 
+### Development version
+
+The latest development version of the installer from `develop` branch can be found at https://vortex-docs.netlify.app/install
+
+```bash
+curl -SsL https://vortex-docs.netlify.app/install > installer.php && php installer.php
+```
+
 ## Features
 
 <div align="center">
