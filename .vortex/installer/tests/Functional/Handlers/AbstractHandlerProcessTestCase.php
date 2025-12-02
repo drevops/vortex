@@ -27,6 +27,12 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    static::envUnsetPrefix('VORTEX_');
+    static::envUnsetPrefix('DRUPAL_');
+    static::envUnsetPrefix('LAGOON_');
+    static::envUnset('WEBROOT');
+    static::envUnset('TZ');
+
     static::applicationInitFromCommand(InstallCommand::class);
 
     // Use a two-words name for the sut directory.
