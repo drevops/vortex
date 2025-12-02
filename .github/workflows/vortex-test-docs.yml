@@ -2,15 +2,16 @@
 name: Vortex - Test docs
 
 on:
-  push:
-    tags:
-      - '**'
-    branches:
-      - '**'
+  workflow_run:
+    workflows: ['Vortex - Test installer']
+    types:
+      - completed
 
 jobs:
   vortex-test-docs:
     runs-on: ubuntu-latest
+    # Only run if installer workflow succeeded
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout code
@@ -27,6 +28,20 @@ jobs:
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2
         with:
           php-version: 8.3
+
+      - name: Download installer artifact
+        uses: dawidd6/action-download-artifact@20319c5641d495c8a52e688b7dc5fada6c3a9fbc # v8
+        with:
+          workflow: vortex-test-installer.yml
+          name: vortex-installer
+          path: .vortex/docs/static
+          if_no_artifact_found: fail
+          allow_forks: true
+
+      - name: Copy installer to docs
+        run: |
+          mv .vortex/docs/static/installer.phar .vortex/docs/static/install
+          php .vortex/docs/static/install --version
 
       - name: Check docs up-to-date
         run: |

@@ -86,7 +86,15 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer.phar --no-interaction --destination=example || exit 1
+        run: |
+          ./build/installer.phar --version
+          ./build/installer.phar --no-interaction --no-cleanup --destination=test || exit 1
         working-directory: .vortex/installer
-        env:
-          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+
+      - name: Upload installer artifact
+        if: matrix.php-versions == '8.3'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: vortex-installer
+          path: .vortex/installer/build/installer.phar
+          if-no-files-found: error
