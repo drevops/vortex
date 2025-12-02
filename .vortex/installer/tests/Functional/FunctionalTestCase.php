@@ -88,11 +88,8 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $defaults = [
       InstallCommand::OPTION_NO_INTERACTION => TRUE,
       InstallCommand::OPTION_URI => File::dir(static::$root),
+      InstallCommand::OPTION_DESTINATION => $dst,
     ];
-
-    if ($dst !== '' && $dst !== '0') {
-      $defaults[InstallCommand::OPTION_DESTINATION] = $dst;
-    }
 
     $options += $defaults;
 

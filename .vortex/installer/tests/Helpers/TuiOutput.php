@@ -79,13 +79,13 @@ class TuiOutput {
 
   const INSTALL_EXIT_CODE = 'Exit code:';
 
-  const INSTALL_ERROR_MISSING_GIT = 'Installation failed with an error: Missing git.';
+  const INSTALL_ERROR_MISSING_GIT = 'Installation failed with an error: Missing required command: git.';
 
-  const INSTALL_ERROR_MISSING_CURL = 'Installation failed with an error: Missing curl.';
+  const INSTALL_ERROR_MISSING_CURL = 'Installation failed with an error: Missing required command: curl.';
 
-  const INSTALL_ERROR_MISSING_TAR = 'Installation failed with an error: Missing tar.';
+  const INSTALL_ERROR_MISSING_TAR = 'Installation failed with an error: Missing required command: tar.';
 
-  const INSTALL_ERROR_MISSING_COMPOSER = 'Installation failed with an error: Missing Composer.';
+  const INSTALL_ERROR_MISSING_COMPOSER = 'Installation failed with an error: Missing required command: Composer.';
 
   const INSTALL_ERROR_DOWNLOAD_FAILED = 'Installation failed with an error: Failed to download Vortex.';
 

@@ -17,6 +17,7 @@ use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Functional tests for InstallCommand.
@@ -30,25 +31,17 @@ class InstallCommandTest extends FunctionalTestCase {
   #[DataProvider('dataProviderInstallCommand')]
   public function testInstallCommand(
     array $command_inputs,
-    \Closure $install_process_runner_exit_callback,
+    \Closure $install_executable_finder_find_callback,
     \Closure $build_runner_exit_callback,
     \Closure $check_requirements_runner_exit_callback,
     bool $expect_failure,
     array $output_assertions,
     bool $download_should_fail = FALSE,
   ): void {
-    // 1. Mock ProcessRunner for InstallCommand (requirements checking).
-    $install_process_runner = $this->createMock(ProcessRunner::class);
-    $install_process_runner_command = '';
-    $install_process_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($install_process_runner, &$install_process_runner_command): MockObject {
-        $install_process_runner_command = $command;
-        return $install_process_runner;
-      });
-    $install_process_runner->method('getExitCode')
-      ->willReturnCallback(function () use ($install_process_runner_exit_callback, &$install_process_runner_command) {
-        return $install_process_runner_exit_callback($install_process_runner_command);
-      });
+    // 1. Mock ExecutableFinder for InstallCommand (requirements checking).
+    $executable_finder = $this->createMock(ExecutableFinder::class);
+    $executable_finder->method('find')
+      ->willReturnCallback(fn(string $name) => $install_executable_finder_find_callback($name));
 
     // 2. Mock ProcessRunner for BuildCommand (runs 'ahoy build').
     $build_runner = $this->createMock(ProcessRunner::class);
@@ -69,6 +62,8 @@ class InstallCommandTest extends FunctionalTestCase {
     $mock_logger->method('getPath')->willReturn('/tmp/mock.log');
     $build_runner->method('getLogger')->willReturn($mock_logger);
     $build_runner->method('setCwd')->willReturn($build_runner);
+    // Mock ExecutableFinder for BuildCommand's ProcessRunner.
+    $build_runner->method('getExecutableFinder')->willReturn($executable_finder);
 
     // 3. Mock ProcessRunner for CheckRequirementsCommand.
     $check_requirements_runner = $this->createMock(ProcessRunner::class);
@@ -83,15 +78,17 @@ class InstallCommandTest extends FunctionalTestCase {
       ->willReturnCallback(function () use ($check_requirements_runner_exit_callback, &$check_requirements_runner_command) {
         return $check_requirements_runner_exit_callback($check_requirements_runner_command);
       });
+    // Mock ExecutableFinder for CheckRequirementsCommand's ProcessRunner.
+    $check_requirements_runner->method('getExecutableFinder')->willReturn($executable_finder);
 
     // Create and configure InstallCommand.
-    $command = new InstallCommand();
-    $command->setProcessRunner($install_process_runner);
+    $install_command = new InstallCommand();
+    $install_command->setExecutableFinder($executable_finder);
 
     if ($download_should_fail) {
       $mock_downloader = $this->createMock(Downloader::class);
       $mock_downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
-      $command->setDownloader($mock_downloader);
+      $install_command->setDownloader($mock_downloader);
     }
     else {
       // Download from root as a real repository. This is long, but there is
@@ -101,14 +98,15 @@ class InstallCommandTest extends FunctionalTestCase {
     }
 
     // Initialize application and register mocked commands.
-    static::applicationInitFromCommand($command);
+    static::applicationInitFromCommand($install_command);
 
     $check_command = new CheckRequirementsCommand();
-    $check_command->setRunner($check_requirements_runner);
+    $check_command->setExecutableFinder($executable_finder);
+    $check_command->setProcessRunner($check_requirements_runner);
     $this->applicationGet()->add($check_command);
 
     $build_command = new BuildCommand();
-    $build_command->setRunner($build_runner);
+    $build_command->setProcessRunner($build_runner);
     $this->applicationGet()->add($build_command);
 
     $command_inputs['--' . InstallCommand::OPTION_DESTINATION] = self::$sut;
@@ -125,7 +123,7 @@ class InstallCommandTest extends FunctionalTestCase {
    *
    * @return array<string, array{
    *   command_inputs: array<string, mixed>,
-   *   install_process_runner_exit_callback: \Closure,
+   *   install_executable_finder_find_callback: \Closure,
    *   build_runner_exit_callback: \Closure,
    *   check_requirements_runner_exit_callback: \Closure,
    *   expect_failure: bool,
@@ -139,7 +137,7 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => FALSE,
@@ -163,7 +161,7 @@ class InstallCommandTest extends FunctionalTestCase {
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
           InstallCommand::OPTION_CONFIG => '{"VORTEX_PROJECT_NAME":"test_project"}',
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => FALSE,
@@ -181,7 +179,7 @@ class InstallCommandTest extends FunctionalTestCase {
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
           InstallCommand::OPTION_NO_CLEANUP => TRUE,
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => FALSE,
@@ -201,12 +199,12 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => function (string $command): int {
+        'install_executable_finder_find_callback' => function (string $command): ?string {
           // Git command fails.
-          if (str_contains($command, 'command -v git')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+          if (str_contains($command, 'git')) {
+            return NULL;
           }
-          return RunnerInterface::EXIT_SUCCESS;
+          return '/usr/bin/' . $command;
         },
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
@@ -225,13 +223,14 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => function (string $command): int {
+        'install_executable_finder_find_callback' => function (string $command): ?string {
           // Curl command fails.
-          if (str_contains($command, 'command -v curl')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+          if (str_contains($command, 'curl')) {
+            return NULL;
           }
-          return RunnerInterface::EXIT_SUCCESS;
+          return '/usr/bin/' . $command;
         },
+
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => TRUE,
@@ -249,13 +248,14 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => function (string $command): int {
+        'install_executable_finder_find_callback' => function (string $command): ?string {
           // Tar command fails.
-          if (str_contains($command, 'command -v tar')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+          if (str_contains($command, 'tar')) {
+            return NULL;
           }
-          return RunnerInterface::EXIT_SUCCESS;
+          return '/usr/bin/' . $command;
         },
+
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => TRUE,
@@ -273,13 +273,14 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => function (string $command): int {
+        'install_executable_finder_find_callback' => function (string $command): ?string {
           // Composer command fails.
-          if (str_contains($command, 'command -v composer')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+          if (str_contains($command, 'composer')) {
+            return NULL;
           }
-          return RunnerInterface::EXIT_SUCCESS;
+          return '/usr/bin/' . $command;
         },
+
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => TRUE,
@@ -297,15 +298,17 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => function (string $command): int {
-          // Both git and curl fail.
-          if (str_contains($command, 'command -v git')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+        'install_executable_finder_find_callback' => function (string $command): ?string {
+          // Both git and curl commands fails.
+          if (str_contains($command, 'git')) {
+            return NULL;
           }
-          if (str_contains($command, 'command -v curl')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+
+          if (str_contains($command, 'curl')) {
+            return NULL;
           }
-          return RunnerInterface::EXIT_SUCCESS;
+
+          return '/usr/bin/' . $command;
         },
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
@@ -327,7 +330,7 @@ class InstallCommandTest extends FunctionalTestCase {
         'command_inputs' => self::tuiOptions([
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
         'expect_failure' => TRUE,
@@ -353,7 +356,7 @@ class InstallCommandTest extends FunctionalTestCase {
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
           InstallCommand::OPTION_BUILD => TRUE,
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => TuiOutput::buildRunnerSuccess(),
         'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsSuccess(),
         'expect_failure' => FALSE,
@@ -381,7 +384,7 @@ class InstallCommandTest extends FunctionalTestCase {
           InstallCommand::OPTION_BUILD => TRUE,
           InstallCommand::OPTION_CONFIG => '{"VORTEX_STARTER":"install_profile_core"}',
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => TuiOutput::buildRunnerSuccessProfile(),
         'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsSuccess(),
         'expect_failure' => FALSE,
@@ -445,10 +448,10 @@ class InstallCommandTest extends FunctionalTestCase {
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
           InstallCommand::OPTION_BUILD => TRUE,
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => TuiOutput::buildRunnerFailure(),
         'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsSuccess(),
-        'expect_failure' => FALSE,
+        'expect_failure' => TRUE,
         'output_assertions' => [
           ...TuiOutput::present([
             TuiOutput::INSTALL_STARTING,
@@ -473,7 +476,7 @@ class InstallCommandTest extends FunctionalTestCase {
           InstallCommand::OPTION_NO_INTERACTION => TRUE,
           InstallCommand::OPTION_BUILD => TRUE,
         ]),
-        'install_process_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+        'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
         'build_runner_exit_callback' => TuiOutput::buildRunnerSuccess(),
         'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsFailure(),
         'expect_failure' => TRUE,

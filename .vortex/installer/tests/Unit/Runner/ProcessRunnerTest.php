@@ -259,6 +259,14 @@ class ProcessRunnerTest extends UnitTestCase {
         'expected_exception' => \InvalidArgumentException::class,
         'expected_message' => 'Invalid command',
       ],
+      'command utility is not allowed' => [
+        'command' => 'command',
+        'args' => ['-v', 'ls'],
+        'expected_output_pattern' => '//',
+        'expected_exit_code' => 0,
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder',
+      ],
     ];
   }
 
@@ -306,6 +314,12 @@ class ProcessRunnerTest extends UnitTestCase {
         'expect_success' => FALSE,
         'expected_exception' => \InvalidArgumentException::class,
         'expected_message' => 'Invalid command',
+      ],
+      'command utility is not allowed' => [
+        'command' => 'command',
+        'expect_success' => FALSE,
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder to check if a command exists instead.',
       ],
     ];
   }

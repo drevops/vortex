@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Command;
 
+use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareInterface;
+use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareTrait;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
+use DrevOps\VortexInstaller\Runner\ProcessRunnerAwareInterface;
+use DrevOps\VortexInstaller\Runner\ProcessRunnerAwareTrait;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -16,7 +20,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Check requirements command.
  */
-class CheckRequirementsCommand extends Command {
+class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInterface, ExecutableFinderAwareInterface {
+
+  use ProcessRunnerAwareTrait;
+  use ExecutableFinderAwareTrait;
 
   const string OPTION_ONLY = 'only';
 
@@ -43,11 +50,6 @@ class CheckRequirementsCommand extends Command {
    * @var string
    */
   public static $defaultName = 'check-requirements';
-
-  /**
-   * The process runner.
-   */
-  protected ProcessRunner $runner;
 
   /**
    * Present tools.
@@ -83,7 +85,7 @@ class CheckRequirementsCommand extends Command {
     $only = $input->getOption(static::OPTION_ONLY);
     $requirements = $this->validateRequirements($only ? array_map(trim(...), explode(',', (string) $only)) : NULL);
 
-    $this->runner = $this->getRunner();
+    $this->processRunner ??= $this->getProcessRunner();
     $this->present = [];
     $this->missing = [];
 
@@ -146,7 +148,7 @@ class CheckRequirementsCommand extends Command {
     if ($only !== NULL) {
       $unknown = array_diff($only, static::REQUIREMENTS);
       if (!empty($unknown)) {
-        throw new \InvalidArgumentException(sprintf('Unknown requirements: %s. Available: %s.', implode(', ', $unknown), implode(', ', static::REQUIREMENTS)));
+        throw new \InvalidArgumentException(sprintf("Unknown requirements: %s.\nAvailable: %s.", implode(', ', $unknown), implode(', ', static::REQUIREMENTS)));
       }
     }
 
@@ -274,20 +276,21 @@ class CheckRequirementsCommand extends Command {
 
     $version = $this->getCommandVersion('pygmy version');
 
-    $this->runner->run('pygmy status');
-    if ($this->runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
+    $this->processRunner->run('pygmy status');
+    if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
       $this->present['Pygmy'] = $version;
       return TRUE;
     }
 
-    $this->runner->run('docker ps --format "{{.Names}}" | grep -q amazeeio');
+    $this->processRunner->run('docker ps --format "{{.Names}}" | grep -q amazeeio');
     // @phpstan-ignore-next-line notIdentical.alwaysFalse
-    if ($this->runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
+    if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
       $this->present['Pygmy'] = $version;
       return TRUE;
     }
 
     $this->missing['Pygmy'] = 'Run: pygmy up';
+
     return FALSE;
   }
 
@@ -295,16 +298,15 @@ class CheckRequirementsCommand extends Command {
    * Check if a command exists.
    */
   protected function commandExists(string $command): bool {
-    $this->runner->run(sprintf('command -v %s', escapeshellarg($command)));
-    return $this->runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
+    return $this->getExecutableFinder()->find($command) !== NULL;
   }
 
   /**
    * Check if Docker Compose exists.
    */
   protected function dockerComposeExists(): bool {
-    $this->runner->run('docker compose version');
-    if ($this->runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
+    $this->processRunner->run('docker compose version');
+    if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
       return TRUE;
     }
 
@@ -320,36 +322,17 @@ class CheckRequirementsCommand extends Command {
    *   Number of lines to retrieve from the output. Defaults to 1.
    */
   protected function getCommandVersion(string $command, int $lines = 1): string {
-    $this->runner->run($command);
-    $raw_output = $this->runner->getOutput(FALSE, $lines);
+    $this->processRunner->run($command);
+    $raw_output = $this->processRunner->getOutput(FALSE, $lines);
     $output = trim(is_string($raw_output) ? $raw_output : implode(PHP_EOL, $raw_output));
     return empty($output) ? 'Available' : $output;
   }
 
   /**
-   * Get the process runner instance.
-   *
-   * Factory method to create the runner, allowing tests to override this
-   * to inject mocks via setRunner().
-   *
-   * @return \DrevOps\VortexInstaller\Runner\ProcessRunner
-   *   The process runner instance.
+   * {@inheritdoc}
    */
-  protected function getRunner(): ProcessRunner {
-    // Return already-set runner if available (for testing).
-    return $this->runner ?? (new ProcessRunner())->disableLog()->disableStreaming();
-  }
-
-  /**
-   * Set the process runner instance.
-   *
-   * Allows dependency injection for testing.
-   *
-   * @param \DrevOps\VortexInstaller\Runner\ProcessRunner $runner
-   *   The process runner instance.
-   */
-  public function setRunner(ProcessRunner $runner): void {
-    $this->runner = $runner;
+  public function getProcessRunner(): ProcessRunner {
+    return $this->processRunner ?? (new ProcessRunner())->disableLog()->disableStreaming();
   }
 
 }

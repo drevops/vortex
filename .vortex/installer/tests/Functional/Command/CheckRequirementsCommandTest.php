@@ -12,6 +12,7 @@ use DrevOps\VortexInstaller\Tests\Helpers\TuiOutput;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Functional tests for CheckRequirementsCommand.
@@ -24,11 +25,17 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
    */
   #[DataProvider('dataProviderCheckRequirementsCommand')]
   public function testCheckRequirementsCommand(
+    \Closure $executable_finder_callback,
     \Closure $exit_code_callback,
     array $command_inputs,
     bool $expect_failure,
     array $output_assertions,
   ): void {
+    // Create a mock ExecutableFinder.
+    $mock_finder = $this->createMock(ExecutableFinder::class);
+    $mock_finder->method('find')
+      ->willReturnCallback(fn(string $name) => $executable_finder_callback($name));
+
     // Create a mock ProcessRunner.
     $mock_runner = $this->createMock(ProcessRunner::class);
 
@@ -48,9 +55,10 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
         return $exit_code_callback($current_command);
       });
 
-    // Create command and inject mock runner using setRunner().
+    // Create command and inject mocks using setters.
     $command = new CheckRequirementsCommand();
-    $command->setRunner($mock_runner);
+    $command->setExecutableFinder($mock_finder);
+    $command->setProcessRunner($mock_runner);
 
     // Initialize application with our command.
     static::applicationInitFromCommand($command);
@@ -67,6 +75,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
    * Data provider for testCheckWithMockedRunner.
    *
    * @return array<string, array{
+   *   executable_finder_callback: \Closure,
    *   exit_code_callback: \Closure,
    *   command_inputs: array<string, mixed>,
    *   expect_failure: bool,
@@ -76,6 +85,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
   public static function dataProviderCheckRequirementsCommand(): array {
     return [
       'Check all requirements' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => [],
         'expect_failure' => FALSE,
@@ -94,6 +104,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'All requirements missing' => [
+        'executable_finder_callback' => fn(string $name): ?string => NULL,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
         'command_inputs' => [],
         'expect_failure' => TRUE,
@@ -116,6 +127,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Check only Docker' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'docker'],
         'expect_failure' => FALSE,
@@ -130,6 +142,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Check only Docker and Ahoy' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'docker,ahoy'],
         'expect_failure' => FALSE,
@@ -147,6 +160,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Check with no-summary option' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--no-summary' => TRUE],
         'expect_failure' => FALSE,
@@ -162,15 +176,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Docker missing' => [
-        'exit_code_callback' => function (string $current_command): int {
-          // Docker command fails.
-          if ((str_contains($current_command, "command -v 'docker'") || str_contains($current_command, 'command -v docker'))
-            && !str_contains($current_command, 'compose')
-            && !str_contains($current_command, 'docker --version')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
-          }
-          return RunnerInterface::EXIT_SUCCESS;
-        },
+        'executable_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'docker'],
         'expect_failure' => TRUE,
         'output_assertions' => array_merge(
@@ -187,13 +194,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Ahoy missing' => [
-        'exit_code_callback' => function (string $current_command): int {
-          // Ahoy command fails.
-          if (str_contains($current_command, "command -v 'ahoy'") || str_contains($current_command, 'command -v ahoy')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
-          }
-          return RunnerInterface::EXIT_SUCCESS;
-        },
+        'executable_finder_callback' => fn(string $name): ?string => $name === 'ahoy' ? NULL : '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'ahoy'],
         'expect_failure' => TRUE,
         'output_assertions' => array_merge(
@@ -210,13 +212,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Pygmy command not found' => [
-        'exit_code_callback' => function (string $current_command): int {
-          // Pygmy command does not exist (return 127).
-          if (str_contains($current_command, "command -v 'pygmy'") || str_contains($current_command, 'command -v pygmy')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
-          }
-          return RunnerInterface::EXIT_SUCCESS;
-        },
+        'executable_finder_callback' => fn(string $name): ?string => $name === 'pygmy' ? NULL : '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'pygmy'],
         'expect_failure' => TRUE,
         'output_assertions' => array_merge(
@@ -233,9 +230,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Pygmy status command succeeds' => [
-        'exit_code_callback' => fn(string $current_command): int =>
-            // Pygmy command exists and status succeeds.
-        RunnerInterface::EXIT_SUCCESS,
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'pygmy'],
         'expect_failure' => FALSE,
         'output_assertions' => array_merge(
@@ -251,11 +247,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Pygmy status fails but amazeeio containers found' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => function (string $current_command): int {
-          // Pygmy command exists.
-          if (str_contains($current_command, "command -v 'pygmy'") || str_contains($current_command, 'command -v pygmy')) {
-            return RunnerInterface::EXIT_SUCCESS;
-          }
           // Pygmy status fails.
           if (str_contains($current_command, 'pygmy status')) {
             return RunnerInterface::EXIT_FAILURE;
@@ -277,11 +270,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Pygmy status fails and no amazeeio containers' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => function (string $current_command): int {
-          // Pygmy command exists.
-          if (str_contains($current_command, "command -v 'pygmy'") || str_contains($current_command, 'command -v pygmy')) {
-            return RunnerInterface::EXIT_SUCCESS;
-          }
           // Pygmy status fails.
           if (str_contains($current_command, 'pygmy status')) {
             return RunnerInterface::EXIT_FAILURE;
@@ -308,6 +298,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Docker Compose via modern syntax' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'docker-compose'],
         'expect_failure' => FALSE,
@@ -324,6 +315,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Docker Compose via legacy command' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => function (string $current_command): int {
           // Modern syntax fails.
           if (str_contains($current_command, 'docker compose version')) {
@@ -346,11 +338,10 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Docker Compose missing completely' => [
+        'executable_finder_callback' => fn(string $name): ?string => $name === 'docker-compose' ? NULL : '/usr/bin/' . $name,
         'exit_code_callback' => function (string $current_command): int {
-          // Both docker compose and docker-compose commands fail.
-          if (str_contains($current_command, 'docker compose version') ||
-            str_contains($current_command, "command -v 'docker-compose'") ||
-            str_contains($current_command, 'command -v docker-compose')) {
+          // Modern docker compose command fails.
+          if (str_contains($current_command, 'docker compose version')) {
             return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
           }
           return RunnerInterface::EXIT_SUCCESS;
@@ -371,6 +362,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Invalid requirement name' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'invalid'],
         'expect_failure' => TRUE,
@@ -381,6 +373,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       ],
 
       'Mixed valid and invalid requirements' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--only' => 'docker,invalid'],
         'expect_failure' => TRUE,

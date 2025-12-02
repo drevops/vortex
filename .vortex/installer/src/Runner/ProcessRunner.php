@@ -6,13 +6,14 @@ namespace DrevOps\VortexInstaller\Runner;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
 /**
  * Runner for shell commands via Symfony Process.
  */
-class ProcessRunner extends AbstractRunner {
+class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInterface {
+
+  use ExecutableFinderAwareTrait;
 
   /**
    * {@inheritdoc}
@@ -90,6 +91,11 @@ class ProcessRunner extends AbstractRunner {
     $parsed = $this->parseCommand($command);
     $base_command = array_shift($parsed);
 
+    // Defensive check: prevent using 'command' utility.
+    if ($base_command === 'command') {
+      throw new \InvalidArgumentException('Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder to check if a command exists instead.');
+    }
+
     // Validate the base command contains only allowed characters.
     if (preg_match('/[^a-zA-Z0-9_\-.\/]/', (string) $base_command)) {
       throw new \InvalidArgumentException(sprintf('Invalid command: %s. Only alphanumeric characters, dots, dashes, underscores and slashes are allowed.', $base_command));
@@ -108,8 +114,7 @@ class ProcessRunner extends AbstractRunner {
     }
     else {
       // Use ExecutableFinder for commands without path.
-      $finder = new ExecutableFinder();
-      $resolved = $finder->find($base_command);
+      $resolved = $this->getExecutableFinder()->find($base_command);
 
       if ($resolved === NULL) {
         throw new \InvalidArgumentException(sprintf('Command not found: %s. Ensure the command is installed and available in PATH.', $base_command));

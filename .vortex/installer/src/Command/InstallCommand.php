@@ -7,9 +7,10 @@ namespace DrevOps\VortexInstaller\Command;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
-use DrevOps\VortexInstaller\Runner\CommandRunner;
-use DrevOps\VortexInstaller\Runner\ProcessRunner;
-use DrevOps\VortexInstaller\Runner\RunnerInterface;
+use DrevOps\VortexInstaller\Runner\CommandRunnerAwareInterface;
+use DrevOps\VortexInstaller\Runner\CommandRunnerAwareTrait;
+use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareInterface;
+use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareTrait;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
@@ -28,7 +29,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package DrevOps\VortexInstaller\Command
  */
-class InstallCommand extends Command {
+class InstallCommand extends Command implements CommandRunnerAwareInterface, ExecutableFinderAwareInterface {
+
+  use CommandRunnerAwareTrait;
+  use ExecutableFinderAwareTrait;
 
   const OPTION_DESTINATION = 'destination';
 
@@ -62,16 +66,6 @@ class InstallCommand extends Command {
    * The prompt manager.
    */
   protected PromptManager $promptManager;
-
-  /**
-   * The command runner.
-   */
-  protected ?CommandRunner $runner = NULL;
-
-  /**
-   * The process runner.
-   */
-  protected ?ProcessRunner $processRunner = NULL;
 
   /**
    * The downloader.
@@ -174,7 +168,7 @@ EOF
 
       Task::action(
         label: 'Preparing demo content',
-        action: fn(): string|array => $this->prepareDemo(),
+        action: fn(): string | array => $this->prepareDemo(),
         success: 'Demo content prepared',
       );
     }
@@ -223,29 +217,17 @@ EOF
   }
 
   protected function checkRequirements(): void {
-    $runner = $this->getProcessRunner();
+    $required_commands = [
+      'git',
+      'curl',
+      'tar',
+      'composer',
+    ];
 
-    $runner->run('command -v git >/dev/null');
-    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
-      throw new \RuntimeException('Missing git.');
-    }
-
-    $runner->run('command -v curl >/dev/null');
-    // @phpstan-ignore-next-line notIdentical.alwaysFalse
-    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
-      throw new \RuntimeException('Missing curl.');
-    }
-
-    $runner->run('command -v tar >/dev/null');
-    // @phpstan-ignore-next-line notIdentical.alwaysFalse
-    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
-      throw new \RuntimeException('Missing tar.');
-    }
-
-    $runner->run('command -v composer >/dev/null');
-    // @phpstan-ignore-next-line notIdentical.alwaysFalse
-    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
-      throw new \RuntimeException('Missing Composer.');
+    foreach ($required_commands as $required_command) {
+      if ($this->getExecutableFinder()->find($required_command) === NULL) {
+        throw new \RuntimeException(sprintf('Missing required command: %s.', $required_command));
+      }
     }
   }
 
@@ -283,14 +265,20 @@ EOF
     }
 
     // Set destination directory.
-    $dst = !empty($options[static::OPTION_DESTINATION]) && is_scalar($options[static::OPTION_DESTINATION]) ? strval($options[static::OPTION_DESTINATION]) : NULL;
-    $dst = $dst ?: Env::get(Config::DST, $this->config->get(Config::DST, $this->config->get(Config::ROOT)));
+    $dst_from_option = !empty($options[static::OPTION_DESTINATION]) && is_scalar($options[static::OPTION_DESTINATION]) ? strval($options[static::OPTION_DESTINATION]) : NULL;
+    $dst_from_env = Env::get(Config::DST);
+    $dst_from_config = $this->config->get(Config::DST);
+    $dst_from_root = $this->config->get(Config::ROOT);
+
+    $dst = $dst_from_option ?: ($dst_from_env ?: ($dst_from_config ?: $dst_from_root));
     $dst = File::realpath($dst);
     $this->config->set(Config::DST, $dst, TRUE);
 
     // Load values from the destination .env file, if it exists.
-    if (File::exists($this->config->getDst() . '/.env')) {
-      Env::putFromDotenv($this->config->getDst() . '/.env');
+    $dest_env_file = $this->config->getDst() . '/.env';
+
+    if (File::exists($dest_env_file)) {
+      Env::putFromDotenv($dest_env_file);
     }
 
     [$repo, $ref] = Downloader::parseUri($options[static::OPTION_URI] ?: 'https://github.com/drevops/vortex.git@stable');
@@ -392,7 +380,7 @@ EOF
    * @return array|string
    *   Array of messages or a single message.
    */
-  protected function prepareDemo(): array|string {
+  protected function prepareDemo(): array | string {
     if (empty($this->config->get(Config::IS_DEMO))) {
       return 'Not a demo mode.';
     }
@@ -447,7 +435,7 @@ EOF
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 
-    $runner = $this->getRunner();
+    $runner = $this->getCommandRunner();
     $runner->run('build', args: $is_profile ? ['--profile' => '1'] : [], output: $output);
 
     return $runner->getExitCode() === Command::SUCCESS;
@@ -631,52 +619,6 @@ EOT;
     if (!empty($phar_path) && file_exists($phar_path)) {
       @unlink($phar_path);
     }
-  }
-
-  /**
-   * Get the command runner.
-   *
-   * Provides a default CommandRunner instance or returns the injected one.
-   * This allows tests to inject mocks via setRunner().
-   *
-   * @return \DrevOps\VortexInstaller\Runner\CommandRunner
-   *   The command runner.
-   */
-  protected function getRunner(): CommandRunner {
-    return $this->runner ?? new CommandRunner($this->getApplication());
-  }
-
-  /**
-   * Set the command runner.
-   *
-   * @param \DrevOps\VortexInstaller\Runner\CommandRunner $runner
-   *   The command runner.
-   */
-  public function setRunner(CommandRunner $runner): void {
-    $this->runner = $runner;
-  }
-
-  /**
-   * Get the process runner.
-   *
-   * Provides a default ProcessRunner instance or returns the injected one.
-   * This allows tests to inject mocks via setProcessRunner().
-   *
-   * @return \DrevOps\VortexInstaller\Runner\ProcessRunner
-   *   The process runner.
-   */
-  protected function getProcessRunner(): ProcessRunner {
-    return $this->processRunner ?? (new ProcessRunner())->disableLog()->disableStreaming();
-  }
-
-  /**
-   * Set the process runner.
-   *
-   * @param \DrevOps\VortexInstaller\Runner\ProcessRunner $runner
-   *   The process runner.
-   */
-  public function setProcessRunner(ProcessRunner $runner): void {
-    $this->processRunner = $runner;
   }
 
   /**

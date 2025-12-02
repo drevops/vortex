@@ -152,22 +152,9 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
-   * Test getOutput with as_array parameter.
-   */
-  #[DataProvider('providerGetOutputVariations')]
-  public function testGetOutputVariations(string $output, bool $as_array, ?int $lines, string | array $expected): void {
-    $runner = new ConcreteRunner();
-    $runner->setOutput($output);
-
-    $result = $runner->getOutput($as_array, $lines);
-
-    $this->assertEquals($expected, $result);
-  }
-
-  /**
    * Test parseCommand with various formats.
    */
-  #[DataProvider('providerParseCommand')]
+  #[DataProvider('dataProviderParseCommand')]
   public function testParseCommand(string $command, array $expected, ?string $expected_exception, ?string $expected_message): void {
     if ($expected_exception !== NULL) {
       /** @var class-string<\Throwable> $expected_exception */
@@ -184,39 +171,197 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
-   * Test buildCommandString with various arguments.
+   * Data provider for parseCommand.
    */
-  #[DataProvider('providerBuildCommandString')]
-  public function testBuildCommandString(string $command, array $args, array $opts, string $expected): void {
-    $runner = new ConcreteRunner();
-
-    $result = $runner->buildCommandStringPublic($command, $args, $opts);
-
-    $this->assertEquals($expected, $result);
-  }
-
-  /**
-   * Test quoteArgument method.
-   */
-  #[DataProvider('providerQuoteArgument')]
-  public function testQuoteArgument(string $argument, string $expected): void {
-    $runner = new ConcreteRunner();
-
-    $result = $runner->quoteArgumentPublic($argument);
-
-    $this->assertEquals($expected, $result);
-  }
-
-  /**
-   * Test formatArgs method.
-   */
-  #[DataProvider('providerFormatArgs')]
-  public function testFormatArgs(array $args, array $expected): void {
-    $runner = new ConcreteRunner();
-
-    $result = $runner->formatArgsPublic($args);
-
-    $this->assertEquals($expected, $result);
+  public static function dataProviderParseCommand(): array {
+    return [
+      'simple command' => [
+        'command' => 'echo',
+        'expected' => ['echo'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with arguments' => [
+        'command' => 'echo hello world',
+        'expected' => ['echo', 'hello', 'world'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with single-quoted argument' => [
+        'command' => "echo 'hello world'",
+        'expected' => ['echo', 'hello world'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with double-quoted argument' => [
+        'command' => 'echo "hello world"',
+        'expected' => ['echo', 'hello world'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with escaped character' => [
+        'command' => 'echo hello\\ world',
+        'expected' => ['echo', 'hello world'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with escaped quote inside single quotes' => [
+        'command' => "echo 'It\\'s working'",
+        'expected' => ['echo', "It's working"],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with mixed quotes' => [
+        'command' => 'echo "hello" \'world\'',
+        'expected' => ['echo', 'hello', 'world'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with end-of-options marker' => [
+        'command' => 'echo -- --not-an-option',
+        'expected' => ['echo', '--', '--not-an-option'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with single short option' => [
+        'command' => 'ls -l',
+        'expected' => ['ls', '-l'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with multiple short options' => [
+        'command' => 'ls -la',
+        'expected' => ['ls', '-la'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with separate short options' => [
+        'command' => 'ls -l -a -h',
+        'expected' => ['ls', '-l', '-a', '-h'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with long option' => [
+        'command' => 'ls --all',
+        'expected' => ['ls', '--all'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with long option with equals value' => [
+        'command' => 'composer require --dev=phpunit',
+        'expected' => ['composer', 'require', '--dev=phpunit'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with long option with space-separated value' => [
+        'command' => 'git commit -m "commit message"',
+        'expected' => ['git', 'commit', '-m', 'commit message'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with option value with equals' => [
+        'command' => 'command --option=value',
+        'expected' => ['command', '--option=value'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with option value with spaces' => [
+        'command' => 'command --option="value with spaces"',
+        'expected' => ['command', '--option=value with spaces'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with mixed options and arguments' => [
+        'command' => 'ls -la /path/to/dir',
+        'expected' => ['ls', '-la', '/path/to/dir'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with options and quoted arguments' => [
+        'command' => 'grep -r "search term" /path/to/dir',
+        'expected' => ['grep', '-r', 'search term', '/path/to/dir'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'complex command with multiple options and arguments' => [
+        'command' => 'docker run -it --rm --name=mycontainer -v /host:/container ubuntu:latest bash',
+        'expected' => ['docker', 'run', '-it', '--rm', '--name=mycontainer', '-v', '/host:/container', 'ubuntu:latest', 'bash'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with option containing special characters' => [
+        'command' => 'curl -H "Authorization: Bearer token123"',
+        'expected' => ['curl', '-H', 'Authorization: Bearer token123'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with multiple long options with values' => [
+        'command' => 'command --option1=value1 --option2=value2 --flag',
+        'expected' => ['command', '--option1=value1', '--option2=value2', '--flag'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with mixed short and long options' => [
+        'command' => 'command -a -b --long-option --another=value arg1 arg2',
+        'expected' => ['command', '-a', '-b', '--long-option', '--another=value', 'arg1', 'arg2'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with options before and after arguments' => [
+        'command' => 'find /path -name "*.txt" -type f',
+        'expected' => ['find', '/path', '-name', '*.txt', '-type', 'f'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with option value containing equals sign' => [
+        'command' => 'command --url="http://example.com?param=value"',
+        'expected' => ['command', '--url=http://example.com?param=value'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with negative number argument' => [
+        'command' => 'command -n -42',
+        'expected' => ['command', '-n', '-42'],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'command with option and empty string value' => [
+        'command' => 'command --option=""',
+        'expected' => ['command', '--option='],
+        'expected_exception' => NULL,
+        'expected_message' => NULL,
+      ],
+      'empty command' => [
+        'command' => '',
+        'expected' => [],
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Command cannot be empty.',
+      ],
+      'whitespace only command' => [
+        'command' => '   ',
+        'expected' => [],
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Command cannot be empty.',
+      ],
+      'unclosed single quote' => [
+        'command' => "echo 'unclosed",
+        'expected' => [],
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Unclosed quote in command string.',
+      ],
+      'unclosed double quote' => [
+        'command' => 'echo "unclosed',
+        'expected' => [],
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Unclosed quote in command string.',
+      ],
+      'trailing escape' => [
+        'command' => 'echo trailing\\',
+        'expected' => [],
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Trailing escape character in command string.',
+      ],
+    ];
   }
 
   /**
@@ -290,9 +435,22 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
+   * Test getOutput with as_array parameter.
+   */
+  #[DataProvider('dataProviderGetOutputVariations')]
+  public function testGetOutputVariations(string $output, bool $as_array, ?int $lines, string | array $expected): void {
+    $runner = new ConcreteRunner();
+    $runner->setOutput($output);
+
+    $result = $runner->getOutput($as_array, $lines);
+
+    $this->assertEquals($expected, $result);
+  }
+
+  /**
    * Data provider for getOutput variations.
    */
-  public static function providerGetOutputVariations(): array {
+  public static function dataProviderGetOutputVariations(): array {
     return [
       'string output, as_array=false, no limit' => [
         'output' => "Line 1\nLine 2\nLine 3",
@@ -334,95 +492,21 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for parseCommand.
+   * Test buildCommandString with various arguments.
    */
-  public static function providerParseCommand(): array {
-    return [
-      'simple command' => [
-        'command' => 'echo',
-        'expected' => ['echo'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with arguments' => [
-        'command' => 'echo hello world',
-        'expected' => ['echo', 'hello', 'world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with single-quoted argument' => [
-        'command' => "echo 'hello world'",
-        'expected' => ['echo', 'hello world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with double-quoted argument' => [
-        'command' => 'echo "hello world"',
-        'expected' => ['echo', 'hello world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with escaped character' => [
-        'command' => 'echo hello\\ world',
-        'expected' => ['echo', 'hello world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with escaped quote inside single quotes' => [
-        'command' => "echo 'It\\'s working'",
-        'expected' => ['echo', "It's working"],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with mixed quotes' => [
-        'command' => 'echo "hello" \'world\'',
-        'expected' => ['echo', 'hello', 'world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with end-of-options marker' => [
-        'command' => 'echo -- --not-an-option',
-        'expected' => ['echo', '--', '--not-an-option'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'empty command' => [
-        'command' => '',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Command cannot be empty.',
-      ],
-      'whitespace only command' => [
-        'command' => '   ',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Command cannot be empty.',
-      ],
-      'unclosed single quote' => [
-        'command' => "echo 'unclosed",
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Unclosed quote in command string.',
-      ],
-      'unclosed double quote' => [
-        'command' => 'echo "unclosed',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Unclosed quote in command string.',
-      ],
-      'trailing escape' => [
-        'command' => 'echo trailing\\',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Trailing escape character in command string.',
-      ],
-    ];
+  #[DataProvider('dataProviderBuildCommandString')]
+  public function testBuildCommandString(string $command, array $args, array $opts, string $expected): void {
+    $runner = new ConcreteRunner();
+
+    $result = $runner->buildCommandStringPublic($command, $args, $opts);
+
+    $this->assertEquals($expected, $result);
   }
 
   /**
    * Data provider for buildCommandString.
    */
-  public static function providerBuildCommandString(): array {
+  public static function dataProviderBuildCommandString(): array {
     return [
       'command only' => [
         'command' => 'echo',
@@ -464,9 +548,21 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
+   * Test quoteArgument method.
+   */
+  #[DataProvider('dataProviderQuoteArgument')]
+  public function testQuoteArgument(string $argument, string $expected): void {
+    $runner = new ConcreteRunner();
+
+    $result = $runner->quoteArgumentPublic($argument);
+
+    $this->assertEquals($expected, $result);
+  }
+
+  /**
    * Data provider for quoteArgument.
    */
-  public static function providerQuoteArgument(): array {
+  public static function dataProviderQuoteArgument(): array {
     return [
       'simple string (no quoting)' => [
         'argument' => 'hello',
@@ -500,9 +596,21 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
+   * Test formatArgs method.
+   */
+  #[DataProvider('dataProviderFormatArgs')]
+  public function testFormatArgs(array $args, array $expected): void {
+    $runner = new ConcreteRunner();
+
+    $result = $runner->formatArgsPublic($args);
+
+    $this->assertEquals($expected, $result);
+  }
+
+  /**
    * Data provider for formatArgs.
    */
-  public static function providerFormatArgs(): array {
+  public static function dataProviderFormatArgs(): array {
     return [
       'positional args' => [
         'args' => ['arg1', 'arg2'],

@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Tests\Helpers\TuiOutput;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Functional tests for BuildCommand.
@@ -31,24 +32,25 @@ class BuildCommandTest extends FunctionalTestCase {
     bool $expect_failure,
     array $output_assertions,
     ?\Closure $requirements_exit_callback = NULL,
+    ?\Closure $requirements_finder_callback = NULL,
   ): void {
     // Create a mock ProcessRunner for ahoy build.
-    $mock_runner = $this->createMock(ProcessRunner::class);
+    $build_process_runner = $this->createMock(ProcessRunner::class);
 
     // Set up common default behaviors.
     $current_command = '';
-    $mock_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($mock_runner, &$current_command): MockObject {
+    $build_process_runner->method('run')
+      ->willReturnCallback(function (string $command) use ($build_process_runner, &$current_command): MockObject {
         $current_command = $command;
-        return $mock_runner;
+        return $build_process_runner;
       });
 
     // Mock getOutput() to handle both string and array returns.
-    $mock_runner->method('getOutput')->willReturnCallback(fn(bool $as_array = FALSE): array|string => $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output');
-    $mock_runner->method('getCommand')->willReturn('ahoy build');
+    $build_process_runner->method('getOutput')->willReturnCallback(fn(bool $as_array = FALSE): array|string => $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output');
+    $build_process_runner->method('getCommand')->willReturn('ahoy build');
 
     // Set up getExitCode using the provided callback.
-    $mock_runner->method('getExitCode')
+    $build_process_runner->method('getExitCode')
       ->willReturnCallback(function () use ($exit_code_callback, &$current_command) {
         return $exit_code_callback($current_command);
       });
@@ -56,20 +58,30 @@ class BuildCommandTest extends FunctionalTestCase {
     // Mock logger to prevent errors in showSuccessSummary/showFailureSummary.
     $mock_logger = $this->createMock(FileLoggerInterface::class);
     $mock_logger->method('getPath')->willReturn('/tmp/mock.log');
-    $mock_runner->method('getLogger')->willReturn($mock_logger);
+    $build_process_runner->method('getLogger')->willReturn($mock_logger);
 
     // Mock setCwd to return runner for method chaining.
-    $mock_runner->method('setCwd')->willReturn($mock_runner);
+    $build_process_runner->method('setCwd')->willReturn($build_process_runner);
 
-    // Create command and inject mock runner using setRunner().
-    $command = new BuildCommand();
-    $command->setRunner($mock_runner);
+    // Always register CheckRequirementsCommand with mocked runner and finder.
+    // Mock ExecutableFinder.
+    $requirements_finder = $this->createMock(ExecutableFinder::class);
+    $final_finder_callback = $requirements_finder_callback ?? fn(string $name): string => '/usr/bin/' . $name;
+    $requirements_finder->method('find')
+      ->willReturnCallback(fn(string $name) => $final_finder_callback($name));
+
+    // Mock ExecutableFinder for BuildCommand's ProcessRunner.
+    $build_process_runner->method('getExecutableFinder')->willReturn($requirements_finder);
+
+    // Create command and inject mock runner using setProcessRunner().
+    $build_command = new BuildCommand();
+    $build_command->setProcessRunner($build_process_runner);
 
     // Initialize application with our command.
-    static::applicationInitFromCommand($command);
+    static::applicationInitFromCommand($build_command);
 
-    // Always register CheckRequirementsCommand with mocked runner.
-    // Use provided callback or default to success (exit code 0).
+    // Mock ProcessRunner - use provided callback or default to
+    // success (exit code 0).
     $requirements_runner = $this->createMock(ProcessRunner::class);
 
     $current_requirements_command = '';
@@ -88,8 +100,12 @@ class BuildCommandTest extends FunctionalTestCase {
         return $final_requirements_callback($current_requirements_command);
       });
 
+    // Mock ExecutableFinder for CheckRequirementsCommand's ProcessRunner.
+    $requirements_runner->method('getExecutableFinder')->willReturn($requirements_finder);
+
     $check_command = new CheckRequirementsCommand();
-    $check_command->setRunner($requirements_runner);
+    $check_command->setExecutableFinder($requirements_finder);
+    $check_command->setProcessRunner($requirements_runner);
     $this->applicationGet()->add($check_command);
 
     // Run build with provided inputs.
@@ -109,7 +125,8 @@ class BuildCommandTest extends FunctionalTestCase {
    *   command_inputs: array<string, mixed>,
    *   expect_failure: bool,
    *   output_assertions: array<string>,
-   *   requirements_exit_callback?: ?\Closure
+   *   requirements_exit_callback?: ?\Closure,
+   *   requirements_finder_callback?: ?\Closure
    *   }>
    */
   public static function dataProviderBuildCommand(): array {
@@ -117,7 +134,7 @@ class BuildCommandTest extends FunctionalTestCase {
       // -----------------------------------------------------------------------
       // Requirements check scenarios.
       // -----------------------------------------------------------------------
-      'Build runs requirements check by default (success)' => [
+      'Build runs requirements check by default, success' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => [],
         'expect_failure' => FALSE,
@@ -134,7 +151,7 @@ class BuildCommandTest extends FunctionalTestCase {
         'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
       ],
 
-      'Requirements check fails - one missing (Docker)' => [
+      'Requirements check fails - one missing, Docker' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => [],
         'expect_failure' => TRUE,
@@ -148,15 +165,8 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
         ),
-        'requirements_exit_callback' => function (string $current_command): int {
-          // Docker command fails, others succeed.
-          if ((str_contains($current_command, "command -v 'docker'") || str_contains($current_command, 'command -v docker'))
-            && !str_contains($current_command, 'compose')
-            && !str_contains($current_command, 'docker --version')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
-          }
-          return RunnerInterface::EXIT_SUCCESS;
-        },
+        'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'requirements_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
       ],
 
       'Requirements check fails - all missing' => [
@@ -174,12 +184,13 @@ class BuildCommandTest extends FunctionalTestCase {
           ]),
         ),
         'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
+        'requirements_finder_callback' => fn(string $name): ?string => NULL,
       ],
 
       // -----------------------------------------------------------------------
       // Basic build scenarios.
       // -----------------------------------------------------------------------
-      'Build with skip requirements check (success)' => [
+      'Build with skip requirements check, success' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--skip-requirements-check' => TRUE],
         'expect_failure' => FALSE,
@@ -199,7 +210,7 @@ class BuildCommandTest extends FunctionalTestCase {
       // -----------------------------------------------------------------------
       // Profile flag scenarios.
       // -----------------------------------------------------------------------
-      'Build with profile flag and skip requirements (success)' => [
+      'Build with profile flag and skip requirements, success' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => [
           '--profile' => TRUE,
@@ -219,7 +230,7 @@ class BuildCommandTest extends FunctionalTestCase {
 
       ],
 
-      'Build with profile flag and requirements check (success)' => [
+      'Build with profile flag and requirements check, success' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--profile' => TRUE],
         'expect_failure' => FALSE,
@@ -252,7 +263,7 @@ class BuildCommandTest extends FunctionalTestCase {
       // -----------------------------------------------------------------------
       // Build failure scenarios.
       // -----------------------------------------------------------------------
-      'Build failure (ahoy build fails, exit code 1)' => [
+      'Build failure, ahoy build fails, exit code 1' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
         'command_inputs' => ['--skip-requirements-check' => TRUE],
         'expect_failure' => TRUE,
@@ -269,7 +280,7 @@ class BuildCommandTest extends FunctionalTestCase {
 
       ],
 
-      'Build failure with profile (ahoy build fails, exit code 1)' => [
+      'Build failure with profile, ahoy build fails, exit code 1' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
         'command_inputs' => [
           '--profile' => TRUE,
@@ -290,7 +301,7 @@ class BuildCommandTest extends FunctionalTestCase {
 
       ],
 
-      'Build failure (ahoy build fails, exit code 2)' => [
+      'Build failure, ahoy build fails, exit code 2' => [
         'exit_code_callback' => fn(string $current_command): int => 2,
         'command_inputs' => ['--skip-requirements-check' => TRUE],
         'expect_failure' => TRUE,
@@ -307,7 +318,7 @@ class BuildCommandTest extends FunctionalTestCase {
 
       ],
 
-      'Build failure (ahoy build fails, exit code 127)' => [
+      'Build failure, ahoy build fails, exit code 127' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
         'command_inputs' => ['--skip-requirements-check' => TRUE],
         'expect_failure' => TRUE,

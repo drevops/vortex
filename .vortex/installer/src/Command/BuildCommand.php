@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Command;
 
-use DrevOps\VortexInstaller\Runner\CommandRunner;
-use DrevOps\VortexInstaller\Runner\ProcessRunner;
+use DrevOps\VortexInstaller\Runner\CommandRunnerAwareInterface;
+use DrevOps\VortexInstaller\Runner\CommandRunnerAwareTrait;
+use DrevOps\VortexInstaller\Runner\ProcessRunnerAwareInterface;
+use DrevOps\VortexInstaller\Runner\ProcessRunnerAwareTrait;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -17,7 +19,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Build command.
  */
-class BuildCommand extends Command {
+class BuildCommand extends Command implements ProcessRunnerAwareInterface, CommandRunnerAwareInterface {
+
+  use ProcessRunnerAwareTrait;
+  use CommandRunnerAwareTrait;
 
   const string OPTION_PROFILE = 'profile';
 
@@ -31,11 +36,6 @@ class BuildCommand extends Command {
    * @var string
    */
   public static $defaultName = 'build';
-
-  /**
-   * The process runner.
-   */
-  protected ?ProcessRunner $runner = NULL;
 
   /**
    * Whether to build from profile.
@@ -66,10 +66,10 @@ class BuildCommand extends Command {
       $requirements_ok = Task::action(
         label: 'Checking requirements',
         action: function (): bool {
-          $runner = (new CommandRunner($this->getApplication()))->disableLog();
-          $runner->run('check-requirements', [], ['--no-summary' => '1']);
+          $command_runner = $this->getCommandRunner()->disableLog();
+          $command_runner->run('check-requirements', [], ['--no-summary' => '1']);
 
-          return $runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
+          return $command_runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
         },
         failure: 'Missing requirements. Run: ./installer.php check-requirements',
         streaming: TRUE,
@@ -92,10 +92,10 @@ class BuildCommand extends Command {
           $env['VORTEX_PROVISION_TYPE'] = 'profile';
         }
 
-        $this->runner = $this->getRunner()->setCwd($cwd);
-        $this->runner->run('ahoy build', env: $env);
+        $this->processRunner = $this->getProcessRunner()->setCwd($cwd);
+        $this->processRunner->run('ahoy build', env: $env);
 
-        return $this->runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
+        return $this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
       },
       success: fn(bool $result): string => $result ? 'Build completed' : 'Build failed',
       failure: 'Build failed',
@@ -139,7 +139,7 @@ class BuildCommand extends Command {
     $output .= 'Login:    ahoy login' . PHP_EOL;
     $output .= PHP_EOL;
 
-    $log_path = $this->runner->getLogger()->getPath();
+    $log_path = $this->processRunner->getLogger()->getPath();
     if ($log_path) {
       $output .= 'Log file: ' . $log_path . PHP_EOL;
       $output .= PHP_EOL;
@@ -160,15 +160,15 @@ class BuildCommand extends Command {
   protected function showFailureSummary(): void {
     Tui::line('');
 
-    $command = $this->runner->getCommand();
+    $command = $this->processRunner->getCommand();
     if ($command) {
       Tui::line('Failed at:  ' . $command);
     }
 
-    $exit_code = $this->runner->getExitCode();
+    $exit_code = $this->processRunner->getExitCode();
     Tui::line('Exit code:  ' . $exit_code);
 
-    $log_path = $this->runner->getLogger()->getPath();
+    $log_path = $this->processRunner->getLogger()->getPath();
     if ($log_path) {
       Tui::line('Log file:   ' . $log_path);
     }
@@ -176,7 +176,7 @@ class BuildCommand extends Command {
     Tui::line('');
 
     // Show last 10 lines of output for context.
-    $runner_output = $this->runner->getOutput(as_array: TRUE);
+    $runner_output = $this->processRunner->getOutput(as_array: TRUE);
 
     if (!is_array($runner_output)) {
       throw new \RuntimeException('Runner output is not an array.');
@@ -189,25 +189,6 @@ class BuildCommand extends Command {
         Tui::line('  ' . $last_line);
       }
     }
-  }
-
-  /**
-   * Get the process runner.
-   *
-   * Factory method that returns existing runner or creates new one.
-   */
-  protected function getRunner(): ProcessRunner {
-    // Return already-set runner if available (for testing).
-    return $this->runner ?? (new ProcessRunner());
-  }
-
-  /**
-   * Set the process runner.
-   *
-   * Allows dependency injection for testing.
-   */
-  public function setRunner(ProcessRunner $runner): void {
-    $this->runner = $runner;
   }
 
 }
