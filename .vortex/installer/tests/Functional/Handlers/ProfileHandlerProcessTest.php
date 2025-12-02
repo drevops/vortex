@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Profile::class)]
 class ProfileHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'profile, minimal' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Profile::id()), Profile::MINIMAL)),

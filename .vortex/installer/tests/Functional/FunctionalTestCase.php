@@ -85,14 +85,12 @@ abstract class FunctionalTestCase extends UnitTestCase {
   protected function runNonInteractiveInstall(?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
     $dst ??= static::$sut;
 
-    if ($dst !== '' && $dst !== '0') {
-      $args[InstallCommand::ARG_DESTINATION] = $dst;
-    }
-
     $defaults = [
       InstallCommand::OPTION_NO_INTERACTION => TRUE,
       InstallCommand::OPTION_URI => File::dir(static::$root),
+      InstallCommand::OPTION_DESTINATION => $dst,
     ];
+
     $options += $defaults;
 
     foreach ($options as $option => $value) {
@@ -110,7 +108,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
   }
 
-  protected function assertSutContains(string|array $needles): void {
+  protected function assertSutContains(string | array $needles): void {
     $needles = is_array($needles) ? $needles : [$needles];
 
     foreach ($needles as $needle) {
@@ -127,7 +125,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     }
   }
 
-  protected function assertSutNotContains(string|array $needles): void {
+  protected function assertSutNotContains(string | array $needles): void {
     $needles = is_array($needles) ? $needles : [$needles];
 
     foreach ($needles as $needle) {

@@ -34,4 +34,21 @@ trait TuiTrait {
     Prompt::validateUsing(NULL);
   }
 
+  /**
+   * Helper to create command options array with '--' prefix.
+   *
+   * @param array<string, mixed> $options
+   *   Array of option constants as keys and their values.
+   *
+   * @return array<string, mixed>
+   *   Array with '--' prefix added to each option key.
+   */
+  protected static function tuiOptions(array $options): array {
+    $result = [];
+    foreach ($options as $option => $value) {
+      $result['--' . $option] = $value;
+    }
+    return $result;
+  }
+
 }

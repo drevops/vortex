@@ -76,7 +76,7 @@ class PharTest extends FunctionalTestCase {
     $this->runInstallationWithPhar($this->pharFile, ['help' => TRUE]);
 
     $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Vortex Installer');
+    $this->assertProcessOutputContains('Install Vortex from remote or local repository');
     $this->assertProcessOutputNotContains('Welcome to the Vortex non-interactive installer');
     $this->assertFileDoesNotExist(static::$sut . DIRECTORY_SEPARATOR . 'composer.json', 'Composer file should NOT be created when --help flag is used');
     $this->assertFileExists($this->pharFile, 'PHAR file should NOT be removed when --help option is used');
@@ -103,10 +103,11 @@ class PharTest extends FunctionalTestCase {
   }
 
   protected function runInstallationWithPhar(string $phar_path, array $options = [], array $inputs = []): void {
-    $arguments = [$phar_path, static::$sut];
+    $arguments = [$phar_path];
 
     $defaults = [
-      'uri' => File::dir(static::$root),
+      InstallCommand::OPTION_DESTINATION => static::$sut,
+      InstallCommand::OPTION_URI => File::dir(static::$root),
     ];
     $options += $defaults;
 

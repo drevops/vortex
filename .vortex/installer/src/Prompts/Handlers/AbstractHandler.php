@@ -171,6 +171,13 @@ abstract class AbstractHandler implements HandlerInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function postBuild(string $result): ?string {
+    return NULL;
+  }
+
+  /**
    * Check that Vortex is installed for this project.
    *
    * @todo Move to another place.

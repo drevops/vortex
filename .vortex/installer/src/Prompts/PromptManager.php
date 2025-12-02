@@ -324,8 +324,10 @@ class PromptManager {
     $output = '';
 
     $ids = [
-      Internal::id(),
       Starter::id(),
+      HostingProvider::id(),
+      CiProvider::id(),
+      Internal::id(),
     ];
 
     foreach ($ids as $id) {
@@ -334,6 +336,39 @@ class PromptManager {
       }
 
       $handler_output = $this->handlers[$id]->postInstall();
+
+      if (is_string($handler_output) && !empty($handler_output)) {
+        $output .= $handler_output;
+      }
+    }
+
+    return $output;
+  }
+
+  /**
+   * Run all post-build processors.
+   *
+   * @param string $result
+   *   The result of the build operation.
+   *
+   * @return string
+   *   The combined output from all post-build processors.
+   */
+  public function runPostBuild(string $result): string {
+    $output = '';
+
+    $ids = [
+      Starter::id(),
+      HostingProvider::id(),
+      CiProvider::id(),
+    ];
+
+    foreach ($ids as $id) {
+      if (!array_key_exists($id, $this->handlers)) {
+        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
+      }
+
+      $handler_output = $this->handlers[$id]->postBuild($result);
 
       if (is_string($handler_output) && !empty($handler_output)) {
         $output .= $handler_output;

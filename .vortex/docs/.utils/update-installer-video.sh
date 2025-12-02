@@ -183,7 +183,8 @@ proc wait_and_enter {} {
 #######################
 # Start the installer #
 #######################
-spawn php installer.php star_wars
+set env(VORTEX_INSTALLER_PROMPT_BUILD_NOW) 0
+spawn php installer.php --destination=star_wars
 
 # Wait for the welcome screen and let it proceed
 expect {
@@ -235,12 +236,12 @@ while {1} {
       after 2000
       safe_send "\r"
     }
-    "─┘" {
-      wait_and_enter
-    }
     "Finished installing Vortex" {
       # Installation completed, break out of loop
       break
+    }
+    "─┘" {
+      wait_and_enter
     }
     timeout {
       puts "Timeout during installation"
@@ -251,7 +252,22 @@ while {1} {
       break
     }
   }
-#  sleep 1
+}
+
+# Handle the final "Run the site build now?" prompt separately
+# Default is "No" via VORTEX_INSTALLER_PROMPT_BUILD_NOW=0 env var
+expect {
+  "Run the site build now?" {
+    after 2000
+    # Just press Enter to accept the default (No)
+    safe_send "\r"
+  }
+  timeout {
+    puts "Timeout waiting for build prompt"
+  }
+  eof {
+    puts "End of file before build prompt"
+  }
 }
 
 expect eof

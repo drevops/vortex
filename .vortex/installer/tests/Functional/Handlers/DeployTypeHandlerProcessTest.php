@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(DeployTypes::class)]
 class DeployTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'deploy types, artifact' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(DeployTypes::id()), Converter::toList([DeployTypes::ARTIFACT], ',', TRUE))),

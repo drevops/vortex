@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Theme::class)]
 class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'theme, olivero' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), Theme::OLIVERO)),

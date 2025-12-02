@@ -39,6 +39,8 @@ final class Config {
 
   const string NO_CLEANUP = 'VORTEX_INSTALLER_NO_CLEANUP';
 
+  const string BUILD_NOW = 'VORTEX_INSTALLER_BUILD_NOW';
+
   /**
    * Store of configuration values.
    *

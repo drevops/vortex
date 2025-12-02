@@ -86,7 +86,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Test PHAR
-        run: ./build/installer.phar --no-interaction example || exit 1
+        run: ./build/installer.phar --no-interaction --destination=example || exit 1
         working-directory: .vortex/installer
         env:
           GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}

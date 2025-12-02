@@ -27,6 +27,12 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    static::envUnsetPrefix('VORTEX_');
+    static::envUnsetPrefix('DRUPAL_');
+    static::envUnsetPrefix('LAGOON_');
+    static::envUnset('WEBROOT');
+    static::envUnset('TZ');
+
     static::applicationInitFromCommand(InstallCommand::class);
 
     // Use a two-words name for the sut directory.
@@ -36,7 +42,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
     chdir(static::$sut);
   }
 
-  #[DataProvider('dataProviderInstall')]
+  #[DataProvider('dataProviderHandlerProcess')]
   #[RunInSeparateProcess]
   public function testHandlerProcess(
     ?SerializableClosure $before = NULL,
@@ -67,7 +73,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
     }
   }
 
-  abstract public static function dataProviderInstall(): array;
+  abstract public static function dataProviderHandlerProcess(): array;
 
   protected function assertCommon(): void {
     $this->assertDirectoryEqualsDirectory(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');

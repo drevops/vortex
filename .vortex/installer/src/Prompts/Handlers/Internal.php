@@ -166,7 +166,10 @@ class Internal extends AbstractHandler {
     $this->config->set(Config::IS_DEMO, $is_demo);
   }
 
-  public function postInstall():?string {
+  /**
+   * {@inheritdoc}
+   */
+  public function postInstall(): ?string {
     $output = '';
 
     if (!$this->isInstalled()) {

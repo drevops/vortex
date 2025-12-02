@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Starter::class)]
 class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderInstall(): array {
+  public static function dataProviderHandlerProcess(): array {
     return [
       'starter, demo db' => [
         static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::LOAD_DATABASE_DEMO)),

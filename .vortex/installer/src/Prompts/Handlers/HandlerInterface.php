@@ -184,4 +184,15 @@ interface HandlerInterface {
    */
   public function postInstall(): ?string;
 
+  /**
+   * Actions to perform and messages to print after build is complete.
+   *
+   * @param string $result
+   *   The result of the build operation.
+   *
+   * @return string|null
+   *   The output to display, or NULL if none.
+   */
+  public function postBuild(string $result): ?string;
+
 }
