@@ -4,9 +4,87 @@ sidebar_position: 1
 
 # Acquia
 
-:::note Content coming soon
+[Acquia](https://www.acquia.com/) is a cloud hosting platform specifically
+designed for Drupal applications, offering managed infrastructure, developer
+tools, and enterprise-grade security.
 
-  This section will provide detailed information about using **Vortex** with
-  the [Acquia](https://www.acquia.com/) hosting platform.
+For general Acquia documentation, refer to the
+[Acquia Documentation](https://docs.acquia.com/).
 
-:::
+## Integration
+
+Vortex provides the following integration with Acquia:
+
+### Tasks
+
+With Vortex, you can:
+
+- **Download a database** from an Acquia environment for local development or CI
+- **Copy the database** between Acquia environments (e.g., refresh staging from production)
+- **Copy files** between environments to synchronize uploaded content
+- **Purge the Varnish cache** to ensure visitors see fresh content
+
+When running these tasks, your `.env` and `.env.local` files are used as the
+source for the application name and API credentials.
+
+### Deployment automation
+
+When code is deployed, Vortex automatically:
+
+1. **Provisions the site** - Runs database updates, imports configuration, clears caches
+2. **Purges edge cache** - Clears the Varnish cache to serve fresh content
+3. **Sends notifications** - Notifies configured channels about the deployment
+
+This is implemented using [Acquia Cloud Hooks](https://docs.acquia.com/cloud-platform/develop/api/cloud-hooks/) -
+pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/develop/hooks)
+directory that trigger on code deployments, code updates, and database copy
+operations.
+
+### Environment detection
+
+Vortex automatically detects when running on Acquia and loads appropriate
+settings from [`web/sites/default/includes/providers/settings.acquia.php`](https://github.com/drevops/vortex/blob/develop/web/sites/default/includes/providers/settings.acquia.php).
+This includes Acquia-specific configurations for caching, file paths, and
+environment variables.
+
+## Onboarding
+
+Before you begin, ensure you have:
+
+- An Acquia Cloud subscription with at least one application created
+- Access to the Acquia Cloud API (API key and secret)
+- SSH access configured for your Acquia environments
+
+### 1. Configure environment variables
+
+Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/develop/.env)
+file:
+
+| Variable | Description |
+|----------|-------------|
+| `VORTEX_ACQUIA_APP_NAME` | Your Acquia application name (machine name) |
+
+For CI environments, configure these secrets in your CI provider ([GitHub Actions](/docs/continuous-integration/github-actions) or [CircleCI](/docs/continuous-integration/circleci)):
+
+| Variable | Description |
+|----------|-------------|
+| `ACQUIA_KEY` | Your Acquia Cloud API key |
+| `ACQUIA_SECRET` | Your Acquia Cloud API secret |
+
+### 2. Configure Drush aliases (optional)
+
+To run Drush commands on remote Acquia environments, download your Drush aliases
+from the Acquia Cloud UI. See
+[Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases)
+for detailed instructions.
+
+## Routine Operations
+
+### Download database
+
+Download a database backup from your Acquia environment for local development
+or CI builds:
+
+```bash
+ahoy download-db
+```
