@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit;
 use AlexSkrypnyk\File\ExtendedSplFileInfo;
 use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
 use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
+use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 use DrevOps\VortexInstaller\Utils\File;
@@ -25,6 +26,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   use SerializableClosureTrait;
   use DirectoryAssertionsTrait;
   use FileAssertionsTrait;
+  use EnvTrait;
 
   /**
    * {@inheritdoc}
@@ -37,6 +39,14 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
 
     // Run tests from the root of the repo.
     self::locationsInit($cwd . '/../../');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    static::envReset();
+    parent::tearDown();
   }
 
   /**

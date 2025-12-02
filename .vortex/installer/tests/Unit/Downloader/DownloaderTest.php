@@ -249,7 +249,7 @@ class DownloaderTest extends UnitTestCase {
   }
 
   public function testDiscoverLatestReleaseRemoteWithGithubToken(): void {
-    putenv('GITHUB_TOKEN=test_token_12345');
+    static::envSet('GITHUB_TOKEN', 'test_token_12345');
     $release_json = json_encode([
       ['tag_name' => 'v1.5.0', 'draft' => FALSE],
     ]);
@@ -272,11 +272,10 @@ class DownloaderTest extends UnitTestCase {
     $downloader = new Downloader($mock_http_client, $mock_archiver);
     $version = $downloader->download('https://github.com/user/repo', 'stable', $destination);
     $this->assertEquals('v1.5.0', $version);
-    putenv('GITHUB_TOKEN');
   }
 
   public function testDownloadArchiveWithGithubToken(): void {
-    putenv('GITHUB_TOKEN=test_token_67890');
+    static::envSet('GITHUB_TOKEN', 'test_token_67890');
     $mock_http_client = $this->createMock(ClientInterface::class);
     $mock_response = $this->createMock(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
@@ -293,7 +292,6 @@ class DownloaderTest extends UnitTestCase {
     $downloader = new Downloader($mock_http_client, $mock_archiver);
     $version = $downloader->download('https://github.com/user/repo', 'HEAD', $destination);
     $this->assertEquals('develop', $version);
-    putenv('GITHUB_TOKEN');
   }
 
   public static function dataProviderParseUri(): array {
