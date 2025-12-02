@@ -9,7 +9,6 @@ use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\File;
 use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Abstract base class for installer tests.
@@ -43,7 +42,6 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
   }
 
   #[DataProvider('dataProviderHandlerProcess')]
-  #[RunInSeparateProcess]
   public function testHandlerProcess(
     ?SerializableClosure $before = NULL,
     ?SerializableClosure $after = NULL,
