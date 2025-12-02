@@ -141,7 +141,11 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
   protected function prepareArguments(array $parsed_args, array $additional_args): array {
     $all_args = array_merge($parsed_args, $this->formatArgs($additional_args));
 
-    foreach ($all_args as &$arg) {
+    foreach ($all_args as $key => &$arg) {
+      if (!is_scalar($arg)) {
+        $value_repr = get_debug_type($arg);
+        throw new \InvalidArgumentException(sprintf('Argument at index "%s" must be a scalar value, %s given.', $key, $value_repr));
+      }
       $arg = (string) $arg;
     }
     unset($arg);
@@ -159,9 +163,10 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
    *   When an environment variable is not a scalar value.
    */
   protected function validateEnvironmentVars(array $env): void {
-    foreach ($env as $env_value) {
+    foreach ($env as $key => $env_value) {
       if (!is_scalar($env_value)) {
-        throw new \InvalidArgumentException('All environment variables must be scalar values.');
+        $value_repr = get_debug_type($env_value);
+        throw new \InvalidArgumentException(sprintf('Environment variable "%s" must be a scalar value, %s given.', $key, $value_repr));
       }
     }
   }

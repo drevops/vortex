@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Runner\CommandRunnerAwareInterface;
 use DrevOps\VortexInstaller\Runner\CommandRunnerAwareTrait;
 use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareInterface;
 use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareTrait;
+use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
@@ -452,7 +453,7 @@ EOF
     $runner = $this->getCommandRunner();
     $runner->run('build', args: $is_profile ? ['--profile' => '1'] : [], output: $output);
 
-    return $runner->getExitCode() === Command::SUCCESS;
+    return $runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
   }
 
   protected function header(): void {
@@ -721,7 +722,7 @@ EOT;
    *   The downloader.
    */
   protected function getDownloader(): Downloader {
-    return $this->downloader ?? new Downloader();
+    return $this->downloader ??= new Downloader();
   }
 
   /**

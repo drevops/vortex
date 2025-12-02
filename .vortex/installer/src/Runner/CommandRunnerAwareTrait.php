@@ -25,7 +25,7 @@ trait CommandRunnerAwareTrait {
    */
   public function getCommandRunner(): CommandRunner {
     // @phpstan-ignore-next-line
-    return $this->commandRunner ?? new CommandRunner($this->getApplication());
+    return $this->commandRunner ??= new CommandRunner($this->getApplication());
   }
 
   /**

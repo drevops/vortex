@@ -136,8 +136,7 @@ class ProcessRunnerTest extends UnitTestCase {
     $runner->validateEnvironmentVarsPublic($env);
 
     if ($expected_exception === NULL) {
-      // @phpstan-ignore-next-line
-      $this->assertTrue(TRUE, 'Validation passed');
+      $this->addToAssertionCount(1);
     }
   }
 
@@ -350,6 +349,13 @@ class ProcessRunnerTest extends UnitTestCase {
         'expected_exception' => NULL,
         'expected_message' => NULL,
       ],
+      'non-scalar argument throws exception' => [
+        'parsed_args' => ['arg1', ['array']],
+        'additional_args' => [],
+        'expected' => [],
+        'expected_exception' => \InvalidArgumentException::class,
+        'expected_message' => 'Argument at index "1" must be a scalar value, array given.',
+      ],
     ];
   }
 
@@ -371,7 +377,7 @@ class ProcessRunnerTest extends UnitTestCase {
       'non-scalar env var throws exception' => [
         'env' => ['VAR1' => ['array']],
         'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'All environment variables must be scalar values',
+        'expected_message' => 'Environment variable "VAR1" must be a scalar value, array given.',
       ],
     ];
   }

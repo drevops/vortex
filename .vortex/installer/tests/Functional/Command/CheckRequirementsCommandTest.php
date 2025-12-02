@@ -72,7 +72,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
   }
 
   /**
-   * Data provider for testCheckWithMockedRunner.
+   * Data provider for testCheckRequirementsCommand.
    *
    * @return array<string, array{
    *   executable_finder_callback: \Closure,

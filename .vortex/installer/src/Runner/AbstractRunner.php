@@ -205,7 +205,7 @@ abstract class AbstractRunner implements RunnerInterface {
   protected function reset(): void {
     $this->command = NULL;
     $this->output = '';
-    $this->exitCode = self::EXIT_SUCCESS;
+    $this->exitCode = RunnerInterface::EXIT_SUCCESS;
   }
 
   /**

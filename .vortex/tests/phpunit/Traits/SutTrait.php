@@ -74,12 +74,12 @@ trait SutTrait {
 
     if (!is_dir(static::$root . '/.vortex/installer/vendor')) {
       $this->logNote('Installing dependencies of the Vortex installer');
-      $this->cmd('composer --working-dir=' . static::$root . '/.vortex/installer install --no-interaction --no-progress');
+      $this->cmd('composer --working-dir=' . escapeshellarg(static::$root . '/.vortex/installer') . ' install --no-interaction --no-progress');
     }
 
     // @todo Convert options to $arguments once
     // ProcessTrait::processParseCommand() is fixed.
-    $cmd = sprintf('php .vortex/installer/installer.php --no-interaction --destination=%s', static::locationsSut());
+    $cmd = sprintf('php .vortex/installer/installer.php --no-interaction --destination=%s', escapeshellarg(static::locationsSut()));
 
     $this->logNote('Run the installer script');
     $this->cmd(
@@ -134,14 +134,14 @@ trait SutTrait {
 
     if (!is_dir($installer_dir)) {
       $this->logNote('Installing dependencies of the Vortex installer');
-      $this->cmd('composer --working-dir=' . $installer_dir . ' install --no-interaction --no-progress');
+      $this->cmd('composer --working-dir=' . escapeshellarg($installer_dir) . ' install --no-interaction --no-progress');
       $this->assertDirectoryExists($installer_dir . '/vendor', 'Vortex installer vendor directory should exist after installing dependencies');
     }
 
-    $this->cmd('composer --working-dir=' . $installer_dir . ' build', env: ['SHELL_VERBOSITY' => -1], txt: 'Build the Vortex installer PHAR');
+    $this->cmd('composer --working-dir=' . escapeshellarg($installer_dir) . ' build', env: ['SHELL_VERBOSITY' => -1], txt: 'Build the Vortex installer PHAR');
     $this->assertFileExists($installer_phar, 'Installer PHAR should be built');
 
-    $this->cmd('php ' . $installer_phar . ' --version');
+    $this->cmd('php ' . escapeshellarg($installer_phar) . ' --version');
     $this->logNote('Built Vortex installer: ' . trim($this->processGet()->getOutput()));
 
     return $installer_phar;

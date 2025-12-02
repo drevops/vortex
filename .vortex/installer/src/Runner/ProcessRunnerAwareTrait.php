@@ -23,7 +23,7 @@ trait ProcessRunnerAwareTrait {
    *   The process runner instance.
    */
   public function getProcessRunner(): ProcessRunner {
-    return $this->processRunner ?? new ProcessRunner();
+    return $this->processRunner ??= new ProcessRunner();
   }
 
   /**
