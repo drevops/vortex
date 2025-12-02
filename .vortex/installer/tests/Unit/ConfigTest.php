@@ -19,28 +19,7 @@ class ConfigTest extends UnitTestCase {
     parent::setUp();
 
     // Clear any existing environment variables that could interfere with tests.
-    $constants = [
-      Config::ROOT,
-      Config::DST,
-      Config::TMP,
-      Config::REPO,
-      Config::REF,
-      Config::PROCEED,
-      Config::IS_DEMO,
-      Config::IS_DEMO_DB_DOWNLOAD_SKIP,
-      Config::IS_VORTEX_PROJECT,
-      Config::VERSION,
-      Config::NO_INTERACTION,
-      Config::QUIET,
-      Config::NO_CLEANUP,
-    ];
-
-    foreach ($constants as $constant) {
-      unset($_ENV[$constant]);
-      if (getenv($constant) !== FALSE) {
-        putenv($constant);
-      }
-    }
+    static::envUnsetPrefix('VORTEX_INSTALLER');
   }
 
   public function testConstructorDefaults(): void {
@@ -189,14 +168,11 @@ class ConfigTest extends UnitTestCase {
     $set_value = 'set_value';
 
     // Set environment variable.
-    putenv($env_key . '=' . $env_value);
+    static::envSet($env_key, $env_value);
 
     // Environment variable should take precedence.
     $config->set($env_key, $set_value);
     $this->assertEquals($env_value, $config->get($env_key));
-
-    // Clean up.
-    putenv($env_key);
   }
 
   public function testSetSkipEnvironment(): void {
@@ -206,14 +182,11 @@ class ConfigTest extends UnitTestCase {
     $set_value = 'set_value';
 
     // Set environment variable.
-    putenv($env_key . '=' . $env_value);
+    static::envSet($env_key, $env_value);
 
     // Skip environment check.
     $config->set($env_key, $set_value, TRUE);
     $this->assertEquals($set_value, $config->get($env_key));
-
-    // Clean up.
-    putenv($env_key);
   }
 
   public function testGetRoot(): void {
@@ -349,9 +322,11 @@ class ConfigTest extends UnitTestCase {
 
   public function testEnvironmentVariablePrecedenceInConstructor(): void {
     // Set environment variables.
-    putenv(Config::ROOT . '=/env/root');
-    putenv(Config::DST . '=/env/dst');
-    putenv(Config::TMP . '=/env/tmp');
+    static::envSetMultiple([
+      Config::ROOT => '/env/root',
+      Config::DST => '/env/dst',
+      Config::TMP => '/env/tmp',
+    ]);
 
     $config = new Config('/param/root', '/param/dst', '/param/tmp');
 
@@ -360,11 +335,6 @@ class ConfigTest extends UnitTestCase {
     // DST is set with skip_env=TRUE in constructor, so param value is used.
     $this->assertEquals('/param/dst', $config->getDst());
     $this->assertEquals('/env/tmp', $config->get(Config::TMP));
-
-    // Clean up.
-    putenv(Config::ROOT);
-    putenv(Config::DST);
-    putenv(Config::TMP);
   }
 
   public function testFluentInterface(): void {

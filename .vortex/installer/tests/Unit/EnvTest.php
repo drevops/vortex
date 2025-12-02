@@ -48,11 +48,9 @@ class EnvTest extends UnitTestCase {
 
   #[DataProvider('dataProviderGet')]
   public function testGet(string $name, string $value, ?string $default, ?string $expected): void {
-    putenv(sprintf('%s=%s', $name, $expected));
+    static::envSet($name, $expected);
 
     $this->assertSame($expected, Env::get($name, $default));
-
-    putenv($name);
   }
 
   public static function dataProviderGet(): array {
@@ -68,7 +66,12 @@ class EnvTest extends UnitTestCase {
 
   #[DataProvider('dataProviderGetFromDotenv')]
   public function testGetFromDotenv(string $name, ?string $value, ?string $value_dotenv, ?string $expected): void {
-    putenv(sprintf('%s=%s', $name, $expected));
+    if ($expected !== NULL) {
+      static::envSet($name, $expected);
+    }
+    else {
+      static::envUnset($name);
+    }
 
     $content = '';
     if ($value_dotenv) {
@@ -79,8 +82,6 @@ class EnvTest extends UnitTestCase {
 
     $actual = Env::getFromDotenv($name, dirname($filename));
     $this->assertEquals($expected, $actual);
-
-    putenv($name);
   }
 
   public static function dataProviderGetFromDotenv(): array {
@@ -95,7 +96,7 @@ class EnvTest extends UnitTestCase {
   #[DataProvider('dataProviderPutFromDotenv')]
   public function testPutFromDotenv(string $name, ?string $value, ?string $value_dotenv, bool $override_existing, ?string $expected): void {
     if ($value) {
-      putenv(sprintf('%s=%s', $name, $value));
+      static::envSet($name, $value);
       $GLOBALS['_ENV'][$name] = $value;
       $GLOBALS['_SERVER'][$name] = $value;
     }
@@ -311,8 +312,7 @@ class EnvTest extends UnitTestCase {
     Env::put($name, $value);
 
     $this->assertEquals($value, getenv($name));
-
-    putenv($name);
+    static::envUnset($name);
   }
 
   public function testGetFromDotenvFileNotReadable(): void {
@@ -331,9 +331,7 @@ class EnvTest extends UnitTestCase {
     rename($filename, $dotenv_file);
 
     // Ensure no environment variable is set by clearing any existing value.
-    if (getenv('TEST_VAR') !== FALSE) {
-      putenv('TEST_VAR');
-    }
+    static::envUnset('TEST_VAR');
 
     $result = Env::getFromDotenv('TEST_VAR', $dir);
     $this->assertEquals('dotenv_value', $result);

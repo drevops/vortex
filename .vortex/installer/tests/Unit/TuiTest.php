@@ -165,40 +165,25 @@ TEXT;
     $output = new BufferedOutput();
     Tui::init($output);
 
-    // Store original environment.
-    $original_columns = getenv('COLUMNS');
-
-    try {
-      // Mock terminal width if specified.
-      if ($terminal_width !== NULL) {
-        putenv('COLUMNS=' . $terminal_width);
-      }
-
-      if ($width !== NULL) {
-        Tui::box($content, $title, $width);
-      }
-      else {
-        Tui::box($content, $title);
-      }
-
-      $actual = $output->fetch();
-
-      // Strip ANSI color codes using the same method as Strings::strlenPlain()
-      $actual_clean = Strings::stripAnsiColors($actual);
-      $expected_clean = Strings::stripAnsiColors($expected_output);
-
-      $this->assertSame($expected_clean, $actual_clean);
-
+    // Mock terminal width if specified.
+    if ($terminal_width !== NULL) {
+      static::envSet('COLUMNS', (string) $terminal_width);
     }
-    finally {
-      // Restore environment.
-      if ($original_columns !== FALSE) {
-        putenv('COLUMNS=' . $original_columns);
-      }
-      else {
-        putenv('COLUMNS');
-      }
+
+    if ($width !== NULL) {
+      Tui::box($content, $title, $width);
     }
+    else {
+      Tui::box($content, $title);
+    }
+
+    $actual = $output->fetch();
+
+    // Strip ANSI color codes using the same method as Strings::strlenPlain()
+    $actual_clean = Strings::stripAnsiColors($actual);
+    $expected_clean = Strings::stripAnsiColors($expected_output);
+
+    $this->assertSame($expected_clean, $actual_clean);
   }
 
   public static function dataProviderBox(): array {
@@ -545,50 +530,27 @@ EXPECTED,
     ?string $term_program,
     string $expected_padding,
   ): void {
-    // Store original environment values.
-    $original_terminal_emulator = getenv('TERMINAL_EMULATOR');
-    $original_term_program = getenv('TERM_PROGRAM');
-
-    try {
-      // Set test environment variables.
-      if ($terminal_emulator !== NULL) {
-        putenv('TERMINAL_EMULATOR=' . $terminal_emulator);
-      }
-      else {
-        putenv('TERMINAL_EMULATOR');
-      }
-
-      if ($term_program !== NULL) {
-        putenv('TERM_PROGRAM=' . $term_program);
-      }
-      else {
-        putenv('TERM_PROGRAM');
-      }
-
-      // Use reflection to access the protected method.
-      $reflection = new \ReflectionClass(Tui::class);
-      $method = $reflection->getMethod('utfPadding');
-
-      $result = $method->invoke(NULL, $char);
-      $this->assertSame($expected_padding, $result);
-
+    // Set test environment variables.
+    if ($terminal_emulator !== NULL) {
+      static::envSet('TERMINAL_EMULATOR', $terminal_emulator);
     }
-    finally {
-      // Restore original environment variables.
-      if ($original_terminal_emulator !== FALSE) {
-        putenv('TERMINAL_EMULATOR=' . $original_terminal_emulator);
-      }
-      else {
-        putenv('TERMINAL_EMULATOR');
-      }
-
-      if ($original_term_program !== FALSE) {
-        putenv('TERM_PROGRAM=' . $original_term_program);
-      }
-      else {
-        putenv('TERM_PROGRAM');
-      }
+    else {
+      static::envUnset('TERMINAL_EMULATOR');
     }
+
+    if ($term_program !== NULL) {
+      static::envSet('TERM_PROGRAM', $term_program);
+    }
+    else {
+      static::envUnset('TERM_PROGRAM');
+    }
+
+    // Use reflection to access the protected method.
+    $reflection = new \ReflectionClass(Tui::class);
+    $method = $reflection->getMethod('utfPadding');
+
+    $result = $method->invoke(NULL, $char);
+    $this->assertSame($expected_padding, $result);
   }
 
   public static function dataProviderUtfPadding(): array {
