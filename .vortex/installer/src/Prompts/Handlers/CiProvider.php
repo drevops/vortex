@@ -119,4 +119,36 @@ class CiProvider extends AbstractHandler {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function postInstall(): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postBuild(string $result): ?string {
+    if ($this->isInstalled()) {
+      return NULL;
+    }
+
+    $v = $this->getResponseAsString();
+
+    if ($v === self::GITHUB_ACTIONS) {
+      return 'Setup GitHub Actions:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/continuous-integration/github-actions#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
+
+    if ($v === self::CIRCLECI) {
+      return 'Setup CircleCI:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/continuous-integration/circleci#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
+
+    return NULL;
+  }
+
 }

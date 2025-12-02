@@ -69,15 +69,62 @@ class TuiOutput {
 
   const INSTALL_BUILD_FAILED = 'Build failed';
 
-  const INSTALL_LOGIN = 'Login:    ahoy login';
+  const INSTALL_LOGIN = 'Login:';
 
   const INSTALL_LOG_FILE = 'Log file:';
 
   const INSTALL_NEXT_STEPS = 'Next steps:';
 
-  const INSTALL_REVIEW_DOCS = 'Review hosting/provisioning docs';
+  // Handler-specific post-build messages.
+  const POSTBUILD_SETUP_GHA = 'Setup GitHub Actions:';
+
+  const POSTBUILD_SETUP_CIRCLECI = 'Setup CircleCI:';
+
+  const POSTBUILD_SETUP_ACQUIA = 'Setup Acquia hosting:';
+
+  const POSTBUILD_SETUP_LAGOON = 'Setup Lagoon hosting:';
 
   const INSTALL_EXIT_CODE = 'Exit code:';
+
+  // Footer: Site is ready (build succeeded).
+  const FOOTER_SITE_READY = 'Site is ready';
+
+  const FOOTER_GET_SITE_INFO = 'Get site info:';
+
+  const FOOTER_AHOY_LOGIN = 'ahoy login';
+
+  const FOOTER_AHOY_INFO = 'ahoy info';
+
+  // Footer: Ready to build (build skipped).
+  const FOOTER_READY_TO_BUILD = 'Ready to build';
+
+  const FOOTER_BUILD_THE_SITE = 'Build the site:';
+
+  const FOOTER_AHOY_BUILD = 'ahoy build';
+
+  const FOOTER_AHOY_BUILD_PROFILE = 'VORTEX_PROVISION_TYPE=profile ahoy build';
+
+  const FOOTER_EXPORT_DATABASE = 'Export database after build:';
+
+  const FOOTER_AHOY_EXPORT_DB = 'ahoy export-db db.sql';
+
+  // Footer: Build encountered errors (build failed).
+  const FOOTER_BUILD_ERRORS = 'Build encountered errors';
+
+  const FOOTER_BUILD_FAILED_MESSAGE = 'Vortex was installed, but the build process failed.';
+
+  const FOOTER_TROUBLESHOOTING = 'Troubleshooting:';
+
+  const FOOTER_CHECK_LOGS = 'ahoy logs';
+
+  const FOOTER_DIAGNOSTICS = 'ahoy doctor';
+
+  // Footer: Installation complete.
+  const FOOTER_FINISHED_INSTALLING = 'Finished installing Vortex';
+
+  const FOOTER_GIT_ADD = 'git add -A';
+
+  const FOOTER_GIT_COMMIT = 'git commit -m "Initial commit."';
 
   const INSTALL_ERROR_MISSING_GIT = 'Installation failed with an error: Missing required command: git.';
 
@@ -100,6 +147,8 @@ class TuiOutput {
   const BUILD_EXPORT_DATABASE = 'Export database:';
 
   const BUILD_SITE_URL = 'Site URL:';
+
+  const BUILD_REVIEW_DOCS = 'Review hosting/provisioning docs';
 
   // Check requirements labels.
   const CHECK_REQUIREMENTS_PRESENT_LABEL = 'Present:';

@@ -50,6 +50,12 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
 
   const OPTION_BUILD = 'build';
 
+  const BUILD_RESULT_SUCCESS = 'success';
+
+  const BUILD_RESULT_SKIPPED = 'skipped';
+
+  const BUILD_RESULT_FAILED = 'failed';
+
   /**
    * Defines default command name.
    *
@@ -206,15 +212,15 @@ EOF
       );
 
       if (!$build_ok) {
-        Tui::error('Site build failed. Vortex was installed, but the site build process encountered errors.');
-        Tui::line('');
-        Tui::line('Next steps:');
-        Tui::line('  - Run: ahoy build');
-        Tui::line('  - Or inspect logs for details with `ahoy logs`');
-        Tui::line('');
+        $this->footerBuildFailed();
 
         return Command::FAILURE;
       }
+
+      $this->footerBuildSucceeded();
+    }
+    else {
+      $this->footerBuildSkipped();
     }
 
     // Cleanup should take place only in case of the successful installation.
@@ -553,7 +559,6 @@ EOT;
     }
     else {
       $title = 'Finished installing Vortex';
-      $output .= 'Next steps:' . PHP_EOL;
 
       // Check for required tools and provide conditional instructions.
       $missing_tools = $this->checkRequiredTools();
@@ -562,15 +567,92 @@ EOT;
         foreach ($missing_tools as $tool => $instructions) {
           $tools_output .= sprintf('  %s: %s', $tool, $instructions) . PHP_EOL;
         }
-        $tools_output .= PHP_EOL;
         $output .= Strings::wrapLines($tools_output, $prefix);
+        $output .= PHP_EOL;
       }
 
-      // Allow post-install handlers to add their messages.
-      $output .= Strings::wrapLines($this->promptManager->runPostInstall(), $prefix);
+      $output .= 'Add and commit all files:' . PHP_EOL;
+      $output .= $prefix . 'git add -A' . PHP_EOL;
+      $output .= $prefix . 'git commit -m "Initial commit."' . PHP_EOL;
     }
 
     Tui::box($output, $title);
+  }
+
+  /**
+   * Display footer after build succeeded.
+   */
+  public function footerBuildSucceeded(): void {
+    $output = '';
+    $prefix = '  ';
+
+    $output .= 'Get site info:' . $prefix . 'ahoy info' . PHP_EOL;
+    $output .= 'Login:' . $prefix . $prefix . $prefix . 'ahoy login' . PHP_EOL;
+    $output .= PHP_EOL;
+
+    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SUCCESS);
+    if (!empty($handler_output)) {
+      $output .= $handler_output;
+    }
+
+    Tui::box($output, 'Site is ready');
+  }
+
+  /**
+   * Display footer after build was skipped.
+   */
+  public function footerBuildSkipped(): void {
+    $output = '';
+    $prefix = '  ';
+
+    $responses = $this->promptManager->getResponses();
+    $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
+    $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
+
+    $output .= 'Build the site:' . PHP_EOL;
+    if ($is_profile) {
+      $output .= $prefix . 'VORTEX_PROVISION_TYPE=profile ahoy build' . PHP_EOL;
+    }
+    else {
+      $output .= $prefix . 'ahoy build' . PHP_EOL;
+    }
+    $output .= PHP_EOL;
+
+    if ($is_profile) {
+      $output .= 'Export database after build:' . PHP_EOL;
+      $output .= $prefix . 'ahoy export-db db.sql' . PHP_EOL;
+      $output .= PHP_EOL;
+    }
+
+    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SKIPPED);
+    if (!empty($handler_output)) {
+      $output .= $handler_output;
+    }
+
+    Tui::box($output, 'Ready to build');
+  }
+
+  /**
+   * Display footer after build failed.
+   */
+  public function footerBuildFailed(): void {
+    $output = '';
+    $prefix = '  ';
+
+    $output .= 'Vortex was installed, but the build process failed.' . PHP_EOL;
+    $output .= PHP_EOL;
+    $output .= 'Troubleshooting:' . PHP_EOL;
+    $output .= $prefix . 'Check logs:' . $prefix . $prefix . 'ahoy logs' . PHP_EOL;
+    $output .= $prefix . 'Retry build:' . $prefix . 'ahoy build' . PHP_EOL;
+    $output .= $prefix . 'Diagnostics:' . $prefix . 'ahoy doctor' . PHP_EOL;
+    $output .= PHP_EOL;
+
+    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_FAILED);
+    if (!empty($handler_output)) {
+      $output .= $handler_output;
+    }
+
+    Tui::box($output, 'Build encountered errors');
   }
 
   /**

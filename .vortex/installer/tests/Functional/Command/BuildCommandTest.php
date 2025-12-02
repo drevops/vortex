@@ -389,7 +389,7 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::BUILD_BUILDING_SITE,
           TuiOutput::BUILD_BUILD_COMPLETED,
           TuiOutput::INSTALL_NEXT_STEPS,
-          TuiOutput::INSTALL_REVIEW_DOCS,
+          TuiOutput::BUILD_REVIEW_DOCS,
         ]),
 
       ],

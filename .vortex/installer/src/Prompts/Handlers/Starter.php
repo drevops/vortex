@@ -132,35 +132,4 @@ DOC;
     }
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function postInstall(): ?string {
-    if ($this->isInstalled()) {
-      return NULL;
-    }
-
-    $output = '';
-
-    if ($this->response == self::LOAD_DATABASE_DEMO) {
-      $output .= 'Build project locally:' . PHP_EOL;
-      $output .= '  ahoy build' . PHP_EOL;
-      $output .= PHP_EOL;
-    }
-    elseif ($this->response == self::INSTALL_PROFILE_CORE || $this->response == self::INSTALL_PROFILE_DRUPALCMS) {
-      $output .= 'Build project locally:' . PHP_EOL;
-      $output .= '  VORTEX_PROVISION_TYPE=profile ahoy build' . PHP_EOL;
-      $output .= PHP_EOL;
-      $output .= 'Export database:' . PHP_EOL;
-      $output .= '  ahoy export-db db.sql' . PHP_EOL;
-      $output .= PHP_EOL;
-    }
-
-    // @todo Update to use separate steps for hosting and CI/CD configuration.
-    $output .= 'Setup integration with your hosting and CI/CD providers:' . PHP_EOL;
-    $output .= '  See https://www.vortextemplate.com/docs/getting-started/installation';
-
-    return $output . PHP_EOL;
-  }
-
 }

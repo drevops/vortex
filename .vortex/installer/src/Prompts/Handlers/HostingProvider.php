@@ -127,4 +127,36 @@ class HostingProvider extends AbstractHandler {
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function postInstall(): ?string {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postBuild(string $result): ?string {
+    if ($this->isInstalled()) {
+      return NULL;
+    }
+
+    $v = $this->getResponseAsString();
+
+    if ($v === self::ACQUIA) {
+      return 'Setup Acquia hosting:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/hosting/acquia#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
+
+    if ($v === self::LAGOON) {
+      return 'Setup Lagoon hosting:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/hosting/lagoon#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
+
+    return NULL;
+  }
+
 }
