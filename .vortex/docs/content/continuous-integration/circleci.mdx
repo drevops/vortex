@@ -1,8 +1,184 @@
+---
+sidebar_position: 2
+---
+
 # CircleCI
 
-:::note Content coming soon
+[CircleCI](https://circleci.com/) is a cloud-based continuous integration and
+delivery platform that automates the build, test, and deployment process.
 
-  This section will provide detailed information about using **Vortex** with
-  the [CircleCI](https://circleci.com/) continuous integration platform.
+For general CircleCI documentation, refer to the
+[CircleCI Documentation](https://circleci.com/docs/).
+
+:::info
+
+For information about the CI workflow structure, jobs, and caching strategy,
+see the [CI overview](/docs/continuous-integration).
 
 :::
+
+## Onboarding
+
+Before you begin, ensure you have:
+
+- A CircleCI account connected to your repository
+- Repository admin access to configure project settings
+- API credentials for your hosting provider (if deploying)
+
+### 1. Enable the project
+
+[Log in to CircleCI](https://app.circleci.com/) and add your repository as a new
+project. CircleCI will connect to your GitHub account, detect the
+[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/develop/.circleci/config.yml)
+configuration file, and start running builds automatically when you push code.
+
+### 2. Add SSH key for database download
+
+To download a database from your hosting provider during CI builds, you need an
+SSH key that has access to your hosting environments.
+
+1. Generate an SSH key pair:
+
+   ```bash
+   ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f ~/.ssh/deployer_myproject_circleci -N ""
+   ```
+
+    :::tip Key naming convention
+
+    Use the `+<project>-<service>` suffix in the email comment (e.g.,
+    `deployer+myproject-circleci@example.com`) to identify what the key is used for.
+    This helps when managing multiple deployment keys across different projects and
+    services.
+
+    :::
+
+2. Add the contents of the public key (e.g., `~/.ssh/<key>.pub`) to your hosting
+   provider's authorized keys for read access.
+3. Add the private key in CircleCI under **Project Settings → SSH Keys**.
+   CircleCI will generate a fingerprint - copy it for the next step.
+
+### 3. Add SSH key for deployment
+
+To deploy code to your hosting provider, you need an SSH key with write access
+to your hosting environments.
+
+:::note
+
+The database source and deployment destination may be different providers (e.g.,
+downloading a database from Acquia but deploying to Lagoon). If they are the
+same provider, you can use a single key for both operations.
+
+:::
+
+1. Generate an SSH key pair (skip if using the same key as above):
+
+   ```bash
+   ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f ~/.ssh/deploy_myproject_circleci -N ""
+   ```
+
+2. Add the public key to your hosting provider
+3. Add the private key in CircleCI under **Project Settings → SSH Keys**.
+   Copy the fingerprint for the next step.
+
+### 4. Update SSH fingerprints in config
+
+CircleCI uses SSH key fingerprints to load the correct keys into the runner
+container. Update the YAML anchors in your
+[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/develop/.circleci/config.yml)
+file:
+
+- `db_ssh_fingerprint` - your database download SSH key fingerprint
+- `deploy_ssh_fingerprint` - your deployment SSH key fingerprint
+
+### 5. Configure environment variables
+
+Add the following variables in **Project Settings → Environment Variables**:
+
+**Acquia:**
+
+| Variable | Description |
+|----------|-------------|
+| `ACQUIA_KEY` | Acquia Cloud API key |
+| `ACQUIA_SECRET` | Acquia Cloud API secret |
+
+**Lagoon:**
+
+| Variable | Description |
+|----------|-------------|
+| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
+
+## Maintenance
+
+### Update deployment branches
+
+The `deploy` job only runs for specific branch patterns. To modify which branches
+trigger deployments, update the `only` filter regex in the `deploy` job under
+the `workflows` section of `.circleci/config.yml`:
+
+```yaml
+filters:
+  branches:
+    only: /^(production|main|master|develop)$|^feature\/[a-zA-Z0-9\-\.]+$/
+```
+
+### Update nightly database schedule
+
+The nightly database job caches a fresh database dump for faster builds the next
+day. To change when this runs, update the `nightly_db_schedule` YAML anchor
+(cron format, UTC timezone):
+
+```yaml
+- &nightly_db_schedule "0 18 * * *"  # 6 PM UTC daily
+```
+
+### Reset the cache
+
+If you need to force a fresh cache (e.g., after a major dependency update),
+increment the version tag in the cache keys:
+
+```yaml
+# Before
+- v1-db-{{ checksum "/tmp/db_cache_branch" }}
+# After
+- v2-db-{{ checksum "/tmp/db_cache_branch" }}
+```
+
+### Change runner resource class
+
+For faster builds, you can upgrade the
+[runner resource class](https://circleci.com/docs/resource-class-overview/) in
+the `runner_config` section. Note that this may affect your CircleCI billing:
+
+```yaml
+resource_class: large  # Options: small, medium, large, xlarge
+```
+
+### Change test parallelism
+
+To speed up test execution, you can increase the number of parallel runners in
+the `build` job. See [Running tests in parallel](https://circleci.com/docs/parallelism-faster-jobs/)
+for more information:
+
+```yaml
+build:
+  parallelism: 4  # Run tests across 4 containers
+```
+
+### SSH access for debugging
+
+CircleCI provides built-in SSH access to debug failing builds. Click the
+**Rerun job with SSH** button on a failed job to get SSH connection details.
+See [Debugging with SSH](https://circleci.com/docs/ssh-access-jobs/) for more
+information.
+
+### Adjust build timeout
+
+If builds are timing out, increase the `no_output_timeout` value for
+long-running steps:
+
+```yaml
+- run:
+    name: Long running task
+    command: ./scripts/long-task.sh
+    no_output_timeout: 60m  # Default is 10m
+```

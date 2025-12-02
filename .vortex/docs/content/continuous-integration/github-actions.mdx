@@ -1,8 +1,178 @@
+---
+sidebar_position: 3
+---
+
 # GitHub Actions
 
-:::note Content coming soon
+[GitHub Actions](https://github.com/features/actions) is GitHub's built-in
+continuous integration and delivery platform that automates the build, test,
+and deployment process directly from your repository.
 
-  This section will provide detailed information about using **Vortex** with
-  the [GitHub Actions](https://github.com/features/actions) continuous integration platform.
+For general GitHub Actions documentation, refer to the
+[GitHub Actions Documentation](https://docs.github.com/en/actions).
+
+:::info
+
+For information about the CI workflow structure, jobs, and caching strategy,
+see the [CI overview](/docs/continuous-integration).
 
 :::
+
+## Onboarding
+
+Before you begin, ensure you have:
+
+- Repository admin access to configure secrets and settings
+- API credentials for your hosting provider (if deploying)
+
+### 1. Enable the workflow
+
+GitHub Actions is enabled by default. Navigate to the **Actions** tab in your
+repository to verify the workflow is detected. Vortex provides the workflow file
+at [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/develop/.github/workflows/build-test-deploy.yml).
+
+No additional setup is required to enable the workflow.
+
+### 2. Add SSH key for database download
+
+To download a database from your hosting provider during CI builds, you need an
+SSH key that has access to your hosting environments.
+
+1. Generate an SSH key pair:
+
+   ```bash
+   ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.ssh/deployer_myproject_gha -N ""
+   ```
+
+    :::tip Key naming convention
+
+    Use the `+<project>-<service>` suffix in the email comment (e.g.,
+    `deployer+myproject-circleci@example.com`) to identify what the key is used for.
+    This helps when managing multiple deployment keys across different projects and
+    services.
+
+    :::
+
+2. Add the contents of the public key (e.g., `~/.ssh/<key>.pub`) to your hosting
+   provider's authorized keys for read access.
+3. Add the private key as a secret named `VORTEX_DB_SSH_KEY` in your repository
+   under **Settings → Secrets and variables → Actions**
+
+### 3. Add SSH key for deployment
+
+To deploy code to your hosting provider, you need an SSH key with write access
+to your hosting environments.
+
+:::note
+
+The database source and deployment destination may be different providers (e.g.,
+downloading a database from Acquia but deploying to Lagoon). If they are the
+same provider, you can use a single key for both operations.
+
+:::
+
+1. Generate an SSH key pair (skip if using the same key as above):
+
+   ```bash
+   ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.ssh/deployer_myproject_gha -N ""
+   ```
+
+2. Add the public key to your hosting provider
+3. Add the private key as a secret named `VORTEX_DEPLOY_SSH_KEY` in your
+   repository under **Settings → Secrets and variables → Actions**
+
+### 4. Configure secrets
+
+Add the following secrets in **Settings → Secrets and variables → Actions**:
+
+**Acquia:**
+
+| Secret | Description |
+|--------|-------------|
+| `ACQUIA_KEY` | Acquia Cloud API key |
+| `ACQUIA_SECRET` | Acquia Cloud API secret |
+
+**Lagoon:**
+
+| Secret | Description |
+|--------|-------------|
+| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
+
+## Maintenance
+
+### Update deployment branches
+
+The workflow triggers on specific branches defined in the `on.push.branches` and
+`on.pull_request.branches` sections of `.github/workflows/build-test-deploy.yml`:
+
+```yaml
+on:
+  push:
+    branches:
+      - production
+      - main
+      - develop
+      - feature/**
+```
+
+### Update nightly database schedule
+
+The nightly database job caches a fresh database dump for faster builds the next
+day. To change when this runs, update the `schedule.cron` value (cron format,
+UTC timezone):
+
+```yaml
+schedule:
+  - cron: '0 18 * * *'  # 6 PM UTC daily
+```
+
+### Reset the cache
+
+If you need to force a fresh cache (e.g., after a major dependency update),
+increment the version tag in the cache keys:
+
+```yaml
+# Before
+key: v25.10.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+# After
+key: v25.10.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+```
+
+### Change runner size
+
+For faster builds, you can use [larger runners](https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners)
+in the job configuration. Note that this may affect your GitHub billing:
+
+```yaml
+runs-on: ubuntu-latest-4-cores  # Options: ubuntu-latest, ubuntu-latest-4-cores, etc.
+```
+
+### Change test parallelism
+
+To speed up test execution, you can increase the number of parallel runners in
+the build job matrix. See [Using a matrix for your jobs](https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs)
+for more information:
+
+```yaml
+strategy:
+  matrix:
+    instance: [0, 1, 2, 3]  # Run tests across 4 containers
+```
+
+### Terminal access for debugging
+
+The workflow includes a tmate session for debugging. Trigger a manual workflow
+run with the **Enable terminal session** option checked to get SSH connection
+details in the build logs. See [action-tmate](https://github.com/mxschmitt/action-tmate)
+for more information.
+
+### Adjust build timeout
+
+If builds are timing out, increase the `timeout-minutes` value for long-running
+steps:
+
+```yaml
+- name: Long running task
+  run: ./scripts/long-task.sh
+  timeout-minutes: 60  # Default is 360 (6 hours)
+```

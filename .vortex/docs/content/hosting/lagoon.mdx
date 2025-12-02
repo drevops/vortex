@@ -4,9 +4,80 @@ sidebar_position: 2
 
 # Lagoon
 
-:::note Content coming soon
+[Lagoon](https://lagoon.sh/) is an open-source container-based hosting platform
+that provides automated deployments for Drupal applications using Docker and
+Kubernetes.
 
-  This section will provide detailed information about using **Vortex** with
-  the [Lagoon](https://lagoon.readthedocs.io/en/latest/) hosting platform.
+For general Lagoon documentation, refer to the
+[Lagoon Documentation](https://docs.lagoon.sh/).
 
-:::
+## Integration
+
+Vortex provides the following integration with Lagoon:
+
+### Tasks
+
+With Vortex, you can:
+
+- **Download a database** from a Lagoon environment for local development or CI
+- **Trigger deployments** to Lagoon environments
+- **Run custom commands** on Lagoon environments
+
+When running these tasks, your `.env` and `.env.local` files are used as the
+source for the project name and SSH configuration.
+
+### Deployment automation
+
+When code is deployed, Vortex automatically:
+
+1. **Provisions the site** - Runs database updates, imports configuration, clears caches
+2. **Sends notifications** - Notifies configured channels about the deployment
+
+This is implemented using post-rollout tasks defined in the
+[`.lagoon.yml`](https://github.com/drevops/vortex/blob/develop/.lagoon.yml)
+configuration file, which also defines Docker image mappings and
+environment-specific configurations.
+
+### Environment detection
+
+Vortex automatically detects when running on Lagoon and loads appropriate
+settings from [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/develop/web/sites/default/includes/providers/settings.lagoon.php).
+This includes Lagoon-specific configurations for caching, file paths, and
+environment variables provided by the platform.
+
+## Onboarding
+
+Before you begin, ensure you have:
+
+- A Lagoon project created by your hosting provider
+- The Lagoon CLI installed and configured
+- SSH access to your Lagoon environments
+- Docker and Docker Compose installed locally
+
+### 1. Configure environment variables
+
+Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/develop/.env)
+file:
+
+| Variable | Description |
+|----------|-------------|
+| `LAGOON_PROJECT` | Your Lagoon project name |
+| `VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST` | Lagoon SSH host (default: `ssh.lagoon.amazeeio.cloud`) |
+| `VORTEX_DB_DOWNLOAD_LAGOON_SSH_PORT` | Lagoon SSH port (default: `32222`) |
+
+For CI environments, configure these secrets in your CI provider ([GitHub Actions](/docs/continuous-integration/github-actions) or [CircleCI](/docs/continuous-integration/circleci)):
+
+| Variable | Description |
+|----------|-------------|
+| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
+
+## Routine Operations
+
+### Download database
+
+Download a database backup from your Lagoon environment for local development
+or CI builds:
+
+```bash
+ahoy download-db
+```
