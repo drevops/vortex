@@ -14,6 +14,19 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
 
     steps:
+      # Post pending status to the PR commit.
+      # Workflows triggered by workflow_run don't automatically report status
+      # on the triggering PR, so we need to do it manually.
+      - name: Set pending commit status
+        run: |
+          gh api repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_sha }} \
+            -f state=pending \
+            -f context="Vortex - Test docs" \
+            -f description="Running documentation tests..." \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
@@ -99,3 +112,17 @@ jobs:
           files: .vortex/docs/.logs/cobertura.xml
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      # Post final status to the PR commit.
+      - name: Set final commit status
+        if: always()
+        run: |
+          state=${{ job.status == 'success' && 'success' || 'failure' }}
+          description=${{ job.status == 'success' && '"Documentation tests passed"' || '"Documentation tests failed"' }}
+          gh api repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_sha }} \
+            -f state="${state}" \
+            -f context="Vortex - Test docs" \
+            -f description="${description}" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
