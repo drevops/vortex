@@ -108,7 +108,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
   }
 
-  protected function assertSutContains(string | array $needles): void {
+  protected function assertSutContains(string|array $needles): void {
     $needles = is_array($needles) ? $needles : [$needles];
 
     foreach ($needles as $needle) {
@@ -125,7 +125,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     }
   }
 
-  protected function assertSutNotContains(string | array $needles): void {
+  protected function assertSutNotContains(string|array $needles): void {
     $needles = is_array($needles) ? $needles : [$needles];
 
     foreach ($needles as $needle) {

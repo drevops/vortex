@@ -13,6 +13,11 @@
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="PHPCompatibility"/>
     <rule ref="DrevOps"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.DNFTypeHintFormat">
+        <properties>
+            <property name="withSpacesAroundOperators" value="no"/>
+        </properties>
+    </rule>
 
     <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
     <arg name="colors"/>

@@ -175,7 +175,7 @@ EOF
 
       Task::action(
         label: 'Preparing demo content',
-        action: fn(): string | array => $this->prepareDemo(),
+        action: fn(): string|array => $this->prepareDemo(),
         success: 'Demo content prepared',
       );
     }
@@ -395,7 +395,7 @@ EOF
    * @return array|string
    *   Array of messages or a single message.
    */
-  protected function prepareDemo(): array | string {
+  protected function prepareDemo(): array|string {
     if (empty($this->config->get(Config::IS_DEMO))) {
       return 'Not a demo mode.';
     }

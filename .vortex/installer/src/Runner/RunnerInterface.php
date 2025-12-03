@@ -64,7 +64,7 @@ interface RunnerInterface extends LoggableInterface {
    * @return string|array<int, string>
    *   Output as string or array of lines.
    */
-  public function getOutput(bool $as_array = FALSE, ?int $lines = NULL): string | array;
+  public function getOutput(bool $as_array = FALSE, ?int $lines = NULL): string|array;
 
   /**
    * Set the working directory.

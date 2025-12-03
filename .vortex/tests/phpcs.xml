@@ -6,6 +6,11 @@
     <rule ref="Drupal"/>
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="DrevOps"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.DNFTypeHintFormat">
+        <properties>
+            <property name="withSpacesAroundOperators" value="no"/>
+        </properties>
+    </rule>
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>

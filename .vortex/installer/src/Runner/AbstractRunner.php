@@ -185,7 +185,7 @@ abstract class AbstractRunner implements RunnerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getOutput(bool $as_array = FALSE, ?int $lines = NULL): string | array {
+  public function getOutput(bool $as_array = FALSE, ?int $lines = NULL): string|array {
     $output_lines = explode(PHP_EOL, $this->output);
 
     if ($lines !== NULL) {
