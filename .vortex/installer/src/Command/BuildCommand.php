@@ -24,11 +24,11 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   use ProcessRunnerAwareTrait;
   use CommandRunnerAwareTrait;
 
-  const string OPTION_PROFILE = 'profile';
+  const OPTION_PROFILE = 'profile';
 
-  const string OPTION_SKIP_REQUIREMENTS_CHECK = 'skip-requirements-check';
+  const OPTION_SKIP_REQUIREMENTS_CHECK = 'skip-requirements-check';
 
-  const string TROUBLESHOOTING_URL = 'https://vortex.drevops.com/troubleshooting';
+  const TROUBLESHOOTING_URL = 'https://vortex.drevops.com/troubleshooting';
 
   /**
    * Defines default command name.
