@@ -7,7 +7,7 @@ namespace DrevOps\VortexInstaller\Downloader;
 /**
  * Interface for downloading files from local or remote Git repositories.
  */
-interface DownloaderInterface {
+interface RepositoryDownloaderInterface {
 
   /**
    * Downloads a repository archive from a local or remote source.
