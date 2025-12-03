@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Command;
 
 use DrevOps\VortexInstaller\Downloader\Downloader;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Runner\CommandRunnerAwareInterface;
@@ -75,9 +76,14 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   protected PromptManager $promptManager;
 
   /**
-   * The downloader.
+   * The repository downloader.
    */
-  protected ?Downloader $downloader = NULL;
+  protected ?RepositoryDownloader $repositoryDownloader = NULL;
+
+  /**
+   * The file downloader.
+   */
+  protected ?Downloader $fileDownloader = NULL;
 
   /**
    * {@inheritdoc}
@@ -147,11 +153,11 @@ EOF
       Task::action(
         label: 'Downloading Vortex',
         action: function (): string {
-          $version = $this->getDownloader()->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
+          $version = $this->getRepositoryDownloader()->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
           return $version;
         },
-        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...Downloader::parseUri($this->config->get(Config::REPO))),
+        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...RepositoryDownloader::parseUri($this->config->get(Config::REPO))),
         success: fn(string $return): string => sprintf('Vortex downloaded (%s)', $return)
       );
 
@@ -234,7 +240,6 @@ EOF
   protected function checkRequirements(): void {
     $required_commands = [
       'git',
-      'curl',
       'tar',
       'composer',
     ];
@@ -296,7 +301,7 @@ EOF
       Env::putFromDotenv($dest_env_file);
     }
 
-    [$repo, $ref] = Downloader::parseUri($options[static::OPTION_URI] ?: 'https://github.com/drevops/vortex.git@stable');
+    [$repo, $ref] = RepositoryDownloader::parseUri($options[static::OPTION_URI] ?: 'https://github.com/drevops/vortex.git@stable');
     $this->config->set(Config::REPO, $repo);
     $this->config->set(Config::REF, $ref);
 
@@ -425,10 +430,8 @@ EOF
       $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
 
-    $command = sprintf('curl -s -L "%s" -o "%s/%s"', $url, $data_dir, $db_file);
-    if (passthru($command) === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to download demo database from %s.', $url));
-    }
+    $destination = $data_dir . DIRECTORY_SEPARATOR . $db_file;
+    $this->getFileDownloader()->download($url, $destination);
 
     $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
     $messages[] = sprintf('Downloaded demo database from %s.', $url);
@@ -506,10 +509,10 @@ EOT;
     $content = '';
 
     $ref = $this->config->get(Config::REF);
-    if ($ref == Downloader::REF_STABLE) {
+    if ($ref == RepositoryDownloader::REF_STABLE) {
       $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('stable') . ' version of Vortex into your project.' . PHP_EOL;
     }
-    elseif ($ref == Downloader::REF_HEAD) {
+    elseif ($ref == RepositoryDownloader::REF_HEAD) {
       $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('development') . ' version of Vortex into your project.' . PHP_EOL;
     }
     else {
@@ -713,26 +716,49 @@ EOT;
   }
 
   /**
-   * Get the downloader.
+   * Get the repository downloader.
    *
-   * Provides a default Downloader instance or returns the injected one.
-   * This allows tests to inject mocks via setDownloader().
+   * Provides a default RepositoryDownloader instance or returns the injected
+   * one. This allows tests to inject mocks via setRepositoryDownloader().
    *
-   * @return \DrevOps\VortexInstaller\Downloader\Downloader
-   *   The downloader.
+   * @return \DrevOps\VortexInstaller\Downloader\RepositoryDownloader
+   *   The repository downloader.
    */
-  protected function getDownloader(): Downloader {
-    return $this->downloader ??= new Downloader();
+  protected function getRepositoryDownloader(): RepositoryDownloader {
+    return $this->repositoryDownloader ??= new RepositoryDownloader();
   }
 
   /**
-   * Set the downloader.
+   * Set the repository downloader.
    *
-   * @param \DrevOps\VortexInstaller\Downloader\Downloader $downloader
-   *   The downloader.
+   * @param \DrevOps\VortexInstaller\Downloader\RepositoryDownloader $repositoryDownloader
+   *   The repository downloader.
    */
-  public function setDownloader(Downloader $downloader): void {
-    $this->downloader = $downloader;
+  public function setRepositoryDownloader(RepositoryDownloader $repositoryDownloader): void {
+    $this->repositoryDownloader = $repositoryDownloader;
+  }
+
+  /**
+   * Get the file downloader.
+   *
+   * Provides a default Downloader instance or returns the injected one.
+   * This allows tests to inject mocks via setFileDownloader().
+   *
+   * @return \DrevOps\VortexInstaller\Downloader\Downloader
+   *   The file downloader.
+   */
+  protected function getFileDownloader(): Downloader {
+    return $this->fileDownloader ??= new Downloader();
+  }
+
+  /**
+   * Set the file downloader.
+   *
+   * @param \DrevOps\VortexInstaller\Downloader\Downloader $fileDownloader
+   *   The file downloader.
+   */
+  public function setFileDownloader(Downloader $fileDownloader): void {
+    $this->fileDownloader = $fileDownloader;
   }
 
 }

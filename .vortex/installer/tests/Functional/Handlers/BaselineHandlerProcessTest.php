@@ -29,7 +29,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
-use DrevOps\VortexInstaller\Downloader\Downloader;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -59,7 +59,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Timezone::class)]
 #[CoversClass(Webroot::class)]
 #[CoversClass(PromptManager::class)]
-#[CoversClass(Downloader::class)]
+#[CoversClass(RepositoryDownloader::class)]
 #[CoversClass(Config::class)]
 #[CoversClass(Git::class)]
 #[CoversClass(Tui::class)]

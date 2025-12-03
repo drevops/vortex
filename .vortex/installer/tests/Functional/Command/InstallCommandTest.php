@@ -8,7 +8,7 @@ use DrevOps\VortexInstaller\Logger\FileLoggerInterface;
 use DrevOps\VortexInstaller\Command\BuildCommand;
 use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Command\InstallCommand;
-use DrevOps\VortexInstaller\Downloader\Downloader;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
@@ -86,9 +86,9 @@ class InstallCommandTest extends FunctionalTestCase {
     $install_command->setExecutableFinder($executable_finder);
 
     if ($download_should_fail) {
-      $mock_downloader = $this->createMock(Downloader::class);
+      $mock_downloader = $this->createMock(RepositoryDownloader::class);
       $mock_downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
-      $install_command->setDownloader($mock_downloader);
+      $install_command->setRepositoryDownloader($mock_downloader);
     }
     else {
       // Download from root as a real repository. This is long, but there is
@@ -220,31 +220,6 @@ class InstallCommandTest extends FunctionalTestCase {
         'output_assertions' => [
           ...TuiOutput::present([
             TuiOutput::INSTALL_ERROR_MISSING_GIT,
-          ]),
-          ...TuiOutput::absent([
-            TuiOutput::INSTALL_STARTING,
-          ]),
-        ],
-      ],
-
-      'Requirements of install command check fails, missing curl' => [
-        'command_inputs' => self::tuiOptions([
-          InstallCommand::OPTION_NO_INTERACTION => TRUE,
-        ]),
-        'install_executable_finder_find_callback' => function (string $command): ?string {
-          // Curl command fails.
-          if (str_contains($command, 'curl')) {
-            return NULL;
-          }
-          return '/usr/bin/' . $command;
-        },
-
-        'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
-        'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
-        'expect_failure' => TRUE,
-        'output_assertions' => [
-          ...TuiOutput::present([
-            TuiOutput::INSTALL_ERROR_MISSING_CURL,
           ]),
           ...TuiOutput::absent([
             TuiOutput::INSTALL_STARTING,

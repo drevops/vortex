@@ -128,8 +128,6 @@ class TuiOutput {
 
   const INSTALL_ERROR_MISSING_GIT = 'Installation failed with an error: Missing required command: git.';
 
-  const INSTALL_ERROR_MISSING_CURL = 'Installation failed with an error: Missing required command: curl.';
-
   const INSTALL_ERROR_MISSING_TAR = 'Installation failed with an error: Missing required command: tar.';
 
   const INSTALL_ERROR_MISSING_COMPOSER = 'Installation failed with an error: Missing required command: Composer.';
