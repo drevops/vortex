@@ -36,19 +36,6 @@
 
 ---
 
-### 📖 Documentation
-
-- ✨ **New**
-  - [New pages, guides, sections]
-
-- 🛠 **Changed**
-  - [Rewrites, restructuring, clarifications]
-
-- 🐞 **Fixed**
-  - [Typos, incorrect examples, broken links]
-
----
-
 ### 🎛 Installer
 
 - ✨ **New**
@@ -59,6 +46,19 @@
 
 - 🐞 **Fixed**
   - [Installer bugs, edge cases]
+
+---
+
+### 📖 Documentation
+
+- ✨ **New**
+  - [New pages, guides, sections]
+
+- 🛠 **Changed**
+  - [Rewrites, restructuring, clarifications]
+
+- 🐞 **Fixed**
+  - [Typos, incorrect examples, broken links]
 
 ---
 
