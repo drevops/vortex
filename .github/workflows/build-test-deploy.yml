@@ -68,7 +68,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:25.10.0@sha256:03f2722e141b4939b390abad9443ed96304a8ec7bda0b2eab9dac56f9e9b7b91
+      image: drevops/ci-runner:25.11.0@sha256:7854272ea39ee91af90f35d6339c081098d29a41ea4fe802e0cf710e152c8044
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -184,7 +184,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:25.10.0@sha256:03f2722e141b4939b390abad9443ed96304a8ec7bda0b2eab9dac56f9e9b7b91
+      image: drevops/ci-runner:25.11.0@sha256:7854272ea39ee91af90f35d6339c081098d29a41ea4fe802e0cf710e152c8044
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -426,7 +426,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:25.10.0@sha256:03f2722e141b4939b390abad9443ed96304a8ec7bda0b2eab9dac56f9e9b7b91
+      image: drevops/ci-runner:25.11.0@sha256:7854272ea39ee91af90f35d6339c081098d29a41ea4fe802e0cf710e152c8044
       env:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color

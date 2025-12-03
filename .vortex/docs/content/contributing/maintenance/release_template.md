@@ -71,6 +71,7 @@
 - [ ] Updated PHP version in `phpstan.neon` for `phpVersion`.
 - [ ] Updated minor version of all packages in `composer.json`.
 - [ ] Updated minor version of dependencies in theme's `package.json`.
+- [ ] Update `drevops/ci-runner` to the latest version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 - [ ] Incremented the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 - [ ] Updated documentation.
 
