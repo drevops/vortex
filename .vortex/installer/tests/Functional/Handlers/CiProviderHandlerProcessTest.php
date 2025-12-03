@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -20,12 +21,20 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', '1.x');
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', '2.x');
+        }),
       ],
 
       'ciprovider, circleci' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+        }),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', '1.x');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', '2.x');
         }),
       ],
     ];
