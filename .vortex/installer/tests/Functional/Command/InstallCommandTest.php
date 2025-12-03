@@ -56,7 +56,7 @@ class InstallCommandTest extends FunctionalTestCase {
         return $build_runner_exit_callback($build_runner_command);
       });
     // Mock other BuildCommand runner methods.
-    $build_runner->method('getOutput')->willReturnCallback(fn(bool $as_array = FALSE): array | string => $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output');
+    $build_runner->method('getOutput')->willReturnCallback(fn(bool $as_array = FALSE): array|string => $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output');
     $build_runner->method('getCommand')->willReturn('ahoy build');
     $mock_logger = $this->createMock(FileLoggerInterface::class);
     $mock_logger->method('getPath')->willReturn('/tmp/mock.log');

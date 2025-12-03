@@ -106,7 +106,7 @@ class CommandRunner extends AbstractRunner {
        * @param int $options
        *   Write options.
        */
-      public function write(string | iterable $messages, bool $newline = FALSE, int $options = 0): void {
+      public function write(string|iterable $messages, bool $newline = FALSE, int $options = 0): void {
         $this->bufferedOutput->write($messages, $newline, $options);
 
         if ($this->shouldStream) {
@@ -125,7 +125,7 @@ class CommandRunner extends AbstractRunner {
        * @param int $options
        *   Write options.
        */
-      public function writeln(string | iterable $messages, int $options = 0): void {
+      public function writeln(string|iterable $messages, int $options = 0): void {
         $this->bufferedOutput->writeln($messages, $options);
         if ($this->shouldStream) {
           $this->output->writeln($messages, $options);

@@ -28,7 +28,7 @@ class TaskOutput implements OutputInterface {
    * @param int $options
    *   Write options.
    */
-  public function write(string | iterable $messages, bool $newline = FALSE, int $options = 0): void {
+  public function write(string|iterable $messages, bool $newline = FALSE, int $options = 0): void {
     $dimmed = is_iterable($messages)
       ? array_map(fn(string $m): string => Tui::dim($m), (array) $messages)
       : Tui::dim($messages);
@@ -43,7 +43,7 @@ class TaskOutput implements OutputInterface {
    * @param int $options
    *   Write options.
    */
-  public function writeln(string | iterable $messages, int $options = 0): void {
+  public function writeln(string|iterable $messages, int $options = 0): void {
     $dimmed = is_iterable($messages)
       ? array_map(fn(string $m): string => Tui::dim($m), (array) $messages)
       : Tui::dim($messages);

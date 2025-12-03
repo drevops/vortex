@@ -438,7 +438,7 @@ class AbstractRunnerTest extends UnitTestCase {
    * Test getOutput with as_array parameter.
    */
   #[DataProvider('dataProviderGetOutputVariations')]
-  public function testGetOutputVariations(string $output, bool $as_array, ?int $lines, string | array $expected): void {
+  public function testGetOutputVariations(string $output, bool $as_array, ?int $lines, string|array $expected): void {
     $runner = new ConcreteRunner();
     $runner->setOutput($output);
 
