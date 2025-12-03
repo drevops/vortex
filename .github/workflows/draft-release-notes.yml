@@ -6,6 +6,10 @@ on:
       - '*'
     branches:
       - develop
+      #;< VORTEX_DEV
+      - 1.x
+      - 2.x
+      #;> VORTEX_DEV
 
 permissions:
   contents: write

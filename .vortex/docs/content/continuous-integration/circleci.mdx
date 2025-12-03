@@ -29,7 +29,7 @@ Before you begin, ensure you have:
 
 [Log in to CircleCI](https://app.circleci.com/) and add your repository as a new
 project. CircleCI will connect to your GitHub account, detect the
-[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/develop/.circleci/config.yml)
+[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/1.x/.circleci/config.yml)
 configuration file, and start running builds automatically when you push code.
 
 ### 2. Add SSH key for database download
@@ -84,7 +84,7 @@ same provider, you can use a single key for both operations.
 
 CircleCI uses SSH key fingerprints to load the correct keys into the runner
 container. Update the YAML anchors in your
-[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/develop/.circleci/config.yml)
+[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/1.x/.circleci/config.yml)
 file:
 
 - `db_ssh_fingerprint` - your database download SSH key fingerprint

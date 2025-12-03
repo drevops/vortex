@@ -768,6 +768,55 @@ class DownloaderTest extends UnitTestCase {
         'expectedException' => \RuntimeException::class,
         'expectedMessage' => 'Invalid repository URL',
       ],
+      'SemVer+CalVer format - single release' => [
+        'repo' => 'https://github.com/drevops/vortex',
+        'releaseData' => [
+          ['tag_name' => '1.0.0-2025.11.0', 'draft' => FALSE],
+        ],
+        'throwException' => FALSE,
+        'skipMockSetup' => FALSE,
+        'expectedVersion' => '1.0.0-2025.11.0',
+        'expectedException' => NULL,
+        'expectedMessage' => NULL,
+      ],
+      'SemVer+CalVer format - multiple releases' => [
+        'repo' => 'https://github.com/drevops/vortex',
+        'releaseData' => [
+          ['tag_name' => '1.2.0-2025.12.0', 'draft' => FALSE],
+          ['tag_name' => '1.1.0-2025.11.0', 'draft' => FALSE],
+          ['tag_name' => '1.0.0-2025.10.0', 'draft' => FALSE],
+        ],
+        'throwException' => FALSE,
+        'skipMockSetup' => FALSE,
+        'expectedVersion' => '1.2.0-2025.12.0',
+        'expectedException' => NULL,
+        'expectedMessage' => NULL,
+      ],
+      'SemVer+CalVer format - skip draft' => [
+        'repo' => 'https://github.com/drevops/vortex',
+        'releaseData' => [
+          ['tag_name' => '2.0.0-2026.01.0', 'draft' => TRUE],
+          ['tag_name' => '1.0.0-2025.11.0', 'draft' => FALSE],
+        ],
+        'throwException' => FALSE,
+        'skipMockSetup' => FALSE,
+        'expectedVersion' => '1.0.0-2025.11.0',
+        'expectedException' => NULL,
+        'expectedMessage' => NULL,
+      ],
+      'Mixed format - SemVer+CalVer and CalVer' => [
+        'repo' => 'https://github.com/drevops/vortex',
+        'releaseData' => [
+          ['tag_name' => '1.0.0-2025.11.0', 'draft' => FALSE],
+          ['tag_name' => '25.10.0', 'draft' => FALSE],
+          ['tag_name' => '25.9.0', 'draft' => FALSE],
+        ],
+        'throwException' => FALSE,
+        'skipMockSetup' => FALSE,
+        'expectedVersion' => '1.0.0-2025.11.0',
+        'expectedException' => NULL,
+        'expectedMessage' => NULL,
+      ],
     ];
   }
 

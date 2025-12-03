@@ -45,7 +45,7 @@ const config = {
           path: 'content',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/drevops/vortex/tree/develop/.vortex/docs/',
+          editUrl: 'https://github.com/drevops/vortex/tree/1.x/.vortex/docs/',
         },
         blog: false,
         theme: {

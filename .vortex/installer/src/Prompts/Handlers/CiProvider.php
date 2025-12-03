@@ -109,6 +109,13 @@ class CiProvider extends AbstractHandler {
       File::removeTokenAsync('CI_PROVIDER_CIRCLECI');
       File::removeTokenAsync('SETTINGS_PROVIDER_CIRCLECI');
     }
+    else {
+      // Replace deploy branch regex to remove Vortex development branches.
+      // CircleCI config does not support wildards or regexes as multiple values
+      // for branch filters, so we have to hardcode the allowed branches as a
+      // single regex and then remove the unwanted branches from it.
+      File::replaceContentInFile($t . '/.circleci/config.yml', 'only: /^(production|main|master|develop|1.x|2.x)', 'only: /^(production|main|master|develop)');
+    }
 
     if ($remove_gha && $remove_circleci) {
       @unlink($t . '/docs/ci.md');

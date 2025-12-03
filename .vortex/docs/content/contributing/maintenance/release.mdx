@@ -1,6 +1,68 @@
 # Release
 
-Follow the steps below to release a new version of **Vortex**:
+## Versioning Strategy
+
+Vortex uses **SemVer+CalVer** format for releases: `MAJOR.MINOR.PATCH-YYYY.MM.0`
+
+### Semantic Version (MAJOR.MINOR.PATCH)
+
+- **MAJOR**: Breaking changes that require migration or significant updates
+- **MINOR**: New features, backward compatible
+- **PATCH**: Bug fixes, backward compatible
+
+### Calendar Version (`YYYY.MM.0`)
+
+- Reflects the release date
+- Helps track release timeline
+- Always ends with `.0`
+- `YY` - Short year - `6`, `16`, `106`
+- `MM` - Short month - `1`, `2` ... `11`, `12`
+
+### Version Examples
+
+- `1.0.0-2025.11.0` - First major release, November 2025
+- `1.1.0-2025.12.0` - New features added, December 2025
+- `1.1.1-2025.12.0` - Bug fix release, same month
+- `2.0.0-2026.1.0` - Breaking changes, January 2026
+
+### Version Numbering Guidelines
+
+When creating a new release, determine the version based on the changes:
+
+1. **Bump MAJOR** when making incompatible breaking changes:
+   - Removing features or configuration options
+   - Changing default behavior that breaks existing workflows
+   - Updating to new major versions of core dependencies (e.g., Drupal 11)
+
+2. **Bump MINOR** when adding functionality in a backward compatible manner:
+   - Adding new optional features
+   - Adding new scripts or commands
+   - Enhancing existing features without breaking changes
+
+3. **Bump PATCH** when making backward compatible bug fixes:
+   - Fixing bugs or errors
+   - Security patches
+   - Documentation updates
+   - Minor improvements that don't change functionality
+
+4. **Set CalVer** to the release date in `YYYY.MM.0` format:
+   - Always use the year and month of the release
+   - Always end with `.0`
+
+### Branch Strategy
+
+- `1.x` - Current stable release branch
+- `2.x` - Development branch for 2.x releases (future)
+
+:::note
+Vortex uses **GitHub Flow** with version branches (`1.x`, `2.x`) instead of GitFlow.
+The `develop` branch is deprecated for Vortex development.
+Consumer projects created from Vortex continue to use GitFlow with `develop`.
+:::
+
+## Release Process
+
+Follow the steps below to release a new version of the Vortex:
 
 1. Run renovate bot locally to update all dependencies outside of the schedule:
 ```
@@ -13,6 +75,6 @@ renovate --schedule= --force-cli=true drevops/vortex
 6. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`.
 7. Update minor version of dependencies in theme's `package.json`.
 8. Increment the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
-9. Update documentation with `cd .vortex && ahoy update-docs`.
+9. Updated documentation with `cd .vortex && ahoy update-docs`.
 10. Update installer video with `cd .vortex && ahoy update-installer-video`.
 11. Create new release notes using [release template](./release_template.md).
