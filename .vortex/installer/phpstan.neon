@@ -6,6 +6,8 @@ parameters:
 
   level: 7
 
+  phpVersion: 80229
+
   paths:
     - installer.php
     - src

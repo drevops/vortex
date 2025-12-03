@@ -25,19 +25,19 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   use ProcessRunnerAwareTrait;
   use ExecutableFinderAwareTrait;
 
-  const string OPTION_ONLY = 'only';
+  const OPTION_ONLY = 'only';
 
-  const string OPTION_NO_SUMMARY = 'no-summary';
+  const OPTION_NO_SUMMARY = 'no-summary';
 
-  const string REQ_DOCKER = 'docker';
+  const REQ_DOCKER = 'docker';
 
-  const string REQ_DOCKER_COMPOSE = 'docker-compose';
+  const REQ_DOCKER_COMPOSE = 'docker-compose';
 
-  const string REQ_AHOY = 'ahoy';
+  const REQ_AHOY = 'ahoy';
 
-  const string REQ_PYGMY = 'pygmy';
+  const REQ_PYGMY = 'pygmy';
 
-  const array REQUIREMENTS = [
+  const REQUIREMENTS = [
     self::REQ_DOCKER,
     self::REQ_DOCKER_COMPOSE,
     self::REQ_AHOY,

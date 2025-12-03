@@ -14,7 +14,7 @@ class FileLogger implements FileLoggerInterface {
   /**
    * Default log directory name.
    */
-  const string LOG_DIR = '.logs';
+  const LOG_DIR = '.logs';
 
   /**
    * Whether logging is enabled.

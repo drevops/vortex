@@ -23,13 +23,12 @@ use Rector\CodingStyle\Rector\FunctionLike\FunctionLikeToFirstClassCallableRecto
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
+use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
+use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Php81\Rector\Array_\FirstClassCallableRector;
-use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
-use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
-use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
@@ -46,7 +45,6 @@ return RectorConfig::configure()
   ])
   ->withSkip([
     // Specific rules to skip based on project coding standards.
-    AddOverrideAttributeToOverriddenMethodsRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     CompleteDynamicPropertiesRector::class,
@@ -72,16 +70,16 @@ return RectorConfig::configure()
     '*/node_modules/*',
   ])
   // PHP version upgrade sets - modernizes syntax to PHP 8.3.
-  // Includes all rules from PHP 5.3 through 8.3.
-  ->withPhpSets(php83: true)
+  // Includes all rules from PHP 5.3 through 8.2.
+  ->withPhpSets(php82: TRUE)
   // Code quality improvement sets.
   ->withPreparedSets(
-    codeQuality: true,
-    codingStyle: true,
-    deadCode: true,
-    naming: true,
-    privatization: true,
-    typeDeclarations: true,
+    codeQuality: TRUE,
+    codingStyle: TRUE,
+    deadCode: TRUE,
+    naming: TRUE,
+    privatization: TRUE,
+    typeDeclarations: TRUE,
   )
   // Additional rules.
   ->withRules([
@@ -92,4 +90,4 @@ return RectorConfig::configure()
     'inc',
   ])
   // Import configuration.
-  ->withImportNames(importNames: false, importDocBlockNames: false);
+  ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);

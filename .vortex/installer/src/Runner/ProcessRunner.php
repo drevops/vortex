@@ -47,6 +47,7 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
     $process->setIdleTimeout(NULL);
 
     $process->run(function ($type, string|iterable $buffer) use ($logger, $output): void {
+      // @phpstan-ignore-next-line
       $buffer = is_iterable($buffer) ? implode("\n", (array) $buffer) : $buffer;
       $this->output = $buffer;
       if ($this->shouldStream) {
