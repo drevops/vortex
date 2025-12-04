@@ -92,20 +92,26 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
     $this->setName('install');
     $this->setDescription('Install Vortex from remote or local repository.');
     $this->setHelp(<<<EOF
-  Interactively install Vortex from the latest stable release into the current directory:
-  php installer --destination=.
+  <info>Interactively install Vortex from the latest stable release into the current directory:</info>
+  php installer.php --destination=.
 
-  Non-interactively install Vortex from the latest stable release into the specified directory:
-  php installer --no-interaction --destination=path/to/destination
+  <info>Non-interactively install Vortex from the latest stable release into the specified directory:</info>
+  php installer.php --no-interaction --destination=path/to/destination
 
-  Install Vortex from the stable branch into the specified directory:
-  php installer --uri=https://github.com/drevops/vortex.git@stable --destination=path/to/destination
+  <info>Install from the latest auto-discovered stable release (default behavior if --uri is specified):</info>
+  php installer.php --uri=https://github.com/drevops/vortex.git
+  php installer.php --uri=https://github.com/drevops/vortex.git#stable
 
-  Install Vortex from a specific release into the specified directory:
-  php installer --uri=https://github.com/drevops/vortex.git@1.2.3 --destination=path/to/destination
+  <info>Install using repository URL with specific git ref after #:</info>
+  php installer.php --uri=https://github.com/drevops/vortex.git#25.11.0
+  php installer.php --uri=https://github.com/drevops/vortex.git#v1.2.3
+  php installer.php --uri=https://github.com/drevops/vortex.git#main
 
-  Install Vortex from a specific commit into the specified directory:
-  php installer --uri=https://github.com/drevops/vortex.git@abcd123 --destination=path/to/destination
+  <info>Copy GitHub URL directly from your browser:</info>
+  php installer.php --uri=https://github.com/drevops/vortex/releases/tag/25.11.0
+  php installer.php --uri=https://github.com/drevops/vortex/tree/1.2.3
+  php installer.php --uri=https://github.com/drevops/vortex/tree/main
+  php installer.php --uri=https://github.com/drevops/vortex/commit/abcd123
 EOF
     );
     $this->addOption(static::OPTION_DESTINATION, NULL, InputOption::VALUE_REQUIRED, 'Destination directory. Defaults to the current directory.');
@@ -138,6 +144,25 @@ EOF
 
       $this->header();
 
+      // Only validate if using custom repository or custom reference.
+      if ($this->shouldValidateRepositoryAndRef()) {
+        Task::action(
+          label: 'Validating repository and reference',
+          action: function (): string {
+            $repo = (string) $this->config->get(Config::REPO);
+            $ref = (string) $this->config->get(Config::REF);
+            $this->getRepositoryDownloader()->validate($repo, $ref);
+            return 'Repository and reference validated successfully';
+          },
+          hint: fn(): string => sprintf('Checking repository "%s" and reference "%s"', $this->config->get(Config::REPO), $this->config->get(Config::REF)),
+          success: fn(string $return): string => $return
+        );
+        Tui::line('');
+      }
+
+      Tui::line(Tui::dim('Press any key to continue...'));
+      Tui::getChar();
+
       $this->promptManager->runPrompts();
 
       Tui::list($this->promptManager->getResponsesSummary(), 'Installation summary');
@@ -157,7 +182,7 @@ EOF
           $this->config->set(Config::VERSION, $version);
           return $version;
         },
-        hint: fn(): string => sprintf('Downloading from "%s" repository at commit "%s"', ...RepositoryDownloader::parseUri($this->config->get(Config::REPO))),
+        hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->config->get(Config::REPO), $this->config->get(Config::REF)),
         success: fn(string $return): string => sprintf('Vortex downloaded (%s)', $return)
       );
 
@@ -301,7 +326,7 @@ EOF
       Env::putFromDotenv($dest_env_file);
     }
 
-    [$repo, $ref] = RepositoryDownloader::parseUri($options[static::OPTION_URI] ?: 'https://github.com/drevops/vortex.git@stable');
+    [$repo, $ref] = RepositoryDownloader::parseUri($options[static::OPTION_URI] ?: RepositoryDownloader::DEFAULT_REPO . '#stable');
     $this->config->set(Config::REPO, $repo);
     $this->config->set(Config::REF, $ref);
 
@@ -548,9 +573,6 @@ EOT;
     }
 
     Tui::box($content, $title);
-
-    Tui::line(Tui::dim('Press any key to continue...'));
-    Tui::getChar();
   }
 
   public function footer(): void {
@@ -713,6 +735,28 @@ EOT;
     if (!empty($phar_path) && file_exists($phar_path)) {
       @unlink($phar_path);
     }
+  }
+
+  /**
+   * Check if repository and reference validation should be performed.
+   *
+   * Validation is skipped for default Vortex repo with stable/HEAD refs.
+   * Validation is required for custom repositories or custom references.
+   *
+   * @return bool
+   *   TRUE if validation should be performed, FALSE otherwise.
+   */
+  protected function shouldValidateRepositoryAndRef(): bool {
+    $repo = $this->config->get(Config::REPO);
+    $ref = $this->config->get(Config::REF);
+
+    // Check if using default repository and default ref.
+    $default_repo_without_git = RepositoryDownloader::normalizeRepoUrl(RepositoryDownloader::DEFAULT_REPO);
+    $is_default_repo = ($repo === RepositoryDownloader::DEFAULT_REPO || $repo === $default_repo_without_git);
+    $is_default_ref = ($ref === RepositoryDownloader::REF_STABLE || $ref === RepositoryDownloader::REF_HEAD);
+
+    // Skip validation only if both are default.
+    return !($is_default_repo && $is_default_ref);
   }
 
   /**

@@ -380,7 +380,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Update Vortex from the template repository');
     // Use the argument instead of `VORTEX_INSTALLER_TEMPLATE_REPO` variable.
-    $this->cmd('ahoy update-vortex ' . static::$repo . '@' . $latest_installer_commit1, txt: 'Update Vortex to a specific version', env: [
+    $this->cmd('ahoy update-vortex ' . static::$repo . '#' . $latest_installer_commit1, txt: 'Update Vortex to a specific version', env: [
       // Override installer path to be called from SUT's update script.
       'VORTEX_INSTALLER_URL' => 'file://' . $installer_bin,
       // Do not suppress the installer output so it could be used in assertions.

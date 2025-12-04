@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
@@ -266,7 +267,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
   protected function stubVortexProject(Config $config): void {
     // Add a README.md file with a Vortex badge.
     $readme = static::$sut . DIRECTORY_SEPARATOR . 'README.md';
-    file_put_contents($readme, '[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-65ACBC.svg)](https://github.com/drevops/vortex/tree/1.2.3)' . PHP_EOL, FILE_APPEND);
+    $repo_url = str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO);
+    file_put_contents($readme, sprintf('[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-65ACBC.svg)](%s/tree/1.2.3)', $repo_url) . PHP_EOL, FILE_APPEND);
 
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
   }

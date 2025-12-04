@@ -56,16 +56,16 @@ argparse@^2.0.1:
   integrity sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
 
 "bats-helpers@npm:@drevops/bats-helpers@^1.5.1":
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/@drevops/bats-helpers/-/bats-helpers-1.5.1.tgz#96167a769887063b1c8090d3234b63ab760dc2c7"
-  integrity sha512-RxGHLHivcxyjgMtablXEArVvp8NkEx49YGe1wSSScTl4vad0U2BWkVkqedFBlrieyqegfEKx+tWpuPBz90plMw==
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@drevops/bats-helpers/-/bats-helpers-1.5.2.tgz#da4358420b7963d59c094eb3e0c88a07eaeed557"
+  integrity sha512-Ze4J+G+wsSYwD4gkSpyo5AxKnbKXYQKw131LgNjobAyeQbDLUxTsoYezn0q+7c2JJsltdcFTrgj9W4rlo4KXVg==
   dependencies:
     bats "^1"
 
 bats@^1:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/bats/-/bats-1.12.0.tgz#3ed99170325141e5d6dd53a84c3e5a702d5ab5be"
-  integrity sha512-1HTv2n+fjn3bmY9SNDgmzS6bjoKtVlSK2pIHON5aSA2xaqGkZFoCCWP46/G6jm9zZ7MCi84mD+3Byw4t3KGwBg==
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/bats/-/bats-1.13.0.tgz#b90aa4434832fc80458ade07ebdeecee0925d8ae"
+  integrity sha512-giSYKGTOcPZyJDbfbTtzAedLcNWdjCLbXYU3/MwPnjyvDXzu6Dgw8d2M+8jHhZXSmsCMSQqCp+YBsJ603UO4vQ==
 
 braces@^3.0.3:
   version "3.0.3"
@@ -95,9 +95,9 @@ commander@^8.3.0:
   integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
 debug@^4.0.0:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.4.1.tgz#e5a8bc6cbc4c6cd3e64308b0693a3d4fa550189b"
-  integrity sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==
+  version "4.4.3"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.4.3.tgz#c6ae432d9bd9662582fce08709b038c58e9e3d6a"
+  integrity sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==
   dependencies:
     ms "^2.1.3"
 
@@ -227,9 +227,9 @@ jsonc-parser@3.3.1:
   integrity sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==
 
 katex@^0.16.0:
-  version "0.16.22"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.22.tgz#d2b3d66464b1e6d69e6463b28a86ced5a02c5ccd"
-  integrity sha512-XCHRdUw4lf3SKBaJe4EvgqIuWwkPSo9XoeO8GjQW94Bp7TWv9hNhzZjZ+OH9yf1UmLygb7DIT5GSFQiyt16zYg==
+  version "0.16.25"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.25.tgz#61699984277e3bdb3e89e0e446b83cd0a57d87db"
+  integrity sha512-woHRUZ/iF23GBP1dkDQMh1QBad9dmr8/PAwNA54VrSOVYgI12MAcE14TqnDdQOdzyEonGzMepYnqBMYdsoAr8Q==
   dependencies:
     commander "^8.3.0"
 
