@@ -15,18 +15,18 @@ set -eu
 #
 # Examples:
 # https://github.com/drevops/vortex.git          # Will auto-discover the latest stable tag from remote repo.
-# https://github.com/drevops/vortex.git@stable   # Will auto-discover the latest stable tag from remote repo.
-# https://github.com/drevops/vortex.git@1.2.3    # Will use specific release from remote repo.
-# https://github.com/drevops/vortex.git@abcd123  # Will use specific commit from remote repo.
+# https://github.com/drevops/vortex.git#stable   # Will auto-discover the latest stable tag from remote repo.
+# https://github.com/drevops/vortex.git#1.2.3    # Will use specific release from remote repo.
+# https://github.com/drevops/vortex.git#abcd123  # Will use specific commit from remote repo.
 # file:///local/path/to/vortex.git               # Will auto-discover the latest stable tag from local repo.
-# file:///local/path/to/vortex.git@stable        # Will auto-discover the latest stable tag from local repo.
-# file:///local/path/to/vortex.git@1.2.3         # Will use specific release from local repo.
-# file:///local/path/to/vortex.git@abcd123       # Will use specific commit from local repo.
+# file:///local/path/to/vortex.git#stable        # Will auto-discover the latest stable tag from local repo.
+# file:///local/path/to/vortex.git#1.2.3         # Will use specific release from local repo.
+# file:///local/path/to/vortex.git#abcd123       # Will use specific commit from local repo.
 # /local/path/to/vortex.git                      # Will auto-discover the latest stable tag from local repo.
-# /local/path/to/vortex.git@stable               # Will auto-discover the latest stable tag from local repo.
-# /local/path/to/vortex.git@1.2.3                # Will use specific release from local repo.
-# /local/path/to/vortex.git@abcd123              # Will use specific commit from local repo.
-VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-https://github.com/drevops/vortex.git@stable}"
+# /local/path/to/vortex.git#stable               # Will auto-discover the latest stable tag from local repo.
+# /local/path/to/vortex.git#1.2.3                # Will use specific release from local repo.
+# /local/path/to/vortex.git#abcd123              # Will use specific commit from local repo.
+VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-https://github.com/drevops/vortex.git#stable}"
 
 # The URL of the installer script.
 VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/install}"

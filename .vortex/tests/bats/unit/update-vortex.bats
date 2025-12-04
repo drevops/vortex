@@ -19,7 +19,7 @@ load ../_helper.bash
   # Test default values when no environment variables are set.
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --no-interaction --uri=https://github.com/drevops/vortex.git@stable # 0"
+    "@php installer.php --no-interaction --uri=https://github.com/drevops/vortex.git\#stable # 0"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
@@ -43,13 +43,13 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --no-interaction --uri=https://github.com/custom/repo.git@main # 0"
+    "@php installer.php --no-interaction --uri=https://github.com/custom/repo.git\#main # 0"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" "https://github.com/custom/repo.git@main"
+  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" "https://github.com/custom/repo.git#main"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -70,7 +70,7 @@ load ../_helper.bash
   export VORTEX_INSTALLER_PATH="${test_installer}"
 
   declare -a STEPS=(
-    "@php ${test_installer} --no-interaction --uri=https://github.com/drevops/vortex.git@stable # 0"
+    "@php ${test_installer} --no-interaction --uri=https://github.com/drevops/vortex.git\#stable # 0"
     "Using installer script from local path: ${test_installer}"
   )
 
@@ -142,13 +142,13 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --no-interaction --uri=/local/path/to/vortex@stable # 0"
+    "@php installer.php --no-interaction --uri=/local/path/to/vortex\#stable # 0"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" "/local/path/to/vortex@stable"
+  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" "/local/path/to/vortex#stable"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -166,13 +166,13 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --no-interaction --uri=git@github.com:drevops/vortex.git@v1.2.3 # 0"
+    "@php installer.php --no-interaction --uri=git@github.com:drevops/vortex.git\#v1.2.3 # 0"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" "git@github.com:drevops/vortex.git@v1.2.3"
+  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" "git@github.com:drevops/vortex.git#v1.2.3"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -190,7 +190,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --no-interaction --uri=https://github.com/drevops/vortex.git@stable # 1"
+    "@php installer.php --no-interaction --uri=https://github.com/drevops/vortex.git\#stable # 1"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
@@ -214,7 +214,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --uri=https://github.com/drevops/vortex.git@stable # 0"
+    "@php installer.php --uri=https://github.com/drevops/vortex.git\#stable # 0"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
@@ -238,13 +238,13 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
-    "@php installer.php --uri=https://github.com/custom/repo.git@main # 0"
+    "@php installer.php --uri=https://github.com/custom/repo.git\#main # 0"
     "Using installer script from URL: https://www.vortextemplate.com/install"
     "Downloading installer to installer.php"
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" --interactive https://github.com/custom/repo.git@main
+  run "${ROOT_DIR}/scripts/vortex/update-vortex.sh" --interactive https://github.com/custom/repo.git#main
   run_steps "assert" "${mocks[@]}"
 
   assert_success

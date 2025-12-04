@@ -167,4 +167,84 @@ class ValidatorTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderGitRef')]
+  public function testGitRef(string $ref, bool $expected): void {
+    $this->assertSame($expected, Validator::gitRef($ref));
+  }
+
+  public static function dataProviderGitRef(): array {
+    return [
+      // Special keywords.
+      'special keyword stable' => ['stable', TRUE],
+      'special keyword HEAD' => ['HEAD', TRUE],
+
+      // Commit hashes (already tested, but included for completeness).
+      'valid 40-char commit hash' => ['a1b2c3d4e5f6789012345678901234567890abcd', TRUE],
+      'valid 7-char commit hash' => ['a1b2c3d', TRUE],
+
+      // Semantic versioning tags.
+      'semver without prefix' => ['1.2.3', TRUE],
+      'semver with v prefix' => ['v1.2.3', TRUE],
+      'semver with patch zero' => ['2.0.0', TRUE],
+      'semver with pre-release' => ['1.2.3-beta', TRUE],
+      'semver with pre-release alpha' => ['1.2.3-alpha.1', TRUE],
+      'semver with pre-release numbered' => ['1.2.3-beta.1', TRUE],
+      'semver with build metadata' => ['1.2.3+20130313144700', TRUE],
+      'semver with build metadata simple' => ['1.2.3+build', TRUE],
+      'semver with pre-release and build' => ['1.2.3-alpha.1+build.123', TRUE],
+
+      // Calendar versioning tags.
+      'calver YY.MM.PATCH' => ['24.10.0', TRUE],
+      'calver YY.MM.PATCH with higher version' => ['25.11.0', TRUE],
+      'calver YYYY.MM.PATCH' => ['2024.12.3', TRUE],
+
+      // Drupal-style versioning.
+      'drupal 8.x version' => ['8.x-1.10', TRUE],
+      'drupal 9.x version' => ['9.x-2.3', TRUE],
+      'drupal 10.x version' => ['10.x-1.0', TRUE],
+
+      // Hybrid versioning (SemVer with CalVer build metadata).
+      'semver+calver hybrid' => ['1.0.0+2025.11.0', TRUE],
+      'semver+calver hybrid v2' => ['1.2.0+2025.12.0', TRUE],
+      'semver+calver with pre-release' => ['1.0.0-beta+2025.11.0', TRUE],
+
+      // Pre-release tags.
+      'pre-release rc' => ['1.x-rc1', TRUE],
+      'pre-release beta' => ['2.0.0-beta', TRUE],
+      'pre-release alpha' => ['3.0.0-alpha', TRUE],
+
+      // Branch names.
+      'branch main' => ['main', TRUE],
+      'branch master' => ['master', TRUE],
+      'branch develop' => ['develop', TRUE],
+      'branch feature with slash' => ['feature/my-feature', TRUE],
+      'branch bugfix with slash' => ['bugfix/fix-123', TRUE],
+      'branch release with slash' => ['release/1.0', TRUE],
+
+      // Invalid formats - special characters.
+      'invalid with @' => ['invalid@ref', FALSE],
+      'invalid with ^' => ['invalid^ref', FALSE],
+      'invalid with ~' => ['invalid~ref', FALSE],
+      'invalid with :' => ['invalid:ref', FALSE],
+      'invalid with ?' => ['invalid?ref', FALSE],
+      'invalid with *' => ['invalid*ref', FALSE],
+      'invalid with [' => ['invalid[ref', FALSE],
+      'invalid with space' => ['invalid ref', FALSE],
+      'invalid with backslash' => ['invalid\ref', FALSE],
+      'invalid with @{' => ['invalid@{ref', FALSE],
+
+      // Invalid formats - starting/ending patterns.
+      'invalid starting with dot' => ['.invalid', FALSE],
+      'invalid starting with hyphen' => ['-invalid', FALSE],
+      'invalid ending with .lock' => ['invalid.lock', FALSE],
+      'invalid containing ..' => ['invalid..ref', FALSE],
+      'invalid trailing slash' => ['feature/', FALSE],
+      'invalid consecutive slashes' => ['feature//name', FALSE],
+
+      // Empty and edge cases.
+      'invalid empty string' => ['', FALSE],
+      'invalid only spaces' => ['   ', FALSE],
+    ];
+  }
+
 }

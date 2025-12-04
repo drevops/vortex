@@ -71,7 +71,7 @@ class InstallerTest extends FunctionalTestCase {
       // Do not suppress the installer output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstaller([sprintf('--uri=%s@%s', static::$repo, 'stable')]);
+    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
     $this->assertProcessOutputContains(static::$repo);
     $this->assertProcessOutputNotContains($latest_installer_commit1);
     $this->assertProcessOutputNotContains($latest_installer_commit2);
@@ -131,7 +131,7 @@ class InstallerTest extends FunctionalTestCase {
       // Do not suppress the installer output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstaller([sprintf('--uri=%s@%s', static::$repo, $latest_installer_commit1)]);
+    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $latest_installer_commit1)]);
     $this->assertProcessOutputContains(static::$repo);
     $this->assertProcessOutputContains($latest_installer_commit1);
     $this->gitAssertIsRepository(static::$sut);

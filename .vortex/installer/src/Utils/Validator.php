@@ -41,4 +41,67 @@ class Validator {
     return (bool) preg_match('/^[0-9a-f]{7}$/i', $value);
   }
 
+  /**
+   * Validate a git reference (tag, branch, or commit).
+   *
+   * Accepts any valid git reference format including:
+   * - Special keywords: "stable", "HEAD"
+   * - Commit hashes: 40-character or 7-character SHA-1 hashes
+   * - Version tags: "1.2.3", "v1.2.3", "25.11.0", "1.0.0-2025.11.0"
+   * - Drupal-style tags: "8.x-1.10", "9.x-2.3"
+   * - Pre-release tags: "1.x-rc1", "2.0.0-beta"
+   * - Branch names: "main", "develop", "feature/my-feature"
+   *
+   * Follows git reference naming rules:
+   * - Can contain alphanumeric, dot, hyphen, underscore, slash
+   * - Cannot start with dot or hyphen
+   * - Cannot contain: @, ^, ~, :, ?, *, [, space, \, @{
+   * - Cannot end with .lock or contain
+   *
+   * @param string $value
+   *   The reference string to validate.
+   *
+   * @return bool
+   *   TRUE if valid, FALSE otherwise.
+   *
+   * @see https://git-scm.com/docs/git-check-ref-format
+   */
+  public static function gitRef(string $value): bool {
+    // Reserved keywords have special meaning.
+    if (in_array($value, ['stable', 'HEAD'], TRUE)) {
+      return TRUE;
+    }
+
+    // Already supported: commit hashes.
+    if (self::gitCommitSha($value) || self::gitCommitShaShort($value)) {
+      return TRUE;
+    }
+
+    // Git ref naming rules (simplified):
+    // - Can contain alphanumeric, dot, hyphen, underscore, slash, plus.
+    // - Cannot start with dot or hyphen.
+    // - Cannot contain .. or end with .lock.
+    // - Cannot end with / or contain //.
+    $pattern = '/^(?![.\-])(?!.*\.\.)[a-zA-Z0-9._\/+-]+(?<!\.lock)$/';
+
+    if (!preg_match($pattern, $value)) {
+      return FALSE;
+    }
+
+    // Reject refs ending with slash or containing consecutive slashes.
+    if (str_ends_with($value, '/') || str_contains($value, '//')) {
+      return FALSE;
+    }
+
+    // Additional disallowed patterns.
+    $disallowed = ['@', '^', '~', ':', '?', '*', '[', ' ', '\\', '@{'];
+    foreach ($disallowed as $char) {
+      if (str_contains($value, $char)) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
 }

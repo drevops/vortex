@@ -230,7 +230,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     exec('git commit -m "Initial commit" 2>&1');
     $downloader = new RepositoryDownloader();
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Failed to create archive from local repository');
+    $this->expectExceptionMessage('Reference "nonexistent-ref" not found in local repository');
     $downloader->download($temp_repo_dir, 'nonexistent-ref', $temp_dest_dir);
   }
 
@@ -245,8 +245,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $mock_response->method('getBody')->willReturn($mock_body);
     $mock_body->method('getContents')->willReturn($release_json);
     $mock_response->method('getStatusCode')->willReturn(200);
-    // Only the API call uses httpClient now.
-    $mock_http_client->expects($this->once())->method('request')->willReturnCallback(function ($method, $url, array|\ArrayAccess $options) use ($mock_response): ResponseInterface {
+    // Two calls: HEAD for repo validation, GET for releases API.
+    $mock_http_client->expects($this->exactly(2))->method('request')->willReturnCallback(function ($method, $url, array|\ArrayAccess $options) use ($mock_response): ResponseInterface {
       $this->assertArrayHasKey('headers', $options);
       $this->assertArrayHasKey('Authorization', $options['headers']);
       $this->assertEquals('Bearer test_token_12345', $options['headers']['Authorization']);
@@ -307,25 +307,25 @@ class RepositoryDownloaderTest extends UnitTestCase {
 
       ],
       'HTTPS URLs - with specific valid references - stable' => [
-        'https://github.com/user/repo@stable',
+        'https://github.com/user/repo#stable',
         'https://github.com/user/repo',
         RepositoryDownloader::REF_STABLE,
 
       ],
       'HTTPS URLs - with specific valid references - HEAD' => [
-        'https://github.com/user/repo@HEAD',
+        'https://github.com/user/repo#HEAD',
         'https://github.com/user/repo',
         RepositoryDownloader::REF_HEAD,
 
       ],
       'HTTPS URLs - with 40-character commit hash' => [
-        'https://github.com/user/repo@1234567890abcdef1234567890abcdef12345678',
+        'https://github.com/user/repo#1234567890abcdef1234567890abcdef12345678',
         'https://github.com/user/repo',
         '1234567890abcdef1234567890abcdef12345678',
 
       ],
       'HTTPS URLs - with 7-character short commit hash' => [
-        'https://github.com/user/repo@1234567',
+        'https://github.com/user/repo#1234567',
         'https://github.com/user/repo',
         '1234567',
 
@@ -346,22 +346,22 @@ class RepositoryDownloaderTest extends UnitTestCase {
         RepositoryDownloader::REF_HEAD,
       ],
       'Git SSH URLs - with specific valid references - stable' => [
-        'git@github.com:user/repo@stable',
+        'git@github.com:user/repo#stable',
         'git@github.com:user/repo',
         RepositoryDownloader::REF_STABLE,
       ],
       'Git SSH URLs - with specific valid references - HEAD' => [
-        'git@github.com:user/repo@HEAD',
+        'git@github.com:user/repo#HEAD',
         'git@github.com:user/repo',
         RepositoryDownloader::REF_HEAD,
       ],
       'Git SSH URLs - with commit hashes - 40 char' => [
-        'git@github.com:user/repo@1234567890abcdef1234567890abcdef12345678',
+        'git@github.com:user/repo#1234567890abcdef1234567890abcdef12345678',
         'git@github.com:user/repo',
         '1234567890abcdef1234567890abcdef12345678',
       ],
       'Git SSH URLs - with commit hashes - 7 char' => [
-        'git@github.com:user/repo@1234567',
+        'git@github.com:user/repo#1234567',
         'git@github.com:user/repo',
         '1234567',
       ],
@@ -376,22 +376,22 @@ class RepositoryDownloaderTest extends UnitTestCase {
         RepositoryDownloader::REF_HEAD,
       ],
       'File URLs - with specific valid references - stable' => [
-        'file:///path/to/repo@stable',
+        'file:///path/to/repo#stable',
         '/path/to/repo',
         RepositoryDownloader::REF_STABLE,
       ],
       'File URLs - with specific valid references - HEAD' => [
-        'file:///path/to/repo@HEAD',
+        'file:///path/to/repo#HEAD',
         '/path/to/repo',
         RepositoryDownloader::REF_HEAD,
       ],
       'File URLs - with 40-character commit hash' => [
-        'file:///path/to/repo@1234567890abcdef1234567890abcdef12345678',
+        'file:///path/to/repo#1234567890abcdef1234567890abcdef12345678',
         '/path/to/repo',
         '1234567890abcdef1234567890abcdef12345678',
       ],
       'File URLs - with 7-character commit hash' => [
-        'file:///path/to/repo@1234567',
+        'file:///path/to/repo#1234567',
         '/path/to/repo',
         '1234567',
       ],
@@ -421,22 +421,22 @@ class RepositoryDownloaderTest extends UnitTestCase {
         RepositoryDownloader::REF_HEAD,
       ],
       'Local paths - with specific valid references - stable' => [
-        '/path/to/repo@stable',
+        '/path/to/repo#stable',
         '/path/to/repo',
         RepositoryDownloader::REF_STABLE,
       ],
       'Local paths - with specific valid references - HEAD' => [
-        '/path/to/repo@HEAD',
+        '/path/to/repo#HEAD',
         '/path/to/repo',
         RepositoryDownloader::REF_HEAD,
       ],
       'Local paths - with 40-character commit hash' => [
-        '/path/to/repo@1234567890abcdef1234567890abcdef12345678',
+        '/path/to/repo#1234567890abcdef1234567890abcdef12345678',
         '/path/to/repo',
         '1234567890abcdef1234567890abcdef12345678',
       ],
       'Local paths - with 7-character commit hash' => [
-        '/path/to/repo@1234567',
+        '/path/to/repo#1234567',
         '/path/to/repo',
         '1234567',
       ],
@@ -451,7 +451,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
         RepositoryDownloader::REF_HEAD,
       ],
       'Local paths with trailing slashes - should be trimmed - with reference' => [
-        '/path/to/repo/@stable',
+        '/path/to/repo/#stable',
         '/path/to/repo',
         RepositoryDownloader::REF_STABLE,
       ],
@@ -461,17 +461,17 @@ class RepositoryDownloaderTest extends UnitTestCase {
         RepositoryDownloader::REF_HEAD,
       ],
       'Relative paths - with reference' => [
-        'repo@stable',
+        'repo#stable',
         'repo',
         RepositoryDownloader::REF_STABLE,
       ],
       'Edge cases with valid commit hashes - uppercase 40 char' => [
-        'https://github.com/user/repo@ABCDEF1234567890ABCDEF1234567890ABCDEF12',
+        'https://github.com/user/repo#ABCDEF1234567890ABCDEF1234567890ABCDEF12',
         'https://github.com/user/repo',
         'ABCDEF1234567890ABCDEF1234567890ABCDEF12',
       ],
       'Edge cases with valid commit hashes - uppercase 7 char' => [
-        'git@github.com:user/repo@ABCDEF1',
+        'git@github.com:user/repo#ABCDEF1',
         'git@github.com:user/repo',
         'ABCDEF1',
       ],
@@ -495,10 +495,187 @@ class RepositoryDownloaderTest extends UnitTestCase {
         '/',
         RepositoryDownloader::REF_HEAD,
       ],
-      'Empty reference defaults to HEAD - @ is captured in repo part' => [
-        '/path/to/repo@',
-        '/path/to/repo@',
+      'Empty reference defaults to HEAD - # is captured in repo part' => [
+        '/path/to/repo#',
+        '/path/to/repo#',
         RepositoryDownloader::REF_HEAD,
+      ],
+
+      // Version tags - Semantic versioning.
+      'Version tags - SemVer without prefix' => [
+        'https://github.com/user/repo#1.2.3',
+        'https://github.com/user/repo',
+        '1.2.3',
+      ],
+      'Version tags - SemVer with v prefix' => [
+        'https://github.com/user/repo#v1.2.3',
+        'https://github.com/user/repo',
+        'v1.2.3',
+      ],
+      'Version tags - SemVer with patch zero' => [
+        'git@github.com:user/repo#2.0.0',
+        'git@github.com:user/repo',
+        '2.0.0',
+      ],
+      'Version tags - SemVer with pre-release' => [
+        'file:///path/to/repo#1.2.3-beta',
+        '/path/to/repo',
+        '1.2.3-beta',
+      ],
+      'Version tags - SemVer with pre-release alpha' => [
+        '/path/to/repo#1.2.3-alpha.1',
+        '/path/to/repo',
+        '1.2.3-alpha.1',
+      ],
+
+      // Version tags - Calendar versioning.
+      'Version tags - CalVer YY.MM.PATCH' => [
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO) . '#25.11.0',
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+        '25.11.0',
+      ],
+      'Version tags - CalVer YYYY.MM.PATCH' => [
+        'git@github.com:user/repo#2024.12.3',
+        'git@github.com:user/repo',
+        '2024.12.3',
+      ],
+
+      // Version tags - Drupal-style versioning.
+      'Version tags - Drupal 8.x style' => [
+        '/path/to/repo#8.x-1.10',
+        '/path/to/repo',
+        '8.x-1.10',
+      ],
+      'Version tags - Drupal 9.x style' => [
+        'file:///path/to/repo#9.x-2.3',
+        '/path/to/repo',
+        '9.x-2.3',
+      ],
+
+      // Version tags - Hybrid versioning.
+      'Version tags - SemVer+CalVer hybrid' => [
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO) . '#1.0.0+2025.11.0',
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+        '1.0.0+2025.11.0',
+      ],
+
+      // Version tags - Pre-release tags.
+      'Version tags - pre-release rc' => [
+        'git@github.com:user/repo#1.x-rc1',
+        'git@github.com:user/repo',
+        '1.x-rc1',
+      ],
+
+      // Branch names.
+      'Branch names - main' => [
+        'https://github.com/user/repo#main',
+        'https://github.com/user/repo',
+        'main',
+      ],
+      'Branch names - develop' => [
+        'git@github.com:user/repo#develop',
+        'git@github.com:user/repo',
+        'develop',
+      ],
+      'Branch names - feature with slash' => [
+        '/path/to/repo#feature/my-feature',
+        '/path/to/repo',
+        'feature/my-feature',
+      ],
+      'Branch names - bugfix with slash' => [
+        'file:///path/to/repo#bugfix/fix-123',
+        '/path/to/repo',
+        'bugfix/fix-123',
+      ],
+
+      // GitHub URL patterns - Direct release URLs.
+      'GitHub release URL - CalVer' => [
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO) . '/releases/tag/25.11.0',
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+        '25.11.0',
+      ],
+      'GitHub release URL - SemVer with v prefix' => [
+        'https://github.com/user/repo/releases/tag/v1.2.3',
+        'https://github.com/user/repo',
+        'v1.2.3',
+      ],
+      'GitHub release URL - SemVer without prefix' => [
+        'https://github.com/org/project/releases/tag/2.0.0',
+        'https://github.com/org/project',
+        '2.0.0',
+      ],
+
+      // GitHub URL patterns - Tree URLs.
+      'GitHub tree URL - SemVer' => [
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO) . '/tree/1.2.3',
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+        '1.2.3',
+      ],
+      'GitHub tree URL - branch name' => [
+        'https://github.com/user/repo/tree/main',
+        'https://github.com/user/repo',
+        'main',
+      ],
+      'GitHub tree URL - feature branch' => [
+        'https://github.com/user/repo/tree/feature/new-ui',
+        'https://github.com/user/repo',
+        'feature/new-ui',
+      ],
+
+      // GitHub URL patterns - Commit URLs.
+      'GitHub commit URL - full hash' => [
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO) . '/commit/1234567890abcdef1234567890abcdef12345678',
+        str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+        '1234567890abcdef1234567890abcdef12345678',
+      ],
+      'GitHub commit URL - short hash' => [
+        'https://github.com/user/repo/commit/abcd123',
+        'https://github.com/user/repo',
+        'abcd123',
+      ],
+
+      // Alternative # syntax - HTTPS.
+      'Hash syntax HTTPS - version tag' => [
+        RepositoryDownloader::DEFAULT_REPO . '#25.11.0',
+        RepositoryDownloader::DEFAULT_REPO,
+        '25.11.0',
+      ],
+      'Hash syntax HTTPS - stable keyword' => [
+        'https://github.com/user/repo.git#stable',
+        'https://github.com/user/repo.git',
+        'stable',
+      ],
+      'Hash syntax HTTPS - HEAD keyword' => [
+        'https://github.com/user/repo.git#HEAD',
+        'https://github.com/user/repo.git',
+        'HEAD',
+      ],
+      'Hash syntax HTTPS - branch name' => [
+        'https://github.com/user/repo.git#develop',
+        'https://github.com/user/repo.git',
+        'develop',
+      ],
+      'Hash syntax HTTPS - commit hash' => [
+        'https://github.com/user/repo.git#abcd123',
+        'https://github.com/user/repo.git',
+        'abcd123',
+      ],
+
+      // Alternative # syntax - SSH.
+      'Hash syntax SSH - version tag' => [
+        'git@github.com:drevops/vortex#25.11.0',
+        'git@github.com:drevops/vortex',
+        '25.11.0',
+      ],
+      'Hash syntax SSH - stable keyword' => [
+        'git@github.com:user/repo#stable',
+        'git@github.com:user/repo',
+        'stable',
+      ],
+      'Hash syntax SSH - branch name' => [
+        'git@github.com:user/repo#main',
+        'git@github.com:user/repo',
+        'main',
       ],
 
       // Invalid test cases.
@@ -527,10 +704,10 @@ class RepositoryDownloaderTest extends UnitTestCase {
         'Invalid remote repository format: "https://github.com/user/".',
       ],
       'Invalid HTTPS URL formats - malformed with reference' => [
-        'https://github.com/user@main',
+        'https://github.com/user#main',
         NULL,
         NULL,
-        'Invalid remote repository format: "https://github.com/user@main".',
+        'Invalid remote repository format: "https://github.com/user#main". Use # to specify a reference (e.g., repo.git#tag).',
       ],
       'Invalid HTTPS URL formats - protocol only' => [
         'https://',
@@ -556,18 +733,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
         NULL,
         'Invalid remote repository format: "git@github.com:".',
       ],
-      'Invalid Git SSH URL formats - missing repo name' => [
-        'git@github.com:user',
-        NULL,
-        NULL,
-        'Invalid remote repository format: "git@github.com:user".',
-      ],
-      'Invalid Git SSH URL formats - malformed with reference' => [
-        'git@github.com:user@main',
-        NULL,
-        NULL,
-        'Invalid remote repository format: "git@github.com:user@main".',
-      ],
       'Invalid Git SSH URL formats - empty user' => [
         'git@',
         NULL,
@@ -586,107 +751,29 @@ class RepositoryDownloaderTest extends UnitTestCase {
         NULL,
         'Invalid local repository format: "file://".',
       ],
-      'Invalid reference formats - branch names not allowed - main' => [
-        'https://github.com/user/repo@main',
-        NULL,
-        NULL,
-        'Invalid reference format: "main". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid reference formats - branch names not allowed - develop' => [
-        'git@github.com:user/repo@develop',
-        NULL,
-        NULL,
-        'Invalid reference format: "develop". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid reference formats - branch names not allowed - version tag' => [
-        '/path/to/repo@v1.0.0',
-        NULL,
-        NULL,
-        'Invalid reference format: "v1.0.0". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid reference formats - branch names not allowed - feature branch' => [
-        'file:///path/to/repo@feature-branch',
-        NULL,
-        NULL,
-        'Invalid reference format: "feature-branch". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
       'Invalid reference formats - special characters - exclamation' => [
-        'https://github.com/user/repo@invalid-ref-with-special-chars!',
+        'https://github.com/user/repo#invalid-ref-with-special-chars!',
         NULL,
         NULL,
-        'Invalid reference format: "invalid-ref-with-special-chars!". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
+        'Invalid git reference: "invalid-ref-with-special-chars!". Reference must be a valid git tag, branch, or commit hash.',
       ],
-      'Invalid reference formats - special characters - double @' => [
-        'git@github.com:user/repo@invalid@ref',
+      'Invalid reference formats - special characters - double hash' => [
+        'https://github.com/user/repo#invalid##ref',
         NULL,
         NULL,
-        'Invalid reference format: "invalid@ref". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
+        'Invalid git reference: "invalid##ref". Reference must be a valid git tag, branch, or commit hash.',
       ],
-      'Invalid commit hash formats - wrong length - 6 chars' => [
-        'file:///path/to/repo@123456',
+      'Edge cases - hash in reference is invalid - HTTPS' => [
+        'https://github.com/user/repo##main',
         NULL,
         NULL,
-        'Invalid reference format: "123456". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
+        'Invalid git reference: "#main". Reference must be a valid git tag, branch, or commit hash.',
       ],
-      'Invalid commit hash formats - wrong length - 8 chars' => [
-        'https://github.com/user/repo@12345678',
+      'Edge cases - hash in reference is invalid - Git SSH' => [
+        'git@github.com:user/repo##main',
         NULL,
         NULL,
-        'Invalid reference format: "12345678". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid commit hash formats - wrong length - 39 chars' => [
-        'git@github.com:user/repo@123456789012345678901234567890123456789',
-        NULL,
-        NULL,
-        'Invalid reference format: "123456789012345678901234567890123456789". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid commit hash formats - invalid characters - 40 char with g' => [
-        'https://github.com/user/repo@1234567890abcdef1234567890abcdef1234567g',
-        NULL,
-        NULL,
-        'Invalid reference format: "1234567890abcdef1234567890abcdef1234567g". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid commit hash formats - invalid characters - 7 char with g' => [
-        '/path/to/repo@123456g',
-        NULL,
-        NULL,
-        'Invalid reference format: "123456g". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid commit hash formats - wrong length - 3 chars' => [
-        'https://github.com/user/repo@123',
-        NULL,
-        NULL,
-        'Invalid reference format: "123". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid commit hash formats - wrong length - 41 chars' => [
-        'git@github.com:user/repo@12345678901234567890123456789012345678901',
-        NULL,
-        NULL,
-        'Invalid reference format: "12345678901234567890123456789012345678901". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Invalid commit hash formats - wrong length - 39 chars mixed' => [
-        '/path/to/repo@1234567890abcdef1234567890abcdef123456789',
-        NULL,
-        NULL,
-        'Invalid reference format: "1234567890abcdef1234567890abcdef123456789". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Edge cases - double @ character results in reference validation error - HTTPS' => [
-        'https://github.com/user/repo@@main',
-        NULL,
-        NULL,
-        'Invalid reference format: "@main". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Edge cases - double @ character results in reference validation error - Git SSH' => [
-        'git@github.com:user/repo@@main',
-        NULL,
-        NULL,
-        'Invalid reference format: "@main". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
-      ],
-      'Protocol-less URLs - treated as local paths - reference validation error' => [
-        'user/repo@github.com',
-        NULL,
-        NULL,
-        'Invalid reference format: "github.com". Supported formats are: stable, HEAD, 40-character commit hash, 7-character commit hash.',
+        'Invalid git reference: "#main". Reference must be a valid git tag, branch, or commit hash.',
       ],
     ];
   }
@@ -739,7 +826,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
         'skipMockSetup' => FALSE,
         'expectedVersion' => NULL,
         'expectedException' => \RuntimeException::class,
-        'expectedMessage' => 'Unable to download release information from',
+        'expectedMessage' => 'Unable to access repository',
       ],
       'empty response' => [
         'repo' => 'https://github.com/user/repo',
@@ -760,51 +847,51 @@ class RepositoryDownloaderTest extends UnitTestCase {
         'expectedMessage' => 'Invalid repository URL',
       ],
       'SemVer+CalVer format - single release' => [
-        'repo' => 'https://github.com/drevops/vortex',
+        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
         'releaseData' => [
-          ['tag_name' => '1.0.0-2025.11.0', 'draft' => FALSE],
+          ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
         ],
         'throwException' => FALSE,
         'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.0.0-2025.11.0',
+        'expectedVersion' => '1.0.0+2025.11.0',
         'expectedException' => NULL,
         'expectedMessage' => NULL,
       ],
       'SemVer+CalVer format - multiple releases' => [
-        'repo' => 'https://github.com/drevops/vortex',
+        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
         'releaseData' => [
-          ['tag_name' => '1.2.0-2025.12.0', 'draft' => FALSE],
-          ['tag_name' => '1.1.0-2025.11.0', 'draft' => FALSE],
-          ['tag_name' => '1.0.0-2025.10.0', 'draft' => FALSE],
+          ['tag_name' => '1.2.0+2025.12.0', 'draft' => FALSE],
+          ['tag_name' => '1.1.0+2025.11.0', 'draft' => FALSE],
+          ['tag_name' => '1.0.0+2025.10.0', 'draft' => FALSE],
         ],
         'throwException' => FALSE,
         'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.2.0-2025.12.0',
+        'expectedVersion' => '1.2.0+2025.12.0',
         'expectedException' => NULL,
         'expectedMessage' => NULL,
       ],
       'SemVer+CalVer format - skip draft' => [
-        'repo' => 'https://github.com/drevops/vortex',
+        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
         'releaseData' => [
-          ['tag_name' => '2.0.0-2026.01.0', 'draft' => TRUE],
-          ['tag_name' => '1.0.0-2025.11.0', 'draft' => FALSE],
+          ['tag_name' => '2.0.0+2026.01.0', 'draft' => TRUE],
+          ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
         ],
         'throwException' => FALSE,
         'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.0.0-2025.11.0',
+        'expectedVersion' => '1.0.0+2025.11.0',
         'expectedException' => NULL,
         'expectedMessage' => NULL,
       ],
       'Mixed format - SemVer+CalVer and CalVer' => [
-        'repo' => 'https://github.com/drevops/vortex',
+        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
         'releaseData' => [
-          ['tag_name' => '1.0.0-2025.11.0', 'draft' => FALSE],
+          ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
           ['tag_name' => '25.10.0', 'draft' => FALSE],
           ['tag_name' => '25.9.0', 'draft' => FALSE],
         ],
         'throwException' => FALSE,
         'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.0.0-2025.11.0',
+        'expectedVersion' => '1.0.0+2025.11.0',
         'expectedException' => NULL,
         'expectedMessage' => NULL,
       ],
@@ -905,6 +992,89 @@ class RepositoryDownloaderTest extends UnitTestCase {
    */
   protected function createMockFileDownloader(): MockObject {
     return $this->createMock(Downloader::class);
+  }
+
+  public function testValidateRemoteRepositoryExistsWithNotFoundError(): void {
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_response->method('getStatusCode')->willReturn(404);
+    $mock_http_client->method('request')->willReturn($mock_response);
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    $downloader = new RepositoryDownloader($mock_http_client);
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Repository not found or not accessible: "https://github.com/user/nonexistent" (HTTP 404)');
+    $downloader->download('https://github.com/user/nonexistent', '1.0.0', $destination);
+  }
+
+  public function testValidateRemoteRefExistsWithNotFoundError(): void {
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $repo_response = $this->createMock(ResponseInterface::class);
+    $repo_response->method('getStatusCode')->willReturn(200);
+    $ref_response = $this->createMock(ResponseInterface::class);
+    $ref_response->method('getStatusCode')->willReturn(404);
+    $mock_http_client->method('request')->willReturnCallback(function ($method, $url) use ($repo_response, $ref_response): ResponseInterface {
+      if (str_contains($url, '/archive/')) {
+        return $ref_response;
+      }
+      return $repo_response;
+    });
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    $downloader = new RepositoryDownloader($mock_http_client);
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Reference "nonexistent-tag" not found in repository "https://github.com/user/repo"');
+    $downloader->download('https://github.com/user/repo', 'nonexistent-tag', $destination);
+  }
+
+  public function testValidateLocalRepositoryExistsWithNonexistentPath(): void {
+    $nonexistent_path = self::$tmp . '/nonexistent_repo_' . uniqid();
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    $downloader = new RepositoryDownloader();
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Local repository path does not exist: "%s"', $nonexistent_path));
+    $downloader->download($nonexistent_path, 'main', $destination);
+  }
+
+  public function testValidateLocalRepositoryExistsWithNonGitDirectory(): void {
+    $non_git_path = self::$tmp . '/non_git_dir_' . uniqid();
+    File::mkdir($non_git_path);
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    $downloader = new RepositoryDownloader();
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Path is not a git repository: "%s"', $non_git_path));
+    $downloader->download($non_git_path, 'main', $destination);
+  }
+
+  public function testValidateRemoteRepositoryExistsWithRequestException(): void {
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client->method('request')->willThrowException(new RequestException('Connection timeout', $this->createMock(RequestInterface::class)));
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    $downloader = new RepositoryDownloader($mock_http_client);
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to access repository: "https://github.com/user/repo" - Connection timeout');
+    $downloader->download('https://github.com/user/repo', '1.0.0', $destination);
+  }
+
+  public function testValidateRemoteRefExistsWithRequestException(): void {
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $repo_response = $this->createMock(ResponseInterface::class);
+    $repo_response->method('getStatusCode')->willReturn(200);
+    $mock_http_client->method('request')->willReturnCallback(function ($method, $url) use ($repo_response): ResponseInterface {
+      if (str_contains($url, '/archive/')) {
+        throw new RequestException('Network error', $this->createMock(RequestInterface::class));
+      }
+      return $repo_response;
+    });
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    $downloader = new RepositoryDownloader($mock_http_client);
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to verify reference "test-tag" in repository "https://github.com/user/repo" - Network error');
+    $downloader->download('https://github.com/user/repo', 'test-tag', $destination);
   }
 
 }
