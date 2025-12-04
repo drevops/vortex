@@ -92,6 +92,7 @@
             "abandoned": "report",
             "block-insecure": true
         },
+        "bump-after-update": true,
         "discard-changes": true,
         "platform": {
             "php": "8.3.28"
