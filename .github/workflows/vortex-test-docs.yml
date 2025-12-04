@@ -58,7 +58,6 @@ jobs:
 
       - name: Check docs up-to-date
         run: |
-          composer --working-dir=.utils install
           yarn run update-variables
           git diff --quiet HEAD || { echo "Docs not up-to-date. Run 'cd .vortex && ahoy update-docs' and commit changes."; git diff; exit 1; }
         working-directory: '${{ github.workspace }}/.vortex/docs'
