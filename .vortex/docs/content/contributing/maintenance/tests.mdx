@@ -1,39 +1,52 @@
 # Authoring tests
 
-**Vortex** uses [Bats](https://github.com/bats-core/bats-core) for testing.
-Bats is a TAP-compliant testing framework for Bash. It provides a simple way to
-verify that the UNIX programs you write behave as expected.
+There are 2 types of tests in **Vortex**:
 
-See [Bats documentation](https://bats-core.readthedocs.io/) for more information.
+- [PHPUnit](https://phpunit.de/) for functional end-to-end testing of workflows.<br/>
+With help of [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers) testing library, we run tests
+for workflows, including container builds, database imports, and Drupal
+operations as if they were run by a consumer site developer.
 
-## Installation
+- [Bats](https://github.com/bats-core/bats-core) for unit testing of scripts in `scripts/vortex`.<br/>
+  With help of [`BATS Helpers`](https://github.com/drevops/bats-helpers) testing
+  library, we run unit tests for shell scripts with coverage.
+
+  :::info
+
+  Heads up! Scripts are changing from Bash to PHP in `2.0` release.
+  This will make the use of BATS obsolete. Track the progress
+  in [this issue](https://github.com/drevops/vortex/issues/1192).
+
+  :::
+
+## Functional tests with PHPUnit
 
 ```bash
-npm install --prefix .vortex/tests
-```
+cd .vortex/tests
 
-## Usage
+# Install Composer dependencies.
+composer install
 
-```bash
-# Run a single test.
-bats .vortex/tests/bats/helpers.bats
+# Run all tests.
+composer test
 
 # Some tests require Composer and container registry tokens.
-TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> bats .vortex/tests/bats/workflow.smoke.bats
+TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> composer test
+```
 
-# To preserve test run directory.
-bats --no-tempdir-cleanup .vortex/tests/bats/helpers.bats
+Functional tests rely on database fixtures - see the section below on
+[updating test](#updating-test-assets) assets.
 
-# To override Bats temporary directory where tests are ran (required for container tests).
-mkdir -p $HOME/.bats-tmp # run once
-TMPDIR=$HOME/.bats-tmp bats .vortex/tests/bats/helpers.bats
+## Unit tests with BATS
 
-# Run all tests, preserving the temporary directory.
-TEST_PACKAGE_TOKEN=<yourtoken> \
-TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> \
-TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> \
-TMPDIR=$HOME/.bats-tmp \
-bats --no-tempdir-cleanup .vortex/tests/bats/*.bats
+```bash
+cd .vortex/tests
+
+# Install npm dependencies.
+npm install
+
+# Run a single test.
+bats .vortex/tests/bats/deploy.bats
 ```
 
 ## Updating test assets

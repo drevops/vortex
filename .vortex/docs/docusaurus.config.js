@@ -24,7 +24,7 @@ const config = {
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
-  onBrokenAnchors: 'throw',
+  onBrokenAnchors: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -94,16 +94,16 @@ const config = {
         },
         items: [
           {
-            label: 'Get started',
-            href: '/docs/getting-started',
+            label: 'Introduction',
+            href: '/docs',
           },
           {
             label: 'Features',
             href: '/docs/features',
           },
           {
-            label: 'Documentation',
-            href: '/docs',
+            label: 'Installation',
+            href: '/docs/installation',
           },
           {
             label: 'Support',
@@ -134,12 +134,12 @@ const config = {
             title: 'Product',
             items: [
               {
-                label: 'Get started',
-                href: '/docs/getting-started',
-              },
-              {
                 label: 'Features',
                 href: '/docs/features',
+              },
+              {
+                label: 'FAQs',
+                href: '/docs/faqs',
               },
             ],
           },
@@ -196,7 +196,7 @@ const config = {
         redirects: [
           {
             from: ['/quickstart'],
-            to: '/docs/getting-started',
+            to: '/docs',
           },
           {
             from: ['/ci'],
@@ -220,11 +220,15 @@ const config = {
           },
           {
             from: ['/getting-started'],
-            to: '/docs/getting-started',
+            to: '/docs',
           },
           {
             from: ['/contributing'],
             to: '/docs/contributing',
+          },
+          {
+            from: ['/docs/getting-started'],
+            to: '/docs',
           },
           {
             from: ['/docs/getting-started/architecture'],

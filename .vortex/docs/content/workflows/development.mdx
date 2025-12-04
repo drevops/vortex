@@ -24,6 +24,32 @@ sidebar_position: 1
     - Assign reviewers.
     - Wait for the continuous integration pipeline to pass.
 
+## Running CLI commands
+
+You can run CLI commands inside the project containers using `ahoy` command
+wrapper.
+
+```bash
+# Run a command in the CLI container
+ahoy cli echo "Hello, World!"
+```
+
+To SSH into the CLI container:
+
+```bash
+ahoy cli
+```
+
+You can also use shortcuts for common commands:
+
+```bash
+# Run Drush command
+ahoy drush status
+
+# Run Composer command
+ahoy composer install
+```
+
 ## Switching branches
 
 When switching to a new branch, there is no need to run `ahoy build` again as
@@ -80,7 +106,7 @@ You can also export timestamped database dumps from the local environment into
 dumps to restore the local environment to a specific state: rename the dump
 file to `.data/db.sql` and run `ahoy import-db`.
 
-See [Drupal > Provision](../drupal/provision) for more details.
+➡️ See [Drupal > Provision](../drupal/provision)
 
 ## Environment variable updates
 
@@ -97,7 +123,7 @@ For more comprehensive variable reference, see [Variables](variables.mdx).
 
 ## Debugging with Xdebug
 
-To enable Xdebug for debugging:
+To enable Xdebug for debugging browser and CLI requests:
 
 ```bash
 ahoy debug     # Enable Xdebug

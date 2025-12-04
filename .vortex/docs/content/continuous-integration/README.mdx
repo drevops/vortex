@@ -16,31 +16,11 @@ instructions.
 The continuous integration pipeline consists of multiple jobs executed in a
 containerized environment to ensure consistency across runs.
 
-## Trigger conditions
-
-The continuous integration pipeline is triggered by:
-
-- **Push events** to the following branches:
-  - `production`,
-  - `main`,
-  - `master`,
-  - `develop`
-  - `release/**`,
-  - `hotfix/**`,
-  - `project/**`
-- **Pull requests** to these branches
-- **Scheduled runs** for automatic database caching
-
 ## Workflow structure
-
-<details>
-<summary>Expand to see the complete code lifecycle diagram</summary>
 
 import CodeLifecycle from '../workflows/_code-lifecycle.mdx';
 
-<CodeLifecycle />
-
-</details>
+<CodeLifecycle/>
 
 ### 1. Database
 
@@ -96,6 +76,32 @@ export command without the need for an intermediate database import step.
 
 :::
 
+### Reset the cache
+
+If you need to force a fresh cache (e.g., to pull the new database dump outside
+of the regular schedule), increment the version tag in the cache keys:
+
+```yaml
+# Before
+v25.11.0-db11
+# After
+v25.11.1-db11
+```
+
+## Trigger conditions
+
+The continuous integration pipeline is triggered by:
+
+- **Push events** to the following branches:
+  - `production`, `main`, `master`, `develop`, `1.x`, `2.x`
+  - `feature/*`, `bugfix/*`
+  - `release/*`, `hotfix/*` (semantic version or date-based, e.g., `release/1.2.3`, `hotfix/2023-04-17`)
+  - `project/*`
+  - `ci*`
+- **Pull requests** to these branches
+- **Tags** matching semantic version (`1.2.3`, `1.2.3-rc.1`) or date-based (`2023-04-17`) patterns
+- **Scheduled runs** for automatic database caching
+
 ## Maintenance
 
 ### Enable debug mode
@@ -115,31 +121,57 @@ provides a consistent, reproducible environment with 25+ pre-installed tools:
 - **Utilities** - Git, curl, rsync, jq, and more
 
 Using this image ensures all CI runs have identical tooling, eliminating
-environment inconsistencies between local development and CI.
+environment inconsistencies between local development and CI. It also massively
+speeds up builds by avoiding repetitive installation of common tools.
 
 To update to a newer version, change the image tag in your CI configuration
-file. The image follows Year-Month-Patch versioning (e.g., `25.10.0`) with
+file. The image follows [CalVer](https://calver.org/) versioning (e.g., `25.10.0`) with
 monthly releases.
 
-### Skip specific linters
+### Ignore tool failures
 
-During development, you may want to allow builds to pass despite linter failures.
-Set the corresponding `*_IGNORE_FAILURE` variable to `1`:
+Sometimes you may want to allow builds to pass despite linter and test failures.
 
-| Variable | Tool |
-|----------|------|
-| `VORTEX_CI_PHPCS_IGNORE_FAILURE` | PHPCS |
-| `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` | PHPStan |
-| `VORTEX_CI_RECTOR_IGNORE_FAILURE` | Rector |
-| `VORTEX_CI_PHPMD_IGNORE_FAILURE` | PHPMD |
-| `VORTEX_CI_PHPUNIT_IGNORE_FAILURE` | PHPUnit |
-| `VORTEX_CI_BEHAT_IGNORE_FAILURE` | Behat |
+Set the corresponding `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to ignore
+failures (but still run the tool and see the results in the logs):
+
+| Variable                                      | Tool                 |
+|-----------------------------------------------|----------------------|
+| `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  | Composer validate    |
+| `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     | Composer audit       |
+| `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` | Composer normalize   |
+| `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           | Hadolint (Dockerfile)|
+| `VORTEX_CI_DCLINT_IGNORE_FAILURE`             | Docker Compose lint  |
+| `VORTEX_CI_PHPCS_IGNORE_FAILURE`              | PHPCS                |
+| `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            | PHPStan              |
+| `VORTEX_CI_RECTOR_IGNORE_FAILURE`             | Rector               |
+| `VORTEX_CI_PHPMD_IGNORE_FAILURE`              | PHPMD                |
+| `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      | Twig CS Fixer        |
+| `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       | Gherkin Lint         |
+| `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`        | Node.js/Yarn lint    |
+| `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            | PHPUnit              |
+| `VORTEX_CI_BEHAT_IGNORE_FAILURE`              | Behat                |
 
 ### Configure deployment skip conditions
 
+Sometimes it may be necessary to skip deployments for specific branches or pull
+requests. For example, you may want to temporarily avoid deploying more changes
+into already deployed environments which still run CI checks on new commits.
+
 To skip deployments for specific branches, set the `VORTEX_DEPLOY_SKIP_BRANCHES`
-variable to a comma-separated list of branch patterns:
+variable to a comma-separated list of exact branch names:
 
 ```bash
-VORTEX_DEPLOY_SKIP_BRANCHES="feature/*,experimental/*"
+VORTEX_DEPLOY_ALLOW_SKIP=1 # Enable deployment skipping
+VORTEX_DEPLOY_SKIP_BRANCHES="feature/test,hotfix/urgent,project/experimental"
 ```
+
+To skip deployments for specific pull requests, set the `VORTEX_DEPLOY_SKIP_PRS`
+variable to a comma-separated list of PR numbers:
+
+```bash
+VORTEX_DEPLOY_ALLOW_SKIP=1 # Enable deployment skipping
+VORTEX_DEPLOY_SKIP_PRS="123,456,789"
+```
+
+To skip all deployments entirely, set `VORTEX_DEPLOY_SKIP=1`.
