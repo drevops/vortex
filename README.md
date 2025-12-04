@@ -57,7 +57,7 @@ Alternatively, clone this repository and adjust the configuration by manually
 editing or deleting the sections that aren't necessary for your setup.
 
 Read
-the [installation guide](https://www.vortextemplate.com/docs/getting-started/installation)
+the [installation guide](https://www.vortextemplate.com/docs/installation)
 for more details.
 
 ### Development version
@@ -77,7 +77,7 @@ curl -SsL https://vortex-docs.netlify.app/install > installer.php && php install
   </picture>
 </div>
 
-See [Features](https://www.vortextemplate.com/docs/getting-started/features) for more details.
+See [Features](https://www.vortextemplate.com/docs/features) for more details.
 
 ## Roadmap
 

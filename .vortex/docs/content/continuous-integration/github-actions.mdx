@@ -87,16 +87,10 @@ Add the following secrets in **Settings → Secrets and variables → Actions**:
 
 **Acquia:**
 
-| Secret | Description |
-|--------|-------------|
-| `ACQUIA_KEY` | Acquia Cloud API key |
-| `ACQUIA_SECRET` | Acquia Cloud API secret |
-
-**Lagoon:**
-
-| Secret | Description |
-|--------|-------------|
-| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
+| Secret                 | Description             |
+|------------------------|-------------------------|
+| `VORTEX_ACQUIA_KEY`    | Acquia Cloud API key    |
+| `VORTEX_ACQUIA_SECRET` | Acquia Cloud API secret |
 
 ## Maintenance
 
@@ -118,24 +112,12 @@ on:
 ### Update nightly database schedule
 
 The nightly database job caches a fresh database dump for faster builds the next
-day. To change when this runs, update the `schedule.cron` value (cron format,
-UTC timezone):
+day. To change when this runs, update the `schedule.cron` value (
+[cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
 
 ```yaml
 schedule:
   - cron: '0 18 * * *'  # 6 PM UTC daily
-```
-
-### Reset the cache
-
-If you need to force a fresh cache (e.g., after a major dependency update),
-increment the version tag in the cache keys:
-
-```yaml
-# Before
-key: v25.11.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
-# After
-key:v25.11.1-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
 ```
 
 ### Change runner size
@@ -161,7 +143,7 @@ strategy:
 
 ### Terminal access for debugging
 
-The workflow includes a tmate session for debugging. Trigger a manual workflow
+The workflow includes a `tmate` session for debugging. Trigger a manual workflow
 run with the **Enable terminal session** option checked to get SSH connection
 details in the build logs. See [action-tmate](https://github.com/mxschmitt/action-tmate)
 for more information.

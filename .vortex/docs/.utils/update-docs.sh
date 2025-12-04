@@ -12,34 +12,36 @@ set -eu
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
 
-[ ! -d "./.utils/vendor" ] && composer --working-dir="./.utils" install
-
 sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
 OUTPUT_FILE="./content/workflows/variables.mdx"
 sed "${sed_opts[@]}" '/## Variables list/,$d' "${OUTPUT_FILE}"
 
 echo "## Variables list" >>"${OUTPUT_FILE}"
+echo "" >>"${OUTPUT_FILE}"
+echo "The list below is automatically generated with [Shellvar](https://github.com/alexSkrypnyk/shellvar) from all Shell scripts. " >>"${OUTPUT_FILE}"
 echo >>"${OUTPUT_FILE}"
-./.utils/vendor/bin/shellvar extract \
+
+docker run -v "${ROOT_DIR}:/app" drevops/shellvar:1.3.0 extract \
   --skip-text="@docs:skip" \
   --skip-description-prefix=";<" \
   --skip-description-prefix=";>" \
   --exclude-local \
-  --exclude-from-file=./.utils/variables/variables.excluded.txt \
+  --exclude-from-file=.vortex/docs/.utils/variables/variables.excluded.txt \
   --sort \
   --unset "UNDEFINED" \
-  --format=md-blocks \
-  --md-inline-code-extra-file=./.utils/variables/variables.inline-code-extra.txt \
+  --format=md-table \
+  --md-inline-code-extra-file=.vortex/docs/.utils/variables/variables.inline-code-extra.txt \
   --md-link-vars \
   --md-link-vars-anchor-case=lower \
-  --md-block-template-file=./.utils/variables/variables.template.md \
-  --path-strip-prefix="${ROOT_DIR}/" \
-  ../../.env \
-  ../../.env.local.example \
-  ./.utils/variables/extra \
-  ../../scripts/vortex \
-  ../../scripts/custom \
+  --path-strip-prefix="/app/" \
+  --column-order="Name,Description,Default value,Defined or used in" \
+  --fields='name=Name;description=Description;default_value=Default value;paths=Defined or used in' \
+  .env \
+  .env.local.example \
+  scripts/vortex \
+  scripts/custom \
+  .vortex/docs/.utils/variables/extra \
   >>"${OUTPUT_FILE}"
 
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/environment.variables.sh/ENVIRONMENT/g" "${OUTPUT_FILE}"

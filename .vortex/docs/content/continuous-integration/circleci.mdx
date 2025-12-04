@@ -96,16 +96,10 @@ Add the following variables in **Project Settings → Environment Variables**:
 
 **Acquia:**
 
-| Variable | Description |
-|----------|-------------|
-| `ACQUIA_KEY` | Acquia Cloud API key |
-| `ACQUIA_SECRET` | Acquia Cloud API secret |
-
-**Lagoon:**
-
-| Variable | Description |
-|----------|-------------|
-| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
+| Variable               | Description             |
+|------------------------|-------------------------|
+| `VORTEX_ACQUIA_KEY`    | Acquia Cloud API key    |
+| `VORTEX_ACQUIA_SECRET` | Acquia Cloud API secret |
 
 ## Maintenance
 
@@ -118,29 +112,17 @@ the `workflows` section of `.circleci/config.yml`:
 ```yaml
 filters:
   branches:
-    only: /^(production|main|master|develop)$|^feature\/[a-zA-Z0-9\-\.]+$/
+    only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
 ```
 
 ### Update nightly database schedule
 
 The nightly database job caches a fresh database dump for faster builds the next
 day. To change when this runs, update the `nightly_db_schedule` YAML anchor
-(cron format, UTC timezone):
+([cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
 
 ```yaml
 - &nightly_db_schedule "0 18 * * *"  # 6 PM UTC daily
-```
-
-### Reset the cache
-
-If you need to force a fresh cache (e.g., after a major dependency update),
-increment the version tag in the cache keys:
-
-```yaml
-# Before
-- v1-db-{{ checksum "/tmp/db_cache_branch" }}
-# After
-- v2-db-{{ checksum "/tmp/db_cache_branch" }}
 ```
 
 ### Change runner resource class

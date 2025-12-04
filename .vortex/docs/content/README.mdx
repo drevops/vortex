@@ -2,6 +2,8 @@
 title: ''
 sidebar_label: Introduction
 sidebar_position: 1
+description: Vortex is a Drupal project template designed to streamline onboarding, accelerate development, and support long-term maintainability. It provides a complete foundation for building and deploying Drupal sites — including containerized local environments, automated testing and code quality tools, continuous integration pipeline configurations, and integrations with popular hosting platforms. Everything is pre-configured and ready to use, so teams can focus on building features instead of setting up infrastructure.
+
 ---
 
 <div align="center">
@@ -33,19 +35,113 @@ Every change is verified through automated tests to ensure updates remain stable
 and reliable — reducing the risk of regressions and making it easier to maintain
 projects over time.
 
+## Why Vortex exists
 
-## 🎁  What’s inside Vortex?
+Setting up Drupal projects can be time-consuming and inconsistent:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-  <li>💧 A pre-configured Drupal project structure with module, theme and test boilerplate</li>
+  <li>⏱️ Developers lose hours or days setting up their local, continuous integration, and hosting environments</li>
+  <li>⚠️ Inconsistent setups cause false negatives, undermining the reliability of tools</li>
+  <li>🔌 Lack of understanding of third-party service inner workings slows integration and troubleshooting</li>
+  <li>📉 Poor onboarding documentation affects team productivity</li>
+</ul>
+
+This leads to:
+
+<ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+  <li>😩 Developer frustration and burnout</li>
+  <li>⏳ Project delays and missed deadlines</li>
+  <li>💸 Increased unplanned costs and budget overruns</li>
+</ul>
+
+**Vortex** was created to solve these challenges by providing a complete
+foundation for developing and maintaining Drupal projects.
+
+## Three pillars of Vortex
+
+<div style={{
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '2rem',
+  flexWrap: 'wrap',
+  marginTop: '4rem',
+  marginBottom: '4rem',
+  fontFamily: 'var(--ifm-font-family-base)'
+}}>
+  <div style={{
+    flex: '1 1 100px',
+    textAlign: 'center',
+    minWidth: '90px',
+    maxWidth: '120px'
+  }}>
+    <div style={{ fontSize: '3rem', lineHeight: '1' }}>📦</div>
+    <div style={{ fontSize: '1rem', fontWeight: '500', marginTop: '0.5rem' }}>Template</div>
+  </div>
+
+  <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>+</div>
+
+  <div style={{
+    flex: '1 1 100px',
+    textAlign: 'center',
+    minWidth: '90px',
+    maxWidth: '120px'
+  }}>
+    <div style={{ fontSize: '3rem', lineHeight: '1' }}>📖</div>
+    <div style={{ fontSize: '1rem', fontWeight: '500', marginTop: '0.5rem' }}>Documentation</div>
+  </div>
+
+  <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>+</div>
+
+  <div style={{
+    flex: '1 1 100px',
+    textAlign: 'center',
+    minWidth: '90px',
+    maxWidth: '120px'
+  }}>
+    <div style={{ fontSize: '3rem', lineHeight: '1' }}>🎛️</div>
+    <div style={{ fontSize: '1rem', fontWeight: '500', marginTop: '0.5rem' }}>Installer</div>
+  </div>
+</div>
+
+### 📦 Template
+
+<ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+  <li>💧 A pre-configured Drupal project structure with module, theme, and test boilerplate</li>
   <li>🧰 Pre-configured tools for code quality checks and automated testing</li>
   <li>🐳 Docker-based environment for local development and cloud hosting</li>
-  <li>🏗️ Continuous integration using GitHub Actions or CircleCI</li>
   <li>☁️ Built-in support for Acquia and Lagoon cloud hosting platforms</li>
+  <li>🏗️ Continuous integration using GitHub Actions or CircleCI</li>
   <li>📖 Project documentation</li>
 </ul>
 
-Refer to [Features](features) and [Architecture](architecture) for more details.
+➡️ See [Features](/docs/features) and [Architecture](/docs/architecture)
+
+### 📖 Documentation
+
+<ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+  <li>🌐 Centralised documentation at https://www.vortextemplate.com</li>
+  <li>🗂️ Scaffolded structure for project-specific docs</li>
+  <li>📋 Onboarding checklist to guide team setup</li>
+</ul>
+
+### 🎛️ Installer
+
+<ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+  <li>📦 Adds boilerplate files based on custom selections</li>
+  <li>🏗️ Renames files and replaces strings during installation</li>
+  <li>🔄️ Allows to update existing installations to a newer boilerplate version</li>
+  <li>🔌 Standalone CLI application extensible with a flexible API to support new integrations</li>
+</ul>
+
+## 🧱 Solid base for your projects
+
+<ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+  <li>🔄 Upgradable</li>
+  <li>🧪 Automatically tested in many scenarios</li>
+  <li>🛠️ Actively managed and maintained as a product since 2017</li>
+  <li>📚 Heavily documented at <a href="https://www.vortextemplate.com/docs/" target="_blank">www.vortextemplate.com</a></li>
+</ul>
 
 ## 🚀 Quick start
 
@@ -53,15 +149,15 @@ Refer to [Features](features) and [Architecture](architecture) for more details.
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
 ```
 
-Refer to [Installation](installation) for more details.
+➡️ See [Installation](/docs/installation)
 
 ## 🛟 Getting help
 
-Refer to [Support](support) for more details on how to get help with **Vortex**.
+➡️ See [Support](/docs/support)
 
 ## 🤝 Contributing
 
-Refer to [Contributing](contributing) for more details.
+➡️ See [Contributing](/docs/contributing)
 
 ## ⚖️ License
 
@@ -70,7 +166,7 @@ the [LICENSE](https://github.com/drevops/vortex/blob/1.x/LICENSE) file for more 
 
 :::tip
 
-Head over to the [Getting Started](/docs/getting-started), [Features](/docs/features) or
+Head over to the [Features](/docs/features) or
 [Installation](/docs/installation) pages to learn more!
 
 :::

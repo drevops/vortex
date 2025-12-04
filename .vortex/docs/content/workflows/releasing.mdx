@@ -128,7 +128,9 @@ gitGraph
   `production` branch and sync code from `main` to `production` after each
   release.
 
-  While it's possible to automate copying `main` to `production` on tag creation via CI/CD, this automation is **not currently part of Vortex**. If you need this feature, please [open a new issue](https://github.com/drevops/vortex/issues/new) to request it.
+  While it's possible to automate copying `main` to `production` on tag creation
+  via CI/CD, this automation was conceptually avoided to prevent accidental
+  deployments to production without human oversight.
 
 </details>
 
@@ -296,7 +298,7 @@ You can extend this file with:
 - Track deployment frequency
 - Monitor release impact in real-time
 
-See the [Notifications documentation](/docs/workflows/notifications#new-relic) for configuration details.
+➡️ See [Workflows > Notifications > New Relic](notifications#new-relic)
 
 ## Best practices
 

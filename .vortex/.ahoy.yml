@@ -108,9 +108,7 @@ commands:
 
   update-docs:
     usage: Update the documentation.
-    cmd: |
-      composer --working-dir=./docs/.utils install
-      yarn --cwd=docs run update-variables
+    cmd: yarn --cwd=docs run update-variables
 
   update-installer-video:
     usage: Update installer video in the documentation.

@@ -41,6 +41,21 @@ You can see how these parts connect in the diagram below:
 <img src="/img/diagram-light.png#gh-light-mode-only" alt="System components"/>
 </picture>
 
+## Code lifecycle
+
+**Vortex** standardizes the code lifecycle across local, CI, and hosting
+environments. This ensures that the same steps are followed everywhere, reducing
+the chance of errors and making processes predictable.
+
+<details>
+  <summary>Expand to see the complete code lifecycle diagram</summary>
+
+import CodeLifecycle from './workflows/_code-lifecycle.mdx';
+
+  <CodeLifecycle />
+
+</details>
+
 ## Local development environment
 
 Your project includes a containerized local environment using Docker Compose and
@@ -51,6 +66,12 @@ To simplify command usage, we use [Ahoy](https://ahoy-cli.dev/) as a wrapper. It
 lets you run complex workflows like provisioning, testing, or database imports
 with short, easy-to-remember commands.
 
+:::note Planned features
+
+Support for DDEV and Lando is on our [roadmap](/docs/contributing/roadmap) for local development environments.
+
+:::
+
 ## Drupal management
 
 ### Provisioning
@@ -58,13 +79,16 @@ with short, easy-to-remember commands.
 The provisioning process is central to how **Vortex** works. Instead of manually
 running Drush commands, you run a single provision script. This script handles:
 
-- Importing a database (or initializing from a profile)
+- Importing a database or initializing a database by installing Drupal from a profile
 - Running updates, config imports, cache rebuilds, and deploy hooks
 - Executing post-provision custom scripts
 
 Because provisioning is centralized, it runs exactly in the same way in every
 environment: local, CI, or hosting. This eliminates "works on my machine"
 problems and makes the process predictable for everyone.
+
+It also allows to add more automation around provisioning, like conditionally
+running migrations or creating demo content.
 
 ➡️ See [Drupal > Provision](./drupal/provision)
 
@@ -88,12 +112,15 @@ and [Drupal > Theme Scaffold](./drupal/theme-scaffold)
 Here's how it works:
 
 - The environment type (e.g. local, CI, stage) is automatically detected based
-  on your hosting provider.
-- Configuration overrides are stored in `includes/modules/` with logic per
+  on the environment provider settings located in `web/sites/default/includes/providers/`.
+- Settings overrides are stored in `web/sites/default/includes/modules/` with logic per
   environment inside each module-specific file.
 
 This structure gives you clarity, avoids config sprawl, and lets you remove a
 module’s settings cleanly when no longer needed.
+
+**Vortex** also includes tests for these settings to ensure they are loaded
+correctly in each environment.
 
 ➡️ See [Drupal > Settings](./drupal/settings)
 
@@ -104,15 +131,16 @@ module’s settings cleanly when no longer needed.
 - **PHP CodeSniffer (phpcs)**
 - **PHPStan**
 - **PHP Mess Detector (phpmd)**
+- **Rector**
 - **Twig CS Fixer**
+- **ESLint**
 
 You’ll also find scaffolds for:
 
 - **PHPUnit**: Unit and kernel testing
 - **Behat**: Behavior-driven testing with screenshot capture and extra steps
 
-➡️ See [Tools > PHPStan](./tools/phpstan), [Tools > PHPCS](./tools/phpcs),
-[Tools > Behat](./tools/behat), and [Tools > PHPUnit](./tools/phpunit)
+➡️ See [Tools](./tools)
 
 ## Continuous integration workflows
 
@@ -159,17 +187,6 @@ the schedule as needed.
 
 **Vortex** includes centralized documentation (what you’re reading now), as well as
 a scaffold for adding project-specific docs within your own repository.
-
-## Complete code lifecycle
-
-<details>
-<summary>Expand to see the complete code lifecycle diagram</summary>
-
-import CodeLifecycle from './workflows/_code-lifecycle.mdx';
-
-<CodeLifecycle />
-
-</details>
 
 ## Workflow scripts
 
@@ -219,3 +236,13 @@ For example:
 </details>
 
 ➡️ See [Workflows](./workflows)
+
+## Environment variables
+
+**Vortex** uses environment variables extensively to configure behavior across
+local, CI, and hosting environments.
+
+These variables are either defined in the `.env` file or set within
+CI/hosting environments as secrets.
+
+➡️ See [Workflows > Variables](./workflows/variables)

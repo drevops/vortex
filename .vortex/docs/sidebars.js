@@ -4,7 +4,6 @@
 const sidebars = {
   docs: [
     'README',
-    'getting-started',
     'features',
     'installation',
     'faqs',

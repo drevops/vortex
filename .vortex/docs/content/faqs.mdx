@@ -1,86 +1,80 @@
 # FAQs
 
-## Why would I use **Vortex** instead of just using Drupal Composer template?
+## Why use Vortex instead of the Drupal Composer template?
 
-You can use Drupal Composer template, but that will be your step 1. Your next
-step would be to add all the missing pieces that **Vortex** provides,
-such as continuous integrations, tooling configuration, workflows, deployment
-scripts, hosting-specific configurations, documentation.
+The Drupal Composer template gives you a starting point, but you still need to
+add everything else: CI pipelines, tooling, workflows, deployment scripts,
+hosting configurations, and documentation. Then you need to test that
+everything works together correctly.
 
-Then you would have to test all of that and make sure that it works correctly
-together. You would also need to make sure that there are no _false negatives_.
-For example, if a faulty test silently passes in continuous integration, it
-might not be caught until release time, potentially causing delays or blocking
-the deployment.
+You also need to watch for _false negatives_ — faulty tests that pass silently
+in CI but fail at release time, blocking your deployment.
 
-And you would have to maintain all of that and apply the updates to all the
-projects that you have (if you like things to be consistent, of course).
+And you need to maintain all of this across every project you run.
 
-**Vortex** covers this out of the box: you can override anything
-you want in your project, but still receive updates and improvements from
-**Vortex** in the future. Your team will also have a central place to
-look for the documentation and the tools that they need to use.
+**Vortex** handles all of this out of the box. You can override anything in
+your project while still receiving future updates. Your team gets centralized
+documentation and consistent tooling across all projects.
 
-## Can I use **Vortex** with my existing project?
+## Can I use Vortex with an existing project?
 
-Yes, you can install **Vortex** into your existing project. See [Installation](installation#installing-vortex-into-an-existing-project).
+Yes, you can install **Vortex** into your existing project. See
+[Installation](installation#installing-vortex-into-an-existing-project).
 
-## Can I use **Vortex** with my existing project and keep my existing continuous integration provider?
+## Can I keep my existing CI provider?
 
-Yes, but you would have to update your continuous integration provider
-configuration to use **Vortex**'s workflow scripts.
+Yes, but you'll need to update your CI configuration to use **Vortex** workflow
+scripts.
 
-## Can I use **Vortex** with my existing project and keep my existing hosting?
+## Can I keep my existing hosting?
 
-Yes, but you would have to update some of the deployment scripts to match your
-hosting provider.
+Yes, but you'll need to update some deployment scripts to match your hosting
+provider.
 
-## I do not like some of the decisions made in **Vortex**. Can I make changes?
+## Can I change things I don't like?
 
-Yes, you can change anything you want. **Vortex** is a project template,
-which means that you can disable/remove certain features. But it also means that
-you may need to maintain these changes in the future yourself.
+Yes, you can change anything you want. **Vortex** is a template, so you can
+disable or remove any feature. Keep in mind that you'll need to maintain those
+changes yourself going forward.
 
 Feel free to [open an issue](https://github.com/drevops/vortex/issues) to
 discuss any of the decisions made in **Vortex**.
 
-## I do not need all these features? It looks like an overkill
+## Isn't this overkill for my project?
 
-One of the core principles of **Vortex** is to provide
-rich features to all projects, regardless of their size.
+**Vortex** provides a full feature set to all projects, regardless of size. You
+can simply opt-out of features you don't need when installing: the installer
+provides an interactive prompt to select only the features you want.
 
-If you think that some of the features are not required for your project, then
-**Vortex** is not for you. However, there were cases when people have
-discovered some new tools and approaches by using **Vortex** and have
-decided to keep them in their projects. So, you may want to give it a try.
+If you're sure you don't need certain features, **Vortex** may not be the
+right fit. That said, many developers have discovered useful tools and
+approaches through **Vortex** that they chose to keep. It's worth trying.
 
-## I think it is too opinionated
+## Isn't this too opinionated?
 
-**Vortex** is opinionated to the point to make it work as a project
-template. There are some changes that you can make to the project, but there
-are also some that have to stay in order to make tools "talk" to each other.
+**Vortex** is opinionated where necessary to make everything work together.
+You can customize many things, but some defaults exist to keep tools
+compatible with each other.
 
-There could be some cases when it is unreasonably opinionated - we consider this
-as a defect and would be happy to fix it. Please provide your feedback in the
+If something seems unreasonably opinionated, we consider that a defect and would
+be happy to fix it. Please share your feedback in the
 [issue queue](https://github.com/drevops/vortex/issues).
 
-## How easy is it to upgrade **Vortex** in my project?
+## How hard is it to upgrade?
 
-We provide a command to update **Vortex** to the latest version. When it
-runs, it will update the scaffolded code to the latest version. You would then
-need to manually resolve any conflicts that may arise. This process is similar
-to how developers manually copying the changes from one project to another, but
-in this case, it is automated.
+Run the update command to pull in the latest **Vortex** version. The command
+updates the boilerplate code automatically. You then resolve any conflicts
+manually — similar to merging changes between projects, but automated.
 
-Also, any changes and adjustments made by your team for your project would need
-to be manually resolved. This is a trade-off between relying on an upgradable
-project template, where you have full control, and a dependency package, where
-someone else has full control of the code that drives your project.
+Any customizations your team made will also need manual resolution. This is a
+trade-off between relying on an upgradable project template, where you have full
+control, and a dependency package, where someone else has full control of the
+code that drives your project.
 
 :::note
 
-We are looking at utilizing the approach from both worlds: distribution
-through a package with an ability to override the scaffolded code.
+We're exploring a hybrid approach: package distribution with the ability to
+override scaffolded code.
 
 :::
 

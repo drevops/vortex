@@ -37,20 +37,18 @@ flowchart TB
         subgraph SUBGRAPH_CI_DATABASE_JOB["Database Job"]
             direction LR
 
-            CI_DATABASE_JOB_DB_CACHE_CHECK{"Database cache<br/>exists?"}
+            CI_DATABASE_JOB_DB_CACHE_CHECK{"Nightly database<br/>cache exists?"}
             CI_DATABASE_JOB_DB_CACHE_SUCCESS["Pipeline Success"]
 
-            CI_DATABASE_JOB_DB_DOWNLOAD_NEW["Download<br/>database"]
-            CI_DATABASE_JOB_DB_SANITIZE["Sanitize<br/>database"]
-            CI_DATABASE_JOB_DB_IMPORT["Import<br/>database"]
-            CI_DATABASE_JOB_DB_EXPORT["Export<br/>database"]
-            CI_DATABASE_JOB_DB_PUT_CACHE["Put database<br/>to cache"]
+            CI_DATABASE_JOB_DB_DOWNLOAD_NEW["Download production<br/>database"]
+            CI_DATABASE_JOB_DB_SANITIZE["Sanitize database<br/>Remove sensitive data"]
+            CI_DATABASE_JOB_DB_STORE_CACHE["Store database cache"]
         end
 
         subgraph SUBGRAPH_CI_BUILD_JOB["Build Job"]
             direction TB
 
-            subgraph SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE["Code assembly Phase"]
+            subgraph SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE["Code assembly"]
                 direction LR
                 CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_DOCKER["Build Docker<br/>image"]
                   --> CI_BUILD_JOB_ASSEMBLY_PHASE_COMPOSER["Install<br/>Composer deps"]
@@ -58,27 +56,18 @@ flowchart TB
                   --> CI_BUILD_JOB_ASSEMBLY_PHASE_BUILD_ASSETS["Build front-end<br/>assets"]
             end
 
-            subgraph SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE["Provision Phase"]
+            subgraph SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE["Website setup"]
                 direction LR
                 CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD["Import cached<br/>database"]
-
-                subgraph SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS["Provision"]
-                    direction LR
-                    CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI["<b>Run DB updates</b><br/><code>drush updatedb</code>"]
-                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI["<b>Import config</b><br/><code>drush cim</code>"]
-                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI["<b>Clear caches</b><br/><code>drush cr</code>"]
-                      --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI["<b>Run custom<br/>scripts</b>"]
-                end
-
-                CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD --> SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS
+                    --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DEPLOY["<b>Run <code>drush deploy</code></b>"]
+                    --> CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM["<b>Run custom<br/>scripts</b>"]
             end
 
-            subgraph SUBGRAPH_CI_BUILD_JOB_TEST_PHASE["Testing Phase"]
+            subgraph SUBGRAPH_CI_BUILD_JOB_TEST_PHASE["Testing"]
                 direction LR
-                CI_BUILD_JOB_TEST_PHASE_LINT["<b>Linting</b><br/>PHPCS, PHPStan, Rector"]
-                  --> CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK["<b>Composer lock</b><br/>Check up-to-date"]
-                  --> CI_BUILD_JOB_TEST_PHASE_AUDIT["<b>Composer audit</b><br/>Security check"]
-                  --> CI_BUILD_JOB_TEST_PHASE_UNIT["<b>PHPUnit<br/>tests<b>"]
+                  CI_BUILD_JOB_TEST_PHASE_COMPOSER_CHECK["<b>Composer checks</b><br/>Check lock<br/>Audit dependencies"]
+                  --> CI_BUILD_JOB_TEST_PHASE_LINT["<b>Coding standards</b><br/>PHPCS, PHPStan, Rector, PHPMD, ESLint, Twig CS Fixer"]
+                  --> CI_BUILD_JOB_TEST_PHASE_UNIT["<b>PHPUnit<br/>tests</b>"]
                   --> CI_BUILD_JOB_TEST_PHASE_BEHAT["<b>Behat<br/>tests</b>"]
             end
         end
@@ -98,15 +87,9 @@ flowchart TB
         HOSTING_ENV_DECISION{"Environment<br/>exists?"}
         HOSTING_NEW_DB_SYNC["Sync database<br/>from production"]
 
-        subgraph SUBGRAPH_HOSTING_PROVISION_OPS["Provision"]
-            direction LR
-            HOSTING_PROVISION_OPS_PROV_DB_UPDATES["<b>Run DB updates</b><br/><code>drush updatedb</code>"]
-              --> HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT["<b>Import config</b><br/><code>drush cim</code>"]
-              --> HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR["<b>Clear caches</b><br/><code>drush cr</code>"]
-              --> HOSTING_PROVISION_OPS_PROV_CUSTOM["<b>Run custom<br/>scripts</b>"]
-        end
-
-        HOSTING_SEND_NOTIFICATIONS["<b>Send notifications</b><br/>Email, Slack, NewRelic"]
+        HOSTING_PROVISION_OPS_PROV_DEPLOY["<b>Run <code>drush deploy</code></b>"]
+        --> HOSTING_PROVISION_OPS_PROV_CUSTOM["<b>Run custom<br/>scripts</b>"]
+        --> HOSTING_SEND_NOTIFICATIONS["<b>Send notifications</b><br/>Email, Slack, NewRelic"]
     end
 
     subgraph SUBGRAPH_ENVIRONMENTS["Available Environments"]
@@ -130,9 +113,8 @@ flowchart TB
     CI_DATABASE_JOB_DB_CACHE_CHECK -->|Yes| CI_DATABASE_JOB_DB_CACHE_SUCCESS
     CI_DATABASE_JOB_DB_CACHE_CHECK -->|No| CI_DATABASE_JOB_DB_DOWNLOAD_NEW
     CI_DATABASE_JOB_DB_DOWNLOAD_NEW --> CI_DATABASE_JOB_DB_SANITIZE
-    CI_DATABASE_JOB_DB_SANITIZE --> CI_DATABASE_JOB_DB_IMPORT
-    CI_DATABASE_JOB_DB_IMPORT --> CI_DATABASE_JOB_DB_EXPORT
-    CI_DATABASE_JOB_DB_EXPORT --> CI_DATABASE_JOB_DB_PUT_CACHE
+
+    CI_DATABASE_JOB_DB_SANITIZE --> CI_DATABASE_JOB_DB_STORE_CACHE
 
     SUBGRAPH_CI_DATABASE_JOB --> SUBGRAPH_CI_BUILD_JOB
     SUBGRAPH_CI_BUILD_JOB_ASSEMBLY_PHASE --> SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE
@@ -141,9 +123,8 @@ flowchart TB
 
     %% Internal flows within Hosting Platform
     HOSTING_ENV_DECISION -->|No| HOSTING_NEW_DB_SYNC
-    HOSTING_NEW_DB_SYNC --> SUBGRAPH_HOSTING_PROVISION_OPS
-    HOSTING_ENV_DECISION -.->|Yes| SUBGRAPH_HOSTING_PROVISION_OPS
-    SUBGRAPH_HOSTING_PROVISION_OPS --> HOSTING_SEND_NOTIFICATIONS
+    HOSTING_NEW_DB_SYNC --> HOSTING_PROVISION_OPS_PROV_DEPLOY
+    HOSTING_ENV_DECISION -.->|Yes| HOSTING_PROVISION_OPS_PROV_DEPLOY
 ```
 
 <style>{`
@@ -208,9 +189,7 @@ flowchart TB
 }
 #CI_DATABASE_JOB_DB_DOWNLOAD_NEW > rect,
 #CI_DATABASE_JOB_DB_SANITIZE > rect,
-#CI_DATABASE_JOB_DB_IMPORT > rect,
-#CI_DATABASE_JOB_DB_EXPORT > rect,
-#CI_DATABASE_JOB_DB_PUT_CACHE > rect {
+#CI_DATABASE_JOB_DB_STORE_CACHE > rect {
   fill: #F7EFE6 !important;
   stroke: #C29B72 !important;
 }
@@ -240,27 +219,16 @@ flowchart TB
   stroke: #7FA5C8 !important;
 }
 
-/* ---------- Provision Phase (shared hue for ALL provisions) ---------- */
-#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect,
-#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
-#SUBGRAPH_HOSTING_PROVISION_OPS > rect {
+/* ---------- Provision Phase ---------- */
+#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect {
   fill: #DCE3F2 !important;
   stroke: #9CB1D7 !important;
 }
 
-#SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
-#SUBGRAPH_HOSTING_PROVISION_OPS > rect {
-  stroke-dasharray: 10 5;
-}
-
 #CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD > rect,
-#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI > rect,
-#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI > rect,
-#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI > rect,
-#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI > rect,
-#HOSTING_PROVISION_OPS_PROV_DB_UPDATES > rect,
-#HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT > rect,
-#HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR > rect,
+#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DEPLOY > rect,
+#CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM > rect,
+#HOSTING_PROVISION_OPS_PROV_DEPLOY > rect,
 #HOSTING_PROVISION_OPS_PROV_CUSTOM > rect {
   fill: #F4F7FD !important;
   stroke: #9CB1D7 !important;
@@ -272,8 +240,7 @@ flowchart TB
   stroke: #D2B462 !important;
 }
 #CI_BUILD_JOB_TEST_PHASE_LINT > rect,
-#CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK > rect,
-#CI_BUILD_JOB_TEST_PHASE_AUDIT > rect,
+#CI_BUILD_JOB_TEST_PHASE_COMPOSER_CHECK > rect,
 #CI_BUILD_JOB_TEST_PHASE_UNIT > rect,
 #CI_BUILD_JOB_TEST_PHASE_BEHAT > rect {
   fill: #FCF7E6 !important;
@@ -329,12 +296,10 @@ flowchart TB
 }
 
 /* ---------- Success nodes ---------- */
-#CI_SUCCESS > rect,
 #CI_DATABASE_JOB_DB_CACHE_SUCCESS > rect {
   fill: #4CAF50 !important;
   stroke: #388E3C !important;
 }
-#CI_SUCCESS text,
 #CI_DATABASE_JOB_DB_CACHE_SUCCESS text {
   fill: #FFFFFF !important;
 }
@@ -415,9 +380,7 @@ flowchart TB
 }
 [data-theme="dark"] #CI_DATABASE_JOB_DB_DOWNLOAD_NEW > rect,
 [data-theme="dark"] #CI_DATABASE_JOB_DB_SANITIZE > rect,
-[data-theme="dark"] #CI_DATABASE_JOB_DB_IMPORT > rect,
-[data-theme="dark"] #CI_DATABASE_JOB_DB_EXPORT > rect,
-[data-theme="dark"] #CI_DATABASE_JOB_DB_PUT_CACHE > rect {
+[data-theme="dark"] #CI_DATABASE_JOB_DB_STORE_CACHE > rect {
   fill: #47392F !important;
   stroke: #B88955 !important;
 }
@@ -450,28 +413,17 @@ flowchart TB
 }
 
 /* -------------------------------------------
-   Provision (shared hue for ALL provisions)
+   Provision Phase
 -------------------------------------------- */
-[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect,
-[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
-[data-theme="dark"] #SUBGRAPH_HOSTING_PROVISION_OPS > rect {
+[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE > rect {
   fill: #1F2738 !important;
   stroke: #8CA3CF !important;
 }
 
-[data-theme="dark"] #SUBGRAPH_CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS > rect,
-[data-theme="dark"] #SUBGRAPH_HOSTING_PROVISION_OPS > rect {
-  stroke-dasharray: 10 5;
-}
-
 [data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_DB_DOWNLOAD > rect,
-[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DB_UPDATES_CI > rect,
-[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CONFIG_IMPORT_CI > rect,
-[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CACHE_CLEAR_CI > rect,
-[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM_CI > rect,
-[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_DB_UPDATES > rect,
-[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CONFIG_IMPORT > rect,
-[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CACHE_CLEAR > rect,
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_DEPLOY > rect,
+[data-theme="dark"] #CI_BUILD_JOB_PROVISION_PHASE_PROVISION_OPS_PROV_CUSTOM > rect,
+[data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_DEPLOY > rect,
 [data-theme="dark"] #HOSTING_PROVISION_OPS_PROV_CUSTOM > rect {
   fill: #262F41 !important;
   stroke: #8CA3CF !important;
@@ -485,8 +437,7 @@ flowchart TB
   stroke: #C5A554 !important;
 }
 [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_LINT > rect,
-[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_LOCK_CHECK > rect,
-[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_AUDIT > rect,
+[data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_COMPOSER_CHECK > rect,
 [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_UNIT > rect,
 [data-theme="dark"] #CI_BUILD_JOB_TEST_PHASE_BEHAT > rect {
   fill: #473F24 !important;
@@ -545,12 +496,10 @@ flowchart TB
 /* -------------------------------------------
    Success nodes
 -------------------------------------------- */
-[data-theme="dark"] #CI_SUCCESS > rect,
 [data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_SUCCESS > rect {
   fill: #2E7D32 !important;
   stroke: #1B5E20 !important;
 }
-[data-theme="dark"] #CI_SUCCESS text,
 [data-theme="dark"] #CI_DATABASE_JOB_DB_CACHE_SUCCESS text {
   fill: #FFFFFF !important;
 }

@@ -112,12 +112,6 @@ import {
     - Build and test assets are stored as pipeline artifact and accessible after the build
     - Code coverage reports are stored as pipeline artifact and accessible after the build
     - Code coverage reports are pushed to [Codecov](https://codecov.io/) for easy access and visualization.
-
-    :::note
-
-    [Azure Pipelines](https://azure.microsoft.com/) and [GitLab CI](https://about.gitlab.com/solutions/continuous-integration/) are coming soon
-
-    :::
   </VerticalTabPanel>
 
   <VerticalTab>💻 Local Development | Containerized development environment</VerticalTab>
@@ -133,9 +127,9 @@ import {
     - Xdebug support for debugging PHP applications
     - PCOV support for code coverage analysis
 
-    :::note
+    :::note Planned features
 
-    DDEV and Lando support is coming soon
+    Support for DDEV and Lando is on our [roadmap](/docs/contributing/roadmap) for local development environments.
 
     :::
 
@@ -145,10 +139,12 @@ import {
   <VerticalTabPanel>
     ### Code quality suite
 
-    - [PHPCS](https://github.com/squizlabs/PHP_CodeSniffer) for checking coding standards
-    - [PHPStan](https://github.com/phpstan/phpstan) for static code analysis
+    - [PHPCS](https://github.com/PHPCSStandards/PHP_CodeSniffer/) for checking PHP coding standards
+    - [PHPStan](https://phpstan.org/) for static code analysis
     - [PHPMD](https://phpmd.org/) for mess detection and code complexity
-    - [Rector](https://github.com/rectorphp/rector) with [Drupal-specific configurations](https://github.com/palantirnet/drupal-rector) for automated code upgrades
+    - [Rector](https://getrector.com/) with [Drupal-specific configurations](https://github.com/palantirnet/drupal-rector) for automated code upgrades
+    - [ESLint](https://eslint.org/) for checking JavaScript coding standards
+    - [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer) for checking Twig coding standards
 
     ### Unit and functional testing
 

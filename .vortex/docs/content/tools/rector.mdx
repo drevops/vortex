@@ -29,6 +29,17 @@ Rector automatically refactors your PHP and Drupal code to:
 - **Code Reviews**: Include in CI pipeline for automated quality checks
 - **Refactoring Legacy Code**: When modernizing older codebases
 
+:::note
+
+  Rector is often used ad hoc to perform bulk refactoring.
+
+  In **Vortex**, it is integrated as a regular code quality tool
+  that can be run at any time to check for deprecated code and
+  automatically fix issues. This allows us to keep the codebase up-to-date
+  _continuously_ rather than waiting for major upgrades.
+
+:::
+
 ## Usage
 
 ### Check for violations
@@ -79,7 +90,7 @@ Targets include custom modules and themes, settings and tests.
 Rector provides [config sets](https://getrector.com/documentation/set-lists)
 functionality that allows to enable/disable rules in bulk.
 
-**Vortex** provides the config sets for Drupal 8 and Drupal 9 deprecated code and
+**Vortex** provides the config sets for Drupal 8, 9 and 10 deprecated code and
 code style fixes.
 
 The config sets are meant to be adjusted per-project as needed.
