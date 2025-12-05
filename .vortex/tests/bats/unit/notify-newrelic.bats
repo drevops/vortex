@@ -6,6 +6,30 @@
 
 load ../_helper.bash
 
+@test "Notify: newrelic, not enabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
+  # VORTEX_NOTIFY_NEWRELIC_ENABLED is intentionally not set
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "New Relic is not enabled."
+  assert_output_not_contains "Started New Relic notification."
+  assert_output_not_contains "Discovering APP id"
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: newrelic" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -16,6 +40,7 @@ load ../_helper.bash
   mock_set_output "${mock_curl}" "201" 2
 
   export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
@@ -57,6 +82,7 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
@@ -87,6 +113,7 @@ load ../_helper.bash
 
   # Attempt shell injection through project name with PHP code that would create a file
   export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_PROJECT="test'); file_put_contents('/tmp/injected_newrelic_test', 'HACKED'); //"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
   export VORTEX_NOTIFY_BRANCH="develop"
