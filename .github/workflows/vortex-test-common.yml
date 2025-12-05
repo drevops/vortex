@@ -4,14 +4,10 @@ name: Vortex - Test
 on:
   push:
     branches:
-      - develop
-      - 1.x
-      - 2.x
+      - main
   pull_request:
     branches:
-      - develop
-      - 1.x
-      - 2.x
+      - main
       - 'feature/**'
       - 'bugfix/**'
 

@@ -2,37 +2,22 @@
 
 ## Versioning Strategy
 
-Vortex uses **SemVer+CalVer** format for releases: `MAJOR.MINOR.PATCH+YYYY.MM.DD`
+Vortex uses [Semantic Versioning](https://semver.org/) for releases: `MAJOR.MINOR.PATCH`
 
-This allows us to communicate both the nature of changes (SemVer) and the
-release date (CalVer).
-
-The part after the plus sign (`+`) is called [build metadata](https://semver.org/#spec-item-10)
-and does not affect version precedence.
-
-### Semantic Version (MAJOR.MINOR.PATCH)
+### Semantic version (MAJOR.MINOR.PATCH)
 
 - **MAJOR**: Breaking changes that require migration or significant updates
 - **MINOR**: New features, backward compatible
 - **PATCH**: Bug fixes, backward compatible
 
-### Calendar Version (`YYYY.MM.DD`)
+### Version examples
 
-- Reflects the release date
-- Helps track release timeline
-- `YY` - Short year - `6`, `16`, `106`
-- `MM` - Short month - `1`, `2` ... `11`, `12`
-- `DD` - Short day - `1`, `2` ... `30`, `31`
+- `1.0.0` - First major release
+- `1.1.0` - New features added
+- `1.1.1` - Bug fix release
+- `2.0.0` - Breaking changes
 
-### Version Examples
-
-- `1.0.0+2025.11.5` - First major release, 5 November 2025
-- `1.1.0+2025.12.10` - New features added, 10 December 2025
-- `1.1.1+2025.12.10` - Bug release on same day
-- `1.1.2+2025.12.11` - Bug fix release, same month
-- `2.0.0+2026.1.31` - Breaking changes, 31 January 2026
-
-### Version Numbering Guidelines
+### Version numbering guidelines
 
 When creating a new release, determine the version based on the changes:
 
@@ -52,17 +37,19 @@ When creating a new release, determine the version based on the changes:
    - Documentation updates
    - Minor improvements that don't change functionality
 
-4. **Set CalVer** to the release date in `YYYY.MM.DD` format:
-   - Always use the year, month and a day of the release
+### Branch strategy
 
-### Branch Strategy
+- **`main`** - Current stable release branch (always the latest major version)
+- **`project/X.x`** - Development branch for the next major version (e.g., `project/2.x`)
+- **`X.x`** - Maintenance branches for older major versions (e.g., `1.x` after `2.x` is released)
 
-- `1.x` - Current stable release branch
-- `2.x` - Development branch for 2.x releases
+When a new major version is ready:
+1. The next major version development in `project/X.x` is merged into `main`
+2. The previous major version code is preserved in its own `X.x` branch for maintenance
 
 :::note
 
-Vortex uses **GitHub Flow** with version branches (`1.x`, `2.x`) instead of Git Flow.
+Vortex uses **GitHub Flow** with the `main` branch always containing the latest major version.
 
 Consumer projects created from Vortex should continue to use Git Flow.
 

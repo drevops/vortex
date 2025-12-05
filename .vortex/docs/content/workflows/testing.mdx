@@ -51,16 +51,16 @@ These reports are usually used in continuous integration to track tests performa
 
 ### Boilerplate
 
-**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/1.x/web/modules/custom/ys_base/tests/src),
-[themes](https://github.com/drevops/vortex/blob/1.x/web/themes/custom/your_site_theme/tests/src) and
-[scripts](https://github.com/drevops/vortex/blob/1.x/tests/phpunit).
+**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
+[themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src) and
+[scripts](https://github.com/drevops/vortex/blob/main/tests/phpunit).
 
 These boilerplate tests run in continuous integration pipeline when you install
 **Vortex** and can be used as a starting point for writing your own.
 
 #### Drupal settings tests
 
-**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/1.x/tests/phpunit/Drupal/DrupalSettingsTest.php)
+**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal/DrupalSettingsTest.php)
 to check that Drupal settings are correct based on the environment type the site
 is running: with the number of custom modules multiplied by the number of
 environment types, it is easy to miss certain settings which may lead to
@@ -71,7 +71,7 @@ changes made to the `settings.php` file.
 
 #### Continuous integration pipeline configuration tests
 
-**Vortex** provides a [continuous integration pipeline configuration tests](https://github.com/drevops/vortex/blob/1.x/tests/phpunit/CircleCiConfigTest.php)
+**Vortex** provides a [continuous integration pipeline configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
 to check that the continuous integration configuration is correct. It is
 intended to be used in your site and kept up-to-date with the continuous
 integration configurations.
@@ -86,8 +86,8 @@ testing. Behat allows to write human-readable stories that describe the behavior
 of the application. Behat tests primarily focus on critical user journeys,
 serving as comprehensive end-to-end validations.
 
-**Vortex** provides full Behat support, including configuration in [`behat.yml`](https://github.com/drevops/vortex/blob/1.x/behat.yml)
-and a [browser container](https://github.com/drevops/vortex/blob/1.x/docker-compose.yml) to run tests interactively in a real browser with
+**Vortex** provides full Behat support, including configuration in [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+and a [browser container](https://github.com/drevops/vortex/blob/main/docker-compose.yml) to run tests interactively in a real browser with
 a VNC viewer.
 
 Additional features include:
@@ -100,7 +100,7 @@ Additional features include:
 
 ### FeatureContext
 
-The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/1.x/tests/behat/bootstrap/FeatureContext.php) file comes with
+The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php) file comes with
 included steps from [Behat steps](https://github.com/drevops/behat-steps) package.
 
 You can add your custom steps into this file.
@@ -162,8 +162,8 @@ stability.
 
 ### Boilerplate test features
 
-**Vortex** provides BDD [tests boilerplate](https://github.com/drevops/vortex/blob/1.x/tests/behat/features) for [homepage](https://github.com/drevops/vortex/blob/1.x/tests/behat/features/homepage.feature)
-and [login](https://github.com/drevops/vortex/blob/1.x/tests/behat/features/login.feature)
+**Vortex** provides BDD [tests boilerplate](https://github.com/drevops/vortex/blob/main/tests/behat/features) for [homepage](https://github.com/drevops/vortex/blob/main/tests/behat/features/homepage.feature)
+and [login](https://github.com/drevops/vortex/blob/main/tests/behat/features/login.feature)
 user journeys.
 
 These boilerplate tests run in continuous integration pipeline when you install

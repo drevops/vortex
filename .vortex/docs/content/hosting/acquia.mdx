@@ -36,14 +36,14 @@ When code is deployed, Vortex automatically:
 3. **Sends notifications** - Notifies configured channels about the deployment
 
 This is implemented using [Acquia Cloud Hooks](https://docs.acquia.com/cloud-platform/develop/api/cloud-hooks/) -
-pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/1.x/hooks)
+pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/main/hooks)
 directory that trigger on code deployments, code updates, and database copy
 operations.
 
 ### Environment detection
 
 Vortex automatically detects when running on Acquia and loads appropriate
-settings from [`web/sites/default/includes/providers/settings.acquia.php`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/includes/providers/settings.acquia.php).
+settings from [`web/sites/default/includes/providers/settings.acquia.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.acquia.php).
 This includes Acquia-specific configurations for caching, file paths, and
 environment variables.
 
@@ -57,7 +57,7 @@ Before you begin, ensure you have:
 
 ### 1. Configure environment variables
 
-Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/1.x/.env)
+Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/main/.env)
 file:
 
 | Variable | Description |

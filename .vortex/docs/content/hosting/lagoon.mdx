@@ -34,14 +34,14 @@ When code is deployed, Vortex automatically:
 2. **Sends notifications** - Notifies configured channels about the deployment
 
 This is implemented using post-rollout tasks defined in the
-[`.lagoon.yml`](https://github.com/drevops/vortex/blob/1.x/.lagoon.yml)
+[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
 configuration file, which also defines Docker image mappings and
 environment-specific configurations.
 
 ### Environment detection
 
 Vortex automatically detects when running on Lagoon and loads appropriate
-settings from [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/includes/providers/settings.lagoon.php).
+settings from [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
 This includes Lagoon-specific configurations for caching, file paths, and
 environment variables provided by the platform.
 
@@ -56,7 +56,7 @@ Before you begin, ensure you have:
 
 ### 1. Configure environment variables
 
-Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/1.x/.env)
+Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/main/.env)
 file:
 
 | Variable | Description |
