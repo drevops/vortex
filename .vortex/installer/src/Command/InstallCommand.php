@@ -498,8 +498,13 @@ EOF
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 
+    $args = ['--destination' => $this->config->getDst()];
+    if ($is_profile) {
+      $args['--profile'] = '1';
+    }
+
     $runner = $this->getCommandRunner();
-    $runner->run('build', args: $is_profile ? ['--profile' => '1'] : [], output: $output);
+    $runner->run('build', args: $args, output: $output);
 
     return $runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
   }
@@ -629,10 +634,9 @@ EOT;
    */
   public function footerBuildSucceeded(): void {
     $output = '';
-    $prefix = '  ';
 
-    $output .= 'Get site info:' . $prefix . 'ahoy info' . PHP_EOL;
-    $output .= 'Login:' . $prefix . $prefix . $prefix . 'ahoy login' . PHP_EOL;
+    $output .= 'Get site info: ahoy info' . PHP_EOL;
+    $output .= 'Login:         ahoy login' . PHP_EOL;
     $output .= PHP_EOL;
 
     $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SUCCESS);

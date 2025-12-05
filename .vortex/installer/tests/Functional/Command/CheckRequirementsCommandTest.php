@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Command;
 
+use AlexSkrypnyk\File\File;
 use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
@@ -30,7 +31,11 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
     array $command_inputs,
     bool $expect_failure,
     array $output_assertions,
+    ?\Closure $before = NULL,
   ): void {
+    if ($before instanceof \Closure) {
+      $command_inputs = $before($command_inputs, self::$tmp);
+    }
     // Create a mock ExecutableFinder.
     $mock_finder = $this->createMock(ExecutableFinder::class);
     $mock_finder->method('find')
@@ -79,7 +84,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
    *   exit_code_callback: \Closure,
    *   command_inputs: array<string, mixed>,
    *   expect_failure: bool,
-   *   output_assertions: array<string>
+   *   output_assertions: array<string>,
+   *   before?: ?\Closure
    *   }>
    */
   public static function dataProviderCheckRequirementsCommand(): array {
@@ -381,6 +387,46 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
           '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
           '* Available: docker, docker-compose, ahoy',
         ],
+      ],
+
+      'Valid destination directory' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => [],
+        'expect_failure' => FALSE,
+        'output_assertions' => TuiOutput::present([TuiOutput::CHECK_REQUIREMENTS_ALL_MET]),
+        'before' => function (array $inputs, string $tmp): array {
+          $dir = $tmp . '/valid_dest_' . uniqid();
+          File::mkdir($dir);
+          $inputs['--destination'] = $dir;
+          return $inputs;
+        },
+      ],
+
+      'Destination is file instead of directory' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => [],
+        'expect_failure' => TRUE,
+        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+        'before' => function (array $inputs, string $tmp): array {
+          $file = $tmp . '/test_file_' . uniqid() . '.txt';
+          File::dump($file, 'test content');
+          $inputs['--destination'] = $file;
+          return $inputs;
+        },
+      ],
+
+      'Destination directory does not exist' => [
+        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => [],
+        'expect_failure' => TRUE,
+        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+        'before' => function (array $inputs, string $tmp): array {
+          $inputs['--destination'] = $tmp . '/non_existent_' . uniqid();
+          return $inputs;
+        },
       ],
     ];
   }

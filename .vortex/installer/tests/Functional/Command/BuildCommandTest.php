@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Command;
 
+use AlexSkrypnyk\File\File;
 use DrevOps\VortexInstaller\Command\BuildCommand;
 use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Logger\FileLoggerInterface;
@@ -34,7 +35,11 @@ class BuildCommandTest extends FunctionalTestCase {
     ?\Closure $requirements_exit_callback = NULL,
     ?\Closure $requirements_finder_callback = NULL,
     ?string $docker_compose_url = 'test-project.docker.amazee.io',
+    ?\Closure $before = NULL,
   ): void {
+    if ($before instanceof \Closure) {
+      $command_inputs = $before($command_inputs, self::$tmp);
+    }
     // Create a mock ProcessRunner for ahoy build.
     $build_process_runner = $this->createMock(ProcessRunner::class);
 
@@ -149,7 +154,8 @@ class BuildCommandTest extends FunctionalTestCase {
    *   output_assertions: array<string>,
    *   requirements_exit_callback?: ?\Closure,
    *   requirements_finder_callback?: ?\Closure,
-   *   docker_compose_url?: ?string
+   *   docker_compose_url?: ?string,
+   *   before?: ?\Closure
    *   }>
    */
   public static function dataProviderBuildCommand(): array {
@@ -442,6 +448,52 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::BUILD_REVIEW_DOCS,
         ]),
 
+      ],
+
+      'Valid destination directory' => [
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => ['--skip-requirements-check' => TRUE],
+        'expect_failure' => FALSE,
+        'output_assertions' => TuiOutput::present([TuiOutput::BUILD_BUILD_COMPLETED]),
+        'requirements_exit_callback' => NULL,
+        'requirements_finder_callback' => NULL,
+        'docker_compose_url' => NULL,
+        'before' => function (array $inputs, string $tmp): array {
+          $dir = $tmp . '/valid_dest_' . uniqid();
+          File::mkdir($dir);
+          $inputs['--destination'] = $dir;
+          return $inputs;
+        },
+      ],
+
+      'Destination is file instead of directory' => [
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => ['--skip-requirements-check' => TRUE],
+        'expect_failure' => TRUE,
+        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+        'requirements_exit_callback' => NULL,
+        'requirements_finder_callback' => NULL,
+        'docker_compose_url' => NULL,
+        'before' => function (array $inputs, string $tmp): array {
+          $file = $tmp . '/test_file_' . uniqid() . '.txt';
+          File::dump($file, 'test content');
+          $inputs['--destination'] = $file;
+          return $inputs;
+        },
+      ],
+
+      'Destination directory does not exist' => [
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => ['--skip-requirements-check' => TRUE],
+        'expect_failure' => TRUE,
+        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+        'requirements_exit_callback' => NULL,
+        'requirements_finder_callback' => NULL,
+        'docker_compose_url' => NULL,
+        'before' => function (array $inputs, string $tmp): array {
+          $inputs['--destination'] = $tmp . '/non_existent_' . uniqid();
+          return $inputs;
+        },
       ],
     ];
   }
