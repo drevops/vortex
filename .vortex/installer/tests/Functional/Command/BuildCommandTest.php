@@ -33,6 +33,7 @@ class BuildCommandTest extends FunctionalTestCase {
     array $output_assertions,
     ?\Closure $requirements_exit_callback = NULL,
     ?\Closure $requirements_finder_callback = NULL,
+    ?string $docker_compose_url = 'test-project.docker.amazee.io',
   ): void {
     // Create a mock ProcessRunner for ahoy build.
     $build_process_runner = $this->createMock(ProcessRunner::class);
@@ -46,12 +47,33 @@ class BuildCommandTest extends FunctionalTestCase {
       });
 
     // Mock getOutput() to handle both string and array returns.
-    $build_process_runner->method('getOutput')->willReturnCallback(fn(bool $as_array = FALSE): array|string => $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output');
+    // For 'docker' command (compose config), return JSON with
+    // VORTEX_LOCALDEV_URL. For other commands, return standard mock output.
+    $build_process_runner->method('getOutput')->willReturnCallback(function (bool $as_array = FALSE) use (&$current_command, $docker_compose_url): array|string {
+      if ($current_command === 'docker' && $docker_compose_url !== NULL) {
+        $config = [
+          'services' => [
+            'cli' => [
+              'environment' => [
+                'VORTEX_LOCALDEV_URL' => $docker_compose_url,
+              ],
+            ],
+          ],
+        ];
+        return (string) json_encode($config);
+      }
+      return $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output';
+    });
     $build_process_runner->method('getCommand')->willReturn('ahoy build');
 
     // Set up getExitCode using the provided callback.
+    // Return success for 'docker compose config' to allow URL extraction.
     $build_process_runner->method('getExitCode')
-      ->willReturnCallback(function () use ($exit_code_callback, &$current_command) {
+      ->willReturnCallback(function () use ($exit_code_callback, &$current_command, $docker_compose_url) {
+        // Docker compose config should succeed if URL is provided.
+        if ($current_command === 'docker' && $docker_compose_url !== NULL) {
+          return RunnerInterface::EXIT_SUCCESS;
+        }
         return $exit_code_callback($current_command);
       });
 
@@ -126,7 +148,8 @@ class BuildCommandTest extends FunctionalTestCase {
    *   expect_failure: bool,
    *   output_assertions: array<string>,
    *   requirements_exit_callback?: ?\Closure,
-   *   requirements_finder_callback?: ?\Closure
+   *   requirements_finder_callback?: ?\Closure,
+   *   docker_compose_url?: ?string
    *   }>
    */
   public static function dataProviderBuildCommand(): array {
@@ -366,7 +389,29 @@ class BuildCommandTest extends FunctionalTestCase {
 
       ],
 
-      'Build success shows site URL' => [
+      'Build success shows site URL from docker compose' => [
+        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        'command_inputs' => ['--skip-requirements-check' => TRUE],
+        'expect_failure' => FALSE,
+        'output_assertions' => array_merge(
+          TuiOutput::present([
+            TuiOutput::BUILD_BUILDING_SITE,
+            TuiOutput::BUILD_BUILD_COMPLETED,
+            TuiOutput::INSTALL_LOGIN,
+            // Assert URL comes from docker compose config, not from .env.
+            TuiOutput::BUILD_SITE_URL . ' http://my-custom-project.docker.amazee.io',
+          ]),
+          // Ensure old behavior (VORTEX_PROJECT from .env) is not used.
+          TuiOutput::absent([
+            'your_site.docker.amazee.io',
+          ]),
+        ),
+        'requirements_exit_callback' => NULL,
+        'requirements_finder_callback' => NULL,
+        'docker_compose_url' => 'my-custom-project.docker.amazee.io',
+      ],
+
+      'Build success hides site URL when docker compose fails' => [
         'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
         'command_inputs' => ['--skip-requirements-check' => TRUE],
         'expect_failure' => FALSE,
@@ -376,9 +421,14 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_BUILD_COMPLETED,
             TuiOutput::INSTALL_LOGIN,
           ]),
-          ['* ' . TuiOutput::BUILD_SITE_URL . ' http://'],
+          // When docker compose config fails, Site URL is not shown.
+          TuiOutput::absent([
+            TuiOutput::BUILD_SITE_URL,
+          ]),
         ),
-
+        'requirements_exit_callback' => NULL,
+        'requirements_finder_callback' => NULL,
+        'docker_compose_url' => NULL,
       ],
 
       'Build success shows next steps' => [
