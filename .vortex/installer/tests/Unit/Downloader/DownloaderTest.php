@@ -80,4 +80,34 @@ class DownloaderTest extends UnitTestCase {
     $this->assertInstanceOf(Downloader::class, $downloader);
   }
 
+  public function testDownloadWithCustomHeaders(): void {
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_response->method('getStatusCode')->willReturn(200);
+
+    $custom_headers = [
+      'Authorization' => 'Bearer token123',
+      'X-Custom-Header' => 'custom-value',
+    ];
+
+    $mock_http_client->expects($this->once())
+      ->method('request')
+      ->with(
+        'GET',
+        'https://example.com/file.sql',
+        $this->callback(fn(array $options): bool => isset($options['sink'])
+          && isset($options['allow_redirects'])
+          && isset($options['headers'])
+          && $options['headers'] === $custom_headers)
+      )
+      ->willReturn($mock_response);
+
+    $destination = self::$tmp . '/downloaded_file.sql';
+
+    $downloader = new Downloader($mock_http_client);
+    $downloader->download('https://example.com/file.sql', $destination, $custom_headers);
+
+    $this->addToAssertionCount(1);
+  }
+
 }
