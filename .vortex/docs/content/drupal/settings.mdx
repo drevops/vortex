@@ -10,15 +10,15 @@ environment-specific behavior — is controlled through the `settings.php` and
 extends these files to support consistent setup across environments.
 
 **Vortex** ships with its own streamlined version of
-the [`settings.php`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/settings.php) and
-[`services.yml`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/services.yml) files.
+the [`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php) and
+[`services.yml`](https://github.com/drevops/vortex/blob/main/web/sites/default/services.yml) files.
 
 It provides logic to detect the current environment (such as local, CI, or
 production) and apply settings conditionally. You can also define configuration
 overrides for individual modules if needed.
 
-The default **Drupal Scaffold**'s [`default.settings.php`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/default.settings.php)
-and [`default.services.yml`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/default.services.yml)
+The default **Drupal Scaffold**'s [`default.settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/default.settings.php)
+and [`default.services.yml`](https://github.com/drevops/vortex/blob/main/web/sites/default/default.services.yml)
 files are also provided if you choose to use them instead.
 
 ## Approach
@@ -98,7 +98,7 @@ import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!./../../../.
 
 ## Settings file structure
 
-The [`settings.php`](https://github.com/drevops/vortex/blob/1.x/web/sites/default/settings.php)
+The [`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
 file is organized into the following sections:
 
 - [Database](#database)
@@ -282,7 +282,7 @@ import LocalServicesExample from '!!raw-loader!./../../../../web/sites/default/e
 
 ## Testing settings with unit tests
 
-**Vortex** includes a [set of unit tests](https://github.com/drevops/vortex/blob/1.x/tests/phpunit/Drupal)
+**Vortex** includes a [set of unit tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
 to verify that settings are applied correctly for each detected environment
 type.
 

@@ -7,8 +7,7 @@ on:
     branches:
       - develop
       #;< VORTEX_DEV
-      - 1.x
-      - 2.x
+      - main
       #;> VORTEX_DEV
 
 permissions:
