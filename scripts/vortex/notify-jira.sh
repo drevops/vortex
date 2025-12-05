@@ -27,7 +27,10 @@ VORTEX_NOTIFY_JIRA_USER_EMAIL="${VORTEX_NOTIFY_JIRA_USER_EMAIL:-}"
 # @see https://www.vortextemplate.com/docs/workflows/notifications#jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
-# JIRA notification deployment label (branch name, PR number, or custom identifier).
+# JIRA notification git branch name (used for issue extraction).
+VORTEX_NOTIFY_JIRA_BRANCH="${VORTEX_NOTIFY_JIRA_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
+
+# JIRA notification deployment label (human-readable identifier for display).
 VORTEX_NOTIFY_JIRA_LABEL="${VORTEX_NOTIFY_JIRA_LABEL:-${VORTEX_NOTIFY_LABEL:-}}"
 
 # JIRA notification environment URL.
@@ -128,8 +131,8 @@ extract_issue() {
 }
 
 task "Extracting issue"
-issue="$(extract_issue "${VORTEX_NOTIFY_JIRA_LABEL}")"
-[ "${issue}" = "" ] && pass "Deployment label ${VORTEX_NOTIFY_JIRA_LABEL} does not contain issue number." && exit 0
+issue="$(extract_issue "${VORTEX_NOTIFY_JIRA_BRANCH}")"
+[ "${issue}" = "" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
 note "Found issue ${issue}."
 
 task "Creating API token"

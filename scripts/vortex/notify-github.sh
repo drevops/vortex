@@ -22,9 +22,9 @@ VORTEX_NOTIFY_GITHUB_TOKEN="${VORTEX_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN-}}"
 # GitHub notification repository in owner/repo format.
 VORTEX_NOTIFY_GITHUB_REPOSITORY="${VORTEX_NOTIFY_GITHUB_REPOSITORY:-}"
 
-# GitHub notification deployment label (branch name, PR number, or custom identifier).
+# GitHub notification git branch name.
 # This will be used as the 'ref' parameter in GitHub's Deployment API.
-VORTEX_NOTIFY_GITHUB_LABEL="${VORTEX_NOTIFY_GITHUB_LABEL:-${VORTEX_NOTIFY_LABEL:-}}"
+VORTEX_NOTIFY_GITHUB_BRANCH="${VORTEX_NOTIFY_GITHUB_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
 
 # GitHub notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_GITHUB_EVENT="${VORTEX_NOTIFY_GITHUB_EVENT:-${VORTEX_NOTIFY_EVENT:-}}"
@@ -53,7 +53,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 [ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN" && exit 1
 [ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY" && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_LABEL" && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_BRANCH" && exit 1
 [ -z "${VORTEX_NOTIFY_GITHUB_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_EVENT" && exit 1
 [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE" && exit 1
 
@@ -78,7 +78,7 @@ extract_json_value() {
 if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
   info "GitHub pre-deployment notification summary:"
   note "Repository      : ${VORTEX_NOTIFY_GITHUB_REPOSITORY}"
-  note "Label (ref)     : ${VORTEX_NOTIFY_GITHUB_LABEL}"
+  note "Branch (ref)    : ${VORTEX_NOTIFY_GITHUB_BRANCH}"
   note "Environment Type: ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}"
   note "Event           : ${VORTEX_NOTIFY_GITHUB_EVENT}"
 
@@ -88,7 +88,7 @@ if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
     -H "Accept: application/vnd.github.v3+json" \
     -s \
     "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments" \
-    -d "{\"ref\":\"${VORTEX_NOTIFY_GITHUB_LABEL}\", \"environment\": \"${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}\", \"auto_merge\": false, \"required_contexts\": []}")"
+    -d "{\"ref\":\"${VORTEX_NOTIFY_GITHUB_BRANCH}\", \"environment\": \"${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}\", \"auto_merge\": false, \"required_contexts\": []}")"
 
   deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
 
@@ -109,7 +109,7 @@ else
     -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     -s \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments?ref=${VORTEX_NOTIFY_GITHUB_LABEL}")"
+    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments?ref=${VORTEX_NOTIFY_GITHUB_BRANCH}")"
 
   deployment_id="$(echo "${payload}" | extract_json_first_value "id" || true)"
 
@@ -122,7 +122,7 @@ else
 
   info "GitHub post-deployment notification summary:"
   note "Repository         : ${VORTEX_NOTIFY_GITHUB_REPOSITORY}"
-  note "Label (ref)        : ${VORTEX_NOTIFY_GITHUB_LABEL}"
+  note "Branch (ref)       : ${VORTEX_NOTIFY_GITHUB_BRANCH}"
   note "Environment Type   : ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}"
   note "Environment URL    : ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}"
   note "Deployment ID      : ${deployment_id}"

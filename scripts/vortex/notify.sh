@@ -27,7 +27,16 @@ VORTEX_NOTIFY_SKIP="${VORTEX_NOTIFY_SKIP:-}"
 # Notification project name.
 VORTEX_NOTIFY_PROJECT="${VORTEX_NOTIFY_PROJECT:-${VORTEX_PROJECT:-}}"
 
-# Notification deployment label (branch name, PR number, or custom identifier).
+# Notification git branch name.
+VORTEX_NOTIFY_BRANCH="${VORTEX_NOTIFY_BRANCH:-}"
+
+# Notification git commit SHA.
+VORTEX_NOTIFY_SHA="${VORTEX_NOTIFY_SHA:-}"
+
+# Notification pull request number.
+VORTEX_NOTIFY_PR_NUMBER="${VORTEX_NOTIFY_PR_NUMBER:-}"
+
+# Notification deployment label (human-readable identifier for display).
 VORTEX_NOTIFY_LABEL="${VORTEX_NOTIFY_LABEL:-}"
 
 # Notification environment URL (where the site was deployed).
@@ -51,6 +60,8 @@ info "Started dispatching notifications."
 [ -n "${VORTEX_NOTIFY_SKIP:-}" ] && pass "Skipping dispatching notifications." && exit 0
 
 # Validate required variables.
+[ -z "${VORTEX_NOTIFY_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_BRANCH" && exit 1
+[ -z "${VORTEX_NOTIFY_SHA}" ] && fail "Missing required value for VORTEX_NOTIFY_SHA" && exit 1
 [ -z "${VORTEX_NOTIFY_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_LABEL" && exit 1
 [ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL" && exit 1
 
@@ -60,6 +71,9 @@ if [ -z "${VORTEX_NOTIFY_LOGIN_URL}" ]; then
 fi
 
 # Export variables so notification scripts can use them.
+export VORTEX_NOTIFY_BRANCH
+export VORTEX_NOTIFY_SHA
+export VORTEX_NOTIFY_PR_NUMBER
 export VORTEX_NOTIFY_LABEL
 export VORTEX_NOTIFY_ENVIRONMENT_URL
 export VORTEX_NOTIFY_LOGIN_URL
@@ -68,6 +82,17 @@ export VORTEX_NOTIFY_LOGIN_URL
 if [ "${VORTEX_NOTIFY_EVENT}" != "pre_deployment" ] && [ "${VORTEX_NOTIFY_EVENT}" != "post_deployment" ]; then
   fail "Unsupported event ${VORTEX_NOTIFY_EVENT} provided." && exit 1
 fi
+
+info "Notification summary:"
+note "Project        : ${VORTEX_NOTIFY_PROJECT}"
+note "Branch         : ${VORTEX_NOTIFY_BRANCH}"
+note "SHA            : ${VORTEX_NOTIFY_SHA}"
+note "PR Number      : ${VORTEX_NOTIFY_PR_NUMBER:-<none>}"
+note "Label          : ${VORTEX_NOTIFY_LABEL}"
+note "Environment URL: ${VORTEX_NOTIFY_ENVIRONMENT_URL}"
+note "Login URL      : ${VORTEX_NOTIFY_LOGIN_URL}"
+note "Event          : ${VORTEX_NOTIFY_EVENT}"
+note "Channels       : ${VORTEX_NOTIFY_CHANNELS}"
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*email*}" ]; then
   ./scripts/vortex/notify-email.sh "$@"

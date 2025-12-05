@@ -36,6 +36,31 @@ channel-specific settings.
 | `VORTEX_NOTIFY_PROJECT`          | No       | `VORTEX_PROJECT`                              | `.env`   | Notification project name                                                         |
 | `VORTEX_NOTIFY_SKIP`             | No       |                                               | Hosting  | Notification skip flag (set to `1` to skip notifications)                         |
 
+## Deployment context variables
+
+These variables provide deployment context information used by notification
+channels. They must be set by the hosting environment (e.g., Lagoon, Acquia)
+before calling the notification script.
+
+| Variable                  | Required | Description                                                     |
+|---------------------------|----------|-----------------------------------------------------------------|
+| `VORTEX_NOTIFY_BRANCH`    | **Yes**  | Git branch name (used for GitHub API and JIRA issue extraction) |
+| `VORTEX_NOTIFY_SHA`       | **Yes**  | Git commit SHA (used for New Relic revision tracking)           |
+| `VORTEX_NOTIFY_PR_NUMBER` | No       | Pull request number (empty for branch deployments)              |
+| `VORTEX_NOTIFY_LABEL`     | **Yes**  | Human-readable deployment label for display                     |
+
+### Branch vs PR deployment examples
+
+The following table shows how these variables differ between branch and PR deployments:
+
+| Variable                   | Branch deployment           | PR deployment                     |
+|----------------------------|-----------------------------|-----------------------------------|
+| `VORTEX_NOTIFY_BRANCH`     | `main`                      | `feature/PROJ-123-add-feature`    |
+| `VORTEX_NOTIFY_SHA`        | `abc123def456`              | `def789abc012`                    |
+| `VORTEX_NOTIFY_PR_NUMBER`  | *(empty)*                   | `123`                             |
+| `VORTEX_NOTIFY_LABEL`      | `main`                      | `PR-123`                          |
+
+
 ## Message templates and tokens
 
 Most notification channels support customizable message templates using replacement tokens:

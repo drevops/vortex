@@ -14,6 +14,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
@@ -41,7 +43,10 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_LABEL="feature-123"
+  export VORTEX_NOTIFY_BRANCH="feature/feature-123"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_PR_NUMBER="123"
+  export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
 
@@ -52,7 +57,7 @@ load ../_helper.bash
   assert_output_contains "Started Slack notification."
   assert_output_contains "Notification sent to Slack."
   assert_output_contains "Project: testproject"
-  assert_output_contains 'Deployment: feature-123'
+  assert_output_contains 'Deployment: PR-123'
   assert_output_contains "Environment URL: https://pr-123.testproject.com"
   assert_output_contains "Finished Slack notification."
   assert_output_contains "Finished dispatching notifications."
@@ -69,6 +74,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_LOGIN_URL="https://develop.testproject.com/user/login"
@@ -94,6 +101,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   # No VORTEX_NOTIFY_SLACK_WEBHOOK set
@@ -117,6 +126,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/INVALID"
@@ -140,6 +151,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
@@ -167,6 +180,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
@@ -193,6 +208,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/TEST/HOOK"
   export VORTEX_NOTIFY_PROJECT="test'); file_put_contents('/tmp/injected_slack_test', 'HACKED'); //"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://example.com"
 

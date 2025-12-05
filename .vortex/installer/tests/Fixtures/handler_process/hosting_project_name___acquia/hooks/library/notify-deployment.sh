@@ -9,6 +9,7 @@ set -e
 site="${1}"
 target_env="${2}"
 branch="${3}"
+ref="${4}"
 
 # Custom domain name for the environment, including subdomain.
 # Examples: "dev.example.com", "test.example.com", "www.example.com"
@@ -25,6 +26,9 @@ if [ -n "${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN}" ]; then
 fi
 
 export VORTEX_NOTIFY_PROJECT="${site}"
+export VORTEX_NOTIFY_BRANCH="${branch}"
+export VORTEX_NOTIFY_SHA="${ref}"
+export VORTEX_NOTIFY_PR_NUMBER=""
 export VORTEX_NOTIFY_LABEL="${branch}"
 export VORTEX_NOTIFY_ENVIRONMENT_URL="${url}"
 

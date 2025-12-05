@@ -26,6 +26,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -44,7 +46,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"PR\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"feature/my-pr-branch\", \"environment\": \"PR\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -56,7 +58,10 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
-  export VORTEX_NOTIFY_LABEL="existingbranch"
+  export VORTEX_NOTIFY_BRANCH="feature/my-pr-branch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_PR_NUMBER="123"
+  export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
   assert_success
@@ -86,6 +91,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -114,6 +121,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="nonexistingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="nonexistingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -145,6 +154,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="post_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -176,6 +187,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="post_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -205,6 +218,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="post_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="nonexistingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="nonexistingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -235,6 +250,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="post_deployment"
   export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
