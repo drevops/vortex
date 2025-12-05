@@ -75,6 +75,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_GITHUB_REPOSITORY="owner/repo"
 
   # NewRelic required variables
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="test_key"
 
   # Webhook required variables

@@ -9,6 +9,10 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Flag to enable New Relic notifications.
+# Set to "true" (not "1") in environments where New Relic is configured.
+VORTEX_NOTIFY_NEWRELIC_ENABLED="${VORTEX_NOTIFY_NEWRELIC_ENABLED:-${NEWRELIC_ENABLED:-}}"
+
 # New Relic notification project name.
 VORTEX_NOTIFY_NEWRELIC_PROJECT="${VORTEX_NOTIFY_NEWRELIC_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
 
@@ -75,6 +79,11 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
+
+if [ -z "${VORTEX_NOTIFY_NEWRELIC_ENABLED}" ]; then
+  info "New Relic is not enabled. Set NEWRELIC_ENABLED or VORTEX_NOTIFY_NEWRELIC_ENABLED in your environment."
+  exit 0
+fi
 
 for cmd in curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"

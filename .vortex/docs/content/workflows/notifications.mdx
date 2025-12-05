@@ -248,15 +248,28 @@ markers in New Relic APM when a deployment is performed.
    - Go to "API keys"
    - Create or copy an existing "User key"
    - The key format is: `NRAK-XXXXXXXXXXXXXXXXXXXXXX`
-2. Add `VORTEX_NOTIFY_NEWRELIC_USER_KEY` variable to your hosting
+2. Add `NEWRELIC_ENABLED` (or `VORTEX_NOTIFY_NEWRELIC_ENABLED`) variable
+   to your hosting provider's environment variables for environments where
+   New Relic is configured. This prevents unnecessary API calls in environments
+   without New Relic.
+3. Add `VORTEX_NOTIFY_NEWRELIC_USER_KEY` variable to your hosting
    provider's global environment variables.
-3. Optionally, add other New Relic-related variables to your `.env`
+4. Optionally, add other New Relic-related variables to your `.env`
    file to customize the notification.
+
+:::tip Enable only where needed
+
+Set `NEWRELIC_ENABLED=true` only in environments where New Relic APM is configured
+(typically production and staging). This avoids API calls and potential errors
+in development or feature branch environments that don't have New Relic set up.
+
+:::
 
 ### Environment variables
 
 | Variable                                | Required | Default                                       | Location | Description                                                       |
 |-----------------------------------------|----------|-----------------------------------------------|----------|-------------------------------------------------------------------|
+| `VORTEX_NOTIFY_NEWRELIC_ENABLED`        | **Yes**  | `NEWRELIC_ENABLED`                            | Hosting  | Enable New Relic notifications (set to `1` or `true`)             |
 | `VORTEX_NOTIFY_NEWRELIC_USER_KEY`       | **Yes**  |                                               | Hosting  | New Relic User API Key (format: `NRAK-XXXXXXXXXXXXXXXXXXXXXX`)    |
 | `VORTEX_NOTIFY_NEWRELIC_PROJECT`        | No       | `VORTEX_NOTIFY_PROJECT`                       | `.env`   | New Relic notification project name                               |
 | `VORTEX_NOTIFY_NEWRELIC_APP_NAME`       | No       | `${PROJECT}-${LABEL}` (auto-generated)        | `.env`   | New Relic notification application name                           |
