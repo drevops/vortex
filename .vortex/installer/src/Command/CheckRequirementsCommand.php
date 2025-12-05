@@ -24,6 +24,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
 
   use ProcessRunnerAwareTrait;
   use ExecutableFinderAwareTrait;
+  use DestinationAwareTrait;
 
   const OPTION_ONLY = 'only';
 
@@ -66,12 +67,18 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   protected array $missing = [];
 
   /**
+   * The working directory for checks.
+   */
+  protected string $cwd;
+
+  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
     $this->setName('check-requirements');
     $this->setDescription('Check if required tools are installed and running.');
     $this->setHelp('Checks for Docker, Docker Compose, Ahoy, and Pygmy.');
+    $this->addDestinationOption();
     $this->addOption(static::OPTION_ONLY, 'o', InputOption::VALUE_REQUIRED, sprintf('Comma-separated list of requirements to check. Available: %s.', implode(', ', static::REQUIREMENTS)));
     $this->addOption(static::OPTION_NO_SUMMARY, NULL, InputOption::VALUE_NONE, 'Hide summary with tool versions.');
   }
@@ -82,10 +89,12 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   protected function execute(InputInterface $input, OutputInterface $output): int {
     Tui::init($output);
 
+    $this->cwd = $this->getDestination($input);
+
     $only = $input->getOption(static::OPTION_ONLY);
     $requirements = $this->validateRequirements($only ? array_map(trim(...), explode(',', (string) $only)) : NULL);
 
-    $this->processRunner ??= $this->getProcessRunner();
+    $this->processRunner ??= $this->getProcessRunner()->setCwd($this->cwd);
     $this->present = [];
     $this->missing = [];
 

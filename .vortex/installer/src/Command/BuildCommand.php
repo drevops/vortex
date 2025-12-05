@@ -24,6 +24,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
   use ProcessRunnerAwareTrait;
   use CommandRunnerAwareTrait;
+  use DestinationAwareTrait;
 
   const OPTION_PROFILE = 'profile';
 
@@ -44,12 +45,18 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   protected bool $isProfile;
 
   /**
+   * The working directory for the build.
+   */
+  protected string $cwd;
+
+  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
     $this->setName('build');
     $this->setDescription('Build the site using ahoy build.');
     $this->setHelp('Checks requirements and runs ahoy build to set up the local site.');
+    $this->addDestinationOption();
     $this->addOption(static::OPTION_PROFILE, 'p', InputOption::VALUE_NONE, 'Build from install profile instead of loading database.');
     $this->addOption(static::OPTION_SKIP_REQUIREMENTS_CHECK, NULL, InputOption::VALUE_NONE, 'Skip checking for required tools.');
   }
@@ -61,7 +68,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
     Tui::init($output);
 
     $this->isProfile = (bool) $input->getOption(static::OPTION_PROFILE);
-    $cwd = getcwd() ?: '.';
+    $this->cwd = $this->getDestination($input);
 
     if (!$input->getOption(static::OPTION_SKIP_REQUIREMENTS_CHECK)) {
       $requirements_ok = Task::action(
@@ -83,7 +90,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
     $build_ok = Task::action(
       label: 'Building site',
-      action: function () use ($cwd): bool {
+      action: function (): bool {
         $env = [
           'AHOY_CONFIRM_RESPONSE' => 'y',
           'AHOY_CONFIRM_WAIT_SKIP' => '1',
@@ -93,7 +100,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
           $env['VORTEX_PROVISION_TYPE'] = 'profile';
         }
 
-        $this->processRunner = $this->getProcessRunner()->setCwd($cwd);
+        $this->processRunner = $this->getProcessRunner()->setCwd($this->cwd);
         $this->processRunner->run('ahoy build', env: $env);
 
         return $this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
@@ -116,8 +123,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    * Get the project machine name from .env.
    */
   protected function getProjectMachineName(): string {
-    $cwd = getcwd() ?: '.';
-    $env_file = $cwd . '/.env';
+    $env_file = $this->cwd . '/.env';
 
     if (file_exists($env_file)) {
       $content = file_get_contents($env_file);
@@ -126,7 +132,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       }
     }
 
-    return basename($cwd);
+    return basename($this->cwd);
   }
 
   /**
@@ -139,9 +145,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    *   The local development URL, or NULL if it cannot be determined.
    */
   protected function getLocalDevUrl(): ?string {
-    $cwd = getcwd() ?: '.';
-
-    $runner = $this->getProcessRunner()->setCwd($cwd);
+    $runner = $this->getProcessRunner()->setCwd($this->cwd);
     $runner->run('docker', ['compose', 'config', '--format', 'json'], output: new NullOutput());
 
     if ($runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {

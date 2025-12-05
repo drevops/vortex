@@ -157,6 +157,10 @@ class TuiOutput {
 
   const CHECK_REQUIREMENTS_AVAILABLE = 'Available: docker, docker-compose, ahoy, pygmy';
 
+  const DESTINATION_NOT_EXIST = 'Destination directory does not exist:';
+
+  const DESTINATION_MUST_BE_STRING = 'Destination must be a string.';
+
   /**
    * Mark constants as present (should contain in output).
    *
