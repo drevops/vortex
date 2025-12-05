@@ -43,6 +43,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
   export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
@@ -64,6 +66,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
   export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   run ./scripts/vortex/notify.sh
@@ -101,6 +105,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
   export VORTEX_NOTIFY_JIRA_PROJECT="test'); file_put_contents('/tmp/injected_jira_test', 'HACKED'); //"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-test"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="feature/proj-1234-test"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://example.com"
 

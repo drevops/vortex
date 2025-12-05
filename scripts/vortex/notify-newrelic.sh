@@ -25,11 +25,14 @@ VORTEX_NOTIFY_NEWRELIC_PROJECT="${VORTEX_NOTIFY_NEWRELIC_PROJECT:-${VORTEX_NOTIF
 # @see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
 VORTEX_NOTIFY_NEWRELIC_USER_KEY="${VORTEX_NOTIFY_NEWRELIC_USER_KEY:-${NEWRELIC_USER_KEY:-}}"
 
-# New Relic notification deployment label (branch name, PR number, or custom identifier).
+# New Relic notification deployment label (human-readable identifier for display).
 VORTEX_NOTIFY_NEWRELIC_LABEL="${VORTEX_NOTIFY_NEWRELIC_LABEL:-${VORTEX_NOTIFY_LABEL:-}}"
 
+# New Relic notification git commit SHA.
+VORTEX_NOTIFY_NEWRELIC_SHA="${VORTEX_NOTIFY_NEWRELIC_SHA:-${VORTEX_NOTIFY_SHA:-}}"
+
 # New Relic notification deployment revision.
-# If not provided, will be auto-generated as [LABEL]-[TIMESTAMP] for uniqueness.
+# If not provided, will use SHA if available, otherwise auto-generated.
 VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_REVISION:-}"
 
 # New Relic notification environment URL.
@@ -86,11 +89,16 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 
 info "Started New Relic notification."
 
-# Auto-generate revision if not provided (LABEL-YYYYMMDD-HHMMSS for uniqueness).
+# Auto-generate revision if not provided.
+# Use SHA if available, otherwise fall back to LABEL-TIMESTAMP.
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_REVISION}" ]; then
-  revision_date=$(date '+%Y%m%d')
-  revision_time=$(date '+%H%M%S')
-  VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_LABEL}-${revision_date}-${revision_time}"
+  if [ -n "${VORTEX_NOTIFY_NEWRELIC_SHA}" ]; then
+    VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_SHA}"
+  else
+    revision_date=$(date '+%Y%m%d')
+    revision_time=$(date '+%H%M%S')
+    VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_LABEL}-${revision_date}-${revision_time}"
+  fi
   note "Auto-generated revision: ${VORTEX_NOTIFY_NEWRELIC_REVISION}"
 fi
 

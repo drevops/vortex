@@ -48,16 +48,18 @@ SCENARIO="${1:-pre}"
 if [ "${SCENARIO}" = "post" ]; then
   echo "Testing post-deployment notification (updates deployment status)"
   export VORTEX_NOTIFY_EVENT="post_deployment"
-  export VORTEX_NOTIFY_PROJECT="Test Project"
-  export VORTEX_NOTIFY_LABEL="feature/test-github-notification-do-not-merge"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-${PR_NUMBER}.example.com"
 else
   echo "Testing pre-deployment notification (creates deployment)"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
-  export VORTEX_NOTIFY_PROJECT="Test Project"
-  export VORTEX_NOTIFY_LABEL="feature/test-github-notification-do-not-merge"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-${PR_NUMBER}.example.com"
 fi
+
+# Set deployment context variables
+export VORTEX_NOTIFY_PROJECT="Test Project"
+export VORTEX_NOTIFY_BRANCH="feature/test-github-notification-do-not-merge"
+export VORTEX_NOTIFY_SHA="abc123def456"
+export VORTEX_NOTIFY_PR_NUMBER="${PR_NUMBER}"
+export VORTEX_NOTIFY_LABEL="PR-${PR_NUMBER}"
+export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-${PR_NUMBER}.example.com"
 
 # Set required environment variables
 export VORTEX_NOTIFY_CHANNELS=github

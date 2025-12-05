@@ -32,10 +32,15 @@ SCENARIO="${1:-branch}"
 if [ "${SCENARIO}" = "pr" ]; then
   echo "Testing PR deployment notification"
   export VORTEX_NOTIFY_PROJECT="Test Project with PR"
-  export VORTEX_NOTIFY_LABEL="feature-123"
+  export VORTEX_NOTIFY_BRANCH="feature/PROJ-123-test-feature"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_PR_NUMBER="123"
+  export VORTEX_NOTIFY_LABEL="PR-123"
 else
   echo "Testing branch deployment notification"
   export VORTEX_NOTIFY_PROJECT="Test Project"
+  export VORTEX_NOTIFY_BRANCH="main"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="main"
 fi
 

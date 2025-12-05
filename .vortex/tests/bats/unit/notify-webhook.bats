@@ -14,6 +14,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
 
@@ -44,6 +46,8 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
 
@@ -64,6 +68,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
@@ -91,6 +97,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example.com/webhook"
   export VORTEX_NOTIFY_PROJECT="test'); file_put_contents('/tmp/injected_webhook_test', 'HACKED'); //"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://example.com"
 

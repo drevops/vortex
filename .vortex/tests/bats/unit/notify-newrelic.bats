@@ -19,6 +19,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
@@ -58,6 +60,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   run ./scripts/vortex/notify.sh
@@ -85,6 +89,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="newrelic"
   export VORTEX_NOTIFY_PROJECT="test'); file_put_contents('/tmp/injected_newrelic_test', 'HACKED'); //"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
