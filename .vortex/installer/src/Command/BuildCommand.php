@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -129,13 +130,55 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   }
 
   /**
+   * Get the local development URL from Docker Compose configuration.
+   *
+   * Runs `docker compose config --format json` to get the resolved
+   * VORTEX_LOCALDEV_URL, which correctly accounts for COMPOSE_PROJECT_NAME.
+   *
+   * @return string|null
+   *   The local development URL, or NULL if it cannot be determined.
+   */
+  protected function getLocalDevUrl(): ?string {
+    $cwd = getcwd() ?: '.';
+
+    $runner = $this->getProcessRunner()->setCwd($cwd);
+    $runner->run('docker', ['compose', 'config', '--format', 'json'], output: new NullOutput());
+
+    if ($runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
+      $output = $runner->getOutput();
+
+      if (!is_string($output)) {
+        $output = implode("\n", $output);
+      }
+
+      $config = json_decode($output, TRUE);
+
+      if (is_array($config)) {
+        // Extract URL from any service that has VORTEX_LOCALDEV_URL.
+        $url = $config['services']['cli']['environment']['VORTEX_LOCALDEV_URL']
+          ?? $config['services']['nginx']['environment']['VORTEX_LOCALDEV_URL']
+          ?? NULL;
+
+        if ($url !== NULL) {
+          return 'http://' . $url;
+        }
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
    * Display success summary.
    */
   protected function showSuccessSummary(): void {
     $output = '';
     $title = 'Build completed successfully!';
 
-    $output .= 'Site URL: http://' . $this->getProjectMachineName() . '.docker.amazee.io' . PHP_EOL;
+    $url = $this->getLocalDevUrl();
+    if ($url !== NULL) {
+      $output .= 'Site URL: ' . $url . PHP_EOL;
+    }
     $output .= 'Login:    ahoy login' . PHP_EOL;
     $output .= PHP_EOL;
 
