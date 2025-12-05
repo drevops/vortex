@@ -20,7 +20,7 @@ class ArchiverTest extends UnitTestCase {
     $this->archiver = new Archiver();
   }
 
-  #[DataProvider('providerDetectFormat')]
+  #[DataProvider('dataProviderDetectFormat')]
   public function testDetectFormat(string $creator, string $expected): void {
     $archive_path = $this->$creator();
     $format = $this->archiver->detectFormat($archive_path);
@@ -40,14 +40,14 @@ class ArchiverTest extends UnitTestCase {
     $this->archiver->detectFormat('/non/existent/file.tar.gz');
   }
 
-  #[DataProvider('providerValidateValidArchive')]
+  #[DataProvider('dataProviderValidateValidArchive')]
   public function testValidateValidArchive(string $creator): void {
     $archive_path = $this->$creator();
     $this->archiver->validate($archive_path);
     $this->expectNotToPerformAssertions();
   }
 
-  #[DataProvider('providerValidateInvalid')]
+  #[DataProvider('dataProviderValidateInvalid')]
   public function testValidateInvalid(?string $path, ?string $content, string $expectedMessage): void {
     if ($path === NULL) {
       $path = self::$tmp . '/test_invalid_' . uniqid() . '.txt';
@@ -61,7 +61,7 @@ class ArchiverTest extends UnitTestCase {
     $this->archiver->validate($path);
   }
 
-  #[DataProvider('providerExtract')]
+  #[DataProvider('dataProviderExtract')]
   public function testExtract(string $creator, bool $strip, string $expectedPath): void {
     $archive_path = $this->$creator();
     $destination = self::$tmp . '/test_extract_' . uniqid();
@@ -77,7 +77,7 @@ class ArchiverTest extends UnitTestCase {
     }
   }
 
-  #[DataProvider('providerExtractErrors')]
+  #[DataProvider('dataProviderExtractErrors')]
   public function testExtractErrors(?string $extension, ?string $content, bool $strip, ?string $creator, string $expectedMessage): void {
     if ($creator !== NULL) {
       $archive_path = $this->$creator();
@@ -101,7 +101,7 @@ class ArchiverTest extends UnitTestCase {
    * @return array<string, array<string, string|callable>>
    *   Test data.
    */
-  public static function providerDetectFormat(): array {
+  public static function dataProviderDetectFormat(): array {
     return [
       'tar.gz' => [
         'creator' => 'createTestTarGz',
@@ -124,7 +124,7 @@ class ArchiverTest extends UnitTestCase {
    * @return array<string, array<string, string>>
    *   Test data.
    */
-  public static function providerValidateValidArchive(): array {
+  public static function dataProviderValidateValidArchive(): array {
     return [
       'tar.gz' => [
         'creator' => 'createTestTarGz',
@@ -141,7 +141,7 @@ class ArchiverTest extends UnitTestCase {
    * @return array<string, array<string, string|null>>
    *   Test data.
    */
-  public static function providerValidateInvalid(): array {
+  public static function dataProviderValidateInvalid(): array {
     return [
       'non-existent file' => [
         'path' => '/non/existent/file.tar.gz',
@@ -167,7 +167,7 @@ class ArchiverTest extends UnitTestCase {
    * @return array<string, array<string, string|bool>>
    *   Test data.
    */
-  public static function providerExtract(): array {
+  public static function dataProviderExtract(): array {
     return [
       'tar.gz without strip' => [
         'creator' => 'createTestTarGz',
@@ -198,7 +198,7 @@ class ArchiverTest extends UnitTestCase {
    * @return array<string, array<string, string|bool|null>>
    *   Test data.
    */
-  public static function providerExtractErrors(): array {
+  public static function dataProviderExtractErrors(): array {
     return [
       'unsupported format' => [
         'extension' => '.rar',

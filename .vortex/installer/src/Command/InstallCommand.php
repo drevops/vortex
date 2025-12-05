@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Command;
 
+use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
@@ -86,6 +87,11 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   protected ?Downloader $fileDownloader = NULL;
 
   /**
+   * The artifact representing the repository and reference to install.
+   */
+  protected Artifact $artifact;
+
+  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
@@ -145,16 +151,14 @@ EOF
       $this->header();
 
       // Only validate if using custom repository or custom reference.
-      if ($this->shouldValidateRepositoryAndRef()) {
+      if (!$this->artifact->isDefault()) {
         Task::action(
           label: 'Validating repository and reference',
           action: function (): string {
-            $repo = (string) $this->config->get(Config::REPO);
-            $ref = (string) $this->config->get(Config::REF);
-            $this->getRepositoryDownloader()->validate($repo, $ref);
+            $this->getRepositoryDownloader()->validate($this->artifact);
             return 'Repository and reference validated successfully';
           },
-          hint: fn(): string => sprintf('Checking repository "%s" and reference "%s"', $this->config->get(Config::REPO), $this->config->get(Config::REF)),
+          hint: fn(): string => sprintf('Checking repository "%s" and reference "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),
           success: fn(string $return): string => $return
         );
         Tui::line('');
@@ -178,11 +182,11 @@ EOF
       Task::action(
         label: 'Downloading Vortex',
         action: function (): string {
-          $version = $this->getRepositoryDownloader()->download($this->config->get(Config::REPO), $this->config->get(Config::REF), $this->config->get(Config::TMP));
+          $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP));
           $this->config->set(Config::VERSION, $version);
           return $version;
         },
-        hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->config->get(Config::REPO), $this->config->get(Config::REF)),
+        hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),
         success: fn(string $return): string => sprintf('Vortex downloaded (%s)', $return)
       );
 
@@ -326,9 +330,25 @@ EOF
       Env::putFromDotenv($dest_env_file);
     }
 
-    [$repo, $ref] = RepositoryDownloader::parseUri($options[static::OPTION_URI] ?: RepositoryDownloader::DEFAULT_REPO . '#stable');
-    $this->config->set(Config::REPO, $repo);
-    $this->config->set(Config::REF, $ref);
+    // Build URI for artifact.
+    $uri_from_option = !empty($options[static::OPTION_URI]) && is_scalar($options[static::OPTION_URI]) ? strval($options[static::OPTION_URI]) : NULL;
+    $repo = Env::get(Config::REPO) ?: ($this->config->get(Config::REPO) ?: NULL);
+    $ref = Env::get(Config::REF) ?: ($this->config->get(Config::REF) ?: NULL);
+
+    // Priority: option URI > env/config repo+ref > default.
+    $uri = $uri_from_option;
+    if (!$uri && $repo) {
+      $uri = $ref ? $repo . '#' . $ref : $repo;
+    }
+
+    try {
+      $this->artifact = Artifact::fromUri($uri);
+      $this->config->set(Config::REPO, $this->artifact->getRepo());
+      $this->config->set(Config::REF, $this->artifact->getRef());
+    }
+    catch (\RuntimeException $e) {
+      throw new \RuntimeException(sprintf('Invalid repository URI: %s', $e->getMessage()), $e->getCode(), $e);
+    }
 
     // Check if the project is a Vortex project.
     $this->config->set(Config::IS_VORTEX_PROJECT, File::contains($this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
@@ -533,15 +553,14 @@ EOT;
     $title = 'Welcome to the Vortex interactive installer';
     $content = '';
 
-    $ref = $this->config->get(Config::REF);
-    if ($ref == RepositoryDownloader::REF_STABLE) {
+    if ($this->artifact->isStable()) {
       $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('stable') . ' version of Vortex into your project.' . PHP_EOL;
     }
-    elseif ($ref == RepositoryDownloader::REF_HEAD) {
+    elseif ($this->artifact->isDevelopment()) {
       $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('development') . ' version of Vortex into your project.' . PHP_EOL;
     }
     else {
-      $content .= sprintf('This tool will guide you through installing a ' . Tui::underscore('custom') . ' version of Vortex into your project at commit "%s".', $ref) . PHP_EOL;
+      $content .= sprintf('This tool will guide you through installing a ' . Tui::underscore('custom') . ' version of Vortex into your project at commit "%s".', $this->artifact->getRef()) . PHP_EOL;
     }
 
     $content .= PHP_EOL;
@@ -735,28 +754,6 @@ EOT;
     if (!empty($phar_path) && file_exists($phar_path)) {
       @unlink($phar_path);
     }
-  }
-
-  /**
-   * Check if repository and reference validation should be performed.
-   *
-   * Validation is skipped for default Vortex repo with stable/HEAD refs.
-   * Validation is required for custom repositories or custom references.
-   *
-   * @return bool
-   *   TRUE if validation should be performed, FALSE otherwise.
-   */
-  protected function shouldValidateRepositoryAndRef(): bool {
-    $repo = $this->config->get(Config::REPO);
-    $ref = $this->config->get(Config::REF);
-
-    // Check if using default repository and default ref.
-    $default_repo_without_git = RepositoryDownloader::normalizeRepoUrl(RepositoryDownloader::DEFAULT_REPO);
-    $is_default_repo = ($repo === RepositoryDownloader::DEFAULT_REPO || $repo === $default_repo_without_git);
-    $is_default_ref = ($ref === RepositoryDownloader::REF_STABLE || $ref === RepositoryDownloader::REF_HEAD);
-
-    // Skip validation only if both are default.
-    return !($is_default_repo && $is_default_ref);
   }
 
   /**
