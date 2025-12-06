@@ -100,7 +100,7 @@ fi
 title="${event_label}: ${VORTEX_NOTIFY_SLACK_PROJECT}"
 
 # Build payload using PHP with proper escaping from environment variables.
-payload=$(VORTEX_NOTIFY_SLACK_USERNAME="${VORTEX_NOTIFY_SLACK_USERNAME}" VORTEX_NOTIFY_SLACK_ICON_EMOJI="${VORTEX_NOTIFY_SLACK_ICON_EMOJI}" color="${color}" fallback_message="${fallback_message}" title="${title}" VORTEX_NOTIFY_SLACK_LABEL="${VORTEX_NOTIFY_SLACK_LABEL}" VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" VORTEX_NOTIFY_SLACK_LOGIN_URL="${VORTEX_NOTIFY_SLACK_LOGIN_URL}" timestamp="${timestamp}" VORTEX_NOTIFY_SLACK_CHANNEL="${VORTEX_NOTIFY_SLACK_CHANNEL}" php -r '
+payload=$(VORTEX_NOTIFY_SLACK_USERNAME="${VORTEX_NOTIFY_SLACK_USERNAME}" VORTEX_NOTIFY_SLACK_ICON_EMOJI="${VORTEX_NOTIFY_SLACK_ICON_EMOJI}" color="${color}" fallback_message="${fallback_message}" title="${title}" VORTEX_NOTIFY_SLACK_LABEL="${VORTEX_NOTIFY_SLACK_LABEL}" VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" VORTEX_NOTIFY_SLACK_LOGIN_URL="${VORTEX_NOTIFY_SLACK_LOGIN_URL}" timestamp="${timestamp}" VORTEX_NOTIFY_SLACK_CHANNEL="${VORTEX_NOTIFY_SLACK_CHANNEL}" VORTEX_NOTIFY_SLACK_EVENT="${VORTEX_NOTIFY_SLACK_EVENT}" php -r '
 $username = getenv("VORTEX_NOTIFY_SLACK_USERNAME");
 $icon = getenv("VORTEX_NOTIFY_SLACK_ICON_EMOJI");
 $color = getenv("color");
@@ -111,6 +111,19 @@ $envUrl = getenv("VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL");
 $login_url = getenv("VORTEX_NOTIFY_SLACK_LOGIN_URL");
 $timestamp = getenv("timestamp");
 $channel = getenv("VORTEX_NOTIFY_SLACK_CHANNEL");
+$event = getenv("VORTEX_NOTIFY_SLACK_EVENT");
+
+$fields = [
+  ["title" => "Deployment", "value" => $label, "short" => true],
+  ["title" => "Time", "value" => $timestamp, "short" => true]
+];
+
+// Only include Environment and Login links for post-deployment notifications.
+// Pre-deployment notifications should not show these as the site is not yet available.
+if ($event !== "pre_deployment") {
+  $fields[] = ["title" => "Environment", "value" => "<" . $envUrl . "|View Site>", "short" => true];
+  $fields[] = ["title" => "Login", "value" => "<" . $login_url . "|Login Here>", "short" => true];
+}
 
 $data = [
   "username" => $username,
@@ -120,12 +133,7 @@ $data = [
       "color" => $color,
       "fallback" => $fallback,
       "title" => $title,
-      "fields" => [
-        ["title" => "Deployment", "value" => $label, "short" => true],
-        ["title" => "Environment", "value" => "<" . $envUrl . "|View Site>", "short" => true],
-        ["title" => "Login", "value" => "<" . $login_url . "|Login Here>", "short" => true],
-        ["title" => "Time", "value" => $timestamp, "short" => true]
-      ],
+      "fields" => $fields,
       "footer" => "Vortex Deployment",
       "ts" => time()
     ]
