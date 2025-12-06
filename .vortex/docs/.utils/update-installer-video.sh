@@ -33,6 +33,7 @@ PROJECT_ROOT="${DOCS_DIR}/../.."
 CAST_FILE="${DOCS_DIR}/static/img/installer.json"
 SVG_FILE="${DOCS_DIR}/static/img/installer.svg"
 PNG_FILE="${DOCS_DIR}/static/img/installer.png"
+GIF_FILE="${DOCS_DIR}/static/img/installer.gif"
 
 # Local installer paths
 INSTALLER_DOCS="${DOCS_DIR}/static/install"
@@ -357,6 +358,20 @@ record_installer() {
   fi
   rm -f "$output_png.svg"
   pass "PNG conversion completed"
+
+  info "Converting cast to GIF"
+  local output_gif="${output_cast%.*}.gif"
+  note "GIF file: $output_gif"
+
+  if command -v agg >/dev/null 2>&1; then
+    if ! agg --cols "$TERMINAL_WIDTH" --rows "$TERMINAL_HEIGHT" "$output_cast" "$output_gif"; then
+      fail "Failed to convert cast to GIF"
+      return 1
+    fi
+    pass "GIF conversion completed"
+  else
+    note "Skipping: agg is not available"
+  fi
 }
 
 main() {
@@ -393,6 +408,7 @@ main() {
   local temp_cast="$WORKSPACE_DIR/installer_new.json"
   local temp_svg="$WORKSPACE_DIR/installer_new.svg"
   local temp_png="$WORKSPACE_DIR/installer_new.png"
+  local temp_gif="$WORKSPACE_DIR/installer_new.gif"
 
   cleanup() {
     info "Cleaning up workspace directory"
@@ -438,12 +454,19 @@ main() {
   cp "$temp_svg" "$SVG_FILE"
   note "PNG image: $temp_png → $PNG_FILE"
   cp "$temp_png" "$PNG_FILE"
+  if [ -f "$temp_gif" ]; then
+    note "GIF image: $temp_gif → $GIF_FILE"
+    cp "$temp_gif" "$GIF_FILE"
+  fi
 
   pass "Successfully updated installer files"
   note "Updated files:"
   note "  - Cast: $CAST_FILE"
   note "  - SVG: $SVG_FILE"
   note "  - PNG: $PNG_FILE"
+  if [ -f "$GIF_FILE" ]; then
+    note "  - GIF: $GIF_FILE"
+  fi
   note "Next steps:"
   note "  1. Review the updated files"
   note "  2. Test the documentation locally"
