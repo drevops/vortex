@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Test fixture script for passing passthru operations.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script should return code 0' . PHP_EOL;
+
+passthru('echo "success"', $exit_code);
+
+echo 'Script actually returned code ' . $exit_code . PHP_EOL;
