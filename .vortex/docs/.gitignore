@@ -23,3 +23,5 @@ yarn-error.log*
 
 # Copied installer file.
 static/install
+
+installer.gif

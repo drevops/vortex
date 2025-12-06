@@ -15,7 +15,7 @@ use Symfony\Component\Console\Application;
 
 require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.php';
 
-$application = new Application('Vortex Installer', '@vortex-installer-version@');
+$application = new Application('Vortex Installer', getenv('VORTEX_INSTALLER_VERSION') ?: '@vortex-installer-version@');
 
 $application->add(new InstallCommand());
 $application->add(new CheckRequirementsCommand());
