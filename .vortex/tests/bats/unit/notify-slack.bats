@@ -6,92 +6,166 @@
 
 load ../_helper.bash
 
-@test "Notify: slack, branch" {
+@test "Notify: slack, branch pre_deployment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" "200" 1
 
-  export VORTEX_NOTIFY_CHANNELS="slack"
-  export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
-
-  run ./scripts/vortex/notify.sh
-  assert_success
-
-  assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Started Slack notification."
-  assert_output_contains "Notification sent to Slack."
-  assert_output_contains "Project: testproject"
-  assert_output_contains 'Deployment: develop'
-  assert_output_contains "Environment URL: https://develop.testproject.com"
-  assert_output_contains "Finished Slack notification."
-  assert_output_contains "Finished dispatching notifications."
-
-  popd >/dev/null || exit 1
-}
-
-@test "Notify: slack, PR" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  mock_curl=$(mock_command "curl")
-  mock_set_output "${mock_curl}" "200" 1
-
-  export VORTEX_NOTIFY_CHANNELS="slack"
-  export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="feature/feature-123"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_PR_NUMBER="123"
-  export VORTEX_NOTIFY_LABEL="PR-123"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.testproject.com"
-  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
-
-  run ./scripts/vortex/notify.sh
-  assert_success
-
-  assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Started Slack notification."
-  assert_output_contains "Notification sent to Slack."
-  assert_output_contains "Project: testproject"
-  assert_output_contains 'Deployment: PR-123'
-  assert_output_contains "Environment URL: https://pr-123.testproject.com"
-  assert_output_contains "Finished Slack notification."
-  assert_output_contains "Finished dispatching notifications."
-
-  popd >/dev/null || exit 1
-}
-
-@test "Notify: slack, pre_deployment" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  mock_curl=$(mock_command "curl")
-  mock_set_output "${mock_curl}" "200" 1
-
-  export VORTEX_NOTIFY_CHANNELS="slack"
-  export VORTEX_NOTIFY_EVENT="pre_deployment"
-  export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_SLACK_PROJECT="testproject"
+  export VORTEX_NOTIFY_SLACK_LABEL="develop"
+  export VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_LOGIN_URL="https://develop.testproject.com/user/login"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+  export VORTEX_NOTIFY_SLACK_CHANNEL="#deployments"
+  export VORTEX_NOTIFY_SLACK_USERNAME="Deploy Bot"
+  export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
+  export VORTEX_NOTIFY_SLACK_EVENT="pre_deployment"
 
-  # Pre-deployment forces github channel, but we're testing slack directly
-  export VORTEX_NOTIFY_CHANNELS="github"
-
-  # Test Slack script directly for pre-deployment
-  export VORTEX_NOTIFY_CHANNELS="slack"
   run ./scripts/vortex/notify-slack.sh
   assert_success
 
+  # Assert script output
   assert_output_contains "Started Slack notification."
+  assert_output_contains "Project        : testproject"
+  assert_output_contains "Deployment     : develop"
+  assert_output_contains "Environment URL: https://develop.testproject.com"
+  assert_output_contains "Login URL      : https://develop.testproject.com/user/login"
+  assert_output_contains "Channel        : #deployments"
+  assert_output_contains "Username       : Deploy Bot"
+  assert_output_contains "Event          : Deployment Starting"
   assert_output_contains "Notification sent to Slack."
   assert_output_contains "Finished Slack notification."
+
+  # Verify curl payload does NOT contain View Site or Login Here for pre-deployment
+  run mock_get_call_args "${mock_curl}" 1
+  assert_output_contains "Deployment"
+  assert_output_contains "Time"
+  assert_output_not_contains "View Site"
+  assert_output_not_contains "Login Here"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: slack, branch post_deployment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "200" 1
+
+  export VORTEX_NOTIFY_SLACK_PROJECT="testproject"
+  export VORTEX_NOTIFY_SLACK_LABEL="develop"
+  export VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_SLACK_LOGIN_URL="https://develop.testproject.com/user/login"
+  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+  export VORTEX_NOTIFY_SLACK_CHANNEL="#deployments"
+  export VORTEX_NOTIFY_SLACK_USERNAME="Deploy Bot"
+  export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
+  export VORTEX_NOTIFY_SLACK_EVENT="post_deployment"
+
+  run ./scripts/vortex/notify-slack.sh
+  assert_success
+
+  # Assert script output
+  assert_output_contains "Started Slack notification."
+  assert_output_contains "Project        : testproject"
+  assert_output_contains "Deployment     : develop"
+  assert_output_contains "Environment URL: https://develop.testproject.com"
+  assert_output_contains "Login URL      : https://develop.testproject.com/user/login"
+  assert_output_contains "Channel        : #deployments"
+  assert_output_contains "Username       : Deploy Bot"
+  assert_output_contains "Event          : Deployment Complete"
+  assert_output_contains "Notification sent to Slack."
+  assert_output_contains "Finished Slack notification."
+
+  # Verify curl payload DOES contain View Site and Login Here for post-deployment
+  run mock_get_call_args "${mock_curl}" 1
+  assert_output_contains "Deployment"
+  assert_output_contains "Time"
+  assert_output_contains "View Site"
+  assert_output_contains "Login Here"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: slack, PR pre_deployment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "200" 1
+
+  export VORTEX_NOTIFY_SLACK_PROJECT="testproject"
+  export VORTEX_NOTIFY_SLACK_LABEL="PR-123"
+  export VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="https://pr-123.testproject.com"
+  export VORTEX_NOTIFY_SLACK_LOGIN_URL="https://pr-123.testproject.com/user/login"
+  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+  export VORTEX_NOTIFY_SLACK_CHANNEL="#deployments"
+  export VORTEX_NOTIFY_SLACK_USERNAME="Deploy Bot"
+  export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
+  export VORTEX_NOTIFY_SLACK_EVENT="pre_deployment"
+
+  run ./scripts/vortex/notify-slack.sh
+  assert_success
+
+  # Assert script output
+  assert_output_contains "Started Slack notification."
+  assert_output_contains "Project        : testproject"
+  assert_output_contains "Deployment     : PR-123"
+  assert_output_contains "Environment URL: https://pr-123.testproject.com"
+  assert_output_contains "Login URL      : https://pr-123.testproject.com/user/login"
+  assert_output_contains "Channel        : #deployments"
+  assert_output_contains "Username       : Deploy Bot"
+  assert_output_contains "Event          : Deployment Starting"
+  assert_output_contains "Notification sent to Slack."
+  assert_output_contains "Finished Slack notification."
+
+  # Verify curl payload does NOT contain View Site or Login Here for pre-deployment
+  run mock_get_call_args "${mock_curl}" 1
+  assert_output_contains "Deployment"
+  assert_output_contains "Time"
+  assert_output_not_contains "View Site"
+  assert_output_not_contains "Login Here"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: slack, PR post_deployment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "200" 1
+
+  export VORTEX_NOTIFY_SLACK_PROJECT="testproject"
+  export VORTEX_NOTIFY_SLACK_LABEL="PR-123"
+  export VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="https://pr-123.testproject.com"
+  export VORTEX_NOTIFY_SLACK_LOGIN_URL="https://pr-123.testproject.com/user/login"
+  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+  export VORTEX_NOTIFY_SLACK_CHANNEL="#deployments"
+  export VORTEX_NOTIFY_SLACK_USERNAME="Deploy Bot"
+  export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
+  export VORTEX_NOTIFY_SLACK_EVENT="post_deployment"
+
+  run ./scripts/vortex/notify-slack.sh
+  assert_success
+
+  # Assert script output
+  assert_output_contains "Started Slack notification."
+  assert_output_contains "Project        : testproject"
+  assert_output_contains "Deployment     : PR-123"
+  assert_output_contains "Environment URL: https://pr-123.testproject.com"
+  assert_output_contains "Login URL      : https://pr-123.testproject.com/user/login"
+  assert_output_contains "Channel        : #deployments"
+  assert_output_contains "Username       : Deploy Bot"
+  assert_output_contains "Event          : Deployment Complete"
+  assert_output_contains "Notification sent to Slack."
+  assert_output_contains "Finished Slack notification."
+
+  # Verify curl payload DOES contain View Site and Login Here for post-deployment
+  run mock_get_call_args "${mock_curl}" 1
+  assert_output_contains "Deployment"
+  assert_output_contains "Time"
+  assert_output_contains "View Site"
+  assert_output_contains "Login Here"
 
   popd >/dev/null || exit 1
 }
