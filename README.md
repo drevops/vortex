@@ -5,7 +5,7 @@
   </picture>
 </div>
 
-<h1 align="center">Vortex</h1>
+<h1 align="center">Vortex 2.x</h1>
 <h3 align="center">Drupal project template</h3>
 
 <div align="center">
