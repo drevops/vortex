@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * POST failure fixture for request_post testing.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script will call request_post expecting failure' . PHP_EOL;
+
+$result = request_post('https://example.com/error', json_encode(['key' => 'value']), ['Content-Type: application/json']);
+
+echo 'Response status: ' . $result['status'] . PHP_EOL;
+echo 'Response ok: ' . ($result['ok'] ? 'true' : 'false') . PHP_EOL;
+
+if (!$result['ok']) {
+  echo 'POST failed as expected' . PHP_EOL;
+}
