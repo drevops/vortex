@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Multiple calls fixture for HTTP request testing.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script will call request functions multiple times' . PHP_EOL;
+
+$result1 = request_get('https://example.com/first');
+echo 'First call status: ' . $result1['status'] . PHP_EOL;
+
+$result2 = request_post('https://example.com/second', 'data');
+echo 'Second call status: ' . $result2['status'] . PHP_EOL;
+
+$result3 = request('https://example.com/third', ['method' => 'PUT']);
+echo 'Third call status: ' . $result3['status'] . PHP_EOL;
+
+echo 'Script completed' . PHP_EOL;

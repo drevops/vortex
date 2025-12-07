@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Failure fixture for quit() testing with exit code 1.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script will exit with code 1' . PHP_EOL;
+
+quit(1);
+
+// This line should never execute if quit() works correctly.
+echo 'ERROR Script continued after quit()' . PHP_EOL;
