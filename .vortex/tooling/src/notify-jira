@@ -1,0 +1,271 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notification dispatch to Jira.
+ *
+ * Features:
+ * - posts comment with a URL of a deployment environment
+ * - moves an issues to a state
+ * - assigns an issue to a dedicated user.
+ *
+ * Uses user's token to perform operations.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// JIRA notification project name.
+$notify_project = getenv_required('VORTEX_NOTIFY_JIRA_PROJECT', 'VORTEX_NOTIFY_PROJECT');
+
+// JIRA notification deployment label (branch name, PR number, or custom).
+$notify_label = getenv_required('VORTEX_NOTIFY_JIRA_LABEL', 'VORTEX_NOTIFY_LABEL');
+
+// JIRA notification environment URL.
+$notify_env_url = getenv_required('VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
+
+// JIRA notification login URL.
+$notify_login_url = getenv_default('VORTEX_NOTIFY_JIRA_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', $notify_env_url . '/user/login');
+
+// JIRA notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_default('VORTEX_NOTIFY_JIRA_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
+
+// JIRA notification user email address.
+$jira_user_email = getenv_required('VORTEX_NOTIFY_JIRA_USER_EMAIL');
+
+// JIRA notification API token.
+//
+// @see https://www.vortextemplate.com/docs/workflows/notifications#jira
+$jira_api_token = getenv_required('VORTEX_NOTIFY_JIRA_TOKEN');
+
+// JIRA notification message template (will be converted to ADF format).
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+// - %environment_url% - Environment URL
+// - %login_url% - Login URL.
+$jira_message = getenv_default('VORTEX_NOTIFY_JIRA_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%");
+
+// JIRA notification state to transition to.
+//
+// If left empty - no transition will be performed.
+$jira_transition = getenv('VORTEX_NOTIFY_JIRA_TRANSITION');
+
+// JIRA notification assignee email address.
+//
+// If left empty - no assignment will be performed.
+$jira_assignee_email = getenv('VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL');
+
+// JIRA notification API endpoint.
+$jira_endpoint = getenv_default('VORTEX_NOTIFY_JIRA_ENDPOINT', 'https://jira.atlassian.com');
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Convert a multiline string into a JIRA ADF paragraph node.
+ *
+ * @param string $text
+ *   Multiline text to convert.
+ *
+ * @return array
+ *   ADF paragraph node.
+ */
+function text_to_adf(string $text): array {
+  $text = str_replace(["\r\n", "\r"], "\n", $text);
+  $lines = explode("\n", $text);
+
+  $content = [];
+  foreach ($lines as $index => $line) {
+    if ($index > 0) {
+      $content[] = ['type' => 'hardBreak'];
+    }
+    if ($line !== '') {
+      $content[] = ['type' => 'text', 'text' => $line];
+    }
+  }
+
+  return ['type' => 'paragraph', 'content' => $content];
+}
+
+// -----------------------------------------------------------------------------
+
+info('Started JIRA notification.');
+
+// Skip if this is a pre-deployment event (JIRA only processes post-deployment).
+if ($notify_event === 'pre_deployment') {
+  pass('Skipping JIRA notification for pre_deployment event.');
+  quit();
+}
+
+task('Extracting issue');
+
+if (!preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_label, $matches)) {
+  pass('Deployment label %s does not contain issue number. Skipping JIRA notification.', $notify_label);
+  quit();
+}
+$jira_issue = $matches[2];
+
+pass('Found issue %s.', $jira_issue);
+
+task('Checking API access');
+
+$token = base64_encode(sprintf('%s:%s', $jira_user_email, $jira_api_token));
+$url = sprintf('%s/rest/api/3/myself', $jira_endpoint);
+
+$response = request_get($url, [
+  'Authorization: Basic ' . $token,
+  'Content-Type: application/json',
+]);
+
+$account_id = 'error';
+if ($response['ok'] && $response['body']) {
+  $payload = json_decode((string) $response['body'], TRUE);
+  $account_id = $payload['accountId'] ?? 'error';
+}
+
+if (strlen((string) $account_id) < 24) {
+  fail('Unable to authenticate');
+}
+
+pass('Authenticated as user with account ID %s.', $account_id);
+
+task('Posting a comment');
+
+$jira_message = replace_tokens($jira_message, [
+  'project' => $notify_project,
+  'label' => $notify_label,
+  'timestamp' => date('d/m/Y H:i:s T'),
+  'environment_url' => $notify_env_url,
+  'login_url' => $notify_login_url,
+]);
+
+$jira_message_adf = text_to_adf($jira_message);
+
+$comment_body = [
+  'type' => 'doc',
+  'version' => 1,
+  'content' => $jira_message_adf,
+];
+
+note('JIRA notification summary:');
+note('Project        : ' . $notify_project);
+note('Deployment     : ' . $notify_label);
+note('Issue          : ' . $jira_issue);
+note('Environment URL: ' . $notify_env_url);
+note('Login URL      : ' . $notify_login_url);
+note('Endpoint       : ' . $jira_endpoint);
+note('User email     : ' . $jira_user_email);
+note('Transition     : ' . ($jira_transition ?: '<none>'));
+note('Assignee email : ' . ($jira_assignee_email ?: '<none>'));
+
+$payload_data = ['body' => $comment_body];
+$url = sprintf('%s/rest/api/3/issue/%s/comment', $jira_endpoint, $jira_issue);
+$response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
+  'Authorization: Basic ' . $token,
+  'Content-Type: application/json',
+]);
+
+$comment_id = 'error';
+if ($response['ok'] && $response['body']) {
+  $payload = json_decode((string) $response['body'], TRUE);
+  $comment_id = $payload['id'] ?? 'error';
+}
+
+if (!ctype_digit((string) $comment_id)) {
+  fail('Unable to create a comment');
+}
+
+pass('Posted comment with ID %s.', $comment_id);
+
+if (!empty($jira_transition)) {
+  task('Discovering transition ID for %s', $jira_transition);
+  $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
+  $response = request_get($url, [
+    'Authorization: Basic ' . $token,
+    'Content-Type: application/json',
+  ]);
+
+  $transition_id = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    if (isset($payload['transitions']) && is_array($payload['transitions'])) {
+      foreach ($payload['transitions'] as $t) {
+        if (isset($t['name']) && $t['name'] === $jira_transition) {
+          $transition_id = $t['id'] ?? NULL;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!$transition_id || !ctype_digit((string) $transition_id)) {
+    fail('Unable to retrieve transition ID');
+  }
+
+  pass('Found transition ID %s', $transition_id);
+
+  task('Transitioning issue to ' . $jira_transition);
+
+  $payload_data = ['transition' => ['id' => $transition_id]];
+  $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
+  request_post($url, json_encode($payload_data), [
+    'Authorization: Basic ' . $token,
+    'Content-Type: application/json',
+  ]);
+
+  pass('Transitioned issue to %s ', $jira_transition);
+}
+
+if (!empty($jira_assignee_email)) {
+  task('Assigning issue to ' . $jira_assignee_email);
+
+  task('Discovering assignee user ID for %s', $jira_assignee_email);
+  $url = sprintf('%s/rest/api/3/user/assignable/search?query=%s&issueKey=%s', $jira_endpoint, urlencode($jira_assignee_email), urlencode($jira_issue));
+  $response = request_get($url, [
+    'Authorization: Basic ' . $token,
+    'Content-Type: application/json',
+  ]);
+
+  $assignee_account_id = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    if (is_array($payload) && !empty($payload)) {
+      $first = reset($payload);
+      $assignee_account_id = $first['accountId'] ?? NULL;
+    }
+  }
+
+  if (!$assignee_account_id || strlen((string) $assignee_account_id) < 24) {
+    fail('Unable to retrieve assignee account ID');
+  }
+
+  pass('Found assignee account ID %s', $assignee_account_id);
+
+  task('Assigning issue to user ID ' . $assignee_account_id);
+
+  $payload_data = ['accountId' => $assignee_account_id];
+  $url = sprintf('%s/rest/api/3/issue/%s/assignee', $jira_endpoint, $jira_issue);
+  request($url, [
+    'method' => 'PUT',
+    'body' => json_encode($payload_data),
+    'headers' => [
+      'Authorization: Basic ' . $token,
+      'Content-Type: application/json',
+    ],
+  ]);
+
+  pass('Assigned issue to ' . $jira_assignee_email);
+}
+
+info('Finished JIRA notification.');
