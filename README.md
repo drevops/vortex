@@ -10,11 +10,12 @@
 
 <div align="center">
 
-[![Database, Build, Test and Deploy](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml)
-[![CircleCI](https://circleci.com/gh/drevops/vortex.svg?style=shield)](https://circleci.com/gh/drevops/vortex)
-[![Test](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml/badge.svg)](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml)
-[![Test docs](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml/badge.svg)](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml)
-[![codecov](https://codecov.io/gh/drevops/vortex/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/vortex)
+[![Database, Build, Test and Deploy](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml)
+[![CircleCI](https://circleci.com/gh/drevops/vortex/tree/project/2.x.svg?style=shield)](https://circleci.com/gh/drevops/vortex/tree/project/2.x)
+[![Test](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml)
+[![Vortex - Test installer](https://github.com/drevops/vortex/actions/workflows/vortex-test-installer.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/vortex-test-installer.yml)
+[![Test docs](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml)
+[![codecov](https://codecov.io/gh/drevops/vortex/branch/project%2F2.x/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/vortex)
 ![GitHub release](https://img.shields.io/github/v/release/drevops/vortex?logo=github)
 ![LICENSE](https://img.shields.io/github/license/drevops/vortex)
 
