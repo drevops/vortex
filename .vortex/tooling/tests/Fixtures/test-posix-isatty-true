@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Fixture for posix_isatty() testing expecting TRUE.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Calling posix_isatty(STDOUT)' . PHP_EOL;
+
+$result = posix_isatty(STDOUT);
+
+echo 'posix_isatty returned: ' . ($result ? 'true' : 'false') . PHP_EOL;
+
+if ($result === TRUE) {
+  echo 'SUCCESS: posix_isatty returned true as expected' . PHP_EOL;
+}
+else {
+  echo 'FAILURE: posix_isatty returned false, expected true' . PHP_EOL;
+}
