@@ -5,11 +5,15 @@ on:
   push:
     branches:
       - main
+      - release/**
+      - project/**
   pull_request:
     branches:
       - main
-      - 'feature/**'
-      - 'bugfix/**'
+      - feature/**
+      - bugfix/**
+      - release/**
+      - project/**
 
 jobs:
   vortex-test-installer:
