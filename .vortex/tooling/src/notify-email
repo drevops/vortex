@@ -1,0 +1,190 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notification dispatch to email recipients.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Email notification project name.
+$notify_project = getenv_required('VORTEX_NOTIFY_EMAIL_PROJECT', 'VORTEX_NOTIFY_PROJECT');
+
+// Email notification deployment label (branch name, PR number, or custom).
+$notify_label = getenv_required('VORTEX_NOTIFY_EMAIL_LABEL', 'VORTEX_NOTIFY_LABEL');
+
+// Email notification environment URL.
+$notify_env_url = getenv_required('VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
+
+// Email notification login URL.
+$notify_login_url = getenv_default('VORTEX_NOTIFY_EMAIL_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', $notify_env_url . '/user/login');
+
+// Email notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_default('VORTEX_NOTIFY_EMAIL_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
+
+// Email notification sender address.
+$email_from = getenv_required('VORTEX_NOTIFY_EMAIL_FROM', 'DRUPAL_SITE_EMAIL');
+
+// Email notification recipients.
+//
+// Multiple names can be specified as a comma-separated list of email addresses
+// with optional names in the format "email|name".
+// Example: "to1@example.com|Jane Doe, to2@example.com|John Doe".
+$email_recipients = getenv_required('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
+
+// Email notification CC recipients.
+//
+// Multiple names can be specified as a comma-separated list of email addresses
+// with optional names in the format "email|name".
+// Example: "cc1@example.com|Jane Doe, cc2@example.com|John Doe".
+$email_cc = getenv_default('VORTEX_NOTIFY_EMAIL_CC', '');
+
+// Email notification BCC recipients.
+//
+// Multiple names can be specified as a comma-separated list of email addresses
+// with optional names in the format "email|name".
+// Example: "bcc1@example.com|Jane Doe, bcc2@example.com|John Doe".
+$email_bcc = getenv_default('VORTEX_NOTIFY_EMAIL_BCC', '');
+
+// Email notification subject template.
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+// - %environment_url% - Environment URL
+// - %login_url% - Login URL.
+$email_subject = getenv_default('VORTEX_NOTIFY_EMAIL_SUBJECT', '%project% deployment notification of %label%');
+
+// Email notification message template.
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+// - %environment_url% - Environment URL
+// - %login_url% - Login URL.
+$email_message = getenv_default('VORTEX_NOTIFY_EMAIL_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%");
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Parse email recipients from a comma-separated string.
+ *
+ * @param string $recipients
+ *   Comma-separated list of recipients. Format: "email1, email2|Name, email3".
+ *
+ * @return array<string>
+ *   Array of formatted email addresses.
+ */
+function parse_email_recipients(string $recipients): array {
+  if (empty($recipients)) {
+    return [];
+  }
+
+  $parsed = [];
+  $recipient_list = array_map(trim(...), explode(',', $recipients));
+
+  foreach ($recipient_list as $recipient) {
+    $parts = array_map(trim(...), explode('|', $recipient, 2));
+    $email = $parts[0];
+    $name = $parts[1] ?? '';
+
+    $parsed[] = empty($name) ? $email : sprintf('"%s" <%s>', $name, $email);
+  }
+
+  return $parsed;
+}
+
+// -----------------------------------------------------------------------------
+
+info('Started email notification.');
+
+// Skip if this is a pre-deployment event (email only for post-deployment).
+if ($notify_event === 'pre_deployment') {
+  pass('Skipping email notification for pre_deployment event.');
+  quit();
+}
+
+$email_subject = replace_tokens($email_subject, [
+  'project' => $notify_project,
+  'label' => $notify_label,
+  'timestamp' => date('d/m/Y H:i:s T'),
+  'environment_url' => $notify_env_url,
+  'login_url' => $notify_login_url,
+]);
+
+$email_message = replace_tokens($email_message, [
+  'project' => $notify_project,
+  'label' => $notify_label,
+  'timestamp' => date('d/m/Y H:i:s T'),
+  'environment_url' => $notify_env_url,
+  'login_url' => $notify_login_url,
+]);
+
+note('Email notification summary:');
+note('Project        : ' . $notify_project);
+note('Deployment     : ' . $notify_label);
+note('Environment URL: ' . $notify_env_url);
+note('Login URL      : ' . $notify_login_url);
+note('From           : ' . $email_from);
+note('Recipients     : ' . $email_recipients);
+if (!empty($email_cc)) {
+  note('CC             : ' . $email_cc);
+}
+if (!empty($email_bcc)) {
+  note('BCC            : ' . $email_bcc);
+}
+note('Subject        : ' . $email_subject);
+note('Content        : ' . $email_message);
+
+task('Sending email notification');
+
+// Parse recipients.
+$to_list = parse_email_recipients($email_recipients);
+$cc_list = parse_email_recipients($email_cc);
+$bcc_list = parse_email_recipients($email_bcc);
+
+$sent = [];
+foreach ($to_list as $to) {
+  $headers = [
+    'From: ' . $email_from,
+    'Content-Type: text/plain; charset=UTF-8',
+  ];
+
+  // Add CC header if there are CC recipients.
+  if (!empty($cc_list)) {
+    $headers[] = 'Cc: ' . implode(', ', $cc_list);
+  }
+
+  // Add BCC header if there are BCC recipients.
+  if (!empty($bcc_list)) {
+    $headers[] = 'Bcc: ' . implode(', ', $bcc_list);
+  }
+
+  if (mail($to, $email_subject, $email_message, $headers)) {
+    // Extract just the email address from formatted string for tracking.
+    $sent[] = preg_match('/<(.+?)>/', $to, $matches) ? $matches[1] : $to;
+  }
+}
+
+if (!empty($sent)) {
+  pass('Email notification sent successfully to %d recipient(s).', count($sent));
+}
+else {
+  // @codeCoverageIgnoreStart
+  pass('No notification emails were sent.');
+  // @codeCoverageIgnoreEnd
+}
+
+info('Finished email notification.');
