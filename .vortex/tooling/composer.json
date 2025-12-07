@@ -1,0 +1,67 @@
+{
+    "name": "drevops/vortex-tooling",
+    "description": "Tooling for Vortex-based projects",
+    "license": "GPL-2.0-or-later",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drevops.com",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://github.com/drevops/vortex",
+    "support": {
+        "issues": "https://github.com/drevops/vortex/issues",
+        "source": "https://github.com/drevops/vortex"
+    },
+    "require-dev": {
+        "php": ">=8.2",
+        "alexskrypnyk/file": "^0.15",
+        "alexskrypnyk/phpunit-helpers": "^0.14.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.1.2",
+        "drevops/phpcs-standard": "^0.5",
+        "drupal/coder": "^9@alpha",
+        "ergebnis/composer-normalize": "^2.48.2",
+        "php-mock/php-mock-phpunit": "^2.14",
+        "phpstan/phpstan": "^2.1.31",
+        "phpunit/phpunit": "^12.4.2",
+        "rector/rector": "^2.2.7",
+        "squizlabs/php_codesniffer": "^4"
+    },
+    "minimum-stability": "alpha",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\VortexTooling\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\VortexTooling\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        }
+    },
+    "scripts": {
+        "check-no-exit": "php check-no-exit.php",
+        "lint": [
+            "phpcs",
+            "phpstan --memory-limit=2G",
+            "rector --dry-run",
+            "@check-no-exit"
+        ],
+        "lint-fix": [
+            "rector",
+            "phpcbf"
+        ],
+        "reset": "rm -Rf vendor",
+        "test": "phpunit --no-coverage",
+        "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit"
+    }
+}
