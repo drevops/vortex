@@ -130,6 +130,7 @@ current=0
 failed=0
 succeeded=0
 timedout=0
+baseline_committed=0
 
 printf "Found %s unique datasets\n" "${total_datasets}"
 
@@ -173,6 +174,7 @@ while IFS= read -r dataset; do
       # Commit baseline changes.
       if git add "${baseline_path}" && git commit -m "Updated baseline."; then
         printf "Baseline committed successfully. Continuing with remaining datasets...\n"
+        baseline_committed=1
       else
         printf "Failed to commit baseline changes.\n"
         exit 1
@@ -229,11 +231,19 @@ if [ "${failed}" -gt 0 ] || [ "${timedout}" -gt 0 ]; then
   if [ "${has_changes}" -eq 1 ]; then
     # Stage all fixture changes.
     if git add "${fixtures_path}"; then
-      # Amend the baseline commit with all fixture changes.
-      if git commit --amend -m "Updated fixtures."; then
-        printf "Note: Amended previous commit to include all fixture updates.\n"
+      # Only amend if baseline was committed, otherwise create a new commit.
+      if [ "${baseline_committed}" -eq 1 ]; then
+        if git commit --amend -m "Updated fixtures."; then
+          printf "Note: Amended baseline commit to include all fixture updates.\n"
+        else
+          printf "Failed to amend commit with fixture changes.\n"
+        fi
       else
-        printf "Failed to amend commit with fixture changes.\n"
+        if git commit -m "Updated fixtures."; then
+          printf "Note: Created new commit for fixture updates.\n"
+        else
+          printf "Failed to commit fixture changes.\n"
+        fi
       fi
     else
       printf "Failed to stage fixture changes.\n"

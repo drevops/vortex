@@ -164,3 +164,16 @@ long-running steps:
     command: ./scripts/long-task.sh
     no_output_timeout: 60m  # Default is 10m
 ```
+
+### Code coverage threshold
+
+The workflow enforces a minimum code coverage threshold. If coverage falls below
+the threshold, the build fails.
+
+Configure the threshold by setting the `VORTEX_CI_CODE_COVERAGE_THRESHOLD`
+environment variable in **Project Settings → Environment Variables**. Default
+is `90` (percent).
+
+Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN`
+environment variable with permission to post comments. To disable PR comments,
+set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
