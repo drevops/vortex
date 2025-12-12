@@ -30,7 +30,7 @@
          </testsuite>
  
          <!-- Not implemented. -->
-@@ -99,16 +99,16 @@
+@@ -100,16 +100,16 @@
      </coverage>
      <source>
          <include>

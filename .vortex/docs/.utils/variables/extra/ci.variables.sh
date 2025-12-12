@@ -57,6 +57,12 @@ VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE=0
 # Ignore PHPUnit test failures.
 VORTEX_CI_PHPUNIT_IGNORE_FAILURE=0
 
+# Code coverage threshold percentage. Build fails if coverage is below this value.
+VORTEX_CI_CODE_COVERAGE_THRESHOLD=90
+
+# Skip posting code coverage report as a PR comment.
+VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP=0
+
 # Ignore Behat test failures.
 VORTEX_CI_BEHAT_IGNORE_FAILURE=0
 

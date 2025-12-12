@@ -95,6 +95,7 @@
         <report>
             <html outputDirectory=".logs/coverage/phpunit/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
             <cobertura outputFile=".logs/coverage/phpunit/cobertura.xml"/>
+            <text outputFile=".logs/coverage/phpunit/coverage.txt"/>
         </report>
     </coverage>
     <source>

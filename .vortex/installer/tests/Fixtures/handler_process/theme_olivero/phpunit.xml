@@ -14,7 +14,7 @@
          </testsuite>
  
          <!-- Not implemented. -->
-@@ -100,7 +97,6 @@
+@@ -101,7 +98,6 @@
      <source>
          <include>
              <directory>web/modules/custom</directory>
@@ -22,7 +22,7 @@
              <directory>web/sites/default/includes</directory>
              <directory>web/sites/default/settings.php</directory>
          </include>
-@@ -107,8 +103,6 @@
+@@ -108,8 +104,6 @@
          <exclude>
              <directory suffix="Test.php">web/modules/custom</directory>
              <directory>web/modules/custom/*/node_modules</directory>
