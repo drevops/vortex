@@ -220,12 +220,8 @@ commands:
       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 
   test:
-    usage: Run all tests.
-    cmd: |
-      ahoy test-unit
-      ahoy test-kernel
-      ahoy test-functional
-      ahoy test-bdd
+    usage: Run all PHPUnit tests.
+    cmd: ahoy cli vendor/bin/phpunit "$@"
 
   test-unit:
     usage: Run PHPUnit unit tests.

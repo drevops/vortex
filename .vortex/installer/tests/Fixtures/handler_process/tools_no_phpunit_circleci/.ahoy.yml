@@ -1,11 +1,10 @@
-@@ -222,22 +222,7 @@
-   test:
-     usage: Run all tests.
-     cmd: |
--      ahoy test-unit
--      ahoy test-kernel
--      ahoy test-functional
-       ahoy test-bdd
+@@ -219,22 +219,6 @@
+       ahoy cli "yarn run lint-fix"
+       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+ 
+-  test:
+-    usage: Run all PHPUnit tests.
+-    cmd: ahoy cli vendor/bin/phpunit "$@"
 -
 -  test-unit:
 -    usage: Run PHPUnit unit tests.
@@ -18,6 +17,7 @@
 -  test-functional:
 -    usage: Run PHPUnit functional tests.
 -    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
- 
+-
    test-bdd:
      usage: Run BDD tests.
+     aliases: [test-behat]

@@ -18,18 +18,14 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -218,31 +212,6 @@
+@@ -218,27 +212,6 @@
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 -
 -  test:
--    usage: Run all tests.
--    cmd: |
--      ahoy test-unit
--      ahoy test-kernel
--      ahoy test-functional
--      ahoy test-bdd
+-    usage: Run all PHPUnit tests.
+-    cmd: ahoy cli vendor/bin/phpunit "$@"
 -
 -  test-unit:
 -    usage: Run PHPUnit unit tests.
