@@ -158,3 +158,15 @@ steps:
   run: ./scripts/long-task.sh
   timeout-minutes: 60  # Default is 360 (6 hours)
 ```
+
+### Code coverage threshold
+
+The workflow enforces a minimum code coverage threshold. If coverage falls below
+the threshold, the build fails.
+
+Configure the threshold by setting the `VORTEX_CI_CODE_COVERAGE_THRESHOLD`
+variable in **Settings → Secrets and variables → Actions → Variables**. Default
+is `90` (percent).
+
+Coverage reports are automatically posted as PR comments. To disable this, set
+`VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.

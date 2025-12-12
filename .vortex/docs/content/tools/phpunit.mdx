@@ -105,7 +105,7 @@ Run checks against platform version specified in `composer.json` key `config.pla
 ## Coverage
 
 PHPUnit is configured to generate code coverage reports. The reports are stored
-in `.logs/test_results/phpunit/phpunit.xml`
+in `.logs/coverage/phpunit/cobertura.xml`
 as [Cobertura XML](https://cobertura.github.io/cobertura/), suitable for
 automated coverage assessment, and in `.logs/coverage/phpunit/.coverage-html` as
 HTML coverage report, useful for visual report assessment during test
@@ -113,6 +113,17 @@ development.
 
 Continuous integration pipeline runs tests with coverage by default and stores
 the reports as artifacts.
+
+### Coverage threshold
+
+CI enforces a minimum coverage threshold. If coverage falls below the threshold,
+the build fails. Set `VORTEX_CI_CODE_COVERAGE_THRESHOLD` to configure the
+minimum percentage (default: `90`).
+
+### PR comments
+
+Coverage reports are posted as PR comments automatically. Set
+`VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1` to disable.
 
 ### Ignoring lines from coverage
 
