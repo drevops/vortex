@@ -424,7 +424,6 @@ trait SubtestAhoyTrait {
 
     $this->syncToHost('.logs');
     $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml', 'PHPUnit test results XML file should exist');
-    $this->assertDirectoryExists('.logs/screenshots', 'Screenshots directory should exist after BDD tests');
 
     $this->removePathHostAndContainer('.logs');
 

@@ -44,4 +44,4 @@
 -      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
    test:
-     usage: Run all tests.
+     usage: Run all PHPUnit tests.

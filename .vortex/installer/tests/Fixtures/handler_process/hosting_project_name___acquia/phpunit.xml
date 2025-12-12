@@ -1,36 +1,36 @@
-@@ -6,7 +6,7 @@
-  https://www.drupal.org/node/2116263 for details.
- -->
- <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+@@ -9,7 +9,7 @@
+          beStrictAboutChangesToGlobalState="true"
+          beStrictAboutOutputDuringTests="true"
+          beStrictAboutTestsThatDoNotTestAnything="true"
 -         bootstrap="web/core/tests/bootstrap.php"
 +         bootstrap="docroot/core/tests/bootstrap.php"
+          cacheResult="false"
           colors="true"
-          beStrictAboutTestsThatDoNotTestAnything="true"
-          beStrictAboutOutputDuringTests="true"
-@@ -62,16 +62,16 @@
+          displayDetailsOnPhpunitDeprecations="true"
+@@ -67,16 +67,16 @@
      <testsuites>
          <testsuite name="unit">
              <directory>tests/phpunit</directory>
--            <directory>web/modules/custom/*/tests/src/Unit</directory>
--            <directory>web/themes/custom/*/tests/src/Unit</directory>
-+            <directory>docroot/modules/custom/*/tests/src/Unit</directory>
-+            <directory>docroot/themes/custom/*/tests/src/Unit</directory>
+-            <directory>web/modules/custom/**/tests/src/Unit</directory>
+-            <directory>web/themes/custom/**/tests/src/Unit</directory>
++            <directory>docroot/modules/custom/**/tests/src/Unit</directory>
++            <directory>docroot/themes/custom/**/tests/src/Unit</directory>
          </testsuite>
          <testsuite name="kernel">
--            <directory>web/modules/custom/*/tests/src/Kernel</directory>
--            <directory>web/themes/custom/*/tests/src/Kernel</directory>
-+            <directory>docroot/modules/custom/*/tests/src/Kernel</directory>
-+            <directory>docroot/themes/custom/*/tests/src/Kernel</directory>
+-            <directory>web/modules/custom/**/tests/src/Kernel</directory>
+-            <directory>web/themes/custom/**/tests/src/Kernel</directory>
++            <directory>docroot/modules/custom/**/tests/src/Kernel</directory>
++            <directory>docroot/themes/custom/**/tests/src/Kernel</directory>
          </testsuite>
          <testsuite name="functional">
--            <directory>web/modules/custom/*/tests/src/Functional</directory>
--            <directory>web/themes/custom/*/tests/src/Functional</directory>
-+            <directory>docroot/modules/custom/*/tests/src/Functional</directory>
-+            <directory>docroot/themes/custom/*/tests/src/Functional</directory>
+-            <directory>web/modules/custom/**/tests/src/Functional</directory>
+-            <directory>web/themes/custom/**/tests/src/Functional</directory>
++            <directory>docroot/modules/custom/**/tests/src/Functional</directory>
++            <directory>docroot/themes/custom/**/tests/src/Functional</directory>
          </testsuite>
  
          <!-- Not implemented. -->
-@@ -100,16 +100,16 @@
+@@ -105,16 +105,16 @@
      </coverage>
      <source>
          <include>
@@ -45,13 +45,13 @@
          </include>
          <exclude>
 -            <directory suffix="Test.php">web/modules/custom</directory>
--            <directory>web/modules/custom/*/node_modules</directory>
+-            <directory>web/modules/custom/**/node_modules</directory>
 -            <directory suffix="Test.php">web/themes/custom</directory>
--            <directory>web/themes/custom/*/node_modules</directory>
+-            <directory>web/themes/custom/**/node_modules</directory>
 +            <directory suffix="Test.php">docroot/modules/custom</directory>
-+            <directory>docroot/modules/custom/*/node_modules</directory>
++            <directory>docroot/modules/custom/**/node_modules</directory>
 +            <directory suffix="Test.php">docroot/themes/custom</directory>
-+            <directory>docroot/themes/custom/*/node_modules</directory>
++            <directory>docroot/themes/custom/**/node_modules</directory>
              <directory>tests</directory>
          </exclude>
      </source>

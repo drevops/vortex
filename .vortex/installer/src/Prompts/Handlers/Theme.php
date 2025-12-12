@@ -202,11 +202,15 @@ class Theme extends AbstractHandler {
     File::removeLine($tmpDir . '/phpmd.xml', '<exclude-pattern>*/web/themes/contrib/*</exclude-pattern>');
 
     File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Unit</directory>');
     File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Kernel</directory>');
     File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Functional</directory>');
     File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom</directory>');
     File::removeLine($tmpDir . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
     File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
+    File::removeLine($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/node_modules</directory>');
 
     File::removeLine($tmpDir . '/rector.php', "__DIR__ . '/web/themes/custom',");
 
