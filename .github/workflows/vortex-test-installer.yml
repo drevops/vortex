@@ -70,7 +70,7 @@ jobs:
         working-directory: .vortex/docs
 
       - name: Upload coverage reports as an artifact
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.php-versions }}
           path: .vortex/installer/.logs
@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload installer artifact
         if: matrix.php-versions == '8.2'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: vortex-installer
           path: .vortex/installer/build/installer.phar
