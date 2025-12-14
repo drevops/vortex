@@ -24,7 +24,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversFunction('DrevOps\VortexTooling\fail')]
 #[CoversFunction('DrevOps\VortexTooling\term_supports_color')]
 #[Group('helpers')]
-class FormatterTest extends UnitTestCase {
+class HelpersFormatterTest extends UnitTestCase {
 
   #[DataProvider('dataProviderOutputFormatters')]
   public function testOutputFormatters(string $function, ?bool $is_tty, string $expected_output): void {

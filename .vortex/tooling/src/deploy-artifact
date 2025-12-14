@@ -1,0 +1,137 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Deploy code via pushing an artifact to a remote git repository.
+ *
+ * @see https://github.com/drevops/git-artifact
+ *
+ * Deployment to remote git repositories allows to build the project code as
+ * an artifact in CI and then commit only required files to the destination
+ * repository.
+ *
+ * During deployment, the `.gitignore.artifact` file determines which files
+ * to exclude, using the `.gitignore` syntax. When preparing the artifact build,
+ * this file supersedes the existing `.gitignore`, and any specified files are
+ * excluded.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Directory with the source of the code to be used for artifact building.
+$deploy_artifact_src = getenv_required('VORTEX_DEPLOY_ARTIFACT_SRC');
+
+// The root directory where the deployment script should run from.
+//
+// Defaults to the current directory.
+$deploy_artifact_root = getenv_default('VORTEX_DEPLOY_ARTIFACT_ROOT', getcwd());
+
+// Remote repository branch.
+//
+// Can be an exact branch name or a token-based value.
+// @see https://github.com/drevops/git-artifact#token-support
+$deploy_artifact_dst_branch = getenv_default('VORTEX_DEPLOY_ARTIFACT_DST_BRANCH', '[branch]');
+
+// Deployment log file name.
+$deploy_artifact_log = getenv_default('VORTEX_DEPLOY_ARTIFACT_LOG', $deploy_artifact_root . '/deployment_log.txt');
+
+// Remote repository to push code to.
+$deploy_git_remote = getenv_required('VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE');
+
+// Email address of the user who will be committing to a remote repository.
+$deploy_git_user_name = getenv_default('VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME', 'Deployment Robot');
+
+// Name of the user who will be committing to a remote repository.
+$deploy_git_user_email = getenv_required('VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL');
+
+// SSH key fingerprint used to connect to remote.
+//
+// Falls back to $VORTEX_SSH_FINGERPRINT.
+$deploy_ssh_fingerprint = getenv_default('VORTEX_DEPLOY_SSH_FINGERPRINT', 'VORTEX_SSH_FINGERPRINT', '');
+
+// Default SSH file used if custom fingerprint is not provided.
+//
+// Falls back to VORTEX_SSH_FILE.
+$deploy_ssh_file = getenv_default('VORTEX_DEPLOY_SSH_FILE', 'VORTEX_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
+
+// -----------------------------------------------------------------------------
+
+info('Started ARTIFACT deployment.');
+
+// Configure global git settings, if they do not exist.
+$global_git_name = trim((string) shell_exec('git config --global user.name'));
+if (empty($global_git_name)) {
+  task('Configuring global git user name.');
+  passthru(sprintf('git config --global user.name %s', escapeshellarg($deploy_git_user_name)), $exit_code);
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+}
+
+$global_git_email = trim((string) shell_exec('git config --global user.email'));
+if (empty($global_git_email)) {
+  task('Configuring global git user email.');
+  passthru(sprintf('git config --global user.email %s', escapeshellarg($deploy_git_user_email)), $exit_code);
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+}
+
+// Setup SSH.
+putenv('VORTEX_SSH_PREFIX=DEPLOY');
+!empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
+!empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_SSH_FILE=' . $deploy_ssh_file);
+passthru(__DIR__ . '/setup-ssh', $exit_code);
+if ($exit_code !== 0) {
+  quit($exit_code);
+}
+
+task('Installing artifact builder.');
+passthru('composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1', $exit_code);
+if ($exit_code !== 0) {
+  quit($exit_code);
+}
+
+$deploy_artifact_root = realpath($deploy_artifact_root);
+$deploy_artifact_src = realpath($deploy_artifact_src);
+
+if ($deploy_artifact_root === FALSE || $deploy_artifact_src === FALSE) {
+  fail('Failed to resolve real path for deployment directories.');
+}
+
+if (is_dir($deploy_artifact_root . '/.git')) {
+  task('Copying git repo files meta file to the deploy code repo.');
+  copy_dir($deploy_artifact_root . '/.git', $deploy_artifact_src . '/.git');
+}
+
+if (file_exists($deploy_artifact_root . '/.gitignore.artifact')) {
+  task('Copying deployment .gitignore as it may not exist in deploy code source files.');
+  copy($deploy_artifact_root . '/.gitignore.artifact', $deploy_artifact_src . '/.gitignore.artifact');
+}
+
+task('Running artifact builder.');
+$git_artifact_cmd = sprintf(
+  '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
+  escapeshellarg(getenv('HOME') . '/.composer/vendor/bin/git-artifact'),
+  escapeshellarg($deploy_git_remote),
+  escapeshellarg($deploy_artifact_root),
+  escapeshellarg($deploy_artifact_src),
+  escapeshellarg($deploy_artifact_dst_branch),
+  escapeshellarg($deploy_artifact_src . '/.gitignore.artifact'),
+  escapeshellarg($deploy_artifact_log)
+);
+
+passthru($git_artifact_cmd, $exit_code);
+if ($exit_code !== 0) {
+  quit($exit_code);
+}
+
+pass('Finished ARTIFACT deployment.');

@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversFunction('DrevOps\VortexTooling\execute_override')]
 #[Group('helpers')]
-class OverrideTest extends UnitTestCase {
+class HelpersOverrideTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();

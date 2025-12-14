@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Deploy by calling a webhook.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Webhook URL to call for deployment.
+$deploy_webhook_url = getenv_required('VORTEX_DEPLOY_WEBHOOK_URL');
+
+// HTTP method to use for the webhook request.
+//
+// Can be 'GET', 'POST', 'PUT', 'DELETE', etc.
+$deploy_webhook_method = getenv_default('VORTEX_DEPLOY_WEBHOOK_METHOD', 'GET');
+
+// Expected HTTP response status code.
+//
+// The deployment is considered successful only if the response status matches
+// this value.
+$deploy_webhook_expected_status = getenv_default('VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS', '200');
+
+// -----------------------------------------------------------------------------
+
+info('Started WEBHOOK deployment.');
+
+$response = request($deploy_webhook_url, ['method' => $deploy_webhook_method]);
+
+if (!$response['ok']) {
+  fail('Unable to complete webhook deployment.');
+}
+
+if ((string) $response['status'] !== $deploy_webhook_expected_status) {
+  fail('Unable to complete webhook deployment.');
+}
+
+note('Webhook call completed.');
+pass('Finished WEBHOOK deployment.');
