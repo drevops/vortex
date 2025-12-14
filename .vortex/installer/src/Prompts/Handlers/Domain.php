@@ -74,7 +74,7 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function transform(): ?callable {
-    return fn(string $v): string => Converter::domain($v);
+    return Converter::domain(...);
   }
 
   /**

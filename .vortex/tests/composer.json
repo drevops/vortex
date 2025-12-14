@@ -23,16 +23,16 @@
     "require-dev": {
         "alexskrypnyk/file": "^0.15",
         "alexskrypnyk/phpunit-helpers": "^0.15",
-        "alexskrypnyk/shellvar": "^1.2.1",
-        "czproject/git-php": "^4.5",
-        "dealerdirect/phpcodesniffer-composer-installer": "^1.1.2",
+        "alexskrypnyk/shellvar": "^1.3.0",
+        "czproject/git-php": "^4.6",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/phpcs-standard": "^0.6",
         "drupal/coder": "^9@alpha",
         "ergebnis/composer-normalize": "^2.48.2",
-        "phpstan/phpstan": "^2.1.31",
-        "phpunit/phpunit": "^12.4.2",
-        "rector/rector": "^2.2.7",
-        "squizlabs/php_codesniffer": "^4.0"
+        "phpstan/phpstan": "^2.1.33",
+        "phpunit/phpunit": "^12.5.3",
+        "rector/rector": "^2.2.14",
+        "squizlabs/php_codesniffer": "^4.0.1"
     },
     "minimum-stability": "alpha",
     "prefer-stable": true,
@@ -48,6 +48,7 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true
         },
+        "bump-after-update": true,
         "discard-changes": true,
         "process-timeout": 0,
         "sort-packages": true

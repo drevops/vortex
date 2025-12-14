@@ -17,16 +17,14 @@ use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
 use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
 use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
-use Rector\CodingStyle\Rector\FunctionLike\FunctionLikeToFirstClassCallableRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
+use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
+use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
-use Rector\Php81\Rector\Array_\FirstClassCallableRector;
-use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
-use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
@@ -46,8 +44,6 @@ return RectorConfig::configure()
     CompleteDynamicPropertiesRector::class,
     CountArrayToEmptyArrayComparisonRector::class,
     DisallowedEmptyRuleFixerRector::class,
-    FirstClassCallableRector::class,
-    FunctionLikeToFirstClassCallableRector::class,
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
@@ -67,15 +63,15 @@ return RectorConfig::configure()
   ])
   // PHP version upgrade sets - modernizes syntax to PHP 8.3.
   // Includes all rules from PHP 5.3 through 8.3.
-  ->withPhpSets(php83: true)
+  ->withPhpSets(php83: TRUE)
   // Code quality improvement sets.
   ->withPreparedSets(
-    deadCode: true,
-    codeQuality: true,
-    codingStyle: true,
-    typeDeclarations: true,
-    privatization: true,
-    naming: true,
+    deadCode: TRUE,
+    codeQuality: TRUE,
+    codingStyle: TRUE,
+    typeDeclarations: TRUE,
+    privatization: TRUE,
+    naming: TRUE,
   )
   // Additional rules.
   ->withRules([
@@ -86,4 +82,4 @@ return RectorConfig::configure()
     'inc',
   ])
   // Import configuration.
-  ->withImportNames(importNames: false, importDocBlockNames: false);
+  ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);
