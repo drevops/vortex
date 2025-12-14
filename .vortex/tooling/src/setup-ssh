@@ -1,0 +1,165 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Setup SSH in the environment.
+ *
+ * - If key fingerprint provided in MD5 or SHA256 format, search for the
+ *   existing key file. Export the key file path.
+ * - Start SSH agent if not running. Export SSH_AGENT_PID and SSH_AUTH_SOCK.
+ * - Load SSH key to the SSH agent.
+ * - Disable strict host key checking in CI.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Prefix used to load SSH key from prefixed environment variables.
+//
+// This prefix is used to construct dynamic variable names:
+// - VORTEX_{PREFIX}_SSH_FINGERPRINT
+// - VORTEX_{PREFIX}_SSH_FILE
+//
+// Example: If VORTEX_SSH_PREFIX=DEPLOY, then:
+// - VORTEX_DEPLOY_SSH_FINGERPRINT
+// - VORTEX_DEPLOY_SSH_FILE
+$ssh_prefix = getenv_required('VORTEX_SSH_PREFIX');
+
+// Whether to remove all keys from the SSH agent before loading.
+//
+// Set to '1' to remove all keys, '0' to keep existing keys.
+$remove_all_keys = getenv_default('VORTEX_SSH_REMOVE_ALL_KEYS', FALSE);
+
+// Whether to disable strict host key checking.
+//
+// Set to '1' to disable strict checking (for CI environments), '0' otherwise.
+$disable_strict_checking = getenv_default('VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING', FALSE);
+
+// -----------------------------------------------------------------------------
+
+info('Started SSH setup.');
+
+// Get fingerprint from dynamic variable.
+$fingerprint_var = sprintf('VORTEX_%s_SSH_FINGERPRINT', $ssh_prefix);
+$fingerprint = getenv_default($fingerprint_var, NULL);
+
+// Get file path from dynamic variable.
+$file_var = sprintf('VORTEX_%s_SSH_FILE', $ssh_prefix);
+$file_path = getenv_default($file_var, getenv('HOME') . '/.ssh/id_rsa');
+
+// Special case - SSH key may not be required if set to 'false'.
+if ($file_path === 'false') {
+  pass('SSH key is set to false meaning that it is not required. Skipping setup.');
+  putenv(sprintf('%s=%s', $file_var, $file_path));
+  quit(0);
+}
+
+// Handle fingerprint-based key search.
+if (!empty($fingerprint)) {
+  note('Using fingerprint-based deploy key because fingerprint was provided.');
+
+  // Convert SHA256 fingerprint to MD5 if needed.
+  if (str_starts_with($fingerprint, 'SHA256:')) {
+    task('Searching for MD5 hash as fingerprint starts with SHA256.');
+    $ssh_dir = getenv('HOME') . '/.ssh';
+    $id_rsa_files = glob($ssh_dir . '/id_rsa*');
+
+    foreach ($id_rsa_files as $existing_file) {
+      $output = shell_exec(sprintf('ssh-keygen -l -E sha256 -f %s 2>/dev/null', escapeshellarg($existing_file)));
+      if ($output !== NULL && !empty($output)) {
+        $parts = preg_split('/\s+/', trim($output));
+        $fingerprint_sha256 = $parts[1] ?? '';
+
+        if ($fingerprint_sha256 === $fingerprint) {
+          pass(sprintf('Found matching existing key file %s.', $existing_file));
+          $output = shell_exec(sprintf('ssh-keygen -l -E md5 -f %s', escapeshellarg($existing_file)));
+          $parts = preg_split('/\s+/', trim($output));
+          $fingerprint = $parts[1] ?? '';
+          $fingerprint = str_replace('MD5:', '', $fingerprint);
+          break;
+        }
+      }
+    }
+  }
+
+  // Cleanup the fingerprint and create a file name.
+  $file_path = str_replace(':', '', $fingerprint);
+  $file_path = str_replace('"', '', $file_path);
+  $file_path = getenv('HOME') . '/.ssh/id_rsa_' . $file_path;
+}
+
+// Check if SSH key file exists.
+if (!file_exists($file_path)) {
+  fail(sprintf('SSH key file %s does not exist.', $file_path));
+}
+
+note(sprintf('Using SSH key file %s.', $file_path));
+putenv(sprintf('%s=%s', $file_var, $file_path));
+
+// Start SSH agent if not running.
+// Check if SSH agent is available by verifying the socket exists and is accessible.
+$ssh_auth_sock = getenv('SSH_AUTH_SOCK');
+$agent_running = !empty($ssh_auth_sock) && file_exists($ssh_auth_sock);
+
+if (!$agent_running) {
+  task('Starting SSH agent.');
+  $output = shell_exec('ssh-agent');
+  if ($output !== NULL) {
+    // Parse ssh-agent output to extract environment variables.
+    if (preg_match('/SSH_AUTH_SOCK=([^;]+);/', $output, $matches)) {
+      putenv('SSH_AUTH_SOCK=' . $matches[1]);
+    }
+    if (preg_match('/SSH_AGENT_PID=(\d+);/', $output, $matches)) {
+      putenv('SSH_AGENT_PID=' . $matches[1]);
+    }
+  }
+}
+
+// Check if key is already loaded.
+$output = (string) shell_exec('ssh-add -l 2>/dev/null');
+$key_loaded = str_contains($output, basename($file_path));
+
+if ($key_loaded) {
+  note(sprintf('SSH agent already has %s key loaded.', $file_path));
+}
+else {
+  task('SSH agent does not have a required key loaded. Trying to load.');
+
+  if (!empty($remove_all_keys)) {
+    task('Removing all keys from the SSH agent.');
+    passthru('ssh-add -D');
+  }
+
+  passthru(sprintf('ssh-add %s', escapeshellarg($file_path)), $add_exit_code);
+  if ($add_exit_code !== 0) {
+    fail('Failed to add SSH key to agent.');
+  }
+
+  passthru('ssh-add -l');
+}
+
+// Disable strict host key checking if requested.
+if (!empty($disable_strict_checking)) {
+  task('Disabling strict host key checking.');
+
+  $ssh_dir = getenv('HOME') . '/.ssh';
+  // @codeCoverageIgnoreStart
+  if (!is_dir($ssh_dir)) {
+    mkdir($ssh_dir, 0700, TRUE);
+  }
+  // @codeCoverageIgnoreEnd
+
+  $config_file = $ssh_dir . '/config';
+  $config_content = "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n";
+  file_put_contents($config_file, $config_content, FILE_APPEND);
+  chmod($config_file, 0600);
+}
+
+pass('Finished SSH setup.');

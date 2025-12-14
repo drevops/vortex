@@ -702,4 +702,54 @@ trait MockTrait {
     $this->assertMockConsumed('posix_isatty');
   }
 
+  /**
+   * Mock shell_exec() function.
+   *
+   * @param string|null|false $return_value
+   *   The value to return from shell_exec() (e.g., '/usr/bin/docker').
+   * @param string $namespace
+   *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
+   */
+  protected function mockShellExec(string|null|false $return_value, string $namespace = 'DrevOps\\VortexTooling'): void {
+    $this->mockShellExecMultiple([['value' => $return_value]], $namespace);
+  }
+
+  /**
+   * Mock multiple shell_exec() calls with sequential return values.
+   *
+   * @param array<int, array{value: string|null|false}> $responses
+   *   Array of shell_exec responses. Each response is an array with
+   *   'value' key.
+   * @param string $namespace
+   *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
+   *
+   * @throws \RuntimeException
+   *   When more shell_exec calls are made than mocked responses available.
+   */
+  protected function mockShellExecMultiple(array $responses, string $namespace = 'DrevOps\\VortexTooling'): void {
+    // Add responses to unified registry.
+    $this->addMockResponses('shell_exec', $responses);
+
+    // If mocks already exist, just add to responses and return.
+    if (isset($this->mocks['shell_exec'])) {
+      return;
+    }
+
+    // Register the mock function.
+    $this->registerMock('shell_exec', $namespace, function () {
+      $response = $this->getNextMockResponse('shell_exec');
+      return $response['value'];
+    });
+  }
+
+  /**
+   * Verify all mocked shell_exec responses were consumed.
+   *
+   * @throws \PHPUnit\Framework\AssertionFailedError
+   *   When not all mocked responses were consumed.
+   */
+  protected function mockShellExecAssertAllMocksConsumed(): void {
+    $this->assertMockConsumed('shell_exec');
+  }
+
 }

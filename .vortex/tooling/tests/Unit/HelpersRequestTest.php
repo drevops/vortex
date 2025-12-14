@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversFunction('DrevOps\VortexTooling\request_post')]
 #[CoversFunction('DrevOps\VortexTooling\request')]
 #[Group('helpers')]
-class RequestTest extends UnitTestCase {
+class HelpersRequestTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
