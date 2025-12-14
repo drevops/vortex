@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversFunction('DrevOps\VortexTooling\replace_tokens')]
 #[Group('helpers')]
-class TokenTest extends UnitTestCase {
+class HelpersTokenTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
