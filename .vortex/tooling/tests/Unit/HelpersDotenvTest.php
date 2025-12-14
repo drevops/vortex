@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversFunction('DrevOps\VortexTooling\load_dotenv')]
 #[Group('helpers')]
-class DotenvTest extends UnitTestCase {
+class HelpersDotenvTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();

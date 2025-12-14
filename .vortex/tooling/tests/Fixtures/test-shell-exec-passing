@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Test fixture script for shell_exec operations.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script will call shell_exec' . PHP_EOL;
+
+$result = shell_exec('echo "test"');
+
+if ($result === NULL) {
+  echo 'Shell output is null' . PHP_EOL;
+}
+elseif ($result === FALSE) {
+  echo 'Shell output is false' . PHP_EOL;
+}
+elseif ($result === '') {
+  echo 'Shell output is empty' . PHP_EOL;
+}
+else {
+  echo 'Shell output: ' . $result . PHP_EOL;
+}
