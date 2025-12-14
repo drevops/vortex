@@ -1,0 +1,51 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Login to the container registry.
+ *
+ * Supported registries:
+ * - docker.io
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Container registry URL.
+//
+// Examples: docker.io, gcr.io, ghcr.io
+$registry = getenv_default('VORTEX_CONTAINER_REGISTRY', 'docker.io');
+
+// Container registry username.
+$user = getenv_default('VORTEX_CONTAINER_REGISTRY_USER', NULL);
+
+// Container registry password.
+$pass = getenv_default('VORTEX_CONTAINER_REGISTRY_PASS', NULL);
+
+// Docker configuration directory.
+$docker_config = getenv_default('DOCKER_CONFIG', getenv('HOME') . '/.docker');
+
+// -----------------------------------------------------------------------------
+
+$config_file = $docker_config . '/config.json';
+if (file_exists($config_file) && str_contains(file_get_contents($config_file), $registry)) {
+  note('Already logged in to the registry "' . $registry . '".');
+}
+elseif (!empty($user) && !empty($pass)) {
+  task('Logging in to registry "' . $registry . '".');
+  $cmd = sprintf('echo %s | docker login --username %s --password-stdin %s', escapeshellarg($pass), escapeshellarg($user), escapeshellarg($registry));
+  passthru($cmd, $exit_code);
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+}
+else {
+  note('Skipping login to the container registry as either VORTEX_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');
+}
