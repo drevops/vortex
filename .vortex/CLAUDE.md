@@ -1669,12 +1669,12 @@ $this->cmd('ahoy export-db', '! Containers are not running.', arg: $args);
 
 ```php
 // ✅ GOOD - Single-line code
-throw new \RuntimeException(sprintf('Failed to download archive from: %s - %s', $url, $e->getMessage()));
+throw new \RuntimeException(sprintf('Failed to download archive from: %s - %s', $deploy_webhook_url, $e->getMessage()));
 
 // ❌ AVOID - Multi-line code when not necessary
 throw new \RuntimeException(sprintf(
   'Failed to download archive from: %s - %s',
-  $url,
+  $deploy_webhook_url,
   $e->getMessage()
 ));
 

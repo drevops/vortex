@@ -35,7 +35,7 @@ This document describes the Vortex tooling package - a collection of PHP helper 
 │   │   ├── UnitTestCase.php     # Base test case
 │   │   ├── ExitException.php    # Exit exception for testing
 │   │   ├── ExitMockTest.php     # Exit mocking tests
-│   │   ├── DotenvTest.php          # Environment tests
+│   │   ├── HelpersDotenvTest.php          # Environment tests
 │   │   └── SelfTest.php         # Self-tests for core functions
 │   └── Traits/
 │       └── MockTrait.php        # Mock infrastructure (passthru, quit, request)
@@ -74,9 +74,9 @@ validate_command(string $command): void
 ### HTTP Request Functions
 
 ```php
-request_get(string $url, array $headers = [], int $timeout = 10): array
-request_post(string $url, $body = NULL, array $headers = [], int $timeout = 10): array
-request(string $url, array $options = []): array
+request_get(string $deploy_webhook_url, array $headers = [], int $timeout = 10): array
+request_post(string $deploy_webhook_url, $body = NULL, array $headers = [], int $timeout = 10): array
+request(string $deploy_webhook_url, array $options = []): array
 ```
 
 **Return Format**:
@@ -90,6 +90,25 @@ request(string $url, array $options = []): array
 ]
 ```
 
+### Environment Variable Functions
+
+```php
+getenv_required(...$var_names): string
+getenv_default(...$args): string
+```
+
+**getenv_required()** - Get value from environment variables with fallback chain:
+- Tries each variable name in order
+- Returns first non-empty value found
+- Calls `fail()` and `quit(1)` if no value found
+- Example: `getenv_required('VAR1', 'VAR2', 'VAR3')`
+
+**getenv_default()** - Get value with fallback chain and default:
+- Last argument is the default value
+- Tries each variable name in order
+- Returns first non-empty value found, or default if none found
+- Example: `getenv_default('VAR1', 'VAR2', 'default_value')`
+
 ### Utility Functions
 
 ```php
@@ -97,6 +116,106 @@ replace_tokens(string $template, array $replacements): string
 is_debug(): bool
 quit(int $code = 0): void  // Wrapper around exit() for testing
 ```
+
+## Script Structure Guidelines
+
+All scripts in `src/` must follow a consistent structure for maintainability and clarity:
+
+### Standard Script Structure
+
+```php
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Brief description of what the script does.
+ *
+ * Additional details about the script's purpose or requirements.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Variable description.
+//
+// Additional details about format, usage, or valid values.
+$var1 = getenv_required('PRIMARY_VAR', 'FALLBACK_VAR');
+
+// Another variable description.
+//
+// Can be 'value1', 'value2', etc.
+$var2 = getenv_default('VAR_NAME', 'default_value');
+
+// Optional variable with detailed format explanation.
+//
+// Format: key1=value1,key2=value2
+// Example: web=myorg/myapp,db=myorg/mydb
+$var3 = getenv_default('OPTIONAL_VAR', '');
+
+// -----------------------------------------------------------------------------
+
+info('Started operation.');
+
+// Main script logic here...
+
+pass('Finished operation.');
+```
+
+### Environment Variable Best Practices
+
+1. **Use VARIABLES Section**: All environment variable declarations at the top
+2. **Document Each Variable**: Include comment explaining purpose and format
+3. **Use Fallback Chains**: `getenv_required()` and `getenv_default()` with multiple variable names
+4. **Separate Sections**: Use comment dividers to separate VARIABLES from EXECUTION
+5. **Explicit Validation**: Check for explicitly empty values when needed:
+
+```php
+// Check if variable is explicitly set to empty (different from not set).
+if (($check = getenv('VAR_NAME')) !== FALSE && empty(trim($check))) {
+  fail('VAR_NAME should not be empty.');
+  quit(1);
+}
+```
+
+### Variable Documentation Format
+
+Each variable should have:
+- **Single-line comment**: Brief description
+- **Multi-line comment** (optional): Format details, examples, valid values
+- **Variable assignment**: Using getenv_required() or getenv_default()
+
+**Example**:
+
+```php
+// Email notification recipients.
+//
+// Multiple names can be specified as a comma-separated list of email addresses
+// with optional names in the format "email|name".
+// Example: "to1@example.com|Jane Doe, to2@example.com|John Doe".
+$email_recipients = getenv_required('VORTEX_NOTIFY_EMAIL_RECIPIENTS');
+
+// Email notification subject template.
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+$email_subject = getenv_default('VORTEX_NOTIFY_EMAIL_SUBJECT', '%project% deployment notification');
+```
+
+### Real-World Example
+
+See `src/notify-email` for a complete example following this structure.
 
 ## Testing Architecture
 
@@ -118,8 +237,98 @@ The package uses **three types of tests**:
 - Use `$this->envUnsetPrefix('PREFIX_')` for unsetting all variables with a prefix
 - NEVER use `putenv()` directly - always use EnvTrait methods for automatic cleanup
 
+**Data Providers - Use Them Extensively**:
+- **ALWAYS use data providers** to reduce test duplication when testing the same logic with different inputs
+- Use `#[DataProvider('dataProviderMethodName')]` attribute on test methods
+- Data provider method names must start with `dataProvider` prefix (e.g., `dataProviderHttpMethods`, not `providerHttpMethods`)
+- Data provider methods must be `public static` and return an array
+
+**Advanced Data Provider Patterns**:
+
+When tests need setup or additional assertions, use closures in data provider arrays:
+
+```php
+public static function dataProviderWithSetupAndAssertions(): array {
+  return [
+    'scenario name' => [
+      'input' => 'test value',
+      'expected' => 'expected value',
+      'before' => function(self $test): void {
+        // Setup code executed before the test
+        $test->envSet('SOME_VAR', 'value');
+        $test->mockShellExec('output');
+      },
+      'after' => function(self $test, $result): void {
+        // Additional assertions executed after the test
+        $test->assertStringContainsString('expected', $result);
+        $test->assertFileExists('/tmp/test.txt');
+      },
+    ],
+  ];
+}
+
+#[DataProvider('dataProviderWithSetupAndAssertions')]
+public function testWithSetupAndAssertions(
+  string $input,
+  string $expected,
+  ?\Closure $before = NULL,
+  ?\Closure $after = NULL
+): void {
+  // Execute before closure if provided
+  if ($before !== NULL) {
+    $before($this);
+  }
+
+  // Main test logic
+  $result = someFunction($input);
+  $this->assertEquals($expected, $result);
+
+  // Execute after closure if provided
+  if ($after !== NULL) {
+    $after($this, $result);
+  }
+}
+```
+
+**When to Use Before/After Closures**:
+- **Before**: When different test cases need different mock setups, environment variables, or file preparations
+- **After**: When different test cases need additional scenario-specific assertions beyond the main test logic
+- **Avoid**: Don't use closures for simple cases - keep data providers simple when possible
+
+**Real-World Example from Codebase**:
+
+See `tests/Self/MockShellExecSelfTest.php` for simple data provider usage:
+
+```php
+#[DataProvider('dataProviderMockShellExec')]
+public function testMockShellExec(string|null|false $mock_value): void {
+  $this->mockShellExec($mock_value);
+  $result = shell_exec('echo "test"');
+
+  if ($mock_value === NULL) {
+    $this->assertNull($result);
+  }
+  elseif ($mock_value === FALSE) {
+    $this->assertFalse($result);
+  }
+  else {
+    $this->assertEquals($mock_value, $result);
+  }
+}
+
+public static function dataProviderMockShellExec(): array {
+  return [
+    'string output' => ['command output'],
+    'null output' => [NULL],
+    'false output' => [FALSE],
+    'empty string output' => [''],
+  ];
+}
+```
+
+This replaces 4 separate test methods with a single parameterized test.
+
 **Documentation**:
-- Data provider method names should start with `dataProvider` prefix (e.g., `dataProviderHttpMethods`, not `providerHttpMethods`)
 - Block comments (PHPDoc /** ... */) are ONLY allowed on test classes, NOT on methods
 - Do NOT add block comments to test methods, data provider methods, or helper methods
 - Inline comments (// ...) are acceptable for explaining logic within method bodies
@@ -276,7 +485,7 @@ The mock API mirrors the actual request function signatures for consistency and 
 ```php
 // Mock request() - matches request() signature + $response parameter
 mockRequest(
-  string $url,
+  string $deploy_webhook_url,
   array $options = [],
   array $response = [],
   string $namespace = 'DrevOps\\VortexTooling'
@@ -284,7 +493,7 @@ mockRequest(
 
 // Mock request_get() - matches request_get() signature + $response parameter
 mockRequestGet(
-  string $url,
+  string $deploy_webhook_url,
   array $headers = [],
   int $timeout = 10,
   array $response = [],
@@ -293,7 +502,7 @@ mockRequestGet(
 
 // Mock request_post() - matches request_post() signature + $response parameter
 mockRequestPost(
-  string $url,
+  string $deploy_webhook_url,
   $body = NULL,
   array $headers = [],
   int $timeout = 10,

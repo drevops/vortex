@@ -170,6 +170,7 @@ else
     if [ "${is_redeploy:-}" = "1" ]; then
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
+      # @todo Review and remove this workaround as the issue is fixed.
       task "Setting a DB overwrite flag to 0."
       lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
 
