@@ -119,4 +119,28 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     }
   }
 
+  /**
+   * Capture the output of a callable.
+   *
+   * @param callable $callback
+   *   The callable to execute.
+   *
+   * @return string
+   *   The captured output.
+   *
+   * @throws \Throwable
+   *   Rethrows any exception thrown by the callback.
+   */
+  protected function captureOutput(callable $callback): string {
+    ob_start();
+    try {
+      $callback();
+    }
+    catch (\Throwable $e) {
+      $output = ob_get_clean();
+      throw $e;
+    }
+    return ob_get_clean() ?: '';
+  }
+
 }

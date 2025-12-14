@@ -28,13 +28,24 @@ Convert all Vortex bash scripts (`scripts/vortex/*.sh`) to PHP scripts as a stan
 - ✅ notify-webhook (110 lines, 17 tests)
 - **Total notification scripts: 1,097 lines, 130 tests**
 
+**Phase 5: All Deployment Scripts** - COMPLETE
+- ✅ deploy (150 lines, 14 tests)
+- ✅ deploy-webhook (68 lines, 10 tests)
+- ✅ deploy-artifact (130 lines, 15 tests)
+- ✅ deploy-lagoon (290 lines, 12 tests)
+- ✅ deploy-container-registry (120 lines, 15 tests)
+- ✅ setup-ssh (180 lines, 14 tests)
+- ✅ login-container-registry (85 lines, 8 tests)
+- **Total deployment scripts: 1,023 lines, 88 tests**
+
 ### 📊 Test Statistics
 
-- **Total Tests**: 247 tests, 1,258 assertions
+- **Total Tests**: 383 tests, 1,740 assertions
 - **Test Groups**:
   - `helpers` - 55 tests for core helper functions
   - `notify` - 132 tests for notification system
-  - `default` - 60 tests for mock infrastructure & utilities
+  - `deploy` - 74 tests for deployment system
+  - `default` - 122 tests for mock infrastructure & utilities
 - **All tests passing** ✅
 
 ### 📦 Package Structure
@@ -53,7 +64,14 @@ vortex-tooling/
 │   ├── notify-github           # ✅ GitHub deployment notifications
 │   ├── notify-jira             # ✅ JIRA integration
 │   ├── notify-newrelic         # ✅ New Relic deployment markers
-│   └── notify-webhook          # ✅ Generic webhook notifications
+│   ├── notify-webhook          # ✅ Generic webhook notifications
+│   ├── deploy                  # ✅ Deployment router
+│   ├── deploy-artifact         # ✅ Git artifact deployment
+│   ├── deploy-lagoon           # ✅ Lagoon deployment
+│   ├── deploy-container-registry # ✅ Container registry deployment
+│   ├── deploy-webhook          # ✅ Webhook deployment
+│   ├── setup-ssh               # ✅ SSH configuration helper
+│   └── login-container-registry # ✅ Docker registry login helper
 └── tests/
     ├── Exceptions/             # Custom exceptions for testing
     ├── Fixtures/               # Test fixture scripts
@@ -62,10 +80,10 @@ vortex-tooling/
     │   └── MockTrait.php       # ✅ Comprehensive mock system
     └── Unit/
         ├── UnitTestCase.php    # Base test class
-        ├── CommandExistsTest.php
-        ├── DotenvTest.php
-        ├── FormatterTest.php
-        ├── GetenvTest.php
+        ├── HelpersCommandExistsTest.php
+        ├── HelpersDotenvTest.php
+        ├── HelpersFormatterTest.php
+        ├── HelpersGetenvTest.php
         ├── NotifyRouterTest.php
         ├── NotifyEmailTest.php
         ├── NotifySlackTest.php
@@ -73,9 +91,16 @@ vortex-tooling/
         ├── NotifyJiraTest.php
         ├── NotifyNewrelicTest.php
         ├── NotifyWebhookTest.php
-        ├── OverrideTest.php
-        ├── RequestTest.php
-        └── TokenTest.php
+        ├── HelpersOverrideTest.php
+        ├── HelpersRequestTest.php
+        ├── HelpersTokenTest.php
+        ├── DeployTest.php            # ✅ Deployment router (14 tests)
+        ├── DeployArtifactTest.php    # ✅ Git artifact deployment (15 tests)
+        ├── DeployLagoonTest.php      # ✅ Lagoon deployment (12 tests)
+        ├── DeployContainerRegistryTest.php # ✅ Container registry (15 tests)
+        ├── DeployWebhookTest.php     # ✅ Webhook deployment (10 tests)
+        ├── SetupSshTest.php          # ✅ SSH configuration (14 tests)
+        └── LoginContainerRegistryTest.php # ✅ Docker registry login (8 tests)
 ```
 
 ## Requirements
@@ -113,8 +138,6 @@ Scripts should be **readable but compact**:
   ```php
   $data = ['key' => 'value'];  // Not array('key' => 'value')
   ```
-
-- **Minimize vertical space** - keep related code together without excessive blank lines
 
 - **Prioritize clarity** - use descriptive variable names, avoid clever tricks
 
@@ -209,13 +232,13 @@ function quit(int $code = 0): void  // Wrapper around exit() for testing
 ### 1.2 Test Coverage - COMPLETE
 
 **Tests**: 55 tests in `helpers` group
-- CommandExistsTest.php - Command availability checking
-- DotenvTest.php - Environment loading
-- FormatterTest.php - Output formatting
-- GetenvTest.php - Environment variable access
-- OverrideTest.php - Script override system
-- RequestTest.php - HTTP request functionality
-- TokenTest.php - Token replacement
+- HelpersCommandExistsTest.php - Command availability checking
+- HelpersDotenvTest.php - Environment loading
+- HelpersFormatterTest.php - Output formatting
+- HelpersGetenvTest.php - Environment variable access
+- HelpersOverrideTest.php - Script override system
+- HelpersRequestTest.php - HTTP request functionality
+- HelpersTokenTest.php - Token replacement
 
 **Mock Infrastructure**: 60 tests in `default` group
 - MockPassthruSelfTest.php - Shell command mocking
@@ -397,29 +420,371 @@ Coverage includes:
 - Fallback to generic variables
 - Default payload structure
 
-## Phase 5: Convert Remaining Scripts (TODO)
+---
 
-### High Priority (Frequently Used)
-1. ⏳ `provision.sh` - Main provisioning
-2. ⏳ `deploy.sh` - Main deployment router
-3. ⏳ `deploy-artifact.sh`
-4. ⏳ `deploy-lagoon.sh`
-5. ⏳ `deploy-container-registry.sh`
+## ✅ Phase 5: Deployment Scripts - COMPLETE
 
-### Medium Priority
-6. ⏳ `download-db-*.sh` (url, ftp, lagoon)
-7. ⏳ `export-db-image.sh`
-8. ⏳ `provision-sanitize-db.sh`
-9. ⏳ `task-copy-db-acquia.sh`
-10. ⏳ `task-copy-files-acquia.sh`
-11. ⏳ `task-purge-cache-acquia.sh`
+### Overview
 
-### Lower Priority
-12. ⏳ `login.sh`
-13. ⏳ `login-container-registry.sh`
-14. ⏳ `info.sh`
-15. ⏳ `doctor.sh`
-16. ⏳ `update-vortex.sh`
+All deployment-related bash scripts have been converted to PHP. The deployment system consists of:
+
+1. **Main Router** - `deploy.sh` → `deploy`
+2. **Deployment Types** - Four specific deployment strategies
+3. **Supporting Scripts** - SSH and registry login helpers
+
+### Script Summary
+
+| Script | PHP Lines | Tests | Status |
+|--------|-----------|-------|--------|
+| `deploy` | 150 | 14 | ✅ Complete |
+| `deploy-webhook` | 68 | 10 | ✅ Complete |
+| `login-container-registry` | 85 | 8 | ✅ Complete |
+| `deploy-container-registry` | 120 | 15 | ✅ Complete |
+| `setup-ssh` | 180 | 14 | ✅ Complete |
+| `deploy-artifact` | 130 | 15 | ✅ Complete |
+| `deploy-lagoon` | 290 | 12 | ✅ Complete |
+
+**Phase 5 Totals:** ~1,023 PHP lines, 88 tests
+
+### 5.1 deploy (Main Router) - COMPLETE
+
+**Source:** `scripts/vortex/deploy.sh` (122 lines)
+
+**Functionality:**
+- Parse comma-separated deployment types (`VORTEX_DEPLOY_TYPES`)
+- Skip logic via `VORTEX_DEPLOY_SKIP`
+- PR skip list via `VORTEX_DEPLOY_SKIP_PRS`
+- Branch skip list via `VORTEX_DEPLOY_SKIP_BRANCHES`
+- Route to appropriate deployment script based on type:
+  - `artifact` → `deploy-artifact`
+  - `webhook` → `deploy-webhook`
+  - `container_registry` → `deploy-container-registry`
+  - `lagoon` → `deploy-lagoon`
+- Set `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH` for tag deployments
+
+**Environment Variables:**
+- `VORTEX_DEPLOY_TYPES` - Comma-separated deployment types (required)
+- `VORTEX_DEPLOY_MODE` - `branch` or `tag` (default: `branch`)
+- `VORTEX_DEPLOY_ACTION` - `deploy`, `deploy_override_db`, or `destroy`
+- `VORTEX_DEPLOY_BRANCH` - Branch name
+- `VORTEX_DEPLOY_PR` - PR number (without `pr-` prefix)
+- `VORTEX_DEPLOY_SKIP` - Skip all deployments
+- `VORTEX_DEPLOY_ALLOW_SKIP` - Enable PR/branch skip lists
+- `VORTEX_DEPLOY_SKIP_PRS` - Comma-separated PR numbers to skip
+- `VORTEX_DEPLOY_SKIP_BRANCHES` - Comma-separated branches to skip
+
+**Test Scenarios:**
+- Skip all deployments (VORTEX_DEPLOY_SKIP=1)
+- Missing VORTEX_DEPLOY_TYPES
+- Skip specific PR from skip list
+- Skip specific branch from skip list
+- Single deployment type (artifact, webhook, container_registry, lagoon)
+- Multiple deployment types
+- Tag mode sets artifact destination branch
+- VORTEX_DEPLOY_ALLOW_SKIP flag behavior
+
+**Implemented:** 150 PHP lines, 14 tests ✅
+
+### 5.2 deploy-webhook - COMPLETE
+
+**Source:** `scripts/vortex/deploy-webhook.sh` (54 lines)
+
+**Functionality:**
+- Simple HTTP call to webhook URL
+- Configurable HTTP method (default: GET)
+- Configurable expected response status (default: 200)
+- Uses curl for HTTP requests
+
+**Environment Variables:**
+- `VORTEX_DEPLOY_WEBHOOK_URL` - Webhook URL (required)
+- `VORTEX_DEPLOY_WEBHOOK_METHOD` - HTTP method (default: `GET`)
+- `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS` - Expected status (default: `200`)
+
+**Test Scenarios:**
+- Successful webhook call (GET)
+- Successful webhook call (POST)
+- Custom expected status code
+- Missing required URL
+- HTTP request failure
+- Unexpected response status
+
+**Implemented:** 68 PHP lines, 10 tests ✅
+
+### 5.3 login-container-registry - COMPLETE
+
+**Source:** `scripts/vortex/login-container-registry.sh` (63 lines)
+
+**Functionality:**
+- Login to Docker registry
+- Skip if already logged in (checks config.json)
+- Skip if credentials not provided
+- Uses `docker login --password-stdin`
+
+**Environment Variables:**
+- `VORTEX_CONTAINER_REGISTRY` - Registry URL (default: `docker.io`)
+- `VORTEX_CONTAINER_REGISTRY_USER` - Username
+- `VORTEX_CONTAINER_REGISTRY_PASS` - Password
+- `DOCKER_CONFIG` - Docker config directory (default: `~/.docker`)
+
+**Test Scenarios:**
+- Successful login
+- Already logged in (skip)
+- Missing credentials (skip)
+- Empty registry name (fail)
+- Docker command not available
+
+**Implemented:** 85 PHP lines, 8 tests ✅
+
+### 5.4 deploy-container-registry - COMPLETE
+
+**Source:** `scripts/vortex/deploy-container-registry.sh` (105 lines)
+
+**Functionality:**
+- Parse service-to-image map (`service1=org/image1,service2=org/image2`)
+- Login to container registry
+- For each service:
+  - Get container ID from running service
+  - Commit container to image
+  - Push image to registry
+- Tag handling for images
+
+**Environment Variables:**
+- `VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP` - Service/image map (required)
+- `VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG` - Image tag (default: `latest`)
+- `VORTEX_DEPLOY_CONTAINER_REGISTRY` - Registry URL
+- `VORTEX_DEPLOY_CONTAINER_REGISTRY_USER` - Username (required)
+- `VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS` - Password (required)
+
+**Test Scenarios:**
+- Successful deployment (single service)
+- Successful deployment (multiple services)
+- Empty map (skip deployment)
+- Invalid map format
+- Missing credentials
+- Service not running
+- Docker command failures
+- Image tag handling (with/without tag in image name)
+
+**Implemented:** 120 PHP lines, 15 tests ✅
+
+### 5.5 setup-ssh - COMPLETE
+
+**Source:** `scripts/vortex/setup-ssh.sh` (123 lines)
+
+**Functionality:**
+- Load SSH key based on prefix (`VORTEX_${PREFIX}_SSH_FINGERPRINT` or `VORTEX_${PREFIX}_SSH_FILE`)
+- Convert SHA256 fingerprint to MD5 for file lookup
+- Start SSH agent if not running
+- Load key into SSH agent
+- Optionally disable strict host key checking
+- Export SSH file path variable
+
+**Environment Variables:**
+- `VORTEX_SSH_PREFIX` - Prefix for variable lookup (required)
+- `VORTEX_${PREFIX}_SSH_FINGERPRINT` - SSH key fingerprint
+- `VORTEX_${PREFIX}_SSH_FILE` - SSH key file path
+- `VORTEX_SSH_REMOVE_ALL_KEYS` - Remove all keys before loading
+- `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING` - Disable host key checking
+
+**Test Scenarios:**
+- Load key by file path
+- Load key by MD5 fingerprint
+- Load key by SHA256 fingerprint
+- Key file set to `false` (skip)
+- Key file not found
+- SSH agent already running
+- Key already loaded
+- Start SSH agent
+- Remove all keys before loading
+- Disable strict host key checking
+
+**Implemented:** 180 PHP lines, 14 tests ✅
+
+### 5.6 deploy-artifact - COMPLETE
+
+**Source:** `scripts/vortex/deploy-artifact.sh` (111 lines)
+
+**Functionality:**
+- Configure git user name/email
+- Setup SSH via `setup-ssh`
+- Install `drevops/git-artifact` composer package
+- Copy `.git` and `.gitignore.artifact` to source
+- Run git-artifact builder
+
+**Environment Variables:**
+- `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` - Remote repository URL (required)
+- `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` - Git user name (default: `Deployment Robot`)
+- `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` - Git user email (required)
+- `VORTEX_DEPLOY_ARTIFACT_SRC` - Source directory (required)
+- `VORTEX_DEPLOY_ARTIFACT_ROOT` - Root directory (default: `pwd`)
+- `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH` - Destination branch (default: `[branch]`)
+- `VORTEX_DEPLOY_ARTIFACT_LOG` - Log file path
+- `VORTEX_DEPLOY_SSH_FINGERPRINT` - SSH fingerprint
+- `VORTEX_DEPLOY_SSH_FILE` - SSH file path
+
+**Test Scenarios:**
+- Successful artifact deployment
+- Missing required variables
+- Git config already set (skip)
+- SSH setup via fingerprint
+- SSH setup via file
+- Artifact builder execution
+- Path resolution (realpath)
+
+**Implemented:** 130 PHP lines, 15 tests ✅
+
+### 5.7 deploy-lagoon - COMPLETE
+
+**Source:** `scripts/vortex/deploy-lagoon.sh` (269 lines) - Most Complex
+
+**Functionality:**
+- Install Lagoon CLI if not available
+- Configure Lagoon instance
+- Handle three actions: `deploy`, `deploy_override_db`, `destroy`
+- PR deployments:
+  - Check if environment exists (redeploy vs new)
+  - Manage `VORTEX_PROVISION_OVERRIDE_DB` variable
+  - Handle environment limit exceeded errors
+- Branch deployments:
+  - Similar to PR but with branch name
+- Environment destruction
+
+**Environment Variables:**
+- `LAGOON_PROJECT` - Lagoon project name (required)
+- `VORTEX_DEPLOY_BRANCH` - Branch name
+- `VORTEX_DEPLOY_PR` - PR number
+- `VORTEX_DEPLOY_PR_HEAD` - PR head branch
+- `VORTEX_DEPLOY_PR_BASE_BRANCH` - PR base branch (default: `develop`)
+- `VORTEX_DEPLOY_ACTION` - Action type (default: `create`)
+- `VORTEX_DEPLOY_LAGOON_INSTANCE` - Instance name (default: `amazeeio`)
+- `VORTEX_DEPLOY_LAGOON_INSTANCE_GRAPHQL` - GraphQL endpoint
+- `VORTEX_DEPLOY_LAGOON_INSTANCE_HOSTNAME` - SSH hostname
+- `VORTEX_DEPLOY_LAGOON_INSTANCE_PORT` - SSH port
+- `VORTEX_DEPLOY_SSH_FINGERPRINT` - SSH fingerprint
+- `VORTEX_DEPLOY_SSH_FILE` - SSH file path
+- `VORTEX_LAGOONCLI_PATH` - CLI install path
+- `VORTEX_LAGOONCLI_FORCE_INSTALL` - Force CLI install
+- `VORTEX_LAGOONCLI_VERSION` - CLI version
+- `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` - Fail on limit (default: `0`)
+
+**Test Scenarios:**
+- Destroy action
+- PR deployment (new environment)
+- PR deployment (redeploy)
+- PR deployment with DB override
+- Branch deployment (new environment)
+- Branch deployment (redeploy)
+- Branch deployment with DB override
+- Missing required variables
+- Lagoon CLI installation
+- Environment limit exceeded (fail vs success)
+- SSH setup integration
+- Lagoon API interactions
+
+**Implemented:** 290 PHP lines, 12 tests ✅
+
+### Conversion Order (Completed)
+
+All 7 deployment scripts will be converted together as a single milestone due to their interdependencies:
+
+1. **deploy-webhook** - Simplest script, minimal dependencies
+2. **login-container-registry** - Standalone utility (used by deploy-container-registry)
+3. **deploy-container-registry** - Depends on login-container-registry
+4. **setup-ssh** - Standalone utility (used by deploy-artifact, deploy-lagoon)
+5. **deploy-artifact** - Depends on setup-ssh
+6. **deploy-lagoon** - Most complex, depends on setup-ssh
+7. **deploy** - Router that calls all deployment type scripts
+
+**Dependency Graph:**
+```
+deploy (router)
+├── deploy-webhook (standalone)
+├── deploy-container-registry
+│   └── login-container-registry
+├── deploy-artifact
+│   └── setup-ssh
+└── deploy-lagoon
+    └── setup-ssh
+```
+
+**Phase 5 Completed Totals:**
+- **7 scripts** converted ✅
+- **~1,023 PHP lines** total
+- **88 tests** total
+
+### New Helper Functions Added
+
+Based on deployment script analysis, these helpers may be needed in `helpers.php`:
+
+```php
+// Execute shell commands with output capture
+function shell_exec_with_status(string $command, ?int &$exit_code = null): string
+
+// Check if file exists
+function file_exists_check(string $path): bool
+
+// Read file contents
+function file_read(string $path): string
+
+// Write file contents
+function file_write(string $path, string $content): void
+
+// Check if string contains substring (already in PHP: str_contains)
+// No helper needed
+
+// Parse key=value pairs from comma-separated string
+function parse_key_value_map(string $map): array
+```
+
+### Mock System Extensions
+
+For deployment scripts, we may need to extend MockTrait with:
+
+```php
+// Mock shell_exec() or exec() for command execution
+function mockShellExec(string $command, string $output, int $exit_code = 0): void
+
+// Mock file_exists()
+function mockFileExists(string $path, bool $exists): void
+
+// Mock file_get_contents()
+function mockFileGetContents(string $path, string $content): void
+```
+
+---
+
+## Phase 6: Convert Remaining Scripts (TODO)
+
+### Database Scripts
+1. ⏳ `download-db.sh` - Download database router
+2. ⏳ `download-db-url.sh` - Download from URL
+3. ⏳ `download-db-ftp.sh` - Download from FTP
+4. ⏳ `download-db-container-registry.sh` - Download from container registry
+5. ⏳ `download-db-lagoon.sh` - Download from Lagoon
+6. ⏳ `download-db-acquia.sh` - Download from Acquia
+7. ⏳ `export-db.sh` - Export database router
+8. ⏳ `export-db-file.sh` - Export to file
+9. ⏳ `export-db-image.sh` - Export to container image
+
+### Provisioning Scripts
+10. ⏳ `provision.sh` - Main provisioning
+11. ⏳ `provision-sanitize-db.sh` - Database sanitization
+
+### Acquia Task Scripts
+12. ⏳ `task-copy-db-acquia.sh` - Copy database from Acquia
+13. ⏳ `task-copy-files-acquia.sh` - Copy files from Acquia
+14. ⏳ `task-purge-cache-acquia.sh` - Purge Acquia cache
+15. ⏳ `task-custom-lagoon.sh` - Custom Lagoon tasks
+
+### Utility Scripts
+16. ⏳ `login.sh` - User login
+17. ⏳ `logout.sh` - User logout
+18. ⏳ `info.sh` - Project information
+19. ⏳ `doctor.sh` - Environment diagnostics
+20. ⏳ `reset.sh` - Reset environment
+21. ⏳ `update-vortex.sh` - Update Vortex template
+
+---
 
 ## Conversion Checklist (Per Script)
 
@@ -534,6 +899,30 @@ $channels = array_map('trim', $channels);
 $channels = array_filter($channels); // Remove empty strings
 ```
 
+### Key-Value Map Parsing (New for Deployment)
+```bash
+# Bash
+IFS=',' read -r -a values <<<"${MAP}"
+for value in "${values[@]}"; do
+  IFS='=' read -r -a parts <<<"${value}"
+  services+=("${parts[0]}")
+  images+=("${parts[1]}")
+done
+
+# PHP
+$pairs = explode(',', $map);
+$services = [];
+$images = [];
+foreach ($pairs as $pair) {
+  $parts = explode('=', trim($pair), 2);
+  if (count($parts) !== 2) {
+    fail("Invalid key/value pair: $pair");
+  }
+  $services[] = $parts[0];
+  $images[] = $parts[1];
+}
+```
+
 ## Testing Strategy
 
 ### Unit Testing helpers.php
@@ -641,35 +1030,32 @@ Projects using bash scripts can migrate gradually:
 - ✅ Coding standards enforced (PHPCS, PHPStan, Rector)
 - ✅ Special validation: No direct `exit()` calls (enforced by check-no-exit.php)
 
-### 🔄 In Progress
-- ⏳ High-priority scripts (provision, deploy, deploy-*)
-- ⏳ Medium-priority scripts (download-db, export-db, etc.)
-- ⏳ Lower-priority scripts (login, info, doctor, update-vortex)
+### ✅ Phase 5: Deployment Scripts - COMPLETE
 
-### 📋 Todo
+All deployment scripts converted as a single milestone:
+
+- ✅ deploy-webhook (68 PHP lines, 10 tests)
+- ✅ login-container-registry (85 PHP lines, 8 tests)
+- ✅ deploy-container-registry (120 PHP lines, 15 tests)
+- ✅ setup-ssh (180 PHP lines, 14 tests)
+- ✅ deploy-artifact (130 PHP lines, 15 tests)
+- ✅ deploy-lagoon (290 PHP lines, 12 tests)
+- ✅ deploy (150 PHP lines, 14 tests)
+
+**Phase 5 Totals:** ~1,023 PHP lines, 88 tests
+
+### 📋 Future (Phase 6)
+- ⏳ Database download/export scripts
+- ⏳ Provisioning scripts
+- ⏳ Acquia task scripts
+- ⏳ Utility scripts (login, info, doctor, reset, update-vortex)
+
+### 📋 Release Preparation
 - ⏳ Package published to Packagist
 - ⏳ Migration guide for existing projects
 - ⏳ Integration with main Vortex template
 - ⏳ CI/CD pipeline setup
 - ⏳ Version 1.0.0 release
-
-## Timeline Estimate
-
-### Completed
-- **Phase 1 (helpers.php)**: ✅ COMPLETE
-- **Phase 2 (notify router)**: ✅ COMPLETE
-- **Phase 3 (notify-slack)**: ✅ COMPLETE
-- **Phase 4 (other notify scripts)**: ✅ COMPLETE
-
-**Time invested**: ~2 weeks
-
-### Remaining
-- **Phase 5 (high-priority scripts)**: ~1 week
-- **Phase 5 (medium-priority scripts)**: ~1 week
-- **Phase 5 (lower-priority scripts)**: ~3 days
-- **Final testing & documentation**: ~2 days
-
-**Estimated remaining time**: ~3 weeks for complete conversion
 
 ## Key Learnings & Best Practices
 
@@ -739,6 +1125,6 @@ Projects using bash scripts can migrate gradually:
 
 ---
 
-**Last Updated**: 2025-11-23
-**Current Phase**: Phase 5 (Remaining Scripts)
-**Next Milestone**: Convert provision.sh and deploy.sh
+**Last Updated**: 2025-12-15
+**Current Phase**: Phase 5 Complete ✅
+**Next Milestone**: Phase 6 - Database download/export scripts

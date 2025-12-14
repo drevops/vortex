@@ -121,7 +121,8 @@ function load_dotenv(array $env_files = ['.env']): void {
  * $value = getenv_default('MY_VAR', 'default');
  * @endcode
  */
-function getenv_default(...$args): string {
+// @phpstan-ignore-next-line return.unusedType
+function getenv_default(...$args): string|null|false {
   if (count($args) < 2) {
     throw new \InvalidArgumentException('getenv_default() requires at least 2 arguments: one or more variable names and a default value');
   }
@@ -275,15 +276,61 @@ function term_supports_color(): bool {
 }
 
 /**
- * Require a command to be available.
+ * Check if a command exists in the system.
+ *
+ * @param string $command
+ *   Command name.
+ *
+ * @return bool
+ *   TRUE if command exists, FALSE otherwise.
+ */
+function command_exists(string $command): bool {
+  exec(sprintf('command -v %s 2>/dev/null', $command), $output, $code);
+
+  return $code === 0;
+}
+
+/**
+ * Require a command to be available, or fail.
  *
  * @param string $command
  *   Command name.
  */
-function command_exists(string $command): void {
-  exec(sprintf('command -v %s 2>/dev/null', $command), $output, $code);
-  if ($code !== 0) {
+function command_must_exist(string $command): void {
+  if (!command_exists($command)) {
     fail(sprintf("Command '%s' is not available", $command));
+  }
+}
+
+/**
+ * Recursively copy a directory.
+ *
+ * @param string $src
+ *   Source directory path.
+ * @param string $dst
+ *   Destination directory path.
+ */
+function copy_dir(string $src, string $dst): void {
+  if (!is_dir($dst)) {
+    mkdir($dst, 0755, TRUE);
+  }
+
+  $iterator = new \RecursiveIteratorIterator(
+    new \RecursiveDirectoryIterator($src, \RecursiveDirectoryIterator::SKIP_DOTS),
+    \RecursiveIteratorIterator::SELF_FIRST
+  );
+
+  /** @var \RecursiveDirectoryIterator $item */
+  foreach ($iterator as $item) {
+    $target = $dst . DIRECTORY_SEPARATOR . $iterator->getSubPathname();
+    if ($item->isDir()) {
+      if (!is_dir($target)) {
+        mkdir($target, 0755, TRUE);
+      }
+    }
+    else {
+      copy($item->getPathname(), $target);
+    }
   }
 }
 
@@ -314,6 +361,43 @@ function replace_tokens(string $template, array $replacements): string {
   }
 
   return str_replace($search, $replace, $template);
+}
+
+/**
+ * Convert a string map to an associative array.
+ *
+ * @param string $map
+ *   String map in the format "key1=value1,key2=value2".
+ * @param string $separator
+ *   Separator between key/value pairs (default: ',').
+ * @param string $key_value_separator
+ *   Separator between key and value (default: '=').
+ *
+ * @return array<string,string>
+ *   Associative array of key/value pairs.
+ */
+function string_map_to_array(string $map, string $separator = ',', string $key_value_separator = '='): array {
+  $array = [];
+
+  // Return empty array for empty map.
+  if (empty(trim($map))) {
+    return $array;
+  }
+
+  $separator = empty($separator) ? ',' : $separator;
+  $key_value_separator = empty($key_value_separator) ? '=' : $key_value_separator;
+
+  $pairs = array_map('trim', explode($separator, $map));
+
+  foreach ($pairs as $pair) {
+    $parts = explode($key_value_separator, $pair, 2);
+    if (count($parts) !== 2) {
+      fail(sprintf('invalid key/value pair "%s" provided.', $pair));
+    }
+    $array[trim($parts[0])] = trim($parts[1]);
+  }
+
+  return $array;
 }
 
 /**
