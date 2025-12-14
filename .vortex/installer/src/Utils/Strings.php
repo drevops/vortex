@@ -85,7 +85,7 @@ class Strings {
     // Use simpler regex approach with direct string replacement.
     return preg_replace_callback(
       '/^(\s*)\/\*\*(.*?)\*\/(\n)?/ms',
-      [self::class, 'processDocblock'],
+      self::processDocblock(...),
       $content
     );
   }

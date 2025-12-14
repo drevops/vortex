@@ -42,7 +42,7 @@ class CommandRunner extends AbstractRunner {
     $symfony_command = $this->application->find($command);
     $input = new ArrayInput($input_args);
 
-    $positional_args = array_values(array_filter($args, fn($key): bool => is_int($key), ARRAY_FILTER_USE_KEY));
+    $positional_args = array_values(array_filter($args, is_int(...), ARRAY_FILTER_USE_KEY));
     $logger = $this->initLogger($command, $positional_args);
 
     $output = $this->resolveOutput($output);

@@ -30,7 +30,7 @@ class TaskOutput implements OutputInterface {
    */
   public function write(string|iterable $messages, bool $newline = FALSE, int $options = 0): void {
     $dimmed = is_iterable($messages)
-      ? array_map(fn(string $m): string => Tui::dim($m), (array) $messages)
+      ? array_map(Tui::dim(...), (array) $messages)
       : Tui::dim($messages);
     $this->wrapped->write($dimmed, $newline, $options);
   }
@@ -45,7 +45,7 @@ class TaskOutput implements OutputInterface {
    */
   public function writeln(string|iterable $messages, int $options = 0): void {
     $dimmed = is_iterable($messages)
-      ? array_map(fn(string $m): string => Tui::dim($m), (array) $messages)
+      ? array_map(Tui::dim(...), (array) $messages)
       : Tui::dim($messages);
     $this->wrapped->writeln($dimmed, $options);
   }
