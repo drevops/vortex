@@ -34,6 +34,7 @@ use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
@@ -52,6 +53,7 @@ return RectorConfig::configure()
   ->withSkip([
     // Specific rules to skip based on project coding standards.
     AddOverrideAttributeToOverriddenMethodsRector::class,
+    ArrayToFirstClassCallableRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     CompleteDynamicPropertiesRector::class,
