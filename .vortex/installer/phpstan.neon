@@ -14,6 +14,7 @@ parameters:
     - tests/Unit
     - tests/Functional
     - tests/Traits
+    - update-fixtures
 
   excludePaths:
     - vendor/*

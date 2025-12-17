@@ -40,6 +40,7 @@ return RectorConfig::configure()
     __DIR__ . '/tests/Functional',
     __DIR__ . '/tests/Unit',
     __DIR__ . '/tests/Traits',
+    __DIR__ . '/update-fixtures',
   ])
   ->withSkip([
     // Specific rules to skip based on project coding standards.

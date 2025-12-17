@@ -26,6 +26,7 @@
     <file>tests/Unit</file>
     <file>tests/Functional</file>
     <file>tests/Traits</file>
+    <file>update-fixtures</file>
 
     <!-- Allow incorrectly sorted namespaces in tests. -->
     <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses.IncorrectlyOrderedUses">

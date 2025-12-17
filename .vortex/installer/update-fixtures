@@ -1,0 +1,821 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Update test fixtures.
+ *
+ * This script runs PHPUnit with UPDATE_FIXTURES=1 for each dataset to avoid
+ * memory issues and handle hanging tests with timeouts and retries.
+ *
+ * Usage:
+ * @code
+ * ./update-fixtures [options] <test-name> <fixtures-path> [dataset]
+ * ./update-fixtures testHandlerProcess path/to/fixtures
+ * ./update-fixtures testHandlerProcess path/to/fixtures baseline
+ * ./update-fixtures --root=../.. testHandlerProcess path/to/fixtures
+ * @endcode
+ */
+
+declare(strict_types=1);
+
+// ----------------------------------------------------------------------------
+// Suffix appended to fixtures path to create baseline fixtures path.
+define('BASELINE_SUFFIX', '_baseline');
+
+// Name of the baseline dataset (will be run first).
+define('BASELINE_DATASET_NAME', 'baseline');
+
+// Commit message for baseline fixtures.
+define('COMMIT_MESSAGE_BASELINE', 'Updated baseline.');
+
+// Commit message for all fixtures.
+define('COMMIT_MESSAGE_FIXTURES', 'Updated fixtures.');
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Main functionality.
+ *
+ * @param array<string> $argv
+ *   Array of arguments.
+ * @param int $argc
+ *   Number of arguments.
+ */
+function main(array $argv, int $argc): void {
+  $config = parse_arguments($argv);
+
+  if ($config['help']) {
+    print_help();
+
+    return;
+  }
+
+  validate_config($config);
+  setup_signal_handlers();
+
+  // Change to script directory.
+  chdir(__DIR__);
+
+  // If dataset provided, run single PHPUnit command with filter.
+  if ($config['dataset'] !== '') {
+    run_single_dataset($config);
+
+    return;
+  }
+
+  // Run all datasets.
+  run_all_datasets($config);
+}
+
+/**
+ * Validate configuration has required arguments.
+ *
+ * @param array<string, mixed> $config
+ *   Configuration array.
+ */
+function validate_config(array $config): void {
+  if (empty($config['test_name'])) {
+    throw new \Exception('Missing required argument: <test-name>');
+  }
+
+  if (empty($config['fixtures_path'])) {
+    throw new \Exception('Missing required argument: <fixtures-path>');
+  }
+}
+
+/**
+ * Setup signal handlers for graceful interruption.
+ */
+function setup_signal_handlers(): void {
+  if (function_exists('pcntl_signal')) {
+    pcntl_signal(SIGINT, function (): void {
+      verbose("\nInterrupted by user\n");
+      exit(130);
+    });
+    pcntl_signal(SIGTERM, function (): void {
+      verbose("\nInterrupted by user\n");
+      exit(130);
+    });
+  }
+}
+
+/**
+ * Run a single dataset.
+ *
+ * @param array<string, mixed> $config
+ *   Configuration array.
+ */
+function run_single_dataset(array $config): void {
+  verbose("Scanning for dataset: %s\n", $config['dataset']);
+
+  $cmd = sprintf(
+    'XDEBUG_MODE=off UPDATE_FIXTURES=1 ./vendor/bin/phpunit --no-coverage --filter=%s',
+    escapeshellarg($config['test_name'] . '@' . $config['dataset'])
+  );
+
+  passthru($cmd, $exit_code);
+
+  if ($exit_code === 0) {
+    verbose("Completed successfully\n");
+
+    return;
+  }
+
+  throw new \Exception('Failed');
+}
+
+/**
+ * Run all datasets.
+ *
+ * @param array<string, mixed> $config
+ *   Configuration array.
+ */
+function run_all_datasets(array $config): void {
+  $start_time = time();
+  $baseline_committed = FALSE;
+  $baseline_path = rtrim((string) $config['fixtures_path'], '/') . '/' . BASELINE_SUFFIX;
+
+  $datasets = discover_datasets($config);
+  $total_datasets = count($datasets);
+
+  verbose("Found %d unique datasets\n", $total_datasets);
+
+  $stats = ['current' => 0, 'succeeded' => 0, 'failed' => 0, 'timedout' => 0];
+
+  foreach ($datasets as $dataset) {
+    $stats['current']++;
+
+    $result = run_with_timeout(
+      $config['test_name'] . '@' . $dataset,
+      $stats['current'],
+      $total_datasets,
+      $dataset,
+      $config['timeout'],
+      $config['retries'],
+      $config['debug']
+    );
+
+    // Handle baseline dataset specially.
+    if ($dataset === BASELINE_DATASET_NAME) {
+      $baseline_committed = handle_baseline_result($result, $config['root'], $baseline_path);
+    }
+
+    // Update statistics.
+    $stats = update_stats($stats, $result, $total_datasets);
+
+    // Exit on timeout.
+    if ($result === 2) {
+      throw new \Exception('Test timed out');
+    }
+  }
+
+  // Print summary.
+  print_summary($stats, $total_datasets);
+
+  // Handle failures.
+  if ($stats['failed'] > 0 || $stats['timedout'] > 0) {
+    commit_fixture_changes($config, $baseline_committed);
+    print_execution_time($start_time);
+
+    throw new \Exception('Some tests failed');
+  }
+
+  print_execution_time($start_time);
+}
+
+/**
+ * Discover all datasets from PHPUnit.
+ *
+ * @param array<string, mixed> $config
+ *   Configuration array.
+ *
+ * @return array<string>
+ *   Array of dataset names.
+ */
+function discover_datasets(array $config): array {
+  verbose("Discovering datasets...\n");
+
+  $cmd = sprintf(
+    'XDEBUG_MODE=off ./vendor/bin/phpunit --list-tests %s 2>/dev/null | grep "%s" || true',
+    escapeshellarg((string) $config['test_dir']),
+    $config['test_name']
+  );
+  $test_list = (string) shell_exec($cmd);
+
+  if (empty(trim($test_list))) {
+    throw new \Exception('No datasets found');
+  }
+
+  // Extract dataset names from test list.
+  // Format: " - ClassName::testMethodName"dataset_name"".
+  $pattern = '/' . preg_quote((string) $config['test_name'], '/') . '"([^"]+)"/';
+  preg_match_all($pattern, $test_list, $matches);
+  $datasets = array_unique($matches[1]);
+  sort($datasets);
+
+  // Ensure baseline dataset runs first.
+  if (in_array(BASELINE_DATASET_NAME, $datasets, TRUE)) {
+    $datasets = array_diff($datasets, [BASELINE_DATASET_NAME]);
+    array_unshift($datasets, BASELINE_DATASET_NAME);
+  }
+
+  return array_values($datasets);
+}
+
+/**
+ * Handle baseline test result and commit if needed.
+ *
+ * @param int $result
+ *   Test result (0 = success, 1 = failed, 2 = timeout).
+ * @param string $root
+ *   Git root directory.
+ * @param string $baseline_path
+ *   Path to baseline fixtures.
+ *
+ * @return bool
+ *   TRUE if baseline was committed.
+ */
+function handle_baseline_result(int $result, string $root, string $baseline_path): bool {
+  $original_dir = (string) getcwd();
+  chdir($root);
+
+  $committed = FALSE;
+
+  if (has_git_changes($baseline_path)) {
+    verbose("Baseline fixtures updated - committing and continuing...\n");
+    $committed = commit_changes($baseline_path, COMMIT_MESSAGE_BASELINE);
+
+    if ($committed) {
+      verbose("Baseline committed successfully. Continuing with remaining datasets...\n");
+    }
+  }
+
+  chdir($original_dir);
+
+  return $committed;
+}
+
+/**
+ * Commit changes to git.
+ *
+ * @param string $path
+ *   Path to add and commit.
+ * @param string $message
+ *   Commit message.
+ * @param bool $amend
+ *   Whether to amend the previous commit.
+ *
+ * @return bool
+ *   TRUE if commit succeeded.
+ */
+function commit_changes(string $path, string $message, bool $amend = FALSE): bool {
+  $add_result = 0;
+  passthru(sprintf('git add %s', escapeshellarg($path)), $add_result);
+
+  if ($add_result !== 0) {
+    verbose("Failed to stage changes.\n");
+
+    return FALSE;
+  }
+
+  $commit_cmd = $amend
+    ? sprintf('git commit --amend -m %s', escapeshellarg($message))
+    : sprintf('git commit -m %s', escapeshellarg($message));
+
+  $commit_result = 0;
+  passthru($commit_cmd, $commit_result);
+
+  if ($commit_result !== 0) {
+    verbose("Failed to commit changes.\n");
+
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Commit fixture changes after test failures.
+ *
+ * @param array<string, mixed> $config
+ *   Configuration array.
+ * @param bool $baseline_committed
+ *   Whether baseline was already committed.
+ */
+function commit_fixture_changes(array $config, bool $baseline_committed): void {
+  $original_dir = (string) getcwd();
+  chdir($config['root']);
+
+  if (has_git_changes($config['fixtures_path'])) {
+    if ($baseline_committed) {
+      if (commit_changes($config['fixtures_path'], COMMIT_MESSAGE_FIXTURES, TRUE)) {
+        verbose("Note: Amended baseline commit to include all fixture updates.\n");
+      }
+    }
+    else {
+      if (commit_changes($config['fixtures_path'], COMMIT_MESSAGE_FIXTURES)) {
+        verbose("Note: Created new commit for fixture updates.\n");
+      }
+    }
+  }
+
+  chdir($original_dir);
+}
+
+/**
+ * Update statistics based on test result.
+ *
+ * @param array<string, int> $stats
+ *   Current statistics.
+ * @param int $result
+ *   Test result (0 = success, 1 = failed, 2 = timeout).
+ * @param int $total
+ *   Total number of datasets.
+ *
+ * @return array<string, int>
+ *   Updated statistics.
+ */
+function update_stats(array $stats, int $result, int $total): array {
+  if ($result === 0) {
+    $stats['succeeded']++;
+  }
+  elseif ($result === 2) {
+    $stats['timedout']++;
+    print_summary($stats, $total);
+  }
+  else {
+    $stats['failed']++;
+  }
+
+  return $stats;
+}
+
+/**
+ * Print summary of test results.
+ *
+ * @param array<string, int> $stats
+ *   Test statistics.
+ * @param int $total
+ *   Total number of datasets.
+ */
+function print_summary(array $stats, int $total): void {
+  verbose(
+    "Total: %d | Succeeded: %d | Failed: %d | Timed out: %d\n",
+    $total,
+    $stats['succeeded'],
+    $stats['failed'],
+    $stats['timedout']
+  );
+}
+
+/**
+ * Print execution time.
+ *
+ * @param int $start_time
+ *   Start timestamp.
+ */
+function print_execution_time(int $start_time): void {
+  $elapsed = time() - $start_time;
+  verbose("Total execution time: %s\n", format_time($elapsed));
+}
+
+/**
+ * Parse command line arguments.
+ *
+ * @param array<string> $argv
+ *   Array of arguments.
+ *
+ * @return array<string, mixed>
+ *   Parsed configuration.
+ */
+function parse_arguments(array $argv): array {
+  $config = [
+    'help' => FALSE,
+    'debug' => FALSE,
+    'test_name' => '',
+    'fixtures_path' => '',
+    'dataset' => '',
+    'root' => '.',
+    'test_dir' => 'tests',
+    'timeout' => 30,
+    'retries' => 3,
+  ];
+
+  // Remove script name.
+  array_shift($argv);
+
+  $positional = [];
+
+  foreach ($argv as $arg) {
+    // Check for help flags.
+    if (in_array($arg, ['help', '--help', '-h', '-?'], TRUE)) {
+      $config['help'] = TRUE;
+      continue;
+    }
+
+    // Parse options with values (--option=value).
+    if (str_starts_with($arg, '--')) {
+      $config = parse_option($arg, $config);
+      continue;
+    }
+
+    // Collect positional arguments.
+    $positional[] = $arg;
+  }
+
+  // Assign positional arguments.
+  if (isset($positional[0])) {
+    $config['test_name'] = $positional[0];
+  }
+  if (isset($positional[1])) {
+    $config['fixtures_path'] = $positional[1];
+  }
+  if (isset($positional[2])) {
+    $config['dataset'] = $positional[2];
+  }
+
+  return $config;
+}
+
+/**
+ * Parse a single command line option.
+ *
+ * @param string $arg
+ *   The argument string (e.g., '--root=../..').
+ * @param array<string, mixed> $config
+ *   Current configuration.
+ *
+ * @return array<string, mixed>
+ *   Updated configuration.
+ */
+function parse_option(string $arg, array $config): array {
+  if (str_contains($arg, '=')) {
+    [$option, $value] = explode('=', substr($arg, 2), 2);
+  }
+  else {
+    $option = substr($arg, 2);
+    $value = '';
+  }
+
+  switch ($option) {
+    case 'root':
+      $config['root'] = $value;
+      break;
+
+    case 'test-dir':
+      $config['test_dir'] = $value;
+      break;
+
+    case 'timeout':
+      $config['timeout'] = (int) $value;
+      break;
+
+    case 'retries':
+      $config['retries'] = (int) $value;
+      break;
+
+    case 'debug':
+      $config['debug'] = TRUE;
+      break;
+  }
+
+  return $config;
+}
+
+/**
+ * Print help.
+ */
+function print_help(): void {
+  $script_name = basename(__FILE__);
+  $out = <<<EOF
+Update test fixtures
+--------------------
+
+This script runs PHPUnit with UPDATE_FIXTURES=1 for each dataset to avoid
+memory issues and handle hanging tests with timeouts and retries.
+
+Usage:
+  ./{$script_name} [options] <test-name> <fixtures-path> [dataset]
+
+Arguments:
+  test-name             Test method name pattern (e.g., 'testHandlerProcess').
+  fixtures-path         Path to fixtures directory (relative to --root).
+                        Baseline path is derived as '_baseline' subdirectory.
+  dataset               Optional dataset name to update (e.g., 'baseline').
+                        If not provided, all datasets will be updated.
+
+Options:
+  --root=<path>         Path to git root directory (default: .)
+  --test-dir=<path>     Directory containing tests (default: tests)
+  --timeout=<seconds>   Timeout for each test run (default: 30)
+  --retries=<count>     Max retries for timed out tests (default: 3)
+  --debug               Show PHPUnit output for failed tests.
+  --help                This help.
+
+Examples:
+  ./{$script_name} testHandlerProcess path/to/fixtures
+  ./{$script_name} testHandlerProcess path/to/fixtures baseline
+  ./{$script_name} --root=../.. testHandlerProcess path/to/fixtures
+  ./{$script_name} --test-dir=tests/Functional testHandlerProcess path/to/fixtures
+
+EOF;
+  verbose($out);
+}
+
+/**
+ * Run PHPUnit with timeout and retries.
+ *
+ * @param string $filter
+ *   The PHPUnit filter.
+ * @param int $current
+ *   Current dataset number.
+ * @param int $total
+ *   Total number of datasets.
+ * @param string $dataset
+ *   Dataset name.
+ * @param int $timeout
+ *   Timeout in seconds.
+ * @param int $max_retries
+ *   Maximum number of retries.
+ * @param bool $debug
+ *   Whether to print debug output on failure.
+ *
+ * @return int
+ *   0 = success, 1 = failed, 2 = timeout.
+ */
+function run_with_timeout(string $filter, int $current, int $total, string $dataset, int $timeout, int $max_retries, bool $debug = FALSE): int {
+  $attempt = 1;
+
+  verbose('[%d/%d] %s ', $current, $total, $dataset);
+
+  while ($attempt <= $max_retries) {
+    dispatch_signals();
+
+    $result = execute_phpunit($filter, $timeout);
+
+    if ($result['exit_code'] === 130) {
+      verbose("\n");
+      exit(130);
+    }
+
+    if ($result['exit_code'] === 0) {
+      verbose(" ✓\n");
+
+      return 0;
+    }
+
+    // Timeout - retry if attempts remain.
+    if ($result['exit_code'] === 124) {
+      if ($attempt < $max_retries) {
+        verbose(" TIMEOUT, retry %d/%d ", $attempt + 1, $max_retries);
+        $attempt++;
+        continue;
+      }
+
+      verbose(" ✗ TIMEOUT\n");
+      print_debug_output($debug, $result['output']);
+
+      return 2;
+    }
+
+    // Test failure - do not retry.
+    verbose(" ✗\n");
+    print_debug_output($debug, $result['output']);
+
+    return 1;
+  }
+
+  verbose(" ✗\n");
+
+  return 1;
+}
+
+/**
+ * Execute PHPUnit command with progress dots.
+ *
+ * @param string $filter
+ *   The PHPUnit filter.
+ * @param int $timeout
+ *   Timeout in seconds.
+ *
+ * @return array{exit_code: int, output: array<string>}
+ *   Array with exit code and output lines.
+ */
+function execute_phpunit(string $filter, int $timeout): array {
+  $cmd = sprintf(
+    'XDEBUG_MODE=off UPDATE_FIXTURES=1 timeout --foreground %ds ./vendor/bin/phpunit --no-coverage --filter=%s 2>&1',
+    $timeout,
+    escapeshellarg($filter)
+  );
+
+  $descriptors = [
+    0 => ['pipe', 'r'],
+    1 => ['pipe', 'w'],
+    2 => ['pipe', 'w'],
+  ];
+
+  $process = proc_open($cmd, $descriptors, $pipes);
+
+  if (!is_resource($process)) {
+    return ['exit_code' => 1, 'output' => []];
+  }
+
+  fclose($pipes[0]);
+  stream_set_blocking($pipes[1], FALSE);
+  stream_set_blocking($pipes[2], FALSE);
+
+  $output = [];
+  $last_dot_time = time();
+
+  while (TRUE) {
+    $status = proc_get_status($process);
+
+    // Collect output.
+    $output = collect_output($pipes, $output);
+
+    if (!$status['running']) {
+      break;
+    }
+
+    // Print progress dot every second.
+    if (time() > $last_dot_time) {
+      verbose('.');
+      $last_dot_time = time();
+    }
+
+    usleep(100000);
+    dispatch_signals();
+  }
+
+  // Collect remaining output.
+  $output = collect_output($pipes, $output);
+
+  fclose($pipes[1]);
+  fclose($pipes[2]);
+
+  $exit_code = proc_close($process);
+
+  return [
+    'exit_code' => $exit_code,
+    'output' => explode("\n", implode('', $output)),
+  ];
+}
+
+/**
+ * Collect output from process pipes.
+ *
+ * @param array<int, resource> $pipes
+ *   Process pipes.
+ * @param array<string> $output
+ *   Existing output.
+ *
+ * @return array<string>
+ *   Updated output.
+ */
+function collect_output(array $pipes, array $output): array {
+  $stdout = stream_get_contents($pipes[1]);
+  $stderr = stream_get_contents($pipes[2]);
+
+  if ($stdout !== '' && $stdout !== FALSE) {
+    $output[] = $stdout;
+  }
+  if ($stderr !== '' && $stderr !== FALSE) {
+    $output[] = $stderr;
+  }
+
+  return $output;
+}
+
+/**
+ * Dispatch pending signals.
+ */
+function dispatch_signals(): void {
+  if (function_exists('pcntl_signal_dispatch')) {
+    pcntl_signal_dispatch();
+  }
+}
+
+/**
+ * Print debug output if enabled.
+ *
+ * @param bool $debug
+ *   Whether debug is enabled.
+ * @param array<string> $output
+ *   Output lines.
+ */
+function print_debug_output(bool $debug, array $output): void {
+  if ($debug && !empty($output)) {
+    verbose("\n--- DEBUG OUTPUT ---\n%s\n--- END DEBUG ---\n\n", implode("\n", $output));
+  }
+}
+
+/**
+ * Check if git directory has changes.
+ *
+ * @param string $path
+ *   The path to check.
+ *
+ * @return bool
+ *   TRUE if there are changes.
+ */
+function has_git_changes(string $path): bool {
+  // Check for modified files (unstaged).
+  exec(sprintf('git diff --quiet %s 2>/dev/null', escapeshellarg($path)), $output, $exit_code);
+  if ($exit_code !== 0) {
+    return TRUE;
+  }
+
+  // Check for staged files.
+  exec(sprintf('git diff --cached --quiet %s 2>/dev/null', escapeshellarg($path)), $output, $exit_code);
+  if ($exit_code !== 0) {
+    return TRUE;
+  }
+
+  // Check for untracked files.
+  $untracked = (string) shell_exec(sprintf('git ls-files --others --exclude-standard %s 2>/dev/null', escapeshellarg($path)));
+
+  return !empty(trim($untracked));
+}
+
+/**
+ * Format elapsed time as minutes and seconds.
+ *
+ * @param int $seconds
+ *   Total seconds.
+ *
+ * @return string
+ *   Formatted time string.
+ */
+function format_time(int $seconds): string {
+  $minutes = intdiv($seconds, 60);
+  $secs = $seconds % 60;
+
+  return sprintf('%d minutes %d seconds', $minutes, $secs);
+}
+
+/**
+ * Show a verbose message and record messages into internal buffer.
+ *
+ * @param string $string
+ *   Message to print.
+ * @param bool|float|int|string|null ...$args
+ *   Arguments to sprintf() the message.
+ *
+ * @return array<string>
+ *   Array of messages.
+ */
+function verbose(string $string, ...$args): array {
+  $string = sprintf($string, ...$args);
+
+  static $buffer = [];
+  $buffer[] = $string;
+  if (empty(getenv('SCRIPT_QUIET'))) {
+    // @codeCoverageIgnoreStart
+    print $buffer[array_key_last($buffer)];
+    // @codeCoverageIgnoreEnd
+  }
+
+  return $buffer;
+}
+
+// ============================================================================
+// Entrypoint.
+// ============================================================================
+//
+// @codeCoverageIgnoreStart
+ini_set('display_errors', '1');
+
+if (PHP_SAPI !== 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
+  die('This script can be only ran from the command line.');
+}
+
+// Allow to skip the script run.
+if (getenv('SCRIPT_RUN_SKIP') != 1) {
+  set_error_handler(function (int $severity, string $message, string $file, int $line): bool {
+    if ((error_reporting() & $severity) === 0) {
+      // This error code is not included in error_reporting - continue
+      // execution with the normal error handler.
+      return FALSE;
+    }
+    throw new ErrorException($message, 0, $severity, $file, $line);
+  });
+
+  try {
+    $argv = is_array($_SERVER['argv'] ?? NULL) ? array_filter($_SERVER['argv'], is_string(...)) : [];
+    $argc = is_scalar($_SERVER['argc'] ?? NULL) ? (int) $_SERVER['argc'] : 0;
+    // The function should not provide an exit code but rather throw exceptions.
+    main($argv, $argc);
+  }
+  catch (\ErrorException $exception) {
+    if ($exception->getSeverity() <= E_USER_WARNING) {
+      verbose(PHP_EOL . 'RUNTIME ERROR: ' . $exception->getMessage() . PHP_EOL);
+      exit($exception->getCode() === 0 ? 1 : $exception->getCode());
+    }
+  }
+  catch (\Exception $exception) {
+    verbose(PHP_EOL . 'ERROR: ' . $exception->getMessage() . PHP_EOL);
+    exit($exception->getCode() == 0 ? 1 : $exception->getCode());
+  }
+}
+// @codeCoverageIgnoreEnd

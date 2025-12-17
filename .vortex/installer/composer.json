@@ -99,7 +99,6 @@
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
         "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
-        "update-baseline": "./update-fixtures.sh baseline",
-        "update-fixtures": "./update-fixtures.sh $@"
+        "update-fixtures": "./update-fixtures --root=../.. --test-dir=tests/Functional/Handlers testHandlerProcess .vortex/installer/tests/Fixtures/handler_process"
     }
 }
