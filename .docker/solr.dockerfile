@@ -5,7 +5,7 @@
 # @see https://hub.docker.com/r/uselagoon/solr-9-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr-drupal/9.Dockerfile
 
-FROM uselagoon/solr-9-drupal:25.12.0
+FROM uselagoon/solr-9-drupal:25.12.1
 
 # Solr jump-start config needs to be manually copied from the search_api_solr
 # Drupal module to .docker/config/solr/config-set.
