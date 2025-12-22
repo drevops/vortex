@@ -432,7 +432,7 @@ git clone https://git.drupalcode.org/project/module_name.git
 cd module_name
 
 # Checkout the exact version/tag used in project
-git checkout 1.2.3  # Replace with actual version
+git checkout __VERSION__  # Replace with actual version
 
 # Create working branch
 git checkout -b fix-description
@@ -581,11 +581,11 @@ Composer packages:
       "package": {
         "name": "vendor/library-name",
         "type": "drupal-library",
-        "version": "1.0.0",
+        "version": "__VERSION__",
         "source": {
           "type": "git",
           "url": "https://github.com/vendor/library-name",
-          "reference": "1.0.0"
+          "reference": "__VERSION__"
         }
       }
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Utils;
 
-use AlexSkrypnyk\File\ExtendedSplFileInfo;
+use AlexSkrypnyk\File\ContentFile\ContentFile;
 use AlexSkrypnyk\File\File as UpstreamFile;
 
 class File extends UpstreamFile {
@@ -57,7 +57,7 @@ class File extends UpstreamFile {
    *   value for the search string.
    */
   public static function replaceContentAsync(callable|array|string $replacements, ?string $replace = NULL): void {
-    static::addTaskDirectory(function (ExtendedSplFileInfo $file) use ($replacements, $replace): ExtendedSplFileInfo {
+    static::addDirectoryTask(function (ContentFile $file) use ($replacements, $replace): ContentFile {
       $content = $file->getContent();
 
       if (is_callable($replacements)) {
@@ -91,7 +91,7 @@ class File extends UpstreamFile {
    *   If TRUE, remove content between the start and end tokens.
    */
   public static function removeTokenAsync(string $token, bool $with_content = TRUE): void {
-    static::addTaskDirectory(function (ExtendedSplFileInfo $file) use ($token, $with_content): ExtendedSplFileInfo {
+    static::addDirectoryTask(function (ContentFile $file) use ($token, $with_content): ContentFile {
       $content = $file->getContent();
       $content = static::removeToken($content, '#;< ' . $token, '#;> ' . $token, $with_content);
       $file->setContent($content);

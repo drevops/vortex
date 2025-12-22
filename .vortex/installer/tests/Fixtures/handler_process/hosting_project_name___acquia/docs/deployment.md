@@ -46,8 +46,8 @@
 +7. Pushes created artifact to the Acquia Cloud repository:
 +   - for feature-based branches (i.e. `feature/ABC-123` or `bugfix/ABC-123`)
 +   the code is pushed to the branch with exactly the same name.
-+   - for release deployments, which are tag-based (i.e. `0.1.4`), the code is
-+   pushed to the branch `deployment/[tag]` (i.e. `deployment/0.1.4`).
++   - for release deployments, which are tag-based (i.e. `__VERSION__`), the code is
++   pushed to the branch `deployment/[tag]` (i.e. `deployment/__VERSION__`).
 +8. Acquia Cloud picks up recent push to the repository and
 +   runs [post code update hooks](hooks/dev/post-code-update) on the environments
 +   where code is already deployed.

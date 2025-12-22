@@ -94,17 +94,17 @@ commands:
       yarn --cwd=./docs run test
       yarn --cwd=./docs run spellcheck
 
-  # If there are changes to the fixtures - this command will re-run twice reporting error the first time.
-  update-fixtures:
+  # If there are changes to the snapshots - this command will re-run twice reporting error the first time.
+  update-snapshots:
     cmd: |
       export XDEBUG_MODE=off
-      composer --working-dir=tests update-fixtures
-      composer --working-dir=installer update-fixtures
+      composer --working-dir=tests update-snapshots
+      composer --working-dir=installer update-snapshots
 
-  update-fixtures-install:
+  update-snapshots-install:
     cmd: |
       ahoy install
-      ahoy update-fixtures
+      ahoy update-snapshots
 
   update-docs:
     usage: Update the documentation.

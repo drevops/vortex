@@ -402,9 +402,9 @@ EOF
     // into destination directory. Instead, we are removing all ignored files
     // and empty directories, making the src directory "clean", and then
     // recursively copying the whole directory.
-    $all = File::scandirRecursive($src, File::ignoredPaths(), TRUE);
-    $files = File::scandirRecursive($src);
-    $valid_files = File::scandirRecursive($src, File::ignoredPaths());
+    $all = File::scandir($src, File::ignoredPaths(), TRUE);
+    $files = File::scandir($src);
+    $valid_files = File::scandir($src, File::ignoredPaths());
     $dirs = array_diff($all, $valid_files);
     $ignored_files = array_diff($files, $valid_files);
 
@@ -425,7 +425,7 @@ EOF
 
     // Remove empty directories.
     foreach ($dirs as $dir) {
-      File::rmdirEmpty($dir);
+      File::rmdirIfEmpty($dir);
     }
 
     // Src directory is now "clean" - copy it to dst directory.

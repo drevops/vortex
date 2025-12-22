@@ -84,7 +84,7 @@
 +        [
 +          'LAGOON_KUBERNETES' => 1,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-+          'LAGOON_GIT_BRANCH' => 'release/1.2.3',
++          'LAGOON_GIT_BRANCH' => 'release/__VERSION__',
 +        ],
 +        self::ENVIRONMENT_STAGE,
 +      ],
@@ -100,7 +100,7 @@
 +        [
 +          'LAGOON_KUBERNETES' => 1,
 +          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-+          'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
++          'LAGOON_GIT_BRANCH' => 'hotfix/__VERSION__',
 +        ],
 +        self::ENVIRONMENT_STAGE,
 +      ],

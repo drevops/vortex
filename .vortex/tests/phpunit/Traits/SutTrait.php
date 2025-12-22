@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits;
 
 use AlexSkrypnyk\File\File;
-use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
-use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
+use AlexSkrypnyk\File\Testing\DirectoryAssertionsTrait;
+use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
 
 /**
  * Generic methods for setting up and testing SUT.
@@ -188,7 +188,7 @@ trait SutTrait {
 
     $this->logNote('Removing host dependencies in docker-compose.yml as volumes are not mounted');
 
-    File::removeLine('docker-compose.yml', '###');
+    File::removeLineInFile('docker-compose.yml', '###');
     $this->assertFileNotContainsString('docker-compose.yml', '###', 'Lines with ### should be removed from docker-compose.yml');
 
     File::replaceContentInFile('docker-compose.yml', '##', '');

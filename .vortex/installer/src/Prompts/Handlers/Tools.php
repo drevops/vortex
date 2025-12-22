@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use AlexSkrypnyk\File\ExtendedSplFileInfo;
+use AlexSkrypnyk\File\ContentFile\ContentFile;
+use AlexSkrypnyk\File\Replacer\Replacement;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Strings;
@@ -127,15 +128,15 @@ class Tools extends AbstractHandler {
     // Remove command definitions from Ahoy.
     if (isset($tool['ahoy'])) {
       foreach ($tool['ahoy'] as $string) {
-        File::replaceContentCallbackInFile($this->tmpDir . '/.ahoy.yml', function (string $content) use ($string): string {
+        File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
           $content = File::replaceContent($content, $string, '');
           return Yaml::collapseEmptyLinesInLiteralBlock($content);
-        });
+        }));
       }
     }
 
     File::replaceContentAsync(
-      function (string $content, ExtendedSplFileInfo $file) use ($tool): string {
+      function (string $content, ContentFile $file) use ($tool): string {
         if (isset($tool['strings'])) {
           foreach ($tool['strings'] as $string) {
             if (Strings::isRegex($string)) {
@@ -164,10 +165,10 @@ class Tools extends AbstractHandler {
     // Remove group Ahoy commands if no tools are selected.
     if (isset($config['tools']) && !array_intersect($config['tools'], $selected_tools) && isset($config['ahoy'])) {
       foreach ($config['ahoy'] as $string) {
-        File::replaceContentCallbackInFile($this->tmpDir . '/.ahoy.yml', function (string $content) use ($string): string {
+        File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
           $content = File::replaceContent($content, $string, '');
           return Yaml::collapseEmptyLinesInLiteralBlock($content);
-        });
+        }));
       }
     }
   }

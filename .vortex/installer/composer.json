@@ -2,7 +2,7 @@
     "name": "drevops/vortex-installer",
     "description": "Installer for Vortex.",
     "license": "GPL-2.0-or-later",
-    "type": "library",
+    "type": "project",
     "authors": [
         {
             "name": "Alex Skrypnyk",
@@ -18,7 +18,7 @@
     },
     "require": {
         "php": ">=8.2",
-        "alexskrypnyk/file": "^0.15",
+        "alexskrypnyk/file": "^0.19.0",
         "alexskrypnyk/str2name": "^1.4.1",
         "composer/composer": "^2.9.2",
         "cweagans/composer-patches": "^2",
@@ -34,6 +34,7 @@
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.15",
+        "alexskrypnyk/snapshot": "^1.0.0",
         "bamarni/composer-bin-plugin": "^1.8.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/phpcs-standard": "^0.6",
@@ -60,7 +61,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "AlexSkrypnyk\\File\\Tests\\": "vendor/alexskrypnyk/file/tests",
             "DrevOps\\VortexInstaller\\Tests\\": "tests"
         },
         "classmap": [
@@ -99,7 +99,6 @@
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
         "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
-        "update-baseline": "./update-fixtures.sh baseline",
-        "update-fixtures": "./update-fixtures.sh $@"
+        "update-snapshots": "update-snapshots --test-dir= testHandlerProcess tests/Fixtures/handler_process"
     }
 }

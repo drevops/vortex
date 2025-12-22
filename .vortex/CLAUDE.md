@@ -84,7 +84,7 @@ yarn spellcheck # Validate spelling
 ```bash
 composer install                    # Install dependencies
 ./vendor/bin/phpunit               # Run installer tests
-UPDATE_FIXTURES=1 composer test    # Update test fixtures
+UPDATE_SNAPSHOTS=1 composer test    # Update test snapshots
 ```
 
 ### 3. .vortex/tests/ - Template Testing Harness
@@ -287,11 +287,11 @@ composer install
 ./vendor/bin/phpunit
 
 # Update test fixtures
-UPDATE_FIXTURES=1 composer test
+UPDATE_SNAPSHOTS=1 composer test
 
 # Run specific scenarios
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"services.*no.*clamav"'
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"services.*no.*clamav"'
 
 # Run handler-specific tests
 ./vendor/bin/phpunit --filter "Handlers\\\\"
@@ -401,13 +401,13 @@ The installer uses a **baseline + diff** system for managing test fixtures:
 
 **CRITICAL - Use the Unified Ahoy Command**:
 
-The correct way to update fixtures is to use the unified `ahoy update-fixtures` command from the `.vortex` directory:
+The correct way to update fixtures is to use the unified `ahoy update-snapshots` command from the `.vortex` directory:
 
 ```bash
 cd .vortex
 
 # This is the CORRECT way to update all fixtures
-ahoy update-fixtures
+ahoy update-snapshots
 ```
 
 **What this command does**:
@@ -418,7 +418,7 @@ ahoy update-fixtures
 - Updates all scenario-specific fixtures
 - Runs tests twice to properly handle fixture updates (first run may fail, second should pass)
 
-**DO NOT manually run `UPDATE_FIXTURES=1` commands** - the `ahoy update-fixtures` command handles everything automatically.
+**DO NOT manually run `UPDATE_SNAPSHOTS=1` commands** - the `ahoy update-snapshots` command handles everything automatically.
 
 ### Alternative: Manual Fixture Updates (Advanced)
 
@@ -428,23 +428,23 @@ For specific fixture updates or debugging, you can use manual commands:
 cd .vortex/installer
 
 # Update specific test fixtures
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"services.*no.*clamav"'
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"services.*no.*clamav"'
 ```
 
 **How it works**:
 
 1. Tests run and compare actual output vs expected fixtures
-2. When `UPDATE_FIXTURES=1` is set, differences automatically update fixtures
+2. When `UPDATE_SNAPSHOTS=1` is set, differences automatically update fixtures
 3. Baseline changes propagate to all scenario diffs
 4. Each scenario maintains only its differences from baseline
 
 ### Fixture Update Process
 
-1. **Use ahoy update-fixtures**: This is the standard and recommended approach
+1. **Use ahoy update-snapshots**: This is the standard and recommended approach
 2. **Alternative - Baseline First**: Update baseline fixtures manually if needed
 3. **Alternative - Scenario Diffs**: Run individual scenario tests to update specific diffs
-4. **Validation**: Verify tests pass without UPDATE_FIXTURES flag
+4. **Validation**: Verify tests pass without UPDATE_SNAPSHOTS flag
 
 ## Script Output Formatters
 
@@ -487,7 +487,7 @@ info "Finished executing example operations in non-production environment."
 
 1. **Update Main Script**: Modify the script in the template (outside .vortex/)
 2. **Update BATS Tests**: Update test assertions in `.vortex/tests/bats/`
-3. **Update Installer Fixtures**: Run `ahoy update-fixtures` from `.vortex/` directory
+3. **Update Installer Fixtures**: Run `ahoy update-snapshots` from `.vortex/` directory
 
 ### Provision Script BATS Test Logic
 
@@ -577,7 +577,7 @@ ahoy test-bats -- tests/bats/          # Template BATS tests only
 - `TEST_VORTEX_DEBUG=1` - Enable debug output
 - `TEST_NODE_INDEX` - CI runner index for parallel execution
 - `VORTEX_DEV_TEST_COVERAGE_DIR` - Coverage output directory
-- `UPDATE_FIXTURES=1` - Enable fixture updates during tests
+- `UPDATE_SNAPSHOTS=1` - Enable fixture updates during tests
 
 ### Development
 
@@ -711,7 +711,7 @@ Conditional tokens are tested through the installer fixture system:
 
 - **Baseline fixtures** contain all possible content
 - **Scenario fixtures** show what gets removed for specific configurations
-- Use `UPDATE_FIXTURES=1` mechanism to regenerate after token changes
+- Use `UPDATE_SNAPSHOTS=1` mechanism to regenerate after token changes
 
 ## Directory Structure Summary
 
@@ -810,11 +810,11 @@ Each system:
 
 **Fixture Updates**:
 
-- **Use `ahoy update-fixtures`** from `.vortex/` directory - this is the standard approach
+- **Use `ahoy update-snapshots`** from `.vortex/` directory - this is the standard approach
 - The unified command updates all fixtures automatically
 - Runs tests twice to handle fixture updates properly (first run may fail, second should pass)
 - Be patient - full test suite can take several minutes
-- For debugging specific scenarios, manual `UPDATE_FIXTURES=1` commands can be used
+- For debugging specific scenarios, manual `UPDATE_SNAPSHOTS=1` commands can be used
 
 **Handler Development**:
 
@@ -878,12 +878,12 @@ yarn test --updateSnapshot     # Update component snapshots
 ```bash
 # RECOMMENDED: Use the unified command
 cd .vortex
-ahoy update-fixtures
+ahoy update-snapshots
 
 # ALTERNATIVE: Manual updates for specific scenarios
 cd .vortex/installer
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
-UPDATE_FIXTURES=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"scenario_name"'
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter 'testHandlerProcess.*"scenario_name"'
 
 # Check for test timeouts - increase if needed
 ./vendor/bin/phpunit --timeout=600
@@ -1153,7 +1153,7 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 1. **Test Systematically**:
    - Run baseline test first to verify core functionality
    - Run individual test scenarios to catch edge cases
-   - Use `UPDATE_FIXTURES=1` to regenerate expected outputs when needed
+   - Use `UPDATE_SNAPSHOTS=1` to regenerate expected outputs when needed
 
 ### Performance Insights
 
@@ -1198,7 +1198,7 @@ The installer tests have been refactored to use a modular, handler-focused archi
 - Consistent structure across all handler test classes
 - Clear separation between test logic (in base class) and test data (in handler classes)
 
-**Usage with Fixture Updates**: The `UPDATE_FIXTURES=1` mechanism works seamlessly with the new architecture, allowing systematic fixture updates across all handler test scenarios.
+**Usage with Fixture Updates**: The `UPDATE_SNAPSHOTS=1` mechanism works seamlessly with the new architecture, allowing systematic fixture updates across all handler test scenarios.
 
 ### PHPUnit Test Organization Best Practices
 
@@ -1502,10 +1502,10 @@ $this->cmd('ahoy export-db', '! Containers are not running.', arg: $args);
 
 **NEVER run these commands without explicit user permission:**
 
-- `ahoy update-fixtures` - Updates all test fixtures (can take 10-15 minutes, runs full test suite twice)
-- `UPDATE_FIXTURES=1 ./vendor/bin/phpunit` - Updates installer test fixtures
-- `UPDATE_FIXTURES=1 composer test` - Updates any test fixtures
-- Any command with `UPDATE_FIXTURES=1` environment variable
+- `ahoy update-snapshots` - Updates all test fixtures (can take 10-15 minutes, runs full test suite twice)
+- `UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit` - Updates installer test fixtures
+- `UPDATE_SNAPSHOTS=1 composer test` - Updates any test fixtures
+- Any command with `UPDATE_SNAPSHOTS=1` environment variable
 
 **Why**: These commands:
 
@@ -1531,9 +1531,9 @@ $this->cmd('ahoy export-db', '! Containers are not running.', arg: $args);
 **Installer System** (`.vortex/installer/`):
 
 - **CRITICAL**: NEVER directly modify files under `.vortex/installer/tests/Fixtures/`
-- These are test fixtures that must be updated via `ahoy update-fixtures` command from `.vortex/` directory
-- The unified `ahoy update-fixtures` command handles all fixture updates automatically
-- For debugging, manual `UPDATE_FIXTURES=1` commands can be used from `.vortex/installer/`
+- These are test fixtures that must be updated via `ahoy update-snapshots` command from `.vortex/` directory
+- The unified `ahoy update-snapshots` command handles all fixture updates automatically
+- For debugging, manual `UPDATE_SNAPSHOTS=1` commands can be used from `.vortex/installer/`
 - Always test with baseline scenario first, then individual scenarios
 - Preserve handler execution order and batching patterns
 
