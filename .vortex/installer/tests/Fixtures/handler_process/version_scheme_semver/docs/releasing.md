@@ -19,7 +19,7 @@
  
  Examples:
  
--- Correct: `25.1.0`, `25.11.1` , `25.1.10`, `25.10.1`, `9.12.0`
--- Incorrect: `25.0.0`, `2025.1.1` , `25` , `25.1.00` , `25.01.0`, `25.0.0`, `01.1.0`
-+- Correct: `0.1.0`, `1.0.0` , `1.0.1` , `1.0.10`
-+- Incorrect: `0.1` , `1` , `1.0` , `1.0.01` , `1.0.010`
+-- Correct: `__VERSION__`, `__VERSION__` , `__VERSION__`, `__VERSION__`, `__VERSION__`
+-- Incorrect: `__VERSION__`, `__VERSION__` , `25` , `__VERSION__` , `__VERSION__`, `__VERSION__`, `__VERSION__`
++- Correct: `__VERSION__`, `__VERSION__` , `__VERSION__` , `__VERSION__`
++- Incorrect: `0.1` , `1` , `1.0` , `__VERSION__` , `__VERSION__`

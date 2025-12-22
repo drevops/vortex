@@ -40,7 +40,7 @@ commands:
     cmd: |
       uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
       VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2) && \
-      open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@__VERSION__.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
       || echo "Not a supported OS or Sequel Ace is not installed."
 
   # ----------------------------------------------------------------------------

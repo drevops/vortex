@@ -43,8 +43,8 @@ class DockerComposeTest extends FunctionalTestCase {
     File::copy(static::$fixtures . DIRECTORY_SEPARATOR . $expected_file, $expected_file);
     File::replaceContentInFile($expected_file, static::$sut, 'FIXTURE_CUR_DIR');
 
-    if (getenv('UPDATE_FIXTURES')) {
-      $this->logSubstep('Updating fixture file ' . $expected_file);
+    if (getenv('UPDATE_SNAPSHOTS')) {
+      $this->logSubstep('Updating snapshot file ' . $expected_file);
       File::copy('docker-compose.actual.json', static::$fixtures . DIRECTORY_SEPARATOR . $expected_file);
     }
 

@@ -125,7 +125,7 @@ See https://www.vortextemplate.com/docs/workflows/development#working-with-compo
 
 ## What should I do when Composer blocks package installation due to security vulnerabilities?
 
-Starting with Composer 2.9.0, Composer can automatically block the installation
+Starting with Composer __VERSION__, Composer can automatically block the installation
 or update of packages with known security vulnerabilities. If you encounter this
 issue, you have several options:
 

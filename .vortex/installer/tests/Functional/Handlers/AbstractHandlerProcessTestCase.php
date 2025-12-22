@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  * Abstract base class for installer tests.
  *
  * Provides common test logic for all installer test scenarios.
- * Run with `UPDATE_FIXTURES=1` to update test fixtures.
+ * Run with `UPDATE_SNAPSHOTS=1` to update test snapshots.
  */
 abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
 
@@ -62,8 +62,8 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
     $this->assertApplicationOutputContains($expected);
 
     $baseline = File::dir(static::$fixtures . '/../' . self::BASELINE_DIR);
-    static::replaceVersions(static::$sut);
-    $this->assertDirectoryEqualsPatchedBaseline(static::$sut, $baseline, static::$fixtures);
+    $this->replaceVersions(static::$sut);
+    $this->assertSnapshotMatchesBaseline(static::$sut, $baseline, static::$fixtures);
 
     $this->assertCommon();
 
@@ -76,7 +76,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
   abstract public static function dataProviderHandlerProcess(): array;
 
   protected function assertCommon(): void {
-    $this->assertDirectoryEqualsDirectory(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');
+    $this->assertDirectoriesIdentical(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');
     if (file_exists(static::$root . '/scripts/vortex.yml')) {
       $this->assertFileEquals(static::$root . '/tests/behat/fixtures/image.jpg', static::$sut . '/tests/behat/fixtures/image.jpg', 'Binary files were not modified.');
     }

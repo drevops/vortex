@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use AlexSkrypnyk\File\Replacer\Replacement;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
@@ -83,7 +84,7 @@ class Modules extends AbstractHandler {
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
         // Remove module from the provision example file.
-        File::replaceContentCallbackInFile($t . '/scripts/custom/provision-10-example.sh', function (string $content) use ($module_name): string {
+        File::replaceContentInFile($t . '/scripts/custom/provision-10-example.sh', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
           $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
             $indent = $matches[1];
@@ -93,14 +94,14 @@ class Modules extends AbstractHandler {
             return $indent . $line;
           }, $content);
           return $content ?? '';
-        });
+        }));
 
         // Remove module from the Behat tests.
         File::remove($t . '/tests/behat/features/' . $module_name . '.feature');
 
         // Remove module from the config tests.
         $pattern = '/\s*\$config\[\'' . preg_quote($module_name, '/') . '\..*;(\r?\n)?/';
-        File::removeLine($t . '/tests/phpunit/Drupal/EnvironmentSettingsTest.php', $pattern);
+        File::removeLineInFile($t . '/tests/phpunit/Drupal/EnvironmentSettingsTest.php', $pattern);
 
         // Remove module tokens.
         File::removeTokenAsync('MODULE_' . strtoupper($module_name));

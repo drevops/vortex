@@ -58,7 +58,7 @@ AddEncoding gzip svgz
 </IfModule>
 
 # Set a fallback resource if mod_rewrite is not enabled. This allows Drupal to
-# work without clean URLs. This requires Apache version >= 2.2.16. If Drupal is
+# work without clean URLs. This requires Apache version >= __VERSION__. If Drupal is
 # not accessed by the top level URL (i.e.: http://example.com/drupal/ instead of
 # http://example.com/), the path to index.php will need to be adjusted.
 <IfModule !mod_rewrite.c>

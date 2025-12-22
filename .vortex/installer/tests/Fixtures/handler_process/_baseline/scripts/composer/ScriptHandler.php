@@ -67,7 +67,7 @@ class ScriptHandler {
   /**
    * Checks if the installed version of Composer is compatible.
    *
-   * Composer 1.0.0 and higher consider a `composer install` without having a
+   * Composer __VERSION__ and higher consider a `composer install` without having a
    * lock file present as equal to `composer update`. We do not ship with a lock
    * file to avoid merge conflicts downstream, meaning that if a project is
    * installed with an older version of Composer the scaffolding of Drupal will
@@ -95,8 +95,8 @@ class ScriptHandler {
     if ($version === '@package_version@' || $version === '@package_branch_alias_version@') {
       $io->writeError('<warning>You are running a development version of Composer. If you experience problems, please update Composer to the latest stable version.</warning>');
     }
-    elseif (Comparator::lessThan($version, '1.0.0')) {
-      $io->writeError('<error>Drupal-project requires Composer version 1.0.0 or higher. Please update your Composer before continuing</error>.');
+    elseif (Comparator::lessThan($version, '__VERSION__')) {
+      $io->writeError('<error>Drupal-project requires Composer version __VERSION__ or higher. Please update your Composer before continuing</error>.');
       exit(1);
     }
   }

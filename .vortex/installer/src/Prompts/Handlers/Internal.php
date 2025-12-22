@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use AlexSkrypnyk\File\ExtendedSplFileInfo;
+use AlexSkrypnyk\File\ContentFile\ContentFile;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
@@ -42,7 +42,7 @@ class Internal extends AbstractHandler {
     File::removeTokenAsync('VORTEX_DEV');
 
     // Enable commented out code and process complex content transformations.
-    File::replaceContentAsync(function (string $content, ExtendedSplFileInfo $file) use ($t): string {
+    File::replaceContentAsync(function (string $content, ContentFile $file) use ($t): string {
       // Remove all other comments.
       $content = File::removeToken($content, '#;', '#;');
 
@@ -65,7 +65,7 @@ class Internal extends AbstractHandler {
       }
 
       if (!$should_ignore) {
-        $content = File::collapseRepeatedEmptyLines($content);
+        $content = File::collapseEmptyLines($content);
         if (in_array($file->getExtension(), ['yml', 'yaml'], TRUE)) {
           $content = Yaml::collapseFirstEmptyLinesInLiteralBlock($content);
         }
@@ -115,7 +115,7 @@ class Internal extends AbstractHandler {
     }
 
     // Execute all queued batch tasks from all handlers.
-    File::runTaskDirectory($this->config->get(Config::TMP));
+    File::runDirectoryTasks($this->config->get(Config::TMP));
   }
 
   protected function processDemoMode(array $responses, string $dir): void {

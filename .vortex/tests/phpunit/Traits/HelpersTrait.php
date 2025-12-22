@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits;
 
 use AlexSkrypnyk\File\File;
-use AlexSkrypnyk\File\Tests\Traits\DirectoryAssertionsTrait;
-use AlexSkrypnyk\File\Tests\Traits\FileAssertionsTrait;
+use AlexSkrypnyk\File\Testing\DirectoryAssertionsTrait;
+use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
 
 /**
  * Helper methods for functional tests.

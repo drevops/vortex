@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional;
 
-use AlexSkrypnyk\File\Internal\Index;
 use AlexSkrypnyk\PhpunitHelpers\Traits\ApplicationTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
 use DrevOps\VortexInstaller\Command\InstallCommand;
@@ -14,8 +13,6 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
-use PHPUnit\Framework\TestStatus\Error;
-use PHPUnit\Framework\TestStatus\Failure;
 
 /**
  * Base class for functional tests.
@@ -45,41 +42,16 @@ abstract class FunctionalTestCase extends UnitTestCase {
       throw new \RuntimeException('Fixtures directory is not set.');
     }
 
-    $is_failure = $this->status() instanceof Failure || $this->status() instanceof Error;
-    $has_message = str_contains($this->status()->message(), 'Differences between directories') || str_contains($this->status()->message(), 'Failed to apply patch');
-    $fixture_exists = str_contains(static::$fixtures, DIRECTORY_SEPARATOR . 'handler_process' . DIRECTORY_SEPARATOR);
-    $update_requested = getenv('UPDATE_FIXTURES');
-
-    if ($is_failure && $has_message && $fixture_exists && $update_requested) {
-      fwrite(STDERR, PHP_EOL . '[INFO] Feature update requested' . PHP_EOL);
-      $baseline = File::dir(static::$fixtures . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . static::BASELINE_DIR);
-
-      $ic_baseline = $baseline . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
-      $ic_sut = static::$sut . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
-      $ic_tmp = static::$tmp . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
-      $ic_fixtures = static::$fixtures . DIRECTORY_SEPARATOR . Index::IGNORECONTENT;
-
-      if (str_contains(static::$fixtures, DIRECTORY_SEPARATOR . static::BASELINE_DIR)) {
-        fwrite(STDERR, '[INFO] Updating baseline fixtures' . PHP_EOL);
-        File::copyIfExists($ic_baseline, $ic_sut);
-        File::copyIfExists($ic_baseline, $ic_tmp);
-        File::rmdir($baseline);
-        File::sync(static::$sut, $baseline);
-        static::replaceVersions($baseline);
-        File::copyIfExists($ic_tmp, $ic_baseline);
-        fwrite(STDERR, '[INFO] Baseline fixtures updated' . PHP_EOL);
-      }
-      else {
-        fwrite(STDERR, '[INFO] Updating other fixtures' . PHP_EOL);
-        File::copyIfExists($ic_fixtures, $ic_tmp);
-        File::rmdir(static::$fixtures);
-        File::diff($baseline, static::$sut, static::$fixtures);
-        File::copyIfExists($ic_tmp, $ic_fixtures);
-        fwrite(STDERR, '[INFO] Other fixtures updated' . PHP_EOL);
-      }
+    // Use SnapshotTrait's snapshotUpdateOnFailure() for automatic updates.
+    if (str_contains(static::$fixtures, DIRECTORY_SEPARATOR . 'handler_process' . DIRECTORY_SEPARATOR)) {
+      $this->snapshotUpdateOnFailure(static::$fixtures, static::$sut, static::$tmp);
     }
 
     parent::tearDown();
+  }
+
+  protected function snapshotUpdateBefore(string $actual): void {
+    $this->replaceVersions($actual);
   }
 
   protected function runNonInteractiveInstall(?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
@@ -140,6 +112,17 @@ abstract class FunctionalTestCase extends UnitTestCase {
         ]);
       }
     }
+  }
+
+  protected function replaceVersions(string $dir): void {
+    File::getReplacer()
+      ->addVersionReplacements()
+      ->addExclusions(['127.0.0.1'])
+      // Increase max replacements to handle large files with many version
+      // strings (GHA workflows, lock files, etc). This value was empirically
+      // derived through repeated trials.
+      ->setMaxReplacements(5)
+      ->replaceInDir($dir, ['scripts/vortex']);
   }
 
 }
