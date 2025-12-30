@@ -32,6 +32,9 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
     $settings['config_sync_directory'] = getenv('DRUPAL_CONFIG_PATH') ?: $settings['config_vcs_directory'];
   }
 
+  // Automatically create an Apache HTTP .htaccess file in writable directories.
+  $settings['auto_create_htaccess'] = TRUE;
+
   // Default all environments to 'dev', including ODE environments.
   $settings['environment'] = ENVIRONMENT_DEV;
 

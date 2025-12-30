@@ -49,7 +49,7 @@
      ];
    }
  
-@@ -310,6 +354,173 @@
+@@ -315,6 +359,177 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
@@ -81,6 +81,7 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -123,6 +124,7 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -165,6 +167,7 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -206,6 +209,7 @@
 +    $config['system.performance']['js']['preprocess'] = TRUE;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;

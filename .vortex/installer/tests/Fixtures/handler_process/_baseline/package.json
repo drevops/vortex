@@ -20,6 +20,8 @@
     "eslint-config-airbnb-base": "__VERSION__",
     "eslint-config-prettier": "__VERSION__",
     "eslint-plugin-import": "__VERSION__",
+    "eslint-plugin-jsdoc": "__VERSION__",
+    "eslint-plugin-no-jquery": "__VERSION__",
     "eslint-plugin-prettier": "__VERSION__",
     "eslint-plugin-yml": "__VERSION__",
     "prettier": "__VERSION__",

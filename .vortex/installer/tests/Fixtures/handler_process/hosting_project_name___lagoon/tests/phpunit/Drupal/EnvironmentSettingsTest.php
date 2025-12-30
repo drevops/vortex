@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -312,6 +492,214 @@
+@@ -317,6 +497,218 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -219,6 +219,7 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
 +    $settings['config_exclude_modules'] = [];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -271,6 +272,7 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
 +    $settings['config_exclude_modules'] = [];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -323,6 +325,7 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_master';
 +    $settings['config_exclude_modules'] = [];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -375,6 +378,7 @@
 +    $config['system.performance']['js']['preprocess'] = TRUE;
 +    $this->assertConfig($config);
 +
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_production';
 +    $settings['config_exclude_modules'] = [];
 +    $settings['config_sync_directory'] = '../config/default';

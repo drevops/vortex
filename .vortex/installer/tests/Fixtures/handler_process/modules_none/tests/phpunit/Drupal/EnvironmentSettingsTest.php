@@ -12,7 +12,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $this->assertConfig($config);
  
-@@ -143,13 +136,6 @@
+@@ -144,13 +137,6 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -26,7 +26,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
  
-@@ -186,18 +172,8 @@
+@@ -188,18 +174,8 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -44,8 +44,8 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['config_exclude_modules'] = [];
-@@ -232,18 +208,8 @@
+     $settings['auto_create_htaccess'] = FALSE;
+@@ -235,18 +211,8 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -63,8 +63,8 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['config_exclude_modules'] = [];
-@@ -280,18 +246,8 @@
+     $settings['auto_create_htaccess'] = FALSE;
+@@ -284,18 +250,8 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -82,4 +82,4 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['config_exclude_modules'] = [];
+     $settings['auto_create_htaccess'] = FALSE;

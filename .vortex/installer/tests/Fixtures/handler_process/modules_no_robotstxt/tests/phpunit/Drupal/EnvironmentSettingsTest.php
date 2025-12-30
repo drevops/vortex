@@ -6,7 +6,7 @@
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $this->assertConfig($config);
-@@ -148,7 +147,6 @@
+@@ -149,7 +148,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_SUT;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
@@ -14,7 +14,7 @@
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
-@@ -192,7 +190,6 @@
+@@ -194,7 +192,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
@@ -22,7 +22,7 @@
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
-@@ -238,7 +235,6 @@
+@@ -241,7 +238,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
@@ -30,7 +30,7 @@
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
-@@ -286,7 +282,6 @@
+@@ -290,7 +286,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_CI;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
