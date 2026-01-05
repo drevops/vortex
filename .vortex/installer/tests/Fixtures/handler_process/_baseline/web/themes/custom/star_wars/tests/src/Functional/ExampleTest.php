@@ -21,7 +21,6 @@ class ExampleTest extends StarWarsFunctionalTestBase {
    *
    * @phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
    */
-  #[\Override]
   protected function setUp(): void {
     parent::setUp();
     // Vortex does not support Functional tests due to permission issues.
