@@ -1,6 +1,11 @@
 <div align="center">
+  <a href="" rel="noopener">
+  <img width=200px height=100px src="web/themes/custom/star_wars/logo.svg" alt="star wars Logo"></a>
+</div>
 
-# star wars
+<h1 align="center">star wars</h1>
+
+<div align="center">
 
 Drupal 11 implementation of star wars for star wars Org
 

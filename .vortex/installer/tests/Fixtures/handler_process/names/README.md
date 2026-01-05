@@ -1,8 +1,14 @@
-@@ -1,13 +1,13 @@
+@@ -1,18 +1,18 @@
  <div align="center">
+   <a href="" rel="noopener">
+-  <img width=200px height=100px src="web/themes/custom/star_wars/logo.svg" alt="star wars Logo"></a>
++  <img width=200px height=100px src="web/themes/custom/lightsaber/logo.svg" alt="New hope Logo"></a>
+ </div>
  
--# star wars
-+# New hope
+-<h1 align="center">star wars</h1>
++<h1 align="center">New hope</h1>
+ 
+ <div align="center">
  
 -Drupal 11 implementation of star wars for star wars Org
 +Drupal 11 implementation of New hope for Jedi Order
@@ -16,7 +22,7 @@
  
  ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
  
-@@ -19,9 +19,9 @@
+@@ -24,9 +24,9 @@
  
  ## Environments
  
