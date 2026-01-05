@@ -246,26 +246,26 @@ trait SutTrait {
 
   protected function assertCommonFilesAbsent(string $webroot = 'web'): void {
     // Example directories and files that should not exist after Vortex removed.
-    $this->assertDirectoryDoesNotExist($webroot . '/profiles/custom/your_site_profile');
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_base');
-    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Unit/YourSiteExampleUnitTest.php');
-    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Unit/YourSiteCoreUnitTestBase.php');
-    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Kernel/YourSiteExampleKernelTest.php');
-    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Kernel/YourSiteCoreKernelTestBase.php');
-    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Functional/YourSiteExampleFunctionalTest.php');
-    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Functional/YourSiteCoreFunctionalTestBase.php');
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_search');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Functional/YourSiteCoreFunctionalTestBase.php');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Functional/YourSiteExampleFunctionalTest.php');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Kernel/YourSiteCoreKernelTestBase.php');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Kernel/YourSiteExampleKernelTest.php');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Unit/YourSiteCoreUnitTestBase.php');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Unit/YourSiteExampleUnitTest.php');
+    $this->assertDirectoryDoesNotExist($webroot . '/profiles/custom/your_site_profile');
 
     // Example settings files that should not exist.
-    $this->assertFileDoesNotExist($webroot . '/sites/default/example.settings.local.php');
     $this->assertFileDoesNotExist($webroot . '/sites/default/example.services.local.yml');
+    $this->assertFileDoesNotExist($webroot . '/sites/default/example.settings.local.php');
 
     // Documentation and CI files that should not exist in some contexts.
-    $this->assertFileDoesNotExist('docs/faqs.md');
     $this->assertFileDoesNotExist('.ahoy.yml');
-    $this->assertFileDoesNotExist('README.md');
-    $this->assertFileDoesNotExist('.github/workflows/build-test-deploy.yml');
     $this->assertFileDoesNotExist('.circleci/config.yml');
+    $this->assertFileDoesNotExist('.github/workflows/build-test-deploy.yml');
+    $this->assertFileDoesNotExist('README.md');
+    $this->assertFileDoesNotExist('docs/faqs.md');
 
     // Core Drupal files that should not exist in webroot after Vortex removal.
     $this->assertFileDoesNotExist($webroot . '/sites/default/settings.php');
@@ -284,12 +284,12 @@ trait SutTrait {
   protected function assertVortexFilesPresent(string $webroot = 'web'): void {
     // Docker configuration files.
     $this->assertFileExists('.docker/cli.dockerfile');
+    $this->assertFileExists('.docker/config/database/my.cnf');
     $this->assertFileExists('.docker/database.dockerfile');
     $this->assertFileExists('.docker/nginx-drupal.dockerfile');
     $this->assertFileExists('.docker/php.dockerfile');
-    $this->assertFileExists('.docker/solr.dockerfile');
     $this->assertFileExists('.docker/scripts/.gitkeep');
-    $this->assertFileExists('.docker/config/database/my.cnf');
+    $this->assertFileExists('.docker/solr.dockerfile');
 
     // Solr configuration files.
     $this->assertFileExists('.docker/config/solr/config-set/accents_en.txt');
@@ -329,31 +329,31 @@ trait SutTrait {
     $this->assertFileExists('scripts/custom/.gitkeep');
 
     // Core Vortex files.
-    $this->assertFileExists('scripts/vortex/deploy.sh');
     $this->assertFileExists('scripts/vortex/deploy-artifact.sh');
     $this->assertFileExists('scripts/vortex/deploy-container-registry.sh');
     $this->assertFileExists('scripts/vortex/deploy-lagoon.sh');
     $this->assertFileExists('scripts/vortex/deploy-webhook.sh');
-    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
+    $this->assertFileExists('scripts/vortex/deploy.sh');
     $this->assertFileExists('scripts/vortex/doctor.sh');
-    $this->assertFileExists('scripts/vortex/download-db.sh');
     $this->assertFileExists('scripts/vortex/download-db-acquia.sh');
-    $this->assertFileExists('scripts/vortex/download-db-url.sh');
-    $this->assertFileExists('scripts/vortex/download-db-ftp.sh');
     $this->assertFileExists('scripts/vortex/download-db-container-registry.sh');
+    $this->assertFileExists('scripts/vortex/download-db-ftp.sh');
     $this->assertFileExists('scripts/vortex/download-db-lagoon.sh');
+    $this->assertFileExists('scripts/vortex/download-db-url.sh');
+    $this->assertFileExists('scripts/vortex/download-db.sh');
     $this->assertFileExists('scripts/vortex/export-db-file.sh');
     $this->assertFileExists('scripts/vortex/export-db-image.sh');
-    $this->assertFileExists('scripts/vortex/provision.sh');
-    $this->assertFileExists('scripts/vortex/login.sh');
-    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/provision-sanitize-db.sh');
     $this->assertFileExists('scripts/vortex/info.sh');
-    $this->assertFileExists('scripts/vortex/notify.sh');
+    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
+    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
+    $this->assertFileExists('scripts/vortex/login.sh');
     $this->assertFileExists('scripts/vortex/notify-email.sh');
     $this->assertFileExists('scripts/vortex/notify-github.sh');
     $this->assertFileExists('scripts/vortex/notify-jira.sh');
     $this->assertFileExists('scripts/vortex/notify-newrelic.sh');
+    $this->assertFileExists('scripts/vortex/notify.sh');
+    $this->assertFileExists('scripts/vortex/provision-sanitize-db.sh');
+    $this->assertFileExists('scripts/vortex/provision.sh');
     $this->assertFileExists('scripts/vortex/reset.sh');
     $this->assertFileExists('scripts/vortex/task-copy-db-acquia.sh');
     $this->assertFileExists('scripts/vortex/task-copy-files-acquia.sh');
@@ -367,12 +367,11 @@ trait SutTrait {
     $this->assertDirectoryExists('tests/behat/features');
 
     // Root configuration files.
+    $this->assertFileExists('.ahoy.local.example.yml');
     $this->assertFileExists('.ahoy.yml');
     $this->assertFileExists('.dockerignore');
     $this->assertFileExists('.editorconfig');
     $this->assertFileExists('.env');
-    $this->assertFileDoesNotExist('.gitattributes');
-    $this->assertFileExists('.ahoy.local.example.yml');
     $this->assertFileExists('.env.local.example');
     $this->assertFileExists('.gitignore');
     $this->assertFileExists('behat.yml');
@@ -382,10 +381,11 @@ trait SutTrait {
     $this->assertFileExists('phpcs.xml');
     $this->assertFileExists('phpstan.neon');
     $this->assertFileExists('phpunit.xml');
+    $this->assertFileDoesNotExist('.gitattributes');
 
     // Documentation files.
-    $this->assertFileExists('docs/faqs.md');
     $this->assertFileExists('README.md');
+    $this->assertFileExists('docs/faqs.md');
     $this->assertFileExists('docs/releasing.md');
     $this->assertFileExists('docs/testing.md');
 
@@ -427,15 +427,15 @@ trait SutTrait {
 
     // Site core module created.
     $this->assertDirectoryExists($webroot . '/modules/custom/sw_base');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.deploy.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.info.yml');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.module');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.deploy.php');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Unit/SwBaseUnitTestBase.php');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Unit/ExampleTest.php');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/SwBaseKernelTestBase.php');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/SwBaseFunctionalTestBase.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/SwBaseFunctionalTestBase.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/SwBaseKernelTestBase.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Unit/ExampleTest.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Unit/SwBaseUnitTestBase.php');
 
     // Site search module created.
     $this->assertDirectoryExists($webroot . '/modules/custom/sw_search');
@@ -452,34 +452,34 @@ trait SutTrait {
     $this->assertFileDoesNotExist($webroot . '/update.php');
 
     // Settings files exist.
-    $this->assertFileExists($webroot . '/sites/default/settings.php');
     $this->assertDirectoryExists($webroot . '/sites/default/includes/');
-    $this->assertFileExists($webroot . '/sites/default/default.settings.php');
     $this->assertFileExists($webroot . '/sites/default/default.services.yml');
-    $this->assertFileExists($webroot . '/sites/default/example.settings.local.php');
+    $this->assertFileExists($webroot . '/sites/default/default.settings.php');
     $this->assertFileExists($webroot . '/sites/default/example.services.local.yml');
+    $this->assertFileExists($webroot . '/sites/default/example.settings.local.php');
+    $this->assertFileExists($webroot . '/sites/default/settings.php');
   }
 
   protected function assertThemeFilesPresent(string $webroot = 'web'): void {
     $this->assertDirectoryExists($webroot . '/themes/custom/star_wars');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/js/star_wars.js');
     $this->assertDirectoryExists($webroot . '/themes/custom/star_wars/scss');
     $this->assertDirectoryExists($webroot . '/themes/custom/star_wars/images');
     $this->assertDirectoryExists($webroot . '/themes/custom/star_wars/fonts');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/.gitignore');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/js/star_wars.js');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/package.json');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/postcss.config.js');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.info.yml');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.libraries.yml');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.theme');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/Gruntfile.js');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/package.json');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/yarn.lock');
 
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Unit/StarWarsUnitTestBase.php');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Unit/ExampleTest.php');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Kernel/StarWarsKernelTestBase.php');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Kernel/ExampleTest.php');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/StarWarsFunctionalTestBase.php');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/ExampleTest.php');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/StarWarsFunctionalTestBase.php');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Kernel/ExampleTest.php');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Kernel/StarWarsKernelTestBase.php');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Unit/ExampleTest.php');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Unit/StarWarsUnitTestBase.php');
   }
 
   protected function assertThemeFilesAbsent(string $webroot = 'web'): void {

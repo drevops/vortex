@@ -1,22 +1,20 @@
-@@ -32,10 +32,8 @@
- !.sass-lint.yml
+@@ -35,19 +35,12 @@
  !.stylelintrc.js
  !.twig-cs-fixer.php
--!gherkinlint.json
- !Gruntfile.js
  !auth.json
 -!behat.yml
  !composer.json
  !composer.lock
- !yarn.lock
-@@ -44,10 +42,5 @@
- !.prettierignore
- !.prettierrc.json
+-!gherkinlint.json
+ !package-lock.json
+ !package.json
  !patches
 -!phpcs.xml
 -!phpmd.xml
 -!phpstan.neon
 -!phpunit.xml
+ !postcss.config.js
 -!rector.php
  !scripts
  !tests
+ !yarn.lock

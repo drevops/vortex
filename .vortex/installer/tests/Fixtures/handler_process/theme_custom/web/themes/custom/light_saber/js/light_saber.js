@@ -1,12 +1,27 @@
 /**
- * @file
- * Global theme behaviors.
+ * @file Global theme behaviors.
+ * @param $
+ * @param Drupal
+ * @global Drupal, jQuery
  */
 
-(function ($, Drupal) {
-  'use strict';
+/**
+ * Global theme behaviors.
+ *
+ * @param {jQuery} $ The jQuery object.
+ * @param {Drupal} Drupal The Drupal object.
+ */
+(function LightSaberBehaviors($, Drupal) {
   Drupal.behaviors.light_saber = {
-    attach: function (context) {
-    }
+    attach(context) {
+      // give me example code here that would be using context with body
+      $(context)
+        .find('body')
+        .once('star-wars-theme')
+        .each(function iterateBody() {
+          // Example: Add a class to the body element.
+          $(this).addClass('star-wars-theme-processed');
+        });
+    },
   };
-}(jQuery, Drupal));
+})(jQuery, Drupal);

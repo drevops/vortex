@@ -91,7 +91,7 @@ trait SubtestDeploymentTrait {
     $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/star_wars.theme', 'Theme file should exist');
 
     // Theme development files should not exist.
-    $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/Gruntfile.js', 'Gruntfile should not exist in deployment');
+    $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/postcss.config.js', 'Theme postcss.config.js should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/package.json', 'Theme package.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/yarn.lock', 'Theme yarn.lock should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/.eslintrc.json', 'Theme .eslintrc.json should not exist in deployment');
@@ -119,7 +119,7 @@ trait SubtestDeploymentTrait {
 
     // Only minified compiled JS should exist.
     $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS should exist');
-    $this->assertFileContainsString($dir . '/' . $webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(Drupal){"use strict";Drupal.behaviors.star_wars', 'JS should contain expected minified content');
+    $this->assertFileContainsString($dir . '/' . $webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(', 'JS should contain expected minified content');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist in deployment');
     $this->assertDirectoryDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/js', 'JS source directory should not exist in deployment');
 

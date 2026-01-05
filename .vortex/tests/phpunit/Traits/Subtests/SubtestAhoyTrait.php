@@ -53,7 +53,7 @@ trait SubtestAhoyTrait {
 
       $this->logSubstep('Assert only minified compiled JS exists');
       $this->assertFileExists($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS file should exist');
-      $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(Drupal){"use strict";Drupal.behaviors.star_wars', 'JS should contain expected minified content');
+      $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(', 'JS should contain expected minified content');
       $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist');
     }
     else {

@@ -17,21 +17,21 @@ web/sites/default/files
 web/sites/simpletest
 
 # Ignore non-production Drupal Scaffold files.
-web/sites/default/example.services.local.yml
-web/sites/default/example.settings.local.php
 web/sites/default/default.services.local.yml
 web/sites/default/default.settings.local.php
+web/sites/default/example.services.local.yml
+web/sites/default/example.settings.local.php
 
 # Ignore custom theme asset sources.
+web/themes/custom/your_site_theme/.eslintrc.json
 web/themes/custom/your_site_theme/fonts
 web/themes/custom/your_site_theme/images
 web/themes/custom/your_site_theme/js
-web/themes/custom/your_site_theme/scss
-web/themes/custom/your_site_theme/Gruntfile.js
-web/themes/custom/your_site_theme/package.json
-web/themes/custom/your_site_theme/yarn.lock
-web/themes/custom/your_site_theme/.eslintrc.json
 web/themes/custom/your_site_theme/node_modules
+web/themes/custom/your_site_theme/package.json
+web/themes/custom/your_site_theme/postcss.config.js
+web/themes/custom/your_site_theme/scss
+web/themes/custom/your_site_theme/yarn.lock
 
 #;< HOSTING_ACQUIA
 # Do not ignore Acquia hooks.

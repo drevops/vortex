@@ -40,7 +40,11 @@ $rem-px-only: false !default;
     }
   }
 
-  @return if(list.length($result) == 1, list.nth($result, 1), $result);
+  @if list.length($result) == 1 {
+    @return list.nth($result, 1);
+  } @else {
+    @return $result;
+  }
 }
 
 @function rem($values...) {
