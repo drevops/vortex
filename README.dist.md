@@ -1,6 +1,15 @@
-<div align="center">
+[//]: # (#;< DRUPAL_THEME)
 
-# YOURSITE
+<div align="center">
+  <a href="" rel="noopener">
+  <img width=200px height=100px src="web/themes/custom/your_site_theme/logo.svg" alt="YOURSITE Logo"></a>
+</div>
+
+[//]: # (#;> DRUPAL_THEME)
+
+<h1 align="center">YOURSITE</h1>
+
+<div align="center">
 
 Drupal 11 implementation of YOURSITE for YOURORG
 
