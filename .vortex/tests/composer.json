@@ -31,7 +31,7 @@
         "ergebnis/composer-normalize": "^2.48.2",
         "phpstan/phpstan": "^2.1.33",
         "phpunit/phpunit": "^12.5.4",
-        "rector/rector": "^2.2.14",
+        "rector/rector": "^2.3.0",
         "squizlabs/php_codesniffer": "^4.0.1"
     },
     "minimum-stability": "alpha",
