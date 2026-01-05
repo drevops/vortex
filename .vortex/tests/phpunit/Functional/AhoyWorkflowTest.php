@@ -131,7 +131,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   }
 
   #[Group('p4')]
-  public function testAhoyWorkflowDiSi(): void {
+  public function testAhoyWorkflowDatabaseFromImageStorageInImage(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE' => 'container_registry',
       'VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE' => self::VORTEX_DB_IMAGE_TEST,
@@ -181,6 +181,13 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->cmd('ahoy flush-redis', txt: "`ahoy flush-redis` flushes Redis cache after database reload", tio: 30);
     $this->subtestAhoyInfo(db_image: self::VORTEX_DB_IMAGE_TEST);
     $this->assertWebpageContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should show initial test content after database reload');
+
+    // The previous step was only testing the image re-loading capability (we
+    // used the content in the image to check that the database reload from
+    // image worked), but we did not verify that the site is fully functional.
+    // We now should run the updates and check the rest of the site.
+    $this->cmd('ahoy drush updb -y', txt: 'Run database updates after reload', tio: 60);
+    $this->cmd('ahoy drush cr', txt: 'Clear caches after reload', tio: 30);
 
     // Other stack assertions - these run only for this container
     // image-related test.

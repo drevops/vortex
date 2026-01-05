@@ -101,6 +101,10 @@ $settings['file_scan_ignore_directories'] = [
   'bower_components',
 ];
 
+// Do not automatically create an Apache HTTP .htaccess file in writable
+// directories. Overridden in hosting provider settings files as needed.
+$settings['auto_create_htaccess'] = FALSE;
+
 // The default number of entities to update in a batch process.
 $settings['entity_update_batch_size'] = 50;
 

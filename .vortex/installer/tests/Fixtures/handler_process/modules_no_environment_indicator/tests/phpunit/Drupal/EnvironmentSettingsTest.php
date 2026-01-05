@@ -10,7 +10,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['system.performance']['cache']['page']['max_age'] = 900;
-@@ -143,11 +138,6 @@
+@@ -144,11 +139,6 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -22,7 +22,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['system.performance']['cache']['page']['max_age'] = 1800;
-@@ -187,11 +177,6 @@
+@@ -189,11 +179,6 @@
  
      $config['automated_cron.settings']['interval'] = 0;
      $config['config_split.config_split.local']['status'] = TRUE;
@@ -34,7 +34,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -233,11 +218,6 @@
+@@ -236,11 +221,6 @@
  
      $config['automated_cron.settings']['interval'] = 0;
      $config['config_split.config_split.local']['status'] = TRUE;
@@ -46,7 +46,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -281,11 +261,6 @@
+@@ -285,11 +265,6 @@
  
      $config['automated_cron.settings']['interval'] = 0;
      $config['config_split.config_split.ci']['status'] = TRUE;
