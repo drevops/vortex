@@ -1,8 +1,8 @@
-@@ -45,7 +45,6 @@
- !.prettierrc.json
+@@ -43,7 +43,6 @@
+ !package.json
  !patches
  !phpcs.xml
 -!phpmd.xml
  !phpstan.neon
  !phpunit.xml
- !rector.php
+ !postcss.config.js

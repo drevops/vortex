@@ -1,12 +1,27 @@
 /**
- * @file
- * Global theme behaviors.
+ * @file Global theme behaviors.
+ * @param $
+ * @param Drupal
+ * @global Drupal, jQuery
  */
 
-(function ($, Drupal) {
-  'use strict';
+/**
+ * Global theme behaviors.
+ *
+ * @param {jQuery} $ The jQuery object.
+ * @param {Drupal} Drupal The Drupal object.
+ */
+(function YourSiteThemeBehaviors($, Drupal) {
   Drupal.behaviors.your_site_theme = {
-    attach: function (context) {
-    }
+    attach(context) {
+      // give me example code here that would be using context with body
+      $(context)
+        .find('body')
+        .once('your-site-theme')
+        .each(function iterateBody() {
+          // Example: Add a class to the body element.
+          $(this).addClass('your-site-theme-processed');
+        });
+    },
   };
-}(jQuery, Drupal));
+})(jQuery, Drupal);

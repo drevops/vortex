@@ -1,11 +1,13 @@
-@@ -44,10 +44,6 @@
- !.prettierignore
- !.prettierrc.json
+@@ -42,12 +42,8 @@
+ !package-lock.json
+ !package.json
  !patches
 -!phpcs.xml
 -!phpmd.xml
 -!phpstan.neon
  !phpunit.xml
+ !postcss.config.js
 -!rector.php
  !scripts
  !tests
+ !yarn.lock

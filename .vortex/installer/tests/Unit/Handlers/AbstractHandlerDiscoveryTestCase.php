@@ -275,7 +275,6 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
   protected function stubTheme(string $dir): void {
     File::dump($dir . '/scss/_variables.scss');
-    File::dump($dir . '/Gruntfile.js');
     File::dump($dir . '/package.json', (string) json_encode(['build-dev' => ''], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
   }
 

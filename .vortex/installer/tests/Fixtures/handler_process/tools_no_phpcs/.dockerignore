@@ -1,6 +1,6 @@
-@@ -44,7 +44,6 @@
- !.prettierignore
- !.prettierrc.json
+@@ -42,7 +42,6 @@
+ !package-lock.json
+ !package.json
  !patches
 -!phpcs.xml
  !phpmd.xml

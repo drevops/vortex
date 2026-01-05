@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Vortex\Tests\Traits\Subtests;
 
+use AlexSkrypnyk\File\File;
+
 /**
  * Steps and assertions for Docker Compose-based workflows.
  */
@@ -18,6 +20,10 @@ trait SubtestDockerComposeTrait {
 
     if ($build_theme) {
       $this->assertThemeFilesPresent($webroot);
+
+      $this->logSubstep('Create test fixture files for images and fonts');
+      File::dump($webroot . '/themes/custom/star_wars/images/test.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="#ccc"/></svg>');
+      File::dump($webroot . '/themes/custom/star_wars/fonts/test.woff2', 'wOFF2test');
     }
     else {
       $this->assertThemeFilesAbsent($webroot);
@@ -51,8 +57,14 @@ trait SubtestDockerComposeTrait {
 
       $this->logSubstep('Assert only minified compiled JS exists');
       $this->assertFileExists($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', 'Minified JS file should exist');
-      $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(Drupal){"use strict";Drupal.behaviors.star_wars', 'JS should contain expected minified content');
+      $this->assertFileContainsString($webroot . '/themes/custom/star_wars/build/js/star_wars.min.js', '!function(', 'JS should contain expected minified content');
       $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/build/js/star_wars.js', 'Non-minified JS should not exist');
+
+      $this->logSubstep('Assert images are copied to build directory');
+      $this->assertFileExists($webroot . '/themes/custom/star_wars/build/images/test.svg', 'Test image should be copied to build directory');
+
+      $this->logSubstep('Assert fonts are copied to build directory');
+      $this->assertFileExists($webroot . '/themes/custom/star_wars/build/fonts/test.woff2', 'Test font should be copied to build directory');
     }
     else {
       $this->logSubstep('Assert no compiled CSS or JS exists when theme build is skipped');
