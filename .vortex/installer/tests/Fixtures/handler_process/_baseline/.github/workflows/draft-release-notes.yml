@@ -24,6 +24,8 @@ jobs:
 
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+        env:
+          VORTEX_RELEASE_VERSION_SCHEME: ${{ vars.VORTEX_RELEASE_VERSION_SCHEME || 'calver' }}
 
       - name: Generate CalVer version
         if: ${{ contains(env.VORTEX_RELEASE_VERSION_SCHEME, 'calver') }}
