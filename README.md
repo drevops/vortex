@@ -34,6 +34,11 @@ developer experience across every project that uses it. Whether you’re startin
 fresh or joining an existing Vortex-based site, you can get up to speed quickly
 and start contributing right away.
 
+Vortex is designed for ongoing use, not just initial project setup. Sites built 
+with Vortex should regularly adopt upstream updates, keeping projects current 
+with evolving tools, infrastructure, and best practices while minimizing upgrade 
+risk.
+
 The template is actively maintained and kept in sync with the latest tools.
 Every change is verified through automated tests to ensure updates remain stable
 and reliable — reducing the risk of regressions and making it easier to maintain
@@ -97,6 +102,14 @@ releases and keeping your stack [updated](https://www.vortextemplate.com/docs/wo
 The documentation is authored within this repository in the [`.vortex/docs`](.vortex/docs) directory and published to [https://www.vortextemplate.com](https://www.vortextemplate.com) on Vortex release.
 
 Development version of the documentation is available at [https://vortex-docs.netlify.app/](https://vortex-docs.netlify.app/).
+
+## Example
+
+The [DrevOps website](https://github.com/drevops/website) is a real-world production site built using **Vortex**.
+
+It demonstrates how Vortex can be used beyond initial project setup, with regular upstream updates applied to keep the project aligned with the latest tooling, infrastructure, and Drupal releases. The repository shows a typical long-lived Vortex-based codebase, including CI configuration, testing workflows, and update practices used in day-to-day development.
+
+Use this project as a reference for structuring your own Vortex-based site or as a practical example of how the template evolves over time.
 
 ## Support
 
