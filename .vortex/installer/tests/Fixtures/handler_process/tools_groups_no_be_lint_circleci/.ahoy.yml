@@ -1,4 +1,4 @@
-@@ -176,7 +176,6 @@
+@@ -176,18 +176,9 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -6,10 +6,9 @@
        ahoy lint-fe
        ahoy lint-tests
  
-@@ -183,11 +182,6 @@
-   lint-be:
-     usage: Lint back-end code.
-     cmd: |
+-  lint-be:
+-    usage: Lint back-end code.
+-    cmd: |
 -      ahoy cli vendor/bin/phpcs
 -      ahoy cli vendor/bin/phpstan
 -      ahoy cli vendor/bin/rector --dry-run
@@ -18,19 +17,18 @@
    lint-fe:
      usage: Lint front-end code.
      cmd: |
-@@ -203,15 +197,11 @@
+@@ -203,14 +194,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
 -      ahoy lint-be-fix
        ahoy lint-fe-fix
- 
-   lint-be-fix:
-     usage: Fix lint issues of back-end code.
-     cmd: |
+-
+-  lint-be-fix:
+-    usage: Fix lint issues of back-end code.
+-    cmd: |
 -      ahoy cli vendor/bin/rector
 -      ahoy cli vendor/bin/phpcbf
--
+ 
    lint-fe-fix:
      usage: Fix lint issues of front-end code.
-     cmd: |

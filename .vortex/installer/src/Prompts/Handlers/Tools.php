@@ -232,7 +232,11 @@ class Tools extends AbstractHandler {
         },
         'files' => ['rector.php'],
         'strings' => ['/^.*\brector\b.*\n?/m'],
-        'ahoy' => ['ahoy cli vendor/bin/rector --clear-cache --dry-run', 'ahoy cli vendor/bin/rector --clear-cache'],
+        'ahoy' => [
+          'ahoy cli vendor/bin/rector --clear-cache --dry-run',
+          'ahoy cli vendor/bin/rector --dry-run',
+          'ahoy cli vendor/bin/rector',
+        ],
       ],
 
       self::PHPMD => [

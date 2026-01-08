@@ -9,4 +9,4 @@
 -
        - name: Lint code with Rector
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-         run: docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run
+         run: docker compose exec -T cli vendor/bin/rector --dry-run
