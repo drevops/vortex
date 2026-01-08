@@ -1,4 +1,4 @@
-@@ -176,18 +176,11 @@
+@@ -176,18 +176,8 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -6,9 +6,9 @@
        ahoy lint-fe
 -      ahoy lint-tests
  
-   lint-be:
-     usage: Lint back-end code.
-     cmd: |
+-  lint-be:
+-    usage: Lint back-end code.
+-    cmd: |
 -      ahoy cli vendor/bin/phpcs
 -      ahoy cli vendor/bin/phpstan
 -      ahoy cli vendor/bin/rector --dry-run
@@ -17,7 +17,7 @@
    lint-fe:
      usage: Lint front-end code.
      cmd: |
-@@ -195,23 +188,14 @@
+@@ -195,23 +185,11 @@
        ahoy cli "yarn run lint"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
@@ -32,16 +32,16 @@
 -      ahoy lint-be-fix
        ahoy lint-fe-fix
  
-   lint-be-fix:
-     usage: Fix lint issues of back-end code.
-     cmd: |
+-  lint-be-fix:
+-    usage: Fix lint issues of back-end code.
+-    cmd: |
 -      ahoy cli vendor/bin/rector
 -      ahoy cli vendor/bin/phpcbf
 -
    lint-fe-fix:
      usage: Fix lint issues of front-end code.
      cmd: |
-@@ -218,27 +202,6 @@
+@@ -218,27 +196,6 @@
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"

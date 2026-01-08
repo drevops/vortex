@@ -291,7 +291,7 @@ jobs:
           name: Lint code with Rector
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/rector --clear-cache --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T cli vendor/bin/rector --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with PHPMD
