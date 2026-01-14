@@ -4,6 +4,7 @@
   "private": true,
   "description": "NodeJS dependencies for YOURSITE project",
   "devDependencies": {
+    "@homer0/prettier-plugin-jsdoc": "^11.0.1",
     "autoprefixer": "^10.4.22",
     "chokidar-cli": "^3.0.0",
     "eslint": "^8.57.1",
@@ -18,7 +19,6 @@
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "prettier": "^3.7.4",
-    "prettier-plugin-jsdoc": "^1.8.0",
     "sass": "^1.94.2",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^36.0.1",
