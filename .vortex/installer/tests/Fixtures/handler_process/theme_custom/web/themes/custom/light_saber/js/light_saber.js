@@ -2,14 +2,14 @@
  * @file Global theme behaviors.
  * @param $
  * @param Drupal
- * @global Drupal, jQuery
+ * @global Drupal,  JQuery.
  */
 
 /**
  * Global theme behaviors.
  *
- * @param {jQuery} $ The jQuery object.
- * @param {Drupal} Drupal The Drupal object.
+ * @param {jQuery} $       The jQuery object.
+ * @param {Drupal} Drupal  The Drupal object.
  */
 (function LightSaberBehaviors($, Drupal) {
   Drupal.behaviors.light_saber = {

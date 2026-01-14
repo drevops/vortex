@@ -2,14 +2,14 @@
  * @file Global theme behaviors.
  * @param $
  * @param Drupal
- * @global Drupal, jQuery
+ * @global Drupal,  JQuery.
  */
 
 /**
  * Global theme behaviors.
  *
- * @param {jQuery} $ The jQuery object.
- * @param {Drupal} Drupal The Drupal object.
+ * @param {jQuery} $       The jQuery object.
+ * @param {Drupal} Drupal  The Drupal object.
  */
 (function YourSiteThemeBehaviors($, Drupal) {
   Drupal.behaviors.your_site_theme = {

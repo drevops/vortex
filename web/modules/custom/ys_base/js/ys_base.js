@@ -11,8 +11,8 @@
     /**
      * Counter block functionality.
      *
-     * @param {HTMLElement} context Context element to search for counter
-     *   blocks.
+     * @param {HTMLElement} context  Context element to search for counter
+     *                               blocks.
      */
     initCounterBlock(context) {
       const counterBlocks = context.querySelectorAll('[data-ys-base-counter]');
@@ -74,12 +74,22 @@
     /**
      * Remove updated class after a delay for visual feedback.
      *
-     * @param {HTMLElement} element The element to remove the class from.
+     * @param {HTMLElement} element  The element to remove the class from.
      */
     removeUpdatedClassAfterDelay(element) {
       setTimeout(function removeUpdatedClass() {
         element.classList.remove('updated');
       }, 300);
+    },
+
+    /**
+     * Get the current counter value from localStorage.
+     *
+     * @return {number} The current counter value, or 0 if not set.
+     */
+    getCounterValue() {
+      const storageKey = 'ys_counter_value';
+      return parseInt(localStorage.getItem(storageKey), 10) || 0;
     },
   };
 })(Drupal);

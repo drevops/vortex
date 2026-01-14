@@ -4,6 +4,7 @@
   "private": true,
   "description": "NodeJS dependencies for New hope project",
   "devDependencies": {
+    "@homer0/prettier-plugin-jsdoc": "__VERSION__",
     "autoprefixer": "__VERSION__",
     "chokidar-cli": "__VERSION__",
     "eslint": "__VERSION__",
@@ -18,7 +19,6 @@
     "postcss": "__VERSION__",
     "postcss-cli": "__VERSION__",
     "prettier": "__VERSION__",
-    "prettier-plugin-jsdoc": "__VERSION__",
     "sass": "__VERSION__",
     "stylelint": "__VERSION__",
     "stylelint-config-standard": "__VERSION__",

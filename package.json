@@ -16,6 +16,7 @@
     "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
   },
   "devDependencies": {
+    "@homer0/prettier-plugin-jsdoc": "^11.0.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -25,7 +26,6 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-yml": "^1.19.0",
     "prettier": "^3.7.4",
-    "prettier-plugin-jsdoc": "^1.7.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^36.0.1",
     "stylelint-order": "^6.0.4"
