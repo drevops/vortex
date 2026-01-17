@@ -83,7 +83,7 @@ jobs:
       # as used in the Renovate workflow to ensure that they both use the same
       # version.
       - name: Validate Renovate configuration
-        uses: suzuki-shunsuke/github-action-renovate-config-validator@c22827f47f4f4a5364bdba19e1fe36907ef1318e # v1.1.1
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@ca480cb7ec89a9e1cd8c214ad33bda1617184027 # v2.0.0
 
       - name: Install Ahoy
         run: |
