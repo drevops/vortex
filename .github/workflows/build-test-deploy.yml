@@ -119,7 +119,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        uses: actions/cache/restore@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
         with:
           path: .data
           key: v26.1.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
@@ -154,7 +154,7 @@ jobs:
       # Note that the cache fallback flag is enabled for this case in order
       # to save cache even if the fallback is not used when restoring it.
       - name: Save DB cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        uses: actions/cache/save@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
@@ -230,7 +230,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        uses: actions/cache/restore@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
         with:
           path: .data
           fail-on-cache-miss: true
