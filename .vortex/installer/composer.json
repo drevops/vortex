@@ -24,7 +24,7 @@
         "cweagans/composer-patches": "^2",
         "czproject/git-php": "^4.6",
         "guzzlehttp/guzzle": "^7.10",
-        "laravel/prompts": "^0.3.9",
+        "laravel/prompts": "^0.3.11",
         "nelexa/zip": "^4.0.2",
         "nikic/iter": "^2.4.1",
         "sebastian/diff": "^6.0.2",
@@ -40,11 +40,11 @@
         "drevops/phpcs-standard": "^0.6.2",
         "drupal/coder": "^9@alpha",
         "ergebnis/composer-normalize": "^2.48.2",
-        "laravel/serializable-closure": "^2.0.7",
+        "laravel/serializable-closure": "^2.0.8",
         "mockery/mockery": "^1.6.12",
         "phpstan/phpstan": "^2.1.33",
-        "phpunit/phpunit": "^11.5.46",
-        "rector/rector": "^2.3.0",
+        "phpunit/phpunit": "^11.5.48",
+        "rector/rector": "^2.3.1",
         "symfony/finder": "^7.4.3"
     },
     "repositories": [
