@@ -174,7 +174,7 @@ services:
       context: .
       dockerfile: .docker/database.dockerfile
       args:
-        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:25.12.1}" # Use custom database image (if defined) or fallback to standard database image.
+        IMAGE: "${VORTEX_DB_IMAGE:-uselagoon/mysql-8.4:26.1.0}" # Use custom database image (if defined) or fallback to standard database image.
     environment:
       <<: *default-environment
     <<: *default-user
@@ -187,7 +187,7 @@ services:
 
   #;< SERVICE_REDIS
   redis:
-    image: uselagoon/valkey-8:25.12.1
+    image: uselagoon/valkey-8:26.1.0
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: redis # Change to 'none' if dedicated Redis service is used. See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -232,7 +232,7 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:143.0
+    image: selenium/standalone-chromium:144.0
     environment:
       <<: *default-environment
     <<: *default-volumes
