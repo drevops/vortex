@@ -7,7 +7,7 @@
 # @see https://hub.docker.com/r/uselagoon/php-8.3-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
 
-FROM uselagoon/php-8.3-cli-drupal:25.12.1
+FROM uselagoon/php-8.3-cli-drupal:26.1.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.
