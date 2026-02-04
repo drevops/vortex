@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:25.12.0@sha256:b6e416998c03da657006e7c1c2b0f5532f6117990049351a89789227b4941093
+      image: drevops/ci-runner:26.1.0@sha256:1fd1a2bc6311ae1c8b726fa2326dc509f6c8918b7d394bceb10d3aada1c7afcb
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -123,7 +123,7 @@ jobs:
         batch: [0, 1, 2, 3, 4]
 
     container:
-      image: drevops/ci-runner:25.12.0@sha256:b6e416998c03da657006e7c1c2b0f5532f6117990049351a89789227b4941093
+      image: drevops/ci-runner:26.1.0@sha256:1fd1a2bc6311ae1c8b726fa2326dc509f6c8918b7d394bceb10d3aada1c7afcb
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
