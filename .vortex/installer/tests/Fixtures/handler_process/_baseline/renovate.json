@@ -10,7 +10,7 @@
     "ignorePresets": [
         ":prHourlyLimit2"
     ],
-    "rangeStrategy": "update-lockfile",
+    "rangeStrategy": "bump",
     "timezone": "UTC",
     "configMigration": true,
     "enabledManagers": [
