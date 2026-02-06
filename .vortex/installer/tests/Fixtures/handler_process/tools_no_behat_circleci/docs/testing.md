@@ -1,0 +1,94 @@
+@@ -135,93 +135,3 @@
+ 
+ }
+ ```
+-
+-## Behat conventions
+-
+-BDD end-to-end tests.
+-
+-See [documentation](https://www.vortextemplate.com/docs/development/behat)
+-on how to run Behat tests, configure environment variables, and use test reports
+-in continuous integration pipeline.
+-
+-### User story format
+-
+-All Behat features must follow this format:
+-
+-```gherkin
+-Feature: [Feature name]
+-
+-  As a [user type]
+-  I want to [action/goal]
+-  So that [benefit/outcome]
+-```
+-
+-### Standard user types
+-
+-Use these consistent user type descriptions:
+-
+-```gherkin
+-As a site visitor          # Anonymous users
+-As a site administrator    # Admin users
+-As a content editor        # Content management users
+-As a authenticated user    # Logged-in users
+-```
+-
+-### Test data conventions
+-
+-- **Always prefix test content**: `[TEST] Page Title`
+-- **Use numbered patterns**: `[TEST] Topic 1`, `[TEST] Topic 2`
+-- **Avoid real names**: Don't use "Workshop" or "Training"
+-- **Be descriptive**: `[TEST] Event with All Fields`
+-
+-### Example feature file
+-
+-```gherkin
+-Feature: Homepage
+-
+-  As a site visitor
+-  I want to access the homepage
+-  So that I can view the main landing page and navigate the site
+-
+-  Scenario: View homepage content
+-    Given I am on the homepage
+-    Then I should see "[TEST] Welcome Message"
+-    And I should see "About Us" in the "navigation" region
+-```
+-
+-### Content type testing process
+-
+-When creating comprehensive tests for content types:
+-
+-1. Analyze configuration first
+-
+-   - Check `config/default/field.field.node.[type].*.yml`
+-   - Review `core.entity_view_display.node.[type].default.yml`
+-   - Identify visible vs hidden fields
+-
+-2. Create supporting entities
+-
+-  ```gherkin
+-  Background:
+-    Given "tags" terms:
+-      | name              |
+-      | [TEST] Topic 1    |
+-      | [TEST] Topic 2    |
+-
+-    And the following media "image" exist:
+-      | name                    |
+-      | [TEST] Featured Image 1 |
+-  ```
+-
+-3. Test all visible fields
+-
+-  ```gherkin
+-  Scenario: View complete content with all fields
+-    Given "page" content:
+-      | title                     | body                          | field_tags         |
+-      | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
+-    When I visit "[TEST] Complete Page Test"
+-    Then I should see "[TEST] Complete Page Test"
+-    And I should see "[TEST] This is the body text."
+-    And I should see "[TEST] Topic 1"
+-  ```

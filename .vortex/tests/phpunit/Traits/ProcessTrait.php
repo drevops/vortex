@@ -39,6 +39,8 @@ trait ProcessTrait {
       // for pushing images during the build.
       'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
       'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
+      // GitHub token for API calls to avoid rate limiting.
+      'GITHUB_TOKEN' => getenv('TEST_GITHUB_TOKEN') ?: '',
     ];
 
     // If process streaming is disabled, also silence the output of the

@@ -1,0 +1,44 @@
+---
+sidebar_label: Webhook
+sidebar_position: 2
+---
+
+# Webhook deployment
+
+Webhook deployment triggers a remote deployment by calling an HTTP endpoint.
+
+This is useful for integrating with external systems or custom deployment
+pipelines that expose webhook URLs.
+
+## How it works
+
+When `webhook` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
+calls the configured webhook URL using CURL, passing deployment information
+as parameters.
+
+## Configuration
+
+### Environment variables
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_DEPLOY_WEBHOOK_URL` | **Yes** | | Hosting/CI | The webhook URL to call |
+| `VORTEX_DEPLOY_WEBHOOK_METHOD` | No | `GET` | `.env` | HTTP method (GET, POST) |
+| `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS` | No | `200` | `.env` | Expected HTTP response status code |
+
+### Setup
+
+1. Add `webhook` to the `VORTEX_DEPLOY_TYPES` variable in your `.env` file:
+
+   ```shell title=".env"
+   VORTEX_DEPLOY_TYPES=webhook
+   ```
+
+2. Add `VORTEX_DEPLOY_WEBHOOK_URL` to your CI provider's environment variables
+   (this should be kept secret).
+
+## Use cases
+
+- Triggering deployments on platforms that provide webhook endpoints
+- Integrating with custom deployment orchestration systems
+- Notifying external services when code is ready for deployment

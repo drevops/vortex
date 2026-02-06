@@ -106,6 +106,10 @@ const config = {
             href: '/docs/installation',
           },
           {
+            label: 'Docs',
+            href: '/docs/development',
+          },
+          {
             label: 'Support',
             href: '/docs/support',
           },
@@ -216,7 +220,7 @@ const config = {
           },
           {
             from: ['/workflows'],
-            to: '/docs/workflows',
+            to: '/docs/development',
           },
           {
             from: ['/getting-started'],
@@ -253,6 +257,110 @@ const config = {
           {
             from: '/features',
             to: '/docs/features',
+          },
+          {
+            from: '/docs/workflows/testing',
+            to: '/docs/development',
+          },
+          {
+            from: '/docs/workflows/testing/phpunit',
+            to: '/docs/development/phpunit',
+          },
+          {
+            from: '/docs/workflows/testing/behat',
+            to: '/docs/development/behat',
+          },
+          {
+            from: '/docs/workflows/development',
+            to: '/docs/development',
+          },
+          {
+            from: '/docs/workflows/development/phpunit',
+            to: '/docs/development/phpunit',
+          },
+          {
+            from: '/docs/workflows/development/behat',
+            to: '/docs/development/behat',
+          },
+          {
+            from: '/docs/workflows/development/database',
+            to: '/docs/development/database',
+          },
+          {
+            from: '/docs/workflows/development/debugging',
+            to: '/docs/development/debugging',
+          },
+          {
+            from: '/docs/workflows/development/composer',
+            to: '/docs/development/composer',
+          },
+          {
+            from: '/docs/workflows/development/faqs',
+            to: '/docs/development/faqs',
+          },
+          {
+            from: '/docs/workflows/deployment',
+            to: '/docs/deployment',
+          },
+          {
+            from: '/docs/workflows/notifications',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/notifications/email',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/notifications/github',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/notifications/jira',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/notifications/newrelic',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/notifications/slack',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/notifications/webhook',
+            to: '/docs/deployment/notifications',
+          },
+          {
+            from: '/docs/workflows/releasing',
+            to: '/docs/releasing',
+          },
+          {
+            from: '/docs/workflows/releasing/gitflow',
+            to: '/docs/releasing/gitflow',
+          },
+          {
+            from: '/docs/workflows/releasing/versioning',
+            to: '/docs/releasing/versioning',
+          },
+          {
+            from: '/docs/workflows',
+            to: '/docs/architecture',
+          },
+          {
+            from: '/docs/workflows/variables',
+            to: '/docs/development/variables',
+          },
+          {
+            from: '/docs/variables',
+            to: '/docs/development/variables',
+          },
+          {
+            from: '/docs/workflows/updating-vortex',
+            to: '/docs/updating-vortex',
+          },
+          {
+            from: '/docs/drupal/composer',
+            to: '/docs/drupal/composer-json',
           },
         ],
       },

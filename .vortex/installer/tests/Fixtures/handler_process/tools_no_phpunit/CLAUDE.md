@@ -1,28 +1,14 @@
-@@ -8,7 +8,6 @@
- - Uses Docker for local development
- - Commands are executed via 'ahoy' (task runner)
- - Configuration is exported/imported via Drupal's config management
--- Testing includes PHPUnit
- - Testing includes Behat (BDD)
- - Deployment is automated via CI/CD pipelines
+@@ -37,13 +37,6 @@
+ ahoy lint     # Check code style
+ ahoy lint-fix # Auto-fix code style
  
-@@ -123,11 +122,6 @@
- ### Testing Framework
- 
- ```bash
--# Run PHPUnit tests (unit/integration tests)
--ahoy test-unit
--```
+-# PHPUnit testing
+-ahoy test            # Run PHPUnit tests
+-ahoy test-unit       # Run PHPUnit Unit tests
+-ahoy test-kernel     # Run PHPUnit Kernel tests
+-ahoy test-functional # Run PHPUnit Functional tests
+-ahoy test -- --filter=TestClassName  # Run specific PHPUnit test class
 -
--```bash
- # Run Behat tests (behavioral/BDD tests)
- ahoy test-bdd
- 
-@@ -199,7 +193,6 @@
- │   ├── behat/               # Behavioral tests (user scenarios)
- │   │   ├── features/        # Test scenarios (.feature files)
- │   │   └── behat.yml       # Behat configuration
--│   └── phpunit/            # Unit/integration tests
- │
- └── scripts/
-     ├── vortex/             # Core Vortex scripts (don't modify)
+ # Behat testing
+ ahoy test-bdd # Run Behat tests
+ ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag

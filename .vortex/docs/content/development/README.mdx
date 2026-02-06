@@ -1,0 +1,283 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+# Development
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Typical development process
+
+1. Pull the latest changes from the remote repository.
+2. Fetch the latest database dump from the production environment.
+3. Build the project.
+4. Start a new feature or bugfix branch:
+    - Create a new branch from `develop`.
+    - Implement the feature or fix the bug.
+5. Run tests:
+    - Run automated tests locally.
+    - Fix any failing tests.
+6. Run code quality checks:
+    - Run static code analysis locally.
+    - Fix any issues reported.
+7. Commit changes to the branch and push it to the remote repository.
+8. Create a pull request:
+    - Create a pull request from the branch to `develop`.
+    - Assign reviewers.
+    - Wait for the continuous integration pipeline to pass.
+
+## Running CLI commands
+
+You can run CLI commands inside the project containers.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run a command in the CLI container
+    ahoy cli echo "Hello, World!"
+    # SSH into the CLI container
+    ahoy cli
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run a command in the CLI container
+    docker compose exec cli echo "Hello, World!"
+    # SSH into the CLI container
+    docker compose exec cli bash
+    ```
+  </TabItem>
+</Tabs>
+
+You can also use shortcuts for common commands:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run Drush command
+    ahoy drush status
+    # Run Composer command
+    ahoy composer install
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run Drush command
+    docker compose exec cli drush status
+    # Run Composer command
+    docker compose exec cli composer install
+    ```
+  </TabItem>
+</Tabs>
+
+## Switching branches
+
+When switching to a new branch, there is no need to rebuild the entire project
+as it may take a long time. Instead, you can run these commands as needed based
+on what changed:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Update Composer dependencies (only if composer.json/composer.lock changed)
+    ahoy composer install
+    # Rebuild frontend assets (only if theme files changed)
+    ahoy fe
+    # Provision site (only if database or configuration changes expected)
+    ahoy provision
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Update Composer dependencies (only if composer.json/composer.lock changed)
+    docker compose exec cli composer install
+    # Rebuild frontend assets (only if theme files changed)
+    docker compose exec cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"
+    # Provision site (only if database or configuration changes expected)
+    docker compose exec cli ./scripts/vortex/provision.sh
+    ```
+  </TabItem>
+</Tabs>
+
+## Resetting the codebase
+
+To reset the local environment, use the reset command. This will stop and remove
+all containers and downloaded dependency packages (`vendor`, `node_modules` etc.).
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Reset local environment
+    ahoy reset
+    # Fully reset repository to a state as if it was just cloned
+    ahoy reset hard
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Reset local environment
+    docker compose down
+    ./scripts/vortex/reset.sh
+    # Fully reset repository to a state as if it was just cloned
+    docker compose down
+    ./scripts/vortex/reset.sh hard
+    ```
+  </TabItem>
+</Tabs>
+
+## Environment variables
+
+To update environment variables in your local development environment:
+
+1. Edit variables in `.env.local` file
+2. Apply changes by restarting containers:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy restart
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose up -d
+    ```
+  </TabItem>
+</Tabs>
+
+➡️ See [Variables](./variables.mdx) for comprehensive variable reference.
+
+## Performance optimization
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Enable CSS/JS aggregation
+    ahoy drush config:set system.performance css.preprocess 1
+    ahoy drush config:set system.performance js.preprocess 1
+    # Clear render cache
+    ahoy drush cache:rebuild-external
+    # Check database updates needed
+    ahoy drush updatedb:status
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Enable CSS/JS aggregation
+    docker compose exec cli drush config:set system.performance css.preprocess 1
+    docker compose exec cli drush config:set system.performance js.preprocess 1
+    # Clear render cache
+    docker compose exec cli drush cache:rebuild-external
+    # Check database updates needed
+    docker compose exec cli drush updatedb:status
+    ```
+  </TabItem>
+</Tabs>
+
+## Common issues & solutions
+
+### Site not loading
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy doctor                # Check for common issues
+    ahoy down && ahoy up       # Restart containers
+    ahoy info                  # Verify URLs and ports
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    ./scripts/vortex/doctor.sh                       # Check for common issues
+    docker compose down && docker compose up -d      # Restart containers
+    docker compose exec cli ./scripts/vortex/info.sh # Verify URLs and ports
+    ```
+  </TabItem>
+</Tabs>
+
+### Database connection errors
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    docker compose ps      # Check if database container is running
+    ahoy reset             # Nuclear option: rebuild everything
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose ps      # Check if database container is running
+    docker compose down --volumes && docker compose up -d  # Nuclear option
+    ```
+  </TabItem>
+</Tabs>
+
+### Permission issues
+
+```shell
+# Fix file permissions (Linux/Mac)
+sudo chown -R $USER:$USER .
+```
+
+### Memory issues during composer install
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Increase PHP memory temporarily
+    ahoy composer install --no-dev --optimize-autoloader
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Increase PHP memory temporarily
+    docker compose exec cli composer install --no-dev --optimize-autoloader
+    ```
+  </TabItem>
+</Tabs>
+
+## Log files
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # View ahoy logs
+    ahoy logs
+    # Check container logs
+    docker compose logs --tail=50 cli
+    # View Drupal watchdog logs
+    ahoy drush watchdog:show --count=20
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Check container logs
+    docker compose logs --tail=50 cli
+    # View Drupal watchdog logs
+    docker compose exec cli drush watchdog:show --count=20
+    ```
+  </TabItem>
+</Tabs>
+
+## Beyond local development
+
+<details>
+<summary>Expand to see the complete code lifecycle</summary>
+
+import CodeLifecycle from '../_code-lifecycle.mdx';
+
+<CodeLifecycle />
+
+</details>
+
+## See also
+
+| Topic | Description |
+|-------|-------------|
+| [Database](database) | Fetching, refreshing, and exporting databases |
+| [Composer](composer) | Managing packages, patching, security auditing |
+| [Debugging](debugging) | Xdebug, curl testing, container access |
+| [PHPUnit](phpunit) | Unit, Kernel, and Functional testing |
+| [Behat](behat) | Behavior-Driven Development (BDD) testing |

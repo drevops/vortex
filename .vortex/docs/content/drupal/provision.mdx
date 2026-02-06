@@ -53,7 +53,7 @@ Runs the complete provisioning process including:
 
 Use this when you want a fully configured site ready for development or deployment.
 
-```bash
+```shell
 # Full provisioning (recommended for most cases)
 ahoy provision
 ```
@@ -67,7 +67,7 @@ Imports only the database dump without running deployment scripts:
 - Skips database updates
 - Skips post-provisioning scripts
 
-```bash
+```shell
 # Import database only from default dump in .data/db.sql
 ahoy import-db
 
@@ -183,7 +183,7 @@ You may choose to only perform an action based on a specific environment (the
 value of `$settings['environment']` is populated by
 the [Drupal settings file](settings#environment-type-detection)):
 
-```bash
+```shell
 environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 
 if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
@@ -197,7 +197,7 @@ fi
 You may also conditionally perform an action based on whether the database is
 freshly imported or not:
 
-```bash
+```shell
 if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
   echo "> Fresh database detected."
 else
@@ -219,5 +219,7 @@ import ProvisionScriptExample from '!!raw-loader!./provision-example.sh';
 </details>
 
 :::tip Related Documentation
-For information about different types of Drupal hooks used during deployment and updates, see [Update Hooks](./update-hooks).
+For information about different types of Drupal hooks used during deployment and updates.
+
+➡️ See [Update Hooks](./update-hooks)
 :::

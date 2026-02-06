@@ -18,7 +18,7 @@ containerized environment to ensure consistency across runs.
 
 ## Workflow structure
 
-import CodeLifecycle from '../workflows/_code-lifecycle.mdx';
+import CodeLifecycle from '../_code-lifecycle.mdx';
 
 <CodeLifecycle/>
 
@@ -161,7 +161,7 @@ into already deployed environments which still run CI checks on new commits.
 To skip deployments for specific branches, set the `VORTEX_DEPLOY_SKIP_BRANCHES`
 variable to a comma-separated list of exact branch names:
 
-```bash
+```shell
 VORTEX_DEPLOY_ALLOW_SKIP=1 # Enable deployment skipping
 VORTEX_DEPLOY_SKIP_BRANCHES="feature/test,hotfix/urgent,project/experimental"
 ```
@@ -169,7 +169,7 @@ VORTEX_DEPLOY_SKIP_BRANCHES="feature/test,hotfix/urgent,project/experimental"
 To skip deployments for specific pull requests, set the `VORTEX_DEPLOY_SKIP_PRS`
 variable to a comma-separated list of PR numbers:
 
-```bash
+```shell
 VORTEX_DEPLOY_ALLOW_SKIP=1 # Enable deployment skipping
 VORTEX_DEPLOY_SKIP_PRS="123,456,789"
 ```

@@ -14,6 +14,9 @@ MD013: false
 # MD024/no-duplicate-heading : Multiple headings with the same content : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md024.md
 MD024: false
 
+# MD029/ol-prefix : Ordered list item prefix : https://github.com/DavidAnson/markdownlint/blob/main/doc/md029.md
+MD029: false
+
 # MD033/no-inline-html : Inline HTML : https://github.com/DavidAnson/markdownlint/blob/v0.38.0/doc/md033.md
 MD033: false
 

@@ -48,8 +48,18 @@ commands:
       ahoy lint-docs
       ahoy lint-markdown
 
+  lint-fix:
+    name: Fix linting issues in Vortex project.
+    cmd: |
+      ahoy lint-installer-fix
+      ahoy lint-docs-fix
+      ahoy lint-markdown-fix
+
   lint-installer:
     cmd: composer --working-dir installer lint
+
+  lint-installer-fix:
+    cmd: composer --working-dir installer lint-fix
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh
@@ -67,6 +77,9 @@ commands:
     cmd: |
       yarn --cwd=docs run lint
       yarn --cwd=./docs run spellcheck
+
+  lint-docs-fix:
+    cmd: yarn --cwd=docs run lint-fix
 
   test:
     name: Test Vortex project.

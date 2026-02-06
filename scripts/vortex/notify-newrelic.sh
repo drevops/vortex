@@ -26,7 +26,7 @@ VORTEX_NOTIFY_NEWRELIC_PROJECT="${VORTEX_NOTIFY_NEWRELIC_PROJECT:-${VORTEX_NOTIF
 # 5. The key format is: NRAK-XXXXXXXXXXXXXXXXXXXXXX
 #
 # @see https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key
-# @see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
+# @see https://www.vortextemplate.com/docs/deployment/notifications#new-relic
 VORTEX_NOTIFY_NEWRELIC_USER_KEY="${VORTEX_NOTIFY_NEWRELIC_USER_KEY:-${NEWRELIC_USER_KEY:-}}"
 
 # New Relic notification deployment label (human-readable identifier for display).

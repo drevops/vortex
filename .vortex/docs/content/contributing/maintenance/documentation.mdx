@@ -2,21 +2,29 @@
 
 There are 2 types of the documentation that **Vortex** provides:
 
-1. This Documentation of **Vortex** that is then deployed
-   to https://www.vortextemplate.com/docs/
-2. Consumer site documentation that is distributed when **Vortex** is
-   installed.
+1. **Vortex template documentation** (this site) - Generic information on
+   **how** to perform operations, applicable to all projects built with Vortex.
+   Deployed to https://www.vortextemplate.com/docs/
+2. **Per-project documentation** - Project-specific information on **what** the
+   project does, distributed in the `docs/` directory when Vortex is installed.
+
+The key relationship: per-project documentation describes **what** (coding
+standards, testing requirements, release configuration) while referencing the
+Vortex documentation for **how** to perform specific operations.
 
 ## www.vortextemplate.com
 
-The Documentation (this site) is written in Markdown and located in
-[`.vortex/docs`](https://github.com/drevops/vortex/blob/main/.vortex/docs) directory. This is
-removed when you install **Vortex** for a
-consumer site.
+This documentation provides generic "how-to" guides suitable for any project
+using the Vortex template. It covers tooling, automation, and operations that
+are common across all Vortex-based projects.
+
+The source is written in Markdown and located in
+[`.vortex/docs`](https://github.com/drevops/vortex/blob/main/.vortex/docs)
+directory. This is removed when you install **Vortex** for a consumer site.
 
 ### Local build
 
-```bash
+```shell
 cd .vortex/docs
 ahoy build
 ```
@@ -24,7 +32,7 @@ ahoy build
 Parts of the documentation are generated automatically from the codebase.
 To update it, run:
 
-```bash
+```shell
 cd .vortex
 ahoy update-docs
 ```
@@ -34,7 +42,7 @@ be available immediately.
 
 ### Check spelling and links
 
-```bash
+```shell
 cd .vortex
 ahoy test-docs
 ```
@@ -59,3 +67,16 @@ An automated continuous integration build publishes this documentation.
 After **Vortex** is installed into the consumer site, these docs are
 intended to be used by the site maintainers and stay up-to-date with the
 project changes.
+
+This documentation describes the **what** for the project:
+
+- Coding standards and agreements specific to the project
+- Testing requirements and configuration
+- Release and deployment configuration
+- Project-specific procedures and decisions
+
+When describing **how** to perform an operation, per-project documentation
+should reference the relevant page on https://www.vortextemplate.com/docs/
+rather than duplicating instructions. This keeps project docs focused on
+decisions and configuration while leveraging the maintained Vortex
+documentation for operational details.

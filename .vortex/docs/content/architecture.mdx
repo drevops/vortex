@@ -1,7 +1,7 @@
 # Architecture
 
 **Vortex** is a production-ready Drupal project template designed to simplify
-onboarding, unify workflows, and ensure long-term maintainability.
+onboarding, standardize processes, and ensure long-term maintainability.
 
 This page provides a high-level overview of how the template is structured, how
 its components work together, and how your project benefits from its
@@ -32,7 +32,7 @@ The system is made up of several modular pieces that work together:
 - Hosting provider configurations
 - Automated dependency updates
 - Project documentation
-- Workflow scripts to connect components
+- Automation scripts to connect components
 
 You can see how these parts connect in the diagram below:
 
@@ -50,7 +50,7 @@ the chance of errors and making processes predictable.
 <details>
   <summary>Expand to see the complete code lifecycle diagram</summary>
 
-import CodeLifecycle from './workflows/_code-lifecycle.mdx';
+import CodeLifecycle from './_code-lifecycle.mdx';
 
   <CodeLifecycle />
 
@@ -63,7 +63,7 @@ production-grade Lagoon images. This ensures consistency between local, CI, and
 hosting environments.
 
 To simplify command usage, we use [Ahoy](https://ahoy-cli.dev/) as a wrapper. It
-lets you run complex workflows like provisioning, testing, or database imports
+lets you run complex tasks like provisioning, testing, or database imports
 with short, easy-to-remember commands.
 
 :::note Planned features
@@ -145,7 +145,7 @@ You’ll also find scaffolds for:
 ## Continuous integration workflows
 
 **Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
-project. The workflows include:
+project. These pipelines include:
 
 - Database download and caching (for faster builds)
 - Full site provisioning in CI
@@ -163,7 +163,7 @@ uniformity.
 Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
 
 - Trigger provisioning with the same steps used locally and in CI
-- Provide deployment workflows suited to each platform
+- Provide deployment pipelines suited to each platform
 
 You can use **Vortex** with other platforms too, but these are first-class
 integrations.
@@ -188,10 +188,10 @@ the schedule as needed.
 **Vortex** includes centralized documentation (what you’re reading now), as well as
 a scaffold for adding project-specific docs within your own repository.
 
-## Workflow scripts
+## Automation scripts
 
-A workflow is a sequence of steps to achieve a goal. In **Vortex**, those are
-defined via POSIX-compliant Bash scripts in `scripts/vortex`.
+**Vortex** uses POSIX-compliant Bash scripts in `scripts/vortex` to automate
+common tasks and connect components together.
 
 These scripts:
 
@@ -199,16 +199,16 @@ These scripts:
 - Support environment variables to adapt behavior
 - Are modular and easy to extend
 
-### Customizing workflows
+### Customizing scripts
 
-All scripts support configuration via environment variables, allowing workflows
+All scripts support configuration via environment variables, allowing them
 to be easily adapted to specific project or environment needs.
 
 During initial project setup, `.env` file is updated with project-specific
 values like project name, email etc. Then, environment variables (secrets,
 tokens, etc.) are set in CI or hosting environments.
 
-Refer to the [Workflows](./workflows) section for more details.
+➡️ See [Development > Variables](./development/variables)
 
 ### Router scripts
 
@@ -235,7 +235,7 @@ For example:
 
 </details>
 
-➡️ See [Workflows](./workflows)
+➡️ See [Variables](./development/variables)
 
 ## Environment variables
 
@@ -245,4 +245,4 @@ local, CI, and hosting environments.
 These variables are either defined in the `.env` file or set within
 CI/hosting environments as secrets.
 
-➡️ See [Workflows > Variables](./workflows/variables)
+➡️ See [Variables](./development/variables)

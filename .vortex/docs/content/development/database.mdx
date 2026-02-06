@@ -1,0 +1,98 @@
+---
+sidebar_label: Database
+sidebar_position: 2
+---
+
+# Database
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Fetching database
+
+To fetch the database with the latest data from the production environment,
+download the latest database dump into the `.data` directory.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Download latest database dump (uses cache if downloaded today)
+    ahoy fetch-db
+    # Force a fresh download regardless of cache
+    ahoy fetch-db --fresh
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Download latest database dump (uses cache if downloaded today)
+    docker compose exec cli ./scripts/vortex/download-db.sh
+    # Force a fresh download regardless of cache
+    VORTEX_DB_DOWNLOAD_REFRESH=1 docker compose exec cli ./scripts/vortex/download-db.sh
+    ```
+  </TabItem>
+</Tabs>
+
+:::note
+
+The database dump is stored in the `.data` directory instead of being directly
+imported into the local environment to allow for caching and reusing the
+database dump without needing to download it every time you need to refresh
+the local environment.
+
+You can manually download the database dump from the production environment,
+name it `db.sql`, and place it in the `.data` directory.
+
+:::
+
+## Refreshing database
+
+Import the database dump into the local environment and run all necessary updates.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Import database and run updates
+    ahoy provision
+    # Import database without running updates
+    ahoy import-db
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Import database and run updates
+    docker compose exec cli ./scripts/vortex/provision.sh
+    # Import database without running updates
+    docker compose exec cli ./scripts/vortex/import-db.sh
+    ```
+  </TabItem>
+</Tabs>
+
+Run the provision command any time you need to reset the local environment to
+use the fresh database dump stored in `.data`.
+
+The import-db command is useful if you want to quickly reset the database
+without applying any updates or changes.
+
+## Exporting database
+
+Export timestamped database dumps from the local environment.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Export current database to .data directory
+    ahoy export-db
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Export current database to .data directory
+    docker compose exec cli ./scripts/vortex/export-db.sh
+    ```
+  </TabItem>
+</Tabs>
+
+You can use these dumps to restore the local environment to a specific state:
+rename the dump file to `.data/db.sql` and run the import command.
+
+➡️ See [Drupal > Provision](../drupal/provision)

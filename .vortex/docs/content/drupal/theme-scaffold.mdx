@@ -18,7 +18,7 @@ while modules use the abbreviated prefix (`ys_` for `your_site`).
 We understand that front-end theming is often highly project-specific and
 subject to team preferences. The provided `your_site_theme` scaffold is not
 intended to dictate how your theme should be built — it simply demonstrates how
-custom themes can _integrate_ with the **Vortex** tooling and workflows.
+custom themes can _integrate_ with the **Vortex** tooling and automations.
 
 Feel free to adapt or replace it with your preferred theme.
 
@@ -32,11 +32,11 @@ The theme includes a complete Node.js-based build system using [Grunt](https://g
 - **JavaScript concatenation and minification**
 - **CSS auto-prefixing** for browser compatibility
 - **Linting** for both CSS ([Stylelint](https://stylelint.io/)) and JavaScript ([ESLint](https://eslint.org/))
-- **Watch mode** for development workflow
+- **Watch mode** for development
 
 ### Build commands
 
-```bash
+```shell
 cd web/themes/custom/your_site_theme
 
 # Install dependencies
@@ -61,7 +61,7 @@ yarn run watch
 Ahoy commands are configured to call the appropriate Yarn scripts from the
 theme directory:
 
-```bash
+```shell
 # Install front-end dependencies
 ahoy fei
 
@@ -86,7 +86,7 @@ and tools installed there, ensuring consistency across development environments.
 When adding your own theme with a custom build system, it's a good idea to
 follow the same command structure and naming conventions. This keeps things
 consistent across projects and makes it easier for other developers to work with
-the build system without learning a new workflow.
+the build system without learning a new process.
 
 :::
 
@@ -132,5 +132,5 @@ tests. Simply remove them if you do not need them.
 
 ---
 
-➡️ See [Workflows > Development](../workflows/development) for more details on how to work with
+➡️ See [Development](../development) for more details on how to work with
 the theme.

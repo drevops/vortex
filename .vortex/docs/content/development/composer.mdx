@@ -1,0 +1,459 @@
+---
+sidebar_label: Composer
+sidebar_position: 3
+---
+
+# Composer packages
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Installing
+
+To install packages, use `composer require` to include the package and resolve dependencies.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer require drupal/devel
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer require drupal/devel
+    ```
+  </TabItem>
+</Tabs>
+
+By default, stable releases are installed. If you need a non-stable version (e.g., `alpha`, `beta`, `RC`), specify the version constraint explicitly:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer require drupal/devel:^1.0.0@beta
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer require drupal/devel:^1.0.0@beta
+    ```
+  </TabItem>
+</Tabs>
+
+Make sure that the `minimum-stability` setting in `composer.json` is set to
+the version constraint you need. For example, to allow `alpha`, `beta`, and `RC` versions:
+
+```json
+{
+    "minimum-stability": "beta"
+}
+```
+
+## Adding JavaScript/CSS libraries (npm packages)
+
+To install JavaScript or CSS libraries as Drupal libraries with Composer,
+they must be defined as [inline Composer packages](https://getcomposer.org/doc/04-schema.md#repositories).
+
+1. Define the package in `composer.json` under the `repositories` section:
+
+   ```json
+   {
+       "repositories": [
+            {
+               "type": "package",
+               "package": {
+                   "name": "gdsmith/jquery.easing",
+                   "type": "drupal-library",
+                   "version": "1.4.1",
+                   "source": {
+                       "type": "git",
+                       "url": "https://github.com/gdsmith/jquery.easing",
+                       "reference": "1.4.1"
+                   }
+               }
+           }
+       ]
+   }
+   ```
+
+2. Require the package using Composer:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer require gdsmith/jquery.easing
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer require gdsmith/jquery.easing
+    ```
+  </TabItem>
+</Tabs>
+
+## Updating
+
+To update all dependencies:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer update
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer update
+    ```
+  </TabItem>
+</Tabs>
+
+:::tip Updates and patches
+
+If your project uses [patches](#patching) to modify dependencies, the update
+may fail if the patches are not compatible with the new versions of the
+dependencies.
+
+A common solution is to remove the patches temporarily, run the update, and then
+reapply the patches one by one.
+:::
+
+To update a specific package and its dependencies:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer update vendor/package-name --with-dependencies
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer update vendor/package-name --with-dependencies
+    ```
+  </TabItem>
+</Tabs>
+
+For updating Drupal core, use:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer update "drupal/core-*" --with-dependencies
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer update "drupal/core-*" --with-dependencies
+    ```
+  </TabItem>
+</Tabs>
+
+After updating core, review changes with `git diff`, especially modified scaffolding files like `.htaccess`, and commit them in a single commit.
+
+## Overriding paths
+
+To override package installation paths, modify `composer.json`:
+
+```json
+{
+    "extra": {
+        "installer-paths": {
+            "web/libraries/chosen": [
+                "npm-asset/chosen-js"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library",
+                "type:npm-asset",
+                "type:bower-asset"
+            ]
+        }
+    }
+}
+```
+
+## Patching
+
+**Vortex** uses [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) v2.x for applying patches to Composer dependencies. Version 2.x uses git-based patching with `git apply` for better cross-platform consistency.
+
+:::tip
+
+For official documentation, visit: [Composer Patches Recommended Workflows](https://docs.cweagans.net/composer-patches/usage/recommended-workflows/)
+
+:::
+
+### Understanding `patches.lock.json`
+
+Composer Patches v2.x automatically generates a `patches.lock.json` file that contains:
+
+- Patch metadata (URLs, descriptions, target packages)
+- SHA-256 checksums for patch verification
+
+**This file must be committed to version control** (like `composer.lock`).
+
+**Benefits:**
+
+- Ensures reproducible builds across teams and CI/CD environments
+- Verifies patch integrity with checksums
+- Prevents "works on my machine" issues with patches
+- Makes the patch state explicit and trackable
+
+### Adding a new patch
+
+<!-- markdownlint-disable MD029 -->
+
+1. Define the patch in `composer.json` under `extra.patches`:
+
+    ```json
+    "extra": {
+        "patches": {
+            "drupal/foobar": {
+                "Fix for issue #123": "https://www.drupal.org/files/issues/fix-123.patch"
+            }
+        }
+    }
+    ```
+
+2. Regenerate `patches.lock.json`:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer patches-relock
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer patches-relock
+    ```
+  </TabItem>
+</Tabs>
+
+3. Remove and reinstall patched packages:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer patches-repatch
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer patches-repatch
+    ```
+  </TabItem>
+</Tabs>
+
+:::warning
+`composer patches-repatch` removes patched dependencies from `vendor/` and reinstalls them. Ensure you have no unsaved changes in those directories.
+:::
+
+4. Update `composer.lock`:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer update --lock
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer update --lock
+    ```
+  </TabItem>
+</Tabs>
+
+<!-- markdownlint-enable MD029 -->
+
+### Removing a patch
+
+<!-- markdownlint-disable MD029 -->
+
+1. Delete the patch definition from `composer.json`
+
+2. Regenerate `patches.lock.json`:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer patches-relock
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer patches-relock
+    ```
+  </TabItem>
+</Tabs>
+
+3. Manually delete the affected dependency:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy cli rm -rf vendor/drupal/foobar
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli rm -rf vendor/drupal/foobar
+    ```
+  </TabItem>
+</Tabs>
+
+4. Reinstall without the patch:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer patches-repatch
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer patches-repatch
+    ```
+  </TabItem>
+</Tabs>
+
+5. Update `composer.lock`:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer update --lock
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer update --lock
+    ```
+  </TabItem>
+</Tabs>
+
+<!-- markdownlint-enable MD029 -->
+
+## Security auditing
+
+Composer 2.9.0 introduced automatic security auditing that checks your dependencies for known security vulnerabilities and abandoned packages. This feature helps you maintain a secure codebase by alerting you to potential issues during package installation and updates.
+
+### Configuration options
+
+Configure audit behavior in your `composer.json` under the `config` section:
+
+```json
+{
+    "config": {
+        "audit": {
+            "abandoned": "report",
+            "block-insecure": true,
+            "ignore": {
+                "CVE-2024-1234": "The affected component is not in use in our application.",
+                "GHSA-xxxx-yyyy-zzzz": "Mitigated by additional security measures."
+            }
+        }
+    }
+}
+```
+
+**Available Options:**
+
+- **`block-insecure`**: Controls whether packages with security vulnerabilities block installation
+  - `true` (**Vortex** default): Blocks installation/update of vulnerable packages unless ignored
+  - `false`: Shows warnings but allows installation to proceed
+- **`abandoned`**: Controls how abandoned packages are handled
+  - `report` (**Vortex** default): Shows abandoned packages as warnings but doesn't fail
+  - `fail`: Audit command fails with non-zero exit code
+  - `ignore`: Skips abandoned packages in audit reports
+- **`ignore`**: Ignores specific security advisories by CVE or GHSA identifier (empty by default)
+
+### When to Use `block-insecure: false`
+
+**Vortex** sets `block-insecure` to `true` by default to enforce security best practices. However, you may want to set it to `false` when:
+
+- You need flexibility to evaluate vulnerabilities on your timeline
+- No secure version is immediately available
+- The vulnerability doesn't affect your specific use case
+- You're in active development and need uninterrupted workflow
+
+Keep it `true` (Vortex default) when:
+
+- Working on production sites with strict security requirements
+- Your deployment process can handle blocked installations
+- You want to enforce immediate action on security vulnerabilities
+- Your team has resources to quickly address security issues
+
+:::warning Vortex Security-First Philosophy
+
+**Vortex** adopts a security-first approach by setting `block-insecure: true` as the default. This prioritizes safety in automated deployments by preventing vulnerable packages from being installed without explicit review.
+
+If you need to override this setting for backwards compatibility, you can modify the `audit.block-insecure` configuration in your project's `composer.json` file. However, we strongly recommend addressing vulnerabilities by updating packages or using the `ignore` configuration for assessed exceptions, rather than routinely disabling security blocking.
+
+This approach ensures security issues are explicitly acknowledged and reviewed before being accepted into your codebase.
+
+:::
+
+### Ignoring specific advisories
+
+When you've assessed a vulnerability and determined it doesn't affect your project, you can ignore it:
+
+```json
+{
+    "config": {
+        "audit": {
+            "ignore": {
+                "CVE-2024-1234": "Component is not used in our implementation.",
+                "GHSA-xxxx-yyyy-zzzz": "Patched via custom security fix."
+            }
+        }
+    }
+}
+```
+
+:::tip Document Your Decisions
+
+Always include reasons when ignoring advisories into your Git commit messages. This helps your team understand why a vulnerability was deemed acceptable and makes it easier to review these decisions in the future.
+
+:::
+
+### Running audit command
+
+Check your dependencies for security issues manually:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Audit all installed packages
+    ahoy composer audit
+    # Audit only production dependencies (exclude dev)
+    ahoy composer audit --no-dev
+    # Audit packages from lock file (faster)
+    ahoy composer audit --locked
+    # Control abandoned package behavior
+    ahoy composer audit --abandoned=ignore  # Skip abandoned packages
+    ahoy composer audit --abandoned=report  # Show but don't fail
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Audit all installed packages
+    docker compose exec cli composer audit
+    # Audit only production dependencies (exclude dev)
+    docker compose exec cli composer audit --no-dev
+    # Audit packages from lock file (faster)
+    docker compose exec cli composer audit --locked
+    # Control abandoned package behavior
+    docker compose exec cli composer audit --abandoned=ignore  # Skip abandoned packages
+    docker compose exec cli composer audit --abandoned=report  # Show but don't fail
+    ```
+  </TabItem>
+</Tabs>
+
+### CI/CD integration
+
+**Vortex** automatically runs `composer audit` as part of the CI/CD pipeline to
+check for security vulnerabilities during builds.
+
+By default, audit failures will cause the CI build to fail. You can control this
+behavior using a repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`
+set to `1`. When this variable is set to `1`, the audit step will run but won't
+fail the build if vulnerabilities are found.

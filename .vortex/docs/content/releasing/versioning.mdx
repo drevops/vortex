@@ -1,0 +1,75 @@
+---
+sidebar_label: Versioning
+sidebar_position: 3
+---
+
+# Version scheme
+
+**Vortex** supports [CalVer](https://calver.org/) and [SemVer](https://semver.org/) version numbering schemes to fit different project needs.
+
+During installation, you can choose between Calendar Versioning (CalVer), Semantic Versioning (SemVer), or a custom scheme.
+
+## Calendar versioning (CalVer)
+
+**Format:** `YY.M.Z` (e.g., `25.1.0`, `25.11.1`)
+
+- `YY` = Short year (no leading zeroes)
+- `M` = Short month (no leading zeroes)
+- `Z` = Hotfix/patch version (no leading zeroes)
+
+### Why CalVer
+
+- **Release frequency transparency**: When you have multiple releases per month, dates make it easy to identify when a release happened
+- **Intuitive tracking**: Stakeholders can immediately understand "this is from January 2025" vs memorizing version numbers
+- **Natural progression**: No ambiguity about major vs minor changes - just the chronological order
+- **Marketing alignment**: Easier to communicate to non-technical audiences ("our Q1 2025 release")
+
+### Examples
+
+- ✅ Correct: `25.1.0`, `25.11.1`, `25.1.10`, `25.10.1`, `9.12.0`
+- ❌ Incorrect: `25.0.0` (no month 0), `2025.1.1` (full year), `25.01.0` (leading zero), `01.1.0` (leading zero in year)
+
+Learn more: [CalVer.org](https://calver.org/)
+
+## Semantic versioning (SemVer)
+
+**Format:** `X.Y.Z` (e.g., `1.0.0`, `2.3.5`)
+
+- `X` = Major release version (no leading zeroes)
+- `Y` = Minor release version (no leading zeroes)
+- `Z` = Hotfix/patch version (no leading zeroes)
+
+### Why SemVer
+
+- **Breaking change communication**: Major version bump signals incompatible API changes
+- **Dependency management**: Package managers can enforce compatible version ranges
+- **Developer expectations**: Well-understood convention in the development community
+- **Predictable upgrades**: Minor versions add functionality, patches fix bugs
+
+### Examples
+
+- ✅ Correct: `0.1.0`, `1.0.0`, `1.0.1`, `1.0.10`
+- ❌ Incorrect: `0.1` (missing patch), `1` (missing minor and patch), `1.0.01` (leading zero)
+
+Learn more: [SemVer.org](https://semver.org/)
+
+## Other
+
+Choose "Other" if you have a custom versioning scheme or don't want to commit to CalVer or SemVer. This option removes both versioning templates from your documentation, allowing you to define your own approach.
+
+## Configuration
+
+Your project's version scheme is configured once during installation and stored in `.env`:
+
+```shell
+VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
+```
+
+### Release notes publishing
+
+For CalVer and SemVer projects, **Vortex** provides a GitHub Actions workflow to automate release notes drafting:
+
+- **Draft release notes** are automatically updated when commits are pushed to the `develop` branch
+- Next version is calculated based on your version scheme
+- Release notes accumulate changes until the release is finalized
+- On release finish, you can use the draft to publish the final release notes

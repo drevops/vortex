@@ -1,0 +1,134 @@
+---
+sidebar_label: PHPUnit
+sidebar_position: 5
+---
+
+# PHPUnit
+
+**Vortex** uses [PHPUnit](https://phpunit.de/) as a framework for Unit, Kernel,
+and Functional testing. PHPUnit tests verify that individual components work
+correctly in isolation and when integrated with Drupal's systems.
+
+**Vortex** provides full PHPUnit support, including configuration in [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml)
+based on Drupal core's `core/phpunit.xml.dist` to allow customizing the test
+suite per project.
+
+Test types supported:
+
+1. **Unit tests** - Test isolated PHP classes without Drupal bootstrap
+2. **Kernel tests** - Test with partial Drupal bootstrap (database, services)
+3. **Functional tests** - Test with full Drupal bootstrap including browser simulation
+
+## Running tests
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run all PHPUnit tests (Unit, Kernel, Functional)
+    ahoy test
+    # Run only Unit tests
+    ahoy test-unit
+    # Run only Kernel tests
+    ahoy test-kernel
+    # Run only Functional tests
+    ahoy test-functional
+    # Run specific test file
+    ahoy test tests/phpunit/ExampleTest.php
+    # Run tests with filter
+    ahoy test -- --filter=testMethodName
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run all PHPUnit tests (Unit, Kernel, Functional)
+    docker compose exec cli vendor/bin/phpunit
+    # Run only Unit tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=unit
+    # Run only Kernel tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=kernel
+    # Run only Functional tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=functional
+    # Run specific test file
+    docker compose exec cli vendor/bin/phpunit tests/phpunit/ExampleTest.php
+    # Run tests with filter
+    docker compose exec cli vendor/bin/phpunit --filter=testMethodName
+    ```
+  </TabItem>
+</Tabs>
+
+## Test suites
+
+PHPUnit tests are organized into test suites defined in `phpunit.xml`:
+
+- **unit** - Fast tests that don't require Drupal bootstrap
+- **kernel** - Tests that need database and core services
+- **functional** - Full browser simulation tests
+
+## Configuration
+
+The `phpunit.xml` file in the project root configures:
+
+- Test suite directories and naming patterns
+- Bootstrap file for Drupal integration
+- Environment variables for test execution
+- Code coverage settings
+
+## Skipping tests
+
+Add `@group skip` annotation to a test class or method to exclude it from the test run:
+
+```php
+/**
+ * @group skip
+ */
+public function testSomethingToSkip(): void {
+  // This test will be skipped
+}
+```
+
+## Reporting
+
+Test reports are stored in `.logs/phpunit` directory, separated into multiple
+files and named after the suite name. These reports are usually used in
+continuous integration to track test performance and stability.
+
+## Boilerplate
+
+**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
+[themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src) and
+[scripts](https://github.com/drevops/vortex/blob/main/tests/phpunit).
+
+These boilerplate tests run in continuous integration pipeline when you install
+**Vortex** and can be used as a starting point for writing your own.
+
+### Drupal settings tests
+
+**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal/DrupalSettingsTest.php)
+to check that Drupal settings are correct based on the environment type the site
+is running: with the number of custom modules multiplied by the number of
+environment types, it is easy to miss certain settings which may lead to
+unexpected issues when deploying a project to a different environment.
+
+It is intended to be used in your site and kept up-to-date with the
+changes made to the `settings.php` file.
+
+### Continuous integration pipeline configuration tests
+
+**Vortex** provides [continuous integration pipeline configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
+to check that the continuous integration configuration is correct. It is
+intended to be used in your site and kept up-to-date with the continuous
+integration configurations.
+
+For example, there are tests for regular expressions used to filter the branches
+and tags before they are deployed to the hosting environment.
+
+## Writing tests
+
+For project-specific test writing conventions (test class structure, base classes,
+data providers, test data conventions), see your project's `docs/testing.md` file.
+
+The `docs/testing.md` file is scaffolded when you install **Vortex** and should
+be maintained by your project team to document agreed-upon testing practices.

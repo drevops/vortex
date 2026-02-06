@@ -1,10 +1,10 @@
 # Authoring tests
 
-There are 2 types of tests in **Vortex**:
+There are 2 types of tests used in **Vortex**:
 
-- [PHPUnit](https://phpunit.de/) for functional end-to-end testing of workflows.<br/>
+- [PHPUnit](https://phpunit.de/) for functional end-to-end testing of a site build pipeline.<br/>
 With help of [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers) testing library, we run tests
-for workflows, including container builds, database imports, and Drupal
+for automations, including container builds, database imports, and Drupal
 operations as if they were run by a consumer site developer.
 
 - [Bats](https://github.com/bats-core/bats-core) for unit testing of scripts in `scripts/vortex`.<br/>
@@ -21,7 +21,7 @@ operations as if they were run by a consumer site developer.
 
 ## Functional tests with PHPUnit
 
-```bash
+```shell
 cd .vortex/tests
 
 # Install Composer dependencies.
@@ -39,7 +39,7 @@ Functional tests rely on database fixtures - see the section below on
 
 ## Unit tests with BATS
 
-```bash
+```shell
 cd .vortex/tests
 
 # Install npm dependencies.
@@ -53,20 +53,20 @@ bats .vortex/tests/bats/deploy.bats
 
 There are *demo* and *test* database dumps captured as *files* and *container images*.
 
-- Demo database dump file - *demonstration* of the database import capabilities from a *file* during a normal workflow.
-- Demo database container image - *demonstration* of the database import capabilities from a *container image* during a normal workflow.
-- Test database dump file - *test* of the database import capabilities from a *file* during the normal workflow.
-- Test database container image - *test* of the database import capabilities from a *container image* during the normal workflow.
+- Demo database dump file - *demonstration* of the database import capabilities from a *file*.
+- Demo database container image - *demonstration* of the database import capabilities from a *container image*.
+- Test database dump file - *test* of the database import capabilities from a *file*.
+- Test database container image - *test* of the database import capabilities from a *container image*.
 
 ### Updating *demo* database dump *file*
 
 1. Run fresh build of **Vortex** locally:
-```bash
+```shell
 rm .data/db.sql || true
 VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 2. Update content and config:
-```bash
+```shell
 ahoy cli
 
 drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
@@ -85,7 +85,7 @@ exit
 
 ```
 3. Export DB:
-```bash
+```shell
 ahoy export-db db.demo.sql
 ```
 4. Upload `db.demo.sql` to the latest release as an asset and name it `db_d11.demo.sql`.
@@ -93,12 +93,12 @@ ahoy export-db db.demo.sql
 ### Updating *demo* database *container image*
 
 1. Run fresh build of **Vortex** locally:
-```bash
+```shell
 rm .data/db.sql || true
 VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 2. Update content and config:
-```bash
+```shell
 ahoy cli
 
 drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
@@ -117,14 +117,14 @@ exit
 
 ```
 3. Export DB:
-```bash
+```shell
 ahoy export-db db.demo_image.sql
 
 # Update the collation to avoid issues with MariaDB 10.5+:
 sed -i '' 's/utf8mb4_0900_ai_ci/utf8mb4_general_ci/g' .data/db.demo_image.sql
 ```
 4. Seed the database container image:
-```bash
+```shell
 curl -LO https://github.com/drevops/mariadb-drupal-data/releases/latest/download/seed.sh
 chmod +x seed.sh
 ./seed.sh .data/db.demo_image.sql drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest
@@ -133,18 +133,18 @@ chmod +x seed.sh
 ### Updating *test* database dump *file*
 
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
-```bash
+```shell
 mkdir /tmp/star-wars
 VORTEX_INSTALLER_TEMPLATE_REPO="$(pwd)" .vortex/installer/installer.php /tmp/star-wars --no-interaction
 cd /tmp/star-wars
 ```
 2. Run fresh build of **Vortex** locally:
-```bash
+```shell
 rm .data/db.sql || true
 VORTEX_PROVISION_TYPE=profile AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 3. Update content and config:
-```bash
+```shell
 ahoy cli
 
 drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
@@ -163,7 +163,7 @@ exit
 
 ```
 4. Export DB:
-```bash
+```shell
 ahoy export-db db.test.sql
 ```
 5. Upload `db.test.sql` to the latest release as an asset and name it `db_d11.test.sql`.
@@ -171,18 +171,18 @@ ahoy export-db db.test.sql
 ### Updating *test* database *container image*
 
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
-```bash
+```shell
 mkdir /tmp/star-wars
 VORTEX_INSTALLER_TEMPLATE_REPO="$(pwd)" .vortex/installer/installer.php /tmp/star-wars --no-interaction
 cd /tmp/star-wars
 ```
 2. Run fresh build of **Vortex** locally:
-```bash
+```shell
 rm .data/db.sql || true
 VORTEX_PROVISION_TYPE=profile AHOY_CONFIRM_RESPONSE=1 ahoy build
 ```
 3. Update content and config:
-```bash
+```shell
 ahoy cli
 
 drush eval "Drupal::entityTypeManager()->getStorage('node')->create([
@@ -201,20 +201,20 @@ exit
 
 ```
 4. Export DB:
-```bash
+```shell
 ahoy export-db db.test_image.sql
 
 # Update the collation to avoid issues with MariaDB 10.5+:
 sed -i '' 's/utf8mb4_0900_ai_ci/utf8mb4_general_ci/g' .data/db.test_image.sql
 ```
 5. Seed the database container image:
-```bash
+```shell
 curl -LO https://github.com/drevops/mariadb-drupal-data/releases/latest/download/seed.sh
 chmod +x seed.sh
 ./seed.sh .data/db.test_image.sql drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest
 ```
 6. Update destination container images:
-```bash
+```shell
 docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
 docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
 

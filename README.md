@@ -97,7 +97,7 @@ Releases are planned to occur **monthly**. However, adjustments to the release
 schedule may be necessary depending on the scope of features and the volume of
 bug fixes required.
 
-We recommend subscribing for releases and keeping your stack [updated](https://www.vortextemplate.com/docs/workflows/updating-vortex)
+We recommend subscribing for releases and keeping your stack [updated](https://www.vortextemplate.com/docs/updating-vortex)
 with each new version.
 
 ## Documentation

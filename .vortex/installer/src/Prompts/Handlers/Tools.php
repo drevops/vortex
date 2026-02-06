@@ -151,6 +151,18 @@ class Tools extends AbstractHandler {
             }
           }
         }
+
+        if (isset($tool['lines'])) {
+          $relative_file_path = str_replace($this->tmpDir . '/', '', $file->getPathname());
+          foreach ($tool['lines'] as $relative_lines_file_name => $lines) {
+            if ($relative_file_path === $relative_lines_file_name) {
+              foreach ($lines as $line) {
+                $content = File::removeLine($content, $line);
+              }
+            }
+          }
+        }
+
         return $content;
       }
     );
@@ -273,8 +285,20 @@ class Tools extends AbstractHandler {
           glob($this->tmpDir . '/' . $this->webroot . '/themes/custom/*/tests', GLOB_ONLYDIR),
         ],
         'strings' => ['/^.*phpunit.*\n?/m'],
+        'lines' => [
+          'CLAUDE.md' => [
+            '# PHPUnit testing',
+            'ahoy test            # Run PHPUnit tests',
+            'ahoy test-unit',
+            'ahoy test-kernel',
+            'ahoy test-functional',
+            'ahoy test -- --filter=TestClassName',
+          ],
+        ],
         'ahoy' => [
           '/^.*phpunit.*\n?/m',
+          'ahoy test',
+          '/^\h*test:\R\h*usage:\h*usage: Run all PHPUnit tests\.$/um',
           'ahoy test-unit',
           '/^\h*test-unit:\R\h*usage:\h*Run PHPUnit unit tests\.$/um',
           'ahoy test-kernel',
@@ -308,6 +332,12 @@ class Tools extends AbstractHandler {
         'strings' => [
           '/^.*\bbehat\b.*\n?/m',
           '/^.*\bgherkinlint\b.*\n?/m',
+        ],
+        'lines' => [
+          'CLAUDE.md' => [
+            '# Behat testing',
+            'ahoy test-bdd',
+          ],
         ],
         'ahoy' => [
           '/^.*behat.*\n?/m',
