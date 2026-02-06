@@ -18,7 +18,7 @@ in [this issue](https://github.com/drevops/vortex/issues/1192).
 1. MUST adhere to [POSIX standard](https://en.wikipedia.org/wiki/POSIX).
 2. MUST pass Shellcheck code analysis scan
 3. MUST start with:
-```bash
+```shell
  #!/usr/bin/env bash
  ##
  # Action description that the script performs.
@@ -31,17 +31,17 @@ in [this issue](https://github.com/drevops/vortex/issues/1192).
  [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 ```
 4. MUST list all variables with their default values and descriptions. i.e.:
-```bash
+```shell
 # Deployment reference, such as a git SHA.
 VORTEX_NOTIFY_REF="${VORTEX_NOTIFY_REF:-}"
 ```
 5. MUST include a delimiter between variables and the script body preceded and
    followed by an empty line (3 lines in total):
-```bash
+```shell
 # ------------------------------------------------------------------------------
 ```
 6. SHOULD include formatting helper functions:
-```bash
+```shell
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -50,19 +50,19 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 ```
 7. SHOULD include variable values checks with errors and early exist, i.e.:
-```bash
+```shell
 [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF" && exit 1
 ```
 8. SHOULD include binaries checks if the script relies on them, i.e.:
-```bash
+```shell
 command -v curl > /dev/null || ( fail "curl command is not available." && exit 1 )
 ```
 9. MUST contain an `info` message about the start of the script body, e.g.:
-```bash
+```shell
 info "Started GitHub notification for operation ${VORTEX_NOTIFY_EVENT}"
 ```
 10. MUST contain an `pass` message about the finish of the script body, e.g.:
-```bash
+```shell
 pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}"
 ```
 11. MUST use uppercase global variables

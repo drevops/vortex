@@ -32,7 +32,7 @@ VORTEX_NOTIFY_SLACK_EVENT="${VORTEX_NOTIFY_SLACK_EVENT:-${VORTEX_NOTIFY_EVENT:-p
 
 # Slack notification webhook URL.
 # The incoming Webhook URL from your Slack app configuration.
-# @see https://www.vortextemplate.com/docs/workflows/notifications#slack
+# @see https://www.vortextemplate.com/docs/deployment/notifications#slack
 VORTEX_NOTIFY_SLACK_WEBHOOK="${VORTEX_NOTIFY_SLACK_WEBHOOK:-}"
 
 # Slack notification target channel (optional, overrides webhook default).

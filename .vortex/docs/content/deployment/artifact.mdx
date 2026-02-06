@@ -1,0 +1,90 @@
+---
+sidebar_label: Artifact
+sidebar_position: 3
+---
+
+# Artifact deployment
+
+Artifact deployment packages your codebase and pushes it to a remote Git
+repository. This is commonly used for hosting platforms like Acquia that
+require pre-built code artifacts.
+
+## How it works
+
+When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
+
+1. Creates a clean code artifact using [Git Artifact](/docs/tools/git-artifact)
+2. Applies the `.gitignore.artifact` rules to control which files are included
+3. Pushes the artifact to the configured remote repository
+4. The hosting platform then deploys from that repository
+
+## Configuration
+
+### Environment variables
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` | **Yes** | | `.env` | Remote repository URL for the artifact |
+| `VORTEX_DEPLOY_ARTIFACT_ROOT` | No | Current directory | `.env` | Root directory for artifact creation |
+| `VORTEX_DEPLOY_ARTIFACT_SRC` | No | Current directory | `.env` | Source directory to package |
+| `VORTEX_DEPLOY_ARTIFACT_DST` | No | `.artifact` | `.env` | Destination directory for artifact |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` | **Yes** | | CI | Git user name for commits |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` | **Yes** | | CI | Git user email for commits |
+| `VORTEX_DEPLOY_ARTIFACT_LOG` | No | | `.env` | Log file path |
+
+### Setup
+
+1. Add `artifact` to the `VORTEX_DEPLOY_TYPES` variable in your `.env` file:
+
+   ```shell title=".env"
+   VORTEX_DEPLOY_TYPES=artifact
+   ```
+
+2. Configure the artifact remote repository:
+
+   ```shell title=".env"
+   VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE=git@github.com:your-org/your-project-artifact.git
+   ```
+
+3. Add Git user credentials to your CI provider's environment variables:
+
+   ```shell
+   VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="Deployment Bot"
+   VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="deploy@example.com"
+   ```
+
+## Artifact file control
+
+The `.gitignore.artifact` file controls which files are included in or excluded
+from the artifact. This file replaces the standard `.gitignore` in the artifact
+repository.
+
+**Vortex** provides a
+[pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
+that includes all required files for a production Drupal site while excluding
+development dependencies.
+
+### Customizing the artifact
+
+Edit `.gitignore.artifact` to add or remove files from the artifact:
+
+```shell title=".gitignore.artifact"
+# Include compiled assets
+!/web/themes/custom/*/dist
+
+# Exclude test files
+/tests
+/behat.yml
+/phpunit.xml
+```
+
+## Use cases
+
+- **Acquia hosting** - Acquia requires code artifacts pushed to their Git repository
+- **Pantheon hosting** - Similar artifact-based deployment model
+- **Custom hosting** - Any platform that deploys from a Git repository
+
+## See also
+
+- [Git Artifact tool](/docs/tools/git-artifact) - Detailed documentation on the artifact tool
+- [Acquia hosting](/docs/hosting/acquia) - Acquia-specific deployment configuration

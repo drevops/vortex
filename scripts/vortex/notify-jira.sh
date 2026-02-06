@@ -24,7 +24,7 @@ VORTEX_NOTIFY_JIRA_USER_EMAIL="${VORTEX_NOTIFY_JIRA_USER_EMAIL:-}"
 
 # JIRA notification API token.
 #
-# @see https://www.vortextemplate.com/docs/workflows/notifications#jira
+# @see https://www.vortextemplate.com/docs/deployment/notifications#jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
 # JIRA notification git branch name (used for issue extraction).

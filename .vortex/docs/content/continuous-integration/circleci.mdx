@@ -39,7 +39,7 @@ SSH key that has access to your hosting environments.
 
 1. Generate an SSH key pair:
 
-   ```bash
+   ```shell
    ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f ~/.ssh/deployer_myproject_circleci -N ""
    ```
 
@@ -72,7 +72,7 @@ same provider, you can use a single key for both operations.
 
 1. Generate an SSH key pair (skip if using the same key as above):
 
-   ```bash
+   ```shell
    ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f ~/.ssh/deploy_myproject_circleci -N ""
    ```
 
