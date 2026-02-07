@@ -19,7 +19,7 @@
 -        run: |
 -          RATE=$(grep -o 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | head -1 | tr -cd '0-9.')
 -          PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
--          echo "Coverage: $PERCENT% (threshold: $VORTEX_CI_CODE_COVERAGE_THRESHOLD%)"
+-          echo "Coverage: $PERCENT% (threshold: $VORTEX_CI_CODE_COVERAGE_THRESHOLD%)" | tee -a "$GITHUB_STEP_SUMMARY"
 -          if [ "${PERCENT//./}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
 -            echo "FAIL: coverage too low"
 -            exit 1
