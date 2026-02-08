@@ -99,7 +99,11 @@ class FunctionalTestCase extends UnitTestCase {
       return;
     }
 
-    $dest = dirname(__DIR__, 2) . '/.logs/sut/' . $this->name();
+    $class_name = (new \ReflectionClass($this))->getShortName();
+    $test_id = $class_name . '_' . $this->name() . '_' . uniqid();
+    $test_id = (string) preg_replace('/[^a-zA-Z0-9_-]/', '_', $test_id);
+
+    $dest = dirname(__DIR__, 2) . '/.logs/sut/' . $test_id;
     File::copy($sut_logs, $dest);
 
     $this->logNote('SUT test artifacts copied to: ' . $dest);
