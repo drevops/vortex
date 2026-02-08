@@ -28,6 +28,14 @@ class DatabaseDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscover
         },
       ],
 
+      'database download source - discovery - s3' => [
+        [],
+        [DatabaseDownloadSource::id() => DatabaseDownloadSource::S3] + $expected_defaults,
+        function (AbstractHandlerDiscoveryTestCase $test): void {
+          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::S3);
+        },
+      ],
+
       'database download source - discovery - invalid' => [
         [],
         $expected_defaults,

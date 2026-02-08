@@ -19,6 +19,8 @@ class DatabaseDownloadSource extends AbstractHandler {
 
   const CONTAINER_REGISTRY = 'container_registry';
 
+  const S3 = 's3';
+
   const NONE = 'none';
 
   /**
@@ -45,6 +47,7 @@ class DatabaseDownloadSource extends AbstractHandler {
       self::ACQUIA => 'Acquia backup',
       self::LAGOON => 'Lagoon environment',
       self::CONTAINER_REGISTRY => 'Container registry',
+      self::S3 => 'S3 bucket',
       self::NONE => 'None',
     ];
 
@@ -105,6 +108,7 @@ class DatabaseDownloadSource extends AbstractHandler {
       DatabaseDownloadSource::ACQUIA,
       DatabaseDownloadSource::LAGOON,
       DatabaseDownloadSource::CONTAINER_REGISTRY,
+      DatabaseDownloadSource::S3,
     ];
 
     foreach ($types as $type) {
