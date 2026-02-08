@@ -62,6 +62,9 @@ class FunctionalTestCase extends UnitTestCase {
 
     $test_failed = $this->status() instanceof Failure || $this->status() instanceof Error;
 
+    // Collect SUT test artifacts before cleanup.
+    $this->collectSutArtifacts($test_failed);
+
     if ($test_failed) {
       $this->logNote('Skipping cleanup as test has failed.');
       $this->log(static::locationsInfo());
@@ -77,6 +80,29 @@ class FunctionalTestCase extends UnitTestCase {
     }
 
     parent::tearDown();
+  }
+
+  protected function collectSutArtifacts(bool $test_failed): void {
+    // On failure, containers are still running but syncToHost() may not have
+    // been called before the failure. Try to sync artifacts from the container.
+    if ($test_failed && !$this->volumesMounted()) {
+      try {
+        $this->syncToHost('.logs');
+      }
+      catch (\Throwable) {
+        // Ignore - container may not be running or .logs may not exist.
+      }
+    }
+
+    $sut_logs = static::$sut . '/.logs';
+    if (!is_dir($sut_logs)) {
+      return;
+    }
+
+    $dest = dirname(__DIR__, 2) . '/.logs/sut/' . $this->name();
+    File::copy($sut_logs, $dest);
+
+    $this->logNote('SUT test artifacts copied to: ' . $dest);
   }
 
   /**
