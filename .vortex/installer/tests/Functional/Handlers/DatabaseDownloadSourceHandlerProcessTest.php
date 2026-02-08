@@ -40,6 +40,10 @@ class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTes
           Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
         }),
       ],
+
+      'db download source, s3' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::S3)),
+      ],
     ];
   }
 
