@@ -529,6 +529,90 @@ class SwitchableSettingsTest extends SettingsTestCase {
           'shield.settings' => ['shield_enable' => FALSE],
         ],
       ],
+
+      // ACME challenge passthrough tests.
+      [
+        self::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+        ],
+        [
+          'shield.settings' => [
+            'shield_enable' => TRUE,
+            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+            'method' => 0,
+            'paths' => '/.well-known/acme-challenge/*',
+          ],
+        ],
+      ],
+      [
+        self::ENVIRONMENT_LOCAL,
+        [
+          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+        ],
+        [
+          'shield.settings' => [
+            'shield_enable' => FALSE,
+            'method' => 0,
+            'paths' => '/.well-known/acme-challenge/*',
+          ],
+        ],
+      ],
+      // ACME challenge disabled - verify settings are absent.
+      [
+        self::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+        ],
+        [
+          'shield.settings' => [
+            'shield_enable' => TRUE,
+            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+          ],
+        ],
+        [
+          'shield.settings' => ['method' => NULL, 'paths' => NULL],
+        ],
+      ],
+      // ACME challenge with empty value - should not set.
+      [
+        self::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => '',
+        ],
+        [
+          'shield.settings' => [
+            'shield_enable' => TRUE,
+            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+          ],
+        ],
+        [
+          'shield.settings' => ['method' => NULL, 'paths' => NULL],
+        ],
+      ],
+      // ACME challenge with 0 value - should not set.
+      [
+        self::ENVIRONMENT_DEV,
+        [
+          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
+        ],
+        [
+          'shield.settings' => [
+            'shield_enable' => TRUE,
+            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+          ],
+        ],
+        [
+          'shield.settings' => ['method' => NULL, 'paths' => NULL],
+        ],
+      ],
     ];
   }
 
