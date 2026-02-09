@@ -90,7 +90,7 @@ class DatabaseDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir);
+    return Env::getFromDotenv('VORTEX_DOWNLOAD_DB_SOURCE', $this->dstDir);
   }
 
   /**
@@ -100,7 +100,7 @@ class DatabaseDownloadSource extends AbstractHandler {
     $v = $this->getResponseAsString();
     $t = $this->tmpDir;
 
-    Env::writeValueDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $v, $t . '/.env');
+    Env::writeValueDotenv('VORTEX_DOWNLOAD_DB_SOURCE', $v, $t . '/.env');
 
     $types = [
       DatabaseDownloadSource::URL,

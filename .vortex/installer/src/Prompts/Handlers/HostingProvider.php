@@ -62,7 +62,7 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (is_readable($this->dstDir . '/hooks') || Env::getFromDotenv('VORTEX_DB_DOWNLOAD_SOURCE', $this->dstDir) === DatabaseDownloadSource::ACQUIA) {
+    if (is_readable($this->dstDir . '/hooks') || Env::getFromDotenv('VORTEX_DOWNLOAD_DB_SOURCE', $this->dstDir) === DatabaseDownloadSource::ACQUIA) {
       return self::ACQUIA;
     }
 

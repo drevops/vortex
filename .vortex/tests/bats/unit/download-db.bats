@@ -27,11 +27,11 @@ EOF
   mock_touch=$(mock_command "touch")
   mock_set_output "${mock_touch}" "" 1
 
-  export VORTEX_DB_DOWNLOAD_SOURCE="url"
-  export VORTEX_DB_DOWNLOAD_PROCEED="1"
+  export VORTEX_DOWNLOAD_DB_SOURCE="url"
+  export VORTEX_DOWNLOAD_DB_PROCEED="1"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
-  export VORTEX_DB_DOWNLOAD_SEMAPHORE=".data/.db-downloaded"
+  export VORTEX_DOWNLOAD_DB_SEMAPHORE=".data/.db-downloaded"
 
   run scripts/vortex/download-db.sh
   assert_success
@@ -47,8 +47,8 @@ EOF
 @test "download-db: Skip when disabled and use default source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  # Test skipping when VORTEX_DB_DOWNLOAD_PROCEED is not 1
-  export VORTEX_DB_DOWNLOAD_PROCEED="0"
+  # Test skipping when VORTEX_DOWNLOAD_DB_PROCEED is not 1
+  export VORTEX_DOWNLOAD_DB_PROCEED="0"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
@@ -69,9 +69,9 @@ EOF
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 1024 -rw-r--r-- 1 user user 1048576 Jan 01 12:00 db.sql" 1
 
-  # Unset VORTEX_DB_DOWNLOAD_SOURCE to test default
-  unset VORTEX_DB_DOWNLOAD_SOURCE
-  export VORTEX_DB_DOWNLOAD_PROCEED="1"
+  # Unset VORTEX_DOWNLOAD_DB_SOURCE to test default
+  unset VORTEX_DOWNLOAD_DB_SOURCE
+  export VORTEX_DOWNLOAD_DB_PROCEED="1"
 
   run scripts/vortex/download-db.sh
   assert_success
@@ -93,20 +93,20 @@ EOF
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 1024 -rw-r--r-- 1 user user 1048576 Jan 01 12:00 db.sql" 2
 
-  export VORTEX_DB_DOWNLOAD_SOURCE="url"
-  export VORTEX_DB_DOWNLOAD_PROCEED="1"
+  export VORTEX_DOWNLOAD_DB_SOURCE="url"
+  export VORTEX_DOWNLOAD_DB_PROCEED="1"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
   # Test using existing file when force is not set
-  export VORTEX_DB_DOWNLOAD_FORCE=""
+  export VORTEX_DOWNLOAD_DB_FORCE=""
   run scripts/vortex/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Found existing database dump file(s)."
   assert_output_contains "Using existing database dump file(s)."
   assert_output_contains "Download will not proceed."
-  assert_output_contains "Remove existing database file or set VORTEX_DB_DOWNLOAD_FORCE value to 1 to force download."
+  assert_output_contains "Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download."
 
   # Test forcing download when existing file found
   mkdir -p scripts/vortex
@@ -117,7 +117,7 @@ echo "Finished database dump download from URL."
 EOF
   chmod +x scripts/vortex/download-db-url.sh
 
-  export VORTEX_DB_DOWNLOAD_FORCE="1"
+  export VORTEX_DOWNLOAD_DB_FORCE="1"
   run scripts/vortex/download-db.sh
   assert_success
   assert_output_contains "Started database download."

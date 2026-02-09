@@ -13,7 +13,7 @@ set -eu
 
 # URL of the remote database. If HTTP authentication required, it must be
 # included in the variable.
-VORTEX_DB_DOWNLOAD_URL="${VORTEX_DB_DOWNLOAD_URL:-}"
+VORTEX_DOWNLOAD_DB_URL="${VORTEX_DOWNLOAD_DB_URL:-}"
 
 # Directory with database dump file.
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
@@ -22,7 +22,7 @@ VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
 
 # Password for unzipping password-protected zip files.
-VORTEX_DB_DOWNLOAD_UNZIP_PASSWORD="${VORTEX_DB_DOWNLOAD_UNZIP_PASSWORD:-}"
+VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD="${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD:-}"
 
 #-------------------------------------------------------------------------------
 
@@ -42,14 +42,14 @@ for cmd in curl unzip; do command -v "${cmd}" >/dev/null || {
 info "Started database dump download from URL."
 
 # Check all required values.
-[ -z "${VORTEX_DB_DOWNLOAD_URL}" ] && fail "Missing required value for VORTEX_DB_DOWNLOAD_URL." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_URL}" ] && fail "Missing required value for VORTEX_DOWNLOAD_DB_URL." && exit 1
 
 mkdir -p "${VORTEX_DB_DIR}"
 
 note "Downloading database dump file."
-curl -Ls "${VORTEX_DB_DOWNLOAD_URL}" -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+curl -Ls "${VORTEX_DOWNLOAD_DB_URL}" -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
 
-if [ "${VORTEX_DB_DOWNLOAD_URL%*.zip}" != "${VORTEX_DB_DOWNLOAD_URL}" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_URL%*.zip}" != "${VORTEX_DOWNLOAD_DB_URL}" ]; then
   note "Detecting zip file, preparing for extraction."
   mv "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip"
 
@@ -57,9 +57,9 @@ if [ "${VORTEX_DB_DOWNLOAD_URL%*.zip}" != "${VORTEX_DB_DOWNLOAD_URL}" ]; then
   temp_extract_dir="${VORTEX_DB_DIR}/tmp_extract_$$"
   mkdir -p "${temp_extract_dir}"
 
-  if [ -n "${VORTEX_DB_DOWNLOAD_UNZIP_PASSWORD}" ]; then
+  if [ -n "${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD}" ]; then
     note "Unzipping password-protected database dump file."
-    unzip -o -P "${VORTEX_DB_DOWNLOAD_UNZIP_PASSWORD}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" -d "${temp_extract_dir}"
+    unzip -o -P "${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" -d "${temp_extract_dir}"
   else
     note "Unzipping database dump file."
     unzip -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" -d "${temp_extract_dir}"

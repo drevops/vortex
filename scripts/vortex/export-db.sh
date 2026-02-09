@@ -41,7 +41,7 @@ if [ -z "${VORTEX_DB_IMAGE}" ]; then
   docker compose exec -T cli ./scripts/vortex/export-db-file.sh "$@"
 else
   # Export database as a container image.
-  VORTEX_DB_EXPORT_IMAGE="${VORTEX_DB_IMAGE}" ./scripts/vortex/export-db-image.sh "$@"
+  VORTEX_EXPORT_DB_IMAGE="${VORTEX_DB_IMAGE}" ./scripts/vortex/export-db-image.sh "$@"
 
   # Deploy container image.
   # @todo Move deployment into a separate script.

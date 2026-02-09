@@ -50,7 +50,7 @@ tasks:
         command: |
           if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
-            export VORTEX_DB_DOWNLOAD_SSH_FILE=false
+            export VORTEX_DOWNLOAD_DB_SSH_FILE=false
             export VORTEX_DB_DIR=/tmp/data
             rm -Rf $VORTEX_DB_DIR || true
             ./scripts/vortex/download-db.sh

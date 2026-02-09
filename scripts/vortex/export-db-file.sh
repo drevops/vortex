@@ -10,7 +10,7 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Directory with database dump file.
-VORTEX_DB_EXPORT_FILE_DIR="${VORTEX_DB_EXPORT_FILE_DIR:-${VORTEX_DB_DIR:-./.data}}"
+VORTEX_EXPORT_DB_FILE_DIR="${VORTEX_EXPORT_DB_FILE_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # ------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument.
-dump_file=$([ "${1:-}" ] && echo "${VORTEX_DB_EXPORT_FILE_DIR}/${1}" || echo "${VORTEX_DB_EXPORT_FILE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).sql")
+dump_file=$([ "${1:-}" ] && echo "${VORTEX_EXPORT_DB_FILE_DIR}/${1}" || echo "${VORTEX_EXPORT_DB_FILE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).sql")
 
 # If dump file is relative - update it to the parent directory, because the
 # `drush sql:dump` command result file is relative to Drupal root, but provided
@@ -36,7 +36,7 @@ dump_file=$([ "${1:-}" ] && echo "${VORTEX_DB_EXPORT_FILE_DIR}/${1}" || echo "${
 dump_file_drush="${dump_file/#.\//../}"
 
 # Create a directory to store database dump.
-mkdir -p "${VORTEX_DB_EXPORT_FILE_DIR}"
+mkdir -p "${VORTEX_EXPORT_DB_FILE_DIR}"
 
 # Dump database into a file.
 drush sql:dump --skip-tables-key=common --result-file="${dump_file_drush}" -q

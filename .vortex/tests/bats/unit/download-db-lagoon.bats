@@ -34,13 +34,13 @@ load ../_helper.bash
   )
 
   export LAGOON_PROJECT="testproject"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="main"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
-  export VORTEX_DB_DOWNLOAD_SSH_FILE=false
+  export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
 
@@ -87,13 +87,13 @@ load ../_helper.bash
   )
 
   export LAGOON_PROJECT="testproject"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="main"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
-  export VORTEX_DB_DOWNLOAD_SSH_FILE=false
+  export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-lagoon.sh
@@ -139,14 +139,14 @@ load ../_helper.bash
   )
 
   export LAGOON_PROJECT="testproject"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="main"
-  export VORTEX_DB_DOWNLOAD_FRESH="1"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
+  export VORTEX_DOWNLOAD_DB_FRESH="1"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
-  export VORTEX_DB_DOWNLOAD_SSH_FILE=false
+  export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-lagoon.sh

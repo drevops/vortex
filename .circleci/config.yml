@@ -33,7 +33,7 @@ aliases:
     working_directory: &working_directory ~/project
     environment:
       #;< !PROVISION_TYPE_PROFILE
-      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       #;> !PROVISION_TYPE_PROFILE
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
@@ -161,7 +161,7 @@ jobs:
 
       - run:
           name: Download DB
-          command: VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
 
       # Execute commands after database download script finished: if the
@@ -195,7 +195,7 @@ jobs:
   database-nightly:
     <<: *job-database
     environment:
-      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
@@ -616,8 +616,8 @@ jobs:
   vortex-dev-didi-database-fi:
     <<: *job-database
     environment:
-      VORTEX_DB_DOWNLOAD_SOURCE: url
-      VORTEX_DB_DOWNLOAD_FORCE: 1
+      VORTEX_DOWNLOAD_DB_SOURCE: url
+      VORTEX_DOWNLOAD_DB_FORCE: 1
       # Use container image database storage despite that the file is coming
       # from CURL - this is to make sure that image is exported into cache
       # to be used between jobs. Note that in consumer project .env file would
@@ -643,8 +643,8 @@ jobs:
   vortex-dev-database-ii:
     <<: *job-database
     environment:
-      VORTEX_DB_DOWNLOAD_SOURCE: VORTEX_CONTAINER_REGISTRY
-      VORTEX_DB_DOWNLOAD_FORCE: 1
+      VORTEX_DOWNLOAD_DB_SOURCE: VORTEX_CONTAINER_REGISTRY
+      VORTEX_DOWNLOAD_DB_FORCE: 1
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
       VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
       # Also, use this job to test pushing of the DB image to the container
