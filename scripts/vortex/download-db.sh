@@ -75,6 +75,10 @@ if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "container_registry" ]; then
   ./scripts/vortex/download-db-container-registry.sh
 fi
 
+if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "s3" ]; then
+  ./scripts/vortex/download-db-s3.sh
+fi
+
 ls -Alh "${VORTEX_DB_DIR}" || true
 
 # Create a semaphore file to indicate that the database has been downloaded.
