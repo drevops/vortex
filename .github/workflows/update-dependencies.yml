@@ -60,7 +60,7 @@ jobs:
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'
-        uses: renovatebot/github-action@3c68caaa9db5ff24332596591dc7c4fed8de16ce # v46.0.1
+        uses: renovatebot/github-action@e23f4d9675532445118c886434f5a34292b630b4 # v46.0.2
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
