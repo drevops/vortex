@@ -134,6 +134,7 @@ class Modules extends AbstractHandler {
       'seckit' => 'Seckit',
       'shield' => 'Shield',
       'stage_file_proxy' => 'Stage file proxy',
+      'xmlsitemap' => 'XML Sitemap',
     ];
   }
 

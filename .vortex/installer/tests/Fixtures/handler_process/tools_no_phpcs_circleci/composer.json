@@ -1,4 +1,4 @@
-@@ -31,12 +31,9 @@
+@@ -32,12 +32,9 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -11,7 +11,7 @@
          "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
-@@ -44,7 +41,6 @@
+@@ -45,7 +42,6 @@
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -19,7 +19,7 @@
          "phpmd/phpmd": "__VERSION__",
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
-@@ -79,7 +75,6 @@
+@@ -80,7 +76,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

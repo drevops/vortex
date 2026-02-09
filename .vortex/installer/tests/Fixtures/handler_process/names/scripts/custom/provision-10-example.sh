@@ -6,7 +6,7 @@
 +  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'New hope')->save();"
  
    task "Installing contrib modules."
-   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy
+   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy xmlsitemap
 @@ -55,9 +55,9 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.

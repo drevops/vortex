@@ -53,6 +53,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
             'drupal/seckit' => '^2.0.3',
             'drupal/shield' => '^1.8',
             'drupal/stage_file_proxy' => '^3.1.6',
+            'drupal/xmlsitemap' => '^2.0',
           ]);
         },
       ],

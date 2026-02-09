@@ -49,7 +49,7 @@
      ];
    }
  
-@@ -315,6 +359,221 @@
+@@ -325,6 +369,229 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
@@ -78,6 +78,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
@@ -121,6 +123,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
@@ -164,6 +168,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
@@ -250,6 +256,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
