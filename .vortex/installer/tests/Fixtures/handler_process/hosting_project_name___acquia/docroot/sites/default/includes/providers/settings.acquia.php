@@ -19,13 +19,18 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
 
   // Include Acquia environment settings.
-  if (file_exists('/var/www/site-php/my_custom_acquia-project/my_custom_acquia-project-settings.inc')) {
-    // @codeCoverageIgnoreStart
-    // @phpstan-ignore-next-line
-    require '/var/www/site-php/my_custom_acquia-project/my_custom_acquia-project-settings.inc';
-    // @codeCoverageIgnoreEnd
+  // The path is built dynamically from the AH_SITE_GROUP environment variable
+  // provided by Acquia Cloud.
+  $ah_site_group = getenv('AH_SITE_GROUP');
+  // @codeCoverageIgnoreStart
+  if (!empty($ah_site_group)) {
+    $ah_settings_file = sprintf('/var/www/site-php/%s/%s-settings.inc', $ah_site_group, $ah_site_group);
+    if (!file_exists($ah_settings_file)) {
+      throw new \RuntimeException(sprintf('Acquia settings file "%s" not found. Check Acquia Cloud environment configuration.', $ah_settings_file));
+    }
+    require $ah_settings_file;
   }
-
+  // @codeCoverageIgnoreEnd
   // Set the config sync directory to a `config_vcs_directory`, but still
   // allow overriding it with the DRUPAL_CONFIG_PATH environment variable.
   if (!empty($settings['config_vcs_directory'])) {

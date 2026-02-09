@@ -70,7 +70,10 @@ class HostingProjectName extends AbstractHandler {
       return $v;
     }
 
-    // Try to discover from settings.acquia.php.
+    // @deprecated Discovery from hardcoded path in settings.acquia.php. The
+    // new settings.acquia.php uses AH_SITE_GROUP environment variable instead
+    // of a hardcoded project name. Kept for backward compatibility with older
+    // installations.
     $acquia_settings_file = $this->dstDir . sprintf('/%s/sites/default/includes/providers/settings.acquia.php', $this->webroot);
     if (file_exists($acquia_settings_file)) {
       $content = file_get_contents($acquia_settings_file);
@@ -125,6 +128,10 @@ class HostingProjectName extends AbstractHandler {
     $w = $this->webroot;
 
     Env::writeValueDotenv('VORTEX_ACQUIA_APP_NAME', $v, $t . '/.env');
+    // @deprecated The settings.acquia.php no longer uses hardcoded project
+    // names - it uses AH_SITE_GROUP environment variable instead. This
+    // replacement is kept for backward compatibility with older installations
+    // that may still use the hardcoded path pattern.
     File::replaceContentInFile($t . '/' . $w . '/sites/default/includes/providers/settings.acquia.php', 'your_site', $v);
 
     Env::writeValueDotenv('LAGOON_PROJECT', $v, $t . '/.env');

@@ -24,7 +24,6 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains([
             'VORTEX_ACQUIA_APP_NAME=my_custom_acquia-project',
-            '/site-php\/my_custom_acquia-project\/my_custom_acquia-project-settings\.inc/',
           ]);
         }),
       ],
