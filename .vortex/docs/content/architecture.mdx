@@ -185,7 +185,7 @@ the schedule as needed.
 
 ## Documentation & onboarding
 
-**Vortex** includes centralized documentation (what you’re reading now), as well as
+**Vortex** includes centralized documentation (what you're reading now), as well as
 a scaffold for adding project-specific docs within your own repository.
 
 ## Automation scripts
@@ -246,3 +246,18 @@ These variables are either defined in the `.env` file or set within
 CI/hosting environments as secrets.
 
 ➡️ See [Variables](./development/variables)
+
+## Testing the template
+
+**Vortex** itself is tested at multiple levels to ensure the template and its
+automation scripts work correctly:
+
+- **Unit tests**: Shell scripts are tested in isolation using
+  [Bats](https://github.com/bats-core/bats-core) with mocked commands
+- **End-to-end tests**: Full build pipelines are tested using
+  [PHPUnit](https://phpunit.de/) in real Docker containers
+- **Real-world validation**: The
+  [DrevOps website](https://github.com/drevops/website) serves as a production
+  reference site that receives regular upstream updates
+
+➡️ See [Contributing > Maintenance > Tests](./contributing/maintenance/tests)

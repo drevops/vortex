@@ -1,25 +1,81 @@
-# Authoring tests
+# Tests
 
-There are 2 types of tests used in **Vortex**:
+## Testing strategy
 
-- [PHPUnit](https://phpunit.de/) for functional end-to-end testing of a site build pipeline.<br/>
-With help of [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers) testing library, we run tests
-for automations, including container builds, database imports, and Drupal
-operations as if they were run by a consumer site developer.
+**Vortex** is a project template, not a traditional application. A change to
+a script, configuration file, or workflow can affect every project that uses
+it. Because of this, **Vortex** uses a multi-layered testing approach to catch
+issues at different levels of integration before they reach consumers.
 
-- [Bats](https://github.com/bats-core/bats-core) for unit testing of scripts in `scripts/vortex`.<br/>
-  With help of [`BATS Helpers`](https://github.com/drevops/bats-helpers) testing
-  library, we run unit tests for shell scripts with coverage.
+### Unit testing
 
-  :::info
+[Bats](https://github.com/bats-core/bats-core) is used to unit test the
+shell scripts in `scripts/vortex/`. Each script is tested in isolation with
+external commands (like `drush`, `docker`, `composer`) replaced by mocks.
+This allows us to verify that individual scripts handle environment variables,
+flags, and edge cases correctly without needing a running Drupal site or
+Docker containers.
 
-  Heads up! Scripts are changing from Bash to PHP in `2.0` release.
-  This will make the use of BATS obsolete. Track the progress
-  in [this issue](https://github.com/drevops/vortex/issues/1192).
+The [`bats-helpers`](https://github.com/drevops/bats-helpers) library provides
+a step-based testing approach with built-in mocking and assertions, making it
+straightforward to define expected inputs and outputs for each script.
 
-  :::
+Unit tests execute in seconds, providing fast feedback during development.
+There are 25+ test files covering deployment, database operations,
+notifications, provisioning, and other automation scripts.
 
-## Functional tests with PHPUnit
+:::info
+
+Scripts are transitioning from Bash to PHP in **Vortex** `2.0`, which will
+make the use of BATS obsolete. Track the progress
+in [this issue](https://github.com/drevops/vortex/issues/1192).
+
+:::
+
+### End-to-end testing
+
+[PHPUnit](https://phpunit.de/) is used for functional end-to-end testing that
+exercises the full site build pipeline in real Docker containers. These tests
+simulate what a consumer site developer would experience: installing the
+template, building containers, importing databases, running Drupal operations,
+linting code, and deploying artifacts.
+
+The end-to-end tests cover several critical workflows:
+
+- **Installer** - verifying that a fresh project can be scaffolded from the
+  template and that custom files are preserved during updates.
+- **Docker Compose** - building the container stack, verifying environment
+  variables, running linters, executing PHPUnit and Behat tests inside
+  containers, and checking Solr integration.
+- **Ahoy workflows** - testing the full developer experience through Ahoy
+  commands, including build, login, Drush operations, Composer, database
+  import/export, and code quality checks.
+- **Deployment** - testing deployment pipelines for artifact and webhook-based
+  deployment strategies.
+
+The [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers)
+library provides test helpers, traits, and assertions purpose-built for running
+shell commands and validating their output within PHPUnit tests.
+
+End-to-end tests take minutes to run because they operate on real containers
+and a real Drupal site, but they provide the highest confidence that
+everything works together correctly.
+
+### Example site
+
+The [DrevOps website](https://github.com/drevops/website) is a real-world
+production site built using **Vortex**. It serves as the ultimate validation
+ground: if **Vortex** works correctly, the website should continue to build,
+test, and deploy without issues after each upstream update.
+
+The website repository receives regular upstream updates from **Vortex**,
+including CI configuration, testing workflows, and infrastructure changes.
+This ensures that updates are validated against a real, long-lived codebase
+rather than just in test environments.
+
+## Running tests
+
+### Functional tests with PHPUnit
 
 ```shell
 cd .vortex/tests
@@ -35,9 +91,9 @@ TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TE
 ```
 
 Functional tests rely on database fixtures - see the section below on
-[updating test](#updating-test-assets) assets.
+[updating test assets](#updating-test-assets).
 
-## Unit tests with BATS
+### Unit tests with BATS
 
 ```shell
 cd .vortex/tests
@@ -59,6 +115,9 @@ There are *demo* and *test* database dumps captured as *files* and *container im
 - Test database container image - *test* of the database import capabilities from a *container image*.
 
 ### Updating *demo* database dump *file*
+
+<details>
+<summary>Show instructions</summary>
 
 1. Run fresh build of **Vortex** locally:
 ```shell
@@ -90,7 +149,12 @@ ahoy export-db db.demo.sql
 ```
 4. Upload `db.demo.sql` to the latest release as an asset and name it `db_d11.demo.sql`.
 
+</details>
+
 ### Updating *demo* database *container image*
+
+<details>
+<summary>Show instructions</summary>
 
 1. Run fresh build of **Vortex** locally:
 ```shell
@@ -130,7 +194,12 @@ chmod +x seed.sh
 ./seed.sh .data/db.demo_image.sql drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest
 ```
 
+</details>
+
 ### Updating *test* database dump *file*
+
+<details>
+<summary>Show instructions</summary>
 
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
 ```shell
@@ -168,7 +237,12 @@ ahoy export-db db.test.sql
 ```
 5. Upload `db.test.sql` to the latest release as an asset and name it `db_d11.test.sql`.
 
+</details>
+
 ### Updating *test* database *container image*
+
+<details>
+<summary>Show instructions</summary>
 
 1. Run a fresh install of **Vortex** into a new directory and name the project `Star Wars`:
 ```shell
@@ -221,3 +295,5 @@ docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-
 docker tag drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
 docker push drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
 ```
+
+</details>
