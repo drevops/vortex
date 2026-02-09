@@ -185,7 +185,7 @@
      ];
    }
  
-@@ -317,6 +497,218 @@
+@@ -327,6 +507,224 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -216,6 +216,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
@@ -269,6 +271,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
@@ -322,6 +326,8 @@
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 +    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +

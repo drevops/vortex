@@ -39,7 +39,7 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
 
   #;< MODULES
   task "Installing contrib modules."
-  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy
+  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy xmlsitemap
   #;> MODULES
 
   #;< SERVICE_REDIS

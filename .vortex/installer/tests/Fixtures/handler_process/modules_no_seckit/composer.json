@@ -5,4 +5,4 @@
 -        "drupal/seckit": "__VERSION__",
          "drupal/shield": "__VERSION__",
          "drupal/stage_file_proxy": "__VERSION__",
-         "drush/drush": "__VERSION__",
+         "drupal/xmlsitemap": "__VERSION__",

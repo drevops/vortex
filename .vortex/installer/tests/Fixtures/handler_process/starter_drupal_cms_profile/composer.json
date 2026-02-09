@@ -6,8 +6,8 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -26,7 +27,9 @@
-         "drupal/stage_file_proxy": "__VERSION__",
+@@ -27,7 +28,9 @@
+         "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__",
          "oomphinc/composer-installers-extender": "__VERSION__",
 -        "webflo/drupal-finder": "__VERSION__"
@@ -17,7 +17,7 @@
      },
      "require-dev": {
          "behat/behat": "__VERSION__",
-@@ -63,7 +66,7 @@
+@@ -64,7 +67,7 @@
              "url": "https://packages.drupal.org/8"
          }
      ],
@@ -26,7 +26,7 @@
      "prefer-stable": true,
      "autoload": {
          "classmap": [
-@@ -86,7 +89,11 @@
+@@ -87,7 +90,11 @@
              "php-http/discovery": true,
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
@@ -39,7 +39,7 @@
          },
          "audit": {
              "abandoned": "report",
-@@ -167,7 +174,20 @@
+@@ -168,7 +175,20 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
