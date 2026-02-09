@@ -57,17 +57,17 @@ echo "S3 bucket:      ${S3_BUCKET}"
 echo "S3 region:      ${S3_REGION}"
 [ -n "${S3_PREFIX}" ] && echo "S3 prefix:      ${S3_PREFIX}"
 echo "Local file:     ${VORTEX_DB_DIR:-./.data}/${VORTEX_DB_FILE:-db.sql}"
-echo "Remote file:    ${VORTEX_DB_UPLOAD_S3_REMOTE_FILE:-db.sql}"
-echo "Storage class:  ${VORTEX_DB_UPLOAD_S3_STORAGE_CLASS:-STANDARD}"
+echo "Remote file:    ${VORTEX_UPLOAD_DB_S3_REMOTE_FILE:-db.sql}"
+echo "Storage class:  ${VORTEX_UPLOAD_DB_S3_STORAGE_CLASS:-STANDARD}"
 echo ""
 
 cd "${PROJECT_ROOT}" || exit 1
 
-export VORTEX_DB_UPLOAD_S3_ACCESS_KEY="${S3_ACCESS_KEY}"
-export VORTEX_DB_UPLOAD_S3_SECRET_KEY="${S3_SECRET_KEY}"
-export VORTEX_DB_UPLOAD_S3_BUCKET="${S3_BUCKET}"
-export VORTEX_DB_UPLOAD_S3_REGION="${S3_REGION}"
-export VORTEX_DB_UPLOAD_S3_PREFIX="${S3_PREFIX}"
+export VORTEX_UPLOAD_DB_S3_ACCESS_KEY="${S3_ACCESS_KEY}"
+export VORTEX_UPLOAD_DB_S3_SECRET_KEY="${S3_SECRET_KEY}"
+export VORTEX_UPLOAD_DB_S3_BUCKET="${S3_BUCKET}"
+export VORTEX_UPLOAD_DB_S3_REGION="${S3_REGION}"
+export VORTEX_UPLOAD_DB_S3_PREFIX="${S3_PREFIX}"
 
 ./scripts/vortex/upload-db-s3.sh
 

@@ -12,19 +12,19 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Container image archive file name.
-VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE="${VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE:-${1}}"
+VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE="${VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE:-${1}}"
 
 # Container image to store in a form of `<org>/<repository>`.
-VORTEX_DB_EXPORT_IMAGE="${VORTEX_DB_EXPORT_IMAGE:-}"
+VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE:-}"
 
 # Container registry name.
-VORTEX_DB_EXPORT_CONTAINER_REGISTRY="${VORTEX_DB_EXPORT_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
+VORTEX_EXPORT_DB_CONTAINER_REGISTRY="${VORTEX_EXPORT_DB_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
 
 # The service name to capture.
-VORTEX_DB_EXPORT_SERVICE_NAME="${VORTEX_DB_EXPORT_SERVICE_NAME:-database}"
+VORTEX_EXPORT_DB_SERVICE_NAME="${VORTEX_EXPORT_DB_SERVICE_NAME:-database}"
 
 # Directory with database image archive file.
-VORTEX_DB_EXPORT_IMAGE_DIR="${VORTEX_DB_EXPORT_IMAGE_DIR:-${VORTEX_DB_DIR}}"
+VORTEX_EXPORT_DB_IMAGE_DIR="${VORTEX_EXPORT_DB_IMAGE_DIR:-${VORTEX_DB_DIR}}"
 
 # ------------------------------------------------------------------------------
 
@@ -44,23 +44,23 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 
 info "Started database data container image export."
 
-[ -z "${VORTEX_DB_EXPORT_IMAGE}" ] && fail "Destination image name is not specified. Please provide container image as a variable VORTEX_DB_EXPORT_IMAGE in a format <org>/<repository>." && exit 1
+[ -z "${VORTEX_EXPORT_DB_IMAGE}" ] && fail "Destination image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB_IMAGE in a format <org>/<repository>." && exit 1
 
-cid="$(docker compose ps -q "${VORTEX_DB_EXPORT_SERVICE_NAME}")"
-note "Found ${VORTEX_DB_EXPORT_SERVICE_NAME} service container with id ${cid}."
+cid="$(docker compose ps -q "${VORTEX_EXPORT_DB_SERVICE_NAME}")"
+note "Found ${VORTEX_EXPORT_DB_SERVICE_NAME} service container with id ${cid}."
 
-new_image="${VORTEX_DB_EXPORT_CONTAINER_REGISTRY}/${VORTEX_DB_EXPORT_IMAGE}"
+new_image="${VORTEX_EXPORT_DB_CONTAINER_REGISTRY}/${VORTEX_EXPORT_DB_IMAGE}"
 
 task "Locking and unlocking tables before upgrade."
-docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
+docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
 sleep 5
-docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
+docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
 
 task "Running forced service upgrade."
-docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
+docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
 
 task "Locking tables after upgrade."
-docker compose exec -T "${VORTEX_DB_EXPORT_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
+docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
 
 task "Committing exported container image with name ${new_image}."
 iid=$(docker commit "${cid}" "${new_image}")
@@ -68,11 +68,11 @@ iid="${iid#sha256:}"
 note "Committed exported container image with id ${iid}."
 
 # Create directory to store database dump.
-mkdir -p "${VORTEX_DB_EXPORT_IMAGE_DIR}"
+mkdir -p "${VORTEX_EXPORT_DB_IMAGE_DIR}"
 
 # Create dump file name with a timestamp or use the file name provided
 # as a first argument. Also, make sure that the extension is correct.
-archive_file=$([ "${VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE}" ] && echo "${VORTEX_DB_EXPORT_IMAGE_DIR}/${VORTEX_DB_EXPORT_IMAGE_ARCHIVE_FILE//.sql/.tar}" || echo "${VORTEX_DB_EXPORT_IMAGE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).tar")
+archive_file=$([ "${VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE}" ] && echo "${VORTEX_EXPORT_DB_IMAGE_DIR}/${VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE//.sql/.tar}" || echo "${VORTEX_EXPORT_DB_IMAGE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).tar")
 
 task "Exporting database image archive to file ${archive_file}."
 

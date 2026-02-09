@@ -50,7 +50,7 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
           DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
         ] + $expected_defaults,
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubDotenvValue('VORTEX_DB_DOWNLOAD_SOURCE', DatabaseDownloadSource::ACQUIA);
+          $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::ACQUIA);
         },
       ],
 

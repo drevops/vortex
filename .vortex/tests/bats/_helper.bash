@@ -108,9 +108,9 @@ setup() {
   ##
 
   # Isolate variables set in CI.
-  unset VORTEX_DB_DOWNLOAD_SOURCE
+  unset VORTEX_DOWNLOAD_DB_SOURCE
   unset VORTEX_DB_IMAGE
-  unset VORTEX_DB_DOWNLOAD_FORCE
+  unset VORTEX_DOWNLOAD_DB_FORCE
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y

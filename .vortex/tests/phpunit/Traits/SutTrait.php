@@ -103,7 +103,7 @@ trait SutTrait {
         //
         // The installer will load this environment variable, and it will
         // take precedence over the value in the .env file.
-        'VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
+        'VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       ],
       txt: 'Run the installer'
     );
@@ -155,7 +155,7 @@ trait SutTrait {
 
     $this->cmd(
       './scripts/vortex/download-db.sh',
-      env: ['VORTEX_DB_DOWNLOAD_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
+      env: ['VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database downloaded from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
 

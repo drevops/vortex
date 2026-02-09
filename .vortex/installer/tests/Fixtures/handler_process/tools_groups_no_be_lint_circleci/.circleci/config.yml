@@ -25,7 +25,7 @@ aliases:
   - &runner_config
     working_directory: &working_directory ~/project
     environment:
-      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
@@ -149,7 +149,7 @@ jobs:
 
       - run:
           name: Download DB
-          command: VORTEX_DB_DOWNLOAD_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
 
       # Execute commands after database download script finished: if the
@@ -183,7 +183,7 @@ jobs:
   database-nightly:
     <<: *job-database
     environment:
-      VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'

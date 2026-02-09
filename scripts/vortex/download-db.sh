@@ -15,14 +15,14 @@ set -eu
 
 # Note that `container_registry` works only for database-in-image
 # database storage (when $VORTEX_DB_IMAGE variable has a value).
-VORTEX_DB_DOWNLOAD_SOURCE="${VORTEX_DB_DOWNLOAD_SOURCE:-curl}"
+VORTEX_DOWNLOAD_DB_SOURCE="${VORTEX_DOWNLOAD_DB_SOURCE:-url}"
 
 # Force DB download even if the cache exists.
 # Usually set in CircleCI UI to override per build cache.
-VORTEX_DB_DOWNLOAD_FORCE="${VORTEX_DB_DOWNLOAD_FORCE:-}"
+VORTEX_DOWNLOAD_DB_FORCE="${VORTEX_DOWNLOAD_DB_FORCE:-}"
 
 # Proceed with download.
-VORTEX_DB_DOWNLOAD_PROCEED="${VORTEX_DB_DOWNLOAD_PROCEED:-1}"
+VORTEX_DOWNLOAD_DB_PROCEED="${VORTEX_DOWNLOAD_DB_PROCEED:-1}"
 
 # ------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started database download."
 
-[ "${VORTEX_DB_DOWNLOAD_PROCEED}" != "1" ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
+[ "${VORTEX_DOWNLOAD_DB_PROCEED}" != "1" ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
 db_file_basename="${VORTEX_DB_FILE%.*}"
 [ -d "${VORTEX_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
@@ -45,43 +45,43 @@ if [ -n "${found_db:-}" ]; then
   note "Found existing database dump file(s)."
   ls -Alh "${VORTEX_DB_DIR}" 2>/dev/null || true
 
-  if [ "${VORTEX_DB_DOWNLOAD_FORCE}" != "1" ]; then
+  if [ "${VORTEX_DOWNLOAD_DB_FORCE}" != "1" ]; then
     note "Using existing database dump file(s)."
     note "Download will not proceed."
-    note "Remove existing database file or set VORTEX_DB_DOWNLOAD_FORCE value to 1 to force download."
+    note "Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download."
     exit 0
   else
     note "Will download a fresh copy of the database."
   fi
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "ftp" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "ftp" ]; then
   ./scripts/vortex/download-db-ftp.sh
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "url" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "url" ]; then
   ./scripts/vortex/download-db-url.sh
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "acquia" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "acquia" ]; then
   ./scripts/vortex/download-db-acquia.sh
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "lagoon" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "lagoon" ]; then
   ./scripts/vortex/download-db-lagoon.sh
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "container_registry" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "container_registry" ]; then
   ./scripts/vortex/download-db-container-registry.sh
 fi
 
-if [ "${VORTEX_DB_DOWNLOAD_SOURCE}" = "s3" ]; then
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
   ./scripts/vortex/download-db-s3.sh
 fi
 
 ls -Alh "${VORTEX_DB_DIR}" || true
 
 # Create a semaphore file to indicate that the database has been downloaded.
-[ -n "${VORTEX_DB_DOWNLOAD_SEMAPHORE:-}" ] && touch "${VORTEX_DB_DOWNLOAD_SEMAPHORE}"
+[ -n "${VORTEX_DOWNLOAD_DB_SEMAPHORE:-}" ] && touch "${VORTEX_DOWNLOAD_DB_SEMAPHORE}"
 
 pass "Finished database download."

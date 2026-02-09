@@ -57,8 +57,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
@@ -119,8 +119,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
@@ -182,8 +182,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
 
@@ -246,8 +246,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   # Don't set VORTEX_DB_DIR and VORTEX_DB_FILE to test defaults
   unset VORTEX_DB_DIR VORTEX_DB_FILE
 
@@ -278,8 +278,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="invalid-key"
   export VORTEX_ACQUIA_SECRET="invalid-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -312,8 +312,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="nonexistent-app"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -350,8 +350,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="nonexistent-env"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="nonexistent-env"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -392,8 +392,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="nonexistent-db"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="nonexistent-db"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -434,8 +434,8 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -454,7 +454,7 @@ load ../_helper.bash
   mkdir -p .data
 
   # Create .env.local with the fresh flag
-  echo "VORTEX_DB_DOWNLOAD_FRESH=1" >.env.local
+  echo "VORTEX_DOWNLOAD_DB_FRESH=1" >.env.local
 
   declare -a STEPS=(
     "[INFO] Started database dump download from Acquia."
@@ -509,11 +509,11 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
-  export VORTEX_DB_DOWNLOAD_FRESH="1"
+  export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -556,11 +556,11 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
-  export VORTEX_DB_DOWNLOAD_FRESH="1"
+  export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -600,11 +600,11 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
-  export VORTEX_DB_DOWNLOAD_FRESH="1"
+  export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -649,11 +649,11 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
-  export VORTEX_DB_DOWNLOAD_FRESH="1"
+  export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh
@@ -705,13 +705,13 @@ load ../_helper.bash
   export VORTEX_ACQUIA_KEY="test-key"
   export VORTEX_ACQUIA_SECRET="test-secret"
   export VORTEX_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DB_DOWNLOAD_ENVIRONMENT="prod"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
   export VORTEX_DB_DIR=".data"
   export VORTEX_DB_FILE="db.sql"
-  export VORTEX_DB_DOWNLOAD_FRESH="1"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_MAX_WAIT="15"
-  export VORTEX_DB_DOWNLOAD_ACQUIA_BACKUP_WAIT_INTERVAL="5"
+  export VORTEX_DOWNLOAD_DB_FRESH="1"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT="15"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-acquia.sh

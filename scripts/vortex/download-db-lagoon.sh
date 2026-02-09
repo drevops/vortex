@@ -23,40 +23,40 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Flag to download a fresh copy of the database.
-VORTEX_DB_DOWNLOAD_FRESH="${VORTEX_DB_DOWNLOAD_FRESH:-}"
+VORTEX_DOWNLOAD_DB_FRESH="${VORTEX_DOWNLOAD_DB_FRESH:-}"
 
 # Lagoon project name.
 LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
 
 # The source environment branch for the database source.
-VORTEX_DB_DOWNLOAD_ENVIRONMENT="${VORTEX_DB_DOWNLOAD_ENVIRONMENT:-main}"
+VORTEX_DOWNLOAD_DB_ENVIRONMENT="${VORTEX_DOWNLOAD_DB_ENVIRONMENT:-main}"
 
 # Remote DB dump directory location.
-VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR="/tmp"
+VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR="/tmp"
 
 # Remote DB dump file name. Cached by the date suffix.
-VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE="${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE:-db_$(date +%Y%m%d).sql}"
+VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE="${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE:-db_$(date +%Y%m%d).sql}"
 
 # Wildcard file name to cleanup previously created dump files.
 #
-# Cleanup runs only if the variable is set and $VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE
+# Cleanup runs only if the variable is set and $VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE
 # does not exist.
-VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP="${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP:-db_*.sql}"
+VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP="${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP:-db_*.sql}"
 
 # SSH key fingerprint used to connect to a remote.
-VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT="${VORTEX_DB_DOWNLOAD_SSH_FINGERPRINT:-}"
+VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT="${VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT:-}"
 
 # Default SSH file used if custom fingerprint is not provided.
-VORTEX_DB_DOWNLOAD_SSH_FILE="${VORTEX_DB_DOWNLOAD_SSH_FILE:-${HOME}/.ssh/id_rsa}"
+VORTEX_DOWNLOAD_DB_SSH_FILE="${VORTEX_DOWNLOAD_DB_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
 # The SSH host of the Lagoon environment.
-VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST="${VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST:-ssh.lagoon.amazeeio.cloud}"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST:-ssh.lagoon.amazeeio.cloud}"
 
 # The SSH port of the Lagoon environment.
-VORTEX_DB_DOWNLOAD_LAGOON_SSH_PORT="${VORTEX_DB_DOWNLOAD_LAGOON_SSH_PORT:-32222}"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT:-32222}"
 
 # The SSH user of the Lagoon environment.
-VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER="${VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER:-${LAGOON_PROJECT}-${VORTEX_DB_DOWNLOAD_ENVIRONMENT}}"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER:-${LAGOON_PROJECT}-${VORTEX_DOWNLOAD_DB_ENVIRONMENT}}"
 
 # Directory where DB dumps are stored on the host.
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
@@ -84,15 +84,15 @@ for cmd in ssh rsync; do command -v "${cmd}" >/dev/null || {
 
 info "Started database dump download from Lagoon."
 
-export VORTEX_SSH_PREFIX="DB_DOWNLOAD" && . ./scripts/vortex/setup-ssh.sh
+export VORTEX_SSH_PREFIX="DOWNLOAD_DB" && . ./scripts/vortex/setup-ssh.sh
 
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
 ssh_opts+=(-o "StrictHostKeyChecking=no")
 ssh_opts+=(-o "LogLevel=error")
 ssh_opts+=(-o "IdentitiesOnly=yes")
-ssh_opts+=(-p "${VORTEX_DB_DOWNLOAD_LAGOON_SSH_PORT}")
-if [ "${VORTEX_DB_DOWNLOAD_SSH_FILE:-}" != false ]; then
-  ssh_opts+=(-i "${VORTEX_DB_DOWNLOAD_SSH_FILE}")
+ssh_opts+=(-p "${VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT}")
+if [ "${VORTEX_DOWNLOAD_DB_SSH_FILE:-}" != false ]; then
+  ssh_opts+=(-i "${VORTEX_DOWNLOAD_DB_SSH_FILE}")
 fi
 
 if [ ! -d "${VORTEX_DB_DIR}" ]; then
@@ -100,7 +100,7 @@ if [ ! -d "${VORTEX_DB_DIR}" ]; then
   mkdir -p "${VORTEX_DB_DIR}"
 fi
 
-if [ "$VORTEX_DB_DOWNLOAD_FRESH" = "1" ]; then
+if [ "$VORTEX_DOWNLOAD_DB_FRESH" = "1" ]; then
   note "Database dump refresh requested. Will create a new dump."
 fi
 
@@ -114,18 +114,18 @@ fi
 task "Discovering or creating a database dump on Lagoon."
 ssh \
   "${ssh_opts[@]}" \
-  "${VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER}@${VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST}" service=cli container=cli \
-  "if [ ! -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\" ] || [ \"${VORTEX_DB_DOWNLOAD_FRESH}\" = \"1\" ] ; then \
-     [ -n \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}\"\/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
-     echo \"      > Creating a database dump ${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
-     /app/vendor/bin/drush --root=./${WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > \"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}\"; \
+  "${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER}@${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST}" service=cli container=cli \
+  "if [ ! -f \"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}/${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}\" ] || [ \"${VORTEX_DOWNLOAD_DB_FRESH}\" = \"1\" ] ; then \
+     [ -n \"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP}\" ] && rm -f \"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}\"\/${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP} && echo \"Removed previously created DB dumps.\"; \
+     echo \"      > Creating a database dump ${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}/${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}.\"; \
+     /app/vendor/bin/drush --root=./${WEBROOT} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > \"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}/${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}\"; \
    else \
-     echo \"      > Using existing dump ${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}/${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}.\"; \
+     echo \"      > Using existing dump ${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}/${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}.\"; \
    fi"
 
 task "Downloading a database dump."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh ${ssh_opts_string}")
-rsync "${rsync_opts[@]}" "${VORTEX_DB_DOWNLOAD_LAGOON_SSH_USER}@${VORTEX_DB_DOWNLOAD_LAGOON_SSH_HOST}":"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_DIR}"/"${VORTEX_DB_DOWNLOAD_LAGOON_REMOTE_FILE}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+rsync "${rsync_opts[@]}" "${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER}@${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST}":"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}"/"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
 
 pass "Finished database dump download from Lagoon."

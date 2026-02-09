@@ -14,19 +14,19 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # AWS access key.
-VORTEX_DB_DOWNLOAD_S3_ACCESS_KEY="${VORTEX_DB_DOWNLOAD_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}"
+VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="${VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}"
 
 # AWS secret key.
-VORTEX_DB_DOWNLOAD_S3_SECRET_KEY="${VORTEX_DB_DOWNLOAD_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}"
+VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="${VORTEX_DOWNLOAD_DB_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}"
 
 # S3 bucket name.
-VORTEX_DB_DOWNLOAD_S3_BUCKET="${VORTEX_DB_DOWNLOAD_S3_BUCKET:-${S3_BUCKET:-}}"
+VORTEX_DOWNLOAD_DB_S3_BUCKET="${VORTEX_DOWNLOAD_DB_S3_BUCKET:-${S3_BUCKET:-}}"
 
 # S3 region.
-VORTEX_DB_DOWNLOAD_S3_REGION="${VORTEX_DB_DOWNLOAD_S3_REGION:-${S3_REGION:-}}"
+VORTEX_DOWNLOAD_DB_S3_REGION="${VORTEX_DOWNLOAD_DB_S3_REGION:-${S3_REGION:-}}"
 
 # S3 prefix (path within the bucket).
-VORTEX_DB_DOWNLOAD_S3_PREFIX="${VORTEX_DB_DOWNLOAD_S3_PREFIX:-${S3_PREFIX:-}}"
+VORTEX_DOWNLOAD_DB_S3_PREFIX="${VORTEX_DOWNLOAD_DB_S3_PREFIX:-${S3_PREFIX:-}}"
 
 # Directory with database dump file.
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
@@ -49,15 +49,15 @@ for cmd in curl openssl; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
-[ -z "${VORTEX_DB_DOWNLOAD_S3_ACCESS_KEY}" ] && fail "Missing required value for VORTEX_DB_DOWNLOAD_S3_ACCESS_KEY." && exit 1
-[ -z "${VORTEX_DB_DOWNLOAD_S3_SECRET_KEY}" ] && fail "Missing required value for VORTEX_DB_DOWNLOAD_S3_SECRET_KEY." && exit 1
-[ -z "${VORTEX_DB_DOWNLOAD_S3_BUCKET}" ] && fail "Missing required value for VORTEX_DB_DOWNLOAD_S3_BUCKET." && exit 1
-[ -z "${VORTEX_DB_DOWNLOAD_S3_REGION}" ] && fail "Missing required value for VORTEX_DB_DOWNLOAD_S3_REGION." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY}" ] && fail "Missing required value for VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_S3_SECRET_KEY}" ] && fail "Missing required value for VORTEX_DOWNLOAD_DB_S3_SECRET_KEY." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_S3_BUCKET}" ] && fail "Missing required value for VORTEX_DOWNLOAD_DB_S3_BUCKET." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_S3_REGION}" ] && fail "Missing required value for VORTEX_DOWNLOAD_DB_S3_REGION." && exit 1
 
 info "Started database dump download from S3."
 
 # Ensure prefix ends with a trailing slash if non-empty.
-[ -n "${VORTEX_DB_DOWNLOAD_S3_PREFIX}" ] && VORTEX_DB_DOWNLOAD_S3_PREFIX="${VORTEX_DB_DOWNLOAD_S3_PREFIX%/}/"
+[ -n "${VORTEX_DOWNLOAD_DB_S3_PREFIX}" ] && VORTEX_DOWNLOAD_DB_S3_PREFIX="${VORTEX_DOWNLOAD_DB_S3_PREFIX%/}/"
 
 mkdir -p "${VORTEX_DB_DIR}"
 
@@ -66,17 +66,17 @@ auth_type="AWS4-HMAC-SHA256"
 service="s3"
 content_type="application/octet-stream"
 
-host="${service}.${VORTEX_DB_DOWNLOAD_S3_REGION}.amazonaws.com"
-uri="/${VORTEX_DB_DOWNLOAD_S3_BUCKET}/${VORTEX_DB_DOWNLOAD_S3_PREFIX}${VORTEX_DB_FILE}"
+host="${service}.${VORTEX_DOWNLOAD_DB_S3_REGION}.amazonaws.com"
+uri="/${VORTEX_DOWNLOAD_DB_S3_BUCKET}/${VORTEX_DOWNLOAD_DB_S3_PREFIX}${VORTEX_DB_FILE}"
 object_url="https://${host}${uri}"
 date_short="$(date -u '+%Y%m%d')"
 date_long="${date_short}T$(date -u '+%H%M%S')Z"
 
-note "Remote file: ${VORTEX_DB_DOWNLOAD_S3_PREFIX}${VORTEX_DB_FILE}"
+note "Remote file: ${VORTEX_DOWNLOAD_DB_S3_PREFIX}${VORTEX_DB_FILE}"
 note "Local path:  ${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
-note "S3 bucket:   ${VORTEX_DB_DOWNLOAD_S3_BUCKET}"
-note "S3 region:   ${VORTEX_DB_DOWNLOAD_S3_REGION}"
-[ -n "${VORTEX_DB_DOWNLOAD_S3_PREFIX}" ] && note "S3 prefix:   ${VORTEX_DB_DOWNLOAD_S3_PREFIX}"
+note "S3 bucket:   ${VORTEX_DOWNLOAD_DB_S3_BUCKET}"
+note "S3 region:   ${VORTEX_DOWNLOAD_DB_S3_REGION}"
+[ -n "${VORTEX_DOWNLOAD_DB_S3_PREFIX}" ] && note "S3 prefix:   ${VORTEX_DOWNLOAD_DB_S3_PREFIX}"
 
 # shellcheck disable=SC2059
 hash_sha256() { printf "${1}" | openssl dgst -sha256 | sed 's/^.* //'; }
@@ -100,9 +100,9 @@ ${payload_hash}"
 # Create the signature.
 # shellcheck disable=SC2059
 create_signature() {
-  string_to_sign="${auth_type}\n${date_long}\n${date_short}/${VORTEX_DB_DOWNLOAD_S3_REGION}/${service}/aws4_request\n$(hash_sha256 "${request}")"
-  date_key=$(hmac_sha256 key:"AWS4${VORTEX_DB_DOWNLOAD_S3_SECRET_KEY}" "${date_short}")
-  region_key=$(hmac_sha256 hexkey:"${date_key}" "${VORTEX_DB_DOWNLOAD_S3_REGION}")
+  string_to_sign="${auth_type}\n${date_long}\n${date_short}/${VORTEX_DOWNLOAD_DB_S3_REGION}/${service}/aws4_request\n$(hash_sha256 "${request}")"
+  date_key=$(hmac_sha256 key:"AWS4${VORTEX_DOWNLOAD_DB_S3_SECRET_KEY}" "${date_short}")
+  region_key=$(hmac_sha256 hexkey:"${date_key}" "${VORTEX_DOWNLOAD_DB_S3_REGION}")
   service_key=$(hmac_sha256 hexkey:"${region_key}" "${service}")
   signing_key=$(hmac_sha256 hexkey:"${service_key}" "aws4_request")
 
@@ -111,8 +111,8 @@ create_signature() {
 
 signature="$(create_signature)"
 auth_header="\
-${auth_type} Credential=${VORTEX_DB_DOWNLOAD_S3_ACCESS_KEY}/${date_short}/\
-${VORTEX_DB_DOWNLOAD_S3_REGION}/${service}/aws4_request, \
+${auth_type} Credential=${VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY}/${date_short}/\
+${VORTEX_DOWNLOAD_DB_S3_REGION}/${service}/aws4_request, \
 SignedHeaders=${signed_headers}, Signature=${signature}"
 
 curl "${object_url}" \
