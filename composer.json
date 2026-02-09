@@ -49,9 +49,9 @@
         "phpspec/prophecy-phpunit": "^2.4",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.1.38",
-        "phpunit/phpunit": "^11.5.50",
+        "phpunit/phpunit": "^11.5.52",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.3.5",
+        "rector/rector": "^2.3.6",
         "vincentlanglet/twig-cs-fixer": "^3.13"
     },
     "conflict": {
