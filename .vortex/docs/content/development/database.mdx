@@ -22,12 +22,12 @@ download the latest database dump into the `.data` directory.
     ahoy fetch-db --fresh
     ```
   </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
+  <TabItem value="host" label="Host">
     ```shell
     # Download latest database dump (uses cache if downloaded today)
-    docker compose exec cli ./scripts/vortex/download-db.sh
+    ./scripts/vortex/download-db.sh
     # Force a fresh download regardless of cache
-    VORTEX_DB_DOWNLOAD_REFRESH=1 docker compose exec cli ./scripts/vortex/download-db.sh
+    VORTEX_DB_DOWNLOAD_FRESH=1 ./scripts/vortex/download-db.sh
     ```
   </TabItem>
 </Tabs>
@@ -84,10 +84,10 @@ Export timestamped database dumps from the local environment.
     ahoy export-db
     ```
   </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
+  <TabItem value="host" label="Host">
     ```shell
     # Export current database to .data directory
-    docker compose exec cli ./scripts/vortex/export-db.sh
+    ./scripts/vortex/export-db.sh
     ```
   </TabItem>
 </Tabs>
