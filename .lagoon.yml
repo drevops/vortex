@@ -61,6 +61,16 @@ tasks:
         service: cli
     #;> !PROVISION_TYPE_PROFILE
 
+    #;< MIGRATION
+    - run:
+        name: Download migration database
+        command: |
+          export VORTEX_DOWNLOAD_DB_SSH_FILE=false
+          export VORTEX_DB_DIR=/tmp/data
+          VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+        service: cli
+    #;> MIGRATION
+
     - run:
         name: Provision site
         command: |

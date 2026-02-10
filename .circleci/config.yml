@@ -154,15 +154,22 @@ jobs:
             # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized database dump, for example).
-            - v26.1.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - v26.1.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
 
       - run:
           name: Download DB
           command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
+
+      #;< MIGRATION
+      - run:
+          name: Download migration DB
+          command: VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+          no_output_timeout: 30m
+      #;> MIGRATION
 
       # Execute commands after database download script finished: if the
       # DB dump was downloaded - build the site (to ensure that the DB dump
@@ -187,7 +194,7 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: v26.1.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - /root/project/.data
 
@@ -236,8 +243,8 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # https://circleci.com/docs/2.0/caching/#restoring-cache
-            - v26.1.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - v26.1.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
       #;> !PROVISION_TYPE_PROFILE
 
       - *step_setup_remote_docker
@@ -357,6 +364,12 @@ jobs:
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
             fi
+            #;< MIGRATION
+            if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
+              docker compose exec -T cli mkdir -p .data
+              docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
+            fi
+            #;> MIGRATION
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
 
@@ -665,6 +678,9 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
+      # Migration database is always file-based and is not supported as an
+      # image. Skip migration in DIDI test jobs.
+      MIGRATION_SKIP: 1
 
   vortex-dev-didi-build-ii:
     <<: *job_build
@@ -673,6 +689,9 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
+      # Migration database is always file-based and is not supported as an
+      # image. Skip migration in DIDI test jobs.
+      MIGRATION_SKIP: 1
   #=============================================================================
   #;> VORTEX_DEV
 

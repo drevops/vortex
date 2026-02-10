@@ -63,6 +63,9 @@ abstract class SettingsTestCase extends TestCase {
   const ALLOWED_ENV_VARS = [
     // Service variables.
     'DATABASE_',
+    // phpcs:ignore #;< MIGRATION
+    'DATABASE2_',
+    // phpcs:ignore #;> MIGRATION
     'REDIS_',
     'COMPOSE_',
     'GITHUB_',
