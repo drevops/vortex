@@ -15,6 +15,8 @@
         "drupal/core-composer-scaffold": "~11.3.3",
         "drupal/core-recommended": "~11.3.3",
         "drupal/environment_indicator": "^4.0.25",
+        "drupal/migrate_plus": "^6.0.7",
+        "drupal/migrate_tools": "^6.0.8",
         "drupal/pathauto": "^1.14",
         "drupal/redirect": "^1.12",
         "drupal/redis": "^1.11",

@@ -19,6 +19,10 @@
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
+_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
+VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
+for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
+
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
@@ -59,10 +63,10 @@ VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT:-32222}
 VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER:-${VORTEX_DOWNLOAD_DB_LAGOON_PROJECT}-${VORTEX_DOWNLOAD_DB_ENVIRONMENT}}"
 
 # Directory where DB dumps are stored on the host.
-VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR="${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
+VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR="${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
 
 # Database dump file name on the host.
-VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="${VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="${VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE:-${VORTEX_DOWNLOAD_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
 
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"

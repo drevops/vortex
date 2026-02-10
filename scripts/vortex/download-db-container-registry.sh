@@ -8,6 +8,10 @@
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
+_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
+VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
+for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
+
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
@@ -26,7 +30,7 @@ VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="${VORTEX_DOWNLOAD_DB_CONTAINER_REGIS
 VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
 
 # Directory with database dump file.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
 
 # The base container image used as a fallback when the archive does not exist.
 VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE:-${VORTEX_DB_IMAGE_BASE:-}}"

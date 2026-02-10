@@ -1,0 +1,51 @@
+@@ -54,6 +54,16 @@
+   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+   # Redis integration flag.
+   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
++  # Local migration database host (not used in production).
++  DATABASE2_HOST: database2
++  # Local migration database name (not used in production).
++  DATABASE2_NAME: drupal
++  # Local migration database user (not used in production).
++  DATABASE2_USERNAME: drupal
++  # Local migration database password (not used in production).
++  DATABASE2_PASSWORD: drupal
++  # Local migration database port (not used in production).
++  DATABASE2_PORT: 3306
+ 
+ # The default user under which the containers should run.
+ x-user: &default-user
+@@ -149,6 +159,19 @@
+     ports:
+       - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
+ 
++  database2:
++    image: uselagoon/mysql-8.4:__VERSION__
++    environment:
++      <<: *default-environment
++      MYSQL_DATABASE: drupal
++      MYSQL_USER: drupal
++      MYSQL_PASSWORD: drupal
++    <<: *default-user
++    ports:
++      - '3306'
++    labels:
++      lagoon.type: none
++
+   redis:
+     image: uselagoon/valkey-8:__VERSION__
+ 
+@@ -192,11 +215,13 @@
+     depends_on:
+       - clamav
+       - database
++      - database2
+       - redis
+       - solr
+     command:
+       - clamav:3310
+       - database:3306
++      - database2:3306
+       - redis:6379
+       - solr:8983
+       - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response

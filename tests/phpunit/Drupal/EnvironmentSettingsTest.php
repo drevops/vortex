@@ -371,6 +371,15 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $databases['default']['default']['collation'] = 'utf8_general_ci';
     $databases['default']['default']['driver'] = 'mysql';
     $databases['default']['default']['prefix'] = '';
+    // phpcs:ignore #;< MIGRATION
+    $databases['migrate']['default']['database'] = 'drupal';
+    $databases['migrate']['default']['username'] = 'drupal';
+    $databases['migrate']['default']['password'] = 'drupal';
+    $databases['migrate']['default']['host'] = 'localhost';
+    $databases['migrate']['default']['port'] = '';
+    $databases['migrate']['default']['prefix'] = '';
+    $databases['migrate']['default']['driver'] = 'mysql';
+    // phpcs:ignore #;> MIGRATION
     $this->assertEquals($databases, $this->databases);
 
     // Verify key config overrides.

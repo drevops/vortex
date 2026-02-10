@@ -1,0 +1,6 @@
+@@ -51,3 +51,5 @@
+ !scripts
+ !tests
+ !yarn.lock
++
++!.lagoon.env.*
