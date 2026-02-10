@@ -33,10 +33,10 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Lagoon."
   )
 
-  export LAGOON_PROJECT="testproject"
+  export VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="testproject"
   export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
@@ -86,10 +86,10 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Lagoon."
   )
 
-  export LAGOON_PROJECT="testproject"
+  export VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="testproject"
   export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
@@ -138,11 +138,11 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Lagoon."
   )
 
-  export LAGOON_PROJECT="testproject"
+  export VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="testproject"
   export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
   export VORTEX_DOWNLOAD_DB_FRESH="1"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"

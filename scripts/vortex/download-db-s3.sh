@@ -29,10 +29,10 @@ VORTEX_DOWNLOAD_DB_S3_REGION="${VORTEX_DOWNLOAD_DB_S3_REGION:-${S3_REGION:-}}"
 VORTEX_DOWNLOAD_DB_S3_PREFIX="${VORTEX_DOWNLOAD_DB_S3_PREFIX:-${S3_PREFIX:-}}"
 
 # Directory with database dump file.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_DOWNLOAD_DB_S3_DB_DIR="${VORTEX_DOWNLOAD_DB_S3_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_DOWNLOAD_DB_S3_DB_FILE="${VORTEX_DOWNLOAD_DB_S3_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # ------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ info "Started database dump download from S3."
 # Ensure prefix ends with a trailing slash if non-empty.
 [ -n "${VORTEX_DOWNLOAD_DB_S3_PREFIX}" ] && VORTEX_DOWNLOAD_DB_S3_PREFIX="${VORTEX_DOWNLOAD_DB_S3_PREFIX%/}/"
 
-mkdir -p "${VORTEX_DB_DIR}"
+mkdir -p "${VORTEX_DOWNLOAD_DB_S3_DB_DIR}"
 
 request_type="GET"
 auth_type="AWS4-HMAC-SHA256"
@@ -67,13 +67,13 @@ service="s3"
 content_type="application/octet-stream"
 
 host="${service}.${VORTEX_DOWNLOAD_DB_S3_REGION}.amazonaws.com"
-uri="/${VORTEX_DOWNLOAD_DB_S3_BUCKET}/${VORTEX_DOWNLOAD_DB_S3_PREFIX}${VORTEX_DB_FILE}"
+uri="/${VORTEX_DOWNLOAD_DB_S3_BUCKET}/${VORTEX_DOWNLOAD_DB_S3_PREFIX}${VORTEX_DOWNLOAD_DB_S3_DB_FILE}"
 object_url="https://${host}${uri}"
 date_short="$(date -u '+%Y%m%d')"
 date_long="${date_short}T$(date -u '+%H%M%S')Z"
 
-note "Remote file: ${VORTEX_DOWNLOAD_DB_S3_PREFIX}${VORTEX_DB_FILE}"
-note "Local path:  ${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+note "Remote file: ${VORTEX_DOWNLOAD_DB_S3_PREFIX}${VORTEX_DOWNLOAD_DB_S3_DB_FILE}"
+note "Local path:  ${VORTEX_DOWNLOAD_DB_S3_DB_DIR}/${VORTEX_DOWNLOAD_DB_S3_DB_FILE}"
 note "S3 bucket:   ${VORTEX_DOWNLOAD_DB_S3_BUCKET}"
 note "S3 region:   ${VORTEX_DOWNLOAD_DB_S3_REGION}"
 [ -n "${VORTEX_DOWNLOAD_DB_S3_PREFIX}" ] && note "S3 prefix:   ${VORTEX_DOWNLOAD_DB_S3_PREFIX}"
@@ -120,6 +120,6 @@ curl "${object_url}" \
   -H "content-type: ${content_type}" \
   -H "x-amz-content-sha256: ${payload_hash}" \
   -H "x-amz-date: ${date_long}" \
-  -f -S -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+  -f -S -o "${VORTEX_DOWNLOAD_DB_S3_DB_DIR}/${VORTEX_DOWNLOAD_DB_S3_DB_FILE}"
 
 pass "Finished database dump download from S3."

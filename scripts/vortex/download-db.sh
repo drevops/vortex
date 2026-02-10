@@ -24,6 +24,12 @@ VORTEX_DOWNLOAD_DB_FORCE="${VORTEX_DOWNLOAD_DB_FORCE:-}"
 # Proceed with download.
 VORTEX_DOWNLOAD_DB_PROCEED="${VORTEX_DOWNLOAD_DB_PROCEED:-1}"
 
+# Database dump file name.
+VORTEX_DOWNLOAD_DB_FILE="${VORTEX_DOWNLOAD_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+
+# Directory with database dump file.
+VORTEX_DOWNLOAD_DB_DIR="${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -38,12 +44,12 @@ info "Started database download."
 
 [ "${VORTEX_DOWNLOAD_DB_PROCEED}" != "1" ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
-db_file_basename="${VORTEX_DB_FILE%.*}"
-[ -d "${VORTEX_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
+db_file_basename="${VORTEX_DOWNLOAD_DB_FILE%.*}"
+[ -d "${VORTEX_DOWNLOAD_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DOWNLOAD_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
 
 if [ -n "${found_db:-}" ]; then
   note "Found existing database dump file(s)."
-  ls -Alh "${VORTEX_DB_DIR}" 2>/dev/null || true
+  ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" 2>/dev/null || true
 
   if [ "${VORTEX_DOWNLOAD_DB_FORCE}" != "1" ]; then
     note "Using existing database dump file(s)."
@@ -79,7 +85,7 @@ if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
   ./scripts/vortex/download-db-s3.sh
 fi
 
-ls -Alh "${VORTEX_DB_DIR}" || true
+ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" || true
 
 # Create a semaphore file to indicate that the database has been downloaded.
 [ -n "${VORTEX_DOWNLOAD_DB_SEMAPHORE:-}" ] && touch "${VORTEX_DOWNLOAD_DB_SEMAPHORE}"

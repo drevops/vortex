@@ -26,13 +26,13 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Acquia Cloud API key.
-VORTEX_ACQUIA_KEY="${VORTEX_ACQUIA_KEY:-}"
+VORTEX_DOWNLOAD_DB_ACQUIA_KEY="${VORTEX_DOWNLOAD_DB_ACQUIA_KEY:-${VORTEX_ACQUIA_KEY:-}}"
 
 # Acquia Cloud API secret.
-VORTEX_ACQUIA_SECRET="${VORTEX_ACQUIA_SECRET:-}"
+VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="${VORTEX_DOWNLOAD_DB_ACQUIA_SECRET:-${VORTEX_ACQUIA_SECRET:-}}"
 
 # Application name. Used to discover UUID.
-VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-}"
+VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME:-${VORTEX_ACQUIA_APP_NAME:-}}"
 
 # Source environment name used to download the database dump from.
 VORTEX_DOWNLOAD_DB_ENVIRONMENT="${VORTEX_DOWNLOAD_DB_ENVIRONMENT:-}"
@@ -41,10 +41,10 @@ VORTEX_DOWNLOAD_DB_ENVIRONMENT="${VORTEX_DOWNLOAD_DB_ENVIRONMENT:-}"
 VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME:-}"
 
 # Directory where DB dumps are stored.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # Flag to download a fresh copy of the database by triggering a new backup.
 VORTEX_DOWNLOAD_DB_FRESH="${VORTEX_DOWNLOAD_DB_FRESH:-}"
@@ -89,21 +89,21 @@ extract_json_value() {
 }
 
 # Check that all required variables are present.
-[ -z "${VORTEX_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_ACQUIA_KEY." && exit 1
-[ -z "${VORTEX_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_ACQUIA_SECRET." && exit 1
-[ -z "${VORTEX_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_ACQUIA_APP_NAME." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_DOWNLOAD_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_DOWNLOAD_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
+[ -z "${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
 [ -z "${VORTEX_DOWNLOAD_DB_ENVIRONMENT}" ] && fail "Missing value for VORTEX_DOWNLOAD_DB_ENVIRONMENT." && exit 1
 [ -z "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}" ] && fail "Missing value for VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME." && exit 1
 
-mkdir -p "${VORTEX_DB_DIR}"
+mkdir -p "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}"
 
 task "Retrieving authentication token."
-token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
+token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_DOWNLOAD_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_DOWNLOAD_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response: ${token_json}"
 
 # Check for HTTP errors in response
 if echo "${token_json}" | grep -q '"error"'; then
-  fail "Authentication failed. Check VORTEX_ACQUIA_KEY and VORTEX_ACQUIA_SECRET. API response: ${token_json}"
+  fail "Authentication failed. Check VORTEX_DOWNLOAD_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_DOWNLOAD_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
   exit 1
 fi
 
@@ -111,19 +111,19 @@ token="$(echo "${token_json}" | extract_json_value "access_token")"
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted token: ${token}"
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}" && exit 1
 
-task "Retrieving ${VORTEX_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_ACQUIA_APP_NAME/ /%20}")
+task "Retrieving ${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME} application UUID."
+app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME/ /%20}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Application API response: ${app_uuid_json}"
 
 # Check for empty items array (application not found)
 if echo "${app_uuid_json}" | grep -q '"items":\[\]'; then
-  fail "Application '${VORTEX_ACQUIA_APP_NAME}' not found. Check application name and access permissions."
+  fail "Application '${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME}' not found. Check application name and access permissions."
   exit 1
 fi
 
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted app UUID: ${app_uuid}"
-[ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for '${VORTEX_ACQUIA_APP_NAME}'. API response: ${app_uuid_json}" && exit 1
+[ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for '${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME}'. API response: ${app_uuid_json}" && exit 1
 
 task "Retrieving ${VORTEX_DOWNLOAD_DB_ENVIRONMENT} environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_DOWNLOAD_DB_ENVIRONMENT}")
@@ -131,7 +131,7 @@ envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorizatio
 
 # Check for empty items array (environment not found)
 if echo "${envs_json}" | grep -q '"items":\[\]'; then
-  fail "Environment '${VORTEX_DOWNLOAD_DB_ENVIRONMENT}' not found in application '${VORTEX_ACQUIA_APP_NAME}'. Check environment name."
+  fail "Environment '${VORTEX_DOWNLOAD_DB_ENVIRONMENT}' not found in application '${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME}'. Check environment name."
   exit 1
 fi
 
@@ -218,9 +218,9 @@ backup_id=$(echo "${backups_json}" | extract_json_value "_embedded" | extract_js
 [ -z "${backup_id}" ] && fail "Unable to discover backup ID for DB '${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}'. API response: ${backups_json}" && exit 1
 
 # Insert backup id as a suffix.
-file_extension="${VORTEX_DB_FILE##*.}"
+file_extension="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE##*.}"
 file_prefix="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}_backup_"
-file_name="${VORTEX_DB_DIR}/${file_prefix}${backup_id}.${file_extension}"
+file_name="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${file_prefix}${backup_id}.${file_extension}"
 file_name_discovered="${file_name}"
 file_name_compressed="${file_name}.gz"
 
@@ -234,7 +234,7 @@ else
   if [ ! -f "${file_name_compressed}" ]; then
     note "Using the latest backup ID ${backup_id} for DB ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
 
-    [ ! -d "${VORTEX_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_DB_DIR}" && mkdir -p "${VORTEX_DB_DIR}"
+    [ ! -d "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}" && mkdir -p "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}"
 
     task "Discovering backup URL."
     backup_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
@@ -287,12 +287,12 @@ else
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully"
 fi
 
-task "Renaming file \"${file_name}\" to \"${VORTEX_DB_DIR}/${VORTEX_DB_FILE}\"."
+task "Renaming file \"${file_name}\" to \"${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}\"."
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Moving from: ${file_name}"
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Moving to: ${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
-mv "${file_name}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+[ "${VORTEX_DEBUG-}" = "1" ] && note "Moving to: ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}"
+mv "${file_name}" "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}"
 mv_result=$?
-[ "${mv_result}" -ne 0 ] && fail "Unable to rename file from '${file_name}' to '${VORTEX_DB_DIR}/${VORTEX_DB_FILE}'. mv exit code: ${mv_result}" && exit 1
+[ "${mv_result}" -ne 0 ] && fail "Unable to rename file from '${file_name}' to '${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}'. mv exit code: ${mv_result}" && exit 1
 [ "${VORTEX_DEBUG-}" = "1" ] && note "File rename completed successfully"
 
 pass "Finished database dump download from Acquia."

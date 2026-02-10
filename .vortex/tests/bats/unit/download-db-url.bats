@@ -13,8 +13,8 @@ load ../_helper.bash
   mock_set_side_effect "${mock_curl}" "mkdir -p .data && touch .data/db.sql" 1
 
   export VORTEX_DOWNLOAD_DB_URL="http://example.com/db.sql"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
 
   run scripts/vortex/download-db-url.sh
   assert_success
@@ -36,8 +36,8 @@ load ../_helper.bash
   mock_set_side_effect "${mock_find}" 'echo "$1/subdir/backup.sql"' 1
 
   export VORTEX_DOWNLOAD_DB_URL="http://example.com/db.zip"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD=""
 
   run scripts/vortex/download-db-url.sh
@@ -60,8 +60,8 @@ load ../_helper.bash
   mock_set_side_effect "${mock_find}" 'echo "$1/protected/secure_backup.sql"' 1
 
   export VORTEX_DOWNLOAD_DB_URL="http://example.com/protected.zip"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD="secret123"
 
   run scripts/vortex/download-db-url.sh
@@ -77,8 +77,8 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DOWNLOAD_DB_URL=""
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
 
   run scripts/vortex/download-db-url.sh
   assert_failure
@@ -95,8 +95,8 @@ load ../_helper.bash
   mock_set_side_effect "${mock_curl}" "mkdir -p ./.data && touch ./.data/db.sql" 1
 
   export VORTEX_DOWNLOAD_DB_URL="http://example.com/test.sql"
-  # Don't set VORTEX_DB_DIR and VORTEX_DB_FILE to test defaults
-  unset VORTEX_DB_DIR VORTEX_DB_FILE VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD
+  # Don't set VORTEX_DOWNLOAD_DB_URL_DB_DIR and VORTEX_DOWNLOAD_DB_URL_DB_FILE to test defaults
+  unset VORTEX_DOWNLOAD_DB_URL_DB_DIR VORTEX_DOWNLOAD_DB_URL_DB_FILE VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD
 
   run scripts/vortex/download-db-url.sh
   assert_success

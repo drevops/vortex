@@ -19,7 +19,7 @@ load ../_helper.bash
 
   run scripts/vortex/login-container-registry.sh
   assert_failure
-  assert_output_contains "VORTEX_CONTAINER_REGISTRY should not be empty."
+  assert_output_contains "VORTEX_LOGIN_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY should not be empty."
 
   popd >/dev/null
 }
@@ -55,7 +55,7 @@ load ../_helper.bash
 
   run scripts/vortex/login-container-registry.sh
   assert_success
-  assert_output_contains "Skipping login to the container registry as either VORTEX_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
+  assert_output_contains "Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
 
   popd >/dev/null
 }

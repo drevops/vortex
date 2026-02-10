@@ -10,7 +10,7 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Flag to unblock admin.
-VORTEX_UNBLOCK_ADMIN="${VORTEX_UNBLOCK_ADMIN:-1}"
+VORTEX_LOGIN_UNBLOCK_ADMIN="${VORTEX_LOGIN_UNBLOCK_ADMIN:-${VORTEX_UNBLOCK_ADMIN:-1}}"
 
 # ------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
-if [ "${VORTEX_UNBLOCK_ADMIN:-}" = "1" ]; then
+if [ "${VORTEX_LOGIN_UNBLOCK_ADMIN:-}" = "1" ]; then
   if drush pm:list --status=enabled | grep -q password_policy; then
     drush sql:query 'UPDATE `user__field_password_expiration` SET `field_password_expiration_value` = 0 WHERE `bundle` = "user" AND `entity_id` = 1;' >/dev/null
   fi

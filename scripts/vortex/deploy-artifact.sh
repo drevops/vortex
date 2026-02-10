@@ -46,10 +46,10 @@ VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH:-[branch]
 VORTEX_DEPLOY_ARTIFACT_LOG="${VORTEX_DEPLOY_ARTIFACT_LOG:-${VORTEX_DEPLOY_ARTIFACT_ROOT}/deployment_log.txt}"
 
 # SSH key fingerprint used to connect to remote.
-VORTEX_DEPLOY_SSH_FINGERPRINT="${VORTEX_DEPLOY_SSH_FINGERPRINT:-}"
+VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT:-${VORTEX_DEPLOY_SSH_FINGERPRINT:-}}"
 
 # Default SSH file used if custom fingerprint is not provided.
-VORTEX_DEPLOY_SSH_FILE="${VORTEX_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}"
+VORTEX_DEPLOY_ARTIFACT_SSH_FILE="${VORTEX_DEPLOY_ARTIFACT_SSH_FILE:-${VORTEX_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}}"
 
 # ------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ info "Started ARTIFACT deployment."
 [ "$(git config --global user.name)" = "" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
 [ "$(git config --global user.email)" = "" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
-export VORTEX_SSH_PREFIX="DEPLOY" && . ./scripts/vortex/setup-ssh.sh
+export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT" && . ./scripts/vortex/setup-ssh.sh
 
 task "Installing artifact builder."
 composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2

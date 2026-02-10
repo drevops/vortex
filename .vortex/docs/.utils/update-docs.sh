@@ -22,7 +22,7 @@ echo "" >>"${OUTPUT_FILE}"
 echo "The list below is automatically generated with [Shellvar](https://github.com/alexSkrypnyk/shellvar) from all Shell scripts. " >>"${OUTPUT_FILE}"
 echo >>"${OUTPUT_FILE}"
 
-docker run -v "${ROOT_DIR}:/app" drevops/shellvar:1.3.0 extract \
+docker run -v "${ROOT_DIR}:/app" drevops/shellvar:1.5.1 extract \
   --skip-text="@docs:skip" \
   --skip-description-prefix=";<" \
   --skip-description-prefix=";>" \

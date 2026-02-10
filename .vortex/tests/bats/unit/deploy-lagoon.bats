@@ -21,7 +21,7 @@ load ../_helper.bash
 
   run scripts/vortex/deploy-lagoon.sh
   assert_failure
-  assert_output_contains "Missing required value for LAGOON_PROJECT."
+  assert_output_contains "Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT or LAGOON_PROJECT."
 
   popd >/dev/null
 }
@@ -35,7 +35,7 @@ load ../_helper.bash
 
   run scripts/vortex/deploy-lagoon.sh
   assert_failure
-  assert_output_contains "Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR."
+  assert_output_contains "Missing required value for VORTEX_DEPLOY_LAGOON_BRANCH or VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_LAGOON_PR or VORTEX_DEPLOY_PR."
 
   popd >/dev/null
 }
