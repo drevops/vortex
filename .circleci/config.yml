@@ -363,12 +363,13 @@ jobs:
             if [ -f .data/db.sql ]; then
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
-              #;< MIGRATION
-              if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
-                docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
-              fi
-              #;> MIGRATION
             fi
+            #;< MIGRATION
+            if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
+              docker compose exec -T cli mkdir -p .data
+              docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
+            fi
+            #;> MIGRATION
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
 
@@ -677,6 +678,9 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
+      # Migration database is always file-based and is not supported as an
+      # image. Skip migration in DIDI test jobs.
+      MIGRATION_SKIP: 1
 
   vortex-dev-didi-build-ii:
     <<: *job_build
@@ -685,6 +689,9 @@ jobs:
       # Use custom cache key for this workflow to make sure that caches from
       # the main workflow are separated from this one.
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
+      # Migration database is always file-based and is not supported as an
+      # image. Skip migration in DIDI test jobs.
+      MIGRATION_SKIP: 1
   #=============================================================================
   #;> VORTEX_DEV
 
