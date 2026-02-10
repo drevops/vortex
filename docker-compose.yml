@@ -66,6 +66,18 @@ x-environment: &default-environment
   # Redis integration flag.
   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
   #;> SERVICE_REDIS
+  #;< MIGRATION
+  # Local migration database host (not used in production).
+  DATABASE2_HOST: database2
+  # Local migration database name (not used in production).
+  DATABASE2_NAME: drupal
+  # Local migration database user (not used in production).
+  DATABASE2_USERNAME: drupal
+  # Local migration database password (not used in production).
+  DATABASE2_PASSWORD: drupal
+  # Local migration database port (not used in production).
+  DATABASE2_PORT: 3306
+  #;> MIGRATION
 
 # The default user under which the containers should run.
 x-user: &default-user
@@ -185,6 +197,21 @@ services:
       lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
     #;> HOSTING_LAGOON
 
+  #;< MIGRATION
+  database2:
+    image: uselagoon/mysql-8.4:26.1.0
+    environment:
+      <<: *default-environment
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+    <<: *default-user
+    ports:
+      - '3306'
+    labels:
+      lagoon.type: none
+  #;> MIGRATION
+
   #;< SERVICE_REDIS
   redis:
     image: uselagoon/valkey-8:26.1.0
@@ -254,6 +281,9 @@ services:
       - clamav
       #;> SERVICE_CLAMAV
       - database
+      #;< MIGRATION
+      - database2
+      #;> MIGRATION
       #;< SERVICE_REDIS
       - redis
       #;> SERVICE_REDIS
@@ -265,6 +295,9 @@ services:
       - clamav:3310
       #;> SERVICE_CLAMAV
       - database:3306
+      #;< MIGRATION
+      - database2:3306
+      #;> MIGRATION
       #;< SERVICE_REDIS
       - redis:6379
       #;> SERVICE_REDIS

@@ -23,6 +23,9 @@ web/profiles/*
 web/sites/default/*
 !web/sites/default/settings.php
 !web/sites/default/services.yml
+#;< MIGRATION
+!web/sites/default/settings.migration.php
+#;> MIGRATION
 !web/sites/default/example.settings.local.php
 !web/sites/default/example.services.local.yml
 !web/sites/default/default.settings.local.php

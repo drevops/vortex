@@ -43,6 +43,7 @@ commands:
     name: Lint Vortex project.
     cmd: |
       ahoy lint-installer
+      ahoy lint-tests
       ahoy lint-scripts
       ahoy lint-dockerfiles
       ahoy lint-docs
@@ -52,6 +53,7 @@ commands:
     name: Fix linting issues in Vortex project.
     cmd: |
       ahoy lint-installer-fix
+      ahoy lint-tests-fix
       ahoy lint-docs-fix
       ahoy lint-markdown-fix
 
@@ -60,6 +62,12 @@ commands:
 
   lint-installer-fix:
     cmd: composer --working-dir installer lint-fix
+
+  lint-tests:
+    cmd: composer --working-dir tests lint
+
+  lint-tests-fix:
+    cmd: composer --working-dir tests lint-fix
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh
