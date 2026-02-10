@@ -1,0 +1,37 @@
+@@ -30,6 +30,7 @@
+     cmd: |
+       COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}} \
+       VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2) \
++      VORTEX_HOST_DB2_PORT=$(docker compose port database2 3306 2>/dev/null | cut -d : -f 2) \
+       VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \
+       VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2) \
+       VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true) \
+@@ -43,6 +44,14 @@
+       open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+       || echo "Not a supported OS or Sequel Ace is not installed."
+ 
++  db2:
++    usage: Open DB2 in Sequel Ace.
++    cmd: |
++      uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
++      VORTEX_HOST_DB2_PORT=$(docker compose port database2 3306 2>/dev/null | cut -d : -f 2) && \
++      open "mysql://${DATABASE2_USERNAME:-drupal}:${DATABASE2_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB2_PORT}/drupal" -a "Sequel Ace" \
++      || echo "Not a supported OS or Sequel Ace is not installed."
++
+   # ----------------------------------------------------------------------------
+   # Container commands.
+   # ----------------------------------------------------------------------------
+@@ -117,6 +126,13 @@
+     cmd: |
+       case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
+       ./scripts/vortex/download-db.sh
++
++  download-db2:
++    usage: Download second database (migration). Run with "--fresh" to force.
++    aliases: [fetch-db2]
++    cmd: |
++      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FORCE=1;; esac
++      VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+ 
+   reload-db:
+     usage: Reload the database container using local database image.

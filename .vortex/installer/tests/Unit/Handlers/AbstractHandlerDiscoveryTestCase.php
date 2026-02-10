@@ -19,6 +19,8 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
@@ -143,6 +145,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       ProvisionType::id() => ProvisionType::DATABASE,
       DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
       DatabaseImage::id() => NULL,
+      Migration::id() => FALSE,
+      MigrationDownloadSource::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
       AssignAuthorPr::id() => TRUE,
@@ -215,6 +219,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       ProvisionType::id() => static::TUI_DEFAULT,
       DatabaseDownloadSource::id() => static::TUI_DEFAULT,
       DatabaseImage::id() => static::TUI_SKIP,
+      Migration::id() => static::TUI_DEFAULT,
+      MigrationDownloadSource::id() => static::TUI_SKIP,
       CiProvider::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
       AssignAuthorPr::id() => static::TUI_DEFAULT,

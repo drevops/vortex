@@ -775,4 +775,119 @@ trait SubtestAhoyTrait {
     $this->assertStringNotContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should not contain: %s', $path, $content));
   }
 
+  protected function subtestAhoyMigrationFilesPresent(): void {
+    $this->logStepStart();
+
+    $this->assertFileExists('web/sites/default/settings.migration.php');
+    $this->assertFileExists('scripts/custom/provision-20-migration.sh');
+    $this->assertFileExists('web/modules/custom/ys_migrate/ys_migrate.info.yml');
+    $this->assertFileExists('web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml');
+    $this->assertFileContainsString('docker-compose.yml', 'database2');
+    $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_FILE');
+    $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
+    $this->assertFileContainsString('.ahoy.yml', 'download-db2');
+
+    $this->logStepFinish();
+  }
+
+  protected function subtestAhoyMigrationDownloadDb(): void {
+    $this->logStepStart();
+
+    $this->fileAddVar('.env', 'VORTEX_DOWNLOAD_DB2_URL', static::VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST);
+    $this->cmd('ahoy download-db2', txt: 'Download migration database');
+    $this->assertFileExists('.data/db2.sql', 'Migration database file should exist after download');
+
+    $this->logStepFinish();
+  }
+
+  protected function subtestAhoyMigrationProvision(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Provision site with migration database');
+    $this->cmd(
+      'ahoy provision',
+      [
+        '* Provisioning site from the database dump file.',
+        '* Started migration operations.',
+        '* Importing migration source database.',
+        '* Imported migration source database.',
+        '* Finished migration operations.',
+      ],
+      'Provision with migration should complete successfully',
+    );
+
+    $this->logSubstep('Verify migrated taxonomy terms exist in Drupal');
+    $sql_file = '.data/verify-migration.sql';
+    File::dump($sql_file, "SELECT name FROM taxonomy_term_field_data WHERE vid = 'tags' ORDER BY name;\n");
+    $this->syncToContainer($sql_file);
+
+    $this->cmd(
+      'ahoy drush sql:query --file=../' . $sql_file,
+      [
+        '* Jedi Order',
+        '* Sith Lords',
+        '* Rebel Alliance',
+        '* Mandalorians',
+        '* Bounty Hunters',
+        '* Droids',
+      ],
+      'Migrated taxonomy terms should exist in the tags vocabulary',
+    );
+
+    $this->logSubstep('Verify migration status shows imported items');
+    $process = $this->cmd(
+      'ahoy drush migrate:status -- --format=json',
+      txt: 'Migration status should return JSON output',
+    );
+
+    $json = json_decode(trim($process->getOutput()), TRUE);
+    $this->assertIsArray($json, 'Migration status output should be valid JSON');
+    $this->assertNotEmpty($json, 'Migration status should contain at least one migration');
+    $migration = $json[0];
+    // @phpstan-ignore-next-line
+    $this->assertSame(10, $migration['imported'], 'Migration should have 10 imported items');
+
+    $this->logStepFinish();
+  }
+
+  protected function subtestAhoyMigrationSkip(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Test MIGRATION_SKIP flag');
+    $this->fileAddVar('.env', 'MIGRATION_SKIP', '1');
+    $this->syncToContainer('.env');
+
+    $this->cmd(
+      'ahoy provision',
+      [
+        '* Skipping migrations. MIGRATION_SKIP is set to 1.',
+        '! Importing migration source database.',
+        '! Starting migrations.',
+      ],
+      'Provision with MIGRATION_SKIP=1 should skip all migration operations',
+    );
+
+    $this->fileRestore('.env');
+    $this->syncToContainer('.env');
+
+    $this->logSubstep('Test MIGRATION_SOURCE_DB_IMPORT skip with existing database');
+    $this->fileAddVar('.env', 'MIGRATION_SOURCE_DB_IMPORT', '0');
+    $this->syncToContainer('.env');
+
+    $this->cmd(
+      'ahoy provision',
+      [
+        '* Source database import is set to be skipped.',
+        '* Using existing migration source database.',
+        '! Importing migration source database.',
+      ],
+      'Provision with MIGRATION_SOURCE_DB_IMPORT=0 should skip DB import but still run migrations',
+    );
+
+    $this->fileRestore('.env');
+    $this->syncToContainer('.env');
+
+    $this->logStepFinish();
+  }
+
 }
