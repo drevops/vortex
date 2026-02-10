@@ -275,6 +275,51 @@ trait SubtestDockerComposeTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestDockerComposeDrushPhpIni(): void {
+    $this->logStepStart();
+
+    $ini_file = 'drush/php-ini/drush.ini';
+
+    $this->logSubstep('Assert default PHP ini values from drush.ini are applied.');
+    $this->assertFileExists($ini_file, 'Drush PHP ini file should exist');
+    $this->assertFileContainsString($ini_file, 'memory_limit = 512M', 'Drush PHP ini file should contain default memory_limit');
+    $this->cmd(
+      'docker compose exec -T cli php -r "echo ini_get(\'memory_limit\');"',
+      '512M',
+      'PHP memory_limit should be 512M from drush.ini'
+    );
+
+    $this->logSubstep('Assert PHP ini values are updated when drush.ini is changed.');
+    $this->fileBackup($ini_file);
+    File::dump($ini_file, "memory_limit = 256M\n");
+    $this->syncToContainer($ini_file);
+    $this->cmd(
+      'docker compose exec -T cli php -r "echo ini_get(\'memory_limit\');"',
+      '256M',
+      'PHP memory_limit should be 256M after changing drush.ini'
+    );
+
+    $this->logSubstep('Assert multiple PHP ini directives are applied.');
+    File::dump($ini_file, "memory_limit = 1024M\nerror_reporting = E_ALL\n");
+    $this->syncToContainer($ini_file);
+    $this->cmd(
+      'docker compose exec -T cli php -r "echo ini_get(\'memory_limit\');"',
+      '1024M',
+      'PHP memory_limit should be 1024M after second change'
+    );
+    $this->cmd(
+      'docker compose exec -T cli php -r "echo ini_get(\'error_reporting\');"',
+      '32767',
+      'PHP error_reporting should be 32767 (E_ALL) from drush.ini'
+    );
+
+    $this->logSubstep('Restore drush.ini to original state.');
+    $this->fileRestore($ini_file);
+    $this->syncToContainer($ini_file);
+
+    $this->logStepFinish();
+  }
+
   protected function subtestSolr(): void {
     $this->logStepStart();
 

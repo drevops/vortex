@@ -41,6 +41,33 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+## PHP runtime configuration
+
+Vortex allows you to customize PHP runtime settings for Drush CLI commands
+by editing the `drush/php-ini/drush.ini` file.
+
+This file is auto-discovered via the `PHP_INI_SCAN_DIR` environment variable,
+which is pre-configured in both the Docker CLI container and Acquia deployment
+hooks.
+
+For example, to increase the memory limit for Drush operations:
+
+```ini
+; drush/php-ini/drush.ini
+memory_limit = 512M
+```
+
+Any valid PHP ini directive can be added to this file to adjust the runtime
+behavior of Drush commands.
+
+:::note
+
+The leading colon in the `PHP_INI_SCAN_DIR` value preserves the default scan
+directories. On Acquia, this ensures that the hosting provider's own PHP ini
+overrides (such as `sendmail_path`) are not lost.
+
+:::
+
 ## Aliases
 
 For Lagoon hosting, Drush site aliases are automatically generated for each
