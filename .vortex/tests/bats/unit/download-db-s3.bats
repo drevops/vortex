@@ -32,8 +32,8 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
   export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-s3.sh
@@ -75,8 +75,8 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
   export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
-  # Don't set VORTEX_DB_DIR and VORTEX_DB_FILE to test defaults.
-  unset VORTEX_DB_DIR VORTEX_DB_FILE
+  # Don't set VORTEX_DOWNLOAD_DB_S3_DB_DIR and VORTEX_DOWNLOAD_DB_S3_DB_FILE to test defaults.
+  unset VORTEX_DOWNLOAD_DB_S3_DB_DIR VORTEX_DOWNLOAD_DB_S3_DB_FILE
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-s3.sh
@@ -118,8 +118,8 @@ load ../_helper.bash
   export S3_REGION="us-east-1"
   # Clear prefix shortcut to prevent environment leakage.
   unset S3_PREFIX
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-s3.sh
@@ -157,8 +157,8 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
   export VORTEX_DOWNLOAD_DB_S3_PREFIX="backups/daily/"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-s3.sh
@@ -197,8 +197,8 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
   # Prefix without trailing slash should be normalized.
   export VORTEX_DOWNLOAD_DB_S3_PREFIX="backups/daily"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run scripts/vortex/download-db-s3.sh

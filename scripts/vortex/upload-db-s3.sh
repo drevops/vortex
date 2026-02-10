@@ -29,10 +29,10 @@ VORTEX_UPLOAD_DB_S3_REGION="${VORTEX_UPLOAD_DB_S3_REGION:-${S3_REGION:-}}"
 VORTEX_UPLOAD_DB_S3_PREFIX="${VORTEX_UPLOAD_DB_S3_PREFIX:-${S3_PREFIX:-}}"
 
 # Directory with database dump file.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_UPLOAD_DB_S3_DB_DIR="${VORTEX_UPLOAD_DB_S3_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_UPLOAD_DB_S3_DB_FILE="${VORTEX_UPLOAD_DB_S3_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # Remote database dump file name.
 VORTEX_UPLOAD_DB_S3_REMOTE_FILE="${VORTEX_UPLOAD_DB_S3_REMOTE_FILE:-db.sql}"
@@ -60,7 +60,7 @@ for cmd in curl openssl; do command -v "${cmd}" >/dev/null || {
 [ -z "${VORTEX_UPLOAD_DB_S3_BUCKET}" ] && fail "Missing required value for VORTEX_UPLOAD_DB_S3_BUCKET." && exit 1
 [ -z "${VORTEX_UPLOAD_DB_S3_REGION}" ] && fail "Missing required value for VORTEX_UPLOAD_DB_S3_REGION." && exit 1
 
-local_file="${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+local_file="${VORTEX_UPLOAD_DB_S3_DB_DIR}/${VORTEX_UPLOAD_DB_S3_DB_FILE}"
 [ ! -f "${local_file}" ] && fail "Database dump file ${local_file} does not exist." && exit 1
 
 info "Started database dump upload to S3."

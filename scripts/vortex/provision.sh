@@ -56,13 +56,13 @@ DRUPAL_SITE_EMAIL="${DRUPAL_SITE_EMAIL:-webmaster@example.com}"
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 # Directory with database dump file.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_PROVISION_DB_DIR="${VORTEX_PROVISION_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_PROVISION_DB_FILE="${VORTEX_PROVISION_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # Name of the pre-built database container image.
-VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE:-}"
+VORTEX_PROVISION_DB_IMAGE="${VORTEX_PROVISION_DB_IMAGE:-${VORTEX_DB_IMAGE:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -90,10 +90,10 @@ if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
 fi
 
 # Convert DB dir starting with './' to a full path.
-[ "${VORTEX_DB_DIR#./}" != "${VORTEX_DB_DIR}" ] && VORTEX_DB_DIR="$(pwd)${VORTEX_DB_DIR#.}"
+[ "${VORTEX_PROVISION_DB_DIR#./}" != "${VORTEX_PROVISION_DB_DIR}" ] && VORTEX_PROVISION_DB_DIR="$(pwd)${VORTEX_PROVISION_DB_DIR#.}"
 
 if [ -z "${VORTEX_PROVISION_DB}" ]; then
-  VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-"${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"}"
+  VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-"${VORTEX_PROVISION_DB_DIR}/${VORTEX_PROVISION_DB_FILE}"}"
 fi
 
 drush_version="$(drush --version | cut -d' ' -f4)"
@@ -122,8 +122,8 @@ note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
 note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
 note "Config files path              : ${config_path}"
 note "DB dump file path              : ${VORTEX_PROVISION_DB} ($([ -f "${VORTEX_PROVISION_DB}" ] && echo "present" || echo "absent"))"
-if [ -n "${VORTEX_DB_IMAGE:-}" ]; then
-  note "DB dump container image        : ${VORTEX_DB_IMAGE-}"
+if [ -n "${VORTEX_PROVISION_DB_IMAGE:-}" ]; then
+  note "DB dump container image        : ${VORTEX_PROVISION_DB_IMAGE-}"
 fi
 echo
 note "Profile                        : ${DRUPAL_PROFILE}"
@@ -196,7 +196,7 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   if [ "${site_is_installed}" = "1" ]; then
     note "Existing site was found."
 
-    if [ -n "${VORTEX_DB_IMAGE-}" ]; then
+    if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
       note "Database is baked into the container image."
       note "Site content will be preserved."
       # Container image restarts with a fresh database. Let the downstream
@@ -213,7 +213,7 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   else
     note "Existing site was not found."
 
-    if [ -n "${VORTEX_DB_IMAGE-}" ]; then
+    if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
       note "Database is baked into the container image."
       note "Looks like the database in the container image is corrupted."
       note "Site content was not changed."

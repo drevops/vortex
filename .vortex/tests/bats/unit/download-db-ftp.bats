@@ -17,8 +17,8 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FTP_HOST="ftp.example.com"
   export VORTEX_DOWNLOAD_DB_FTP_PORT="21"
   export VORTEX_DOWNLOAD_DB_FTP_FILE="backup/db.sql"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_FTP_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_FTP_DB_FILE="db.sql"
 
   run scripts/vortex/download-db-ftp.sh
   assert_success
@@ -39,8 +39,8 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FTP_HOST="ftp.example.com"
   export VORTEX_DOWNLOAD_DB_FTP_PORT="21"
   export VORTEX_DOWNLOAD_DB_FTP_FILE="backup/database.sql"
-  # Don't set VORTEX_DB_DIR and VORTEX_DB_FILE to test defaults
-  unset VORTEX_DB_DIR VORTEX_DB_FILE
+  # Don't set VORTEX_DOWNLOAD_DB_FTP_DB_DIR and VORTEX_DOWNLOAD_DB_FTP_DB_FILE to test defaults
+  unset VORTEX_DOWNLOAD_DB_FTP_DB_DIR VORTEX_DOWNLOAD_DB_FTP_DB_FILE
 
   run scripts/vortex/download-db-ftp.sh
   assert_success

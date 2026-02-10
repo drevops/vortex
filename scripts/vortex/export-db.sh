@@ -16,7 +16,7 @@ set -eu
 # Name of the database container image to use. Uncomment to use an image with
 # a DB data loaded into it.
 # @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
-VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE:-}"
+VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE:-${VORTEX_DB_IMAGE:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -36,17 +36,17 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 
 info "Started database export."
 
-if [ -z "${VORTEX_DB_IMAGE}" ]; then
+if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
   # Export database as a file.
   docker compose exec -T cli ./scripts/vortex/export-db-file.sh "$@"
 else
   # Export database as a container image.
-  VORTEX_EXPORT_DB_IMAGE="${VORTEX_DB_IMAGE}" ./scripts/vortex/export-db-image.sh "$@"
+  VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" ./scripts/vortex/export-db-image.sh "$@"
 
   # Deploy container image.
   # @todo Move deployment into a separate script.
   if [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
-    VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_DB_IMAGE} \
+    VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_EXPORT_DB_IMAGE} \
       ./scripts/vortex/deploy-container-registry.sh
   fi
 fi

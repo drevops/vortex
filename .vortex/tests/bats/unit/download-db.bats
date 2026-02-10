@@ -29,8 +29,8 @@ EOF
 
   export VORTEX_DOWNLOAD_DB_SOURCE="url"
   export VORTEX_DOWNLOAD_DB_PROCEED="1"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_SEMAPHORE=".data/.db-downloaded"
 
   run scripts/vortex/download-db.sh
@@ -49,8 +49,8 @@ EOF
 
   # Test skipping when VORTEX_DOWNLOAD_DB_PROCEED is not 1
   export VORTEX_DOWNLOAD_DB_PROCEED="0"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
 
   run scripts/vortex/download-db.sh
   assert_success
@@ -95,8 +95,8 @@ EOF
 
   export VORTEX_DOWNLOAD_DB_SOURCE="url"
   export VORTEX_DOWNLOAD_DB_PROCEED="1"
-  export VORTEX_DB_DIR=".data"
-  export VORTEX_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
 
   # Test using existing file when force is not set
   export VORTEX_DOWNLOAD_DB_FORCE=""

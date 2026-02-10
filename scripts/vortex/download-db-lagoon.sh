@@ -26,7 +26,7 @@ set -eu
 VORTEX_DOWNLOAD_DB_FRESH="${VORTEX_DOWNLOAD_DB_FRESH:-}"
 
 # Lagoon project name.
-LAGOON_PROJECT="${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}"
+VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="${VORTEX_DOWNLOAD_DB_LAGOON_PROJECT:-${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}}"
 
 # The source environment branch for the database source.
 VORTEX_DOWNLOAD_DB_ENVIRONMENT="${VORTEX_DOWNLOAD_DB_ENVIRONMENT:-main}"
@@ -56,13 +56,13 @@ VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST:-ssh.la
 VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT:-32222}"
 
 # The SSH user of the Lagoon environment.
-VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER:-${LAGOON_PROJECT}-${VORTEX_DOWNLOAD_DB_ENVIRONMENT}}"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER:-${VORTEX_DOWNLOAD_DB_LAGOON_PROJECT}-${VORTEX_DOWNLOAD_DB_ENVIRONMENT}}"
 
 # Directory where DB dumps are stored on the host.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR="${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name on the host.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="${VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"
@@ -95,9 +95,9 @@ if [ "${VORTEX_DOWNLOAD_DB_SSH_FILE:-}" != false ]; then
   ssh_opts+=(-i "${VORTEX_DOWNLOAD_DB_SSH_FILE}")
 fi
 
-if [ ! -d "${VORTEX_DB_DIR}" ]; then
+if [ ! -d "${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR}" ]; then
   task "Creating directory for database dumps."
-  mkdir -p "${VORTEX_DB_DIR}"
+  mkdir -p "${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR}"
 fi
 
 if [ "$VORTEX_DOWNLOAD_DB_FRESH" = "1" ]; then
@@ -126,6 +126,6 @@ ssh \
 task "Downloading a database dump."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh ${ssh_opts_string}")
-rsync "${rsync_opts[@]}" "${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER}@${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST}":"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}"/"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+rsync "${rsync_opts[@]}" "${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER}@${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST}":"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR}"/"${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE}" "${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR}/${VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE}"
 
 pass "Finished database dump download from Lagoon."

@@ -19,13 +19,13 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Acquia Cloud API key.
-VORTEX_ACQUIA_KEY="${VORTEX_ACQUIA_KEY:-${VORTEX_ACQUIA_KEY}}"
+VORTEX_TASK_COPY_FILES_ACQUIA_KEY="${VORTEX_TASK_COPY_FILES_ACQUIA_KEY:-${VORTEX_ACQUIA_KEY:-}}"
 
 # Acquia Cloud API secret.
-VORTEX_ACQUIA_SECRET="${VORTEX_ACQUIA_SECRET:-${VORTEX_ACQUIA_SECRET}}"
+VORTEX_TASK_COPY_FILES_ACQUIA_SECRET="${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET:-${VORTEX_ACQUIA_SECRET:-}}"
 
 # Application name. Used to discover UUID.
-VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${VORTEX_ACQUIA_APP_NAME}}"
+VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME="${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME:-${VORTEX_ACQUIA_APP_NAME:-}}"
 
 # Source environment name to copy from.
 VORTEX_TASK_COPY_FILES_ACQUIA_SRC="${VORTEX_TASK_COPY_FILES_ACQUIA_SRC:-}"
@@ -75,21 +75,21 @@ extract_json_value() {
 }
 
 # Check that all required variables are present.
-[ -z "${VORTEX_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_ACQUIA_KEY." && exit 1
-[ -z "${VORTEX_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_ACQUIA_SECRET." && exit 1
-[ -z "${VORTEX_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_ACQUIA_APP_NAME." && exit 1
+[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
+[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
+[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
 [ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_SRC}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_SRC." && exit 1
 [ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_DST}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_DST." && exit 1
 [ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES." && exit 1
 [ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL." && exit 1
 
 task "Retrieving authentication token."
-token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
+token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_FILES_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 token=$(echo "${token_json}" | extract_json_value "access_token")
 [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
 
-task "Retrieving ${VORTEX_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_ACQUIA_APP_NAME/ /%20}")
+task "Retrieving ${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME} application UUID."
+app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
 
@@ -118,7 +118,7 @@ for i in $(seq 1 "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES}"); do
   [ "${task_state}" = "completed" ] && task_completed=1 && break
 
   task "Retrieving authentication token."
-  token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
+  token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_FILES_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
   token=$(echo "${token_json}" | extract_json_value "access_token")
   [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
 done

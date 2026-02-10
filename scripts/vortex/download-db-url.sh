@@ -16,10 +16,10 @@ set -eu
 VORTEX_DOWNLOAD_DB_URL="${VORTEX_DOWNLOAD_DB_URL:-}"
 
 # Directory with database dump file.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_DOWNLOAD_DB_URL_DB_DIR="${VORTEX_DOWNLOAD_DB_URL_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_DOWNLOAD_DB_URL_DB_FILE="${VORTEX_DOWNLOAD_DB_URL_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # Password for unzipping password-protected zip files.
 VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD="${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD:-}"
@@ -44,25 +44,25 @@ info "Started database dump download from URL."
 # Check all required values.
 [ -z "${VORTEX_DOWNLOAD_DB_URL}" ] && fail "Missing required value for VORTEX_DOWNLOAD_DB_URL." && exit 1
 
-mkdir -p "${VORTEX_DB_DIR}"
+mkdir -p "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}"
 
 note "Downloading database dump file."
-curl -Ls "${VORTEX_DOWNLOAD_DB_URL}" -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+curl -Ls "${VORTEX_DOWNLOAD_DB_URL}" -o "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}"
 
 if [ "${VORTEX_DOWNLOAD_DB_URL%*.zip}" != "${VORTEX_DOWNLOAD_DB_URL}" ]; then
   note "Detecting zip file, preparing for extraction."
-  mv "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip"
+  mv "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}" "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}.zip"
 
   # Create temporary directory for extraction
-  temp_extract_dir="${VORTEX_DB_DIR}/tmp_extract_$$"
+  temp_extract_dir="${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/tmp_extract_$$"
   mkdir -p "${temp_extract_dir}"
 
   if [ -n "${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD}" ]; then
     note "Unzipping password-protected database dump file."
-    unzip -o -P "${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" -d "${temp_extract_dir}"
+    unzip -o -P "${VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD}" "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}.zip" -d "${temp_extract_dir}"
   else
     note "Unzipping database dump file."
-    unzip -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" -d "${temp_extract_dir}"
+    unzip -o "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}.zip" -d "${temp_extract_dir}"
   fi
 
   # Find the first regular file (not directory) in the extracted content.
@@ -72,16 +72,16 @@ if [ "${VORTEX_DOWNLOAD_DB_URL%*.zip}" != "${VORTEX_DOWNLOAD_DB_URL}" ]; then
   if [ -z "${extracted_file}" ]; then
     fail "No files found in the zip archive."
     rm -rf "${temp_extract_dir}" >/dev/null
-    rm -f "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" >/dev/null
+    rm -f "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}.zip" >/dev/null
     exit 1
   fi
 
   note "Moving extracted file to target location."
-  mv "${extracted_file}" "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+  mv "${extracted_file}" "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}"
 
   note "Cleaning up temporary files."
   rm -rf "${temp_extract_dir}" >/dev/null
-  rm -f "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}.zip" >/dev/null
+  rm -f "${VORTEX_DOWNLOAD_DB_URL_DB_DIR}/${VORTEX_DOWNLOAD_DB_URL_DB_FILE}.zip" >/dev/null
 fi
 
 pass "Finished database dump download from URL."

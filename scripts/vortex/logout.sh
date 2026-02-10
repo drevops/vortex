@@ -10,7 +10,7 @@ set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Flag to block or unblock admin.
-VORTEX_UNBLOCK_ADMIN="${VORTEX_UNBLOCK_ADMIN:-1}"
+VORTEX_LOGOUT_BLOCK_ADMIN="${VORTEX_LOGOUT_BLOCK_ADMIN:-${VORTEX_UNBLOCK_ADMIN:-1}}"
 
 # ------------------------------------------------------------------------------
 
@@ -24,6 +24,6 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
-if [ "${VORTEX_UNBLOCK_ADMIN:-}" = "1" ]; then
+if [ "${VORTEX_LOGOUT_BLOCK_ADMIN:-}" = "1" ]; then
   drush sql:query "SELECT name FROM \`users_field_data\` WHERE \`uid\` = '1';" | head -n 1 | xargs drush -- user:block
 fi

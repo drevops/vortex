@@ -27,10 +27,10 @@ VORTEX_DOWNLOAD_DB_FTP_PORT="${VORTEX_DOWNLOAD_DB_FTP_PORT:-}"
 VORTEX_DOWNLOAD_DB_FTP_FILE="${VORTEX_DOWNLOAD_DB_FTP_FILE:-}"
 
 # Directory with database dump file.
-VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+VORTEX_DOWNLOAD_DB_FTP_DB_DIR="${VORTEX_DOWNLOAD_DB_FTP_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_DB_FILE="${VORTEX_DB_FILE:-db.sql}"
+VORTEX_DOWNLOAD_DB_FTP_DB_FILE="${VORTEX_DOWNLOAD_DB_FTP_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 #-------------------------------------------------------------------------------
 
@@ -57,8 +57,8 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 
 info "Started database dump download from FTP."
 
-mkdir -p "${VORTEX_DB_DIR}"
+mkdir -p "${VORTEX_DOWNLOAD_DB_FTP_DB_DIR}"
 
-curl -u "${VORTEX_DOWNLOAD_DB_FTP_USER}":"${VORTEX_DOWNLOAD_DB_FTP_PASS}" "ftp://${VORTEX_DOWNLOAD_DB_FTP_HOST}:${VORTEX_DOWNLOAD_DB_FTP_PORT}/${VORTEX_DOWNLOAD_DB_FTP_FILE}" -o "${VORTEX_DB_DIR}/${VORTEX_DB_FILE}"
+curl -u "${VORTEX_DOWNLOAD_DB_FTP_USER}":"${VORTEX_DOWNLOAD_DB_FTP_PASS}" "ftp://${VORTEX_DOWNLOAD_DB_FTP_HOST}:${VORTEX_DOWNLOAD_DB_FTP_PORT}/${VORTEX_DOWNLOAD_DB_FTP_FILE}" -o "${VORTEX_DOWNLOAD_DB_FTP_DB_DIR}/${VORTEX_DOWNLOAD_DB_FTP_DB_FILE}"
 
 pass "Finished database dump download from FTP."

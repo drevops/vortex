@@ -19,20 +19,20 @@ set -eu
 # Container registry name.
 #
 # Provide port, if required as `<server_name>:<port>`.
-VORTEX_CONTAINER_REGISTRY="${VORTEX_CONTAINER_REGISTRY:-docker.io}"
+VORTEX_LOGIN_CONTAINER_REGISTRY="${VORTEX_LOGIN_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
 
 # The username to login into the container registry.
 #
 # If not provided, the script will skip the login step.
-VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_CONTAINER_REGISTRY_USER:-}"
+VORTEX_LOGIN_CONTAINER_REGISTRY_USER="${VORTEX_LOGIN_CONTAINER_REGISTRY_USER:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
 
 # The password to login into the container registry.
 #
 # If not provided, the script will skip the login step.
-VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_CONTAINER_REGISTRY_PASS:-}"
+VORTEX_LOGIN_CONTAINER_REGISTRY_PASS="${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
 
 # Path to Docker configuration directory.
-DOCKER_CONFIG="${DOCKER_CONFIG:-${HOME}/.docker}"
+VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG="${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG:-${DOCKER_CONFIG:-${HOME}/.docker}}"
 
 # ------------------------------------------------------------------------------
 
@@ -50,13 +50,13 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
-[ -z "$(echo "${VORTEX_CONTAINER_REGISTRY}" | xargs)" ] && fail "VORTEX_CONTAINER_REGISTRY should not be empty." && exit 1
+[ -z "$(echo "${VORTEX_LOGIN_CONTAINER_REGISTRY}" | xargs)" ] && fail "VORTEX_LOGIN_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY should not be empty." && exit 1
 
-if [ -f "${DOCKER_CONFIG}/config.json" ] && grep -q "${VORTEX_CONTAINER_REGISTRY}" "${DOCKER_CONFIG}/config.json"; then
-  note "Already logged in to the registry \"${VORTEX_CONTAINER_REGISTRY}\"."
-elif [ -n "${VORTEX_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_CONTAINER_REGISTRY_PASS}" ]; then
-  task "Logging in to registry \"${VORTEX_CONTAINER_REGISTRY}\"."
-  echo "${VORTEX_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_CONTAINER_REGISTRY}"
+if [ -f "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json" ] && grep -q "${VORTEX_LOGIN_CONTAINER_REGISTRY}" "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json"; then
+  note "Already logged in to the registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
+elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" ]; then
+  task "Logging in to registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
+  echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_LOGIN_CONTAINER_REGISTRY}"
 else
-  note "Skipping login to the container registry as either VORTEX_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
+  note "Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
 fi
