@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -14,12 +15,20 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'ai instructions, claude' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE)),
+      'ai instructions, enabled' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE)),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileExists(static::$sut . '/AGENTS.md');
+          $test->assertFileExists(static::$sut . '/CLAUDE.md');
+        }),
       ],
 
-      'ai instructions, none' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::NONE)),
+      'ai instructions, disabled' => [
+        static::cw(fn() => Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::FALSE)),
+        static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileDoesNotExist(static::$sut . '/AGENTS.md');
+          $test->assertFileDoesNotExist(static::$sut . '/CLAUDE.md');
+        }),
       ],
     ];
   }

@@ -19,7 +19,7 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'ciprovider, gha' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', '1.x');
@@ -30,7 +30,7 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'ciprovider, circleci' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', '1.x');

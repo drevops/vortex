@@ -24,14 +24,14 @@ class ProvisionTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::DATABASE);
           Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
       ],
 
       'provision, profile' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(ProvisionType::id()), ProvisionType::PROFILE);
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
       ],
     ];

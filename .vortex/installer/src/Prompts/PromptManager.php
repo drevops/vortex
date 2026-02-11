@@ -205,7 +205,7 @@ class PromptManager {
       ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class)), PreserveDocsProject::id())
 
       ->intro('AI')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id());
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id());
 
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
@@ -468,7 +468,7 @@ class PromptManager {
     $values['Preserve project documentation'] = Converter::bool($responses[PreserveDocsProject::id()]);
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
-    $values['AI code assistant instructions'] = $responses[AiCodeInstructions::id()];
+    $values['AI agent instructions'] = Converter::bool($responses[AiCodeInstructions::id()]);
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();

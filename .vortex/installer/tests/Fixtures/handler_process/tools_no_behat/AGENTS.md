@@ -1,4 +1,4 @@
-@@ -44,9 +44,6 @@
+@@ -39,9 +39,6 @@
  ahoy test-functional # Run PHPUnit Functional tests
  ahoy test -- --filter=TestClassName  # Run specific PHPUnit test class
  

@@ -37,7 +37,7 @@ class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTes
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(DatabaseDownloadSource::id()), DatabaseDownloadSource::CONTAINER_REGISTRY);
           Env::put(PromptManager::makeEnvName(DatabaseImage::id()), 'the_empire/star_wars:latest');
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
       ],
 

@@ -148,7 +148,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
-      AiCodeInstructions::id() => AiCodeInstructions::CLAUDE,
+      AiCodeInstructions::id() => TRUE,
       NotificationChannels::id() => [NotificationChannels::EMAIL],
     ];
   }
@@ -164,7 +164,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
       PreserveDocsProject::id() => FALSE,
-      AiCodeInstructions::id() => AiCodeInstructions::NONE,
+      AiCodeInstructions::id() => FALSE,
     ];
     return $overrides + static::getExpectedDefaults();
   }
