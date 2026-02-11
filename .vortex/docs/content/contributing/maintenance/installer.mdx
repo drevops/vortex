@@ -1,0 +1,212 @@
+---
+sidebar_position: 3
+---
+
+import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
+
+# Installer
+
+The **Vortex** installer is a self-contained Symfony Console application that
+customizes the template based on user selections. It lives inside the same
+repository as the template at `.vortex/installer/`, which allows changes to the
+template and installer to be combined within a single pull request — ensuring
+that template modifications and the corresponding installer logic stay in sync.
+
+<AsciinemaPlayer
+  src="/img/installer.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+## Architecture
+
+The installer is a PHP application rather than a shell script because it
+touches many different parts of the template and requires complex management of
+different permutations of the template variants. Using PHP allows the installer
+to provide a **terminal UI experience** via
+[Laravel Prompts](https://github.com/laravel/prompts), where users are guided
+through a series of questions to customize their project. At the same time,
+the installer supports **non-interactive installs** (via the `--no-interaction`
+flag) for both new and existing projects, as well as updates — making it
+suitable for automated pipelines and CI environments.
+
+Prompt answers can be provided from multiple sources, resolved in the following
+priority order:
+
+1. **Configuration file** — a JSON file passed via the `--config` option.
+2. **Environment variables** — using the `VORTEX_INSTALLER_PROMPT_<handler_id>`
+   naming convention.
+3. **Discovery** — auto-detection from existing project files (e.g.,
+   `composer.json`, `.env`, hosting-specific files like `.lagoon.yml`).
+4. **Handler defaults** — fallback values defined by each handler.
+
+This means the installer can be driven entirely by a config file or environment
+variables without any user interaction, which is essential for reproducible
+installations and automated testing.
+
+The core flow is:
+
+1. User downloads the installer PHAR from https://www.vortextemplate.com/install
+   and runs it with `php installer.php`.
+2. `InstallCommand` orchestrates the installation process.
+3. `PromptManager` collects user choices via interactive prompts.
+4. Handlers queue file operations based on selections — each handler is
+   responsible for a specific aspect of the template (CI provider, hosting,
+   services, theme, deployment strategy, etc.).
+5. File operations execute: conditional tokens are processed to include or
+   exclude content based on the selected features.
+6. The output is a fully customized Drupal project.
+
+### Conditional token system
+
+In addition to string substitution for handling simple replacements and
+additions, the installer uses a token system to conditionally exclude entire
+blocks of content from template files. This simplifies the management of
+optional features — rather than requiring complex logic to surgically remove
+lines from configuration files, scripts, or documentation, maintainers simply
+wrap the relevant content in token markers. When a feature is not selected
+during installation, the installer removes everything between the markers.
+
+**Markdown**:
+
+```markdown
+[//]: # (#;< TOKEN_NAME)
+Content removed if feature not selected
+[//]: # (#;> TOKEN_NAME)
+```
+
+**Shell/YAML**:
+
+```bash
+#;< TOKEN_NAME
+Content removed if feature not selected
+#;> TOKEN_NAME
+```
+
+## Testing
+
+The installer uses a multi-layered testing approach with unit tests for
+individual components and functional tests for full installation scenarios.
+
+### Unit testing
+
+Unit tests cover core utilities (`Yaml`, `File`, `Git`, `Validator`,
+`Strings`), downloaders, runners, and handler discovery logic. Each component
+is tested in isolation with mocks provided by
+[Mockery](https://github.com/mockery/mockery).
+
+### Functional testing with snapshots
+
+For every test permutation, the installer *initiates a fresh project* from the
+Vortex template with a specific combination of user selections and runs
+assertions against the resulting files. Because a single template change can
+affect a hundred plus installation permutations, snapshot testing makes it easy to
+**review the impact of a change across all scenarios as diffs** — ensuring that
+regressions are caught before they reach consumers.
+
+Each handler has a dedicated functional test class extending
+`AbstractHandlerProcessTestCase`, covering every aspect of the installation
+process: CI providers, hosting providers, services, themes, deployment
+strategies, database sources, notification channels, and more.
+
+These tests use the [`alexskrypnyk/snapshot`](https://github.com/AlexSkrypnyk/snapshot)
+library for snapshot-based testing. The snapshot system works on a
+**baseline + diff** pattern:
+
+- `_baseline/` contains the *complete* reference installation — a full set of
+  template files as they would appear after a default installation.
+- Each scenario directory (e.g., `services_no_clamav/`, `hosting_acquia/`,
+  `deploy_types_all_circleci/`) contains only the *delta* changes from the
+  baseline.
+
+When a test runs, the snapshot library applies the scenario's diffs on top of
+the baseline and compares the result against the actual installer output. This
+approach keeps the fixture files maintainable — instead of duplicating the
+entire template for each scenario, only the differences are stored.
+
+The fixture directories in `.vortex/installer/tests/Fixtures/handler_process/`
+cover scenarios like:
+
+- **CI providers**: GitHub Actions, CircleCI
+- **Hosting**: Acquia, Lagoon
+- **Services**: Solr, Redis, ClamAV (enabled/disabled combinations)
+- **Deployment**: artifact, container image, webhook, Lagoon, all combined
+- **Database sources**: Acquia, Lagoon, FTP, S3, URL, container registry
+- And many more permutations
+
+### Running tests
+
+```shell
+cd .vortex/installer
+
+# Install Composer dependencies.
+composer install
+
+# Run all tests.
+composer test
+
+# Run only handler functional tests.
+./vendor/bin/phpunit --filter "Handlers\\\\"
+
+# Run a specific handler test.
+./vendor/bin/phpunit --filter "ServicesHandlerProcessTest"
+```
+
+### Updating snapshots
+
+Fixture files should never be modified directly. When the template or installer
+logic changes, update the snapshots:
+
+```shell
+# From .vortex/ directory (recommended).
+ahoy update-snapshots
+
+# Manual (for debugging specific scenarios).
+cd .vortex/installer
+UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
+```
+
+When `UPDATE_SNAPSHOTS` is set, the installer *runs for every permutation*,
+initiates a fresh project for each scenario, and automatically updates the
+fixture files to match the current output. The resulting changes appear as
+diffs in version control, making it straightforward to review exactly how a
+template or installer change affects each scenario.
+
+## Releasing
+
+The installer is packaged as a PHAR archive using
+[Box](https://github.com/box-project/box). It is released on each **GitHub
+release** of the Vortex template and deployed to
+https://www.vortextemplate.com/install. Additionally, the installer is
+published for every branch containing `release-docs` or `release-installer`
+in its name, which allows testing installer changes before a formal release.
+
+## Installer video
+
+The documentation includes an interactive recording of the installer captured
+with [asciinema](https://asciinema.org/). The recording is produced by a script
+at `.vortex/docs/.utils/update-installer-video.sh` which:
+
+1. Builds the installer PHAR from source.
+2. Generates an [Expect](https://en.wikipedia.org/wiki/Expect) script that
+   automates the installer interaction, simulating human-like typing with
+   delays.
+3. Records the session with `asciinema rec` into a JSON cast file.
+4. Post-processes the recording (sanitizes paths, removes spawn lines).
+5. Converts the cast file to SVG and PNG using a custom
+   `svg-term-render.js` script, and optionally to GIF using `agg`.
+
+The output files are stored in `.vortex/docs/static/img/` and embedded in the
+documentation using a custom `AsciinemaPlayer` React component.
+
+To update the video:
+
+```shell
+cd .vortex
+ahoy update-installer-video
+```
