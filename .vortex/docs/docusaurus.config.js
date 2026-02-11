@@ -231,6 +231,14 @@ const config = {
             to: '/docs/contributing',
           },
           {
+            from: '/docs/contributing/maintenance/scripts',
+            to: '/docs/contributing/maintenance/template',
+          },
+          {
+            from: '/docs/contributing/maintenance/tests',
+            to: '/docs/contributing/maintenance/template',
+          },
+          {
             from: ['/docs/getting-started'],
             to: '/docs',
           },
