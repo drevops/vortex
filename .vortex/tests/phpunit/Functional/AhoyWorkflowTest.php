@@ -261,6 +261,32 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   }
 
   #[Group('p4')]
+  public function testAhoyWorkflowMigration(): void {
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_IS_DEMO' => '1',
+      'VORTEX_INSTALLER_PROMPT_MIGRATION' => 'true',
+      'VORTEX_INSTALLER_PROMPT_MIGRATION_DOWNLOAD_SOURCE' => 'url',
+    ];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
+    // Verify installer produced the migration infrastructure.
+    $this->subtestAhoyMigrationFilesPresent();
+
+    // Download migration database before build so it is available when
+    // provisioning runs during `ahoy build`.
+    $this->subtestAhoyMigrationDownloadDb();
+
+    $this->subtestAhoyBuild();
+
+    $this->downloadDatabase(TRUE);
+
+    $this->subtestAhoyMigrationProvision();
+
+    $this->subtestAhoyMigrationSkip();
+  }
+
+  #[Group('p4')]
   public function testAhoyUpdateVortexLatest(): void {
     // For test performance, we only export the current codebase without git
     // history in the setUp(). For this test, though, we need git history to

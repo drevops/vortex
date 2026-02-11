@@ -27,6 +27,11 @@ trait SutTrait {
   const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql';
 
   /**
+   * URL for the migration source demo database used in tests.
+   */
+  const VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11.demo_source.sql';
+
+  /**
    * Image name for the test database.
    */
   const VORTEX_DB_IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest';

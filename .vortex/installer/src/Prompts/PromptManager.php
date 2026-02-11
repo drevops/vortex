@@ -21,6 +21,8 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
+use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
@@ -66,7 +68,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 29;
+  const TOTAL_RESPONSES = 31;
 
   /**
    * Array of responses.
@@ -189,6 +191,12 @@ class PromptManager {
             fn(array $r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
             DatabaseImage::id()
           )
+      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(Migration::class)), Migration::id())
+      ->addIf(
+          fn(array $r): bool => $this->handlers[MigrationDownloadSource::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): int|string => select(...$this->args(MigrationDownloadSource::class, NULL, $r)),
+          MigrationDownloadSource::id()
+        )
 
       ->intro('Notifications')
       ->add(fn($r, $pr, $n): array => multiselect(...$this->args(NotificationChannels::class)), NotificationChannels::id())
@@ -280,6 +288,8 @@ class PromptManager {
       AssignAuthorPr::id(),
       DependencyUpdatesProvider::id(),
       CiProvider::id(),
+      MigrationDownloadSource::id(),
+      Migration::id(),
       DatabaseImage::id(),
       DatabaseDownloadSource::id(),
       ProvisionType::id(),
@@ -450,6 +460,13 @@ class PromptManager {
 
       if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
         $values['Database container image'] = $responses[DatabaseImage::id()];
+      }
+    }
+
+    if (isset($responses[Migration::id()])) {
+      $values['Migration database'] = Converter::bool($responses[Migration::id()]);
+      if ($responses[Migration::id()] === TRUE && isset($responses[MigrationDownloadSource::id()])) {
+        $values['Migration database source'] = $responses[MigrationDownloadSource::id()];
       }
     }
 

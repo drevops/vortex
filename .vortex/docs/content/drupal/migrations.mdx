@@ -1,0 +1,204 @@
+---
+sidebar_position: 7
+---
+
+# Migrations
+
+Vortex provides optional support for a **second database** to power Drupal
+migrations. When enabled, a `database2` Docker service runs alongside the
+primary database, and a `settings.migration.php` file registers the
+`$databases['migrate']` connection that Drupal's Migrate API uses by default.
+
+## Enabling the migration database
+
+### Via the installer
+
+When running the Vortex installer, answer **Yes** to
+"Use a second database for migrations?" and select a download source.
+
+### Manual setup
+
+If you already have a Vortex project and want to add migration support:
+
+1. Ensure `docker-compose.yml` contains the `database2` service and
+   `DATABASE2_*` environment variables (copy from a fresh Vortex install
+   with migration enabled).
+2. Add `VORTEX_DOWNLOAD_DB2_FILE`, `VORTEX_DOWNLOAD_DB2_SOURCE`, and
+   `VORTEX_DOWNLOAD_DB2_URL` to `.env`.
+3. Create `web/sites/default/settings.migration.php` (see below).
+4. Add the include in `web/sites/default/settings.php`.
+5. Add `scripts/custom/provision-20-migration.sh`.
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VORTEX_DOWNLOAD_DB2_FILE` | `db2.sql` | Migration database dump file name |
+| `VORTEX_DOWNLOAD_DB2_SOURCE` | `url` | Download source (`url`, `ftp`, `acquia`, `lagoon`, `s3`) |
+| `VORTEX_DOWNLOAD_DB2_URL` | _(empty)_ | URL to download the migration database dump |
+| `DATABASE2_HOST` | `database2` | Migration database host |
+| `DATABASE2_NAME` | `drupal` | Migration database name |
+| `DATABASE2_USERNAME` | `drupal` | Migration database user |
+| `DATABASE2_PASSWORD` | `drupal` | Migration database password |
+| `DATABASE2_PORT` | `3306` | Migration database port |
+
+## Docker service
+
+The `database2` service uses the same Lagoon MySQL image as the primary
+database but does not use a custom Dockerfile or database-in-image storage.
+
+```yaml
+database2:
+  image: uselagoon/mysql-8.4:26.1.0
+  environment:
+    <<: *default-environment
+    MYSQL_DATABASE: drupal
+    MYSQL_USER: drupal
+    MYSQL_PASSWORD: drupal
+  ports:
+    - '3306'
+  labels:
+    lagoon.type: none
+```
+
+The service is labeled `lagoon.type: none` because the migration database
+is only used locally and in CI — it is not deployed to hosting environments.
+
+## Drupal settings
+
+### `settings.migration.php`
+
+```php
+$databases['migrate']['default'] = [
+  'database' => getenv('DATABASE2_NAME') ?: 'drupal',
+  'username' => getenv('DATABASE2_USERNAME') ?: 'drupal',
+  'password' => getenv('DATABASE2_PASSWORD') ?: 'drupal',
+  'host' => getenv('DATABASE2_HOST') ?: 'localhost',
+  'port' => getenv('DATABASE2_PORT') ?: '',
+  'prefix' => '',
+  'driver' => 'mysql',
+];
+```
+
+Drupal's Migrate API `SqlBase` source plugin uses `key: migrate` by default,
+which resolves to this connection.
+
+## Ahoy commands
+
+| Command | Description |
+|---------|-------------|
+| `ahoy download-db2` | Download the migration database dump |
+| `ahoy download-db2 --fresh` | Force a fresh download |
+| `ahoy db2` | Open the migration database in Sequel Ace |
+
+The `download-db2` command reuses the existing `download-db.sh` script with
+`VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2`, which remaps all `VORTEX_DOWNLOAD_DB2_*`
+variables to `VORTEX_DOWNLOAD_DB_*` so all existing download sources (URL, FTP,
+Acquia, Lagoon, S3) work for the migration database as well.
+
+## Provision script
+
+The `scripts/custom/provision-20-migration.sh` script runs automatically
+during `ahoy provision` (custom provision scripts are executed alphabetically).
+
+It handles:
+
+- Importing the migration source database dump into the `database2` container
+- Corruption detection (probes for a known table to verify the database)
+- Running Drupal migrations via `drush migrate:import`
+- Optional rollback before import
+
+### Configuration variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MIGRATION_SKIP` | `0` | Skip all migration operations |
+| `MIGRATION_ROLLBACK_SKIP` | `1` | Skip rollback before import |
+| `MIGRATION_IMPORT_LIMIT` | `50` | Limit entities per migration (use `all` for unlimited) |
+| `MIGRATION_UPDATE` | `0` | Update already imported entities |
+| `MIGRATION_FEEDBACK` | `50` | Progress feedback frequency |
+| `MIGRATION_SOURCE_DB_IMPORT` | `$VORTEX_PROVISION_OVERRIDE_DB` | Import source database (`1` to import, `0` to skip) |
+| `MIGRATION_SOURCE_DB_PROBE_TABLE` | `categories` | Table name to probe for corruption detection |
+
+### Adding migrations
+
+Add your project-specific migrations at the bottom of the script using the
+`run_migration` helper:
+
+```bash
+run_migration ys_migrate_categories --limit=all
+```
+
+### Corruption detection
+
+If `MIGRATION_SOURCE_DB_IMPORT` is `0`, the script probes the source database
+for the table specified in `MIGRATION_SOURCE_DB_PROBE_TABLE`. If the table is
+missing (corrupted or empty database), the script automatically re-imports the
+dump file.
+
+## Demo migration module
+
+Vortex ships with a demo migration module `ys_migrate` in
+`web/modules/custom/ys_migrate/`. It demonstrates the full migration workflow
+by migrating `categories` from the source database into Drupal's `tags`
+taxonomy vocabulary.
+
+### Migration: `ys_migrate_categories`
+
+| Property | Value |
+|----------|-------|
+| Source plugin | `ys_migrate_categories` (reads from `categories` table) |
+| Source key | `migrate` (the `$databases['migrate']` connection) |
+| Destination | `entity:taxonomy_term` |
+| Vocabulary | `tags` |
+
+The migration maps:
+
+- `name` → term name
+- `description` → term description (plain text format)
+
+### Dependencies
+
+The module requires `drupal/migrate_plus` and `drupal/migrate_tools` (added
+to `composer.json` when the migration feature is enabled).
+
+## CI integration
+
+Both CI systems (GitHub Actions and CircleCI) include a migration database
+download step in the existing `database` job. Both database files are cached
+together in the same `.data` directory.
+
+The `build` job copies the migration database file into the CLI container
+alongside the primary database before running provision.
+
+## Example workflow
+
+1. Set `VORTEX_DOWNLOAD_DB2_URL` in `.env` (or `.env.local`):
+
+   ```bash
+   VORTEX_DOWNLOAD_DB2_URL=https://example.com/legacy-database.sql
+   ```
+
+2. Download the migration database:
+
+   ```bash
+   ahoy download-db2
+   ```
+
+3. Build and provision:
+
+   ```bash
+   ahoy build
+   ```
+
+4. Add your migrations to `scripts/custom/provision-20-migration.sh`:
+
+   ```bash
+   run_migration ys_migrate_categories --limit=all
+   ```
+
+5. Re-provision to run migrations:
+
+   ```bash
+   ahoy provision
+   ```
