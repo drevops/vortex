@@ -19,14 +19,14 @@ class HostingProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'hosting, acquia' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA);
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
       ],
 
       'hosting, lagoon' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('acquia')),
       ],

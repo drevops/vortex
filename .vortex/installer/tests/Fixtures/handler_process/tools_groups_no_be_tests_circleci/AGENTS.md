@@ -1,4 +1,4 @@
-@@ -37,16 +37,6 @@
+@@ -32,16 +32,6 @@
  ahoy lint     # Check code style
  ahoy lint-fix # Auto-fix code style
  

@@ -286,7 +286,7 @@ class Tools extends AbstractHandler {
         ],
         'strings' => ['/^.*phpunit.*\n?/m'],
         'lines' => [
-          'CLAUDE.md' => [
+          'AGENTS.md' => [
             '# PHPUnit testing',
             'ahoy test            # Run PHPUnit tests',
             'ahoy test-unit',
@@ -334,7 +334,7 @@ class Tools extends AbstractHandler {
           '/^.*\bgherkinlint\b.*\n?/m',
         ],
         'lines' => [
-          'CLAUDE.md' => [
+          'AGENTS.md' => [
             '# Behat testing',
             'ahoy test-bdd',
           ],

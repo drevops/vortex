@@ -20,12 +20,21 @@ class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
     return [
       'ai instructions - prompt' => [
         [AiCodeInstructions::id() => Key::ENTER],
-        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_defaults,
+        [AiCodeInstructions::id() => TRUE] + $expected_defaults,
       ],
 
       'ai instructions - discovery' => [
         [],
-        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_installed,
+        [AiCodeInstructions::id() => TRUE] + $expected_installed,
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/AGENTS.md');
+        },
+      ],
+
+      'ai instructions - discovery - claude only' => [
+        [],
+        [AiCodeInstructions::id() => TRUE] + $expected_installed,
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/CLAUDE.md');
@@ -34,7 +43,7 @@ class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
 
       'ai instructions - discovery - removed' => [
         [],
-        [AiCodeInstructions::id() => AiCodeInstructions::NONE] + $expected_installed,
+        [AiCodeInstructions::id() => FALSE] + $expected_installed,
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
         },
@@ -42,9 +51,9 @@ class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
 
       'ai instructions - discovery - non-Vortex' => [
         [],
-        [AiCodeInstructions::id() => AiCodeInstructions::CLAUDE] + $expected_defaults,
+        [AiCodeInstructions::id() => TRUE] + $expected_defaults,
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          File::dump(static::$sut . '/CLAUDE.md');
+          File::dump(static::$sut . '/AGENTS.md');
         },
       ],
 
@@ -52,7 +61,7 @@ class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
         [],
         $expected_defaults,
         function (AbstractHandlerDiscoveryTestCase $test): void {
-          // No CLAUDE.md and not installed - should fall back to default.
+          // No AGENTS.md and not installed - should fall back to default.
         },
       ],
     ];

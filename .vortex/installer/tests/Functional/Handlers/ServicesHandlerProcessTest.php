@@ -20,7 +20,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'services, no clamav' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::SOLR, Services::REDIS]));
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
@@ -28,7 +28,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'services, no redis' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::SOLR]));
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('redis')),
       ],
@@ -36,7 +36,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'services, no solr' => [
         static::cw(function (): void {
           Env::put(PromptManager::makeEnvName(Services::id()), Converter::toList([Services::CLAMAV, Services::REDIS]));
-          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), AiCodeInstructions::CLAUDE);
+          Env::put(PromptManager::makeEnvName(AiCodeInstructions::id()), Env::TRUE);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['solr', '_search'])),
       ],

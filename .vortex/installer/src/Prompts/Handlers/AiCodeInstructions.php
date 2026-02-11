@@ -4,41 +4,29 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Utils\File;
+
 class AiCodeInstructions extends AbstractHandler {
-
-  const NONE = 'none';
-
-  const CLAUDE = 'claude';
 
   /**
    * {@inheritdoc}
    */
   public function label(): string {
-    return 'AI code assistant instructions';
+    return 'Provide AI agent instructions?';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Provides AI coding assistants with better context about the project.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function options(array $responses): ?array {
-    return [
-      self::CLAUDE => 'Anthropic Claude',
-      self::NONE => 'None',
-    ];
+    return 'Provides AI coding agents with better context about the project.';
   }
 
   /**
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return self::CLAUDE;
+    return TRUE;
   }
 
   /**
@@ -49,21 +37,18 @@ class AiCodeInstructions extends AbstractHandler {
       return NULL;
     }
 
-    if (is_readable($this->dstDir . '/CLAUDE.md')) {
-      return self::CLAUDE;
-    }
-
-    return self::NONE;
+    return File::exists($this->dstDir . '/AGENTS.md') || File::exists($this->dstDir . '/CLAUDE.md');
   }
 
   /**
    * {@inheritdoc}
    */
   public function process(): void {
-    $v = $this->getResponseAsString();
+    $v = $this->getResponseAsBool();
     $t = $this->tmpDir;
 
-    if ($v !== self::CLAUDE) {
+    if (!$v) {
+      @unlink($t . '/AGENTS.md');
       @unlink($t . '/CLAUDE.md');
     }
   }
