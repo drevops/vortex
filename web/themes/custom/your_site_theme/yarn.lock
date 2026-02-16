@@ -112,12 +112,12 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
-"@homer0/prettier-plugin-jsdoc@^11.0.1":
-  version "11.0.1"
-  resolved "https://registry.yarnpkg.com/@homer0/prettier-plugin-jsdoc/-/prettier-plugin-jsdoc-11.0.1.tgz#89734d74f5b5fac55d8036a116ea0907bc42b936"
-  integrity sha512-NpN8oJrNkZvEDlmXu9zzKYG6h96RybSbEYGIFYZZJs2EwL2CTaAn0Rd4rmXnKvQGS0f9i8l4UN2SNQAIhuCSzw==
+"@homer0/prettier-plugin-jsdoc@^11.0.2":
+  version "11.0.2"
+  resolved "https://registry.yarnpkg.com/@homer0/prettier-plugin-jsdoc/-/prettier-plugin-jsdoc-11.0.2.tgz#9b6dec6d31e0747524ccfc68e649c607cababbdf"
+  integrity sha512-+BzWB8z61dExvX1Z5EjBHeregU8M51MyTJvxOQdalO0LhGAXoBesSZqU1HWe1DnxAZvY69ItwXfTtCyj2f+4gQ==
   dependencies:
-    comment-parser "^1.4.1"
+    comment-parser "^1.4.5"
     ramda "0.32.0"
 
 "@humanwhocodes/config-array@^0.13.0":
@@ -714,10 +714,15 @@ commander@^2.20.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
 
-comment-parser@1.4.1, comment-parser@^1.4.1:
+comment-parser@1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/comment-parser/-/comment-parser-1.4.1.tgz#bdafead37961ac079be11eb7ec65c4d021eaf9cc"
   integrity sha512-buhp5kePrmda3vhc5B9t7pUQXAb2Tnd0qgpkIhPhkHXxJpiPJ11H0ZEU0oBpJ2QztSbzG/ZxMj/CHsYJqRHmyg==
+
+comment-parser@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/comment-parser/-/comment-parser-1.4.5.tgz#6c595cd090737a1010fe5ff40d86e1d21b7bd6ce"
+  integrity sha512-aRDkn3uyIlCFfk5NUA+VdwMmMsh8JGhc4hapfV4yxymHGQ3BVskMQfoXGpCo5IoBuQ9tS5iiVKhCpTcB4pW4qw==
 
 concat-map@0.0.1:
   version "0.0.1"
