@@ -252,7 +252,7 @@ jobs:
 
       - run:
           name: Build stack
-          command: docker compose up -d
+          command: docker compose up --detach && docker builder prune --all --force
 
       - run:
           name: Export built codebase

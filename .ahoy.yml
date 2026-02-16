@@ -68,7 +68,7 @@ commands:
   up:
     usage: Build and start containers.
     cmd: |
-      docker compose up -d "$@"
+      docker compose up --detach "$@"
       if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:

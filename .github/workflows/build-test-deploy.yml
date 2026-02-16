@@ -262,7 +262,7 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_DCLINT_IGNORE_FAILURE == '1' }}
 
       - name: Build stack
-        run: docker compose up -d
+        run: docker compose up --detach && docker builder prune --all --force
 
       - name: Export built codebase
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
