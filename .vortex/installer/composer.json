@@ -38,7 +38,7 @@
         "bamarni/composer-bin-plugin": "^1.9.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/phpcs-standard": "^0.6.2",
-        "drupal/coder": "^9@alpha",
+        "drupal/coder": "^9.0.0-beta1@alpha",
         "ergebnis/composer-normalize": "^2.50.0",
         "laravel/serializable-closure": "^2.0.9",
         "mockery/mockery": "^1.6.12",
