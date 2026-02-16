@@ -95,6 +95,19 @@
             ]
         },
         {
+            "groupName": "Non-root npm - skipped",
+            "matchDatasources": [
+                "npm"
+            ],
+            "matchFileNames": [
+                "!package.json"
+            ],
+            "enabled": false,
+            "matchPackageNames": [
+                "/.*/"
+            ]
+        },
+        {
             "groupName": "Major npm - skipped to update manually",
             "matchDatasources": [
                 "npm"
