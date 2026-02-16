@@ -19,6 +19,9 @@ VORTEX_PROVISION_SKIP="${VORTEX_PROVISION_SKIP:-}"
 # Provision type: database or profile.
 VORTEX_PROVISION_TYPE="${VORTEX_PROVISION_TYPE:-database}"
 
+# Fallback to profile installation if the database dump is not available.
+VORTEX_PROVISION_FALLBACK_TO_PROFILE="${VORTEX_PROVISION_FALLBACK_TO_PROFILE:-0}"
+
 # Flag to always overwrite existing database. Usually set to 0 in deployed
 # environments.
 VORTEX_PROVISION_OVERRIDE_DB="${VORTEX_PROVISION_OVERRIDE_DB:-0}"
@@ -131,6 +134,7 @@ note "Configuration files present    : $(yesno "${site_has_config_files}")"
 note "Existing site found            : $(yesno "${site_is_installed}")"
 echo
 note "Provision type                 : ${VORTEX_PROVISION_TYPE}"
+note "Fallback to profile            : $(yesno "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}")"
 note "Overwrite existing DB          : $(yesno "${VORTEX_PROVISION_OVERRIDE_DB}")"
 note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_SKIP}")"
 note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
@@ -143,10 +147,17 @@ echo
 #
 provision_from_db() {
   if [ ! -f "${VORTEX_PROVISION_DB}" ]; then
+    if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
+      info "Database dump file is not available. Falling back to profile installation."
+      provision_from_profile
+      return
+    fi
+
     echo
     fail "Unable to import database from file."
     note "Dump file ${VORTEX_PROVISION_DB} does not exist."
     note "Site content was not changed."
+
     exit 1
   fi
 
@@ -215,15 +226,21 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
 
     if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
       note "Database is baked into the container image."
-      note "Looks like the database in the container image is corrupted."
-      note "Site content was not changed."
-      exit 1
+      if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
+        info "Database in the container image is not available. Falling back to profile installation."
+        provision_from_profile
+        export VORTEX_PROVISION_OVERRIDE_DB=1
+      else
+        note "Looks like the database in the container image is corrupted."
+        note "Site content was not changed."
+        exit 1
+      fi
+    else
+      note "Fresh site content will be imported from the database dump file."
+      provision_from_db
+      # Let the downstream scripts know that the database is fresh.
+      export VORTEX_PROVISION_OVERRIDE_DB=1
     fi
-
-    note "Fresh site content will be imported from the database dump file."
-    provision_from_db
-    # Let the downstream scripts know that the database is fresh.
-    export VORTEX_PROVISION_OVERRIDE_DB=1
   fi
 else
   info "Provisioning site from the profile."
