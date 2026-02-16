@@ -25,12 +25,18 @@
             "matchDepNames": [
                 "php"
             ],
+            "matchFileNames": [
+                "composer.json"
+            ],
             "enabled": false
         },
         {
             "groupName": "Major all - skipped to update manually",
             "matchDatasources": [
                 "packagist"
+            ],
+            "matchFileNames": [
+                "composer.json"
             ],
             "matchUpdateTypes": [
                 "major"
@@ -45,6 +51,9 @@
             "groupSlug": "drupal-minor-patch-contrib",
             "matchDatasources": [
                 "packagist"
+            ],
+            "matchFileNames": [
+                "composer.json"
             ],
             "separateMinorPatch": false,
             "schedule": [
@@ -61,6 +70,9 @@
         {
             "groupName": "Minor and Patch Core",
             "groupSlug": "drupal-minor-patch-core",
+            "matchFileNames": [
+                "composer.json"
+            ],
             "schedule": [
                 "before 2am"
             ],
@@ -81,6 +93,9 @@
         {
             "groupName": "Container images",
             "groupSlug": "docker",
+            "matchFileNames": [
+                ".docker/**"
+            ],
             "schedule": [
                 "before 3am"
             ],
