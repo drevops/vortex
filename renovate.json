@@ -13,6 +13,9 @@
     "rangeStrategy": "bump",
     "timezone": "UTC",
     "configMigration": true,
+    "ignorePaths": [
+        ".vortex/**"
+    ],
     "enabledManagers": [
         "composer",
         "npm",
