@@ -93,21 +93,70 @@ conditions that could alter the execution path.
 The numbered steps refer to the environment variables described in the next
 section.
 
-<picture style={{ display: 'block', textAlign: 'center' }}>
-  <img src="/img/diagram-provision-dark.svg#gh-dark-mode-only" alt="Provision flow"/>
-  <img src="/img/diagram-provision-light.svg#gh-light-mode-only" alt="Provision flow"/>
-</picture>
+```text
+🚀 Start
+   │
+① 💡 Skip provision? ──Yes──► 🏁 End
+   │ No
+   ▼
+② 💡 Provision type = database
+│
+├─ 💡 Existing site found = YES
+│  ├─ Container image set? ──► preserve content (no change)
+│  ├─ ③ Overwrite DB? ──Yes──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
+│  │                                              │
+│  │                                              ├─ Dump file exists? ──► 🛢️ Import DB
+│  │                                              └─ Dump file missing?
+│  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+│  │                                                  └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
+│  └─ else ──► preserve content, ⑦ skip sanitization
+│
+└─ 💡 Existing site found = NO
+   ├─ Container image set?
+   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+   │  └─ ④ Fallback? ──No───► 🏁 EXIT 1 ("corrupted image") ✗
+   └─ Container image not set? ──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
+                                                     │
+                                                     ├─ Dump file exists? ──► 🛢️ Import DB
+                                                     └─ Dump file missing?
+                                                         ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+                                                         └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
+
+── after provisioning (both DB and profile paths) ──
+
+⑤ 💡 Skip other operations? ──Yes──► 🏁 End
+   │ No
+   ▼
+⑥ 🚧 Enable maintenance mode
+   ▼
+   ⬇️ Import configuration
+   ▼
+   🔄 Run DB updates
+   ▼
+   🧹 Rebuild caches
+   ▼
+   🔄 Run deployment operations
+   ▼
+⑦ 😷 Run DB sanitization
+   ▼
+   ⚙️ Run custom scripts
+   ▼
+⑥ 🚧 Disable maintenance mode
+   ▼
+   🏁 End
+```
 
 ### Customizing flow
 
 You can control the provisioning flow using the following environment variables:
 
 1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
-2. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
-3. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
-4. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `$(drush sql:connect) < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/>`ahoy import-db` uses this flag to import DB and exit.<br/><br/>
-5. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
-6. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
+2. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
+3. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
+4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image is not available. Useful for distribution demos or when using recipes/profiles that can install without a pre-existing database.<br/><br/>
+5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `$(drush sql:connect) < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/>`ahoy import-db` uses this flag to import DB and exit.<br/><br/>
+6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
+7. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
 
 :::tip
 
