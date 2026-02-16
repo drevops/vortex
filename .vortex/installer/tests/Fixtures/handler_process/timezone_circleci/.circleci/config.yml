@@ -369,7 +369,7 @@ jobs:
           name: Check code coverage threshold
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            RATE=$(grep -o 'line-rate="[0-9.]*"' /tmp/artifacts/coverage/phpunit/cobertura.xml | head -1 | tr -cd '0-9.')
+            RATE=$(grep -om1 'line-rate="[0-9.]*"' /tmp/artifacts/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
             PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
             echo "Coverage: $PERCENT% (threshold: ${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}%)"
             if [ "${PERCENT//./}" -lt "$((${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}*100))" ]; then
