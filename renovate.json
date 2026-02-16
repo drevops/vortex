@@ -15,6 +15,7 @@
     "configMigration": true,
     "enabledManagers": [
         "composer",
+        "npm",
         "dockerfile",
         "docker-compose",
         "github-actions",
@@ -88,6 +89,39 @@
                 "drupal/core-project-message",
                 "drupal/core-recommended",
                 "drupal/core-dev"
+            ]
+        },
+        {
+            "groupName": "Major npm - skipped to update manually",
+            "matchDatasources": [
+                "npm"
+            ],
+            "matchFileNames": [
+                "package.json"
+            ],
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "enabled": false,
+            "matchPackageNames": [
+                "/.*/"
+            ]
+        },
+        {
+            "groupName": "Minor and Patch npm",
+            "groupSlug": "npm-minor-patch",
+            "matchDatasources": [
+                "npm"
+            ],
+            "matchFileNames": [
+                "package.json"
+            ],
+            "separateMinorPatch": false,
+            "schedule": [
+                "before 2am on Sunday"
+            ],
+            "matchPackageNames": [
+                "/.*/"
             ]
         },
         {
