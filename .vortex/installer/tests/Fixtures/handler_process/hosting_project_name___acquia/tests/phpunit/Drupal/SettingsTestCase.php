@@ -1,7 +1,7 @@
 @@ -202,7 +202,7 @@
     * Require settings file.
     */
-   protected function requireSettingsFile(): void {
+   protected function requireSettingsFile(array $pre_settings = []): void {
 -    $app_root = getcwd() . '/web';
 +    $app_root = getcwd() . '/docroot';
  

@@ -49,7 +49,7 @@
      ];
    }
  
-@@ -325,6 +369,229 @@
+@@ -325,6 +369,283 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
@@ -264,6 +264,60 @@
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [];
 +    $settings['config_sync_directory'] = 'custom_acquia_config';
++    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
++    $settings['entity_update_batch_size'] = 50;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
++    $settings['file_public_path'] = 'sites/default/files';
++    $settings['file_private_path'] = 'sites/default/files/private';
++    $settings['file_temp_path'] = '/tmp';
++    $settings['file_scan_ignore_directories'] = [
++      'node_modules',
++      'bower_components',
++    ];
++    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
++    $settings['maintenance_theme'] = 'claro';
++    $settings['trusted_host_patterns'] = [
++      '^localhost$',
++    ];
++    $this->assertSettings($settings);
++  }
++
++  /**
++   * Test Acquia config_sync_directory fallback to config_vcs_directory.
++   *
++   * When DRUPAL_CONFIG_PATH is not set but config_vcs_directory is provided
++   * by the Acquia-included settings file, config_sync_directory should fall
++   * back to config_vcs_directory.
++   */
++  public function testEnvironmentAcquiaConfigVcsDirectoryFallback(): void {
++    $this->setEnvVars([
++      'AH_SITE_ENVIRONMENT' => 1,
++    ]);
++
++    // Pre-seed config_vcs_directory to simulate the value set by the
++    // Acquia-included settings file from /var/www/site-php/.
++    $this->requireSettingsFile([
++      'config_vcs_directory' => '/var/www/site-php/mysite/config',
++    ]);
++
++    $config['acquia_hosting_settings_autoconnect'] = FALSE;
++    $config['config_split.config_split.dev']['status'] = TRUE;
++    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
++    $config['environment_indicator.indicator']['fg_color'] = '#000000';
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
++    $config['environment_indicator.settings']['favicon'] = TRUE;
++    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
++    $config['shield.settings']['shield_enable'] = TRUE;
++    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
++    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
++    $config['system.performance']['cache']['page']['max_age'] = 900;
++    $this->assertConfig($config);
++
++    $settings['auto_create_htaccess'] = TRUE;
++    $settings['config_exclude_modules'] = [];
++    $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';
++    $settings['config_vcs_directory'] = '/var/www/site-php/mysite/config';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = self::ENVIRONMENT_DEV;
