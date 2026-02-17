@@ -18,6 +18,7 @@ Test types supported:
 1. **Unit tests** - Test isolated PHP classes without Drupal bootstrap
 2. **Kernel tests** - Test with partial Drupal bootstrap (database, services)
 3. **Functional tests** - Test with full Drupal bootstrap including browser simulation
+4. **Functional JavaScript tests** - Test with full Drupal bootstrap and a real browser (Chrome via Selenium) for JavaScript interactions
 
 ## Running tests
 
@@ -35,6 +36,8 @@ import TabItem from '@theme/TabItem';
     ahoy test-kernel
     # Run only Functional tests
     ahoy test-functional
+    # Run only Functional JavaScript tests
+    ahoy test-functional-javascript
     # Run specific test file
     ahoy test tests/phpunit/ExampleTest.php
     # Run tests with filter
@@ -51,6 +54,8 @@ import TabItem from '@theme/TabItem';
     docker compose exec cli vendor/bin/phpunit --testsuite=kernel
     # Run only Functional tests
     docker compose exec cli vendor/bin/phpunit --testsuite=functional
+    # Run only Functional JavaScript tests
+    docker compose exec cli vendor/bin/phpunit --testsuite=functional-javascript
     # Run specific test file
     docker compose exec cli vendor/bin/phpunit tests/phpunit/ExampleTest.php
     # Run tests with filter
@@ -66,6 +71,7 @@ PHPUnit tests are organized into test suites defined in `phpunit.xml`:
 - **unit** - Fast tests that don't require Drupal bootstrap
 - **kernel** - Tests that need database and core services
 - **functional** - Full browser simulation tests
+- **functional-javascript** - Tests requiring a real browser with JavaScript support (Chrome via Selenium)
 
 ## Configuration
 
@@ -97,7 +103,7 @@ continuous integration to track test performance and stability.
 
 ## Boilerplate
 
-**Vortex** provides Unit, Kernel and Functional tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
+**Vortex** provides Unit, Kernel, Functional and Functional JavaScript tests boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
 [themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src) and
 [scripts](https://github.com/drevops/vortex/blob/main/tests/phpunit).
 

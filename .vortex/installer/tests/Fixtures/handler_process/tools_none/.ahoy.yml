@@ -41,7 +41,7 @@
    lint-fe-fix:
      usage: Fix lint issues of front-end code.
      cmd: |
-@@ -218,27 +196,6 @@
+@@ -218,32 +196,6 @@
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
@@ -61,6 +61,11 @@
 -  test-functional:
 -    usage: Run PHPUnit functional tests.
 -    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
+-
+-  test-functional-javascript:
+-    aliases: [test-js]
+-    usage: Run PHPUnit functional JavaScript tests.
+-    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
 -
 -  test-bdd:
 -    usage: Run BDD tests.

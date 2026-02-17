@@ -1,13 +1,4 @@
-@@ -9,7 +9,7 @@
-          beStrictAboutChangesToGlobalState="true"
-          beStrictAboutOutputDuringTests="true"
-          beStrictAboutTestsThatDoNotTestAnything="true"
--         bootstrap="web/core/tests/bootstrap.php"
-+         bootstrap="docroot/core/tests/bootstrap.php"
-          cacheResult="false"
-          colors="true"
-          displayDetailsOnPhpunitDeprecations="true"
-@@ -67,16 +67,16 @@
+@@ -66,21 +66,21 @@
      <testsuites>
          <testsuite name="unit">
              <directory>tests/phpunit</directory>
@@ -29,8 +20,15 @@
 +            <directory>docroot/themes/custom/**/tests/src/Functional</directory>
          </testsuite>
  
-         <!-- Not implemented. -->
-@@ -105,16 +105,16 @@
+         <testsuite name="functional-javascript">
+-            <directory>web/modules/custom/**/tests/src/FunctionalJavascript</directory>
+-            <directory>web/themes/custom/**/tests/src/FunctionalJavascript</directory>
++            <directory>docroot/modules/custom/**/tests/src/FunctionalJavascript</directory>
++            <directory>docroot/themes/custom/**/tests/src/FunctionalJavascript</directory>
+         </testsuite>
+     </testsuites>
+ 
+@@ -101,16 +101,16 @@
      </coverage>
      <source>
          <include>
@@ -55,3 +53,12 @@
              <directory>tests</directory>
          </exclude>
      </source>
+@@ -126,7 +126,7 @@
+              to DRUPAL_ROOT/sites/simpletest/browser_output.
+              @see https://www.drupal.org/project/drupal/issues/2992069 -->
+         <bootstrap class="Drupal\TestTools\Extension\HtmlLogging\HtmlOutputLogger">
+-            <parameter name="outputDirectory" value="web/sites/simpletest/browser_output"/>
++            <parameter name="outputDirectory" value="docroot/sites/simpletest/browser_output"/>
+             <parameter name="verbose" value="true"/>
+         </bootstrap>
+     </extensions>

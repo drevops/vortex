@@ -454,6 +454,41 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyTestFunctionalJavascript(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->removePathHostAndContainer('.logs');
+
+    $file = $webroot . '/modules/custom/sw_base/tests/src/FunctionalJavascript/ExampleTest.php';
+    $this->assertFileExists($file);
+
+    $this->logSubstep('Run all FunctionalJavascript tests');
+    $this->cmd('ahoy test-functional-javascript --no-coverage', 'OK (', txt: 'All FunctionalJavascript tests passed', tio: 300, ito: 240);
+    $this->syncToHost('.logs');
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+    $this->syncToHost($webroot . '/sites/simpletest/browser_output');
+    $this->assertDirectoryExists($webroot . '/sites/simpletest/browser_output');
+    $this->assertFilesWildcardExists($webroot . '/sites/simpletest/browser_output/*html');
+    $this->assertFilesWildcardExists($webroot . '/sites/simpletest/browser_output/*png');
+
+    $this->removePathHostAndContainer('.logs');
+
+    $this->logSubstep('Assert that Drupal FunctionalJavascript test failure works');
+    $this->fileBackup($file);
+    File::replaceContentInFile($file, 'assertEquals', 'assertNotEquals');
+    $this->syncToContainer($file);
+
+    $this->cmdFail('ahoy test-functional-javascript', tio: 300, ito: 240);
+    $this->syncToHost('.logs');
+    $this->assertFileExists('.logs/test_results/phpunit/phpunit.xml');
+
+    $this->fileRestore($file);
+    $this->syncToContainer($file);
+    $this->removePathHostAndContainer('.logs');
+
+    $this->logStepFinish();
+  }
+
   protected function runAhoyTestPhpunit(string $type, string $file): void {
     $this->removePathHostAndContainer('.logs');
 

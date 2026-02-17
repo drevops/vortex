@@ -117,12 +117,14 @@ commands:
 
   # If there are changes to the snapshots - this command will re-run twice reporting error the first time.
   update-snapshots:
+    aliases: [us]
     cmd: |
       export XDEBUG_MODE=off
       composer --working-dir=tests update-snapshots
       composer --working-dir=installer update-snapshots
 
   update-snapshots-install:
+    aliases: [usi]
     cmd: |
       ahoy install
       ahoy update-snapshots

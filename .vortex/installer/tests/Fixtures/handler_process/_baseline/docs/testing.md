@@ -51,6 +51,7 @@ class MyClassTest extends UnitTestCase {
 - **Unit** - `Drupal\Tests\UnitTestCase` - Testing isolated PHP classes
 - **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with database/services
 - **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full browser
+- **FunctionalJavascript** - `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser interaction with JavaScript
 
 ### Test data conventions
 
