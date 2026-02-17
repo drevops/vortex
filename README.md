@@ -30,9 +30,13 @@ platforms. Everything is pre-configured and ready to use, so teams can focus on
 building features instead of setting up infrastructure.
 
 By standardizing project structure and tooling, **Vortex** ensures a consistent
-developer experience across every project that uses it. Whether you’re starting
+developer experience across every project that uses it. Whether you're starting
 fresh or joining an existing Vortex-based site, you can get up to speed quickly
 and start contributing right away.
+
+Learn more about Vortex from our [DrupalSouth 2025 presentation](https://docs.google.com/presentation/d/e/2PACX-1vQMBTteMr6cALYGtI3xwqvt9HFpzSzTsV3ie5qhVMPK5eSZBudyQp7H1_Wfoy7HMYqfgN2ooH4rlWJL/pub?start=false&loop=false&delayms=5000)
+([Google Slides](https://docs.google.com/presentation/d/1nsFfd9C_ddKD5O0sQeJ8_6pJjU0XWaXXwDmD0SwCIL4/) |
+[PDF](https://docs.google.com/presentation/d/1nsFfd9C_ddKD5O0sQeJ8_6pJjU0XWaXXwDmD0SwCIL4/export/pdf)).
 
 Vortex is designed for ongoing use, not just initial project setup. Sites built
 with Vortex should regularly adopt upstream updates, keeping projects current
