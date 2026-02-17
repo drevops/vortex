@@ -13,6 +13,11 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Deployment mode.
+#
+# Values can be one of: branch, tag.
+VORTEX_DEPLOY_MODE="${VORTEX_DEPLOY_MODE:-branch}"
+
 # Deployment action.
 #
 # Values can be one of: deploy, deploy_override_db, destroy.
@@ -94,6 +99,13 @@ is_lagoon_env_limit_exceeded() {
 exit_code=0
 
 info "Started LAGOON deployment."
+
+# Lagoon does not support tag deployments. Exit successfully with a message.
+if [ "${VORTEX_DEPLOY_MODE}" = "tag" ]; then
+  note "Lagoon does not support tag deployments. Skipping."
+  pass "Finished LAGOON deployment."
+  exit 0
+fi
 
 ## Check all required values.
 [ -z "${VORTEX_DEPLOY_LAGOON_PROJECT}" ] && fail "Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT or LAGOON_PROJECT." && exit 1

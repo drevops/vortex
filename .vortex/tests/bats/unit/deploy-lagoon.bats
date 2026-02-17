@@ -6,6 +6,21 @@
 
 load ../_helper.bash
 
+@test "Tag deployment mode skips Lagoon deployment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_MODE="tag"
+
+  run scripts/vortex/deploy-lagoon.sh
+  assert_success
+  assert_output_contains "Started LAGOON deployment."
+  assert_output_contains "Lagoon does not support tag deployments. Skipping."
+  assert_output_contains "Finished LAGOON deployment."
+
+  popd >/dev/null
+}
+
 @test "Deploy fails when LAGOON_PROJECT variable is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
