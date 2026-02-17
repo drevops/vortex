@@ -1,4 +1,4 @@
-@@ -219,22 +219,6 @@
+@@ -219,27 +219,6 @@
        ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
@@ -17,6 +17,11 @@
 -  test-functional:
 -    usage: Run PHPUnit functional tests.
 -    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
+-
+-  test-functional-javascript:
+-    aliases: [test-js]
+-    usage: Run PHPUnit functional JavaScript tests.
+-    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
 -
    test-bdd:
      usage: Run BDD tests.

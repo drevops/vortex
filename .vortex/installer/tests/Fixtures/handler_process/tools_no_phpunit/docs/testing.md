@@ -1,4 +1,4 @@
-@@ -3,139 +3,6 @@
+@@ -3,140 +3,6 @@
  This document describes **what** testing conventions and agreements apply to
  this project.
  
@@ -50,6 +50,7 @@
 -- **Unit** - `Drupal\Tests\UnitTestCase` - Testing isolated PHP classes
 -- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with database/services
 -- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full browser
+-- **FunctionalJavascript** - `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser interaction with JavaScript
 -
 -### Test data conventions
 -

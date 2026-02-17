@@ -15,10 +15,10 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -234,11 +231,6 @@
-   test-functional:
-     usage: Run PHPUnit functional tests.
-     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
+@@ -239,11 +236,6 @@
+     aliases: [test-js]
+     usage: Run PHPUnit functional JavaScript tests.
+     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
 -
 -  test-bdd:
 -    usage: Run BDD tests.

@@ -21,14 +21,16 @@ import TabItem from '@theme/TabItem';
     ahoy test-unit                              # Run Unit tests.
     ahoy test-kernel                            # Run Kernel tests.
     ahoy test-functional                        # Run Functional tests.
+    ahoy test-functional-javascript             # Run Functional JavaScript tests.
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli vendor/bin/phpunit                          # Run all tests.
-    docker compose exec cli vendor/bin/phpunit --testsuite=unit         # Run Unit tests.
-    docker compose exec cli vendor/bin/phpunit --testsuite=kernel       # Run Kernel tests.
-    docker compose exec cli vendor/bin/phpunit --testsuite=functional   # Run Functional tests.
+    docker compose exec cli vendor/bin/phpunit                                        # Run all tests.
+    docker compose exec cli vendor/bin/phpunit --testsuite=unit                       # Run Unit tests.
+    docker compose exec cli vendor/bin/phpunit --testsuite=kernel                     # Run Kernel tests.
+    docker compose exec cli vendor/bin/phpunit --testsuite=functional                 # Run Functional tests.
+    docker compose exec cli vendor/bin/phpunit --testsuite=functional-javascript      # Run Functional JavaScript tests.
     ```
   </TabItem>
 </Tabs>
@@ -101,6 +103,34 @@ Run checks against platform version specified in `composer.json` key `config.pla
 ```xml
 <config name="testVersion" value="8.1"/>
 ```
+
+### Chrome session flags
+
+Functional JavaScript tests use a Chrome browser running in the
+[`selenium/standalone-chromium`](https://hub.docker.com/r/selenium/standalone-chromium)
+container. The following flags are passed via `MINK_DRIVER_ARGS_WEBDRIVER`
+in `phpunit.xml` to ensure stable and deterministic test execution:
+
+| Flag                             | Purpose                                                          |
+|----------------------------------|------------------------------------------------------------------|
+| `--disable-extensions`           | Prevents interference from browser extensions                    |
+| `--disable-translate`            | Prevents the translation bar from appearing on non-English pages |
+| `--force-prefers-reduced-motion` | Disables CSS animations and transitions for test stability       |
+| `--test-type`                    | Suppresses error dialogs and crash recovery prompts              |
+| `--window-size=1920,1080`        | Sets a deterministic viewport size for consistent screenshots    |
+
+The `w3c: true` option is required for compatibility with Selenium 4.
+
+### Bootstrap
+
+The custom [`tests/phpunit/bootstrap.php`](https://github.com/drevops/vortex/blob/main/tests/phpunit/bootstrap.php)
+file runs before tests to:
+
+1. Set `BROWSERTEST_OUTPUT_BASE_URL` from the `VORTEX_LOCALDEV_URL` environment
+   variable so that HTML output links are accessible from the host machine.
+2. Create the `web/sites/simpletest/browser_output` directory required by the
+   `HtmlOutputLogger` extension before it initializes
+   (see [Drupal core issue #2992069](https://www.drupal.org/project/drupal/issues/2992069)).
 
 ## Coverage
 

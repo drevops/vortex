@@ -77,6 +77,19 @@ default:
         - '%paths.base%/web/modules/custom/mymodule/tests/behat/features'
 ```
 
+### Chrome session flags
+
+The [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+configuration passes the following flags to Chrome via `goog:chromeOptions`
+to ensure stable and deterministic test execution in the container environment:
+
+| Flag                             | Purpose                                                          |
+|----------------------------------|------------------------------------------------------------------|
+| `--disable-extensions`           | Prevents interference from browser extensions                    |
+| `--disable-translate`            | Prevents the translation bar from appearing on non-English pages |
+| `--force-prefers-reduced-motion` | Disables CSS animations and transitions for test stability       |
+| `--test-type`                    | Suppresses error dialogs and crash recovery prompts              |
+
 ### Contexts and extensions
 
 The configuration uses the following contexts and extensions:

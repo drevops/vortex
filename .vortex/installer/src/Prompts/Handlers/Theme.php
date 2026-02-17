@@ -207,6 +207,8 @@ class Theme extends AbstractHandler {
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Kernel</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Functional</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/FunctionalJavascript</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/FunctionalJavascript</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
