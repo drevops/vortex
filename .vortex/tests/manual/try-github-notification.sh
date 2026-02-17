@@ -66,8 +66,8 @@ export VORTEX_NOTIFY_CHANNELS=github
 export VORTEX_NOTIFY_GITHUB_TOKEN="${GITHUB_TOKEN}"
 export VORTEX_NOTIFY_GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
 
-# Optional: Customize environment type
-export VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE:-PR}"
+# Optional: Customize environment type (defaults to VORTEX_NOTIFY_LABEL, i.e. "PR-2")
+# export VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="custom-env-name"
 
 echo "Running notification script..."
 echo ""

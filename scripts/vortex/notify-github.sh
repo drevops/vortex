@@ -32,9 +32,12 @@ VORTEX_NOTIFY_GITHUB_EVENT="${VORTEX_NOTIFY_GITHUB_EVENT:-${VORTEX_NOTIFY_EVENT:
 # GitHub notification deployment environment URL.
 VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
 
-# GitHub notification environment type: production, uat, dev, pr.
+# GitHub notification environment type.
 # Used as the 'environment' parameter in GitHub's Deployment API.
-VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE:-PR}"
+# Defaults to VORTEX_NOTIFY_LABEL (e.g. "PR-123" or branch name) for unique
+# per-PR/branch environments. This prevents cross-PR deployment interference
+# where deploying one PR would mark another PR's deployment as inactive.
+VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE:-${VORTEX_NOTIFY_LABEL:-PR}}"
 
 # ------------------------------------------------------------------------------
 
