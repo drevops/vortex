@@ -14,7 +14,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"PR\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"existingbranch\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -46,7 +46,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"feature/my-pr-branch\", \"environment\": \"PR\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"feature/my-pr-branch\", \"environment\": \"PR-123\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -79,7 +79,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"PR\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"existingbranch\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -109,7 +109,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch", "environment": "PR", "auto_merge": false, "required_contexts": []} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
+    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch", "environment": "nonexistingbranch", "auto_merge": false, "required_contexts": []} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
     "Failed to get a deployment ID for a pre_deployment operation. Payload:"
     "Wait for GitHub checks to finish and try again."
     "-Marked deployment as finished."

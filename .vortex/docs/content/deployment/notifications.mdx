@@ -107,7 +107,7 @@ Post deployment status to GitHub pull requests.
 |----------|----------|---------|----------|-------------|
 | `VORTEX_NOTIFY_GITHUB_TOKEN` | **Yes** | | Hosting | GitHub personal access token |
 | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes** | | Hosting | Repository in `owner/repo` format |
-| `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `PR` | `.env` | Environment type |
+| `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `${VORTEX_NOTIFY_LABEL}` | `.env` | Environment name (defaults to label, e.g. `PR-123`) |
 
 ### Example
 
