@@ -288,7 +288,7 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-# Use 'drush deploy' if configuration files are present or use standalone commands otherwise.
+# Set site UUID from configuration if config files are present.
 if [ "${site_has_config_files}" = "1" ]; then
   if [ -f "${config_path}/system.site.yml" ]; then
     config_uuid="$(cat "${config_path}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
@@ -296,10 +296,18 @@ if [ "${site_has_config_files}" = "1" ]; then
     pass "Updated site UUID from the configuration with ${config_uuid}."
     echo
   fi
+fi
 
-  task "Running deployment operations via 'drush deploy'."
-  drush deploy
-  pass "Completed deployment operations via 'drush deploy'."
+task "Running database updates."
+drush updatedb --no-cache-clear
+pass "Completed running database updates."
+echo
+
+# Import configuration if config files are present.
+if [ "${site_has_config_files}" = "1" ]; then
+  task "Importing configuration."
+  drush config:import
+  pass "Completed configuration import."
   echo
 
   # Import config_split configuration if the module is installed.
@@ -312,22 +320,17 @@ if [ "${site_has_config_files}" = "1" ]; then
     pass "Completed config_split configuration import."
     echo
   fi
-else
-  task "Running database updates."
-  drush updatedb --no-cache-clear
-  pass "Completed running database updates."
-  echo
-
-  task "Rebuilding cache."
-  drush cache:rebuild
-  pass "Cache was rebuilt."
-  echo
-
-  task "Running deployment operations via 'drush deploy:hook'."
-  drush deploy:hook
-  pass "Completed deployment operations via 'drush deploy:hook'."
-  echo
 fi
+
+task "Rebuilding cache."
+drush cache:rebuild
+pass "Cache was rebuilt."
+echo
+
+task "Running deployment hooks."
+drush deploy:hook
+pass "Completed deployment hooks."
+echo
 
 # Sanitize database.
 if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then

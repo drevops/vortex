@@ -16,11 +16,12 @@ in every environment, ensuring consistency and eliminating manual steps.
 
 ## Rationale
 
-While `drush deploy` is a powerful tool for executing standard Drupal deployment
-steps (such as configuration import and database updates), it assumes that the
-site is already in a bootstrapped, stable state. In practice, especially during
-initial setup or provisioning in dynamic environments (like CI pipelines,
-container builds, or multisite setups), additional orchestration is needed.
+While Drush provides individual commands for deployment steps (such as
+`drush updatedb`, `drush config:import`, and `drush deploy:hook`), using them
+directly assumes the site is already in a bootstrapped, stable state. In
+practice, especially during initial setup or provisioning in dynamic
+environments (like CI pipelines, container builds, or multisite setups),
+additional orchestration is needed.
 
 The `provision.sh` script addresses these gaps by:
 
@@ -29,13 +30,13 @@ profile.
 - **Handling conditional logic:** It accounts for different runtime scenarios, such as skipping provisioning,
 enforcing fresh database imports, or using maintenance mode.
 - **Enforcing consistency:** The same provisioning logic runs across local, CI, staging, and production
-environments, eliminating “it works on my machine” issues.
+environments, eliminating "it works on my machine" issues.
 - **Supporting extensibility:** It allows for custom post-provisioning scripts, making it easy to layer in
 project-specific logic like enabling test modules or running migrations.
 
-In short, `provision.sh` wraps `drush deploy` in a consistent, repeatable, and
-configurable process — turning a manual setup step into a reliable automation
-layer.
+In short, `provision.sh` orchestrates standalone Drush commands in a consistent,
+repeatable, and configurable process — turning a manual setup step into a
+reliable automation layer.
 
 ## Database import vs full provisioning
 
@@ -46,10 +47,11 @@ layer.
 Runs the complete provisioning process including:
 
 - Database import from dump or profile installation
-- Configuration import via `drush config:import`
 - Database updates via `drush updatedb`
-- Post-provisioning custom scripts
+- Configuration import via `drush config:import` (if config files present)
 - Cache rebuilds
+- Deployment hooks
+- Post-provisioning custom scripts
 
 Use this when you want a fully configured site ready for development or deployment.
 
@@ -129,13 +131,13 @@ section.
    ▼
 ⑥ 🚧 Enable maintenance mode
    ▼
-   ⬇️ Import configuration
-   ▼
    🔄 Run DB updates
+   ▼
+   ⬇️ Import configuration (if config files present)
    ▼
    🧹 Rebuild caches
    ▼
-   🔄 Run deployment operations
+   🔄 Run deployment hooks
    ▼
 ⑦ 😷 Run DB sanitization
    ▼

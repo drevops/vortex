@@ -209,8 +209,8 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         'Provisioning site from the database dump file.',
-        "Running deployment operations via 'drush deploy:hook'.",
         'Running database updates.',
+        'Running deployment hooks.',
       ],
       'Initial provision should complete successfully'
     );
@@ -230,8 +230,7 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         '* Provisioning site from the database dump file.',
-        // @note 'drush deploy:hook' runs only if config files exist.
-        "* Running deployment operations via 'drush deploy'.",
+        '* Importing configuration.',
         '! Import the listed configuration changes',
         '* There are no changes to import',
       ],
@@ -253,7 +252,7 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         'Provisioning site from the database dump file.',
-        "Running deployment operations via 'drush deploy'.",
+        'Importing configuration.',
         'Import the listed configuration changes',
       ],
       'Provision with updated config should complete successfully'
@@ -267,7 +266,7 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         'Provisioning site from the database dump file.',
-        "Running deployment operations via 'drush deploy'.",
+        'Importing configuration.',
       ],
       'Provision without DB should complete successfully'
     );
@@ -326,7 +325,7 @@ trait SubtestAhoyTrait {
       arg: $has_argument ? [$filename] : [],
       out: [
         '* Provisioning site from the database dump file.',
-        "! Running deployment operations via 'drush deploy:hook'.",
+        '! Running deployment hooks.',
         '! Running database updates.',
       ],
       txt: 'Import database dump ' . ($has_argument ? sprintf("from file '%s'", $filename) : 'from the default file')
