@@ -105,7 +105,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -118,10 +118,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -239,7 +239,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -252,10 +252,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "- Sanitizing database."
@@ -374,7 +374,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -387,10 +387,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -513,28 +513,33 @@ assert_provision_info() {
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
 
-    # Deployment and configuration updates.
+    # UUID setup.
     "@drush -y config-set system.site uuid ${mocked_uuid}"
     "Updated site UUID from the configuration with ${mocked_uuid}"
-    "Running deployment operations via 'drush deploy'."
-    "@drush -y deploy"
-    "Completed deployment operations via 'drush deploy'."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Configuration import.
+    "Importing configuration."
+    "@drush -y config:import"
+    "Completed configuration import."
     "@drush -y pm:list --status=enabled # config_split"
     "Importing config_split configuration."
     "@drush -y config:import"
     "Completed config_split configuration import."
 
-    # Database updates.
-    "- Running database updates."
-    "- Completed running database updates."
-
     # Cache rebuild.
-    "- Rebuilding cache."
-    "- Cache was rebuilt."
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "- Running deployment operations via 'drush deploy:hook'."
-    "- Completed deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
+    "@drush -y deploy:hook"
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -657,7 +662,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -670,10 +675,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -794,7 +799,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -807,10 +812,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "- Sanitizing database."
@@ -930,7 +935,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -943,10 +948,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -1066,7 +1071,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via 'drush deploy'."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -1079,10 +1084,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -1233,7 +1238,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via drush deploy."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -1246,10 +1251,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
@@ -1370,7 +1375,7 @@ assert_provision_info() {
 
     # Deployment and configuration updates.
     "- Updated site UUID from the configuration with"
-    "- Running deployment operations via drush deploy."
+    "- Importing configuration."
     "- Importing config_split configuration."
 
     # Database updates.
@@ -1383,10 +1388,10 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
-    # Post configuration import updates.
-    "Running deployment operations via 'drush deploy:hook'."
+    # Deployment hooks.
+    "Running deployment hooks."
     "@drush -y deploy:hook"
-    "Completed deployment operations via 'drush deploy:hook'."
+    "Completed deployment hooks."
 
     # Database sanitization.
     "Sanitizing database."
