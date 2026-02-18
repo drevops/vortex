@@ -133,13 +133,16 @@ section.
    ▼
    🔄 Run DB updates
    ▼
+⑦ 💡 Verify config unchanged? ──Config changed──► 🏁 EXIT 1 (fail) ✗
+   │ Config unchanged (or check disabled)
+   ▼
    ⬇️ Import configuration (if config files present)
    ▼
    🧹 Rebuild caches
    ▼
    🔄 Run deployment hooks
    ▼
-⑦ 😷 Run DB sanitization
+⑧ 😷 Run DB sanitization
    ▼
    ⚙️ Run custom scripts
    ▼
@@ -158,7 +161,8 @@ You can control the provisioning flow using the following environment variables:
 4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image is not available. Useful for distribution demos or when using recipes/profiles that can install without a pre-existing database.<br/><br/>
 5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. Essentially, this is `drush sql:drop` and `$(drush sql:connect) < .data/db.sql` commands. This is useful when you want to provision a site without running any additional operations.<br/>`ahoy import-db` uses this flag to import DB and exit.<br/><br/>
 6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
-7. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
+7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration was not changed by database updates. When enabled and config files are present, the provision will fail if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
+8. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
 
 :::tip
 

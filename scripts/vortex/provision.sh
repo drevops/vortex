@@ -38,6 +38,12 @@ VORTEX_PROVISION_USE_MAINTENANCE_MODE="${VORTEX_PROVISION_USE_MAINTENANCE_MODE:-
 # state before any updates ran (for example, DB caching in CI).
 VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-0}"
 
+# Verify that configuration was not changed by database updates.
+# If enabled and config files are present, the provision will fail if
+# database update hooks modify active configuration, preventing
+# drush config:import from silently overwriting those changes.
+VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE="${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE:-0}"
+
 # Provision database dump file.
 # If not set, it will be auto-discovered from the VORTEX_DB_DIR directory using
 # the VORTEX_DB_FILE name.
@@ -138,9 +144,17 @@ note "Fallback to profile            : $(yesno "${VORTEX_PROVISION_FALLBACK_TO_P
 note "Overwrite existing DB          : $(yesno "${VORTEX_PROVISION_OVERRIDE_DB}")"
 note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_SKIP}")"
 note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
+note "Verify config after update     : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}")"
 note "Use maintenance mode           : $(yesno "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}")"
 echo
 ################################################################################
+
+if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ]; then
+  for cmd in diff mktemp; do command -v "${cmd}" >/dev/null || {
+    fail "Command ${cmd} is not available"
+    exit 1
+  }; done
+fi
 
 #
 # Provision site by importing the database from the dump file.
@@ -299,7 +313,35 @@ if [ "${site_has_config_files}" = "1" ]; then
 fi
 
 task "Running database updates."
-drush updatedb --no-cache-clear
+
+if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ] && [ "${site_has_config_files}" = "1" ]; then
+  config_before=$(mktemp -d)
+  drush config:export --destination="${config_before}"
+
+  drush updatedb --no-cache-clear
+
+  config_after=$(mktemp -d)
+  drush config:export --destination="${config_after}"
+
+  config_diff=$(diff -rq "${config_before}" "${config_after}" || true)
+
+  if [ -n "${config_diff}" ]; then
+    fail "Configuration was changed by database updates."
+    note "The following configuration files were changed:"
+    echo "${config_diff}"
+    note "Configuration before updates: ${config_before}"
+    note "Configuration after updates:  ${config_after}"
+    note "Review the update hooks and manually export updated configuration."
+    exit 1
+  fi
+
+  rm -rf "${config_before}" "${config_after}"
+
+  pass "Verified that database updates did not change configuration."
+else
+  drush updatedb --no-cache-clear
+fi
+
 pass "Completed running database updates."
 echo
 
