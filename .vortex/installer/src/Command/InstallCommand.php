@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Command;
 use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
+use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\InstallerPresenter;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Runner\CommandRunnerAwareInterface;
@@ -21,6 +22,7 @@ use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -164,8 +166,8 @@ EOF
     Tui::init($output);
 
     try {
-      $this->checkRequirements();
-      $this->resolveOptions($input->getArguments(), $input->getOptions());
+      OptionsResolver::checkRequirements($this->getExecutableFinder());
+      [$this->config, $this->artifact] = OptionsResolver::resolve($input->getOptions());
 
       Tui::init($output, !$this->config->getNoInteraction());
       $this->promptManager = new PromptManager($this->config);
@@ -347,113 +349,6 @@ EOF
     $output->write(AgentHelp::render());
 
     return Command::SUCCESS;
-  }
-
-  protected function checkRequirements(): void {
-    $required_commands = [
-      'git',
-      'tar',
-      'composer',
-    ];
-
-    foreach ($required_commands as $required_command) {
-      if ($this->getExecutableFinder()->find($required_command) === NULL) {
-        throw new \RuntimeException(sprintf('Missing required command: %s.', $required_command));
-      }
-    }
-  }
-
-  /**
-   * Instantiate configuration from CLI options and environment variables.
-   *
-   * Installer configuration is a set of internal installer variables
-   * prefixed with "VORTEX_INSTALLER_" and used to control the installation.
-   * They are read from the environment variables with $this->config->get().
-   *
-   * For simplicity of naming, internal installer config variables used in
-   * $this->config->get() match environment variables names.
-   *
-   * @param array<mixed> $arguments
-   *   Array of CLI arguments.
-   * @param array<mixed> $options
-   *   Array of CLI options.
-   */
-  protected function resolveOptions(array $arguments, array $options): void {
-    $config = '{}';
-    if (isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG])) {
-      $config_candidate = strval($options[static::OPTION_CONFIG]);
-      $config = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
-    }
-
-    $this->config = Config::fromString($config);
-
-    $this->config->setQuiet($options[static::OPTION_QUIET]);
-    $this->config->setNoInteraction($options[static::OPTION_NO_INTERACTION]);
-
-    // Set root directory to resolve relative paths.
-    $root = !empty($options[static::OPTION_ROOT]) && is_scalar($options[static::OPTION_ROOT]) ? strval($options[static::OPTION_ROOT]) : NULL;
-    if ($root) {
-      $this->config->set(Config::ROOT, $root);
-    }
-
-    // Set destination directory.
-    $dst_from_option = !empty($options[static::OPTION_DESTINATION]) && is_scalar($options[static::OPTION_DESTINATION]) ? strval($options[static::OPTION_DESTINATION]) : NULL;
-    $dst_from_env = Env::get(Config::DST);
-    $dst_from_config = $this->config->get(Config::DST);
-    $dst_from_root = $this->config->get(Config::ROOT);
-
-    $dst = $dst_from_option ?: ($dst_from_env ?: ($dst_from_config ?: $dst_from_root));
-    $dst = File::realpath($dst);
-    $this->config->set(Config::DST, $dst, TRUE);
-
-    // Load values from the destination .env file, if it exists.
-    $dest_env_file = $this->config->getDst() . '/.env';
-
-    if (File::exists($dest_env_file)) {
-      Env::putFromDotenv($dest_env_file);
-    }
-
-    // Build URI for artifact.
-    $uri_from_option = !empty($options[static::OPTION_URI]) && is_scalar($options[static::OPTION_URI]) ? strval($options[static::OPTION_URI]) : NULL;
-    $repo = Env::get(Config::REPO) ?: ($this->config->get(Config::REPO) ?: NULL);
-    $ref = Env::get(Config::REF) ?: ($this->config->get(Config::REF) ?: NULL);
-
-    // Priority: option URI > env/config repo+ref > default.
-    $uri = $uri_from_option;
-    if (!$uri && $repo) {
-      $uri = $ref ? $repo . '#' . $ref : $repo;
-    }
-
-    try {
-      $this->artifact = Artifact::fromUri($uri);
-      $this->config->set(Config::REPO, $this->artifact->getRepo());
-      $this->config->set(Config::REF, $this->artifact->getRef());
-    }
-    catch (\RuntimeException $e) {
-      throw new \RuntimeException(sprintf('Invalid repository URI: %s', $e->getMessage()), $e->getCode(), $e);
-    }
-
-    // Check if the project is a Vortex project.
-    $this->config->set(Config::IS_VORTEX_PROJECT, File::contains($this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
-
-    // Flag to proceed with installation. If FALSE - the installation will only
-    // print resolved values and will not proceed.
-    $this->config->set(Config::PROCEED, TRUE);
-
-    // Internal flag to enforce DEMO mode. If not set, the demo mode will be
-    // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO))) {
-      $this->config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
-    }
-
-    // Internal flag to skip processing of the demo mode.
-    $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
-
-    // Set no-cleanup flag.
-    $this->config->set(Config::NO_CLEANUP, (bool) $options[static::OPTION_NO_CLEANUP]);
-
-    // Set build-now flag.
-    $this->config->set(Config::BUILD_NOW, (bool) $options[static::OPTION_BUILD]);
   }
 
   protected function prepareDestination(): array {
