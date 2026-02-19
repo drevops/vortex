@@ -8,19 +8,21 @@ use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
+use DrevOps\VortexInstaller\Prompts\InstallerPresenter;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Runner\CommandRunnerAwareInterface;
 use DrevOps\VortexInstaller\Runner\CommandRunnerAwareTrait;
 use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareInterface;
 use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareTrait;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
+use DrevOps\VortexInstaller\Schema\AgentHelp;
 use DrevOps\VortexInstaller\Schema\ConfigValidator;
 use DrevOps\VortexInstaller\Schema\SchemaGenerator;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
-use DrevOps\VortexInstaller\Utils\File;
-use DrevOps\VortexInstaller\Utils\Strings;
+use DrevOps\VortexInstaller\Utils\FileManager;
+use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,12 +63,6 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
 
   const OPTION_AGENT_HELP = 'agent-help';
 
-  const BUILD_RESULT_SUCCESS = 'success';
-
-  const BUILD_RESULT_SKIPPED = 'skipped';
-
-  const BUILD_RESULT_FAILED = 'failed';
-
   /**
    * Defines default command name.
    *
@@ -83,6 +79,16 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
    * The prompt manager.
    */
   protected PromptManager $promptManager;
+
+  /**
+   * The installer presenter.
+   */
+  protected InstallerPresenter $presenter;
+
+  /**
+   * The file manager.
+   */
+  protected FileManager $fileManager;
 
   /**
    * The repository downloader.
@@ -165,13 +171,16 @@ EOF
     Tui::init($output);
 
     try {
-      $this->checkRequirements();
-      $this->resolveOptions($input->getArguments(), $input->getOptions());
+      OptionsResolver::checkRequirements($this->getExecutableFinder());
+      [$this->config, $this->artifact] = OptionsResolver::resolve($input->getOptions());
 
       Tui::init($output, !$this->config->getNoInteraction());
       $this->promptManager = new PromptManager($this->config);
+      $this->presenter = new InstallerPresenter($this->config);
+      $this->presenter->setPromptManager($this->promptManager);
+      $this->fileManager = new FileManager($this->config);
 
-      $this->header();
+      $this->presenter->header($this->artifact, $this->getApplication()->getVersion());
 
       // Only validate if using custom repository or custom reference.
       if (!$this->artifact->isDefault()) {
@@ -221,19 +230,19 @@ EOF
 
       Task::action(
         label: 'Preparing destination directory',
-        action: fn(): array => $this->prepareDestination(),
+        action: fn(): array => $this->fileManager->prepareDestination(),
         success: 'Destination directory is ready',
       );
 
       Task::action(
         label: 'Copying files to the destination directory',
-        action: fn() => $this->copyFiles(),
+        action: fn() => $this->fileManager->copyFiles(),
         success: 'Files copied to destination directory',
       );
 
       Task::action(
         label: 'Preparing demo content',
-        action: fn(): string|array => $this->prepareDemo(),
+        action: fn(): string|array => $this->fileManager->prepareDemo($this->getFileDownloader()),
         success: 'Demo content prepared',
       );
     }
@@ -244,7 +253,7 @@ EOF
       return Command::FAILURE;
     }
 
-    $this->footer();
+    $this->presenter->footer();
 
     // Should build by default.
     $should_build = TRUE;
@@ -271,15 +280,15 @@ EOF
       );
 
       if (!$build_ok) {
-        $this->footerBuildFailed();
+        $this->presenter->footerBuildFailed();
 
         return Command::FAILURE;
       }
 
-      $this->footerBuildSucceeded();
+      $this->presenter->footerBuildSucceeded();
     }
     else {
-      $this->footerBuildSkipped();
+      $this->presenter->footerBuildSkipped();
     }
 
     // Cleanup should take place only in case of the successful installation.
@@ -343,324 +352,9 @@ EOF
    * programmatically via --schema and --validate.
    */
   protected function handleAgentHelp(OutputInterface $output): int {
-    $text = <<<'AGENT_HELP'
-# Vortex Installer - AI Agent Instructions
-
-You are interacting with the Vortex installer, a CLI tool that sets up Drupal
-projects from the Vortex template. This guide explains how to use the installer
-programmatically.
-
-## Workflow
-
-1. **Discover prompts**: Run with `--schema` to get a JSON manifest of all
-   available configuration prompts, their types, valid values, defaults, and
-   dependencies.
-
-2. **Build a config**: Using the schema, construct a JSON object where keys are
-   either prompt IDs (e.g., `hosting_provider`) or environment variable names
-   (e.g., `VORTEX_INSTALLER_PROMPT_HOSTING_PROVIDER`). Set values according to
-   the prompt types and allowed options from the schema.
-
-3. **Validate the config**: Run with `--validate --config='<json>'` to check
-   your config without performing an installation. The output is a JSON object
-   with `valid`, `errors`, `warnings`, and `resolved` fields.
-
-4. **Install**: Run with `--no-interaction --config='<json>' --destination=<dir>`
-   to perform the actual installation using your validated config.
-
-## Commands
-
-```bash
-# Get the prompt schema
-php installer.php --schema
-
-# Validate a config (JSON string)
-php installer.php --validate --config='{"name":"My Project","hosting_provider":"lagoon"}'
-
-# Validate a config (JSON file)
-php installer.php --validate --config=config.json
-
-# Install non-interactively
-php installer.php --no-interaction --config='<json>' --destination=./my-project
-```
-
-## Schema Format
-
-The `--schema` output contains a `prompts` array. Each prompt has:
-
-- `id`: The prompt identifier (use as config key).
-- `env`: The environment variable name (alternative config key).
-- `type`: One of `text`, `select`, `multiselect`, `confirm`, `suggest`.
-- `label`: Human-readable label.
-- `description`: Optional description text.
-- `options`: For `select`/`multiselect`, an array of `{value, label}` objects
-  representing the allowed values.
-- `default`: The default value if not provided.
-- `required`: Whether the prompt requires a value.
-- `depends_on`: Dependency conditions. If set, this prompt only applies when
-  the referenced prompt has one of the specified values. A `_system` key
-  indicates a system-state dependency (not config-based).
-
-## Value Types by Prompt Type
-
-- `text` / `suggest`: string value.
-- `select`: string value matching one of the option values.
-- `multiselect`: array of strings, each matching an option value.
-- `confirm`: boolean (`true` or `false`).
-
-## Dependencies
-
-Some prompts depend on other prompts. For example, `hosting_project_name`
-depends on `hosting_provider` being `lagoon` or `acquia`. If you set
-`hosting_provider` to `none`, you do not need to provide `hosting_project_name`.
-
-When a dependency is not met:
-- Omitting the dependent value is OK (it will be skipped).
-- Providing a value triggers a warning (it will be ignored).
-
-When a dependency is met:
-- Required prompts must have a value or they produce an error.
-
-## Validation Output
-
-The `--validate` output contains:
-
-- `valid`: boolean - whether the config is valid.
-- `errors`: array of `{prompt, message}` objects for invalid values.
-- `warnings`: array of `{prompt, message}` objects for ignored values.
-- `resolved`: object with the final merged config (your values + defaults).
-
-## Tips
-
-- Start with `--schema` to understand what prompts exist.
-- Provide values only for prompts you want to customize; defaults will be
-  used for the rest.
-- Use `--validate` to check your config before installing.
-- The `resolved` field in validation output shows the complete config that
-  would be used, including defaults.
-AGENT_HELP;
-
-    $output->write($text);
+    $output->write(AgentHelp::render());
 
     return Command::SUCCESS;
-  }
-
-  protected function checkRequirements(): void {
-    $required_commands = [
-      'git',
-      'tar',
-      'composer',
-    ];
-
-    foreach ($required_commands as $required_command) {
-      if ($this->getExecutableFinder()->find($required_command) === NULL) {
-        throw new \RuntimeException(sprintf('Missing required command: %s.', $required_command));
-      }
-    }
-  }
-
-  /**
-   * Instantiate configuration from CLI options and environment variables.
-   *
-   * Installer configuration is a set of internal installer variables
-   * prefixed with "VORTEX_INSTALLER_" and used to control the installation.
-   * They are read from the environment variables with $this->config->get().
-   *
-   * For simplicity of naming, internal installer config variables used in
-   * $this->config->get() match environment variables names.
-   *
-   * @param array<mixed> $arguments
-   *   Array of CLI arguments.
-   * @param array<mixed> $options
-   *   Array of CLI options.
-   */
-  protected function resolveOptions(array $arguments, array $options): void {
-    $config = '{}';
-    if (isset($options[static::OPTION_CONFIG]) && is_scalar($options[static::OPTION_CONFIG])) {
-      $config_candidate = strval($options[static::OPTION_CONFIG]);
-      $config = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
-    }
-
-    $this->config = Config::fromString($config);
-
-    $this->config->setQuiet($options[static::OPTION_QUIET]);
-    $this->config->setNoInteraction($options[static::OPTION_NO_INTERACTION]);
-
-    // Set root directory to resolve relative paths.
-    $root = !empty($options[static::OPTION_ROOT]) && is_scalar($options[static::OPTION_ROOT]) ? strval($options[static::OPTION_ROOT]) : NULL;
-    if ($root) {
-      $this->config->set(Config::ROOT, $root);
-    }
-
-    // Set destination directory.
-    $dst_from_option = !empty($options[static::OPTION_DESTINATION]) && is_scalar($options[static::OPTION_DESTINATION]) ? strval($options[static::OPTION_DESTINATION]) : NULL;
-    $dst_from_env = Env::get(Config::DST);
-    $dst_from_config = $this->config->get(Config::DST);
-    $dst_from_root = $this->config->get(Config::ROOT);
-
-    $dst = $dst_from_option ?: ($dst_from_env ?: ($dst_from_config ?: $dst_from_root));
-    $dst = File::realpath($dst);
-    $this->config->set(Config::DST, $dst, TRUE);
-
-    // Load values from the destination .env file, if it exists.
-    $dest_env_file = $this->config->getDst() . '/.env';
-
-    if (File::exists($dest_env_file)) {
-      Env::putFromDotenv($dest_env_file);
-    }
-
-    // Build URI for artifact.
-    $uri_from_option = !empty($options[static::OPTION_URI]) && is_scalar($options[static::OPTION_URI]) ? strval($options[static::OPTION_URI]) : NULL;
-    $repo = Env::get(Config::REPO) ?: ($this->config->get(Config::REPO) ?: NULL);
-    $ref = Env::get(Config::REF) ?: ($this->config->get(Config::REF) ?: NULL);
-
-    // Priority: option URI > env/config repo+ref > default.
-    $uri = $uri_from_option;
-    if (!$uri && $repo) {
-      $uri = $ref ? $repo . '#' . $ref : $repo;
-    }
-
-    try {
-      $this->artifact = Artifact::fromUri($uri);
-      $this->config->set(Config::REPO, $this->artifact->getRepo());
-      $this->config->set(Config::REF, $this->artifact->getRef());
-    }
-    catch (\RuntimeException $e) {
-      throw new \RuntimeException(sprintf('Invalid repository URI: %s', $e->getMessage()), $e->getCode(), $e);
-    }
-
-    // Check if the project is a Vortex project.
-    $this->config->set(Config::IS_VORTEX_PROJECT, File::contains($this->config->getDst() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
-
-    // Flag to proceed with installation. If FALSE - the installation will only
-    // print resolved values and will not proceed.
-    $this->config->set(Config::PROCEED, TRUE);
-
-    // Internal flag to enforce DEMO mode. If not set, the demo mode will be
-    // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO))) {
-      $this->config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
-    }
-
-    // Internal flag to skip processing of the demo mode.
-    $this->config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
-
-    // Set no-cleanup flag.
-    $this->config->set(Config::NO_CLEANUP, (bool) $options[static::OPTION_NO_CLEANUP]);
-
-    // Set build-now flag.
-    $this->config->set(Config::BUILD_NOW, (bool) $options[static::OPTION_BUILD]);
-  }
-
-  protected function prepareDestination(): array {
-    $messages = [];
-
-    $dst = $this->config->getDst();
-    if (!is_dir($dst)) {
-      $dst = File::mkdir($dst);
-      $messages[] = sprintf('Created directory "%s".', $dst);
-    }
-
-    if (!is_readable($dst . '/.git')) {
-      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $dst);
-      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
-
-      if (!File::exists($dst . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
-      }
-    }
-
-    return $messages;
-  }
-
-  protected function copyFiles(): void {
-    $src = $this->config->get(Config::TMP);
-    $dst = $this->config->getDst();
-
-    // Due to the way symlinks can be ordered, we cannot copy files one-by-one
-    // into destination directory. Instead, we are removing all ignored files
-    // and empty directories, making the src directory "clean", and then
-    // recursively copying the whole directory.
-    $all = File::scandir($src, File::ignoredPaths(), TRUE);
-    $files = File::scandir($src);
-    $valid_files = File::scandir($src, File::ignoredPaths());
-    $dirs = array_diff($all, $valid_files);
-    $ignored_files = array_diff($files, $valid_files);
-
-    foreach ($valid_files as $valid_file) {
-      $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $valid_file);
-
-      if (File::isInternal($relative_file)) {
-        unlink($valid_file);
-      }
-    }
-
-    // Remove skipped files.
-    foreach ($ignored_files as $ignored_file) {
-      if (is_readable($ignored_file)) {
-        unlink($ignored_file);
-      }
-    }
-
-    // Remove empty directories.
-    foreach ($dirs as $dir) {
-      File::rmdirIfEmpty($dir);
-    }
-
-    // Src directory is now "clean" - copy it to dst directory.
-    if (is_dir($src) && !File::dirIsEmpty($src)) {
-      File::copy($src, $dst);
-    }
-
-    // Special case for .env.local as it may exist.
-    if (!file_exists($dst . '/.env.local') && file_exists($dst . '/.env.local.example')) {
-      File::copy($dst . '/.env.local.example', $dst . '/.env.local');
-    }
-  }
-
-  /**
-   * Prepare demo content if in demo mode.
-   *
-   * @return array|string
-   *   Array of messages or a single message.
-   */
-  protected function prepareDemo(): array|string {
-    if (empty($this->config->get(Config::IS_DEMO))) {
-      return 'Not a demo mode.';
-    }
-
-    if (!empty($this->config->get(Config::IS_DEMO_DB_DOWNLOAD_SKIP))) {
-      return sprintf('%s is set. Skipping demo database download.', Config::IS_DEMO_DB_DOWNLOAD_SKIP);
-    }
-
-    // Reload variables from destination's .env.
-    Env::putFromDotenv($this->config->getDst() . '/.env');
-
-    $url = Env::get('VORTEX_DOWNLOAD_DB_URL');
-    if (empty($url)) {
-      return 'No database download URL provided. Skipping demo database download.';
-    }
-
-    $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
-    $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
-
-    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $db_file)) {
-      return 'Database dump file already exists. Skipping demo database download.';
-    }
-
-    $messages = [];
-    if (!file_exists($data_dir)) {
-      $data_dir = File::mkdir($data_dir);
-      $messages[] = sprintf('Created data directory "%s".', $data_dir);
-    }
-
-    $destination = $data_dir . DIRECTORY_SEPARATOR . $db_file;
-    $this->getFileDownloader()->download($url, $destination);
-
-    $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
-    $messages[] = sprintf('Downloaded demo database from %s.', $url);
-
-    return $messages;
   }
 
   /**
@@ -686,242 +380,6 @@ AGENT_HELP;
     $runner->run('build', args: $args, output: $output);
 
     return $runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
-  }
-
-  protected function header(): void {
-    $logo_large = <<<EOT
-
-██╗   ██╗  ██████╗  ██████╗  ████████╗ ███████╗ ██╗  ██╗
-██║   ██║ ██╔═══██╗ ██╔══██╗ ╚══██╔══╝ ██╔════╝ ╚██╗██╔╝
-██║   ██║ ██║   ██║ ██████╔╝    ██║    █████╗    ╚███╔╝
-╚██╗ ██╔╝ ██║   ██║ ██╔══██╗    ██║    ██╔══╝    ██╔██╗
- ╚████╔╝  ╚██████╔╝ ██║  ██║    ██║    ███████╗ ██╔╝ ██╗
-  ╚═══╝    ╚═════╝  ╚═╝  ╚═╝    ╚═╝    ╚══════╝ ╚═╝  ╚═╝
-
-               Drupal project template
-
-                                              by DrevOps
-EOT;
-
-    $logo_small = <<<EOT
-▗▖  ▗▖ ▗▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖
-▐▌  ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▐▌    ▝▚▞▘
-▐▌  ▐▌▐▌ ▐▌▐▛▀▚▖ █  ▐▛▀▀▘  ▐▌
- ▝▚▞▘ ▝▚▄▞▘▐▌ ▐▌ █  ▐▙▄▄▖▗▞▘▝▚▖
-
-   Drupal project template
-
-                     by DrevOps
-EOT;
-
-    $max_header_width = 200;
-
-    $logo = Tui::terminalWidth() >= 80 ? $logo_large : $logo_small;
-    $logo = Tui::center($logo, Tui::terminalWidth($max_header_width), '─');
-    $logo = Tui::cyan($logo);
-
-    $version = $this->getApplication()->getVersion();
-    // Depending on how the installer is run, the version may be set to
-    // the placeholder value or actual version (PHAR packager will replace
-    // the placeholder with the actual version).
-    // We need to fence the replacement below only if the version is still set
-    // to the placeholder value.
-    if (str_contains($version, 'vortex-installer-version')) {
-      $version = str_replace('@vortex-installer-version@', 'development', $version);
-    }
-
-    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), Tui::terminalWidth($max_header_width) - 2, ' ', STR_PAD_LEFT));
-
-    Tui::note($logo);
-
-    $title = 'Welcome to the Vortex interactive installer';
-    $content = '';
-
-    if ($this->artifact->isStable()) {
-      $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('stable') . ' version of Vortex into your project.' . PHP_EOL;
-    }
-    elseif ($this->artifact->isDevelopment()) {
-      $content .= 'This tool will guide you through installing the latest ' . Tui::underscore('development') . ' version of Vortex into your project.' . PHP_EOL;
-    }
-    else {
-      $content .= sprintf('This tool will guide you through installing a ' . Tui::underscore('custom') . ' version of Vortex into your project at commit "%s".', $this->artifact->getRef()) . PHP_EOL;
-    }
-
-    $content .= PHP_EOL;
-
-    if ($this->config->isVortexProject()) {
-      $content .= 'It looks like Vortex is already installed into this project.' . PHP_EOL;
-      $content .= PHP_EOL;
-    }
-
-    if ($this->config->getNoInteraction()) {
-      $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
-      $content .= PHP_EOL;
-      $content .= 'Existing committed files may be modified. You may need to resolve some of the changes manually.' . PHP_EOL;
-
-      $title = 'Welcome to the Vortex non-interactive installer';
-    }
-    else {
-      $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
-      $content .= 'No changes will be made until you confirm everything at the end.' . PHP_EOL;
-      $content .= PHP_EOL;
-
-      if ($this->config->isVortexProject()) {
-        $content .= 'If you proceed, some committed files may be modified after confirmation, and you may need to resolve some of the changes manually.' . PHP_EOL;
-        $content .= PHP_EOL;
-      }
-
-      $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
-      $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
-    }
-
-    Tui::box($content, $title);
-  }
-
-  public function footer(): void {
-    $output = '';
-    $prefix = '  ';
-
-    if ($this->config->isVortexProject()) {
-      $title = 'Finished updating Vortex';
-      $output .= 'Please review the changes and commit the required files.';
-    }
-    else {
-      $title = 'Finished installing Vortex';
-
-      // Check for required tools and provide conditional instructions.
-      $missing_tools = $this->checkRequiredTools();
-      if (!empty($missing_tools)) {
-        $tools_output = 'Install required tools:' . PHP_EOL;
-        foreach ($missing_tools as $tool => $instructions) {
-          $tools_output .= sprintf('  %s: %s', $tool, $instructions) . PHP_EOL;
-        }
-        $output .= Strings::wrapLines($tools_output, $prefix);
-        $output .= PHP_EOL;
-      }
-
-      $output .= 'Add and commit all files:' . PHP_EOL;
-      $output .= $prefix . 'git add -A' . PHP_EOL;
-      $output .= $prefix . 'git commit -m "Initial commit."' . PHP_EOL;
-    }
-
-    Tui::box($output, $title);
-  }
-
-  /**
-   * Display footer after build succeeded.
-   */
-  public function footerBuildSucceeded(): void {
-    $output = '';
-
-    $output .= 'Get site info: ahoy info' . PHP_EOL;
-    $output .= 'Login:         ahoy login' . PHP_EOL;
-    $output .= PHP_EOL;
-
-    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SUCCESS);
-    if (!empty($handler_output)) {
-      $output .= $handler_output;
-    }
-
-    Tui::box($output, 'Site is ready');
-  }
-
-  /**
-   * Display footer after build was skipped.
-   */
-  public function footerBuildSkipped(): void {
-    $output = '';
-    $prefix = '  ';
-
-    $responses = $this->promptManager->getResponses();
-    $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
-    $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
-
-    $output .= 'Build the site:' . PHP_EOL;
-    if ($is_profile) {
-      $output .= $prefix . 'VORTEX_PROVISION_TYPE=profile ahoy build' . PHP_EOL;
-    }
-    else {
-      $output .= $prefix . 'ahoy build' . PHP_EOL;
-    }
-    $output .= PHP_EOL;
-
-    if ($is_profile) {
-      $output .= 'Export database after build:' . PHP_EOL;
-      $output .= $prefix . 'ahoy export-db db.sql' . PHP_EOL;
-      $output .= PHP_EOL;
-    }
-
-    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SKIPPED);
-    if (!empty($handler_output)) {
-      $output .= $handler_output;
-    }
-
-    Tui::box($output, 'Ready to build');
-  }
-
-  /**
-   * Display footer after build failed.
-   */
-  public function footerBuildFailed(): void {
-    $output = '';
-    $prefix = '  ';
-
-    $output .= 'Vortex was installed, but the build process failed.' . PHP_EOL;
-    $output .= PHP_EOL;
-    $output .= 'Troubleshooting:' . PHP_EOL;
-    $output .= $prefix . 'Check logs:' . $prefix . $prefix . 'ahoy logs' . PHP_EOL;
-    $output .= $prefix . 'Retry build:' . $prefix . 'ahoy build' . PHP_EOL;
-    $output .= $prefix . 'Diagnostics:' . $prefix . 'ahoy doctor' . PHP_EOL;
-    $output .= PHP_EOL;
-
-    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_FAILED);
-    if (!empty($handler_output)) {
-      $output .= $handler_output;
-    }
-
-    Tui::box($output, 'Build encountered errors');
-  }
-
-  /**
-   * Check for required development tools.
-   *
-   * @return array
-   *   Array of missing tools with installation instructions.
-   */
-  protected function checkRequiredTools(): array {
-    $tools = [
-      'docker' => [
-        'name' => 'Docker',
-        'command' => 'docker',
-        'instructions' => 'https://www.docker.com/get-started',
-      ],
-      'pygmy' => [
-        'name' => 'Pygmy',
-        'command' => 'pygmy',
-        'instructions' => 'https://github.com/pygmystack/pygmy',
-      ],
-      'ahoy' => [
-        'name' => 'Ahoy',
-        'command' => 'ahoy',
-        'instructions' => 'https://github.com/ahoy-cli/ahoy',
-      ],
-    ];
-
-    $missing = [];
-
-    foreach ($tools as $tool) {
-      // Use exec with output capture to avoid output to console.
-      $output = [];
-      $return_code = 0;
-      exec(sprintf('command -v %s 2>/dev/null', $tool['command']), $output, $return_code);
-
-      if ($return_code !== 0) {
-        $missing[$tool['name']] = $tool['instructions'];
-      }
-    }
-
-    return $missing;
   }
 
   /**

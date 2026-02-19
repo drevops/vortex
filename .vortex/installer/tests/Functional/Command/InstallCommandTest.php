@@ -9,11 +9,15 @@ use DrevOps\VortexInstaller\Command\BuildCommand;
 use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Command\InstallCommand;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
+use DrevOps\VortexInstaller\Prompts\InstallerPresenter;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
+use DrevOps\VortexInstaller\Schema\AgentHelp;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Tests\Helpers\TuiOutput;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\FileManager;
+use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -23,6 +27,10 @@ use Symfony\Component\Process\ExecutableFinder;
  * Functional tests for InstallCommand.
  */
 #[CoversClass(InstallCommand::class)]
+#[CoversClass(InstallerPresenter::class)]
+#[CoversClass(OptionsResolver::class)]
+#[CoversClass(FileManager::class)]
+#[CoversClass(AgentHelp::class)]
 class InstallCommandTest extends FunctionalTestCase {
 
   /**
