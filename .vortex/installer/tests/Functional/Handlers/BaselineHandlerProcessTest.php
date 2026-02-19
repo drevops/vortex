@@ -84,9 +84,9 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $config_file = static::$tmp . DIRECTORY_SEPARATOR . 'config.json';
           File::dump($config_file, (string) json_encode([
             // Test overriding scalar value.
-            PromptManager::makeEnvName(Org::id()) => 'My custom org',
+            Org::envName() => 'My custom org',
             // Test overriding array value.
-            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::CLAMAV],
+            Services::envName() => [Services::SOLR, Services::CLAMAV],
           ]));
           $test->installOptions['config'] = $config_file;
         }),
@@ -98,9 +98,9 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
         static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_string = (string) json_encode([
             // Test overriding scalar value.
-            PromptManager::makeEnvName(Org::id()) => 'My other custom org',
+            Org::envName() => 'My other custom org',
             // Test overriding array value.
-            PromptManager::makeEnvName(Services::id()) => [Services::SOLR, Services::REDIS],
+            Services::envName() => [Services::SOLR, Services::REDIS],
           ]);
           $test->installOptions['config'] = $config_string;
         }),

@@ -47,6 +47,13 @@ class ThemeCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function dependsOn(): ?array {
+    return [Theme::id() => [Theme::CUSTOM]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function shouldRun(array $responses): bool {
     return isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM;
   }

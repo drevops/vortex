@@ -89,6 +89,13 @@ DOC;
   /**
    * {@inheritdoc}
    */
+  public function dependsOn(): ?array {
+    return [self::DEPENDS_ON_SYSTEM => [self::DEPENDS_ON_FRESH_INSTALL]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function shouldRun(array $responses): bool {
     return !$this->isInstalled();
   }

@@ -39,6 +39,13 @@ class ProfileCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function dependsOn(): ?array {
+    return [Profile::id() => [Profile::CUSTOM]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function shouldRun(array $responses): bool {
     return isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM;
   }

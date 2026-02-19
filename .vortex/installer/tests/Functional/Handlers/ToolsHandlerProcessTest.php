@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
@@ -19,7 +18,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     return [
       'tools, none' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList([]));
+          Env::put(Tools::envName(), Converter::toList([]));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains([
@@ -53,8 +52,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpcs' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPCS])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpcs',
@@ -68,8 +67,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpcs, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPCS])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpcs',
@@ -83,8 +82,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpstan' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpstan',
@@ -96,8 +95,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpstan, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpstan',
@@ -109,8 +108,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no rector' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::RECTOR])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::RECTOR])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'rector',
@@ -121,8 +120,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no rector, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::RECTOR])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::RECTOR])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'rector',
@@ -133,8 +132,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpmd' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPMD])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPMD])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpmd',
@@ -145,8 +144,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpmd, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPMD])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPMD])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpmd',
@@ -157,8 +156,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpunit' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpunit',
@@ -171,8 +170,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no phpunit, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpunit',
@@ -185,8 +184,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no behat' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::BEHAT])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::BEHAT])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'behat',
@@ -203,8 +202,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, no behat, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::BEHAT])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::BEHAT])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'behat',
@@ -220,8 +219,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, groups, no be lint' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpcs',
@@ -242,8 +241,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, groups, no be lint, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpcs',
@@ -264,8 +263,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, groups, no be tests' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpunit',
@@ -285,8 +284,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       'tools, groups, no be tests, circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(PromptManager::makeEnvName(Tools::id()), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'phpunit',

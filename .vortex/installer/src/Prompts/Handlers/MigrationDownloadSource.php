@@ -61,6 +61,13 @@ class MigrationDownloadSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function dependsOn(): ?array {
+    return [Migration::id() => [TRUE]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function shouldRun(array $responses): bool {
     return isset($responses[Migration::id()]) && $responses[Migration::id()] === TRUE;
   }

@@ -1,0 +1,14 @@
+{
+  "name": "DB Site",
+  "machine_name": "db_site",
+  "org": "DB Org",
+  "org_machine_name": "db_org",
+  "domain": "db-site.com",
+  "module_prefix": "db_site",
+  "webroot": "web",
+  "hosting_provider": "lagoon",
+  "hosting_project_name": "db-site",
+  "provision_type": "database",
+  "database_download_source": "container_registry",
+  "database_image": "myorg/db:latest"
+}

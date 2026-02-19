@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -16,7 +15,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
   public static function dataProviderHandlerProcess(): array {
     return [
       'theme, olivero' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), Theme::OLIVERO)),
+        static::cw(fn() => Env::put(Theme::envName(), Theme::OLIVERO)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
           'scripts/vortex',
@@ -27,7 +26,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
 
       'theme, claro' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), Theme::CLARO)),
+        static::cw(fn() => Env::put(Theme::envName(), Theme::CLARO)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
           'scripts/vortex',
@@ -38,7 +37,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
 
       'theme, stark' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), Theme::STARK)),
+        static::cw(fn() => Env::put(Theme::envName(), Theme::STARK)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
           'scripts/vortex',
@@ -49,7 +48,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
 
       'theme, custom' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Theme::id()), 'light_saber')),
+        static::cw(fn() => Env::put(Theme::envName(), 'light_saber')),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'your_site_theme')),
       ],
     ];

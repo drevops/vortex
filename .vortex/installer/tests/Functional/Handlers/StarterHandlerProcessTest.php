@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -16,7 +15,7 @@ class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
   public static function dataProviderHandlerProcess(): array {
     return [
       'starter, demo db' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::LOAD_DATABASE_DEMO)),
+        static::cw(fn() => Env::put(Starter::envName(), Starter::LOAD_DATABASE_DEMO)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'drupal/cms',
           'wikimedia/composer-merge-plugin',
@@ -25,7 +24,7 @@ class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
 
       'starter, Drupal profile' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::INSTALL_PROFILE_CORE)),
+        static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_CORE)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'drupal/cms',
           'wikimedia/composer-merge-plugin',
@@ -34,7 +33,7 @@ class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
 
       'starter, Drupal CMS profile' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Starter::id()), Starter::INSTALL_PROFILE_DRUPALCMS)),
+        static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_DRUPALCMS)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutContains([
           'drupal/cms',
           'wikimedia/composer-merge-plugin',
