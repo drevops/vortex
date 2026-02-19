@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,8 +17,8 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
     return [
       'migration download source, url' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(MigrationDownloadSource::id()), MigrationDownloadSource::URL);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::URL);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=url');
@@ -31,8 +30,8 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
 
       'migration download source, ftp' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(MigrationDownloadSource::id()), MigrationDownloadSource::FTP);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::FTP);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=ftp');
@@ -44,8 +43,8 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
 
       'migration download source, acquia' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(MigrationDownloadSource::id()), MigrationDownloadSource::ACQUIA);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::ACQUIA);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=acquia');
@@ -57,8 +56,8 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
 
       'migration download source, lagoon' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(MigrationDownloadSource::id()), MigrationDownloadSource::LAGOON);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::LAGOON);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=lagoon');
@@ -70,8 +69,8 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
 
       'migration download source, s3' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(MigrationDownloadSource::id()), MigrationDownloadSource::S3);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::S3);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=s3');

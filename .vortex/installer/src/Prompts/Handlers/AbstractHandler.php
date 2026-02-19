@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptType;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 
@@ -59,6 +60,49 @@ abstract class AbstractHandler implements HandlerInterface {
     }
 
     return Converter::machine(Converter::pascal2snake(str_replace('Handler', '', basename($filename, '.php'))));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function envName(): string {
+    return Converter::constant('VORTEX_INSTALLER_PROMPT_' . static::id());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function type(): PromptType {
+    $options = $this->options([]);
+
+    if (is_array($options)) {
+      if (array_is_list($options)) {
+        return PromptType::Suggest;
+      }
+
+      $default = $this->default([]);
+
+      if (is_array($default)) {
+        return PromptType::MultiSelect;
+      }
+
+      return PromptType::Select;
+    }
+
+    $default = $this->default([]);
+
+    if (is_bool($default)) {
+      return PromptType::Confirm;
+    }
+
+    return PromptType::Text;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function dependsOn(): ?array {
+    return NULL;
   }
 
   /**

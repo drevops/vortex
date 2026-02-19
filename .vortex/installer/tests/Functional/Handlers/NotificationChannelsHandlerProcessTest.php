@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\NotificationChannels;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
@@ -18,7 +17,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
     return [
       'notification_channels, all' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([
+          Env::put(NotificationChannels::envName(), Converter::toList([
             NotificationChannels::EMAIL,
             NotificationChannels::GITHUB,
             NotificationChannels::JIRA,
@@ -37,7 +36,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
       'notification_channels, email only' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::EMAIL], ',', TRUE));
+          Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::EMAIL], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('VORTEX_NOTIFY_EMAIL_FROM');
@@ -49,7 +48,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
       'notification_channels, github only' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::GITHUB], ',', TRUE));
+          Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::GITHUB], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
@@ -61,7 +60,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
       'notification_channels, jira only' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::JIRA], ',', TRUE));
+          Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::JIRA], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('VORTEX_NOTIFY_JIRA_USER_EMAIL');
@@ -73,7 +72,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
       'notification_channels, newrelic only' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::NEWRELIC], ',', TRUE));
+          Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::NEWRELIC], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
@@ -85,7 +84,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
       'notification_channels, slack only' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::SLACK], ',', TRUE));
+          Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::SLACK], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
@@ -97,7 +96,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
       'notification_channels, webhook only' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(NotificationChannels::id()), Converter::toList([NotificationChannels::WEBHOOK], ',', TRUE));
+          Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::WEBHOOK], ',', TRUE));
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('VORTEX_NOTIFY_WEBHOOK_URL');
@@ -108,7 +107,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
       ],
 
       'notification_channels, none' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(NotificationChannels::id()), ',')),
+        static::cw(fn() => Env::put(NotificationChannels::envName(), ',')),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_RECIPIENTS');

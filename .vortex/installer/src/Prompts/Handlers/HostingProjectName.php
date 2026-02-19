@@ -41,6 +41,13 @@ class HostingProjectName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function dependsOn(): ?array {
+    return [HostingProvider::id() => [HostingProvider::LAGOON, HostingProvider::ACQUIA]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function shouldRun(array $responses): bool {
     return isset($responses[HostingProvider::id()]) &&
       (

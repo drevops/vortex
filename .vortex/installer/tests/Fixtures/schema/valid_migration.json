@@ -1,0 +1,12 @@
+{
+  "name": "Migrate Site",
+  "machine_name": "migrate_site",
+  "org": "Migrate Org",
+  "org_machine_name": "migrate_org",
+  "domain": "migrate.com",
+  "module_prefix": "migrate_site",
+  "webroot": "web",
+  "hosting_provider": "none",
+  "migration": true,
+  "migration_download_source": "url"
+}

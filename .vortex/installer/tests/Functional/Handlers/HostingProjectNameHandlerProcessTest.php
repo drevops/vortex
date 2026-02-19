@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,8 +17,8 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
     return [
       'hosting project name - acquia' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::ACQUIA);
-          Env::put(PromptManager::makeEnvName(HostingProjectName::id()), 'my_custom_acquia-project');
+          Env::put(HostingProvider::envName(), HostingProvider::ACQUIA);
+          Env::put(HostingProjectName::envName(), 'my_custom_acquia-project');
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains([
@@ -30,8 +29,8 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
 
       'hosting project name - lagoon' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
-          Env::put(PromptManager::makeEnvName(HostingProjectName::id()), 'my_custom_lagoon-project');
+          Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
+          Env::put(HostingProjectName::envName(), 'my_custom_lagoon-project');
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains([

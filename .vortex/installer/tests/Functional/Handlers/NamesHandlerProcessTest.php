@@ -11,7 +11,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -22,13 +21,13 @@ class NamesHandlerProcessTest extends AbstractHandlerProcessTestCase {
     return [
       'names' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Name::id()), 'New hope');
-          Env::put(PromptManager::makeEnvName(MachineName::id()), 'the_new_hope');
-          Env::put(PromptManager::makeEnvName(Org::id()), 'Jedi Order');
-          Env::put(PromptManager::makeEnvName(OrgMachineName::id()), 'the_jedi_order');
-          Env::put(PromptManager::makeEnvName(Domain::id()), 'death-star.com');
-          Env::put(PromptManager::makeEnvName(ModulePrefix::id()), 'the_force');
-          Env::put(PromptManager::makeEnvName(Theme::id()), 'lightsaber');
+          Env::put(Name::envName(), 'New hope');
+          Env::put(MachineName::envName(), 'the_new_hope');
+          Env::put(Org::envName(), 'Jedi Order');
+          Env::put(OrgMachineName::envName(), 'the_jedi_order');
+          Env::put(Domain::envName(), 'death-star.com');
+          Env::put(ModulePrefix::envName(), 'the_force');
+          Env::put(Theme::envName(), 'lightsaber');
         }),
       ],
     ];

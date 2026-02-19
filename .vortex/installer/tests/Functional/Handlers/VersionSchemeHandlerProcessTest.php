@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -17,7 +16,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
     return [
       'version scheme, calver' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(VersionScheme::id()), VersionScheme::CALVER);
+          Env::put(VersionScheme::envName(), VersionScheme::CALVER);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('Calendar Versioning');
@@ -28,7 +27,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
       'version scheme, semver' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(VersionScheme::id()), VersionScheme::SEMVER);
+          Env::put(VersionScheme::envName(), VersionScheme::SEMVER);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutContains('Semantic Versioning');
@@ -39,7 +38,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
       'version scheme, other' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(VersionScheme::id()), VersionScheme::OTHER);
+          Env::put(VersionScheme::envName(), VersionScheme::OTHER);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('Semantic Versioning');

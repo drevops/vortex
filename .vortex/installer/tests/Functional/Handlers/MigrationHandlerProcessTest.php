@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,7 +17,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
   public static function dataProviderHandlerProcess(): array {
     return [
       'migration, enabled' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE)),
+        static::cw(fn() => Env::put(Migration::envName(), Env::TRUE)),
         static::cw(function (FunctionalTestCase $test): void {
           // Files and directories created by the handler.
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
@@ -42,8 +41,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
       'migration, enabled, circleci' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
@@ -56,7 +55,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ],
 
       'migration, disabled' => [
-        static::cw(fn() => Env::put(PromptManager::makeEnvName(Migration::id()), Env::FALSE)),
+        static::cw(fn() => Env::put(Migration::envName(), Env::FALSE)),
         static::cw(function (FunctionalTestCase $test): void {
           // Files and directories removed by the handler.
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
@@ -80,8 +79,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
       'migration, disabled, circleci' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::FALSE);
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Migration::envName(), Env::FALSE);
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
@@ -95,8 +94,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
       'migration, enabled, lagoon' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::TRUE);
-          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
@@ -110,8 +109,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
       'migration, disabled, lagoon' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Migration::id()), Env::FALSE);
-          Env::put(PromptManager::makeEnvName(HostingProvider::id()), HostingProvider::LAGOON);
+          Env::put(Migration::envName(), Env::FALSE);
+          Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');

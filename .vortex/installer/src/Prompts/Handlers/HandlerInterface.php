@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptType;
+
 /**
  * Interface HandlerInterface.
  *
@@ -14,9 +16,47 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 interface HandlerInterface {
 
   /**
+   * Reserved dependency key for system-state conditions.
+   */
+  const DEPENDS_ON_SYSTEM = '_system';
+
+  /**
+   * Reserved dependency value for fresh install condition.
+   */
+  const DEPENDS_ON_FRESH_INSTALL = '_fresh_install';
+
+  /**
    * The unique identifier of the handler.
    */
   public static function id(): string;
+
+  /**
+   * Get the environment variable name for this handler.
+   *
+   * @return string
+   *   The environment variable name in the format VORTEX_INSTALLER_PROMPT_*.
+   */
+  public static function envName(): string;
+
+  /**
+   * Get the prompt type for this handler.
+   *
+   * @return \DrevOps\VortexInstaller\Prompts\PromptType
+   *   The prompt type enum case.
+   */
+  public function type(): PromptType;
+
+  /**
+   * Get dependency conditions for this handler.
+   *
+   * Returns an associative array where keys are handler IDs and values are
+   * arrays of acceptable values. The handler should only run when the
+   * dependency handler's response matches one of the acceptable values.
+   *
+   * @return array<string, array<mixed>>|null
+   *   The dependency conditions, or NULL if no dependencies.
+   */
+  public function dependsOn(): ?array;
 
   /**
    * Label for of the handler.

@@ -49,10 +49,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
 use function Laravel\Prompts\info;
-use function Laravel\Prompts\multiselect;
-use function Laravel\Prompts\select;
-use function Laravel\Prompts\suggest;
-use function Laravel\Prompts\text;
 
 /**
  * PromptManager.
@@ -122,98 +118,98 @@ class PromptManager {
     // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
     $form = form()
       ->intro('General information')
-      ->add(fn($r, $pr, $n): string => text(...$this->args(Name::class)), Name::id())
-      ->add(fn(array $r, $pr, $n): string => text(...$this->args(MachineName::class, NULL, $r)), MachineName::id())
-      ->add(fn(array $r, $pr, $n): string => text(...$this->args(Org::class, NULL, $r)), Org::id())
-      ->add(fn(array $r, $pr, $n): string => text(...$this->args(OrgMachineName::class, NULL, $r)), OrgMachineName::id())
-      ->add(fn(array $r, $pr, $n): string => text(...$this->args(Domain::class, NULL, $r)), Domain::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(Name::class), Name::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(MachineName::class, $r), MachineName::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Org::class, $r), Org::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(OrgMachineName::class, $r), OrgMachineName::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Domain::class, $r), Domain::id())
 
       ->intro('Drupal')
       ->addIf(
           fn(array $r): bool => $this->handlers[Starter::id()]->shouldRun($r),
-          fn(array $r, $pr, $n): int|string => select(...$this->args(Starter::class, NULL, $r)),
+          fn(array $r, $pr, $n): mixed => $this->prompt(Starter::class, $r),
           Starter::id()
         )
       ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): int|string => select(...$this->args(Profile::class))),
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
           Profile::id()
         )
         ->addIf(
             fn(array $r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
-            fn($r, $pr, $n): string => text(...$this->args(ProfileCustom::class)),
+            fn($r, $pr, $n): mixed => $this->prompt(ProfileCustom::class),
             ProfileCustom::id()
           )
-      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(Modules::class, NULL, $r)), Modules::id())
-      ->add(fn(array $r, $pr, $n): string => text(...$this->args(ModulePrefix::class, NULL, $r)), ModulePrefix::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Modules::class, $r), Modules::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(ModulePrefix::class, $r), ModulePrefix::id())
       ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): int|string => select(...$this->args(Theme::class))),
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
           Theme::id()
         )
         ->addIf(
             fn(array $r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
-            fn(array $r, $pr, $n): string => text(...$this->args(ThemeCustom::class, NULL, $r)),
+            fn(array $r, $pr, $n): mixed => $this->prompt(ThemeCustom::class, $r),
             ThemeCustom::id()
           )
 
       ->intro('Code repository')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(CodeProvider::class)), CodeProvider::id())
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(VersionScheme::class)), VersionScheme::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeProvider::class), CodeProvider::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(VersionScheme::class), VersionScheme::id())
 
       ->intro('Environment')
-      ->add(fn($r, $pr, $n): string => suggest(...$this->args(Timezone::class)), Timezone::id())
-      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Services::class)), Services::id())
-      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(Tools::class)), Tools::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(Timezone::class), Timezone::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(Services::class), Services::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(Tools::class), Tools::id())
 
       ->intro('Hosting')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(HostingProvider::class)), HostingProvider::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(HostingProvider::class), HostingProvider::id())
       ->addIf(
           fn(array $r): bool => $this->handlers[HostingProjectName::id()]->shouldRun($r),
-          fn(array $r, $pr, $n): string => text(...$this->args(HostingProjectName::class, NULL, $r)),
+          fn(array $r, $pr, $n): mixed => $this->prompt(HostingProjectName::class, $r),
           HostingProjectName::id()
         )
       ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): string => text(...$this->args(Webroot::class, NULL, $r))),
+          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
           Webroot::id()
         )
 
       ->intro('Deployment')
-      ->add(fn(array $r, $pr, $n): array => multiselect(...$this->args(DeployTypes::class, NULL, $r)), DeployTypes::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(DeployTypes::class, $r), DeployTypes::id())
 
       ->intro('Workflow')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(ProvisionType::class)), ProvisionType::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(ProvisionType::class), ProvisionType::id())
       ->addIf(
           fn(array $r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
-          fn(array $r, $pr, $n): int|string => select(...$this->args(DatabaseDownloadSource::class, NULL, $r)),
+          fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseDownloadSource::class, $r),
           DatabaseDownloadSource::id()
         )
         ->addIf(
             fn(array $r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
-            fn(array $r, $pr, $n): string => text(...$this->args(DatabaseImage::class, NULL, $r)),
+            fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseImage::class, $r),
             DatabaseImage::id()
           )
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(Migration::class)), Migration::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(Migration::class), Migration::id())
       ->addIf(
           fn(array $r): bool => $this->handlers[MigrationDownloadSource::id()]->shouldRun($r),
-          fn(array $r, $pr, $n): int|string => select(...$this->args(MigrationDownloadSource::class, NULL, $r)),
+          fn(array $r, $pr, $n): mixed => $this->prompt(MigrationDownloadSource::class, $r),
           MigrationDownloadSource::id()
         )
 
       ->intro('Notifications')
-      ->add(fn($r, $pr, $n): array => multiselect(...$this->args(NotificationChannels::class)), NotificationChannels::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(NotificationChannels::class), NotificationChannels::id())
 
       ->intro('Continuous Integration')
-      ->add(fn(array $r, $pr, $n): int|string => select(...$this->args(CiProvider::class, NULL, $r)), CiProvider::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CiProvider::class, $r), CiProvider::id())
 
       ->intro('Automations')
-      ->add(fn($r, $pr, $n): int|string => select(...$this->args(DependencyUpdatesProvider::class)), DependencyUpdatesProvider::id())
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(AssignAuthorPr::class)), AssignAuthorPr::id())
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(LabelMergeConflictsPr::class)), LabelMergeConflictsPr::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(AssignAuthorPr::class), AssignAuthorPr::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(LabelMergeConflictsPr::class), LabelMergeConflictsPr::id())
 
       ->intro('Documentation')
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(PreserveDocsProject::class)), PreserveDocsProject::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(PreserveDocsProject::class), PreserveDocsProject::id())
 
       ->intro('AI')
-      ->add(fn($r, $pr, $n): bool => confirm(...$this->args(AiCodeInstructions::class)), AiCodeInstructions::id());
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeInstructions::class), AiCodeInstructions::id());
 
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
@@ -497,16 +493,13 @@ class PromptManager {
   }
 
   /**
-   * Generate an environment variable name for a prompt.
+   * Get the initialized handlers.
    *
-   * @param string $id
-   *   The prompt ID.
-   *
-   * @return string
-   *   The environment variable name.
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
    */
-  public static function makeEnvName(string $id): string {
-    return Converter::constant('VORTEX_INSTALLER_PROMPT_' . $id);
+  public function getHandlers(): array {
+    return $this->handlers;
   }
 
   /**
@@ -570,6 +563,25 @@ class PromptManager {
   }
 
   /**
+   * Dispatch a prompt using the handler's type enum.
+   *
+   * @param string $handler_class
+   *   The handler class name.
+   * @param array $responses
+   *   Current form responses for context-aware methods.
+   *
+   * @return mixed
+   *   The prompt result.
+   */
+  private function prompt(string $handler_class, array $responses = []): mixed {
+    $handler = $this->handlers[$handler_class::id()];
+    $fn = '\\Laravel\\Prompts\\' . $handler->type()->promptFunction();
+
+    // @phpstan-ignore callable.nonCallable
+    return $fn(...$this->args($handler_class, NULL, $responses));
+  }
+
+  /**
    * Convert handler properties to Laravel prompts.
    *
    * Do not optimize this method to ease debugging and future changes.
@@ -620,7 +632,7 @@ class PromptManager {
     // Find appropriate default value.
     $default_from_handler = $handler->default($responses);
     // Create the env var name.
-    $var_name = static::makeEnvName($id);
+    $var_name = $handler::envName();
     // Get from config.
     $config_val = $this->config->get($var_name);
     $default_from_config = is_null($config_val) ? NULL : $config_val;

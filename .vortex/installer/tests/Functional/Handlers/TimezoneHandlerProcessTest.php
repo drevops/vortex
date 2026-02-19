@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
-use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -19,8 +18,8 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
       'timezone, gha' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Timezone::id()), 'America/New_York');
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::GITHUB_ACTIONS);
+          Env::put(Timezone::envName(), 'America/New_York');
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           // Timezone should be replaced in .env file.
@@ -44,8 +43,8 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
       'timezone, circleci' => [
         static::cw(function (): void {
-          Env::put(PromptManager::makeEnvName(Timezone::id()), 'America/New_York');
-          Env::put(PromptManager::makeEnvName(CiProvider::id()), CiProvider::CIRCLECI);
+          Env::put(Timezone::envName(), 'America/New_York');
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
         static::cw(function (FunctionalTestCase $test): void {
           // Timezone should not be replaced in CircleCI config in code as it
