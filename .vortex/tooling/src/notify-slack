@@ -95,10 +95,8 @@ $fields = [
 // Pre-deployment notifications should not show these as the site is not yet
 // available.
 if ($notify_event !== 'pre_deployment') {
-  array_splice($fields, 1, 0, [
-    ['title' => 'Environment', 'value' => sprintf('<%s|View Site>', $notify_env_url), 'short' => TRUE],
-    ['title' => 'Login', 'value' => sprintf('<%s|Login Here>', $notify_login_url), 'short' => TRUE],
-  ]);
+  $fields[] = ['title' => 'Environment', 'value' => sprintf('<%s|View Site>', $notify_env_url), 'short' => TRUE];
+  $fields[] = ['title' => 'Login', 'value' => sprintf('<%s|Login Here>', $notify_login_url), 'short' => TRUE];
 }
 
 // Build payload.
@@ -111,6 +109,7 @@ $data = [
       'fallback' => $slack_fallback_message,
       'title' => $title,
       'fields' => $fields,
+      'footer' => 'Vortex Deployment',
       'ts' => time(),
     ],
   ],

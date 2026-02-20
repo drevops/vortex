@@ -22,23 +22,28 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
-// GitHub notification deployment label (branch name, PR number, or custom).
-$notify_label = getenv_required('VORTEX_NOTIFY_GITHUB_LABEL', 'VORTEX_NOTIFY_LABEL');
-
-// GitHub notification event type.
-//
-// Can be 'pre_deployment' or 'post_deployment'.
-$notify_event = getenv_required('VORTEX_NOTIFY_GITHUB_EVENT', 'VORTEX_NOTIFY_EVENT');
-
 // GitHub notification personal access token.
 $github_token = getenv_required('VORTEX_NOTIFY_GITHUB_TOKEN', 'GITHUB_TOKEN');
 
 // GitHub notification repository in owner/repo format.
 $github_repository = getenv_required('VORTEX_NOTIFY_GITHUB_REPOSITORY');
 
-// GitHub notification environment type: production, uat, dev, pr.
-// Used as the 'environment' parameter in GitHub's Deployment API.
-$github_env_type = getenv_default('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE', 'PR');
+// GitHub notification git branch name.
+//
+// This will be used as the 'ref' parameter in GitHub's Deployment API.
+$notify_branch = getenv_required('VORTEX_NOTIFY_GITHUB_BRANCH', 'VORTEX_NOTIFY_BRANCH');
+
+// GitHub notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_required('VORTEX_NOTIFY_GITHUB_EVENT', 'VORTEX_NOTIFY_EVENT');
+
+// GitHub notification environment type.
+//
+// Defaults to VORTEX_NOTIFY_LABEL (e.g. "PR-123" or branch name) for unique
+// per-PR/branch environments. This prevents cross-PR deployment interference
+// where deploying one PR would mark another PR's deployment as inactive.
+$github_env_type = getenv_default('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE', 'VORTEX_NOTIFY_LABEL', 'PR');
 
 // -----------------------------------------------------------------------------
 
@@ -68,14 +73,14 @@ function deployment_id_is_valid(mixed $deployment_id): bool {
 if ($notify_event === 'pre_deployment') {
   note('GitHub pre-deployment notification summary:');
   note('Repository      : ' . $github_repository);
-  note('Label (ref)     : ' . $notify_label);
+  note('Branch (ref)    : ' . $notify_branch);
   note('Environment Type: ' . $github_env_type);
   note('Event           : ' . $notify_event);
 
   task('Creating deployment');
 
   $payload_data = [
-    'ref' => $notify_label,
+    'ref' => $notify_branch,
     'environment' => $github_env_type,
     'auto_merge' => FALSE,
     'required_contexts' => [],
@@ -103,9 +108,9 @@ if ($notify_event === 'pre_deployment') {
 else {
   $env_url = getenv_required('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-  task('Finding latest deployment for ref %s', $notify_label);
+  task('Finding latest deployment for ref %s', $notify_branch);
 
-  $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $github_repository, urlencode($notify_label));
+  $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $github_repository, urlencode($notify_branch));
   $response = request_get($url, [
     'Authorization: token ' . $github_token,
     'Accept: application/vnd.github.v3+json',
@@ -123,14 +128,14 @@ else {
 
   // Check deployment ID.
   if (!deployment_id_is_valid($deployment_id)) {
-    fail('Failed to find a previous deployment for ref %s. Payload: %s', $notify_label, $response['body'] ?: 'empty');
+    fail('Failed to find a previous deployment for ref %s. Payload: %s', $notify_branch, $response['body'] ?: 'empty');
   }
 
   pass('Found deployment with ID %s.', $deployment_id);
 
   note('GitHub post-deployment notification summary:');
   note('Repository         : ' . $github_repository);
-  note('Label (ref)        : ' . $notify_label);
+  note('Branch (ref)       : ' . $notify_branch);
   note('Environment Type   : ' . $github_env_type);
   note('Environment URL    : ' . $env_url);
   note('Deployment ID      : ' . $deployment_id);

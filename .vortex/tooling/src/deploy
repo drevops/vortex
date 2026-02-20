@@ -44,7 +44,7 @@ $deploy_mode = getenv_default('VORTEX_DEPLOY_MODE', 'branch');
 // - deploy: Deploy code and preserve database in the environment.
 // - deploy_override_db: Deploy code and override database in the environment.
 // - destroy: Destroy the environment (if the provider supports it).
-$deploy_action = getenv_default('VORTEX_DEPLOY_ACTION', 'deploy');
+$deploy_action = getenv_default('VORTEX_DEPLOY_ACTION', '');
 
 // Deployment branch name.
 $deploy_branch = getenv_default('VORTEX_DEPLOY_BRANCH', NULL);

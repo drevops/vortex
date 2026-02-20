@@ -66,7 +66,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock composer install.
     $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1',
+      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
       'output' => 'Installing git-artifact',
       'result_code' => 0,
     ]);
@@ -127,7 +127,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock composer install.
     $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1',
+      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
       'output' => 'Installing git-artifact',
       'result_code' => 0,
     ]);
@@ -243,7 +243,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock composer install failure.
     $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1',
+      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
       'output' => 'Composer install failed',
       'result_code' => 1,
     ]);
@@ -272,7 +272,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock composer install.
     $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1',
+      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
       'output' => 'Installing git-artifact',
       'result_code' => 0,
     ]);
@@ -323,7 +323,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock composer install.
     $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1',
+      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
       'output' => 'Installing git-artifact',
       'result_code' => 0,
     ]);
@@ -349,7 +349,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock composer install.
     $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1',
+      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
       'output' => 'Installing git-artifact',
       'result_code' => 0,
     ]);
