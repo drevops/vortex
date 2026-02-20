@@ -104,7 +104,8 @@ note(sprintf('Using SSH key file %s.', $file_path));
 putenv(sprintf('%s=%s', $file_var, $file_path));
 
 // Start SSH agent if not running.
-// Check if SSH agent is available by verifying the socket exists and is accessible.
+// Check if SSH agent is available by verifying the socket exists
+// and is accessible.
 $ssh_auth_sock = getenv('SSH_AUTH_SOCK');
 $agent_running = !empty($ssh_auth_sock) && file_exists($ssh_auth_sock);
 

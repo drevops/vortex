@@ -202,7 +202,6 @@ class NotifyJiraTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_JIRA_EVENT', 'pre_deployment');
 
     $this->runScriptEarlyPass('src/notify-jira', 'Skipping JIRA notification for pre_deployment event');
-
   }
 
   public function testAuthenticationFailure(): void {

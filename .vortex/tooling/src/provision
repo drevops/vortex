@@ -248,9 +248,10 @@ function sanitize_db(string $sanitize_email, string $sanitize_password, bool $re
   drush("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"");
   pass('Reset user 0 username and email.');
 
-  // User email could have been sanitized - setting it back to a pre-defined email.
+  // User email could have been sanitized - setting it back to a
+  // pre-defined email.
   if (!empty($admin_email)) {
-    drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", $admin_email));
+    drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
     pass('Updated user 1 email.');
   }
 
