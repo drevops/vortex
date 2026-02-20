@@ -17,28 +17,33 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Deployment mode.
+//
+// Values can be one of: branch, tag.
+$deploy_mode = getenv_default('VORTEX_DEPLOY_MODE', 'branch');
+
 // Deployment action.
 //
 // Values can be one of: deploy, deploy_override_db, destroy.
 // - deploy: Deploy code and preserve database in the environment.
 // - deploy_override_db: Deploy code and override database in the environment.
 // - destroy: Destroy the environment (if the provider supports it).
-$deploy_action = getenv_default('VORTEX_DEPLOY_ACTION', 'deploy');
-
-// The Lagoon branch to deploy.
-$deploy_branch = getenv_default('VORTEX_DEPLOY_BRANCH', NULL);
-
-// The PR number to deploy.
-$deploy_pr = getenv_default('VORTEX_DEPLOY_PR', NULL);
-
-// The PR head branch to deploy.
-$deploy_pr_head = getenv_default('VORTEX_DEPLOY_PR_HEAD', NULL);
-
-// The PR base branch (the branch the PR is raised against).
-$deploy_pr_base_branch = getenv_default('VORTEX_DEPLOY_PR_BASE_BRANCH', 'develop');
+$deploy_action = getenv_default('VORTEX_DEPLOY_LAGOON_ACTION', 'VORTEX_DEPLOY_ACTION', 'create');
 
 // The Lagoon project to perform deployment for.
-$lagoon_project = getenv_required('LAGOON_PROJECT');
+$lagoon_project = getenv_required('VORTEX_DEPLOY_LAGOON_PROJECT', 'LAGOON_PROJECT');
+
+// The Lagoon branch to deploy.
+$deploy_branch = getenv_default('VORTEX_DEPLOY_LAGOON_BRANCH', 'VORTEX_DEPLOY_BRANCH', NULL);
+
+// The PR number to deploy.
+$deploy_pr = getenv_default('VORTEX_DEPLOY_LAGOON_PR', 'VORTEX_DEPLOY_PR', NULL);
+
+// The PR head branch to deploy.
+$deploy_pr_head = getenv_default('VORTEX_DEPLOY_LAGOON_PR_HEAD', 'VORTEX_DEPLOY_PR_HEAD', NULL);
+
+// The PR base branch (the branch the PR is raised against).
+$deploy_pr_base_branch = getenv_default('VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH', 'VORTEX_DEPLOY_PR_BASE_BRANCH', 'develop');
 
 // The Lagoon instance name to interact with.
 $lagoon_instance = getenv_default('VORTEX_DEPLOY_LAGOON_INSTANCE', 'amazeeio');
@@ -54,29 +59,36 @@ $lagoon_instance_port = getenv_default('VORTEX_DEPLOY_LAGOON_INSTANCE_PORT', '32
 
 // SSH key fingerprint used to connect to remote.
 //
-// Falls back to VORTEX_SSH_FINGERPRINT.
-$ssh_fingerprint = getenv_default('VORTEX_DEPLOY_SSH_FINGERPRINT', 'VORTEX_SSH_FINGERPRINT', NULL);
+// Falls back to VORTEX_DEPLOY_SSH_FINGERPRINT, then VORTEX_SSH_FINGERPRINT.
+$ssh_fingerprint = getenv_default('VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT', 'VORTEX_DEPLOY_SSH_FINGERPRINT', 'VORTEX_SSH_FINGERPRINT', NULL);
 
 // Default SSH file used if custom fingerprint is not provided.
 //
-// Falls back to VORTEX_SSH_FILE.
-$ssh_file = getenv_default('VORTEX_DEPLOY_SSH_FILE', 'VORTEX_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
+// Falls back to VORTEX_DEPLOY_SSH_FILE, then VORTEX_SSH_FILE.
+$ssh_file = getenv_default('VORTEX_DEPLOY_LAGOON_SSH_FILE', 'VORTEX_DEPLOY_SSH_FILE', 'VORTEX_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
 
 // Flag to control failure behavior when Lagoon environment limits are exceeded.
 $deploy_lagoon_fail_when_env_limit_exceeded = getenv_default('VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED', FALSE);
 
 // Location of the Lagoon CLI binary.
-$lagooncli_path = getenv_default('VORTEX_LAGOONCLI_PATH', sys_get_temp_dir());
+$lagooncli_path = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_PATH', 'VORTEX_LAGOONCLI_PATH', sys_get_temp_dir());
 
 // Flag to force the installation of Lagoon CLI.
-$lagooncli_force_install = getenv_default('VORTEX_LAGOONCLI_FORCE_INSTALL', FALSE);
+$lagooncli_force_install = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL', 'VORTEX_LAGOONCLI_FORCE_INSTALL', FALSE);
 
 // Lagoon CLI version to use.
-$lagooncli_version = getenv_default('VORTEX_LAGOONCLI_VERSION', 'v0.32.0');
+$lagooncli_version = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION', 'VORTEX_LAGOONCLI_VERSION', 'v0.32.0');
 
 // -----------------------------------------------------------------------------
 
 info('Started LAGOON deployment.');
+
+// Lagoon does not support tag deployments. Exit successfully with a message.
+if ($deploy_mode === 'tag') {
+  note('Lagoon does not support tag deployments. Skipping.');
+  pass('Finished LAGOON deployment.');
+  quit(0);
+}
 
 // Track exit status to return at the end.
 $exit_code = 0;
@@ -90,9 +102,9 @@ if (empty($deploy_branch) && empty($deploy_pr)) {
 }
 
 // Setup SSH.
-putenv('VORTEX_SSH_PREFIX=DEPLOY');
-!empty($ssh_fingerprint) && putenv('VORTEX_DEPLOY_SSH_FINGERPRINT=' . $ssh_fingerprint);
-!empty($ssh_file) && putenv('VORTEX_DEPLOY_SSH_FILE=' . $ssh_file);
+putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
+!empty($ssh_fingerprint) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT=' . $ssh_fingerprint);
+!empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
 passthru(__DIR__ . '/setup-ssh', $ssh_exit_code);
 if ($ssh_exit_code !== 0) {
   quit($ssh_exit_code);

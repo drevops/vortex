@@ -22,6 +22,8 @@ class NotifyRouterTest extends UnitTestCase {
 
     $this->envSetMultiple([
       'VORTEX_NOTIFY_PROJECT' => 'test-project',
+      'VORTEX_NOTIFY_BRANCH' => 'main',
+      'VORTEX_NOTIFY_SHA' => 'abc123def456',
       'VORTEX_NOTIFY_LABEL' => 'main',
       'VORTEX_NOTIFY_ENVIRONMENT_URL' => 'https://example.com',
     ]);

@@ -54,13 +54,13 @@ $deploy_git_user_email = getenv_required('VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL'
 
 // SSH key fingerprint used to connect to remote.
 //
-// Falls back to $VORTEX_SSH_FINGERPRINT.
-$deploy_ssh_fingerprint = getenv_default('VORTEX_DEPLOY_SSH_FINGERPRINT', 'VORTEX_SSH_FINGERPRINT', '');
+// Falls back to VORTEX_DEPLOY_SSH_FINGERPRINT, then VORTEX_SSH_FINGERPRINT.
+$deploy_ssh_fingerprint = getenv_default('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT', 'VORTEX_DEPLOY_SSH_FINGERPRINT', 'VORTEX_SSH_FINGERPRINT', '');
 
 // Default SSH file used if custom fingerprint is not provided.
 //
-// Falls back to VORTEX_SSH_FILE.
-$deploy_ssh_file = getenv_default('VORTEX_DEPLOY_SSH_FILE', 'VORTEX_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
+// Falls back to VORTEX_DEPLOY_SSH_FILE, then VORTEX_SSH_FILE.
+$deploy_ssh_file = getenv_default('VORTEX_DEPLOY_ARTIFACT_SSH_FILE', 'VORTEX_DEPLOY_SSH_FILE', 'VORTEX_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
 
 // -----------------------------------------------------------------------------
 
@@ -86,16 +86,16 @@ if (empty($global_git_email)) {
 }
 
 // Setup SSH.
-putenv('VORTEX_SSH_PREFIX=DEPLOY');
-!empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
-!empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_SSH_FILE=' . $deploy_ssh_file);
+putenv('VORTEX_SSH_PREFIX=DEPLOY_ARTIFACT');
+!empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
+!empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FILE=' . $deploy_ssh_file);
 passthru(__DIR__ . '/setup-ssh', $exit_code);
 if ($exit_code !== 0) {
   quit($exit_code);
 }
 
 task('Installing artifact builder.');
-passthru('composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.1', $exit_code);
+passthru('composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2', $exit_code);
 if ($exit_code !== 0) {
   quit($exit_code);
 }

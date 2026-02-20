@@ -96,7 +96,6 @@ These modify many files and take 10-15 minutes.
 - Multi-line OK for: many parameters, arrays, chained methods, complex
   conditionals
 
-
 ```text
 vortex/
 ├── .vortex/                    # Test harness and development tools

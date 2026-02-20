@@ -24,6 +24,7 @@ class NotifyJiraTest extends UnitTestCase {
       'VORTEX_NOTIFY_JIRA_PROJECT' => 'test-project',
       'VORTEX_NOTIFY_JIRA_USER_EMAIL' => 'user@example.com',
       'VORTEX_NOTIFY_JIRA_TOKEN' => 'test-token-123',
+      'VORTEX_NOTIFY_JIRA_BRANCH' => 'feature/TEST-123-test-feature',
       'VORTEX_NOTIFY_JIRA_LABEL' => 'feature/TEST-123-test-feature',
       'VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL' => 'https://example.com',
       'VORTEX_NOTIFY_JIRA_LOGIN_URL' => 'https://example.com/login',
@@ -372,6 +373,7 @@ class NotifyJiraTest extends UnitTestCase {
       'project' => ['VORTEX_NOTIFY_JIRA_PROJECT'],
       'user_email' => ['VORTEX_NOTIFY_JIRA_USER_EMAIL'],
       'token' => ['VORTEX_NOTIFY_JIRA_TOKEN'],
+      'branch' => ['VORTEX_NOTIFY_JIRA_BRANCH'],
       'label' => ['VORTEX_NOTIFY_JIRA_LABEL'],
       'environment_url' => ['VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL'],
     ];
@@ -380,12 +382,14 @@ class NotifyJiraTest extends UnitTestCase {
   public function testFallbackToGenericVariables(): void {
     $this->envUnsetMultiple([
       'VORTEX_NOTIFY_JIRA_PROJECT',
+      'VORTEX_NOTIFY_JIRA_BRANCH',
       'VORTEX_NOTIFY_JIRA_LABEL',
       'VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL',
       'VORTEX_NOTIFY_JIRA_LOGIN_URL',
     ]);
 
     $this->envSet('VORTEX_NOTIFY_PROJECT', 'fallback-project');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/PROJ-456-fallback');
     $this->envSet('VORTEX_NOTIFY_LABEL', 'feature/PROJ-456-fallback');
     $this->envSet('VORTEX_NOTIFY_ENVIRONMENT_URL', 'https://fallback.example.com');
     $this->envSet('VORTEX_NOTIFY_LOGIN_URL', 'https://fallback.example.com/login');
@@ -422,9 +426,9 @@ class NotifyJiraTest extends UnitTestCase {
     $this->assertStringContainsString('Login URL      : https://fallback.example.com/login', $output);
   }
 
-  public function testIssueExtractionFromLabel(): void {
-    // Test with prefix in label.
-    $this->envSet('VORTEX_NOTIFY_JIRA_LABEL', 'feature/ABC-123-description');
+  public function testIssueExtractionFromBranch(): void {
+    // Test with prefix in branch.
+    $this->envSet('VORTEX_NOTIFY_JIRA_BRANCH', 'feature/ABC-123-description');
 
     // Mock authentication.
     $this->mockRequestGet(
@@ -569,10 +573,10 @@ class NotifyJiraTest extends UnitTestCase {
     $this->assertStringContainsString('Finished JIRA notification', $output);
   }
 
-  public function testLabelWithoutIssueNumber(): void {
-    $this->envSet('VORTEX_NOTIFY_JIRA_LABEL', 'main');
+  public function testBranchWithoutIssueNumber(): void {
+    $this->envSet('VORTEX_NOTIFY_JIRA_BRANCH', 'main');
 
-    $this->runScriptEarlyPass('src/notify-jira', 'Deployment label main does not contain issue number');
+    $this->runScriptEarlyPass('src/notify-jira', 'Branch main does not contain issue number');
   }
 
   #[DataProvider('dataProviderAuthenticationFailures')]
@@ -759,7 +763,7 @@ class NotifyJiraTest extends UnitTestCase {
 
   #[DataProvider('dataProviderIssueFormats')]
   public function testIssueFormats(string $label, string $expected_issue): void {
-    $this->envSet('VORTEX_NOTIFY_JIRA_LABEL', $label);
+    $this->envSet('VORTEX_NOTIFY_JIRA_BRANCH', $label);
 
     $this->mockRequestGet(
       'https://jira.example.com/rest/api/3/myself',

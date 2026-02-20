@@ -23,7 +23,7 @@ class NotifyGithubTest extends UnitTestCase {
     $this->envSetMultiple([
       'VORTEX_NOTIFY_GITHUB_TOKEN' => 'ghp_test123456',
       'VORTEX_NOTIFY_GITHUB_REPOSITORY' => 'owner/repo',
-      'VORTEX_NOTIFY_GITHUB_LABEL' => 'main',
+      'VORTEX_NOTIFY_GITHUB_BRANCH' => 'main',
       'VORTEX_NOTIFY_GITHUB_EVENT' => 'pre_deployment',
       'VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE' => 'production',
       'VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL' => 'https://example.com',
@@ -55,7 +55,7 @@ class NotifyGithubTest extends UnitTestCase {
 
     $this->assertStringContainsString('Started GitHub notification for pre_deployment event', $output);
     $this->assertStringContainsString('Repository      : owner/repo', $output);
-    $this->assertStringContainsString('Label (ref)     : main', $output);
+    $this->assertStringContainsString('Branch (ref)    : main', $output);
     $this->assertStringContainsString('Environment Type: production', $output);
 
     $this->assertStringContainsString('Created deployment with ID 123456789', $output);
@@ -184,7 +184,7 @@ class NotifyGithubTest extends UnitTestCase {
     return [
       'token' => ['VORTEX_NOTIFY_GITHUB_TOKEN'],
       'repository' => ['VORTEX_NOTIFY_GITHUB_REPOSITORY'],
-      'label' => ['VORTEX_NOTIFY_GITHUB_LABEL'],
+      'branch' => ['VORTEX_NOTIFY_GITHUB_BRANCH'],
       'event' => ['VORTEX_NOTIFY_GITHUB_EVENT'],
     ];
   }
@@ -192,11 +192,11 @@ class NotifyGithubTest extends UnitTestCase {
   public function testFallbackToGenericGithubToken(): void {
     $this->envUnsetMultiple([
       'VORTEX_NOTIFY_GITHUB_TOKEN',
-      'VORTEX_NOTIFY_GITHUB_LABEL',
+      'VORTEX_NOTIFY_GITHUB_BRANCH',
     ]);
 
     $this->envSet('GITHUB_TOKEN', 'ghp_fallback123');
-    $this->envSet('VORTEX_NOTIFY_LABEL', 'develop');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
     $this->envSet('VORTEX_NOTIFY_GITHUB_EVENT', 'pre_deployment');
 
     $this->mockRequestPost(
@@ -214,7 +214,7 @@ class NotifyGithubTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-github');
 
-    $this->assertStringContainsString('Label (ref)     : develop', $output);
+    $this->assertStringContainsString('Branch (ref)    : develop', $output);
     $this->assertStringContainsString('Finished GitHub notification', $output);
   }
 

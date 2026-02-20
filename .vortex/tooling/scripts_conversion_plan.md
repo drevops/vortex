@@ -40,7 +40,7 @@ Convert all Vortex bash scripts (`scripts/vortex/*.sh`) to PHP scripts as a stan
 
 ### 📊 Test Statistics
 
-- **Total Tests**: 383 tests, 1,740 assertions
+- **Total Tests**: 429 tests, 1,861 assertions
 - **Test Groups**:
   - `helpers` - 55 tests for core helper functions
   - `notify` - 132 tests for notification system
@@ -753,6 +753,90 @@ function mockFileGetContents(string $path, string $content): void
 
 ---
 
+## ✅ Phase 5.5: Sync PHP Scripts with Shell Updates - COMPLETE
+
+After the initial conversion in Phases 1-5, the shell scripts received updates that
+were not reflected in the PHP versions. This phase synchronized all differences.
+
+### 5.5.1 Notification Scripts Sync
+
+**notify (router):**
+- Added `VORTEX_NOTIFY_BRANCH` (required) variable
+- Added `VORTEX_NOTIFY_SHA` (required) variable
+- Added `VORTEX_NOTIFY_PR_NUMBER` (optional) variable
+- Changed `VORTEX_NOTIFY_ENVIRONMENT_URL` from optional to required
+- Added `putenv()` exports for branch, SHA, PR number, label, environment URL, login URL
+- Added detailed summary output matching shell format
+
+**notify-slack:**
+- Fixed field order: Deployment, Time, Environment, Login (matching shell)
+- Added `footer: 'Vortex Deployment'` to Slack attachment
+
+**notify-github:**
+- Added `VORTEX_NOTIFY_GITHUB_BRANCH` (with fallback to `VORTEX_NOTIFY_BRANCH`) as deployment ref
+- Replaced `$notify_label` with `$notify_branch` for all deployment API `ref` parameters
+- Fixed `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` default: falls back to `VORTEX_NOTIFY_LABEL` then `'PR'`
+
+**notify-jira:**
+- Added `VORTEX_NOTIFY_JIRA_BRANCH` (with fallback to `VORTEX_NOTIFY_BRANCH`) for issue extraction
+- Changed issue extraction regex to match against branch (not label)
+- Replaced simple text-to-ADF with rich `build_adf_comment()` featuring clickable links, code marks, and hardBreaks
+
+**notify-newrelic:**
+- Reordered variables: enabled check first, then required variables
+- Renamed `VORTEX_NOTIFY_NEWRELIC_USER_NAME` to `VORTEX_NOTIFY_NEWRELIC_USER` (matching shell)
+- Added `VORTEX_NOTIFY_NEWRELIC_SHA` (with fallback to `VORTEX_NOTIFY_SHA`)
+- Added SHA-based revision fallback before auto-generated LABEL-DATE-TIME pattern
+- Added required variable validation after enabled check (user API key)
+- Added numeric validation for app ID regardless of source
+
+### 5.5.2 Deployment Scripts Sync
+
+**deploy (router):**
+- Fixed `VORTEX_DEPLOY_ACTION` default from `'deploy'` to `''` (matching shell)
+
+**deploy-artifact:**
+- Fixed SSH prefix from `DEPLOY` to `DEPLOY_ARTIFACT` (matching shell)
+- Added `VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT` and `VORTEX_DEPLOY_ARTIFACT_SSH_FILE` variable names with fallback chain
+- Updated git-artifact version from `~1.1` to `~1.2` (matching shell)
+
+**deploy-lagoon:**
+- Added tag deployment check: early exit for tag mode (`'Lagoon does not support tag deployments. Skipping.'`)
+- Added `VORTEX_DEPLOY_MODE` variable
+- Added `VORTEX_DEPLOY_LAGOON_*` prefixed variable support with fallbacks:
+  - `VORTEX_DEPLOY_LAGOON_ACTION` (fallback: `VORTEX_DEPLOY_ACTION`, default: `'create'`)
+  - `VORTEX_DEPLOY_LAGOON_PROJECT` (fallback: `LAGOON_PROJECT`)
+  - `VORTEX_DEPLOY_LAGOON_BRANCH` (fallback: `VORTEX_DEPLOY_BRANCH`)
+  - `VORTEX_DEPLOY_LAGOON_PR` (fallback: `VORTEX_DEPLOY_PR`)
+  - `VORTEX_DEPLOY_LAGOON_PR_HEAD` (fallback: `VORTEX_DEPLOY_PR_HEAD`)
+  - `VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH` (fallback: `VORTEX_DEPLOY_PR_BASE_BRANCH`)
+  - `VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT` (fallback chain)
+  - `VORTEX_DEPLOY_LAGOON_SSH_FILE` (fallback chain)
+  - `VORTEX_DEPLOY_LAGOON_LAGOONCLI_PATH` (fallback: `VORTEX_LAGOONCLI_PATH`)
+  - `VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL` (fallback: `VORTEX_LAGOONCLI_FORCE_INSTALL`)
+  - `VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION` (fallback: `VORTEX_LAGOONCLI_VERSION`)
+- Fixed SSH prefix from `DEPLOY` to `DEPLOY_LAGOON` (matching shell)
+
+**login-container-registry:**
+- Added `VORTEX_LOGIN_CONTAINER_REGISTRY` (fallback: `VORTEX_CONTAINER_REGISTRY`)
+- Added `VORTEX_LOGIN_CONTAINER_REGISTRY_USER` (fallback: `VORTEX_CONTAINER_REGISTRY_USER`)
+- Added `VORTEX_LOGIN_CONTAINER_REGISTRY_PASS` (fallback: `VORTEX_CONTAINER_REGISTRY_PASS`)
+- Added `VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG` (fallback: `DOCKER_CONFIG`)
+
+### 5.5.3 Test Updates
+
+All test files updated to match script changes:
+- `NotifyGithubTest.php` - Updated for branch variable, assertions, and data providers
+- `NotifyJiraTest.php` - Updated for branch-based issue extraction
+- `NotifyNewrelicTest.php` - Updated for optional variables, custom error messages
+- `NotifyRouterTest.php` - Added required branch and SHA variables
+- `DeployArtifactTest.php` - Updated git-artifact version in mocks
+- `DeployLagoonTest.php` - Updated error message for new variable names
+
+**All 429 tests passing with 1,861 assertions** ✅
+
+---
+
 ## Phase 6: Convert Remaining Scripts (TODO)
 
 ### Database Scripts
@@ -762,9 +846,11 @@ function mockFileGetContents(string $path, string $content): void
 4. ⏳ `download-db-container-registry.sh` - Download from container registry
 5. ⏳ `download-db-lagoon.sh` - Download from Lagoon
 6. ⏳ `download-db-acquia.sh` - Download from Acquia
-7. ⏳ `export-db.sh` - Export database router
-8. ⏳ `export-db-file.sh` - Export to file
-9. ⏳ `export-db-image.sh` - Export to container image
+7. ⏳ `download-db-s3.sh` - Download from S3
+8. ⏳ `upload-db-s3.sh` - Upload to S3
+9. ⏳ `export-db.sh` - Export database router
+10. ⏳ `export-db-file.sh` - Export to file
+11. ⏳ `export-db-image.sh` - Export to container image
 
 ### Provisioning Scripts
 10. ⏳ `provision.sh` - Main provisioning
@@ -1125,6 +1211,6 @@ All deployment scripts converted as a single milestone:
 
 ---
 
-**Last Updated**: 2025-12-15
-**Current Phase**: Phase 5 Complete ✅
+**Last Updated**: 2026-02-20
+**Current Phase**: Phase 5.5 Sync Complete ✅
 **Next Milestone**: Phase 6 - Database download/export scripts

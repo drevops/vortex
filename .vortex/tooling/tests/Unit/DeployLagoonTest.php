@@ -41,7 +41,7 @@ class DeployLagoonTest extends UnitTestCase {
     $this->envSet('VORTEX_DEPLOY_BRANCH', 'develop');
     $this->envUnset('LAGOON_PROJECT');
 
-    $this->runScriptError('src/deploy-lagoon', 'Missing required value for LAGOON_PROJECT');
+    $this->runScriptError('src/deploy-lagoon', 'Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT, LAGOON_PROJECT');
   }
 
   public function testMissingBranchAndPr(): void {
