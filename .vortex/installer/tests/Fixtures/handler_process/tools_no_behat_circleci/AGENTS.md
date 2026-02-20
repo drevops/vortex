@@ -7,4 +7,4 @@
 -ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
  ```
  
- ## Critical Rules
+ ## Before Starting Any Task

@@ -44,6 +44,12 @@ ahoy test-bdd # Run Behat tests
 ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
 ```
 
+## Before Starting Any Task
+
+1. **Check cached docs first.** Before investigating any topic, check `.data/ai-artifacts/docs-[topic].md` for existing cached documentation. Do not search the codebase or fetch from the web if a cached doc already exists.
+2. **Check project docs.** Before making implementation decisions, check the relevant file in `docs/` for project-specific conventions.
+3. **Fetch and cache if missing.** If no cached doc exists for the topic, fetch from https://www.vortextemplate.com/docs and save to `.data/ai-artifacts/docs-[topic].md` (see [Documentation](#documentation) for format).
+
 ## Critical Rules
 
 - **Never modify** `scripts/vortex/` - use `scripts/custom/` for your scripts
