@@ -21,16 +21,16 @@ execute_override(basename(__FILE__));
 // Container registry URL.
 //
 // Examples: docker.io, gcr.io, ghcr.io
-$registry = getenv_default('VORTEX_CONTAINER_REGISTRY', 'docker.io');
+$registry = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
 
 // Container registry username.
-$user = getenv_default('VORTEX_CONTAINER_REGISTRY_USER', NULL);
+$user = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER', NULL);
 
 // Container registry password.
-$pass = getenv_default('VORTEX_CONTAINER_REGISTRY_PASS', NULL);
+$pass = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS', NULL);
 
 // Docker configuration directory.
-$docker_config = getenv_default('DOCKER_CONFIG', getenv('HOME') . '/.docker');
+$docker_config = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG', 'DOCKER_CONFIG', getenv('HOME') . '/.docker');
 
 // -----------------------------------------------------------------------------
 
@@ -47,5 +47,5 @@ elseif (!empty($user) && !empty($pass)) {
   }
 }
 else {
-  note('Skipping login to the container registry as either VORTEX_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');
+  note('Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');
 }

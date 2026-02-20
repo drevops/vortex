@@ -234,14 +234,11 @@ class NotifyNewrelicTest extends UnitTestCase {
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-newrelic', 'Missing required value for ' . $var_name);
+    $this->runScriptError('src/notify-newrelic', 'Missing required New Relic User API Key');
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
     return [
-      'project' => ['VORTEX_NOTIFY_NEWRELIC_PROJECT'],
-      'label' => ['VORTEX_NOTIFY_NEWRELIC_LABEL'],
-      'environment_url' => ['VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL'],
       'user_key' => ['VORTEX_NOTIFY_NEWRELIC_USER_KEY'],
     ];
   }

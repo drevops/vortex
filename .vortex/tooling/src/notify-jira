@@ -25,7 +25,10 @@ execute_override(basename(__FILE__));
 // JIRA notification project name.
 $notify_project = getenv_required('VORTEX_NOTIFY_JIRA_PROJECT', 'VORTEX_NOTIFY_PROJECT');
 
-// JIRA notification deployment label (branch name, PR number, or custom).
+// JIRA notification git branch name (used for issue extraction).
+$notify_branch = getenv_required('VORTEX_NOTIFY_JIRA_BRANCH', 'VORTEX_NOTIFY_BRANCH');
+
+// JIRA notification deployment label (human-readable identifier for display).
 $notify_label = getenv_required('VORTEX_NOTIFY_JIRA_LABEL', 'VORTEX_NOTIFY_LABEL');
 
 // JIRA notification environment URL.
@@ -73,29 +76,47 @@ $jira_endpoint = getenv_default('VORTEX_NOTIFY_JIRA_ENDPOINT', 'https://jira.atl
 // -----------------------------------------------------------------------------
 
 /**
- * Convert a multiline string into a JIRA ADF paragraph node.
+ * Build a rich JIRA ADF comment with clickable links and code marks.
  *
- * @param string $text
- *   Multiline text to convert.
+ * @param string $project
+ *   Project name.
+ * @param string $label
+ *   Deployment label.
+ * @param string $timestamp
+ *   Deployment timestamp.
+ * @param string $env_url
+ *   Environment URL.
+ * @param string $login_url
+ *   Login URL.
  *
  * @return array
- *   ADF paragraph node.
+ *   ADF document body.
  */
-function text_to_adf(string $text): array {
-  $text = str_replace(["\r\n", "\r"], "\n", $text);
-  $lines = explode("\n", $text);
+function build_adf_comment(string $project, string $label, string $timestamp, string $env_url, string $login_url): array {
+  $content = [[
+    'type' => 'paragraph',
+    'content' => [
+      ['type' => 'text', 'text' => '## This is an automated message ##'],
+      ['type' => 'hardBreak'],
+      ['type' => 'hardBreak'],
+      ['type' => 'text', 'text' => 'Site ' . $project . ' '],
+      ['type' => 'text', 'text' => $label, 'marks' => [['type' => 'code']]],
+      ['type' => 'text', 'text' => ' has been deployed at ' . $timestamp . ' and is available at '],
+      ['type' => 'text', 'text' => $env_url, 'marks' => [['type' => 'link', 'attrs' => ['href' => $env_url]]]],
+      ['type' => 'text', 'text' => '.'],
+      ['type' => 'hardBreak'],
+      ['type' => 'hardBreak'],
+      ['type' => 'text', 'text' => 'Login at: '],
+      ['type' => 'text', 'text' => $login_url, 'marks' => [['type' => 'link', 'attrs' => ['href' => $login_url]]]],
+    ],
+  ],
+  ];
 
-  $content = [];
-  foreach ($lines as $index => $line) {
-    if ($index > 0) {
-      $content[] = ['type' => 'hardBreak'];
-    }
-    if ($line !== '') {
-      $content[] = ['type' => 'text', 'text' => $line];
-    }
-  }
-
-  return ['type' => 'paragraph', 'content' => $content];
+  return [
+    'type' => 'doc',
+    'version' => 1,
+    'content' => $content,
+  ];
 }
 
 // -----------------------------------------------------------------------------
@@ -110,8 +131,8 @@ if ($notify_event === 'pre_deployment') {
 
 task('Extracting issue');
 
-if (!preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_label, $matches)) {
-  pass('Deployment label %s does not contain issue number. Skipping JIRA notification.', $notify_label);
+if (!preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_branch, $matches)) {
+  pass('Branch %s does not contain issue number. Skipping JIRA notification.', $notify_branch);
   quit();
 }
 $jira_issue = $matches[2];
@@ -142,21 +163,9 @@ pass('Authenticated as user with account ID %s.', $account_id);
 
 task('Posting a comment');
 
-$jira_message = replace_tokens($jira_message, [
-  'project' => $notify_project,
-  'label' => $notify_label,
-  'timestamp' => date('d/m/Y H:i:s T'),
-  'environment_url' => $notify_env_url,
-  'login_url' => $notify_login_url,
-]);
+$timestamp = date('d/m/Y H:i:s T');
 
-$jira_message_adf = text_to_adf($jira_message);
-
-$comment_body = [
-  'type' => 'doc',
-  'version' => 1,
-  'content' => $jira_message_adf,
-];
+$comment_body = build_adf_comment($notify_project, $notify_label, $timestamp, $notify_env_url, $notify_login_url);
 
 note('JIRA notification summary:');
 note('Project        : ' . $notify_project);
