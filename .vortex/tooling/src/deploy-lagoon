@@ -207,7 +207,10 @@ function lagoon_run_cli(string $subcommand, ?int &$subcommand_exit_code = NULL):
   return $subcommand_output ?: '';
 }
 
-function lagoon_get_existing_environments(bool $is_branch):array{
+/**
+ *
+ */
+function lagoon_get_existing_environments(bool $is_branch):array {
   $deploy_type = $is_branch ? 'branch' : 'pullrequest';
 
   task(sprintf('Discovering existing environments for %s deployments.', $deploy_type));
@@ -270,9 +273,9 @@ else {
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
-      # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-      # @see https://github.com/uselagoon/lagoon/issues/1922
-      # @todo Review and remove this workaround as the issue is fixed.
+      // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
+      // @see https://github.com/uselagoon/lagoon/issues/1922
+      // @todo Review and remove this workaround as the issue is fixed.
       task('Setting a DB overwrite flag to 0.');
       lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
 
@@ -325,9 +328,9 @@ else {
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
-      # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-      # @see https://github.com/uselagoon/lagoon/issues/1922
-      # @todo Review and remove this workaround as the issue is fixed.
+      // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
+      // @see https://github.com/uselagoon/lagoon/issues/1922
+      // @todo Review and remove this workaround as the issue is fixed.
       task('Setting a DB overwrite flag to 0.');
       lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
 

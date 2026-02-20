@@ -341,9 +341,7 @@ if ($provision_type !== 'profile') {
   $provision_type = 'database';
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // Print provisioning information.
-////////////////////////////////////////////////////////////////////////////////
 echo PHP_EOL;
 note('Drupal core version            : %s', $drupal_version);
 note('Drush version                  : %s', $drush_version);
@@ -370,7 +368,6 @@ note('Skip post-provision operations : %s', yesno($provision_post_operations_ski
 note('Verify config after update     : %s', yesno($provision_verify_config));
 note('Use maintenance mode           : %s', yesno($provision_use_maintenance_mode));
 echo PHP_EOL;
-////////////////////////////////////////////////////////////////////////////////
 
 if ($provision_verify_config === '1') {
   $diff_path = trim((string) shell_exec('command -v diff 2>/dev/null'));

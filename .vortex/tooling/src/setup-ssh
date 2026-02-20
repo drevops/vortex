@@ -29,7 +29,7 @@ execute_override(basename(__FILE__));
 //
 // Example: If VORTEX_SSH_PREFIX=DEPLOY, then:
 // - VORTEX_DEPLOY_SSH_FINGERPRINT
-// - VORTEX_DEPLOY_SSH_FILE
+// - VORTEX_DEPLOY_SSH_FILE.
 $ssh_prefix = getenv_required('VORTEX_SSH_PREFIX');
 
 // Whether to remove all keys from the SSH agent before loading.
