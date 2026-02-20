@@ -52,6 +52,15 @@ for each service.
    See onboarding guides for [Acquia](./hosting/acquia#onboarding) or
    [Lagoon](./hosting/lagoon#onboarding).
 
+### Installing with an AI agent
+
+The installer includes built-in support for AI agents. Run with `--agent-help`
+to get full instructions for programmatic installation:
+
+```shell title="Get AI agent instructions"
+curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
+```
+
 ## Installing Vortex into an existing project
 
 The installer cannot predict the state of your project, so it is recommended to

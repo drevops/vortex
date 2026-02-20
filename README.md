@@ -70,6 +70,15 @@ Read
 the [installation guide](https://www.vortextemplate.com/docs/installation)
 for more details.
 
+### Installing with an AI agent
+
+The installer includes built-in support for AI agents. Run with `--agent-help`
+to get full instructions for programmatic installation:
+
+```bash
+curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
+```
+
 ### Development version
 
 The latest development version of the installer from `develop` branch can be
