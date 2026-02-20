@@ -21,21 +21,7 @@ execute_override(basename(__FILE__));
 $newrelic_enabled = getenv('VORTEX_NOTIFY_NEWRELIC_ENABLED') ?: getenv('NEWRELIC_ENABLED');
 
 // New Relic notification project name.
-$notify_project = getenv_required('VORTEX_NOTIFY_NEWRELIC_PROJECT', 'VORTEX_NOTIFY_PROJECT');
-
-// New Relic notification deployment label (branch name, PR number, or custom).
-$notify_label = getenv_required('VORTEX_NOTIFY_NEWRELIC_LABEL', 'VORTEX_NOTIFY_LABEL');
-
-// New Relic notification environment URL.
-$notify_env_url = getenv_required('VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
-
-// New Relic notification login URL.
-$notify_login_url = getenv_default('VORTEX_NOTIFY_NEWRELIC_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', $notify_env_url . '/user/login');
-
-// New Relic notification event type.
-//
-// Can be 'pre_deployment' or 'post_deployment'.
-$notify_event = getenv_default('VORTEX_NOTIFY_NEWRELIC_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
+$notify_project = getenv_default('VORTEX_NOTIFY_NEWRELIC_PROJECT', 'VORTEX_NOTIFY_PROJECT', '');
 
 // New Relic notification User API Key.
 //
@@ -47,12 +33,24 @@ $notify_event = getenv_default('VORTEX_NOTIFY_NEWRELIC_EVENT', 'VORTEX_NOTIFY_EV
 // 5. The key format is: `NRAK-XXXXXXXXXXXXXXXXXXXXXX`.
 // @see https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key
 // @see https://www.vortextemplate.com/docs/workflows/notifications#new-relic
-$newrelic_user_key = getenv_required('VORTEX_NOTIFY_NEWRELIC_USER_KEY', 'NEWRELIC_USER_KEY');
+$newrelic_user_key = getenv_default('VORTEX_NOTIFY_NEWRELIC_USER_KEY', 'NEWRELIC_USER_KEY', '');
+
+// New Relic human-readable notification deployment label.
+$notify_label = getenv_default('VORTEX_NOTIFY_NEWRELIC_LABEL', 'VORTEX_NOTIFY_LABEL', '');
+
+// New Relic notification git commit SHA.
+$notify_sha = getenv_default('VORTEX_NOTIFY_NEWRELIC_SHA', 'VORTEX_NOTIFY_SHA', '');
 
 // New Relic notification deployment revision.
 //
-// If not provided, will be auto-generated as [LABEL]-[TIMESTAMP].
+// If not provided, will use SHA if available, otherwise auto-generated.
 $newrelic_revision = getenv('VORTEX_NOTIFY_NEWRELIC_REVISION');
+
+// New Relic notification environment URL.
+$notify_env_url = getenv_default('VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL', '');
+
+// New Relic notification login URL.
+$notify_login_url = getenv_default('VORTEX_NOTIFY_NEWRELIC_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', '');
 
 // New Relic notification application name as it appears in the dashboard.
 $newrelic_app_name = getenv_default('VORTEX_NOTIFY_NEWRELIC_APP_NAME', sprintf('%s-%s', $notify_project, $notify_label));
@@ -70,17 +68,22 @@ $newrelic_appid = getenv('VORTEX_NOTIFY_NEWRELIC_APPID');
 // - %timestamp% - Deployment timestamp
 // - %environment_url% - Environment URL
 // - %login_url% - Login URL.
-$newrelic_description = getenv_default('VORTEX_NOTIFY_NEWRELIC_DESCRIPTION', '"Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%"');
+$newrelic_description = getenv_default('VORTEX_NOTIFY_NEWRELIC_DESCRIPTION', 'Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%');
 
 // New Relic notification deployment changelog.
 // Defaults to the description.
 $newrelic_changelog = getenv('VORTEX_NOTIFY_NEWRELIC_CHANGELOG');
 
-// New Relic notification user name performing deployment.
-$newrelic_user_name = getenv_default('VORTEX_NOTIFY_NEWRELIC_USER_NAME', 'Deployment robot');
+// New Relic notification user performing deployment.
+$newrelic_user = getenv_default('VORTEX_NOTIFY_NEWRELIC_USER', 'Deployment robot');
 
 // New Relic notification API endpoint.
 $newrelic_endpoint = getenv_default('VORTEX_NOTIFY_NEWRELIC_ENDPOINT', 'https://api.newrelic.com/v2');
+
+// New Relic notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_default('VORTEX_NOTIFY_NEWRELIC_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
 
 // ------------------------------------------------------------------------------
 
@@ -97,11 +100,22 @@ if ($notify_event === 'pre_deployment') {
   quit();
 }
 
+// Validate required variables after enabled check.
+if (empty($newrelic_user_key)) {
+  fail('Missing required New Relic User API Key. Set VORTEX_NOTIFY_NEWRELIC_USER_KEY or NEWRELIC_USER_KEY.');
+}
+
 if (!$newrelic_revision) {
-  $revision_date = date('Ymd');
-  $revision_time = date('His');
-  $newrelic_revision = sprintf('%s-%s-%s', $notify_label, $revision_date, $revision_time);
-  note('Auto-generated revision: ' . $newrelic_revision);
+  if (!empty($notify_sha)) {
+    $newrelic_revision = $notify_sha;
+    note('Using SHA as revision: ' . $newrelic_revision);
+  }
+  else {
+    $revision_date = date('Ymd');
+    $revision_time = date('His');
+    $newrelic_revision = sprintf('%s-%s-%s', $notify_label, $revision_date, $revision_time);
+    note('Auto-generated revision: ' . $newrelic_revision);
+  }
 }
 
 if (!$newrelic_appid && $newrelic_app_name) {
@@ -127,6 +141,12 @@ if (!$newrelic_appid && $newrelic_app_name) {
   pass('Discovered application ID: %s', $newrelic_appid);
 }
 
+// Validate app ID is numeric regardless of source (provided or discovered).
+if (empty($newrelic_appid) || !ctype_digit((string) $newrelic_appid)) {
+  pass('Notification skipped: New Relic application ID is empty or not numeric. This is expected for non-configured environments.');
+  quit();
+}
+
 $newrelic_description = replace_tokens($newrelic_description, [
   'project' => $notify_project,
   'label' => $notify_label,
@@ -143,7 +163,7 @@ note('Deployment       : ' . $notify_label);
 note('App Name         : ' . $newrelic_app_name);
 note('App ID (resolved): ' . $newrelic_appid);
 note('Revision         : ' . $newrelic_revision);
-note('User             : ' . $newrelic_user_name);
+note('User             : ' . $newrelic_user);
 note('Endpoint         : ' . $newrelic_endpoint);
 note('Description      : ' . $newrelic_description);
 
@@ -154,7 +174,7 @@ $payload_data = [
     'revision' => $newrelic_revision,
     'changelog' => $newrelic_changelog,
     'description' => $newrelic_description,
-    'user' => $newrelic_user_name,
+    'user' => $newrelic_user,
   ],
 ];
 

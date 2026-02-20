@@ -30,13 +30,22 @@ $event = getenv('VORTEX_NOTIFY_EVENT') ?: 'post_deployment';
 // Notification project name.
 $project = getenv('VORTEX_NOTIFY_PROJECT') ?: getenv('VORTEX_PROJECT');
 
-// Notification deployment label (branch name, PR number, or custom identifier).
+// Notification git branch name.
+$branch = getenv_required('VORTEX_NOTIFY_BRANCH');
+
+// Notification git commit SHA.
+$sha = getenv_required('VORTEX_NOTIFY_SHA');
+
+// Notification pull request number.
+$pr_number = getenv_default('VORTEX_NOTIFY_PR_NUMBER', '');
+
+// Notification deployment label (human-readable identifier for display).
 $label = getenv_required('VORTEX_NOTIFY_LABEL');
 
 // Notification environment URL (where the site was deployed).
-$env_url = getenv('VORTEX_NOTIFY_ENVIRONMENT_URL');
+$env_url = getenv_required('VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-// Notification login URL (defaults to ENVIRONMENT_URL/user/login).
+// Notification login URL.
 $login_url = getenv_default('VORTEX_NOTIFY_LOGIN_URL', $env_url . '/user/login');
 
 // Notification skip flag.
@@ -61,6 +70,25 @@ if (empty($channels)) {
 if (!in_array($event, ['pre_deployment', 'post_deployment'])) {
   fail('Unsupported event %s provided.', $event);
 }
+
+// Export variables so notification scripts can use them.
+putenv('VORTEX_NOTIFY_BRANCH=' . $branch);
+putenv('VORTEX_NOTIFY_SHA=' . $sha);
+putenv('VORTEX_NOTIFY_PR_NUMBER=' . $pr_number);
+putenv('VORTEX_NOTIFY_LABEL=' . $label);
+putenv('VORTEX_NOTIFY_ENVIRONMENT_URL=' . $env_url);
+putenv('VORTEX_NOTIFY_LOGIN_URL=' . $login_url);
+
+info('Notification summary:');
+note('Project        : ' . $project);
+note('Branch         : ' . $branch);
+note('SHA            : ' . $sha);
+note('PR Number      : ' . ($pr_number ?: '<none>'));
+note('Label          : ' . $label);
+note('Environment URL: ' . $env_url);
+note('Login URL      : ' . $login_url);
+note('Event          : ' . $event);
+note('Channels       : ' . implode(',', $channels));
 
 foreach ($channels as $channel) {
   $script = __DIR__ . ('/notify-' . $channel);
