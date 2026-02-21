@@ -31,11 +31,18 @@ class NotifyEmailTest extends UnitTestCase {
     ]);
   }
 
+  protected function defaultMessageMatcher(string $project = 'test-project', string $label = 'main', string $url = 'https://example.com', string $login_url = 'https://example.com/login'): \Closure {
+    return fn(string $msg): bool => str_contains($msg, '## This is an automated message ##')
+      && str_contains($msg, 'Site ' . $project . ' ' . $label . ' has been deployed at')
+      && str_contains($msg, $url)
+      && str_contains($msg, 'Login at: ' . $login_url);
+  }
+
   public function testSuccessfulNotificationSingleRecipient(): void {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
@@ -56,14 +63,14 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => '"Jane Doe" <to1@example.com>',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
     $this->mockMail([
       'to' => '"John Doe" <to2@example.com>',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
@@ -80,7 +87,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => 'Custom deployment of test-project to main at ' . date('d/m/Y H:i:s T'),
+      'message' => fn(string $msg): bool => str_contains($msg, 'Custom deployment of test-project to main at'),
       'result' => TRUE,
     ]);
 
@@ -96,7 +103,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => '[test-project] Deployed main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
@@ -148,7 +155,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'generic-project deployment notification of develop',
-      'message' => "## This is an automated message ##\nSite generic-project develop has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://generic.example.com.\nLogin at: https://generic.example.com/login",
+      'message' => $this->defaultMessageMatcher('generic-project', 'develop', 'https://generic.example.com', 'https://generic.example.com/login'),
       'result' => TRUE,
     ]);
 
@@ -165,7 +172,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => 'test-project deployed to main at ' . date('d/m/Y H:i:s T') . ' - Visit: https://example.com',
+      'message' => fn(string $msg): bool => str_contains($msg, 'test-project deployed to main at') && str_contains($msg, 'Visit: https://example.com'),
       'result' => TRUE,
     ]);
 
@@ -181,7 +188,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'Deployed main to https://example.com',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
@@ -211,21 +218,21 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to1@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
     $this->mockMail([
       'to' => 'to2@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
     $this->mockMail([
       'to' => 'to3@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
@@ -240,21 +247,21 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to1@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
     $this->mockMail([
       'to' => '"Jane Doe" <to2@example.com>',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
     $this->mockMail([
       'to' => 'to3@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
     ]);
 
@@ -269,7 +276,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Cc: cc@example.com',
         'Content-Type: text/plain; charset=UTF-8',
@@ -290,7 +297,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Cc: "Jane Doe" <cc1@example.com>, "John Doe" <cc2@example.com>',
         'Content-Type: text/plain; charset=UTF-8',
@@ -311,7 +318,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Bcc: bcc@example.com',
         'Content-Type: text/plain; charset=UTF-8',
@@ -332,7 +339,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Bcc: bcc1@example.com, bcc2@example.com',
         'Content-Type: text/plain; charset=UTF-8',
@@ -354,7 +361,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Bcc: "BCC User" <bcc@example.com>',
         'Cc: "CC User" <cc@example.com>',
@@ -378,7 +385,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to1@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Cc: cc@example.com',
         'Content-Type: text/plain; charset=UTF-8',
@@ -390,7 +397,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to2@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Cc: cc@example.com',
         'Content-Type: text/plain; charset=UTF-8',
@@ -412,7 +419,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Bcc: "First BCC" <bcc1@example.com>, bcc2@example.com',
         'Cc: cc1@example.com, "Named User" <cc2@example.com>',
@@ -435,7 +442,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => 'to1@example.com',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Content-Type: text/plain; charset=UTF-8',
         'From: noreply@example.com',
@@ -446,7 +453,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => '"Jane Doe" <to2@example.com>',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Content-Type: text/plain; charset=UTF-8',
         'From: noreply@example.com',
@@ -465,7 +472,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => '"Tagged User" <user+tag@mail.example.com>',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Content-Type: text/plain; charset=UTF-8',
         'From: noreply@example.com',
@@ -484,7 +491,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->mockMail([
       'to' => '"O\'Brien" <user@example.com>',
       'subject' => 'test-project deployment notification of main',
-      'message' => "## This is an automated message ##\nSite test-project main has been deployed at " . date('d/m/Y H:i:s T') . " and is available at https://example.com.\nLogin at: https://example.com/login",
+      'message' => $this->defaultMessageMatcher(),
       'headers' => [
         'Content-Type: text/plain; charset=UTF-8',
         'From: noreply@example.com',

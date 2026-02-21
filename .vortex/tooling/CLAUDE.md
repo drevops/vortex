@@ -329,6 +329,7 @@ public static function dataProviderMockShellExec(): array {
 This replaces 4 separate test methods with a single parameterized test.
 
 **Documentation**:
+- Data provider method names should start with `dataProvider` prefix (e.g., `dataProviderHttpMethods`, not `providerHttpMethods`)
 - Block comments (PHPDoc /** ... */) are ONLY allowed on test classes, NOT on methods
 - Do NOT add block comments to test methods, data provider methods, or helper methods
 - Inline comments (// ...) are acceptable for explaining logic within method bodies
@@ -485,7 +486,7 @@ The mock API mirrors the actual request function signatures for consistency and 
 ```php
 // Mock request() - matches request() signature + $response parameter
 mockRequest(
-  string $deploy_webhook_url,
+  string $url,
   array $options = [],
   array $response = [],
   string $namespace = 'DrevOps\\VortexTooling'
@@ -493,7 +494,7 @@ mockRequest(
 
 // Mock request_get() - matches request_get() signature + $response parameter
 mockRequestGet(
-  string $deploy_webhook_url,
+  string $url,
   array $headers = [],
   int $timeout = 10,
   array $response = [],
@@ -502,7 +503,7 @@ mockRequestGet(
 
 // Mock request_post() - matches request_post() signature + $response parameter
 mockRequestPost(
-  string $deploy_webhook_url,
+  string $url,
   $body = NULL,
   array $headers = [],
   int $timeout = 10,

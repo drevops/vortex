@@ -101,8 +101,10 @@ vortex/
 ├── .vortex/                    # Test harness and development tools
 │   ├── docs/                   # Documentation for Vortex
 │   ├── installer/              # Self-contained Symfony console installer
+│   ├── tooling/                # PHP helpers and notification scripts
+│   │   └── CLAUDE.md           # Tooling documentation (see this for tooling work)
 │   ├── tests/                  # Unit and functional tests
-│   └── CLAUDE.md              # This maintenance guide
+│   └── CLAUDE.md               # This maintenance guide
 └── [root files]                # The actual Drupal template
     └── CLAUDE.md               # Drupal development guide
 ```
@@ -111,7 +113,7 @@ vortex/
 
 ## .vortex Directory Structure
 
-The `.vortex/` directory contains **three distinct subsystems**, each with its own purpose and technology stack:
+The `.vortex/` directory contains **four distinct subsystems**, each with its own purpose and technology stack:
 
 ### 1. .vortex/docs/ - Documentation Website
 
@@ -173,7 +175,22 @@ composer install                    # Install dependencies
 UPDATE_SNAPSHOTS=1 composer test    # Update test snapshots
 ```
 
-### 3. .vortex/tests/ - Template Testing Harness
+### 3. .vortex/tooling/ - Notification & Helper Scripts
+
+**Purpose**: Reusable PHP helper functions and notification scripts for Vortex operations
+
+> **⚠️ ALL TOOLING DOCUMENTATION IS IN `.vortex/tooling/CLAUDE.md`**
+>
+> For ANY work related to:
+>
+> - PHP helper functions (request_get, request_post, output formatters, etc.)
+> - Notification scripts (notify-github, notify-jira, notify-slack, etc.)
+> - Mock system (MockTrait, Self tests)
+> - Tooling tests
+>
+> **→ See `.vortex/tooling/CLAUDE.md` for complete documentation**
+
+### 4. .vortex/tests/ - Template Testing Harness
 
 **Purpose**: Comprehensive testing of the Vortex template itself through functional workflows
 
@@ -207,7 +224,7 @@ cd tests && ./vendor/bin/phpunit      # Run PHPUnit workflow tests
 
 ## Testing Architecture Overview
 
-Vortex uses **four independent testing systems**, each serving different parts of the codebase:
+Vortex uses **five independent testing systems**, each serving different parts of the codebase:
 
 ### 1. Documentation Tests (.vortex/docs/)
 
@@ -247,7 +264,11 @@ Vortex uses **four independent testing systems**, each serving different parts o
 - **Handler tests**: Individual prompt and modification logic
 - **Fixture tests**: Expected vs actual template output
 
-### 3. Template Tests (.vortex/tests/)
+### 3. Tooling Tests (.vortex/tooling/)
+
+> **→ See `.vortex/tooling/CLAUDE.md`** for all tooling test documentation
+
+### 4. Template Tests (.vortex/tests/)
 
 **Scope**: Testing the actual Drupal template functionality
 
@@ -265,7 +286,7 @@ Vortex uses **four independent testing systems**, each serving different parts o
 - **PHPUnit Functional**: End-to-end workflow testing
 - **BATS Unit**: Individual shell script testing with mocking
 
-### 4. Manual Integration Tests (.vortex/tests/manual/)
+### 5. Manual Integration Tests (.vortex/tests/manual/)
 
 **Scope**: Manual verification of notification integrations with real external services
 
@@ -631,12 +652,13 @@ When script output changes, update corresponding test files:
 
 1. **Documentation** (`.vortex/docs/`): Requires Node.js/Yarn
 2. **Installer** (`.vortex/installer/`): Requires PHP/Composer
-3. **Template** (`.vortex/tests/`): Requires PHP/Composer + Node.js + BATS
+3. **Tooling** (`.vortex/tooling/`): Requires PHP/Composer
+4. **Template** (`.vortex/tests/`): Requires PHP/Composer + Node.js + BATS
 
 **Full Setup** (from `.vortex/`):
 
 ```bash
-ahoy install        # Installs dependencies for all three systems
+ahoy install        # Installs dependencies for all four systems
 ```
 
 ## Unified Testing Commands
@@ -645,13 +667,14 @@ For convenience, you can run tests across all systems:
 
 ```bash
 # From .vortex/ root
-ahoy install        # Install all dependencies (docs, installer, template)
+ahoy install        # Install all dependencies (docs, installer, tooling, template)
 ahoy lint           # Code linting across all systems
 ahoy test           # Run all template tests
 
 # Individual system commands
 cd docs && yarn test                    # Documentation tests only
 cd installer && composer test           # Installer tests only
+cd tooling && ./vendor/bin/phpunit     # Tooling tests only
 cd tests && ./vendor/bin/phpunit       # Template PHPUnit tests only
 ahoy test-bats -- tests/bats/          # Template BATS tests only
 ```
@@ -1668,10 +1691,10 @@ throw new \RuntimeException(sprintf(
 ### Cross-System Considerations
 
 - Each system can be modified independently
-- Changes to template (outside `.vortex/`) may require updates across all three systems
+- Changes to template (outside `.vortex/`) may require updates across all four systems
 - Always run system-specific tests after making changes
 - Consider impact on user workflows when modifying any system
 
 ---
 
-*This knowledge base should be updated whenever significant changes are made to any of the three Vortex subsystems or their maintenance procedures.*
+*This knowledge base should be updated whenever significant changes are made to any of the four Vortex subsystems or their maintenance procedures.*

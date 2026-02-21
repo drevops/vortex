@@ -21,7 +21,7 @@ execute_override(basename(__FILE__));
 // Container registry URL.
 //
 // Falls back to VORTEX_CONTAINER_REGISTRY, then defaults to docker.io.
-// Examples: docker.io, gcr.io, ghcr.io
+// Examples: docker.io, gcr.io, ghcr.io.
 $deploy_container_registry = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
 
 // Container registry username.
@@ -37,7 +37,7 @@ $deploy_container_registry_pass = getenv_required('VORTEX_DEPLOY_CONTAINER_REGIS
 // Service to image mapping.
 //
 // Format: service1=org/image1,service2=org/image2:tag
-// Example: web=myorg/myapp,db=myorg/mydb:latest
+// Example: web=myorg/myapp,db=myorg/mydb:latest.
 $deploy_container_registry_map = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', '');
 
 // Image tag to use if not specified in the mapping.
