@@ -300,7 +300,7 @@ trait MockTrait {
   /**
    * Mock mail() function to return predefined results.
    *
-   * @param array<int, array{to: string, subject: string, message: string, result?: bool}> $responses
+   * @param array<int, array{to: string, subject: string, message: string|\Closure, result?: bool}> $responses
    *   Array of responses to return for each mail call.
    *   Each response should have:
    *   - to: Expected recipient (required)
@@ -347,7 +347,7 @@ trait MockTrait {
         throw new \InvalidArgumentException('Mocked mail response must include "message" key to specify expected message.');
       }
 
-      /** @var array{to: string, subject: string, message: string, headers?: array<string>|string, result: bool} $response */
+      /** @var array{to: string, subject: string, message: string|\Closure, headers?: array<string>|string, result: bool} $response */
 
       // Expectation errors.
       if ($response['to'] !== $to) {
@@ -358,7 +358,12 @@ trait MockTrait {
         throw new \RuntimeException(sprintf('mail() called with unexpected subject. Expected "%s", got "%s".', $response['subject'], $subject));
       }
 
-      if ($response['message'] !== $message) {
+      if ($response['message'] instanceof \Closure) {
+        if (!($response['message'])($message)) {
+          throw new \RuntimeException(sprintf('mail() called with unexpected message (callback validation failed). Got: "%s".', $message));
+        }
+      }
+      elseif ($response['message'] !== $message) {
         throw new \RuntimeException(sprintf('mail() called with unexpected message. Expected "%s", got "%s".', $response['message'], $message));
       }
 
@@ -391,7 +396,7 @@ trait MockTrait {
   /**
    * Mock single mail call.
    *
-   * @param array{to: string, subject: string, message: string, headers?: array<string>|string, result?: bool} $response
+   * @param array{to: string, subject: string, message: string|\Closure, headers?: array<string>|string, result?: bool} $response
    *   Response with recipient, subject, message, optional headers, and result.
    * @param string $namespace
    *   Namespace to mock the function in.

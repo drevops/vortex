@@ -219,7 +219,6 @@ class NotifySlackTest extends UnitTestCase {
     );
 
     $this->runScriptError('src/notify-slack', 'Unable to send notification to Slack');
-
   }
 
   public function testWebhookUrlSanitization(): void {

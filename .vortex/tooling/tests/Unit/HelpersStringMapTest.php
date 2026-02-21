@@ -35,7 +35,7 @@ class HelpersStringMapTest extends UnitTestCase {
     if ($expected_error !== NULL) {
       $this->mockQuit(1);
       $this->expectException(QuitErrorException::class);
-      $this->expectOutputRegex('/' . preg_quote('[FAIL]', '/') . '/');
+      $this->expectOutputRegex('/' . preg_quote($expected_error, '/') . '/');
     }
 
     $result = \DrevOps\VortexTooling\string_map_to_array($map, $separator, $key_value_separator);
