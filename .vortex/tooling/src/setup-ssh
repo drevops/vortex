@@ -29,7 +29,7 @@ execute_override(basename(__FILE__));
 //
 // Example: If VORTEX_SSH_PREFIX=DEPLOY, then:
 // - VORTEX_DEPLOY_SSH_FINGERPRINT
-// - VORTEX_DEPLOY_SSH_FILE
+// - VORTEX_DEPLOY_SSH_FILE.
 $ssh_prefix = getenv_required('VORTEX_SSH_PREFIX');
 
 // Whether to remove all keys from the SSH agent before loading.
@@ -104,7 +104,8 @@ note(sprintf('Using SSH key file %s.', $file_path));
 putenv(sprintf('%s=%s', $file_var, $file_path));
 
 // Start SSH agent if not running.
-// Check if SSH agent is available by verifying the socket exists and is accessible.
+// Check if SSH agent is available by verifying the socket exists
+// and is accessible.
 $ssh_auth_sock = getenv('SSH_AUTH_SOCK');
 $agent_running = !empty($ssh_auth_sock) && file_exists($ssh_auth_sock);
 

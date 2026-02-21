@@ -40,11 +40,12 @@ Convert all Vortex bash scripts (`scripts/vortex/*.sh`) to PHP scripts as a stan
 
 ### 📊 Test Statistics
 
-- **Total Tests**: 429 tests, 1,861 assertions
+- **Total Tests**: 445 tests, 1,911 assertions
 - **Test Groups**:
   - `helpers` - 55 tests for core helper functions
   - `notify` - 132 tests for notification system
   - `deploy` - 74 tests for deployment system
+  - `provision` - 16 tests for provisioning system
   - `default` - 122 tests for mock infrastructure & utilities
 - **All tests passing** ✅
 
@@ -71,7 +72,8 @@ vortex-tooling/
 │   ├── deploy-container-registry # ✅ Container registry deployment
 │   ├── deploy-webhook          # ✅ Webhook deployment
 │   ├── setup-ssh               # ✅ SSH configuration helper
-│   └── login-container-registry # ✅ Docker registry login helper
+│   ├── login-container-registry # ✅ Docker registry login helper
+│   └── provision               # ✅ Site provisioning (DB or profile)
 └── tests/
     ├── Exceptions/             # Custom exceptions for testing
     ├── Fixtures/               # Test fixture scripts
@@ -100,7 +102,8 @@ vortex-tooling/
         ├── DeployContainerRegistryTest.php # ✅ Container registry (15 tests)
         ├── DeployWebhookTest.php     # ✅ Webhook deployment (10 tests)
         ├── SetupSshTest.php          # ✅ SSH configuration (14 tests)
-        └── LoginContainerRegistryTest.php # ✅ Docker registry login (8 tests)
+        ├── LoginContainerRegistryTest.php # ✅ Docker registry login (8 tests)
+        └── ProvisionTest.php        # ✅ Site provisioning (16 tests)
 ```
 
 ## Requirements
@@ -835,6 +838,42 @@ All test files updated to match script changes:
 
 **All 429 tests passing with 1,861 assertions** ✅
 
+### 5.5.4 Provision Script Sync
+
+**provision:**
+- Added `VORTEX_PROVISION_FALLBACK_TO_PROFILE` variable (default: `'0'`)
+- Added `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE` variable (default: `'0'`)
+- Renamed DB variables with fallback chains:
+  - `VORTEX_PROVISION_DB_DIR` (fallback: `VORTEX_DB_DIR`, default: `./.data`)
+  - `VORTEX_PROVISION_DB_FILE` (fallback: `VORTEX_DB_FILE`, default: `db.sql`)
+  - `VORTEX_PROVISION_DB_IMAGE` (fallback: `VORTEX_DB_IMAGE`, default: `''`)
+- Added fallback-to-profile logic at both DB provision call sites (installed+override and not-installed paths)
+- Added fallback-to-profile logic for DB image path (not-installed + db_image + no site)
+- Added config verification around `updatedb`:
+  - Exports config before and after `updatedb`
+  - Uses `diff -rq` to compare directories
+  - Fails with detailed output if config changed
+  - Cleans up temp directories on success
+- Restructured post-provision from single `drush deploy` to explicit sequence:
+  - `updatedb --no-cache-clear` → `config:import` → `config:import` (config_split) → `cache:rebuild` → `deploy:hook`
+- Added `diff` command availability check when config verification is enabled
+- Added summary output lines for new variables (fallback to profile, verify config)
+- Added helper functions: `drush()`, `yesno()`, `provision_from_db()`, `provision_from_profile()`, `sanitize_db()`, `run_custom_scripts()`
+
+**Test Coverage**: 16 tests in ProvisionTest.php
+- Skip provision
+- Database provision (installed/not-installed, with/without override)
+- Fallback-to-profile (dump missing, db_image)
+- DB image scenarios (installed, not-installed, not-installed+fallback)
+- Profile provision (no site, installed no-override, installed with-override)
+- Post-operations with maintenance mode
+- Config import with UUID and config_split
+- Config verification (pass and fail scenarios)
+- Summary output variables
+- DB dir fallback variable chain
+
+**All 445 tests passing with 1,911 assertions** ✅
+
 ---
 
 ## Phase 6: Convert Remaining Scripts (TODO)
@@ -853,7 +892,7 @@ All test files updated to match script changes:
 11. ⏳ `export-db-image.sh` - Export to container image
 
 ### Provisioning Scripts
-10. ⏳ `provision.sh` - Main provisioning
+10. ✅ `provision.sh` - Main provisioning (611 lines, 16 tests)
 11. ⏳ `provision-sanitize-db.sh` - Database sanitization
 
 ### Acquia Task Scripts
@@ -1104,11 +1143,13 @@ Projects using bash scripts can migrate gradually:
 
 ## Success Criteria
 
-### ✅ Completed (Phases 1-4)
+### ✅ Completed (Phases 1-5.5)
 - ✅ helpers.php complete with all 17 functions
 - ✅ All notification scripts converted and tested (7 scripts, 1,097 lines)
+- ✅ All deployment scripts converted and tested (7 scripts, 1,023 lines)
+- ✅ Provision script converted and tested (611 lines, 16 tests)
 - ✅ Override system working and tested
-- ✅ All 247 tests passing with 1,258 assertions
+- ✅ All 445 tests passing with 1,911 assertions
 - ✅ 100% code coverage for all converted scripts
 - ✅ Mock infrastructure complete and self-tested
 - ✅ Comprehensive documentation in CLAUDE.md
@@ -1132,7 +1173,7 @@ All deployment scripts converted as a single milestone:
 
 ### 📋 Future (Phase 6)
 - ⏳ Database download/export scripts
-- ⏳ Provisioning scripts
+- ⏳ Provisioning sanitization script (`provision-sanitize-db.sh`)
 - ⏳ Acquia task scripts
 - ⏳ Utility scripts (login, info, doctor, reset, update-vortex)
 
@@ -1212,5 +1253,5 @@ All deployment scripts converted as a single milestone:
 ---
 
 **Last Updated**: 2026-02-20
-**Current Phase**: Phase 5.5 Sync Complete ✅
+**Current Phase**: Phase 5.5 Sync + Provision Complete ✅
 **Next Milestone**: Phase 6 - Database download/export scripts
