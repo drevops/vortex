@@ -14,15 +14,24 @@
     <arg name="colors"/>
 
     <file>check-no-exit.php</file>
-    <file>src</file>
-    <file>src/notify</file>
+    <file>playground</file>
+    <file>src/deploy-artifact</file>
+    <file>src/deploy-container-registry</file>
+    <file>src/deploy-lagoon</file>
+    <file>src/deploy-webhook</file>
+    <file>src/deploy</file>
+    <file>src/helpers.php</file>
+    <file>src/login-container-registry</file>
     <file>src/notify-email</file>
     <file>src/notify-github</file>
     <file>src/notify-jira</file>
     <file>src/notify-newrelic</file>
     <file>src/notify-slack</file>
     <file>src/notify-webhook</file>
-    <file>playground</file>
+    <file>src/notify</file>
+    <file>src/provision</file>
+    <file>src/setup-ssh</file>
+    <file>src</file>
     <file>tests</file>
 
     <!-- Allow delimiter spacing in inline comments in source files. -->

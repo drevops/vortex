@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexTooling\Tests\Unit;
 
+use AlexSkrypnyk\File\File;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -49,14 +50,14 @@ class SetupSshTest extends UnitTestCase {
   public function testBasicSetupWithDefaultFile(): void {
     // Create SSH key file.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
     $key_file = $ssh_dir . '/id_rsa';
-    file_put_contents($key_file, "fake ssh key\n");
+    File::dump($key_file, "fake ssh key\n");
     chmod($key_file, 0600);
 
     // Simulate agent running by setting SSH_AUTH_SOCK to an existing file.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock ssh-add -l - key is already loaded.
@@ -75,13 +76,13 @@ class SetupSshTest extends UnitTestCase {
     $this->envSet('VORTEX_DEPLOY_SSH_FILE', $custom_file);
 
     // Create SSH key file.
-    mkdir(dirname($custom_file), 0700, TRUE);
-    file_put_contents($custom_file, "fake ssh key\n");
+    File::mkdir(dirname($custom_file), 0700);
+    File::dump($custom_file, "fake ssh key\n");
     chmod($custom_file, 0600);
 
     // Simulate agent running.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock ssh-add -l - key is already loaded.
@@ -102,9 +103,9 @@ class SetupSshTest extends UnitTestCase {
   public function testStartSshAgent(): void {
     // Create SSH key file.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
     $key_file = $ssh_dir . '/id_rsa';
-    file_put_contents($key_file, "fake ssh key\n");
+    File::dump($key_file, "fake ssh key\n");
     chmod($key_file, 0600);
 
     // No SSH_AUTH_SOCK set = agent not running.
@@ -140,14 +141,14 @@ class SetupSshTest extends UnitTestCase {
 
     // Create SSH key file.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
     $key_file = $ssh_dir . '/id_rsa';
-    file_put_contents($key_file, "fake ssh key\n");
+    File::dump($key_file, "fake ssh key\n");
     chmod($key_file, 0600);
 
     // Simulate agent running.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock ssh-add -l (no keys).
@@ -182,14 +183,14 @@ class SetupSshTest extends UnitTestCase {
 
     // Create SSH key file.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
     $key_file = $ssh_dir . '/id_rsa';
-    file_put_contents($key_file, "fake ssh key\n");
+    File::dump($key_file, "fake ssh key\n");
     chmod($key_file, 0600);
 
     // Simulate agent running.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock ssh-add -l - key is already loaded.
@@ -202,7 +203,7 @@ class SetupSshTest extends UnitTestCase {
     // Verify config file was created.
     $config_file = $ssh_dir . '/config';
     $this->assertFileExists($config_file);
-    $config_content = (string) file_get_contents($config_file);
+    $config_content = File::read($config_file);
     $this->assertStringContainsString('StrictHostKeyChecking no', $config_content);
     $this->assertStringContainsString('UserKnownHostsFile /dev/null', $config_content);
   }
@@ -213,14 +214,14 @@ class SetupSshTest extends UnitTestCase {
 
     // Create SSH key file with fingerprint-based name.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
     $expected_file = $ssh_dir . '/id_rsa_112233445566778899aabbccddeeff00';
-    file_put_contents($expected_file, "fake ssh key\n");
+    File::dump($expected_file, "fake ssh key\n");
     chmod($expected_file, 0600);
 
     // Simulate agent running.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock ssh-add -l - key is already loaded.
@@ -235,14 +236,14 @@ class SetupSshTest extends UnitTestCase {
   public function testSshAddFailure(): void {
     // Create SSH key file.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
     $key_file = $ssh_dir . '/id_rsa';
-    file_put_contents($key_file, "fake ssh key\n");
+    File::dump($key_file, "fake ssh key\n");
     chmod($key_file, 0600);
 
     // Simulate agent running.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock ssh-add -l (no keys).
@@ -265,21 +266,21 @@ class SetupSshTest extends UnitTestCase {
 
     // Create SSH key files.
     $ssh_dir = self::$tmp . '/.ssh';
-    mkdir($ssh_dir, 0700, TRUE);
+    File::mkdir($ssh_dir, 0700);
 
     // Create expected file (found first by glob due to alphabetical order).
     $expected_file = $ssh_dir . '/id_rsa_112233445566778899aabbccddeeff00';
-    file_put_contents($expected_file, "fake ssh key\n");
+    File::dump($expected_file, "fake ssh key\n");
     chmod($expected_file, 0600);
 
     // Create another file (found second by glob).
     $other_file = $ssh_dir . '/id_rsa_other';
-    file_put_contents($other_file, "fake ssh key\n");
+    File::dump($other_file, "fake ssh key\n");
     chmod($other_file, 0600);
 
     // Simulate agent running.
     $socket_file = self::$tmp . '/agent.sock';
-    file_put_contents($socket_file, '');
+    File::dump($socket_file);
     $this->envSet('SSH_AUTH_SOCK', $socket_file);
 
     // Mock shell commands.
