@@ -43,4 +43,7 @@
     <logging>
         <junit outputFile=".logs/junit.xml"/>
     </logging>
+    <php>
+        <ini name="memory_limit" value="4G"/>
+    </php>
 </phpunit>

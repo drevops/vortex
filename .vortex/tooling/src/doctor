@@ -1,0 +1,294 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Check project requirements or print system info.
+ *
+ * Usage:
+ *   doctor        - Check project requirements.
+ *   doctor info   - Show system information.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Check minimal Doctor requirements.
+$check_minimal = getenv_default('VORTEX_DOCTOR_CHECK_MINIMAL', '0');
+
+// Check pre-flight Doctor requirements.
+$check_preflight = getenv_default('VORTEX_DOCTOR_CHECK_PREFLIGHT', '0');
+
+if ($check_minimal === '1') {
+  putenv('VORTEX_DOCTOR_CHECK_PORT=0');
+  putenv('VORTEX_DOCTOR_CHECK_PYGMY=0');
+  putenv('VORTEX_DOCTOR_CHECK_SSH=0');
+  putenv('VORTEX_DOCTOR_CHECK_WEBSERVER=0');
+  putenv('VORTEX_DOCTOR_CHECK_BOOTSTRAP=0');
+}
+
+if ($check_preflight === '1') {
+  if (getenv('VORTEX_DOCTOR_CHECK_TOOLS') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_TOOLS=1');
+  }
+  if (getenv('VORTEX_DOCTOR_CHECK_PORT') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_PORT=1');
+  }
+  if (getenv('VORTEX_DOCTOR_CHECK_PYGMY') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_PYGMY=1');
+  }
+  if (getenv('VORTEX_DOCTOR_CHECK_CONTAINERS') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_CONTAINERS=0');
+  }
+  if (getenv('VORTEX_DOCTOR_CHECK_SSH') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_SSH=0');
+  }
+  if (getenv('VORTEX_DOCTOR_CHECK_WEBSERVER') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_WEBSERVER=0');
+  }
+  if (getenv('VORTEX_DOCTOR_CHECK_BOOTSTRAP') === FALSE) {
+    putenv('VORTEX_DOCTOR_CHECK_BOOTSTRAP=0');
+  }
+}
+
+// Check Doctor requirements for presence of tools.
+$check_tools = getenv_default('VORTEX_DOCTOR_CHECK_TOOLS', '1');
+
+// Check Doctor requirements for port availability.
+$check_port = getenv_default('VORTEX_DOCTOR_CHECK_PORT', '1');
+
+// Check Doctor requirements for Pygmy availability.
+$check_pygmy = getenv_default('VORTEX_DOCTOR_CHECK_PYGMY', '1');
+
+// Check Doctor requirements for container status.
+$check_containers = getenv_default('VORTEX_DOCTOR_CHECK_CONTAINERS', '1');
+
+// Check Doctor requirements for SSH key.
+$check_ssh = getenv_default('VORTEX_DOCTOR_CHECK_SSH', '1');
+
+// Check Doctor requirements for webserver status.
+$check_webserver = getenv_default('VORTEX_DOCTOR_CHECK_WEBSERVER', '1');
+
+// Check Doctor requirements for application bootstrap status.
+$check_bootstrap = getenv_default('VORTEX_DOCTOR_CHECK_BOOTSTRAP', '1');
+
+// Default SSH key file.
+$ssh_file = getenv_default('VORTEX_SSH_FILE', (getenv('HOME') ?: '') . '/.ssh/id_rsa');
+
+// -----------------------------------------------------------------------------
+
+// Handle "info" subcommand.
+if (isset($GLOBALS['argv'][1]) && $GLOBALS['argv'][1] === 'info') {
+  system_info();
+  quit(0);
+}
+
+command_must_exist('docker');
+command_must_exist('pygmy');
+command_must_exist('ahoy');
+
+info('Checking project requirements');
+
+if ($check_tools === '1') {
+  if (!command_path('docker')) {
+    fail('Please install Docker (https://www.docker.com/get-started).');
+  }
+  if (!command_path('docker compose')) {
+    fail('Please install docker compose (https://docs.docker.com/compose/install/).');
+  }
+  if (!command_path('pygmy')) {
+    fail('Please install Pygmy (https://pygmy.readthedocs.io/).');
+  }
+  if (!command_path('ahoy')) {
+    fail('Please install Ahoy (https://ahoy-cli.readthedocs.io/).');
+  }
+  pass('All required tools are present.');
+}
+
+if ($check_port === '1' && PHP_OS_FAMILY !== 'Linux') {
+  passthru("lsof -i :80 2>/dev/null | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'", $exit_code);
+  if ($exit_code === 0) {
+    fail("Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'.");
+  }
+  pass('Port 80 is available.');
+}
+
+if ($check_pygmy === '1') {
+  passthru('pygmy status 2>/dev/null | tr -d "\\000" > /tmp/vortex_pygmy_status.txt', $exit_code);
+
+  $pygmy_services = [
+    'amazeeio-ssh-agent',
+    'amazeeio-mailhog',
+    'amazeeio-haproxy',
+    'amazeeio-dnsmasq',
+  ];
+
+  foreach ($pygmy_services as $service) {
+    passthru(sprintf('grep -q "%s: Running" /tmp/vortex_pygmy_status.txt', $service), $exit_code);
+    if ($exit_code !== 0) {
+      fail("Pygmy service %s is not running. Run 'pygmy up' or 'pygmy restart' to fix.", $service);
+    }
+  }
+  pass('Pygmy is running.');
+}
+
+if ($check_containers === '1') {
+  $container_services = ['cli', 'php', 'nginx', 'database'];
+  foreach ($container_services as $service) {
+    passthru(sprintf('docker compose ps --status=running --services 2>/dev/null | grep -q %s', escapeshellarg($service)), $exit_code);
+    if ($exit_code !== 0) {
+      fail_no_exit('%s container is not running.', $service);
+      note("Run 'ahoy up'.");
+      note("Run 'ahoy logs %s' to see error logs.", $service);
+      quit(1);
+    }
+  }
+  pass('All containers are running');
+}
+
+if ($check_ssh === '1') {
+  $ssh_key_added_to_pygmy = FALSE;
+  $ssh_key_volume_mounted = FALSE;
+
+  // Check that the key is injected into pygmy ssh-agent container.
+  passthru(sprintf('pygmy status 2>&1 | grep -q %s', escapeshellarg($ssh_file)), $exit_code);
+  if ($exit_code !== 0) {
+    fail_no_exit('SSH key is not added to pygmy.');
+    note("The SSH key will not be available in CLI container. Run 'pygmy restart' and then 'ahoy up'");
+  }
+  else {
+    $ssh_key_added_to_pygmy = TRUE;
+  }
+
+  // Check that the volume is mounted into CLI container.
+  passthru('docker compose exec -T cli bash -c \'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent\'', $exit_code);
+  if ($exit_code !== 0) {
+    fail_no_exit('SSH key volume is not mounted into CLI container.');
+    note('Make sure that your "docker-compose.yml" has the following lines for CLI service:');
+    note('  volumes_from:');
+    note('    - container:amazeeio-ssh-agent');
+    note("After adding these lines, run 'ahoy up'.");
+  }
+  else {
+    $ssh_key_volume_mounted = TRUE;
+  }
+
+  // Check that ssh key is available in the container.
+  if ($ssh_key_added_to_pygmy && $ssh_key_volume_mounted) {
+    passthru("docker compose exec -T cli bash -c \"ssh-add -L | grep -q 'ssh-rsa'\"", $exit_code);
+    if ($exit_code !== 0) {
+      fail_no_exit("SSH key was not added into container. Run 'pygmy restart'.");
+    }
+    else {
+      pass('SSH key is available within CLI container.');
+    }
+  }
+}
+
+if ($check_webserver === '1') {
+  $local_dev_url = trim((string) shell_exec("docker compose exec -T cli bash -c 'echo \${VORTEX_LOCALDEV_URL}' 2>/dev/null"));
+
+  if ($local_dev_url !== '') {
+    // Depending on the type of installation, the homepage may return 200 or 403.
+    passthru(sprintf('curl -L -s -o /dev/null -w "%%{http_code}" %s 2>/dev/null | grep -q "200\\|403"', escapeshellarg($local_dev_url)), $exit_code);
+    if ($exit_code !== 0) {
+      fail('Web server is not accessible at http://%s.', $local_dev_url);
+    }
+    pass('Web server is running and accessible at http://%s.', $local_dev_url);
+
+    if ($check_bootstrap === '1') {
+      passthru(sprintf('curl -L -s -N %s 2>/dev/null | grep -q -i "charset="', escapeshellarg($local_dev_url)), $exit_code);
+      if ($exit_code !== 0) {
+        fail('Website is running, but cannot be bootstrapped. Check web-server configuration.');
+      }
+      pass('Bootstrapped website at http://%s.', $local_dev_url);
+    }
+  }
+}
+
+pass('All required checks have passed.');
+echo PHP_EOL;
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Sanitize system information output to remove PII data.
+ */
+function sanitize_system_info(string $input): string {
+  $username = trim((string) shell_exec('whoami'));
+
+  $input = str_replace('/Users/' . $username . '/', '/Users/[USERNAME_REDACTED]/', $input);
+  $input = str_replace('/home/' . $username . '/', '/home/[USERNAME_REDACTED]/', $input);
+  $input = str_replace($username, '[USERNAME_REDACTED]', $input);
+  $input = (string) preg_replace('/ID: [a-f0-9-]{36}/', 'ID: [REDACTED]', $input);
+  $input = (string) preg_replace('/[a-f0-9]{40,}/', '[HASH_REDACTED]', $input);
+  $input = (string) preg_replace('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', '[IP_REDACTED]', $input);
+
+  return $input;
+}
+
+/**
+ * Print system information.
+ */
+function system_info(): void {
+  echo 'System information report' . PHP_EOL;
+  echo PHP_EOL;
+
+  echo 'OPERATING SYSTEM' . PHP_EOL;
+  if (PHP_OS === 'Darwin') {
+    passthru('sw_vers');
+  }
+  else {
+    // @codeCoverageIgnoreStart
+    passthru('lsb_release -a 2>/dev/null');
+    // @codeCoverageIgnoreEnd
+  }
+  echo PHP_EOL;
+
+  echo 'DOCKER' . PHP_EOL;
+  $docker_path = (string) command_path('docker');
+  echo 'Path to binary: ' . sanitize_system_info($docker_path) . PHP_EOL;
+  passthru('docker -v');
+  $docker_info = (string) shell_exec('docker info 2>/dev/null');
+  if ($docker_info !== '') {
+    echo sanitize_system_info($docker_info);
+  }
+  else {
+    echo 'Docker is not running or not installed.' . PHP_EOL;
+  }
+  echo PHP_EOL;
+
+  echo 'DOCKER COMPOSE V2' . PHP_EOL;
+  echo 'Version: ';
+  passthru('docker compose version 2>/dev/null || echo "Docker Compose V2 is not installed."');
+  echo PHP_EOL;
+
+  echo 'DOCKER-COMPOSE V1' . PHP_EOL;
+  $dc_path = (string) command_path('docker-compose');
+  echo 'Path to binary: ' . sanitize_system_info($dc_path) . PHP_EOL;
+  echo 'Version: ';
+  passthru('docker-compose version 2>/dev/null || echo "Docker Compose V1 is not installed."');
+  echo PHP_EOL;
+
+  echo 'PYGMY' . PHP_EOL;
+  $pygmy_path = (string) command_path('pygmy');
+  echo 'Path to binary: ' . sanitize_system_info($pygmy_path) . PHP_EOL;
+  echo 'Version: ';
+  passthru('pygmy version 2>/dev/null || echo "Pygmy is not installed."');
+  echo PHP_EOL;
+
+  echo 'AHOY' . PHP_EOL;
+  $ahoy_path = (string) command_path('ahoy');
+  echo 'Path to binary: ' . sanitize_system_info($ahoy_path) . PHP_EOL;
+  echo 'Version: ';
+  passthru('ahoy --version 2>/dev/null || echo "Ahoy is not installed."');
+  echo PHP_EOL;
+}
