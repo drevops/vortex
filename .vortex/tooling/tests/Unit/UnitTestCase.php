@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexTooling\Tests\Unit;
 
 use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
+use AlexSkrypnyk\PhpunitHelpers\Traits\StringTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 use DrevOps\VortexTooling\Tests\Exceptions\QuitErrorException;
 use DrevOps\VortexTooling\Tests\Exceptions\QuitSuccessException;
@@ -17,6 +18,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
 
   use MockTrait;
   use EnvTrait;
+  use StringTrait;
 
   protected function setUp(): void {
     parent::setUp();

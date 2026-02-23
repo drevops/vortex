@@ -276,18 +276,22 @@ function term_supports_color(): bool {
 }
 
 /**
- * Check if a command exists in the system.
+ * Get the path to a command, or FALSE if the command does not exist.
  *
  * @param string $command
  *   Command name.
  *
- * @return bool
- *   TRUE if command exists, FALSE otherwise.
+ * @return string|false
+ *   Path to the command, or FALSE if the command does not exist.
  */
-function command_exists(string $command): bool {
+function command_path(string $command): string|false {
+  if (!preg_match('/^[A-Za-z0-9_\-]+(?: [A-Za-z0-9_\-]+)*$/', $command)) {
+    return FALSE;
+  }
+
   exec(sprintf('command -v %s 2>/dev/null', $command), $output, $code);
 
-  return $code === 0;
+  return $code === 0 && !empty($output[0]) ? trim($output[0]) : FALSE;
 }
 
 /**
@@ -297,7 +301,7 @@ function command_exists(string $command): bool {
  *   Command name.
  */
 function command_must_exist(string $command): void {
-  if (!command_exists($command)) {
+  if (!command_path($command)) {
     fail(sprintf("Command '%s' is not available", $command));
   }
 }

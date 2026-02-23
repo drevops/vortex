@@ -1,0 +1,82 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Update Vortex from the template repository.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Vortex remote or local template repo URI, optionally including reference.
+//
+// Examples:
+// https://github.com/drevops/vortex.git          # Latest stable tag from remote.
+// https://github.com/drevops/vortex.git#stable   # Latest stable tag from remote.
+// https://github.com/drevops/vortex.git#1.2.3    # Specific release from remote.
+// file:///local/path/to/vortex.git               # Latest stable tag from local.
+// /local/path/to/vortex.git#1.2.3                # Specific release from local.
+$installer_template_repo = getenv_default('VORTEX_INSTALLER_TEMPLATE_REPO', 'https://github.com/drevops/vortex.git#stable');
+
+// The URL of the installer script.
+$installer_url = getenv_default('VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/install');
+
+// Cache busting parameter for the installer URL.
+$installer_url_cache_bust = getenv_default('VORTEX_INSTALLER_URL_CACHE_BUST', (string) time());
+
+// The path to the installer script.
+//
+// If set, this will override the VORTEX_INSTALLER_URL.
+$installer_path = getenv_default('VORTEX_INSTALLER_PATH', '');
+
+// Run installer in interactive mode.
+$installer_interactive = getenv_default('VORTEX_INSTALLER_INTERACTIVE', '0');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('php');
+command_must_exist('curl');
+
+// Parse arguments.
+foreach (array_slice($GLOBALS['argv'] ?? [], 1) as $arg) {
+  if ($arg === '--interactive') {
+    $installer_interactive = '1';
+  }
+  else {
+    $installer_template_repo = $arg;
+  }
+}
+
+if ($installer_path !== '') {
+  note('Using installer script from local path: %s', $installer_path);
+  if (!file_exists($installer_path)) {
+    fail('Installer script not found at %s', $installer_path);
+  }
+}
+else {
+  note('Using installer script from URL: %s', $installer_url);
+  $installer_path = 'installer.php';
+  note('Downloading installer to %s', $installer_path);
+  passthru(sprintf('curl -fsSL %s -o %s', escapeshellarg($installer_url . '?' . $installer_url_cache_bust), escapeshellarg($installer_path)), $exit_code);
+  if ($exit_code !== 0) {
+    fail('Failed to download installer from %s', $installer_url);
+  }
+}
+
+if ($installer_interactive === '0') {
+  passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+}
+else {
+  passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+}
+
+quit($exit_code);

@@ -1,0 +1,75 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Print project information.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Name of the webroot directory with Drupal codebase.
+$webroot = getenv_default('WEBROOT', 'web');
+
+// Show one-time login link.
+$show_login = getenv_default('VORTEX_SHOW_LOGIN', '');
+
+// -----------------------------------------------------------------------------
+
+$sequelace = !empty(getenv('VORTEX_HOST_HAS_SEQUELACE')) ? "('ahoy db' to start SequelAce)" : '';
+
+info('Project information');
+
+echo PHP_EOL;
+note('Project name                : %s', getenv('VORTEX_PROJECT') ?: '');
+note('Docker Compose project name : %s', getenv('COMPOSE_PROJECT_NAME') ?: '');
+note('Site local URL              : http://%s', getenv('VORTEX_LOCALDEV_URL') ?: '');
+note('Path to web root            : %s/%s', (string) getcwd(), $webroot);
+note('DB host                     : %s', getenv('DATABASE_HOST') ?: '');
+note('DB username                 : %s', getenv('DATABASE_USERNAME') ?: '');
+note('DB password                 : %s', getenv('DATABASE_PASSWORD') ?: '');
+note('DB port                     : %s', getenv('DATABASE_PORT') ?: '');
+note('DB port on host             : %s %s', getenv('VORTEX_HOST_DB_PORT') ?: '', $sequelace);
+
+$db_image = getenv('VORTEX_DB_IMAGE') ?: '';
+if ($db_image !== '') {
+  note('DB-in-image                 : %s', $db_image);
+}
+
+$solr_port = getenv('VORTEX_HOST_SOLR_PORT') ?: '';
+if ($solr_port !== '') {
+  note('Solr URL on host            : http://127.0.0.1:%s', $solr_port);
+}
+
+$selenium_vnc_port = getenv('VORTEX_HOST_SELENIUM_VNC_PORT') ?: '';
+if ($selenium_vnc_port !== '') {
+  note('Selenium VNC URL on host    : http://localhost:%s/?autoconnect=1&password=secret', $selenium_vnc_port);
+}
+
+note('Mailhog URL                 : http://mailhog.docker.amazee.io/');
+
+// Check Xdebug status.
+passthru('php -v 2>/dev/null | grep -q Xdebug', $exit_code);
+$xdebug_status = $exit_code === 0
+  ? "Enabled ('ahoy up cli' to disable)"
+  : "Disabled ('ahoy debug' to enable)";
+note('Xdebug                      : %s', $xdebug_status);
+
+if ($show_login === '1') {
+  echo '       Site login link             : ';
+  passthru('php ' . __DIR__ . '/login');
+}
+else {
+  echo PHP_EOL;
+  note("Use 'ahoy login' to generate Drupal login link.");
+}
+echo PHP_EOL;
