@@ -10,11 +10,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests for command existence functions.
+ * Tests for command path functions.
  *
  * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
-#[CoversFunction('DrevOps\VortexTooling\command_exists')]
+#[CoversFunction('DrevOps\VortexTooling\command_path')]
 #[CoversFunction('DrevOps\VortexTooling\command_must_exist')]
 #[Group('helpers')]
 class HelpersCommandExistsTest extends UnitTestCase {
@@ -25,30 +25,49 @@ class HelpersCommandExistsTest extends UnitTestCase {
     require_once __DIR__ . '/../../src/helpers.php';
   }
 
-  #[DataProvider('dataProviderCommandExists')]
-  public function testCommandExists(string $command, bool $expected): void {
-    $result = \DrevOps\VortexTooling\command_exists($command);
+  #[DataProvider('dataProviderCommandPath')]
+  public function testCommandPath(string $command, bool $expect_found): void {
+    $result = \DrevOps\VortexTooling\command_path($command);
 
-    $this->assertSame($expected, $result);
+    if ($expect_found) {
+      $this->assertIsString($result);
+      $this->assertNotEmpty($result);
+      $this->assertStringContainsString($command, $result);
+    }
+    else {
+      $this->assertFalse($result);
+    }
   }
 
-  public static function dataProviderCommandExists(): array {
+  public static function dataProviderCommandPath(): array {
     return [
       'existing command php' => [
         'command' => 'php',
-        'expected' => TRUE,
+        'expect_found' => TRUE,
       ],
       'existing command ls' => [
         'command' => 'ls',
-        'expected' => TRUE,
+        'expect_found' => TRUE,
       ],
       'non-existing command' => [
         'command' => 'nonexistent_command_12345',
-        'expected' => FALSE,
+        'expect_found' => FALSE,
       ],
       'non-existing command with special chars' => [
         'command' => 'fake_cmd_xyz',
-        'expected' => FALSE,
+        'expect_found' => FALSE,
+      ],
+      'command with shell injection' => [
+        'command' => 'php; echo pwned',
+        'expect_found' => FALSE,
+      ],
+      'command with backticks' => [
+        'command' => '`whoami`',
+        'expect_found' => FALSE,
+      ],
+      'command with subshell' => [
+        'command' => '$(whoami)',
+        'expect_found' => FALSE,
       ],
     ];
   }

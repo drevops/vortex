@@ -54,7 +54,7 @@ class DeployLagoonTest extends UnitTestCase {
   public function testDestroyAction(): void {
     $this->envSet('VORTEX_DEPLOY_ACTION', 'destroy');
 
-    // Create a fake lagoon binary to satisfy command_exists check.
+    // Create a fake lagoon binary to satisfy command_path check.
     $this->createFakeLagoonBinary();
 
     $this->mockQuit(0);
@@ -768,7 +768,7 @@ class DeployLagoonTest extends UnitTestCase {
     file_put_contents($lagoon_path, "#!/bin/bash\necho 'fake lagoon'\n");
     chmod($lagoon_path, 0755);
 
-    // Add to PATH so command_exists finds it.
+    // Add to PATH so command_path finds it.
     putenv('PATH=' . $bin_dir . ':' . getenv('PATH'));
 
     // Set global variables that the script's functions access via 'global'.

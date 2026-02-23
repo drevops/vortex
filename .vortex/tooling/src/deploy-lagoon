@@ -112,7 +112,7 @@ if ($ssh_exit_code !== 0) {
 }
 
 // Install Lagoon CLI if needed.
-if (!command_exists('lagoon') || !empty($lagooncli_force_install)) {
+if (!command_path('lagoon') || !empty($lagooncli_force_install)) {
   task('Installing Lagoon CLI.');
 
   $platform = strtolower(php_uname('s'));
