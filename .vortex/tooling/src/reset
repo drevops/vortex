@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Reset project to a freshly cloned repository state.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Name of the webroot directory with Drupal codebase.
+$webroot = getenv_default('WEBROOT', 'web');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('git');
+
+$is_hard_reset = isset($GLOBALS['argv'][1]) && $GLOBALS['argv'][1] === 'hard';
+
+info('Started reset.');
+
+passthru(sprintf('rm -rf ./vendor ./%s/core ./%s/profiles/contrib ./%s/modules/contrib ./%s/themes/contrib ./%s/themes/custom/*/build ./%s/themes/custom/*/scss/_components.scss', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
+
+passthru('find . -type d -name node_modules | xargs rm -Rf');
+
+if ($is_hard_reset) {
+  task('Changing permissions and remove all other untracked files.');
+  passthru('git ls-files --others -i --exclude-from=.gitignore -z | while IFS= read -r -d "" file; do chmod 777 "$file" 2>/dev/null; rm -rf "$file" 2>/dev/null; done');
+
+  task('Resetting repository files.');
+  passthru('git reset --hard', $exit_code);
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+
+  task('Removing all untracked files.');
+  passthru('git clean -f -d', $exit_code);
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+
+  task('Removing empty directories.');
+  passthru('find . -type d -not -path "./.git/*" -empty -delete');
+}
+
+pass('Finished reset.');

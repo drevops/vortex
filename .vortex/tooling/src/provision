@@ -145,7 +145,7 @@ function yesno(string $value): string {
 function provision_from_db(string $provision_db): void {
   if (!file_exists($provision_db)) {
     echo PHP_EOL;
-    fail('Unable to import database from file.');
+    fail_no_exit('Unable to import database from file.');
     note('Dump file %s does not exist.', $provision_db);
     note('Site content was not changed.');
     quit(1);
@@ -158,7 +158,6 @@ function provision_from_db(string $provision_db): void {
 
   if ($import_exit_code !== 0) {
     fail('Failed to import database from dump file.');
-    quit(1);
   }
 
   pass('Imported database from the dump file.');
@@ -326,11 +325,9 @@ $site_is_installed = str_contains($bootstrap_output, 'Successful');
 $config_path = trim(drush("php:eval \"print realpath(\\Drupal\\Core\\Site\\Settings::get('config_sync_directory'));\""));
 if (empty($config_path)) {
   fail('Config directory was not found in the Drupal settings.');
-  quit(1);
 }
 if (!is_dir($config_path)) {
   fail('Config directory "%s" does not exist.', $config_path);
-  quit(1);
 }
 
 // Check if config files exist.
@@ -371,11 +368,7 @@ note('Use maintenance mode           : %s', yesno($provision_use_maintenance_mod
 echo PHP_EOL;
 
 if ($provision_verify_config === '1') {
-  $diff_path = trim((string) shell_exec('command -v diff 2>/dev/null'));
-  if (empty($diff_path)) {
-    fail('Command diff is not available.');
-    quit(1);
-  }
+  command_must_exist('diff');
 }
 
 // Provision site from DB dump or profile.
@@ -528,7 +521,7 @@ if ($provision_verify_config === '1' && $site_has_config_files) {
   $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
 
   if (!empty(trim($config_diff))) {
-    fail('Configuration was changed by database updates.');
+    fail_no_exit('Configuration was changed by database updates.');
     note('The following configuration files were changed:');
     echo $config_diff . PHP_EOL;
     note('Configuration before updates: %s', $config_before);

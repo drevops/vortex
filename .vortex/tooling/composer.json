@@ -16,18 +16,20 @@
         "issues": "https://github.com/drevops/vortex/issues",
         "source": "https://github.com/drevops/vortex"
     },
+    "require": {
+        "php": ">=8.2"
+    },
     "require-dev": {
-        "php": ">=8.2",
         "alexskrypnyk/file": "^0.15",
         "alexskrypnyk/phpunit-helpers": "^0.14.0",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/phpcs-standard": "^0.5",
         "drupal/coder": "^9@alpha",
-        "ergebnis/composer-normalize": "^2.48.2",
-        "php-mock/php-mock-phpunit": "^2.14",
-        "phpstan/phpstan": "^2.1.33",
-        "phpunit/phpunit": "^12.5.3",
-        "rector/rector": "^2.2.14",
+        "ergebnis/composer-normalize": "^2.50.0",
+        "php-mock/php-mock-phpunit": "^2.15",
+        "phpstan/phpstan": "^2.1.39",
+        "phpunit/phpunit": "^12.5.14",
+        "rector/rector": "^2.3.7",
         "squizlabs/php_codesniffer": "^4.0.1"
     },
     "minimum-stability": "alpha",
@@ -46,7 +48,11 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true
-        }
+        },
+        "bump-after-update": true,
+        "discard-changes": true,
+        "process-timeout": 0,
+        "sort-packages": true
     },
     "scripts": {
         "check-no-exit": "php check-no-exit.php",

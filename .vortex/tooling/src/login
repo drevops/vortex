@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Login to a Drupal site as an admin user.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Flag to unblock admin.
+$unblock_admin = getenv_default('VORTEX_LOGIN_UNBLOCK_ADMIN', 'VORTEX_UNBLOCK_ADMIN', '1');
+
+// -----------------------------------------------------------------------------
+
+if ($unblock_admin === '1') {
+  // Check if the password_policy module is enabled.
+  passthru('./vendor/bin/drush -y pm:list --status=enabled 2>/dev/null | grep -q password_policy', $exit_code);
+  if ($exit_code === 0) {
+    passthru('./vendor/bin/drush -y sql:query \'UPDATE `user__field_password_expiration` SET `field_password_expiration_value` = 0 WHERE `bundle` = "user" AND `entity_id` = 1;\' >/dev/null', $exit_code);
+  }
+
+  // Unblock the admin user.
+  passthru('./vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:unblock 2>/dev/null', $exit_code);
+}
+
+passthru('./vendor/bin/drush -y user:login', $exit_code);
+if ($exit_code !== 0) {
+  quit($exit_code);
+}
