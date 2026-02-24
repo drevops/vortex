@@ -329,35 +329,18 @@ jobs:
 
       - run:
           name: Test with PHPUnit
-          command: docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Test with Behat
+          name: Process PHPUnit logs and coverage
           command: |
-            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
-            echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
-              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
-              [ "${VORTEX_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
-          no_output_timeout: 30m
-
-      - run:
-          name: Process test logs and artifacts
-          command: |
-            mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            mkdir -p "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
                docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
-              if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
-                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
-              fi
             fi
-          when: always
-
-      - store_test_results:
-          path: *test_results
-
-      - store_artifacts:
-          path: *artifacts
 
       - run:
           name: Check code coverage threshold
@@ -392,9 +375,38 @@ jobs:
       - run:
           name: Upload code coverage reports to Codecov
           command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ] && ! echo "${CIRCLE_BRANCH}" | grep -q '^deps/'; then
               codecov -Z -s /tmp/artifacts/coverage;
             fi
+
+      - run:
+          name: Test with Behat
+          command: |
+            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
+            echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
+            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              [ "${VORTEX_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
+          no_output_timeout: 30m
+
+      - run:
+          name: Process test logs and artifacts
+          command: |
+            mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
+            if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+              if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
+                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
+              fi
+            fi
+          when: always
+
+      - store_test_results:
+          path: *test_results
+
+      - store_artifacts:
+          path: *artifacts
 
       - persist_to_workspace:
           root: /tmp/workspace

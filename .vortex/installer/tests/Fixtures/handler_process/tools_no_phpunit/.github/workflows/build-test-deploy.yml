@@ -1,18 +1,19 @@
-@@ -314,10 +314,6 @@
+@@ -314,53 +314,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
          timeout-minutes: 30
  
 -      - name: Test with PHPUnit
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: docker compose exec -T cli vendor/bin/phpunit
 -        continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 -
-       - name: Test with Behat
-         run: |
-           # shellcheck disable=SC2170
-@@ -346,40 +342,6 @@
-           path: .logs
-           include-hidden-files: true
-           if-no-files-found: error
+-      - name: Process PHPUnit logs and coverage
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: |
+-          mkdir -p ".logs"
+-          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+-             docker compose cp cli:/app/.logs/. ".logs/"
+-          fi
 -
 -      - name: Check code coverage threshold
 -        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -40,13 +41,14 @@
 -
 -      - name: Upload coverage report to Codecov
 -        uses: codecov/codecov-action@__HASH__ # __VERSION__
--        if: ${{ env.CODECOV_TOKEN != '' }}
+-        if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
 -        with:
 -          directory: .logs/coverage
 -          fail_ci_if_error: true
 -          token: ${{ secrets.CODECOV_TOKEN }}
 -        env:
 -          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
- 
-       - name: Upload exported codebase as an artifact
-         uses: actions/upload-artifact@__HASH__ # __VERSION__
+-
+       - name: Test with Behat
+         run: |
+           # shellcheck disable=SC2170

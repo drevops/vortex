@@ -35,33 +35,24 @@
        - name: Lint module code with NodeJS linters
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli bash -c "yarn run lint"
-@@ -314,22 +289,6 @@
+@@ -312,65 +287,6 @@
+             docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+           fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
-         timeout-minutes: 30
- 
+-        timeout-minutes: 30
+-
 -      - name: Test with PHPUnit
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: docker compose exec -T cli vendor/bin/phpunit
 -        continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 -
--      - name: Test with Behat
+-      - name: Process PHPUnit logs and coverage
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: |
--          # shellcheck disable=SC2170
--          if [ ${{ strategy.job-total }} -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${{ strategy.job-index }}}"; fi
--          echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
--          docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
--            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
--        env:
--          VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
--        continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
--        timeout-minutes: 30
--
-       - name: Process test logs and artifacts
-         if: always()
-         run: |
-@@ -346,40 +305,6 @@
-           path: .logs
-           include-hidden-files: true
-           if-no-files-found: error
+-          mkdir -p ".logs"
+-          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+-             docker compose cp cli:/app/.logs/. ".logs/"
+-          fi
 -
 -      - name: Check code coverage threshold
 -        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -89,13 +80,24 @@
 -
 -      - name: Upload coverage report to Codecov
 -        uses: codecov/codecov-action@__HASH__ # __VERSION__
--        if: ${{ env.CODECOV_TOKEN != '' }}
+-        if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
 -        with:
 -          directory: .logs/coverage
 -          fail_ci_if_error: true
 -          token: ${{ secrets.CODECOV_TOKEN }}
 -        env:
 -          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+-
+-      - name: Test with Behat
+-        run: |
+-          # shellcheck disable=SC2170
+-          if [ ${{ strategy.job-total }} -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${{ strategy.job-index }}}"; fi
+-          echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
+-          docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
+-        env:
+-          VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
+-        continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
+         timeout-minutes: 30
  
-       - name: Upload exported codebase as an artifact
-         uses: actions/upload-artifact@__HASH__ # __VERSION__
+       - name: Process test logs and artifacts

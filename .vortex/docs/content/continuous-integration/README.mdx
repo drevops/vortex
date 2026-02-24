@@ -35,10 +35,10 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Validates Composer lock and audits dependencies
 - Assembles the codebase by installing dependencies
 - Provisions a website
-- Lints code (only on the first instance)
-- Runs unit tests
-- Runs BDD tests
-- Generates code coverage reports
+- Lints code (first instance only)
+- Runs PHPUnit tests (first instance only)
+- Checks code coverage and posts PR comment (first instance only)
+- Runs BDD tests (distributed across all instances)
 - Collects and stores test results and artifacts
 
 ### 3. Deployment
@@ -101,6 +101,64 @@ The continuous integration pipeline is triggered by:
 - **Pull requests** to these branches
 - **Tags** matching semantic version (`1.2.3`, `1.2.3-rc.1`) or date-based (`2023-04-17`) patterns
 - **Scheduled runs** for automatic database caching
+
+## Test parallelism
+
+The build job runs across multiple parallel containers (2 by default) to speed
+up test execution. Since each container runs the full build and provision
+steps, the test workload is distributed to make the best use of each container.
+
+### What runs where
+
+| Task | First container | Other containers |
+|------|:---:|:---:|
+| Code linting (PHPCS, PHPStan, Rector, etc.) | ✓ | — |
+| PHPUnit tests | ✓ | — |
+| Code coverage check and PR comment | ✓ | — |
+| Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, ...) |
+
+Linting, PHPUnit, and coverage reporting run exclusively on the first container
+to avoid duplicate work. Behat tests run on all containers using profile-based
+distribution.
+
+### Balancing Behat tests
+
+Because the first container handles linting, PHPUnit, and coverage in addition
+to Behat tests, it has more work to do than the other containers. To keep
+overall build time low, assign more Behat scenarios to the non-first containers.
+
+Behat scenarios are assigned to containers using profile tags. Tag a scenario
+with `@p0` to run it on the first container or `@p1` to run it on the second:
+
+```gherkin
+@p0
+Scenario: Quick smoke test
+  Given I go to the homepage
+  Then I should see "Welcome"
+
+@p1
+Scenario: Full content workflow
+  Given I am logged in as a content editor
+  ...
+```
+
+Scenarios without a profile tag default to the first container. When only one
+container is available, all scenarios run regardless of tags.
+
+:::tip
+
+As a rule of thumb, keep lightweight or smoke-test scenarios on the first
+container (`@p0`) and move heavier or more numerous scenarios to additional
+containers (`@p1`, `@p2`, etc.). This keeps the total build time closer to the
+duration of the longest single container rather than the sum of all tests.
+
+:::
+
+See the provider-specific pages for how to change the number of parallel
+containers:
+
+- [CircleCI — Change test parallelism](/docs/continuous-integration/circleci#change-test-parallelism)
+- [GitHub Actions — Change test parallelism](/docs/continuous-integration/github-actions#change-test-parallelism)
 
 ## Maintenance
 
