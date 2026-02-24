@@ -23,9 +23,17 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    // Unset environment variables that may leak from the host and interfere
+    // with tests via fallback chains in getenv_required()/getenv_default().
+    self::envUnsetPrefix('S3_');
+    self::envUnsetPrefix('LAGOON_');
+    self::envUnsetPrefix('NEWRELIC_');
+    self::envUnsetPrefix('DOCKER_');
+    self::envUnsetPrefix('DATABASE_');
+    self::envUnsetPrefix('DRUPAL_');
+    self::envUnsetPrefix('COMPOSE_');
     self::envUnsetMultiple([
       'GITHUB_TOKEN',
-      'NEWRELIC_USER_KEY',
     ]);
   }
 

@@ -99,4 +99,49 @@ class HelpersRequestTest extends UnitTestCase {
     $this->assertNotNull($result['error']);
   }
 
+  public function testSaveToStreamsToFile(): void {
+    $input = self::$tmp . '/input.txt';
+    $output = self::$tmp . '/output.txt';
+    $content = str_repeat('Database dump content. ', 100);
+    file_put_contents($input, $content);
+
+    $result = \DrevOps\VortexTooling\request('file://' . $input, [
+      'save_to' => $output,
+    ]);
+
+    $this->assertTrue($result['ok']);
+    $this->assertFileExists($output);
+    $this->assertEquals($content, file_get_contents($output));
+    $this->assertEquals('', $result['body']);
+  }
+
+  public function testSaveToLargeFile(): void {
+    $input = self::$tmp . '/large_input.bin';
+    $output = self::$tmp . '/large_output.bin';
+    // 1 MB of data to verify streaming handles non-trivial sizes.
+    $content = random_bytes(1024 * 1024);
+    file_put_contents($input, $content);
+
+    $result = \DrevOps\VortexTooling\request('file://' . $input, [
+      'save_to' => $output,
+    ]);
+
+    $this->assertTrue($result['ok']);
+    $this->assertFileExists($output);
+    $this->assertEquals(strlen($content), filesize($output));
+    $this->assertEquals($content, file_get_contents($output));
+    $this->assertEquals('', $result['body']);
+  }
+
+  public function testWithoutSaveToReturnsBody(): void {
+    $input = self::$tmp . '/input.txt';
+    $content = 'Small response body';
+    file_put_contents($input, $content);
+
+    $result = \DrevOps\VortexTooling\request('file://' . $input);
+
+    $this->assertTrue($result['ok']);
+    $this->assertEquals($content, $result['body']);
+  }
+
 }

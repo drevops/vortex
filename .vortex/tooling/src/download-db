@@ -1,0 +1,95 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download database dump.
+ *
+ * This is a router script to call relevant scripts based on type.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Database download source.
+$source = getenv_default('VORTEX_DOWNLOAD_DB_SOURCE', 'url');
+
+// Force DB download even if the cache exists.
+$force = getenv_default('VORTEX_DOWNLOAD_DB_FORCE', '');
+
+// Proceed with download.
+$proceed = getenv_default('VORTEX_DOWNLOAD_DB_PROCEED', '1');
+
+// Database dump file name.
+$db_file = getenv_default('VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Semaphore file to indicate download completion.
+$semaphore = getenv_default('VORTEX_DOWNLOAD_DB_SEMAPHORE', '');
+
+// -----------------------------------------------------------------------------
+
+info('Started database download.');
+
+if ($proceed !== '1') {
+  pass('Skipping database download as VORTEX_DOWNLOAD_DB_PROCEED is not set to 1.');
+  quit(0);
+}
+
+// Check for existing dump files.
+$db_file_basename = pathinfo($db_file, PATHINFO_FILENAME);
+$found_db = '';
+if (is_dir($db_dir)) {
+  $files = glob($db_dir . '/' . $db_file_basename . '.{sql,tar}', GLOB_BRACE);
+  if ($files !== FALSE && count($files) > 0) {
+    $found_db = implode("\n", $files);
+  }
+}
+
+if ($found_db !== '') {
+  note('Found existing database dump file(s).');
+  passthru('ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true');
+
+  if ($force !== '1') {
+    note('Using existing database dump file(s).');
+    note('Download will not proceed.');
+    note('Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download.');
+    quit(0);
+  }
+
+  note('Will download a fresh copy of the database.');
+}
+
+$sources = [
+  'ftp' => __DIR__ . '/download-db-ftp',
+  'url' => __DIR__ . '/download-db-url',
+  'acquia' => __DIR__ . '/download-db-acquia',
+  'lagoon' => __DIR__ . '/download-db-lagoon',
+  'container_registry' => __DIR__ . '/download-db-container-registry',
+  's3' => __DIR__ . '/download-db-s3',
+];
+
+if (!isset($sources[$source])) {
+  fail('Invalid database download source "%s". Available sources: %s.', $source, implode(', ', array_keys($sources)));
+}
+
+passthru_or_fail($sources[$source], 'Failed to download database from source "%s".', $source);
+
+passthru('ls -Alh ' . escapeshellarg($db_dir) . ' || true');
+
+// Create a semaphore file to indicate that the database has been downloaded.
+if ($semaphore !== '') {
+  touch($semaphore);
+}
+
+pass('Finished database download.');

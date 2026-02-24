@@ -23,8 +23,5 @@ $block_admin = getenv_default('VORTEX_LOGOUT_BLOCK_ADMIN', 'VORTEX_UNBLOCK_ADMIN
 // -----------------------------------------------------------------------------
 
 if ($block_admin === '1') {
-  passthru('./vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:block', $exit_code);
-  if ($exit_code !== 0) {
-    fail('Failed to block admin user.');
-  }
+  passthru_or_fail('./vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:block', 'Failed to block admin user.');
 }

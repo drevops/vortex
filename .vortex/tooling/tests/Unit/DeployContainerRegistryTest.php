@@ -16,7 +16,6 @@ class DeployContainerRegistryTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     $this->envSetMultiple([
       'VORTEX_DEPLOY_CONTAINER_REGISTRY' => 'docker.io',

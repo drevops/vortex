@@ -1,0 +1,52 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Export database.
+ *
+ * This is a router script to call relevant scripts based on type.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Name of the database container image to use.
+$db_image = getenv_default('VORTEX_EXPORT_DB_IMAGE', 'VORTEX_DB_IMAGE', '');
+
+// Whether to deploy the container image to registry after export.
+$registry_deploy = getenv_default('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED', '0');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('docker');
+
+info('Started database export.');
+
+if ($db_image === '') {
+  // Export database as a file.
+  // Script runs inside the container - use path relative to project root.
+  $script_rel = ltrim(str_replace((string) getcwd(), '', __DIR__), '/');
+  passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
+}
+else {
+  // Export database as a container image.
+  putenv('VORTEX_EXPORT_DB_IMAGE=' . $db_image);
+  passthru_or_fail(__DIR__ . '/export-db-image ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as image.');
+
+  // Deploy container image.
+  if ($registry_deploy === '1') {
+    putenv('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=' . $db_image);
+    passthru_or_fail(__DIR__ . '/deploy-container-registry', 'Failed to deploy container image to registry.');
+  }
+}
+
+pass('Finished database export.');
