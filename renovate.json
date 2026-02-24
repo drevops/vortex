@@ -26,16 +26,31 @@
     ],
     "packageRules": [
         {
+            "groupName": "PHP - Language version - Skipped to update manually",
+            "groupSlug": "php-language-version",
             "matchDepNames": [
                 "php"
             ],
-            "matchFileNames": [
-                "composer.json"
+            "matchManagers": [
+                "composer"
             ],
             "enabled": false
         },
         {
-            "groupName": "Major all - skipped to update manually",
+            "groupName": "JavaScript - Language versions - Skipped to update manually",
+            "groupSlug": "js-language-versions",
+            "matchDepNames": [
+                "node",
+                "yarn"
+            ],
+            "matchManagers": [
+                "npm"
+            ],
+            "enabled": false
+        },
+        {
+            "groupName": "PHP - All packages - Major - Skipped to update manually",
+            "groupSlug": "php-all-major",
             "matchDatasources": [
                 "packagist"
             ],
@@ -51,8 +66,8 @@
             ]
         },
         {
-            "groupName": "Minor and Patch Contrib",
-            "groupSlug": "drupal-minor-patch-contrib",
+            "groupName": "PHP - All packages except core - Minor and patch",
+            "groupSlug": "php-all-except-core-minor-patch",
             "matchDatasources": [
                 "packagist"
             ],
@@ -72,8 +87,8 @@
             ]
         },
         {
-            "groupName": "Minor and Patch Core",
-            "groupSlug": "drupal-minor-patch-core",
+            "groupName": "PHP - Drupal core - Minor and patch",
+            "groupSlug": "php-drupal-core-minor-patch",
             "matchFileNames": [
                 "composer.json"
             ],
@@ -95,7 +110,8 @@
             ]
         },
         {
-            "groupName": "Non-root npm - skipped",
+            "groupName": "JavaScript - Non-root packages - Skipped to update manually",
+            "groupSlug": "js-non-root",
             "matchDatasources": [
                 "npm"
             ],
@@ -108,7 +124,8 @@
             ]
         },
         {
-            "groupName": "Major npm - skipped to update manually",
+            "groupName": "JavaScript - All packages - Major - Skipped to update manually",
+            "groupSlug": "js-all-major",
             "matchDatasources": [
                 "npm"
             ],
@@ -124,8 +141,8 @@
             ]
         },
         {
-            "groupName": "Minor and Patch npm",
-            "groupSlug": "npm-minor-patch",
+            "groupName": "JavaScript - All packages - Minor and patch",
+            "groupSlug": "js-all-minor-patch",
             "matchDatasources": [
                 "npm"
             ],
@@ -141,8 +158,8 @@
             ]
         },
         {
-            "groupName": "Container images",
-            "groupSlug": "docker",
+            "groupName": "Container images - All - Major, minor and patch",
+            "groupSlug": "container-images-all-major-minor-patch",
             "matchFileNames": [
                 ".docker/**"
             ],
@@ -156,8 +173,8 @@
             ]
         },
         {
-            "groupName": "GitHub Actions",
-            "groupSlug": "github-actions",
+            "groupName": "GitHub Actions - All - Major, minor and patch",
+            "groupSlug": "github-actions-all-major-minor-patch",
             "schedule": [
                 "before 3am"
             ],

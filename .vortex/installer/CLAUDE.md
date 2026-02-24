@@ -40,7 +40,10 @@ tests/Fixtures/install/
 
 ### Updating Fixtures
 
-**CRITICAL**: Never modify fixture files directly.
+**CRITICAL**: Never modify fixture files directly. All fixture files
+(including `_baseline/`) are regenerated from the root template files by
+`ahoy update-snapshots`. Only modify the root template files — the user
+will run the snapshot update themselves.
 
 ```bash
 # From .vortex/ directory (recommended)
