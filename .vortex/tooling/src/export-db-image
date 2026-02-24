@@ -1,0 +1,102 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Export database as a container image.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Container image archive file name.
+$archive_file_env = getenv('VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE');
+$archive_file = ($archive_file_env !== FALSE && $archive_file_env !== '') ? $archive_file_env : ($GLOBALS['argv'][1] ?? '');
+
+// Container image to store in a form of `<org>/<repository>`.
+$image = getenv_required('VORTEX_EXPORT_DB_IMAGE');
+
+// Container registry name.
+$registry = getenv_default('VORTEX_EXPORT_DB_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
+
+// The service name to capture.
+$service_name = getenv_default('VORTEX_EXPORT_DB_SERVICE_NAME', 'database');
+
+// Directory with database image archive file.
+$image_dir = getenv_default('VORTEX_EXPORT_DB_IMAGE_DIR', 'VORTEX_DB_DIR', './.data');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('docker');
+
+info('Started database data container image export.');
+
+$service_escaped = escapeshellarg($service_name);
+
+$cid = trim((string) shell_exec(sprintf('docker compose ps -q %s', $service_escaped)));
+
+if ($cid === '') {
+  fail('Unable to find container for service %s. Check that the service is running with `docker compose ps`.', $service_name);
+}
+
+note(sprintf('Found %s service container with id %s.', $service_name, $cid));
+
+$new_image = $registry . '/' . $image;
+
+task('Locking and unlocking tables before upgrade.');
+passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables for service %s.', $service_name);
+
+sleep(5);
+
+passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('UNLOCK TABLES;')), 'Failed to unlock tables for service %s.', $service_name);
+
+task('Running forced service upgrade.');
+passthru_or_fail(sprintf('docker compose exec -T %s sh -c %s', $service_escaped, escapeshellarg('mariadb-upgrade --force || mariadb-upgrade --force')), 'Failed to run service upgrade for %s.', $service_name);
+
+task('Locking tables after upgrade.');
+passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables after upgrade for service %s.', $service_name);
+
+task(sprintf('Committing exported container image with name %s.', $new_image));
+$iid = trim((string) shell_exec(sprintf('docker commit %s %s', escapeshellarg($cid), escapeshellarg($new_image))));
+$iid = ltrim($iid, 'sha256:');
+note(sprintf('Committed exported container image with id %s.', $iid));
+
+// Create directory to store database dump.
+if (!is_dir($image_dir)) {
+  mkdir($image_dir, 0755, TRUE);
+}
+
+// Create dump file name with a timestamp or use the file name provided
+// as a first argument. Also, make sure that the extension is correct.
+if ($archive_file !== '') {
+  $archive = $image_dir . '/' . str_replace('.sql', '.tar', $archive_file);
+}
+else {
+  $archive = $image_dir . '/export_db_' . date('Ymd_His') . '.tar';
+}
+
+task(sprintf('Exporting database image archive to file %s.', $archive));
+
+if (!is_dir(dirname($archive))) {
+  mkdir(dirname($archive), 0755, TRUE);
+}
+
+passthru_or_fail(sprintf('docker save -o %s %s', escapeshellarg($archive), escapeshellarg($new_image)), 'Unable to save database image archive file %s.', $archive);
+
+// Check that file was saved and output saved dump file name.
+if (file_exists($archive) && filesize($archive) > 0) {
+  note(sprintf('Exported database image saved to archive file %s.', $archive));
+}
+else {
+  fail(sprintf('Unable to save database image archive file %s.', $archive));
+}
+
+pass('Finished database data container image export.');

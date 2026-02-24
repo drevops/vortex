@@ -41,10 +41,7 @@ if (file_exists($config_file) && str_contains(file_get_contents($config_file), $
 elseif (!empty($user) && !empty($pass)) {
   task('Logging in to registry "' . $registry . '".');
   $cmd = sprintf('echo %s | docker login --username %s --password-stdin %s', escapeshellarg($pass), escapeshellarg($user), escapeshellarg($registry));
-  passthru($cmd, $exit_code);
-  if ($exit_code !== 0) {
-    quit($exit_code);
-  }
+  passthru_or_fail($cmd);
 }
 else {
   note('Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');

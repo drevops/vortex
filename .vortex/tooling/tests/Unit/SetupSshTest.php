@@ -14,7 +14,6 @@ class SetupSshTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     // Unset all potential environment variables that could leak from other
     // tests.

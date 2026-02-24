@@ -198,15 +198,14 @@ if ($check_webserver === '1') {
 
   if ($local_dev_url !== '') {
     // Depending on the type of installation, the homepage may return 200 or 403.
-    passthru(sprintf('curl -L -s -o /dev/null -w "%%{http_code}" %s 2>/dev/null | grep -q "200\\|403"', escapeshellarg($local_dev_url)), $exit_code);
-    if ($exit_code !== 0) {
+    $web_response = request_get($local_dev_url, [], 5);
+    if (!in_array($web_response['status'], [200, 403], TRUE)) {
       fail('Web server is not accessible at http://%s.', $local_dev_url);
     }
     pass('Web server is running and accessible at http://%s.', $local_dev_url);
 
     if ($check_bootstrap === '1') {
-      passthru(sprintf('curl -L -s -N %s 2>/dev/null | grep -q -i "charset="', escapeshellarg($local_dev_url)), $exit_code);
-      if ($exit_code !== 0) {
+      if (!str_contains(strtolower((string) $web_response['body']), 'charset=')) {
         fail('Website is running, but cannot be bootstrapped. Check web-server configuration.');
       }
       pass('Bootstrapped website at http://%s.', $local_dev_url);

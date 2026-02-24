@@ -106,10 +106,7 @@ if (empty($deploy_branch) && empty($deploy_pr)) {
 putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
 !empty($ssh_fingerprint) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT=' . $ssh_fingerprint);
 !empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
-passthru(__DIR__ . '/setup-ssh', $ssh_exit_code);
-if ($ssh_exit_code !== 0) {
-  quit($ssh_exit_code);
-}
+passthru_or_fail(__DIR__ . '/setup-ssh');
 
 // Install Lagoon CLI if needed.
 if (!command_path('lagoon') || !empty($lagooncli_force_install)) {
@@ -118,13 +115,7 @@ if (!command_path('lagoon') || !empty($lagooncli_force_install)) {
   $platform = strtolower(php_uname('s'));
   $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
 
-  $download_url = sprintf(
-    'https://github.com/uselagoon/lagoon-cli/releases/download/%s/lagoon-cli-%s-%s-%s',
-    $lagooncli_version,
-    $lagooncli_version,
-    $platform,
-    $arch
-  );
+  $download_url = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s/lagoon-cli-%s-%s-%s', $lagooncli_version, $lagooncli_version, $platform, $arch);
 
   $lagoon_binary_path = $lagooncli_path . '/lagoon';
 
@@ -152,20 +143,7 @@ if (!command_path('lagoon') || !empty($lagooncli_force_install)) {
 }
 
 task('Configuring Lagoon instance.');
-passthru(
-  sprintf(
-    '%s config add --force --lagoon %s --graphql %s --hostname %s --port %s',
-    escapeshellarg($lagoon_bin),
-    escapeshellarg($lagoon_instance),
-    escapeshellarg($lagoon_instance_graphql),
-    escapeshellarg($lagoon_instance_hostname),
-    escapeshellarg($lagoon_instance_port)
-  ),
-  $config_exit_code
-);
-if ($config_exit_code !== 0) {
-  quit($config_exit_code);
-}
+passthru_or_fail(sprintf('%s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($lagoon_bin), escapeshellarg($lagoon_instance), escapeshellarg($lagoon_instance_graphql), escapeshellarg($lagoon_instance_hostname), escapeshellarg($lagoon_instance_port)));
 
 /**
  * Run Lagoon CLI command.
@@ -183,14 +161,7 @@ function lagoon_run_cli(string $subcommand, ?int &$subcommand_exit_code = NULL):
   // phpcs:ignore Drupal.NamingConventions.ValidGlobal.GlobalUnderScore
   global $ssh_file, $lagoon_instance, $lagoon_project, $lagoon_bin;
 
-  $cmd = sprintf(
-    '%s --force --skip-update-check --ssh-key %s --lagoon %s --project %s %s 2>&1',
-    escapeshellarg($lagoon_bin),
-    escapeshellarg($ssh_file),
-    escapeshellarg($lagoon_instance),
-    escapeshellarg($lagoon_project),
-    $subcommand
-  );
+  $cmd = sprintf('%s --force --skip-update-check --ssh-key %s --lagoon %s --project %s %s 2>&1', escapeshellarg($lagoon_bin), escapeshellarg($ssh_file), escapeshellarg($lagoon_instance), escapeshellarg($lagoon_project), $subcommand);
 
   $subcommand_exit_code_provided = TRUE;
   if (is_null($subcommand_exit_code)) {
@@ -288,15 +259,7 @@ else {
       }
 
       task(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr));
-      $deploy_cmd = sprintf(
-        'deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s',
-        escapeshellarg($deploy_pr),
-        escapeshellarg($deploy_pr_base_branch),
-        escapeshellarg('origin/' . $deploy_pr_base_branch),
-        escapeshellarg($deploy_branch),
-        escapeshellarg($deploy_pr_head),
-        escapeshellarg($deploy_pr_full)
-      );
+      $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
       $deploy_output = lagoon_run_cli($deploy_cmd);
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output);
 
@@ -310,15 +273,7 @@ else {
     // Fresh deployment.
     else {
       task(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr));
-      $deploy_cmd = sprintf(
-        'deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s',
-        escapeshellarg($deploy_pr),
-        escapeshellarg($deploy_pr_base_branch),
-        escapeshellarg('origin/' . $deploy_pr_base_branch),
-        escapeshellarg($deploy_branch),
-        escapeshellarg($deploy_pr_head),
-        escapeshellarg($deploy_pr_full)
-      );
+      $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
       $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output);
     }

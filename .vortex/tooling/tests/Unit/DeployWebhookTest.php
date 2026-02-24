@@ -13,7 +13,6 @@ class DeployWebhookTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     $this->envSetMultiple([
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://example.com/webhook',

@@ -1,0 +1,170 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Task to copy files between Acquia environments.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Acquia Cloud API key.
+$acquia_key = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_KEY', 'VORTEX_ACQUIA_KEY');
+
+// Acquia Cloud API secret.
+$acquia_secret = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET');
+
+// Application name. Used to discover UUID.
+$app_name = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME');
+
+// Source environment name to copy from.
+$src_env = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_SRC');
+
+// Destination environment name to copy to.
+$dst_env = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_DST');
+
+// Number of status retrieval retries.
+$status_retries = (int) getenv_default('VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES', '300');
+
+// Interval in seconds to check task status.
+$status_interval = (int) getenv_default('VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL', '10');
+
+// -----------------------------------------------------------------------------
+
+// Inlined Acquia API helpers.
+function files_acquia_api_get_token(string $key, string $secret): string {
+  $response = request_post('https://accounts.acquia.com/api/auth/oauth/token', http_build_query(['client_id' => $key, 'client_secret' => $secret, 'grant_type' => 'client_credentials']), ['Content-Type: application/x-www-form-urlencoded']);
+
+  if (!$response['ok']) {
+    fail('Unable to retrieve a token.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $token = $data['access_token'] ?? '';
+  if ($token === '') {
+    fail('Unable to retrieve a token.');
+  }
+
+  return $token;
+}
+
+function files_acquia_api_headers(string $token): array {
+  return [
+    'Accept: application/json, version=2',
+    'Authorization: Bearer ' . $token,
+  ];
+}
+
+function files_acquia_api_get_app_uuid(string $token, string $app_name): string {
+  $url = 'https://cloud.acquia.com/api/applications?filter=name%3D' . rawurlencode($app_name);
+  $response = request_get($url, files_acquia_api_headers($token));
+
+  if (!$response['ok']) {
+    fail('Unable to retrieve an application UUID.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $uuid = $last['uuid'] ?? '';
+
+  if ($uuid === '') {
+    fail('Unable to retrieve an application UUID.');
+  }
+
+  return $uuid;
+}
+
+function files_acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, rawurlencode($env_name));
+  $response = request_get($url, files_acquia_api_headers($token));
+
+  if (!$response['ok']) {
+    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $env_id = $last['id'] ?? '';
+
+  if ($env_id === '') {
+    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+  }
+
+  return (string) $env_id;
+}
+
+function files_acquia_api_poll_notification(string $key, string $secret, string $notification_url, int $retries, int $interval): bool {
+  $token = files_acquia_api_get_token($key, $secret);
+
+  for ($i = 1; $i <= $retries; $i++) {
+    sleep($interval);
+
+    $response = request_get($notification_url, files_acquia_api_headers($token));
+
+    if (!$response['ok'] && ($response['status'] ?? 0) === 401) {
+      $token = files_acquia_api_get_token($key, $secret);
+      $response = request_get($notification_url, files_acquia_api_headers($token));
+    }
+
+    if ($response['ok']) {
+      $data = json_decode((string) $response['body'], TRUE);
+      $status = $data['status'] ?? '';
+      if ($status === 'completed') {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+// -----------------------------------------------------------------------------
+
+info('Started files copying between environments in Acquia.');
+
+task('Retrieving authentication token.');
+$token = files_acquia_api_get_token($acquia_key, $acquia_secret);
+
+task(sprintf('Retrieving %s application UUID.', $app_name));
+$app_uuid = files_acquia_api_get_app_uuid($token, $app_name);
+
+task('Retrieving source environment ID.');
+$src_env_id = files_acquia_api_get_env_id($token, $app_uuid, $src_env);
+
+task('Retrieving destination environment ID.');
+$dst_env_id = files_acquia_api_get_env_id($token, $app_uuid, $dst_env);
+
+task(sprintf('Copying files from %s to %s environment.', $src_env, $dst_env));
+$copy_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/files', $dst_env_id), json_encode(['source' => $src_env_id]), array_merge(files_acquia_api_headers($token), ['Content-Type: application/json']));
+
+if (!$copy_response['ok']) {
+  fail('Failed to copy files from %s to %s environment.', $src_env, $dst_env);
+}
+
+$copy_data = json_decode((string) $copy_response['body'], TRUE);
+$notification_url = $copy_data['_links']['notification']['href'] ?? '';
+
+if ($notification_url === '') {
+  fail('Unable to get notification URL for files copy operation.');
+}
+
+$task_completed = files_acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval);
+
+if (!$task_completed) {
+  fail(sprintf('Unable to copy files from %s to %s environment.', $src_env, $dst_env));
+}
+
+note(sprintf('Copied files from %s to %s environment.', $src_env, $dst_env));
+
+pass('Finished files copying between environments in Acquia.');

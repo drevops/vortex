@@ -1,0 +1,61 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Export database as a file.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_EXPORT_DB_FILE_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Custom dump file name provided as first CLI argument.
+$custom_file = $GLOBALS['argv'][1] ?? '';
+
+// -----------------------------------------------------------------------------
+
+info('Started database file export.');
+
+// Create dump file name with a timestamp or use the file name provided.
+if ($custom_file !== '') {
+  $dump_file = $db_dir . '/' . $custom_file;
+}
+else {
+  $dump_file = $db_dir . '/export_db_' . date('Ymd_His') . '.sql';
+}
+
+// If dump file is relative - update it to the parent directory, because the
+// `drush sql:dump` command result file is relative to Drupal root.
+$dump_file_drush = $dump_file;
+if (str_starts_with($dump_file_drush, './')) {
+  $dump_file_drush = '../' . substr($dump_file_drush, 2);
+}
+
+// Create a directory to store database dump.
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
+
+// Dump database into a file.
+drush('sql:dump --skip-tables-key=common --result-file=' . escapeshellarg($dump_file_drush) . ' -q');
+
+// Check that file was saved and output saved dump file name.
+if (file_exists($dump_file) && filesize($dump_file) > 0) {
+  note('Exported database dump saved %s.', $dump_file);
+}
+else {
+  fail('Unable to save dump file %s.', $dump_file);
+}
+
+pass('Finished database file export.');

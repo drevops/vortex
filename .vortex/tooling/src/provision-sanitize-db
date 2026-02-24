@@ -1,0 +1,68 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Sanitize database during provision.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Database sanitized account email replacement.
+$sanitize_email = getenv_default('VORTEX_PROVISION_SANITIZE_DB_EMAIL', 'user+%uid@localhost');
+
+// Database sanitized account password replacement.
+$sanitize_password = getenv_default('VORTEX_PROVISION_SANITIZE_DB_PASSWORD', (string) mt_rand());
+
+// Replace username with mail.
+$replace_username = getenv_default('VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL', '0');
+
+// Path to file with custom sanitization SQL queries.
+$additional_file = getenv_default('VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE', './scripts/sanitize.sql');
+
+// Admin email for user 1.
+$admin_email = getenv_default('DRUPAL_ADMIN_EMAIL', '');
+
+// -----------------------------------------------------------------------------
+
+info('Sanitizing database.');
+
+// Always sanitize password and email using standard methods.
+drush(sprintf("sql:sanitize --sanitize-password='%s' --sanitize-email='%s'", $sanitize_password, $sanitize_email));
+pass('Sanitized database using drush sql:sanitize.');
+
+if ($replace_username === '1') {
+  drush("sql:query \"UPDATE \\`users_field_data\\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
+  pass('Updated username with user email.');
+}
+
+// Sanitize using additional SQL commands provided in file.
+if ($additional_file !== '' && file_exists($additional_file)) {
+  // The file path is relative to the project root, but drush expects it to be
+  // relative to the Drupal root.
+  $drush_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
+  drush('sql:query --file=' . escapeshellarg($drush_file));
+  pass('Applied custom sanitization commands from file.');
+}
+
+// User mail and name for user 0 could have been sanitized - resetting it.
+drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
+drush("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"");
+pass('Reset user 0 username and email.');
+
+// User email could have been sanitized - setting it back to a pre-defined email.
+if ($admin_email !== '') {
+  drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", $admin_email));
+  pass('Updated user 1 email.');
+}
+
+echo PHP_EOL;
