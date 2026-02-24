@@ -44,7 +44,6 @@ $installer_interactive = getenv_default('VORTEX_INSTALLER_INTERACTIVE', '0');
 // -----------------------------------------------------------------------------
 
 command_must_exist('php');
-command_must_exist('curl');
 
 // Parse arguments.
 foreach (array_slice($GLOBALS['argv'] ?? [], 1) as $arg) {
@@ -66,8 +65,9 @@ else {
   note('Using installer script from URL: %s', $installer_url);
   $installer_path = 'installer.php';
   note('Downloading installer to %s', $installer_path);
-  passthru(sprintf('curl -fsSL %s -o %s', escapeshellarg($installer_url . '?' . $installer_url_cache_bust), escapeshellarg($installer_path)), $exit_code);
-  if ($exit_code !== 0) {
+  $separator = str_contains($installer_url, '?') ? '&' : '?';
+  $response = request($installer_url . $separator . $installer_url_cache_bust, ['method' => 'GET', 'save_to' => $installer_path, 'timeout' => 30]);
+  if (!$response['ok']) {
     fail('Failed to download installer from %s', $installer_url);
   }
 }

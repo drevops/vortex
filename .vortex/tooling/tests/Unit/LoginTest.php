@@ -16,11 +16,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 class LoginTest extends UnitTestCase {
 
-  protected function setUp(): void {
-    parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
-  }
-
   #[DataProvider('dataProviderLogin')]
   public function testLogin(array $env_vars, array $mocks, array $expected, bool $expect_error = FALSE): void {
     if (!empty($env_vars)) {

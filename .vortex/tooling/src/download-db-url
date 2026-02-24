@@ -1,0 +1,96 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download DB dump via CURL.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// URL of the remote database.
+$url = getenv_required('VORTEX_DOWNLOAD_DB_URL');
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_URL_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Database dump file name.
+$db_file = getenv_default('VORTEX_DOWNLOAD_DB_URL_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// Password for unzipping password-protected zip files.
+$unzip_password = getenv_default('VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD', '');
+
+// -----------------------------------------------------------------------------
+
+info('Started database dump download from URL.');
+
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
+
+$dest = $db_dir . '/' . $db_file;
+
+note('Downloading database dump file.');
+$response = request($url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => 300]);
+if (!$response['ok']) {
+  fail('Failed to download database dump from URL.');
+}
+
+// Handle zip files.
+if (str_ends_with($url, '.zip')) {
+  command_must_exist('unzip');
+  note('Detecting zip file, preparing for extraction.');
+
+  $zip_file = $dest . '.zip';
+  rename($dest, $zip_file);
+
+  $temp_dir = $db_dir . '/tmp_extract_' . getmypid();
+  if (!is_dir($temp_dir)) {
+    mkdir($temp_dir, 0755, TRUE);
+  }
+
+  if ($unzip_password !== '') {
+    note('Unzipping password-protected database dump file.');
+    passthru(sprintf('unzip -o -P %s %s -d %s', escapeshellarg($unzip_password), escapeshellarg($zip_file), escapeshellarg($temp_dir)), $exit_code);
+  }
+  else {
+    note('Unzipping database dump file.');
+    passthru(sprintf('unzip -o %s -d %s', escapeshellarg($zip_file), escapeshellarg($temp_dir)), $exit_code);
+  }
+
+  if ($exit_code !== 0) {
+    // Clean up on failure.
+    shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+    @unlink($zip_file);
+    fail('Failed to extract zip file.');
+  }
+
+  // Find the first regular file in the extracted content.
+  note('Discovering database file in archive.');
+  $extracted_file = shell_exec('find ' . escapeshellarg($temp_dir) . ' -type f -print | head -n 1');
+  $extracted_file = $extracted_file !== NULL ? trim($extracted_file) : '';
+
+  if ($extracted_file === '') {
+    shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+    @unlink($zip_file);
+    fail('No files found in the zip archive.');
+  }
+
+  note('Moving extracted file to target location.');
+  rename($extracted_file, $dest);
+
+  note('Cleaning up temporary files.');
+  shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+  @unlink($zip_file);
+}
+
+pass('Finished database dump download from URL.');

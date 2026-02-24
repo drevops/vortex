@@ -1,0 +1,299 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download DB dump from the latest Acquia Cloud backup.
+ *
+ * This script will discover the latest available backup in the specified
+ * Acquia Cloud environment using Acquia Cloud API 2.0, download and decompress
+ * it into specified directory.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Acquia Cloud API key.
+$acquia_key = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_KEY', 'VORTEX_ACQUIA_KEY');
+
+// Acquia Cloud API secret.
+$acquia_secret = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET');
+
+// Application name. Used to discover UUID.
+$app_name = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME');
+
+// Source environment name used to download the database dump from.
+$environment = getenv_required('VORTEX_DOWNLOAD_DB_ENVIRONMENT');
+
+// Database name within source environment.
+$db_name = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME');
+
+// Directory where DB dumps are stored.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Database dump file name.
+$db_file = getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// Flag to download a fresh copy by triggering a new backup.
+$fresh = getenv_default('VORTEX_DOWNLOAD_DB_FRESH', '');
+
+// Interval in seconds to wait between backup status checks.
+$backup_wait_interval = (int) getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '10');
+
+// Maximum time in seconds to wait for backup completion.
+$backup_max_wait = (int) getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT', '600');
+
+// -----------------------------------------------------------------------------
+
+// Inlined Acquia API helpers.
+function dl_acquia_api_get_token(string $key, string $secret): string {
+  $response = request_post('https://accounts.acquia.com/api/auth/oauth/token', http_build_query(['client_id' => $key, 'client_secret' => $secret, 'grant_type' => 'client_credentials']), ['Content-Type: application/x-www-form-urlencoded']);
+
+  if (!$response['ok']) {
+    fail('Unable to retrieve a token.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $token = $data['access_token'] ?? '';
+  if ($token === '') {
+    fail('Unable to retrieve a token.');
+  }
+
+  return $token;
+}
+
+function dl_acquia_api_headers(string $token): array {
+  return [
+    'Accept: application/json, version=2',
+    'Authorization: Bearer ' . $token,
+  ];
+}
+
+function dl_acquia_api_get_app_uuid(string $token, string $app_name): string {
+  $url = 'https://cloud.acquia.com/api/applications?filter=name%3D' . rawurlencode($app_name);
+  $response = request_get($url, dl_acquia_api_headers($token));
+
+  if (!$response['ok']) {
+    fail('Unable to retrieve an application UUID.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $uuid = $last['uuid'] ?? '';
+
+  if ($uuid === '') {
+    fail(sprintf('Unable to retrieve an application UUID for \'%s\'.', $app_name));
+  }
+
+  return $uuid;
+}
+
+function dl_acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, $env_name);
+  $response = request_get($url, dl_acquia_api_headers($token));
+
+  if (!$response['ok']) {
+    fail(sprintf('Unable to retrieve environment ID for \'%s\'.', $env_name));
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $env_id = $last['id'] ?? '';
+
+  if ($env_id === '') {
+    fail(sprintf('Unable to retrieve an environment ID for \'%s\'.', $env_name));
+  }
+
+  return (string) $env_id;
+}
+
+// -----------------------------------------------------------------------------
+
+info('Started database dump download from Acquia.');
+
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
+
+task('Retrieving authentication token.');
+$token = dl_acquia_api_get_token($acquia_key, $acquia_secret);
+
+task(sprintf('Retrieving %s application UUID.', $app_name));
+$app_uuid = dl_acquia_api_get_app_uuid($token, $app_name);
+
+task(sprintf('Retrieving %s environment ID.', $environment));
+$env_id = dl_acquia_api_get_env_id($token, $app_uuid, $environment);
+
+// If fresh backup requested, create a new backup and wait for completion.
+if ($fresh === '1') {
+  task(sprintf('Creating new database backup for %s.', $db_name));
+
+  $create_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups', $env_id, $db_name), NULL, dl_acquia_api_headers($token));
+
+  if (!$create_response['ok']) {
+    fail('Failed to create database backup for %s.', $db_name);
+  }
+
+  $create_data = json_decode((string) $create_response['body'], TRUE);
+  $notification_url = $create_data['_links']['notification']['href'] ?? '';
+
+  if ($notification_url === '') {
+    fail('Unable to get notification URL for backup creation.');
+  }
+
+  task('Waiting for backup to complete.');
+  $elapsed = 0;
+  $backup_completed = FALSE;
+
+  while ($elapsed < $backup_max_wait) {
+    sleep($backup_wait_interval);
+    $elapsed += $backup_wait_interval;
+
+    $status_response = request_get($notification_url, dl_acquia_api_headers($token));
+    if ($status_response['ok']) {
+      $status_data = json_decode((string) $status_response['body'], TRUE);
+      $status = $status_data['status'] ?? '';
+
+      if ($status === 'completed') {
+        pass('Backup completed successfully.');
+        $backup_completed = TRUE;
+        break;
+      }
+
+      if ($status === 'failed') {
+        fail('Backup creation failed.');
+      }
+    }
+
+    note(sprintf('Backup in progress (%ds elapsed)...', $elapsed));
+  }
+
+  if (!$backup_completed) {
+    fail(sprintf('Backup creation timed out after %d seconds.', $backup_max_wait));
+  }
+
+  note('Fresh backup will be downloaded.');
+}
+
+task(sprintf('Discovering latest backup ID for DB %s.', $db_name));
+$backups_response = request_get(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups?sort=created', $env_id, $db_name), dl_acquia_api_headers($token));
+
+if (!$backups_response['ok']) {
+  fail(sprintf('Failed to retrieve backups for database \'%s\'.', $db_name));
+}
+
+$backups_data = json_decode((string) $backups_response['body'], TRUE);
+$backup_items = $backups_data['_embedded']['items'] ?? [];
+
+if (empty($backup_items)) {
+  fail(sprintf('No backups found for database \'%s\' in environment \'%s\'.', $db_name, $environment));
+}
+
+$last_backup = end($backup_items);
+$backup_id = $last_backup['id'] ?? '';
+
+if ($backup_id === '') {
+  fail(sprintf('Unable to discover backup ID for DB \'%s\'.', $db_name));
+}
+
+// Build file names.
+$file_extension = pathinfo($db_file, PATHINFO_EXTENSION);
+$file_prefix = $db_name . '_backup_';
+$file_name = sprintf('%s/%s%s.%s', $db_dir, $file_prefix, $backup_id, $file_extension);
+$file_name_compressed = $file_name . '.gz';
+
+if (file_exists($file_name)) {
+  note(sprintf('Found existing cached DB file "%s" for DB "%s".', $file_name, $db_name));
+}
+else {
+  // If the gzipped version exists, skip download.
+  if (!file_exists($file_name_compressed)) {
+    note(sprintf('Using the latest backup ID %s for DB %s.', $backup_id, $db_name));
+
+    task('Discovering backup URL.');
+    $backup_url_response = request_get(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), dl_acquia_api_headers($token));
+
+    if (!$backup_url_response['ok']) {
+      fail('Failed to retrieve backup URL for backup ID \'%s\'.', $backup_id);
+    }
+
+    $backup_url_data = json_decode((string) $backup_url_response['body'], TRUE);
+    $backup_url = $backup_url_data['url'] ?? '';
+
+    if ($backup_url === '') {
+      fail(sprintf('Unable to discover backup URL for backup ID \'%s\'.', $backup_id));
+    }
+
+    task(sprintf('Downloading DB dump into file %s.', $file_name_compressed));
+    $dl_response = request($backup_url, ['method' => 'GET', 'headers' => dl_acquia_api_headers($token), 'save_to' => $file_name_compressed, 'timeout' => 600]);
+    if (!$dl_response['ok']) {
+      fail('Unable to download database %s.', $db_name);
+    }
+
+    if (!file_exists($file_name_compressed) || filesize($file_name_compressed) === 0) {
+      fail(sprintf('Downloaded file is empty or missing: %s', $file_name_compressed));
+    }
+  }
+  else {
+    pass(sprintf('Found existing cached gzipped DB file %s for DB %s.', $file_name_compressed, $db_name));
+  }
+
+  task(sprintf('Expanding DB file %s into %s.', $file_name_compressed, $file_name));
+
+  $header = file_get_contents($file_name_compressed, FALSE, NULL, 0, 2);
+  if ($header === FALSE || $header !== "\x1f\x8b") {
+    @unlink($file_name_compressed);
+    fail(sprintf('Downloaded file is not a valid gzip archive: %s', $file_name_compressed));
+  }
+
+  $gz_in = @fopen('compress.zlib://' . $file_name_compressed, 'rb');
+  if ($gz_in === FALSE) {
+    @unlink($file_name_compressed);
+    // @codeCoverageIgnoreStart
+    fail(sprintf('Unable to read compressed file %s.', $file_name_compressed));
+    // @codeCoverageIgnoreEnd
+  }
+
+  $out = @fopen($file_name, 'wb');
+  if ($out === FALSE) {
+    fclose($gz_in);
+    @unlink($file_name_compressed);
+    // @codeCoverageIgnoreStart
+    fail(sprintf('Unable to write decompressed file %s.', $file_name));
+    // @codeCoverageIgnoreEnd
+  }
+
+  $bytes = stream_copy_to_stream($gz_in, $out);
+  fclose($gz_in);
+  fclose($out);
+
+  if ($bytes === FALSE || $bytes === 0) {
+    @unlink($file_name_compressed);
+    @unlink($file_name);
+    fail(sprintf('Downloaded file is not a valid gzip archive: %s', $file_name_compressed));
+  }
+
+  @unlink($file_name_compressed);
+
+  if (!file_exists($file_name) || filesize($file_name) === 0) {
+    fail(sprintf('Unable to process DB dump file "%s".', $file_name));
+  }
+}
+
+task(sprintf('Renaming file "%s" to "%s/%s".', $file_name, $db_dir, $db_file));
+$final_path = $db_dir . '/' . $db_file;
+if (!rename($file_name, $final_path)) {
+  fail(sprintf('Unable to rename file from \'%s\' to \'%s\'.', $file_name, $final_path));
+}
+
+pass('Finished database dump download from Acquia.');

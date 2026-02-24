@@ -19,7 +19,6 @@ class DoctorTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     // Disable all checks by default; tests enable specific ones.
     $this->envSetMultiple([
@@ -43,6 +42,9 @@ class DoctorTest extends UnitTestCase {
     foreach ($mocks as $mock) {
       if (isset($mock['shell_exec'])) {
         $this->mockShellExec($mock['shell_exec']);
+      }
+      elseif (isset($mock['request'])) {
+        $this->mockRequestMultiple([$mock['request']]);
       }
       else {
         $this->mockPassthru($mock);
@@ -163,8 +165,7 @@ class DoctorTest extends UnitTestCase {
     $ssh_key_cmd = fn(int $code): array => ['cmd' => 'docker compose exec -T cli bash -c "ssh-add -L | grep -q \'ssh-rsa\'"', 'result_code' => $code];
 
     $webserver_url = 'test.docker.amazee.io';
-    $curl_cmd = fn(int $code): array => ['cmd' => sprintf("curl -L -s -o /dev/null -w \"%%{http_code}\" '%s' 2>/dev/null | grep -q \"200\\|403\"", $webserver_url), 'result_code' => $code];
-    $bootstrap_cmd = fn(int $code): array => ['cmd' => sprintf("curl -L -s -N '%s' 2>/dev/null | grep -q -i \"charset=\"", $webserver_url), 'result_code' => $code];
+    $web_request = fn(int $status, string $body = ''): array => ['request' => ['url' => $webserver_url, 'method' => 'GET', 'response' => ['status' => $status, 'body' => $body]]];
 
     return [
       'all checks disabled' => [
@@ -308,9 +309,8 @@ class DoctorTest extends UnitTestCase {
       'webserver accessible' => [
         ['VORTEX_DOCTOR_CHECK_WEBSERVER' => '1'],
         [
-
           ['shell_exec' => $webserver_url],
-          $curl_cmd(0),
+          $web_request(200),
         ],
         [
           '* [INFO] Checking project requirements',
@@ -323,9 +323,8 @@ class DoctorTest extends UnitTestCase {
       'webserver not accessible' => [
         ['VORTEX_DOCTOR_CHECK_WEBSERVER' => '1'],
         [
-
           ['shell_exec' => $webserver_url],
-          $curl_cmd(1),
+          $web_request(500),
         ],
         ['* [FAIL] Web server is not accessible at http://' . $webserver_url . '.'],
         TRUE,
@@ -337,10 +336,8 @@ class DoctorTest extends UnitTestCase {
           'VORTEX_DOCTOR_CHECK_BOOTSTRAP' => '1',
         ],
         [
-
           ['shell_exec' => $webserver_url],
-          $curl_cmd(0),
-          $bootstrap_cmd(0),
+          $web_request(200, '<html><meta charset="utf-8"></html>'),
         ],
         [
           '* [INFO] Checking project requirements',
@@ -357,10 +354,8 @@ class DoctorTest extends UnitTestCase {
           'VORTEX_DOCTOR_CHECK_BOOTSTRAP' => '1',
         ],
         [
-
           ['shell_exec' => $webserver_url],
-          $curl_cmd(0),
-          $bootstrap_cmd(1),
+          $web_request(200, '<html>no bootstrap marker</html>'),
         ],
         ['* [FAIL] Website is running, but cannot be bootstrapped.'],
         TRUE,

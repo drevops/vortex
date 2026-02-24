@@ -307,6 +307,79 @@ function command_must_exist(string $command): void {
 }
 
 /**
+ * Run a command via passthru, failing if exit code is non-zero.
+ *
+ * @param string $cmd
+ *   Command to execute.
+ * @param string $format
+ *   (optional) Error message format string. If provided, calls fail() with
+ *   this message on non-zero exit. If omitted, calls quit() with the exit
+ *   code.
+ * @param bool|float|int|string|null ...$args
+ *   Arguments for sprintf() in the error message.
+ */
+function passthru_or_fail(string $cmd, string $format = '', ...$args): void {
+  passthru($cmd, $exit_code);
+  if ($exit_code !== 0) {
+    if ($format !== '') {
+      fail($format, ...$args);
+    }
+    quit($exit_code);
+  }
+}
+
+/**
+ * Run a drush command.
+ *
+ * By default, this function will call fail() on non-zero exit codes.
+ * To suppress the automatic failure and handle the exit code yourself,
+ * pass an initialized variable (e.g. `$exit_code = 0`) as the second
+ * argument. The exit code will be written to that variable via the
+ * by-reference parameter.
+ *
+ * Example (hard fail):
+ *
+ * @code
+ *   drush('cr');
+ * @endcode
+ *
+ * Example (soft fail):
+ * @code
+ *   $exit_code = 0;
+ *   $output = drush('status', $exit_code);
+ *   if ($exit_code !== 0) {
+ *     note('Drush command returned non-zero exit code.');
+ *   }
+ * @endcode
+ *
+ * @param string $command
+ *   The drush command to run (without 'drush' prefix).
+ * @param int|null $exit_code
+ *   (optional) Variable to capture the exit code. Pass an initialized
+ *   variable (e.g. `$exit_code = 0`) to suppress automatic fail() on
+ *   non-zero exit. When NULL (default), non-zero exits trigger fail().
+ *
+ * @param-out int $exit_code
+ *
+ * @return string
+ *   The command output.
+ */
+function drush(string $command, ?int &$exit_code = NULL): string {
+  $exit_code_provided = $exit_code !== NULL;
+  $exit_code = 0;
+
+  ob_start();
+  passthru('./vendor/bin/drush -y ' . $command, $exit_code);
+  $output = ob_get_clean();
+
+  if (!$exit_code_provided && $exit_code !== 0) {
+    fail('Drush command failed: %s', $command);
+  }
+
+  return $output ?: '';
+}
+
+/**
  * Recursively copy a directory.
  *
  * @param string $src
@@ -473,18 +546,21 @@ function request_post(string $url, $body = NULL, array $headers = [], int $timeo
  *
  * @param string $url
  *   URL to request.
- * @param array{method?: string, headers?: array<int, string>, body?: mixed, timeout?: int} $options
+ * @param array{method?: string, headers?: array<int, string>, body?: mixed, timeout?: int, save_to?: string, upload_file?: string, auth?: string} $options
  *   Array of options:
- *   - method: HTTP method (GET, POST, etc.)
+ *   - method: HTTP method (GET, POST, PUT, etc.)
  *   - headers: Array of HTTP headers
  *   - body: Request body
- *   - timeout: Request timeout in seconds.
+ *   - timeout: Request timeout in seconds
+ *   - save_to: Path to save response body to file
+ *   - upload_file: Path to file to upload (sets CURLOPT_UPLOAD)
+ *   - auth: 'user:pass' for CURLOPT_USERPWD authentication.
  *
  * @return array{ok: bool, status: int, body: string|false, error: string|null, info: array<string, mixed>}
  *   Array with keys:
  *   - ok: TRUE if request was successful (HTTP < 400), FALSE otherwise
  *   - status: HTTP status code
- *   - body: Response body
+ *   - body: Response body (empty string when save_to is used)
  *   - error: Error message if any
  *   - info: Request info array
  */
@@ -495,6 +571,9 @@ function request(string $url, array $options = []): array {
   }
   // @codeCoverageIgnoreEnd
   $ch = curl_init($url);
+
+  $upload_fh = NULL;
+  $save_fh = NULL;
 
   try {
     /** @var array<int, mixed> $opts */
@@ -516,11 +595,50 @@ function request(string $url, array $options = []): array {
       $opts[CURLOPT_POSTFIELDS] = $options['body'];
     }
 
+    if (isset($options['auth'])) {
+      $opts[CURLOPT_USERPWD] = $options['auth'];
+    }
+
+    if (isset($options['upload_file'])) {
+      $upload_fh = fopen($options['upload_file'], 'r');
+      if ($upload_fh === FALSE) {
+        unset($ch);
+        return [
+          'ok' => FALSE,
+          'status' => 0,
+          'body' => '',
+          'error' => sprintf('Failed to open upload file: %s', $options['upload_file']),
+          'info' => [],
+        ];
+      }
+      $opts[CURLOPT_UPLOAD] = TRUE;
+      $opts[CURLOPT_INFILE] = $upload_fh;
+      $opts[CURLOPT_INFILESIZE] = filesize($options['upload_file']);
+    }
+
+    // Stream response directly to file to avoid buffering large responses.
+    if (isset($options['save_to'])) {
+      $save_fh = fopen($options['save_to'], 'w');
+      if ($save_fh === FALSE) {
+        if ($upload_fh !== NULL && is_resource($upload_fh)) {
+          fclose($upload_fh);
+        }
+        unset($ch);
+        return [
+          'ok' => FALSE,
+          'status' => 0,
+          'body' => '',
+          'error' => sprintf('Failed to open save file: %s', $options['save_to']),
+          'info' => [],
+        ];
+      }
+      $opts[CURLOPT_FILE] = $save_fh;
+      unset($opts[CURLOPT_RETURNTRANSFER]);
+    }
+
     curl_setopt_array($ch, $opts);
 
-    // With CURLOPT_RETURNTRANSFER, curl_exec returns string|false.
-    /** @var string|false $body */
-    $body = curl_exec($ch);
+    $result = curl_exec($ch);
     $error = curl_errno($ch) ? curl_error($ch) : NULL;
     $info = curl_getinfo($ch);
 
@@ -531,6 +649,11 @@ function request(string $url, array $options = []): array {
       // @codeCoverageIgnoreEnd
     }
 
+    // With CURLOPT_FILE, curl_exec returns bool — normalize to string|false.
+    // With CURLOPT_RETURNTRANSFER, curl_exec returns string|false directly.
+    /** @var string|false $body */
+    $body = $save_fh !== NULL ? '' : $result;
+
     return [
       'ok' => !$error && ($info['http_code'] < 400),
       'status' => $info['http_code'],
@@ -540,6 +663,14 @@ function request(string $url, array $options = []): array {
     ];
   }
   finally {
+    if ($upload_fh !== NULL && is_resource($upload_fh)) {
+      fclose($upload_fh);
+    }
+
+    if ($save_fh !== NULL && is_resource($save_fh)) {
+      fclose($save_fh);
+    }
+
     // CurlHandle objects are automatically freed when they go out of scope
     // (PHP 8.0+), so explicit curl_close() is no longer needed.
     // The unset here ensures the handle goes out of scope immediately.

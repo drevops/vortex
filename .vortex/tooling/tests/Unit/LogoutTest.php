@@ -15,11 +15,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 class LogoutTest extends UnitTestCase {
 
-  protected function setUp(): void {
-    parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
-  }
-
   #[DataProvider('dataProviderLogout')]
   public function testLogout(array $env_vars, array $mocks, array $expected): void {
     if (!empty($env_vars)) {
