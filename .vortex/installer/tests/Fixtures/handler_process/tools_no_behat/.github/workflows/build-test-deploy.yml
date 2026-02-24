@@ -10,10 +10,10 @@
        - name: Lint module code with NodeJS linters
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli bash -c "yarn run lint"
-@@ -317,18 +312,6 @@
-       - name: Test with PHPUnit
-         run: docker compose exec -T cli vendor/bin/phpunit
-         continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
+@@ -360,18 +355,6 @@
+           token: ${{ secrets.CODECOV_TOKEN }}
+         env:
+           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 -
 -      - name: Test with Behat
 -        run: |

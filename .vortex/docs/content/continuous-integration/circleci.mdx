@@ -146,6 +146,14 @@ build:
   parallelism: 4  # Run tests across 4 containers
 ```
 
+When adding more containers, distribute Behat scenarios across them using
+profile tags (`@p0`, `@p1`, `@p2`, etc.) in your feature files. Since the first
+container also runs linting, PHPUnit, and coverage, assign more Behat scenarios
+to the additional containers to keep build times balanced.
+
+See [Test parallelism](/docs/continuous-integration#test-parallelism) for details
+on how tests are distributed across containers.
+
 ### SSH access for debugging
 
 CircleCI provides built-in SSH access to debug failing builds. Click the

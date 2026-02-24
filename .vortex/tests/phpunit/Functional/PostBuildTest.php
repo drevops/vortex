@@ -45,7 +45,7 @@ class PostBuildTest extends FunctionalTestCase {
    * Test that CircleCI artifacts are saved correctly.
    *
    * Verifies that:
-   * - PHPUnit coverage reports are generated for both parallel runners
+   * - PHPUnit coverage reports are generated on runner 0 only
    * - Behat feature files are saved for both parallel runners
    * - Feature files are split correctly between runners (e.g., clamav.feature
    *   on runner 0 but not runner 1, search.feature on runner 1 but not
@@ -74,11 +74,12 @@ class PostBuildTest extends FunctionalTestCase {
       $this->assertStringNotContainsString('search.feature', $artifact_paths_runner0_str, 'Runner 0 should NOT have search.feature');
 
       // Verify runner 1 artifacts.
+      // PHPUnit only runs on runner 0, so runner 1 should not have coverage.
       $artifact_paths_runner1 = $this->circleCiExtractArtifactPaths($artifacts_data, 1);
       $artifact_paths_runner1_str = implode("\n", $artifact_paths_runner1);
 
-      $this->assertStringContainsString('coverage/phpunit/cobertura.xml', $artifact_paths_runner1_str, 'Runner 1 should have PHPUnit cobertura coverage');
-      $this->assertStringContainsString('coverage/phpunit/.coverage-html/index.html', $artifact_paths_runner1_str, 'Runner 1 should have PHPUnit HTML coverage');
+      $this->assertStringNotContainsString('coverage/phpunit/cobertura.xml', $artifact_paths_runner1_str, 'Runner 1 should NOT have PHPUnit cobertura coverage');
+      $this->assertStringNotContainsString('coverage/phpunit/.coverage-html/index.html', $artifact_paths_runner1_str, 'Runner 1 should NOT have PHPUnit HTML coverage');
 
       $this->assertStringContainsString('homepage.feature', $artifact_paths_runner1_str, 'Runner 1 should have homepage.feature');
       $this->assertStringContainsString('login.feature', $artifact_paths_runner1_str, 'Runner 1 should have login.feature');
