@@ -1,0 +1,92 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download DB dump from container image.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// The container image containing database in a form of `<org>/<repository>`.
+$image = getenv_required('VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE', 'VORTEX_DB_IMAGE');
+
+// Container registry name.
+//
+// Provide port, if required as `<server_name>:<port>`.
+$registry = getenv_default('VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
+
+// The username to login into the container registry.
+$registry_user = getenv_required('VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER');
+
+// The password to login into the container registry.
+$registry_pass = getenv_required('VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS');
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// The base container image used as a fallback when the archive does not exist.
+$image_base = getenv_default('VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB_IMAGE_BASE', '');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('docker');
+
+info('Started database data container image download.');
+
+$inspect_result = shell_exec(sprintf('docker image inspect %s >/dev/null 2>&1 && echo 1 || echo 0', escapeshellarg($image)));
+if (trim((string) $inspect_result) === '1') {
+  note(sprintf('Found %s image on host.', $image));
+}
+else {
+  note(sprintf('Not found %s image on host.', $image));
+}
+
+$image_expanded_successfully = FALSE;
+$archive = $db_dir . '/db.tar';
+
+if (file_exists($archive)) {
+  task(sprintf('Found archived database container image file %s. Expanding...', $archive));
+  // Always use archived image, even if such image already exists on the host.
+  passthru(sprintf('docker load -q --input %s', escapeshellarg($archive)), $exit_code);
+
+  // Check that image was expanded and now exists on the host.
+  $inspect_result = shell_exec(sprintf('docker image inspect %s >/dev/null 2>&1 && echo 1 || echo 0', escapeshellarg($image)));
+  if (trim((string) $inspect_result) === '1') {
+    note(sprintf('Found expanded %s image on host.', $image));
+    $image_expanded_successfully = TRUE;
+  }
+  else {
+    note(sprintf('Not found expanded %s image on host.', $image));
+  }
+}
+
+if (!$image_expanded_successfully) {
+  if (!file_exists($archive) && $image_base !== '') {
+    // If the image archive does not exist and base image was provided - use the
+    // base image which allows "clean slate" for the database.
+    note(sprintf('Database container image was not found. Using base image %s.', $image_base));
+    $image = $image_base;
+  }
+
+  task(sprintf('Downloading %s image from the registry.', $image));
+
+  // Login to container registry before pulling.
+  putenv('VORTEX_CONTAINER_REGISTRY=' . $registry);
+  putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $registry_user);
+  putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $registry_pass);
+  passthru_or_fail(__DIR__ . '/login-container-registry', 'Failed to login to the container registry.');
+
+  passthru_or_fail(sprintf('docker pull %s', escapeshellarg($registry . '/' . $image)), 'Failed to pull image %s from registry.', $image);
+}
+
+pass('Finished database data container image download.');

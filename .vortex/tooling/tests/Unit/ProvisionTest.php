@@ -20,8 +20,6 @@ class ProvisionTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    require_once __DIR__ . '/../../src/helpers.php';
-
     $this->envSetMultiple([
       'VORTEX_PROVISION_SKIP' => '',
       'VORTEX_PROVISION_TYPE' => 'database',

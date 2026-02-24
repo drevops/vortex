@@ -1,0 +1,54 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download DB dump from FTP.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// The FTP user.
+$ftp_user = getenv_required('VORTEX_DOWNLOAD_DB_FTP_USER');
+
+// The FTP password.
+$ftp_pass = getenv_required('VORTEX_DOWNLOAD_DB_FTP_PASS');
+
+// The FTP host.
+$ftp_host = getenv_required('VORTEX_DOWNLOAD_DB_FTP_HOST');
+
+// The FTP port.
+$ftp_port = getenv_required('VORTEX_DOWNLOAD_DB_FTP_PORT');
+
+// The file name, including any directories.
+$ftp_file = getenv_required('VORTEX_DOWNLOAD_DB_FTP_FILE');
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_FTP_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Database dump file name.
+$db_file = getenv_default('VORTEX_DOWNLOAD_DB_FTP_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// -----------------------------------------------------------------------------
+
+info('Started database dump download from FTP.');
+
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
+
+$response = request(sprintf('ftp://%s:%s/%s', $ftp_host, $ftp_port, $ftp_file), ['method' => 'GET', 'auth' => $ftp_user . ':' . $ftp_pass, 'save_to' => $db_dir . '/' . $db_file, 'timeout' => 300]);
+if (!$response['ok']) {
+  fail('Failed to download database dump from FTP.');
+}
+
+pass('Finished database dump download from FTP.');

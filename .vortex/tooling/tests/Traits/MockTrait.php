@@ -708,6 +708,26 @@ trait MockTrait {
   }
 
   /**
+   * Mock sleep() function as a no-op.
+   *
+   * Used by scripts that poll APIs with sleep() between retries.
+   * The mock absorbs all calls without queue validation since the exact
+   * number of sleep() calls depends on polling loop iterations controlled
+   * by other mocks.
+   *
+   * @param string $namespace
+   *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
+   */
+  protected function mockSleep(string $namespace = 'DrevOps\\VortexTooling'): void {
+    if (isset($this->mocks['sleep'])) {
+      return;
+    }
+    $mock = $this->getFunctionMock($namespace, 'sleep');
+    $mock->expects($this->any())->willReturn(0);
+    $this->mocks['sleep'] = $mock;
+  }
+
+  /**
    * Mock shell_exec() function.
    *
    * @param string|null|false $return_value

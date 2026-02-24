@@ -70,35 +70,23 @@ info('Started ARTIFACT deployment.');
 $global_git_name = trim((string) shell_exec('git config --global user.name'));
 if (empty($global_git_name)) {
   task('Configuring global git user name.');
-  passthru(sprintf('git config --global user.name %s', escapeshellarg($deploy_git_user_name)), $exit_code);
-  if ($exit_code !== 0) {
-    quit($exit_code);
-  }
+  passthru_or_fail(sprintf('git config --global user.name %s', escapeshellarg($deploy_git_user_name)));
 }
 
 $global_git_email = trim((string) shell_exec('git config --global user.email'));
 if (empty($global_git_email)) {
   task('Configuring global git user email.');
-  passthru(sprintf('git config --global user.email %s', escapeshellarg($deploy_git_user_email)), $exit_code);
-  if ($exit_code !== 0) {
-    quit($exit_code);
-  }
+  passthru_or_fail(sprintf('git config --global user.email %s', escapeshellarg($deploy_git_user_email)));
 }
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=DEPLOY_ARTIFACT');
 !empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
 !empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FILE=' . $deploy_ssh_file);
-passthru(__DIR__ . '/setup-ssh', $exit_code);
-if ($exit_code !== 0) {
-  quit($exit_code);
-}
+passthru_or_fail(__DIR__ . '/setup-ssh');
 
 task('Installing artifact builder.');
-passthru('composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2', $exit_code);
-if ($exit_code !== 0) {
-  quit($exit_code);
-}
+passthru_or_fail('composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2');
 
 $deploy_artifact_root = realpath($deploy_artifact_root);
 $deploy_artifact_src = realpath($deploy_artifact_src);
@@ -118,20 +106,17 @@ if (file_exists($deploy_artifact_root . '/.gitignore.artifact')) {
 }
 
 task('Running artifact builder.');
-$git_artifact_cmd = sprintf(
-  '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
-  escapeshellarg(getenv('HOME') . '/.composer/vendor/bin/git-artifact'),
+$git_artifact_bin = getenv('HOME') . '/.composer/vendor/bin/git-artifact';
+$git_artifact_args = [
+  escapeshellarg($git_artifact_bin),
   escapeshellarg($deploy_git_remote),
-  escapeshellarg($deploy_artifact_root),
-  escapeshellarg($deploy_artifact_src),
-  escapeshellarg($deploy_artifact_dst_branch),
-  escapeshellarg($deploy_artifact_src . '/.gitignore.artifact'),
-  escapeshellarg($deploy_artifact_log)
-);
-
-passthru($git_artifact_cmd, $exit_code);
-if ($exit_code !== 0) {
-  quit($exit_code);
-}
+  '--root=' . escapeshellarg($deploy_artifact_root),
+  '--src=' . escapeshellarg($deploy_artifact_src),
+  '--branch=' . escapeshellarg($deploy_artifact_dst_branch),
+  '--gitignore=' . escapeshellarg($deploy_artifact_src . '/.gitignore.artifact'),
+  '--log=' . escapeshellarg($deploy_artifact_log),
+  '-vvv',
+];
+passthru_or_fail(implode(' ', $git_artifact_args));
 
 pass('Finished ARTIFACT deployment.');

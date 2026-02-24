@@ -1,0 +1,122 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download DB dump from Lagoon environment.
+ *
+ * This script will create a database dump in the specified environment and
+ * download it into specified directory.
+ *
+ * It does not rely on 'lagoon-cli', which makes it capable of
+ * running on hosts without installed lagooncli.
+ *
+ * It requires using an SSH key added to one of the users in Lagoon who has
+ * SSH access.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Flag to download a fresh copy of the database.
+$fresh = getenv_default('VORTEX_DOWNLOAD_DB_FRESH', '');
+
+// Lagoon project name.
+$lagoon_project = getenv_required('VORTEX_DOWNLOAD_DB_LAGOON_PROJECT', 'LAGOON_PROJECT');
+
+// The source environment branch for the database source.
+$environment = getenv_default('VORTEX_DOWNLOAD_DB_ENVIRONMENT', 'main');
+
+// Remote DB dump directory location.
+$remote_dir = '/tmp';
+
+// Remote DB dump file name. Cached by the date suffix.
+$remote_file = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE', 'db_' . date('Ymd') . '.sql');
+
+// Wildcard file name to cleanup previously created dump files.
+$remote_file_cleanup = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP', 'db_*.sql');
+
+// Default SSH file used if custom fingerprint is not provided.
+$ssh_file = getenv_default('VORTEX_DOWNLOAD_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
+
+// The SSH host of the Lagoon environment.
+$ssh_host = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud');
+
+// The SSH port of the Lagoon environment.
+$ssh_port = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT', '32222');
+
+// The SSH user of the Lagoon environment.
+$ssh_user = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER', $lagoon_project . '-' . $environment);
+
+// Directory where DB dumps are stored on the host.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Database dump file name on the host.
+$db_file = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// Name of the webroot directory with Drupal codebase.
+$webroot = getenv_default('WEBROOT', 'web');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('ssh');
+command_must_exist('rsync');
+
+info('Started database dump download from Lagoon.');
+
+// Setup SSH.
+putenv('VORTEX_SSH_PREFIX=DOWNLOAD_DB');
+passthru_or_fail(__DIR__ . '/setup-ssh', 'Failed to setup SSH.');
+
+$ssh_opts = [
+  '-o', 'UserKnownHostsFile=/dev/null',
+  '-o', 'StrictHostKeyChecking=no',
+  '-o', 'LogLevel=error',
+  '-o', 'IdentitiesOnly=yes',
+  '-p', $ssh_port,
+];
+if ($ssh_file !== 'false') {
+  $ssh_opts[] = '-i';
+  $ssh_opts[] = $ssh_file;
+}
+
+$ssh_target = $ssh_user . '@' . $ssh_host;
+$ssh_opts_escaped = implode(' ', array_map('escapeshellarg', $ssh_opts));
+
+if (!is_dir($db_dir)) {
+  task('Creating directory for database dumps.');
+  mkdir($db_dir, 0755, TRUE);
+}
+
+if ($fresh === '1') {
+  note('Database dump refresh requested. Will create a new dump.');
+}
+
+// Build the remote SSH command.
+$remote_path = $remote_dir . '/' . $remote_file;
+$remote_cleanup_path = $remote_dir . '/' . $remote_file_cleanup;
+$remote_cmd = <<<BASH
+if [ ! -f "{$remote_path}" ] || [ "{$fresh}" = "1" ] ; then
+  [ -n "{$remote_file_cleanup}" ] && rm -f "{$remote_cleanup_path}" && echo "Removed previously created DB dumps."
+  echo "      > Creating a database dump {$remote_path}."
+  /app/vendor/bin/drush --root=./{$webroot} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "{$remote_path}"
+else
+  echo "      > Using existing dump {$remote_path}."
+fi
+BASH;
+
+task('Discovering or creating a database dump on Lagoon.');
+passthru_or_fail(sprintf('ssh %s %s service=cli container=cli %s', $ssh_opts_escaped, escapeshellarg($ssh_target), escapeshellarg($remote_cmd)), 'Failed to create database dump on Lagoon.');
+
+task('Downloading a database dump.');
+passthru_or_fail(sprintf('rsync -e %s %s %s', escapeshellarg('ssh ' . implode(' ', $ssh_opts)), escapeshellarg($ssh_target . ':' . $remote_path), escapeshellarg($db_dir . '/' . $db_file)), 'Failed to download database dump from Lagoon.');
+
+pass('Finished database dump download from Lagoon.');

@@ -18,7 +18,6 @@ class ResetTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     $this->envSet('WEBROOT', 'web');
   }

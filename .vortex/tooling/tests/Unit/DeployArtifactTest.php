@@ -14,7 +14,6 @@ class DeployArtifactTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     $this->envSetMultiple([
       'VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE' => 'git@github.com:org/repo.git',

@@ -19,7 +19,6 @@ class UpdateVortexTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     $this->envSetMultiple([
       'VORTEX_INSTALLER_TEMPLATE_REPO' => 'https://github.com/drevops/vortex.git#stable',
@@ -55,8 +54,18 @@ class UpdateVortexTest extends UnitTestCase {
       $GLOBALS['argv'] = $argv;
     }
 
+    // Mock fopen to prevent request()'s save_to from creating files in the
+    // working directory (src/) via CURLOPT_FILE streaming.
+    $fopen_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'fopen');
+    $fopen_mock->expects($this->any())->willReturnCallback(fn() => \fopen('php://memory', 'w'));
+
     foreach ($mocks as $mock) {
-      $this->mockPassthru($mock);
+      if (isset($mock['request'])) {
+        $this->mockRequestMultiple([$mock['request']]);
+      }
+      else {
+        $this->mockPassthru($mock);
+      }
     }
 
     if ($expect_error) {
@@ -84,14 +93,14 @@ class UpdateVortexTest extends UnitTestCase {
   }
 
   public static function dataProviderUpdateVortex(): array {
-    $curl_cmd = "curl -fsSL 'https://www.vortextemplate.com/install?1234567890' -o 'installer.php'";
+    $download_request = fn(bool $ok = TRUE): array => ['request' => ['url' => 'https://www.vortextemplate.com/install?1234567890', 'method' => 'GET', 'response' => $ok ? ['body' => '<?php echo "installer";'] : ['ok' => FALSE, 'status' => 500, 'body' => '']]];
     $default_repo = 'https://github.com/drevops/vortex.git#stable';
 
     return [
       'download and run' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
@@ -126,7 +135,7 @@ class UpdateVortexTest extends UnitTestCase {
       'download failure' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 1],
+          $download_request(FALSE),
         ],
         ['* [FAIL] Failed to download installer from https://www.vortextemplate.com/install'],
         NULL,
@@ -136,7 +145,7 @@ class UpdateVortexTest extends UnitTestCase {
       'interactive mode' => [
         ['VORTEX_INSTALLER_INTERACTIVE' => '1'],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
@@ -148,7 +157,7 @@ class UpdateVortexTest extends UnitTestCase {
       'interactive via argument' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
@@ -161,7 +170,7 @@ class UpdateVortexTest extends UnitTestCase {
       'custom repo via argument' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --no-interaction --uri='file:///local/path/to/vortex.git#1.2.3'", 'result_code' => 0],
         ],
         [
@@ -174,7 +183,7 @@ class UpdateVortexTest extends UnitTestCase {
       'local path repo via argument' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --no-interaction --uri='/local/path/to/vortex#stable'", 'result_code' => 0],
         ],
         [
@@ -187,7 +196,7 @@ class UpdateVortexTest extends UnitTestCase {
       'git ssh url via argument' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --no-interaction --uri='git@github.com:drevops/vortex.git#v1.2.3'", 'result_code' => 0],
         ],
         [
@@ -200,7 +209,7 @@ class UpdateVortexTest extends UnitTestCase {
       'interactive with custom repo' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --uri='https://github.com/custom/repo.git#main'", 'result_code' => 0],
         ],
         [
@@ -213,7 +222,7 @@ class UpdateVortexTest extends UnitTestCase {
       'installer fails' => [
         [],
         [
-          ['cmd' => $curl_cmd, 'result_code' => 0],
+          $download_request(),
           ['cmd' => "php 'installer.php' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 1],
         ],
         [],

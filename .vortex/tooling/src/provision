@@ -104,32 +104,6 @@ $sanitize_db_additional_file = getenv_default('VORTEX_PROVISION_SANITIZE_DB_ADDI
 // -----------------------------------------------------------------------------
 
 /**
- * Run a drush command.
- *
- * @param string $command
- *   The drush command to run (without 'drush' prefix).
- * @param int|null $exit_code
- *   (optional) Variable to capture the exit code.
- *
- * @return string
- *   The command output.
- */
-function drush(string $command, ?int &$exit_code = NULL): string {
-  $exit_code_provided = $exit_code !== NULL;
-  $exit_code = 0;
-
-  ob_start();
-  passthru('./vendor/bin/drush -y ' . $command, $exit_code);
-  $output = ob_get_clean();
-
-  if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Drush command failed: %s', $command);
-  }
-
-  return $output ?: '';
-}
-
-/**
  * Format yes/no output.
  */
 function yesno(string $value): string {

@@ -1,0 +1,124 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Download DB dump from S3.
+ *
+ * Uses AWS Signature Version 4 with curl (no AWS CLI required).
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// AWS access key.
+$access_key = getenv_required('VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY', 'S3_ACCESS_KEY');
+
+// AWS secret key.
+$secret_key = getenv_required('VORTEX_DOWNLOAD_DB_S3_SECRET_KEY', 'S3_SECRET_KEY');
+
+// S3 bucket name.
+$bucket = getenv_required('VORTEX_DOWNLOAD_DB_S3_BUCKET', 'S3_BUCKET');
+
+// S3 region.
+$region = getenv_required('VORTEX_DOWNLOAD_DB_S3_REGION', 'S3_REGION');
+
+// S3 prefix (path within the bucket).
+$prefix = getenv_default('VORTEX_DOWNLOAD_DB_S3_PREFIX', 'S3_PREFIX', '');
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_S3_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Database dump file name.
+$db_file = getenv_default('VORTEX_DOWNLOAD_DB_S3_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// -----------------------------------------------------------------------------
+
+info('Started database dump download from S3.');
+
+// Ensure prefix ends with a trailing slash if non-empty.
+if ($prefix !== '') {
+  $prefix = rtrim($prefix, '/') . '/';
+}
+
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
+
+// AWS SigV4 helpers (inlined).
+/**
+ * Hash a string with SHA256.
+ */
+function hash_sha256(string $data): string {
+  return hash('sha256', $data);
+}
+
+/**
+ * HMAC-SHA256 with either a raw key or hex key.
+ */
+function hmac_sha256(string $key, string $data, bool $hex_key = FALSE): string {
+  if ($hex_key) {
+    $key = hex2bin($key);
+  }
+  return hash_hmac('sha256', $data, $key);
+}
+
+/**
+ * Create AWS SigV4 signature.
+ */
+function create_aws_signature(string $secret_key, string $date_short, string $region, string $service, string $string_to_sign): string {
+  $date_key = hmac_sha256('AWS4' . $secret_key, $date_short);
+  $region_key = hmac_sha256($date_key, $region, TRUE);
+  $service_key = hmac_sha256($region_key, $service, TRUE);
+  $signing_key = hmac_sha256($service_key, 'aws4_request', TRUE);
+
+  return hmac_sha256($signing_key, $string_to_sign, TRUE);
+}
+
+$request_type = 'GET';
+$auth_type = 'AWS4-HMAC-SHA256';
+$service = 's3';
+$content_type = 'application/octet-stream';
+
+$base_url = sprintf('.%s.%s.amazonaws.com', $service, $region);
+$uri = sprintf('/%s%s', $prefix, $db_file);
+$object_url = sprintf('https://%s%s%s', $bucket, $base_url, $uri);
+$date_short = gmdate('Ymd');
+$date_long = gmdate('Ymd\THis\Z');
+
+note(sprintf('Remote file: %s%s', $prefix, $db_file));
+note(sprintf('Local path:  %s/%s', $db_dir, $db_file));
+note(sprintf('S3 bucket:   %s', $bucket));
+note(sprintf('S3 region:   %s', $region));
+if ($prefix !== '') {
+  note(sprintf('S3 prefix:   %s', $prefix));
+}
+
+$payload_hash = hash_sha256('');
+
+$headers = sprintf("content-type:%s\nhost:%s%s\nx-amz-content-sha256:%s\nx-amz-date:%s", $content_type, $bucket, $base_url, $payload_hash, $date_long);
+
+$signed_headers = 'content-type;host;x-amz-content-sha256;x-amz-date';
+
+$canonical_request = sprintf("%s\n%s\n\n%s\n\n%s\n%s", $request_type, $uri, $headers, $signed_headers, $payload_hash);
+
+$string_to_sign = sprintf("%s\n%s\n%s/%s/%s/aws4_request\n%s", $auth_type, $date_long, $date_short, $region, $service, hash_sha256($canonical_request));
+
+$signature = create_aws_signature($secret_key, $date_short, $region, $service, $string_to_sign);
+
+$auth_header = sprintf('%s Credential=%s/%s/%s/%s/aws4_request, SignedHeaders=%s, Signature=%s', $auth_type, $access_key, $date_short, $region, $service, $signed_headers, $signature);
+
+$response = request($object_url, ['method' => 'GET', 'headers' => ['Authorization: ' . $auth_header, 'content-type: ' . $content_type, 'x-amz-content-sha256: ' . $payload_hash, 'x-amz-date: ' . $date_long], 'save_to' => $db_dir . '/' . $db_file, 'timeout' => 300]);
+if (!$response['ok']) {
+  fail('Failed to download database dump from S3.');
+}
+
+pass('Finished database dump download from S3.');

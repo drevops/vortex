@@ -15,7 +15,6 @@ class DeployLagoonTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
-    require_once __DIR__ . '/../../src/helpers.php';
 
     // Create SSH key file that the script expects.
     mkdir(self::$tmp . '/.ssh', 0700, TRUE);

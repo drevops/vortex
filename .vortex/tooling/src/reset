@@ -37,16 +37,10 @@ if ($is_hard_reset) {
   passthru('git ls-files --others -i --exclude-from=.gitignore -z | while IFS= read -r -d "" file; do chmod 777 "$file" 2>/dev/null; rm -rf "$file" 2>/dev/null; done');
 
   task('Resetting repository files.');
-  passthru('git reset --hard', $exit_code);
-  if ($exit_code !== 0) {
-    quit($exit_code);
-  }
+  passthru_or_fail('git reset --hard');
 
   task('Removing all untracked files.');
-  passthru('git clean -f -d', $exit_code);
-  if ($exit_code !== 0) {
-    quit($exit_code);
-  }
+  passthru_or_fail('git clean -f -d');
 
   task('Removing empty directories.');
   passthru('find . -type d -not -path "./.git/*" -empty -delete');
