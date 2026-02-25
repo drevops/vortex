@@ -63,7 +63,8 @@ jobs:
       - name: Generate video for installer (not used in the final artifact)
         run: |
           sudo apt-get update
-          sudo apt install asciinema expect
+          sudo apt install expect
+          sudo curl -sSL https://github.com/asciinema/asciinema/releases/latest/download/asciinema-x86_64-unknown-linux-gnu -o /usr/local/bin/asciinema && sudo chmod +x /usr/local/bin/asciinema
           npm i -g sharp-cli
           yarn install --frozen-lockfile
           ./.utils/update-installer-video.sh

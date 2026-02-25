@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.15",
-        "alexskrypnyk/snapshot": "^1.0.0",
+        "alexskrypnyk/snapshot": "^1.1",
         "bamarni/composer-bin-plugin": "^1.9.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/phpcs-standard": "^0.6.2",
@@ -99,6 +99,6 @@
         "reset": "rm -Rf vendor vendor-bin",
         "test": "phpunit --no-coverage",
         "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit",
-        "update-snapshots": "update-snapshots --test-dir= testHandlerProcess tests/Fixtures/handler_process"
+        "update-snapshots": "update-snapshots --test-dir= testHandlerProcess tests/Fixtures/handler_process $@"
     }
 }

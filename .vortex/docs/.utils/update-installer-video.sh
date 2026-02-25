@@ -306,8 +306,8 @@ record_installer() {
   note "Output file: $output_cast"
 
   asciinema rec \
-    --cols="$TERMINAL_WIDTH" \
-    --rows="$TERMINAL_HEIGHT" \
+    --window-size="${TERMINAL_WIDTH}x${TERMINAL_HEIGHT}" \
+    --output-format=asciicast-v2 \
     --title="Vortex Installer Demo" \
     --command="$expect_script" \
     --overwrite \

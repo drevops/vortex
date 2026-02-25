@@ -22,6 +22,10 @@ class Tools extends AbstractHandler {
 
   const RECTOR = 'rector';
 
+  const ESLINT = 'eslint';
+
+  const STYLELINT = 'stylelint';
+
   const PHPUNIT = 'phpunit';
 
   const BEHAT = 'behat';
@@ -55,7 +59,16 @@ class Tools extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return [self::PHPCS, self::PHPMD, self::PHPSTAN, self::RECTOR, self::PHPUNIT, self::BEHAT];
+    return [
+      self::BEHAT,
+      self::ESLINT,
+      self::PHPCS,
+      self::PHPMD,
+      self::PHPSTAN,
+      self::PHPUNIT,
+      self::RECTOR,
+      self::STYLELINT,
+    ];
   }
 
   /**
@@ -97,6 +110,20 @@ class Tools extends AbstractHandler {
     foreach (array_keys($groups) as $name) {
       $this->processGroup($name);
     }
+
+    // Remove fei: command and its call when both FE lint tools and custom
+    // theme are absent, as there are no front-end dependencies to install.
+    $fe_group = $groups['frontend_linting'] ?? NULL;
+    if ($fe_group && isset($fe_group['tools']) && !array_intersect($fe_group['tools'], $selected_tools)) {
+      $theme = $this->responses[Theme::id()] ?? NULL;
+      if (in_array($theme, [Theme::OLIVERO, Theme::CLARO, Theme::STARK])) {
+        File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_fei', function (string $content): string {
+          $content = preg_replace('/^\h*fei:\R(?:\h{4,}.*\R)*/m', '', $content) ?? $content;
+          $content = preg_replace('/^\h*ahoy fei\b.*\n?/m', '', $content) ?? $content;
+          return Yaml::collapseEmptyLinesInLiteralBlock($content);
+        }));
+      }
+    }
   }
 
   protected function processTool(string $name): void {
@@ -122,6 +149,16 @@ class Tools extends AbstractHandler {
       if ($cj instanceof JsonManipulator) {
         $tool['composer.json']($cj);
         file_put_contents($composer_path, $cj->getContents());
+      }
+    }
+
+    // Remove dependencies from package.json.
+    if (isset($tool['package.json']) && is_callable($tool['package.json'])) {
+      $package_path = $this->tmpDir . '/package.json';
+      $pj = JsonManipulator::fromFile($package_path);
+      if ($pj instanceof JsonManipulator) {
+        $tool['package.json']($pj);
+        file_put_contents($package_path, $pj->getContents());
       }
     }
 
@@ -174,14 +211,26 @@ class Tools extends AbstractHandler {
     $config = static::getToolDefinitions('goups')[$name];
     $selected_tools = $this->getResponseAsArray();
 
-    // Remove group Ahoy commands if no tools are selected.
-    if (isset($config['tools']) && !array_intersect($config['tools'], $selected_tools) && isset($config['ahoy'])) {
+    if (!isset($config['tools']) || array_intersect($config['tools'], $selected_tools)) {
+      return;
+    }
+
+    if (isset($config['files'])) {
+      $files = array_map(fn($file): string => $this->tmpDir . '/' . $file, $config['files']);
+      File::remove($files);
+    }
+
+    if (isset($config['ahoy'])) {
       foreach ($config['ahoy'] as $string) {
         File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
           $content = File::replaceContent($content, $string, '');
           return Yaml::collapseEmptyLinesInLiteralBlock($content);
         }));
       }
+    }
+
+    if (isset($config['token'])) {
+      File::removeTokenAsync($config['token']);
     }
   }
 
@@ -264,6 +313,45 @@ class Tools extends AbstractHandler {
           '/^.*@SuppressWarnings.*\n?/m',
         ],
         'ahoy' => ['ahoy cli vendor/bin/phpmd . text phpmd.xml'],
+      ],
+
+      self::ESLINT => [
+        'title' => 'ESLint',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"eslint":') ||
+        File::exists($this->dstDir . '/.eslintrc.json'),
+        'package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('devDependencies', 'eslint');
+          $pj->removeSubNode('devDependencies', 'eslint-config-airbnb-base');
+          $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-yml');
+          $pj->removeSubNode('devDependencies', 'prettier');
+          $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
+          $pj->removeSubNode('scripts', 'lint-js');
+          $pj->removeSubNode('scripts', 'lint-fix-js');
+          $pj->addSubNode('scripts', 'lint', 'yarn run lint-css');
+          $pj->addSubNode('scripts', 'lint-fix', 'yarn run lint-fix-css');
+        },
+        'files' => ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
+      ],
+
+      self::STYLELINT => [
+        'title' => 'Stylelint',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"stylelint":') ||
+        File::exists($this->dstDir . '/.stylelintrc.js'),
+        'package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('devDependencies', 'stylelint');
+          $pj->removeSubNode('devDependencies', 'stylelint-config-standard');
+          $pj->removeSubNode('devDependencies', 'stylelint-order');
+          $pj->removeSubNode('scripts', 'lint-css');
+          $pj->removeSubNode('scripts', 'lint-fix-css');
+          $pj->addSubNode('scripts', 'lint', 'yarn run lint-js');
+          $pj->addSubNode('scripts', 'lint-fix', 'yarn run lint-fix-js');
+        },
+        'files' => ['.stylelintrc.js'],
       ],
 
       self::PHPUNIT => [
@@ -365,6 +453,16 @@ class Tools extends AbstractHandler {
           '/^\h*test:\R\h*usage:\h*Run all tests\.\R\h*cmd:\h*\|$/um',
           '/^\h*lint-tests:\R\h*usage:\h*Lint tests code\.\R\h*cmd:\h*\|\h*\R^\h*$/um',
         ],
+      ],
+      'frontend_linting' => [
+        'tools' => [self::ESLINT, self::STYLELINT],
+        'files' => ['package.json', 'yarn.lock'],
+        'ahoy' => [
+          '/^\h*ahoy cli "yarn install --frozen-lockfile"\h*\n?/m',
+          '/^\h*ahoy cli "yarn run lint"\h*\n?/m',
+          '/^\h*ahoy cli "yarn run lint-fix"\h*\n?/m',
+        ],
+        'token' => 'TOOL_ESLINT_STYLELINT',
       ],
     ];
 

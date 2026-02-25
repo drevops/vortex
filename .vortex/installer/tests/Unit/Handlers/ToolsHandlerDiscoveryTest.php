@@ -20,12 +20,12 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     return [
       'tools - prompt - defaults' => [
         [Tools::id() => Key::ENTER],
-        [Tools::id() => [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR, Tools::PHPUNIT, Tools::BEHAT]] + $expected_defaults,
+        [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_defaults,
       ],
 
       'tools - discovery - all tools' => [
         [],
-        [Tools::id() => [Tools::BEHAT, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR]] + $expected_installed,
+        [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_installed,
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           $dependencies = [
@@ -37,6 +37,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
             'behat/behat' => '*',
           ];
           $test->stubComposerJsonDependencies($dependencies, TRUE);
+          file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['eslint' => '*', 'stylelint' => '*']], JSON_PRETTY_PRINT));
         },
       ],
 
@@ -196,6 +197,40 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/behat.yml');
+        },
+      ],
+
+      'tools - discovery - eslint' => [
+        [],
+        [Tools::id() => [Tools::ESLINT]] + $expected_installed,
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['eslint' => '*']], JSON_PRETTY_PRINT));
+        },
+      ],
+      'tools - discovery - eslint, alt' => [
+        [],
+        [Tools::id() => [Tools::ESLINT]] + $expected_installed,
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/.eslintrc.json');
+        },
+      ],
+
+      'tools - discovery - stylelint' => [
+        [],
+        [Tools::id() => [Tools::STYLELINT]] + $expected_installed,
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['stylelint' => '*']], JSON_PRETTY_PRINT));
+        },
+      ],
+      'tools - discovery - stylelint, alt' => [
+        [],
+        [Tools::id() => [Tools::STYLELINT]] + $expected_installed,
+        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+          $test->stubVortexProject($config);
+          File::dump(static::$sut . '/.stylelintrc.js');
         },
       ],
     ];

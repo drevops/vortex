@@ -51,8 +51,55 @@ for (let i = 2; i < args.length; i++) {
   }
 }
 
-// Read input cast file.
-const input = fs.readFileSync(inputFile, 'utf8');
+// Read input cast file and convert v3 to v2 if needed.
+// svg-term only supports asciicast v1 and v2 formats, but asciinema 3.x
+// produces v3 format with two breaking differences:
+//   1. Header uses {term: {cols, rows, type}} instead of {width, height}
+//   2. Timestamps are relative (delta from previous event) not absolute
+// Additionally, v3 introduces event type "x" (exit) which v2 doesn't have.
+let input = fs.readFileSync(inputFile, 'utf8');
+const lines = input.split('\n');
+if (lines.length > 0) {
+  try {
+    const header = JSON.parse(lines[0]);
+    if (header.version === 3) {
+      // Convert header.
+      header.version = 2;
+      if (header.term) {
+        header.width = header.term.cols;
+        header.height = header.term.rows;
+        if (!header.env) {
+          header.env = {};
+        }
+        if (header.term.type) {
+          header.env.TERM = header.term.type;
+        }
+        delete header.term;
+      }
+      // Convert event lines: relative timestamps to absolute, drop non-"o" events.
+      const convertedLines = [JSON.stringify(header)];
+      let absoluteTime = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) {
+          continue;
+        }
+        try {
+          const event = JSON.parse(line);
+          absoluteTime += event[0];
+          if (event[1] === 'o') {
+            convertedLines.push(JSON.stringify([parseFloat(absoluteTime.toFixed(6)), 'o', event[2]]));
+          }
+        } catch (_) {
+          // Skip malformed lines.
+        }
+      }
+      input = convertedLines.join('\n') + '\n';
+    }
+  } catch (_) {
+    // Not valid JSON header - let svg-term handle the error.
+  }
+}
 
 // Define custom theme with lineHeight set to 1.0.
 // Based on Atom One Dark theme colors.

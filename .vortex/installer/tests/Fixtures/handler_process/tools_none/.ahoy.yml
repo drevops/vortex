@@ -1,4 +1,12 @@
-@@ -176,18 +176,8 @@
+@@ -156,7 +156,6 @@
+   fei:
+     usage: Install front-end assets.
+     cmd: |
+-      ahoy cli "yarn install --frozen-lockfile"
+       ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
+ 
+   fe:
+@@ -176,74 +175,24 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -17,8 +25,8 @@
    lint-fe:
      usage: Lint front-end code.
      cmd: |
-@@ -195,23 +185,11 @@
-       ahoy cli "yarn run lint"
+       ahoy cli vendor/bin/twig-cs-fixer lint
+-      ahoy cli "yarn run lint"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
 -  lint-tests:
@@ -41,9 +49,8 @@
    lint-fe-fix:
      usage: Fix lint issues of front-end code.
      cmd: |
-@@ -218,32 +196,6 @@
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
-       ahoy cli "yarn run lint-fix"
+-      ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 -
 -  test:
