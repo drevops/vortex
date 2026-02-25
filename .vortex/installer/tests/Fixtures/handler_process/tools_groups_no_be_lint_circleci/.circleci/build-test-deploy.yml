@@ -1,4 +1,4 @@
-# CircleCI 2.0 configuration file.
+# CircleCI configuration file for building, testing, and deploying.
 #
 # This configuration file uses the "docker" executor to run the Docker stack.
 #
@@ -7,6 +7,15 @@
 # containers defined in `docker-compose.yml` run on a *remote* Docker server
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
+#
+# Scheduled pipelines:
+# The `nightly-db` workflow requires a schedule trigger configured in CircleCI UI.
+# Go to Project Settings > Triggers > Add Scheduled Trigger:
+#   - Trigger name: nightly-db
+#   - Config source: build-test-deploy.yml
+#   - Branch: develop
+#   - Schedule: Every day at 18:00 UTC (or a custom time)
+# See https://www.vortextemplate.com/docs/continuous-integration/circleci
 version: '2.1'
 
 aliases:
@@ -17,9 +26,6 @@ aliases:
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
-
-  # Schedule to run nightly database build (to cache the database for the next day).
-  - &nightly_db_schedule "0 18 * * *"
 
   # Shared runner container configuration applied to each job.
   - &runner_config
@@ -91,15 +97,6 @@ aliases:
       name: Load environment variables from .env file
       # Load variables from .env file, respecting existing values, and make them available for the next steps.
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
-
-################################################################################
-# PARAMETERS
-################################################################################
-
-parameters:
-  run_update_dependencies:
-    type: boolean
-    default: false
 
 ################################################################################
 # JOBS
@@ -180,6 +177,7 @@ jobs:
             - /root/project/.data
 
   # Nightly database job. Same as above, but with additional variables set.
+  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
   database-nightly:
     <<: *job-database
     environment:
@@ -274,30 +272,6 @@ jobs:
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint code with PHPCS
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/phpcs || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint code with PHPStan
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/phpstan || [ "${VORTEX_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint code with Rector
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/rector --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint code with PHPMD
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${VORTEX_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with Twig CS Fixer
@@ -477,59 +451,16 @@ jobs:
       - store_artifacts:
           path: *artifacts
 
-  # Self-hosted dependency updates.
-  # Add the following environment variables to the CircleCI project:
-  # - RENOVATE_TOKEN: GitHub access token.
-  # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
-  # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
-  # Variables provided below can be overridden in the CircleCI project settings.
-  update-dependencies:
-    docker:
-      - image: renovate/renovate:__VERSION__
-        environment:
-          RENOVATE_PLATFORM: 'github'
-          RENOVATE_AUTODISCOVER: false
-          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by CircleCI'
-          RENOVATE_DEPENDENCY_DASHBOARD: false
-          RENOVATE_DRY_RUN: false
-          LOG_LEVEL: 'debug'
-
-    steps:
-      - checkout
-      - run:
-          name: Check if RENOVATE_TOKEN is set
-          command: |
-            if [ -z "${RENOVATE_TOKEN}" ]; then
-              echo "RENOVATE_TOKEN is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_REPOSITORIES}" ]; then
-              echo "Renovate repository is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_GIT_AUTHOR}" ]; then
-              echo "Renovate git author is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-      - run:
-          name: Validate Renovate configuration
-          command: renovate-config-validator
-
-      - run:
-          name: Run Renovate
-          command: renovate
-
 ################################################################################
 # WORKFLOWS
 ################################################################################
 
 workflows:
-  version: 2
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - database:
           filters:
@@ -572,30 +503,11 @@ workflows:
               only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
 
   # Nightly database workflow runs overnight to capture fresh database and cache it.
+  # Requires a "nightly-db" schedule trigger configured in CircleCI UI.
   nightly-db:
-    triggers:
-      - schedule:
-          cron: *nightly_db_schedule
-          filters:
-            branches:
-              only:
-                - develop
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["nightly-db", << pipeline.schedule.name >>]
     jobs:
       - database-nightly
-
-  # Self-hosted Renovate workflow.
-  update-dependencies:
-    triggers:
-      - schedule:
-          cron: "5 11,23 * * *"
-          filters:
-            branches:
-              only:
-                - develop
-    jobs:
-      - update-dependencies
-
-  update-dependencies-manual:
-    when: << pipeline.parameters.run_update_dependencies >>
-    jobs:
-      - update-dependencies

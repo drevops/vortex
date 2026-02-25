@@ -1,4 +1,4 @@
-# CircleCI 2.0 configuration file.
+# CircleCI configuration file for building, testing, and deploying.
 #
 # This configuration file uses the "docker" executor to run the Docker stack.
 #
@@ -7,6 +7,15 @@
 # containers defined in `docker-compose.yml` run on a *remote* Docker server
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
+#
+# Scheduled pipelines:
+# The `nightly-db` workflow requires a schedule trigger configured in CircleCI UI.
+# Go to Project Settings > Triggers > Add Scheduled Trigger:
+#   - Trigger name: nightly-db
+#   - Config source: build-test-deploy.yml
+#   - Branch: develop
+#   - Schedule: Every day at 18:00 UTC (or a custom time)
+# See https://www.vortextemplate.com/docs/continuous-integration/circleci
 version: '2.1'
 
 aliases:
@@ -17,9 +26,6 @@ aliases:
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
-
-  # Schedule to run nightly database build (to cache the database for the next day).
-  - &nightly_db_schedule "0 18 * * *"
 
   # Shared runner container configuration applied to each job.
   - &runner_config
@@ -91,15 +97,6 @@ aliases:
       name: Load environment variables from .env file
       # Load variables from .env file, respecting existing values, and make them available for the next steps.
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
-
-################################################################################
-# PARAMETERS
-################################################################################
-
-parameters:
-  run_update_dependencies:
-    type: boolean
-    default: false
 
 ################################################################################
 # JOBS
@@ -180,6 +177,7 @@ jobs:
             - /root/project/.data
 
   # Nightly database job. Same as above, but with additional variables set.
+  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
   database-nightly:
     <<: *job-database
     environment:
@@ -334,59 +332,6 @@ jobs:
           no_output_timeout: 30m
 
       - run:
-          name: Test with PHPUnit
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Process PHPUnit logs and coverage
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            mkdir -p "${VORTEX_CI_ARTIFACTS}"
-            if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
-            fi
-
-      - run:
-          name: Check code coverage threshold
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            RATE=$(grep -om1 'line-rate="[0-9.]*"' /tmp/artifacts/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
-            PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
-            echo "Coverage: $PERCENT% (threshold: ${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}%)"
-            if [ "${PERCENT//./}" -lt "$((${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}*100))" ]; then
-              echo "FAIL: coverage too low"
-              exit 1
-            fi
-
-      - run:
-          name: Post coverage summary as PR comment
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            [ "${VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP:-0}" = "1" ] && exit 0
-            [ -z "${CIRCLE_PULL_REQUEST}" ] && exit 0
-            [ -z "${GITHUB_TOKEN}" ] && exit 0
-            COVERAGE_CONTENT=$(sed '/./,$!d' /tmp/artifacts/coverage/phpunit/coverage.txt)
-            PR_NUMBER=$(echo "${CIRCLE_PULL_REQUEST}" | cut -d'/' -f 7)
-            REPO_SLUG="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
-            curl -s -X POST \
-              -H "Authorization: token ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${REPO_SLUG}/issues/${PR_NUMBER}/comments" \
-              -d "$(jq -n --arg body "\`\`\`
-            ${COVERAGE_CONTENT}
-            \`\`\`" '{body: $body}')"
-
-      - run:
-          name: Upload code coverage reports to Codecov
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ] && ! echo "${CIRCLE_BRANCH}" | grep -q '^deps/'; then
-              codecov -Z -s /tmp/artifacts/coverage;
-            fi
-
-      - run:
           name: Test with Behat
           command: |
             if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
@@ -482,9 +427,11 @@ jobs:
 ################################################################################
 
 workflows:
-  version: 2
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - database:
           filters:
@@ -527,13 +474,11 @@ workflows:
               only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
 
   # Nightly database workflow runs overnight to capture fresh database and cache it.
+  # Requires a "nightly-db" schedule trigger configured in CircleCI UI.
   nightly-db:
-    triggers:
-      - schedule:
-          cron: *nightly_db_schedule
-          filters:
-            branches:
-              only:
-                - develop
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["nightly-db", << pipeline.schedule.name >>]
     jobs:
       - database-nightly

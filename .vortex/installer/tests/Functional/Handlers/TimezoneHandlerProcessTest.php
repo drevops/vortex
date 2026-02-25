@@ -49,8 +49,8 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
         static::cw(function (FunctionalTestCase $test): void {
           // Timezone should not be replaced in CircleCI config in code as it
           // should be overridden via UI.
-          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'TZ: America/New_York');
-          $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'TZ: UTC');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/build-test-deploy.yml', 'TZ: America/New_York');
+          $test->assertFileContainsString(static::$sut . '/.circleci/build-test-deploy.yml', 'TZ: UTC');
         }),
       ],
     ];

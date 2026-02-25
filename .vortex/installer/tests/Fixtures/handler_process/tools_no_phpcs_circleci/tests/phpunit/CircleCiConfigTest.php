@@ -30,7 +30,7 @@ class CircleCiConfigTest extends TestCase {
    */
   protected function setUp(): void {
     parent::setUp();
-    $file = file_get_contents(__DIR__ . '/../../.circleci/config.yml');
+    $file = file_get_contents(__DIR__ . '/../../.circleci/build-test-deploy.yml');
     if (!$file) {
       throw new \RuntimeException('Unable to read CircleCI config file.');
     }

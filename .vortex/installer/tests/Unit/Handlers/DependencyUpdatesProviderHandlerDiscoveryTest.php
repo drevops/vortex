@@ -43,7 +43,7 @@ class DependencyUpdatesProviderHandlerDiscoveryTest extends AbstractHandlerDisco
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
           File::dump(static::$sut . '/renovate.json');
-          File::dump(static::$sut . '/.circleci/config.yml', 'update-dependencies');
+          File::dump(static::$sut . '/.circleci/build-test-deploy.yml', 'update-dependencies');
         },
       ],
 

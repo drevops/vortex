@@ -50,7 +50,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
-          $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'Download migration DB');
+          $test->assertFileContainsString(static::$sut . '/.circleci/build-test-deploy.yml', 'Download migration DB');
         }),
       ],
 
@@ -88,7 +88,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
-          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'Download migration DB');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/build-test-deploy.yml', 'Download migration DB');
         }),
       ],
 
