@@ -51,28 +51,22 @@ import {
 
   </VerticalTabPanel>
 
-  <VerticalTab>☁️ Hosting Integrations | Integrations with cloud hosting providers</VerticalTab>
+  <VerticalTab>💻 Local Development | Containerized development environment</VerticalTab>
   <VerticalTabPanel>
-    ### Acquia Cloud
 
-    > A Drupal-optimized hosting platform built to empower your team.
+    Containerized development environments with simplified command management.
 
-    - Database and file syncing
-    - Centralized deployment management via cloud hooks
-    - Code artifact deployments
+    ### Docker Compose + Ahoy
 
-    ### Lagoon
+    - [Docker Compose](https://docs.docker.com/compose/) for service orchestration
+    - [Ahoy](https://github.com/ahoy-cli/ahoy) for simplified command management and custom command support
+    - Pre-configured services stack: Nginx, PHP, MariaDB, Redis, Solr 9, ClamAV, Chrome
+    - Xdebug support for debugging PHP applications
+    - PCOV support for code coverage analysis
 
-    > Lagoon, the developer-focused application delivery platform
+    :::note Planned features
 
-    - Production-ready containerized stack
-    - Database and file syncing
-    - Centralized deployment management
-    - Preview environment support
-
-    :::note
-
-    [Upsun](https://upsun.com/), [Tugboat](https://www.tugboatqa.com/) and other hosting providers integrations are coming soon
+    Support for DDEV and Lando is on our [roadmap](/docs/contributing/roadmap) for local development environments.
 
     :::
 
@@ -114,22 +108,28 @@ import {
     - Code coverage reports are pushed to [Codecov](https://codecov.io/) for easy access and visualization.
   </VerticalTabPanel>
 
-  <VerticalTab>💻 Local Development | Containerized development environment</VerticalTab>
+  <VerticalTab>☁️ Hosting Integrations | Integrations with cloud hosting providers</VerticalTab>
   <VerticalTabPanel>
+    ### Acquia Cloud
 
-    Containerized development environments with simplified command management.
+    > A Drupal-optimized hosting platform built to empower your team.
 
-    ### Docker Compose + Ahoy
+    - Database and file syncing
+    - Centralized deployment management via cloud hooks
+    - Code artifact deployments
 
-    - [Docker Compose](https://docs.docker.com/compose/) for service orchestration
-    - [Ahoy](https://github.com/ahoy-cli/ahoy) for simplified command management and custom command support
-    - Pre-configured services stack: Nginx, PHP, MariaDB, Redis, Solr 9, ClamAV, Chrome
-    - Xdebug support for debugging PHP applications
-    - PCOV support for code coverage analysis
+    ### Lagoon
 
-    :::note Planned features
+    > Lagoon, the developer-focused application delivery platform
 
-    Support for DDEV and Lando is on our [roadmap](/docs/contributing/roadmap) for local development environments.
+    - Production-ready containerized stack
+    - Database and file syncing
+    - Centralized deployment management
+    - Preview environment support
+
+    :::note
+
+    [Upsun](https://upsun.com/), [Tugboat](https://www.tugboatqa.com/) and other hosting providers integrations are coming soon
 
     :::
 
@@ -161,11 +161,41 @@ import {
 
     :::note
 
-    Integrations with [Pa11y](https://pa11y.org/) (for accessibility testing)
-    and [Diffy](https://diffy.website/) (for visual regression testing) are
+    Integrations with [Pa11y](https://pa11y.org/) for accessibility testing
+    and [Diffy](https://diffy.website/) for visual regression testing are
     coming soon
 
     :::
+
+  </VerticalTabPanel>
+
+  <VerticalTab>✨ AI | Built-in support for AI coding agents</VerticalTab>
+  <VerticalTabPanel>
+
+    AI-ready project configuration that gives coding agents the context they
+    need to work effectively from the first session.
+
+    ### Agent-agnostic configuration
+
+    - [`AGENTS.md`](https://github.com/drevops/vortex/blob/main/AGENTS.md) works with any AI tool — Claude Code, Cursor, Copilot, and others
+    - [`CLAUDE.md`](https://github.com/drevops/vortex/blob/main/CLAUDE.md) for Claude Code-specific integration
+    - No vendor lock-in
+
+    ### Project-level documentation stored within the codebase
+
+    - Decisions for testing, CI, deployment, and release processes
+    - Operational guides from [vortextemplate.com](https://www.vortextemplate.com/docs)
+    - Agents receive the same layered guidance as human developers
+
+    ### Pre-configured context
+
+    - Development commands, critical rules, and directory layout available out of the box
+    - Agents can start contributing immediately without lengthy onboarding
+
+    ### Documentation caching
+
+    - Agents fetch and cache operational docs for reuse across sessions
+    - Reduces repeated web requests and speeds up agent responses
 
   </VerticalTabPanel>
 
@@ -244,17 +274,9 @@ import {
 
     ### Vortex installation and updates
 
-    - Standalone `installer` application for installing and updating Vortex projects
+    - Standalone installer application for installing and updating Vortex projects
     - Install and/or update from the most recent version or a specific Vortex Git SHA
-    - Comprehensive `installer` test suite to guarantee reliable project updates
-
-
-    :::note
-
-    Advanced web installer with automated end-to-end setup and project dashboard
-    are coming soon
-
-    :::
+    - Comprehensive test suite to guarantee reliable project updates
 
   </VerticalTabPanel>
 
