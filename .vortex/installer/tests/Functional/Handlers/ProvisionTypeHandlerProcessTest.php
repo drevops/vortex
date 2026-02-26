@@ -15,11 +15,11 @@ class ProvisionTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'provision, database' => [
+      'provision_database' => [
         static::cw(fn() => Env::put(ProvisionType::envName(), ProvisionType::DATABASE)),
       ],
 
-      'provision, database, lagoon' => [
+      'provision_database_lagoon' => [
         static::cw(function (): void {
           Env::put(ProvisionType::envName(), ProvisionType::DATABASE);
           Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
@@ -27,7 +27,7 @@ class ProvisionTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'provision, profile' => [
+      'provision_profile' => [
         static::cw(function (): void {
           Env::put(ProvisionType::envName(), ProvisionType::PROFILE);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);

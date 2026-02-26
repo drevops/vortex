@@ -15,7 +15,7 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'hosting project name - acquia' => [
+      'hosting_project_name___acquia' => [
         static::cw(function (): void {
           Env::put(HostingProvider::envName(), HostingProvider::ACQUIA);
           Env::put(HostingProjectName::envName(), 'my_custom_acquia-project');
@@ -27,7 +27,7 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
         }),
       ],
 
-      'hosting project name - lagoon' => [
+      'hosting_project_name___lagoon' => [
         static::cw(function (): void {
           Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
           Env::put(HostingProjectName::envName(), 'my_custom_lagoon-project');

@@ -13,11 +13,11 @@ class ProfileHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'profile, minimal' => [
+      'profile_minimal' => [
         static::cw(fn() => Env::put(Profile::envName(), Profile::MINIMAL)),
       ],
 
-      'profile, the_empire' => [
+      'profile_the_empire' => [
         static::cw(fn() => Env::put(Profile::envName(), 'the_empire')),
       ],
     ];

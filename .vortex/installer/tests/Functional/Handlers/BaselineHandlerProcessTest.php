@@ -73,13 +73,13 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ['Welcome to the Vortex non-interactive installer'],
       ],
 
-      'non-interactive' => [
+      'non_interactive' => [
         NULL,
         NULL,
         ['Welcome to the Vortex non-interactive installer'],
       ],
 
-      'non-interactive, config file' => [
+      'non_interactive_config_file' => [
         static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_file = static::$tmp . DIRECTORY_SEPARATOR . 'config.json';
           File::dump($config_file, (string) json_encode([
@@ -94,7 +94,7 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ['Welcome to the Vortex non-interactive installer'],
       ],
 
-      'non-interactive, config string' => [
+      'non_interactive_config_string' => [
         static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_string = (string) json_encode([
             // Test overriding scalar value.

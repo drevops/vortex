@@ -14,7 +14,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'version scheme, calver' => [
+      'version_scheme_calver' => [
         static::cw(function (): void {
           Env::put(VersionScheme::envName(), VersionScheme::CALVER);
         }),
@@ -25,7 +25,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('semver.org');
         }),
       ],
-      'version scheme, semver' => [
+      'version_scheme_semver' => [
         static::cw(function (): void {
           Env::put(VersionScheme::envName(), VersionScheme::SEMVER);
         }),
@@ -36,7 +36,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('calver.org');
         }),
       ],
-      'version scheme, other' => [
+      'version_scheme_other' => [
         static::cw(function (): void {
           Env::put(VersionScheme::envName(), VersionScheme::OTHER);
         }),

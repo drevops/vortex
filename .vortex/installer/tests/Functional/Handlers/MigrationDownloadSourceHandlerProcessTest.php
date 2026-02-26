@@ -15,7 +15,7 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'migration download source, url' => [
+      'migration_download_source_url' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::URL);
@@ -28,7 +28,7 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
         }),
       ],
 
-      'migration download source, ftp' => [
+      'migration_download_source_ftp' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::FTP);
@@ -41,7 +41,7 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
         }),
       ],
 
-      'migration download source, acquia' => [
+      'migration_download_source_acquia' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::ACQUIA);
@@ -54,7 +54,7 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
         }),
       ],
 
-      'migration download source, lagoon' => [
+      'migration_download_source_lagoon' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::LAGOON);
@@ -67,7 +67,7 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
         }),
       ],
 
-      'migration download source, s3' => [
+      'migration_download_source_s3' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::S3);

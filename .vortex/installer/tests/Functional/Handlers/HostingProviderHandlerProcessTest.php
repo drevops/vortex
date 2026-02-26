@@ -15,14 +15,14 @@ class HostingProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'hosting, acquia' => [
+      'hosting_acquia' => [
         static::cw(function (): void {
           Env::put(HostingProvider::envName(), HostingProvider::ACQUIA);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
         }),
       ],
 
-      'hosting, lagoon' => [
+      'hosting_lagoon' => [
         static::cw(function (): void {
           Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);

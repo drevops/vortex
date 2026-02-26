@@ -17,7 +17,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'tools, none' => [
+      'tools_none' => [
         static::cw(function (): void {
           Env::put(Tools::envName(), Converter::toList([]));
         }),
@@ -56,7 +56,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no phpcs' => [
+      'tools_no_phpcs' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS])));
@@ -71,7 +71,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no phpcs, circleci' => [
+      'tools_no_phpcs_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS])));
@@ -86,7 +86,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no phpstan' => [
+      'tools_no_phpstan' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
@@ -99,7 +99,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no phpstan, circleci' => [
+      'tools_no_phpstan_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
@@ -112,7 +112,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no rector' => [
+      'tools_no_rector' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::RECTOR])));
@@ -124,7 +124,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no rector, circleci' => [
+      'tools_no_rector_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::RECTOR])));
@@ -136,7 +136,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no phpmd' => [
+      'tools_no_phpmd' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPMD])));
@@ -148,7 +148,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no phpmd, circleci' => [
+      'tools_no_phpmd_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPMD])));
@@ -160,7 +160,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no eslint' => [
+      'tools_no_eslint' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT])));
@@ -187,7 +187,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no eslint, circleci' => [
+      'tools_no_eslint_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT])));
@@ -214,7 +214,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no stylelint' => [
+      'tools_no_stylelint' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::STYLELINT])));
@@ -231,7 +231,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no stylelint, circleci' => [
+      'tools_no_stylelint_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::STYLELINT])));
@@ -248,7 +248,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no phpunit' => [
+      'tools_no_phpunit' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
@@ -262,7 +262,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no phpunit, circleci' => [
+      'tools_no_phpunit_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
@@ -276,7 +276,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no behat' => [
+      'tools_no_behat' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::BEHAT])));
@@ -294,7 +294,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, no behat, circleci' => [
+      'tools_no_behat_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::BEHAT])));
@@ -311,7 +311,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, groups, no be lint' => [
+      'tools_groups_no_be_lint' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
@@ -333,7 +333,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, groups, no be lint, circleci' => [
+      'tools_groups_no_be_lint_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
@@ -355,7 +355,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, groups, no fe lint' => [
+      'tools_groups_no_fe_lint' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
@@ -372,7 +372,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, groups, no fe lint, circleci' => [
+      'tools_groups_no_fe_lint_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
@@ -389,7 +389,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, groups, no be tests' => [
+      'tools_groups_no_be_tests' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
@@ -410,7 +410,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, groups, no be tests, circleci' => [
+      'tools_groups_no_be_tests_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
@@ -431,7 +431,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'tools, groups, no fe lint, no theme' => [
+      'tools_groups_no_fe_lint_no_theme' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
@@ -455,7 +455,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, groups, no fe lint, no theme, circleci' => [
+      'tools_groups_no_fe_lint_no_theme_circleci' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
@@ -479,7 +479,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no stylelint, no theme' => [
+      'tools_no_stylelint_no_theme' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::STYLELINT])));
@@ -498,7 +498,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'tools, no eslint, no theme' => [
+      'tools_no_eslint_no_theme' => [
         static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT])));

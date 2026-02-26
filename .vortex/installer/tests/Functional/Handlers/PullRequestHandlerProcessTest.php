@@ -15,19 +15,19 @@ class PullRequestHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'assign author PR, enabled' => [
+      'assign_author_pr_enabled' => [
         static::cw(fn() => Env::put(AssignAuthorPr::envName(), Env::TRUE)),
       ],
 
-      'assign author PR, disabled' => [
+      'assign_author_pr_disabled' => [
         static::cw(fn() => Env::put(AssignAuthorPr::envName(), Env::FALSE)),
       ],
 
-      'label merge conflicts PR, enabled' => [
+      'label_merge_conflicts_pr_enabled' => [
         static::cw(fn() => Env::put(LabelMergeConflictsPr::envName(), Env::TRUE)),
       ],
 
-      'label merge conflicts PR, disabled' => [
+      'label_merge_conflicts_pr_disabled' => [
         static::cw(fn() => Env::put(LabelMergeConflictsPr::envName(), Env::FALSE)),
       ],
     ];

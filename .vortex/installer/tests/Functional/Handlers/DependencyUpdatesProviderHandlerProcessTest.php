@@ -14,22 +14,22 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'deps updates provider, ci, gha' => [
+      'deps_updates_provider_ci_gha' => [
         static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI)),
       ],
 
-      'deps updates provider, ci, circleci' => [
+      'deps_updates_provider_ci_circleci' => [
         static::cw(function (): void {
           Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI);
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
       ],
 
-      'deps updates provider, app' => [
+      'deps_updates_provider_app' => [
         static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_APP)),
       ],
 
-      'deps updates provider, none' => [
+      'deps_updates_provider_none' => [
         static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::NONE)),
       ],
     ];

@@ -14,7 +14,7 @@ class CodeProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'code provider, github' => [
+      'code_provider_github' => [
         static::cw(fn() => Env::put(CodeProvider::envName(), CodeProvider::GITHUB)),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.dist.md');
@@ -22,7 +22,7 @@ class CodeProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'code provider, other' => [
+      'code_provider_other' => [
         static::cw(fn() => Env::put(CodeProvider::envName(), CodeProvider::OTHER)),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertDirectoryDoesNotExist(static::$sut . '/.github');

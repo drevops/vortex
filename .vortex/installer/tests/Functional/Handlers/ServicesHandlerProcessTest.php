@@ -16,7 +16,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'services, no clamav' => [
+      'services_no_clamav' => [
         static::cw(function (): void {
           Env::put(Services::envName(), Converter::toList([Services::SOLR, Services::REDIS]));
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
@@ -24,7 +24,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
       ],
 
-      'services, no redis' => [
+      'services_no_redis' => [
         static::cw(function (): void {
           Env::put(Services::envName(), Converter::toList([Services::CLAMAV, Services::SOLR]));
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
@@ -32,7 +32,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('redis')),
       ],
 
-      'services, no solr' => [
+      'services_no_solr' => [
         static::cw(function (): void {
           Env::put(Services::envName(), Converter::toList([Services::CLAMAV, Services::REDIS]));
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
@@ -40,7 +40,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['solr', '_search'])),
       ],
 
-      'services, none' => [
+      'services_none' => [
         static::cw(fn() => Env::put(Services::envName(), ',')),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('clamav');
