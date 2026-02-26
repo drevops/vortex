@@ -16,23 +16,23 @@ class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTes
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'db download source, url' => [
+      'db_download_source_url' => [
         static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::URL)),
       ],
 
-      'db download source, ftp' => [
+      'db_download_source_ftp' => [
         static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::FTP)),
       ],
 
-      'db download source, acquia' => [
+      'db_download_source_acquia' => [
         static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::ACQUIA)),
       ],
 
-      'db download source, lagoon' => [
+      'db_download_source_lagoon' => [
         static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::LAGOON)),
       ],
 
-      'db download source, container_registry' => [
+      'db_download_source_container_registry' => [
         static::cw(function (): void {
           Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::CONTAINER_REGISTRY);
           Env::put(DatabaseImage::envName(), 'the_empire/star_wars:latest');
@@ -40,7 +40,7 @@ class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTes
         }),
       ],
 
-      'db download source, s3' => [
+      'db_download_source_s3' => [
         static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::S3)),
       ],
     ];

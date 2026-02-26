@@ -13,11 +13,11 @@ class DocsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'preserve docs project, enabled' => [
+      'preserve_docs_project_enabled' => [
         static::cw(fn() => Env::put(PreserveDocsProject::envName(), Env::TRUE)),
       ],
 
-      'preserve docs project, disabled' => [
+      'preserve_docs_project_disabled' => [
         static::cw(fn() => Env::put(PreserveDocsProject::envName(), Env::FALSE)),
       ],
 

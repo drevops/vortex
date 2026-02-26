@@ -14,7 +14,7 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'ai instructions, enabled' => [
+      'ai_instructions_enabled' => [
         static::cw(fn() => Env::put(AiCodeInstructions::envName(), Env::TRUE)),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileExists(static::$sut . '/AGENTS.md');
@@ -22,7 +22,7 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
         }),
       ],
 
-      'ai instructions, disabled' => [
+      'ai_instructions_disabled' => [
         static::cw(fn() => Env::put(AiCodeInstructions::envName(), Env::FALSE)),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/AGENTS.md');

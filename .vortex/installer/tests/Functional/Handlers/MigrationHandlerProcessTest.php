@@ -16,7 +16,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'migration, enabled' => [
+      'migration_enabled' => [
         static::cw(fn() => Env::put(Migration::envName(), Env::TRUE)),
         static::cw(function (FunctionalTestCase $test): void {
           // Files and directories created by the handler.
@@ -39,7 +39,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'migration, enabled, circleci' => [
+      'migration_enabled_circleci' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
@@ -54,7 +54,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'migration, disabled' => [
+      'migration_disabled' => [
         static::cw(fn() => Env::put(Migration::envName(), Env::FALSE)),
         static::cw(function (FunctionalTestCase $test): void {
           // Files and directories removed by the handler.
@@ -77,7 +77,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'migration, disabled, circleci' => [
+      'migration_disabled_circleci' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::FALSE);
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
@@ -92,7 +92,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'migration, enabled, lagoon' => [
+      'migration_enabled_lagoon' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::TRUE);
           Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
@@ -107,7 +107,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'migration, disabled, lagoon' => [
+      'migration_disabled_lagoon' => [
         static::cw(function (): void {
           Env::put(Migration::envName(), Env::FALSE);
           Env::put(HostingProvider::envName(), HostingProvider::LAGOON);

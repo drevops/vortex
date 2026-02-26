@@ -15,38 +15,38 @@ class DeployTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'deploy types, artifact' => [
+      'deploy_types_artifact' => [
         static::cw(fn() => Env::put(DeployTypes::envName(), Converter::toList([DeployTypes::ARTIFACT], ',', TRUE))),
       ],
 
-      'deploy types, lagoon' => [
+      'deploy_types_lagoon' => [
         static::cw(fn() => Env::put(DeployTypes::envName(), Converter::toList([DeployTypes::LAGOON], ',', TRUE))),
       ],
 
-      'deploy types, container_image' => [
+      'deploy_types_container_image' => [
         static::cw(fn() => Env::put(DeployTypes::envName(), Converter::toList([DeployTypes::CONTAINER_IMAGE], ',', TRUE))),
       ],
 
-      'deploy types, webhook' => [
+      'deploy_types_webhook' => [
         static::cw(fn() => Env::put(DeployTypes::envName(), Converter::toList([DeployTypes::WEBHOOK], ',', TRUE))),
       ],
 
-      'deploy types, all, gha' => [
+      'deploy_types_all_gha' => [
         static::cw(fn() => Env::put(DeployTypes::envName(), Converter::toList([DeployTypes::WEBHOOK, DeployTypes::CONTAINER_IMAGE, DeployTypes::LAGOON, DeployTypes::ARTIFACT]))),
       ],
 
-      'deploy types, all, circleci' => [
+      'deploy_types_all_circleci' => [
         static::cw(function (): void {
           Env::put(DeployTypes::envName(), Converter::toList([DeployTypes::WEBHOOK, DeployTypes::CONTAINER_IMAGE, DeployTypes::LAGOON, DeployTypes::ARTIFACT]));
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
         }),
       ],
 
-      'deploy types, none, gha' => [
+      'deploy_types_none_gha' => [
         static::cw(fn() => Env::put(DeployTypes::envName(), ',')),
       ],
 
-      'deploy types, none, circleci' => [
+      'deploy_types_none_circleci' => [
         static::cw(function (): void {
           Env::put(DeployTypes::envName(), ',');
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);

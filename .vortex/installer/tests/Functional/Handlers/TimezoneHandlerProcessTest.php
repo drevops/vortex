@@ -16,7 +16,7 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
   public static function dataProviderHandlerProcess(): array {
     return [
 
-      'timezone, gha' => [
+      'timezone_gha' => [
         static::cw(function (): void {
           Env::put(Timezone::envName(), 'America/New_York');
           Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
@@ -41,7 +41,7 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'timezone, circleci' => [
+      'timezone_circleci' => [
         static::cw(function (): void {
           Env::put(Timezone::envName(), 'America/New_York');
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);

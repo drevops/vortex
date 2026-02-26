@@ -14,7 +14,7 @@ class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'starter, demo db' => [
+      'starter_demo_db' => [
         static::cw(fn() => Env::put(Starter::envName(), Starter::LOAD_DATABASE_DEMO)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'drupal/cms',
@@ -23,7 +23,7 @@ class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'starter, Drupal profile' => [
+      'starter_drupal_profile' => [
         static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_CORE)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
           'drupal/cms',
@@ -32,7 +32,7 @@ class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'starter, Drupal CMS profile' => [
+      'starter_drupal_cms_profile' => [
         static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_DRUPALCMS)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertSutContains([
           'drupal/cms',

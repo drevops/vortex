@@ -14,7 +14,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'theme, olivero' => [
+      'theme_olivero' => [
         static::cw(fn() => Env::put(Theme::envName(), Theme::OLIVERO)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
@@ -25,7 +25,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'theme, claro' => [
+      'theme_claro' => [
         static::cw(fn() => Env::put(Theme::envName(), Theme::CLARO)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
@@ -36,7 +36,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'theme, stark' => [
+      'theme_stark' => [
         static::cw(fn() => Env::put(Theme::envName(), Theme::STARK)),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
           '.gitignore',
@@ -47,7 +47,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         ])),
       ],
 
-      'theme, custom' => [
+      'theme_custom' => [
         static::cw(fn() => Env::put(Theme::envName(), 'light_saber')),
         static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'your_site_theme')),
       ],

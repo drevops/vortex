@@ -15,7 +15,7 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'ciprovider, gha' => [
+      'ciprovider_gha' => [
         static::cw(function (): void {
           Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
@@ -26,7 +26,7 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
         }),
       ],
 
-      'ciprovider, circleci' => [
+      'ciprovider_circleci' => [
         static::cw(function (): void {
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);

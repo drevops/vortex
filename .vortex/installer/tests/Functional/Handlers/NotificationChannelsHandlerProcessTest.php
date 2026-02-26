@@ -15,7 +15,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
 
   public static function dataProviderHandlerProcess(): array {
     return [
-      'notification_channels, all' => [
+      'notification_channels_all' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([
             NotificationChannels::EMAIL,
@@ -34,7 +34,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, email only' => [
+      'notification_channels_email_only' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::EMAIL], ',', TRUE));
         }),
@@ -46,7 +46,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, github only' => [
+      'notification_channels_github_only' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::GITHUB], ',', TRUE));
         }),
@@ -58,7 +58,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, jira only' => [
+      'notification_channels_jira_only' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::JIRA], ',', TRUE));
         }),
@@ -70,7 +70,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, newrelic only' => [
+      'notification_channels_newrelic_only' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::NEWRELIC], ',', TRUE));
         }),
@@ -82,7 +82,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, slack only' => [
+      'notification_channels_slack_only' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::SLACK], ',', TRUE));
         }),
@@ -94,7 +94,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, webhook only' => [
+      'notification_channels_webhook_only' => [
         static::cw(function (): void {
           Env::put(NotificationChannels::envName(), Converter::toList([NotificationChannels::WEBHOOK], ',', TRUE));
         }),
@@ -106,7 +106,7 @@ class NotificationChannelsHandlerProcessTest extends AbstractHandlerProcessTestC
         }),
       ],
 
-      'notification_channels, none' => [
+      'notification_channels_none' => [
         static::cw(fn() => Env::put(NotificationChannels::envName(), ',')),
         static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains('VORTEX_NOTIFY_EMAIL_FROM');
