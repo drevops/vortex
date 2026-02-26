@@ -111,19 +111,19 @@ class Services extends AbstractHandler {
     }
 
     if (!in_array(self::CLAMAV, $v)) {
-      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/clamav');
-      @unlink($t . DIRECTORY_SEPARATOR . '.docker/clamav.dockerfile');
-      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.clamav.php');
-      @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/clamav.feature');
+      File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/clamav');
+      File::remove($t . DIRECTORY_SEPARATOR . '.docker/clamav.dockerfile');
+      File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.clamav.php');
+      File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/clamav.feature');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'clamav:3310', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
     if (!in_array(self::SOLR, $v)) {
-      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/solr');
-      @unlink($t . DIRECTORY_SEPARATOR . '.docker/solr.dockerfile');
-      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.solr.php');
-      @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/search.feature');
+      File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/solr');
+      File::remove($t . DIRECTORY_SEPARATOR . '.docker/solr.dockerfile');
+      File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.solr.php');
+      File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/search.feature');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/solr":\s*"[^\"]+",?\n/', "\n");
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/search_api_solr":\s*"[^\"]+",?\n/', "\n");
       File::removeLineInFile($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) && \\');
@@ -142,17 +142,17 @@ class Services extends AbstractHandler {
 
       $path = File::findMatchingPath($locations);
       if ($path) {
-        File::rmdir($path);
+        File::remove($path);
       }
     }
 
     if (!in_array(self::REDIS, $v)) {
-      File::rmdir($t . DIRECTORY_SEPARATOR . '.docker/config/redis');
-      @unlink($t . DIRECTORY_SEPARATOR . '.docker/redis.dockerfile');
-      @unlink($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
+      File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/redis');
+      File::remove($t . DIRECTORY_SEPARATOR . '.docker/redis.dockerfile');
+      File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'redis:6379', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
-      @unlink($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
+      File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }
   }
 

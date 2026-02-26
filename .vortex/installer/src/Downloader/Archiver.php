@@ -130,7 +130,7 @@ class Archiver implements ArchiverInterface {
     }
     finally {
       if ($strip_first_level && is_dir($temp_dir)) {
-        File::rmdir($temp_dir);
+        File::remove($temp_dir);
       }
     }
   }
@@ -173,7 +173,7 @@ class Archiver implements ArchiverInterface {
     }
     finally {
       if ($strip_first_level && is_dir($temp_dir)) {
-        File::rmdir($temp_dir);
+        File::remove($temp_dir);
       }
     }
   }

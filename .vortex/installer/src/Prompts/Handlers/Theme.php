@@ -137,7 +137,7 @@ class Theme extends AbstractHandler {
       // Remove custom theme files if they exist.
       $file_tmpl = static::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
-        File::rmdir(dirname($file_tmpl));
+        File::remove(dirname($file_tmpl));
         File::rmdirIfEmpty(dirname($file_tmpl));
 
         $this->removeThemeConfigLines($t);
@@ -171,7 +171,7 @@ class Theme extends AbstractHandler {
     ) {
       $file_tmpl = static::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
-        File::rmdir(dirname($file_tmpl));
+        File::remove(dirname($file_tmpl));
 
         File::removeLineInFile($t . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
         File::removeLineInFile($t . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');

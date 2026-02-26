@@ -47,7 +47,7 @@ class PreserveDocsProject extends AbstractHandler {
       File::removeTokenAsync('!DOCS_PROJECT');
     }
     else {
-      File::rmdir($t . '/docs');
+      File::remove($t . '/docs');
       File::removeTokenAsync('DOCS_PROJECT');
     }
   }

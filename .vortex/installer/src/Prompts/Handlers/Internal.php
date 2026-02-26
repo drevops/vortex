@@ -80,19 +80,19 @@ class Internal extends AbstractHandler {
     }
 
     // Remove Vortex internal files.
-    File::rmdir($t . DIRECTORY_SEPARATOR . '.vortex');
+    File::remove($t . DIRECTORY_SEPARATOR . '.vortex');
 
-    @unlink($t . '/.github/FUNDING.yml');
-    @unlink($t . 'CODE_OF_CONDUCT.md');
-    @unlink($t . 'CONTRIBUTING.md');
-    @unlink($t . 'LICENSE');
-    @unlink($t . 'SECURITY.md');
+    File::remove($t . '/.github/FUNDING.yml');
+    File::remove($t . 'CODE_OF_CONDUCT.md');
+    File::remove($t . 'CONTRIBUTING.md');
+    File::remove($t . 'LICENSE');
+    File::remove($t . 'SECURITY.md');
 
     // Remove Vortex internal GHAs.
     $files = glob($t . '/.github/workflows/vortex-*.yml');
     if ($files) {
       foreach ($files as $file) {
-        @unlink($file);
+        File::remove($file);
       }
     }
 

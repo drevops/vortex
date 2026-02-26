@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit;
 use CzProject\GitPhp\RunnerResult;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use CzProject\GitPhp\GitRepository;
 
@@ -67,15 +68,7 @@ class GitTest extends UnitTestCase {
    */
   protected function cleanupTempGitRepo(string $temp_dir): void {
     if (is_dir($temp_dir)) {
-      $iterator = new \RecursiveIteratorIterator(
-        new \RecursiveDirectoryIterator($temp_dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-        \RecursiveIteratorIterator::CHILD_FIRST
-      );
-
-      foreach ($iterator as $path) {
-        $path->isDir() && !$path->isLink() ? rmdir($path->getPathname()) : unlink($path->getPathname());
-      }
-      rmdir($temp_dir);
+      File::remove($temp_dir);
     }
   }
 
@@ -167,7 +160,7 @@ class GitTest extends UnitTestCase {
       Git::getTrackedFiles($temp_dir);
     }
     finally {
-      rmdir($temp_dir);
+      File::remove($temp_dir);
     }
   }
 

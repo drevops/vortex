@@ -148,8 +148,8 @@ class Profile extends AbstractHandler {
     $is_contrib_profile = str_contains($v, DIRECTORY_SEPARATOR);
 
     if (in_array($v, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI]) || $is_contrib_profile) {
-      File::rmdir(sprintf('%s/%s/profiles/your_site_profile', $t, $w));
-      File::rmdir(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $w));
+      File::remove(sprintf('%s/%s/profiles/your_site_profile', $t, $w));
+      File::remove(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $w));
 
       File::replaceContentAsync([
         '/profiles/your_site_profile,' => '',

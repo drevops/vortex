@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Utils\File;
+
 class AssignAuthorPr extends AbstractHandler {
 
   /**
@@ -42,7 +44,7 @@ class AssignAuthorPr extends AbstractHandler {
     $t = $this->tmpDir;
 
     if (!$v) {
-      @unlink($t . '/.github/workflows/assign-author.yml');
+      File::remove($t . '/.github/workflows/assign-author.yml');
     }
   }
 
