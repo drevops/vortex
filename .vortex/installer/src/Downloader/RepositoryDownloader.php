@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Downloader;
 
 use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -130,7 +131,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $archive_path = $this->downloadArchive($url);
     $this->archiver->validate($archive_path);
     $this->archiver->extract($archive_path, $destination, TRUE);
-    unlink($archive_path);
+    File::remove($archive_path);
 
     return $version;
   }
@@ -161,7 +162,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $archive_path = $this->archiveFromLocal($artifact->getRepo(), $ref);
     $this->archiver->validate($archive_path);
     $this->archiver->extract($archive_path, $destination, FALSE);
-    unlink($archive_path);
+    File::remove($archive_path);
 
     return $version;
   }
@@ -240,7 +241,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
     catch (\RuntimeException $e) {
       if (file_exists($temp_file)) {
-        unlink($temp_file);
+        File::remove($temp_file);
       }
       throw new \RuntimeException(sprintf('Failed to download archive from: %s - %s', $url, $e->getMessage()), $e->getCode(), $e);
     }
@@ -278,7 +279,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
     catch (\Exception $e) {
       if (file_exists($temp_file)) {
-        unlink($temp_file);
+        File::remove($temp_file);
       }
       throw new \RuntimeException(sprintf('Failed to create archive from local repository: %s - %s', $repo, $e->getMessage()), $e->getCode(), $e);
     }

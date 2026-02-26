@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\DataProvider;
 use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 /**
  * Class InstallerDotEnvTest.
@@ -236,7 +237,7 @@ class EnvTest extends UnitTestCase {
       $this->assertEquals($expected, $result);
     }
 
-    unlink($filename);
+    File::remove($filename);
   }
 
   public static function dataProviderParseDotenv(): array {
@@ -274,7 +275,7 @@ class EnvTest extends UnitTestCase {
 
     // Clean up.
     chmod($filename, 0644);
-    unlink($filename);
+    File::remove($filename);
   }
 
   #[DataProvider('dataProviderToValue')]
@@ -336,7 +337,7 @@ class EnvTest extends UnitTestCase {
     $result = Env::getFromDotenv('TEST_VAR', $dir);
     $this->assertEquals('dotenv_value', $result);
 
-    unlink($dotenv_file);
+    File::remove($dotenv_file);
   }
 
   public function testWriteValueDotenvFileNotReadable(): void {
@@ -360,7 +361,7 @@ class EnvTest extends UnitTestCase {
     finally {
       // Clean up.
       chmod($filename, 0644);
-      unlink($filename);
+      File::remove($filename);
     }
   }
 
@@ -374,7 +375,7 @@ class EnvTest extends UnitTestCase {
     $expected = "EXISTING_VAR=value\nNEW_VAR=new_value\n";
     $this->assertEquals($expected, $content);
 
-    unlink($filename);
+    File::remove($filename);
   }
 
   public function testWriteValueDotenvReplaceVariableToFileWithoutNewline(): void {
@@ -387,7 +388,7 @@ class EnvTest extends UnitTestCase {
     $expected = "EXISTING_VAR=old_value\nNEW_VAR=\"new value with spaces\"\n";
     $this->assertEquals($expected, $content);
 
-    unlink($filename);
+    File::remove($filename);
   }
 
   public function testWriteValueDotenvAddEmptyVariable(): void {
@@ -400,7 +401,7 @@ class EnvTest extends UnitTestCase {
     $expected = "EXISTING_VAR=value\nNEW_VAR=\n";
     $this->assertEquals($expected, $content);
 
-    unlink($filename);
+    File::remove($filename);
   }
 
   public function testWriteValueDotenvAddEmptyVariableToFileWithoutNewline(): void {
@@ -415,7 +416,7 @@ class EnvTest extends UnitTestCase {
     $expected = "EXISTING_VAR=value\nNEW_VAR=\n";
     $this->assertEquals($expected, $content);
 
-    unlink($filename);
+    File::remove($filename);
   }
 
   #[DataProvider('dataProviderWriteValueDotenvWithEnabled')]
@@ -427,7 +428,7 @@ class EnvTest extends UnitTestCase {
     $content = file_get_contents($filename);
     $this->assertEquals($expected_content, $content);
 
-    unlink($filename);
+    File::remove($filename);
   }
 
   public static function dataProviderWriteValueDotenvWithEnabled(): array {
@@ -555,13 +556,13 @@ class EnvTest extends UnitTestCase {
     // Create a directory instead of a file (will cause file_get_contents
     // to fail).
     $dirname = tempnam(sys_get_temp_dir(), '.env');
-    unlink($dirname);
+    File::remove($dirname);
     mkdir($dirname);
 
     $result = Env::parseDotenv($dirname);
     $this->assertEquals([], $result);
 
-    rmdir($dirname);
+    File::remove($dirname);
   }
 
   protected function createFixtureEnvFile(string $content): string {

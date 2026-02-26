@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit;
 
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -67,7 +68,7 @@ class JsonManipulatorTest extends UnitTestCase {
       $this->assertInstanceOf(JsonManipulator::class, $manipulator);
     }
     finally {
-      unlink($temp_file);
+      File::remove($temp_file);
     }
   }
 
@@ -86,7 +87,7 @@ class JsonManipulatorTest extends UnitTestCase {
     }
     finally {
       chmod($temp_file, 0644);
-      unlink($temp_file);
+      File::remove($temp_file);
     }
   }
 
@@ -99,7 +100,7 @@ class JsonManipulatorTest extends UnitTestCase {
       $this->assertNull($manipulator);
     }
     finally {
-      rmdir($temp_dir);
+      File::remove($temp_dir);
     }
   }
 

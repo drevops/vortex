@@ -62,14 +62,14 @@ class FileManager {
       $relative_file = str_replace($src . DIRECTORY_SEPARATOR, '.' . DIRECTORY_SEPARATOR, (string) $valid_file);
 
       if (File::isInternal($relative_file)) {
-        unlink($valid_file);
+        File::remove($valid_file);
       }
     }
 
     // Remove skipped files.
     foreach ($ignored_files as $ignored_file) {
       if (is_readable($ignored_file)) {
-        unlink($ignored_file);
+        File::remove($ignored_file);
       }
     }
 

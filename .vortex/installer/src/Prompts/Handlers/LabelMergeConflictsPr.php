@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Utils\File;
+
 class LabelMergeConflictsPr extends AbstractHandler {
 
   /**
@@ -42,7 +44,7 @@ class LabelMergeConflictsPr extends AbstractHandler {
     $t = $this->tmpDir;
 
     if (empty($v)) {
-      @unlink($t . '/.github/workflows/label-merge-conflict.yml');
+      File::remove($t . '/.github/workflows/label-merge-conflict.yml');
     }
   }
 

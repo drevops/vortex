@@ -93,7 +93,7 @@ class HostingProvider extends AbstractHandler {
 
       $this->removeAcquia();
 
-      @unlink(sprintf('%s/%s/.htaccess', $t, $w));
+      File::remove(sprintf('%s/%s/.htaccess', $t, $w));
 
       $cj = JsonManipulator::fromFile($t . '/composer.json');
       $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
@@ -105,23 +105,23 @@ class HostingProvider extends AbstractHandler {
 
       File::removeTokenAsync('HOSTING');
 
-      @unlink(sprintf('%s/%s/.htaccess', $t, $w));
+      File::remove(sprintf('%s/%s/.htaccess', $t, $w));
     }
   }
 
   protected function removeAcquia(): void {
-    File::rmdir($this->tmpDir . '/hooks');
-    @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
+    File::remove($this->tmpDir . '/hooks');
+    File::remove(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
 
     File::removeTokenAsync('HOSTING_ACQUIA');
     File::removeTokenAsync('SETTINGS_PROVIDER_ACQUIA');
   }
 
   protected function removeLagoon(): void {
-    @unlink($this->tmpDir . '/drush/sites/lagoon.site.yml');
-    @unlink($this->tmpDir . '/.lagoon.yml');
-    @unlink($this->tmpDir . '/.github/workflows/close-pull-request.yml');
-    @unlink(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $this->tmpDir, $this->webroot));
+    File::remove($this->tmpDir . '/drush/sites/lagoon.site.yml');
+    File::remove($this->tmpDir . '/.lagoon.yml');
+    File::remove($this->tmpDir . '/.github/workflows/close-pull-request.yml');
+    File::remove(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $this->tmpDir, $this->webroot));
 
     File::removeTokenAsync('HOSTING_LAGOON');
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');

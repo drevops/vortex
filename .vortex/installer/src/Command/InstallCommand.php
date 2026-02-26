@@ -21,6 +21,7 @@ use DrevOps\VortexInstaller\Schema\SchemaGenerator;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -393,7 +394,7 @@ EOF
 
     $phar_path = \Phar::running(FALSE);
     if (!empty($phar_path) && file_exists($phar_path)) {
-      @unlink($phar_path);
+      File::remove($phar_path);
     }
   }
 

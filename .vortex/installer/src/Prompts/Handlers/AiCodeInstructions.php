@@ -48,8 +48,8 @@ class AiCodeInstructions extends AbstractHandler {
     $t = $this->tmpDir;
 
     if (!$v) {
-      @unlink($t . '/AGENTS.md');
-      @unlink($t . '/CLAUDE.md');
+      File::remove($t . '/AGENTS.md');
+      File::remove($t . '/CLAUDE.md');
     }
   }
 

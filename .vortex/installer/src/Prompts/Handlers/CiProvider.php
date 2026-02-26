@@ -96,22 +96,22 @@ class CiProvider extends AbstractHandler {
     }
 
     if ($remove_gha) {
-      @unlink($t . '/.github/workflows/build-test-deploy.yml');
-      @unlink($t . '/' . $this->webroot . '/sites/default/includes/providers/settings.gha.php');
+      File::remove($t . '/.github/workflows/build-test-deploy.yml');
+      File::remove($t . '/' . $this->webroot . '/sites/default/includes/providers/settings.gha.php');
       File::removeTokenAsync('CI_PROVIDER_GHA');
       File::removeTokenAsync('SETTINGS_PROVIDER_GHA');
     }
 
     if ($remove_circleci) {
-      File::rmdir($t . '/.circleci');
-      @unlink($t . '/' . $this->webroot . '/sites/default/includes/providers/settings.circleci.php');
-      @unlink($t . '/tests/phpunit/CircleCiConfigTest.php');
+      File::remove($t . '/.circleci');
+      File::remove($t . '/' . $this->webroot . '/sites/default/includes/providers/settings.circleci.php');
+      File::remove($t . '/tests/phpunit/CircleCiConfigTest.php');
       File::removeTokenAsync('CI_PROVIDER_CIRCLECI');
       File::removeTokenAsync('SETTINGS_PROVIDER_CIRCLECI');
     }
 
     if ($remove_gha && $remove_circleci) {
-      @unlink($t . '/docs/ci.md');
+      File::remove($t . '/docs/ci.md');
       File::removeTokenAsync('CI_PROVIDER_ANY');
     }
     else {

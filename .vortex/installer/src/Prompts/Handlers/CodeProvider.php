@@ -70,7 +70,7 @@ class CodeProvider extends AbstractHandler {
 
     if ($v === self::GITHUB) {
       if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.md')) {
-        @unlink($t . '/.github/PULL_REQUEST_TEMPLATE.md');
+        File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
       }
 
       if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
@@ -78,7 +78,7 @@ class CodeProvider extends AbstractHandler {
       }
     }
     else {
-      File::rmdir($t . '/.github');
+      File::remove($t . '/.github');
     }
   }
 
