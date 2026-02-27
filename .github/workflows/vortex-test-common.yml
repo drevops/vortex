@@ -99,7 +99,7 @@ jobs:
           TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
 
       - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: ${{github.job}}-code-coverage-report
           path: /tmp/.vortex-coverage-html
@@ -195,7 +195,7 @@ jobs:
           TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: always()
         with:
           name: ${{github.job}}-${{ matrix.batch }}-test-artifacts
@@ -204,7 +204,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: ${{github.job}}-${{ matrix.batch }}-code-coverage-report
           path: /tmp/.vortex-coverage-html
