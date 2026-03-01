@@ -1,4 +1,4 @@
-# CircleCI 2.0 configuration file.
+# CircleCI configuration file for building, testing, and deploying.
 #
 # This configuration file uses the "docker" executor to run the Docker stack.
 #
@@ -7,6 +7,15 @@
 # containers defined in `docker-compose.yml` run on a *remote* Docker server
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
+#
+# Scheduled pipelines:
+# The `nightly-db` workflow requires a schedule trigger configured in CircleCI UI.
+# Go to Project Settings > Triggers > Add Scheduled Trigger:
+#   - Trigger name: nightly-db
+#   - Config source: build-test-deploy.yml
+#   - Branch: develop
+#   - Schedule: Every day at 18:00 UTC (or a custom time)
+# See https://www.vortextemplate.com/docs/continuous-integration/circleci
 version: '2.1'
 
 aliases:
@@ -17,9 +26,6 @@ aliases:
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
-
-  # Schedule to run nightly database build (to cache the database for the next day).
-  - &nightly_db_schedule "0 18 * * *"
 
   # Shared runner container configuration applied to each job.
   - &runner_config
@@ -93,15 +99,6 @@ aliases:
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
 ################################################################################
-# PARAMETERS
-################################################################################
-
-parameters:
-  run_update_dependencies:
-    type: boolean
-    default: false
-
-################################################################################
 # JOBS
 ################################################################################
 
@@ -152,6 +149,11 @@ jobs:
           command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
 
+      - run:
+          name: Download migration DB
+          command: VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+          no_output_timeout: 30m
+
       # Execute commands after database download script finished: if the
       # DB dump was downloaded - build the site (to ensure that the DB dump
       # is valid) and export the DB using selected method (to support
@@ -180,6 +182,7 @@ jobs:
             - /root/project/.data
 
   # Nightly database job. Same as above, but with additional variables set.
+  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
   database-nightly:
     <<: *job-database
     environment:
@@ -263,6 +266,7 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
       - run:
           name: Audit Composer packages
@@ -311,6 +315,12 @@ jobs:
             docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
+          name: Lint module code with NodeJS linters
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Lint theme code with NodeJS linters
           command: |
             { [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ]; } || [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
@@ -322,6 +332,10 @@ jobs:
             if [ -f .data/db.sql ]; then
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
+            if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
+              docker compose exec -T cli mkdir -p .data
+              docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
@@ -475,9 +489,11 @@ jobs:
 ################################################################################
 
 workflows:
-  version: 2
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - database:
           filters:
@@ -520,13 +536,11 @@ workflows:
               only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
 
   # Nightly database workflow runs overnight to capture fresh database and cache it.
+  # Requires a "nightly-db" schedule trigger configured in CircleCI UI.
   nightly-db:
-    triggers:
-      - schedule:
-          cron: *nightly_db_schedule
-          filters:
-            branches:
-              only:
-                - develop
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["nightly-db", << pipeline.schedule.name >>]
     jobs:
       - database-nightly

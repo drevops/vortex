@@ -32,8 +32,8 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
         }),
         static::cw(function (FunctionalTestCase $test): void {
-          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', '1.x');
-          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', '2.x');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/build-test-deploy.yml', '1.x');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/build-test-deploy.yml', '2.x');
         }),
       ],
     ];

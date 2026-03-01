@@ -1,4 +1,4 @@
-# CircleCI 2.0 configuration file.
+# CircleCI configuration file for building, testing, and deploying.
 #
 # This configuration file uses the "docker" executor to run the Docker stack.
 #
@@ -7,32 +7,45 @@
 # containers defined in `docker-compose.yml` run on a *remote* Docker server
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
+#
+# Scheduled pipelines:
+# The `nightly-db` workflow requires a schedule trigger configured in CircleCI UI.
+# Go to Project Settings > Triggers > Add Scheduled Trigger:
+#   - Trigger name: nightly-db
+#   - Config source: build-test-deploy.yml
+#   - Branch: develop
+#   - Schedule: Every day at 18:00 UTC (or a custom time)
+# See https://www.vortextemplate.com/docs/continuous-integration/circleci
+#;
+#; Comments starting with '#;<' and '#;>' are internal Vortex comments
+#; and will be removed during installation or update of Vortex.
 version: '2.1'
 
 aliases:
+  #;< !PROVISION_TYPE_PROFILE
   # SSH key fingerprint to download the database.
   # Replace this key fingerprint with your own and remove this comment.
   - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
+  #;> !PROVISION_TYPE_PROFILE
 
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
-  # Schedule to run nightly database build (to cache the database for the next day).
-  - &nightly_db_schedule "0 18 * * *"
-
   # Shared runner container configuration applied to each job.
   - &runner_config
     working_directory: &working_directory ~/project
     environment:
+      #;< !PROVISION_TYPE_PROFILE
       VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
+      #;> !PROVISION_TYPE_PROFILE
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
       # https://github.com/drevops/ci-runner
       # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:__VERSION__
+      - image: drevops/ci-runner:26.2.0@sha256:fe1561c2984a1023e84eebe6461056b0b55afedbb2512e6c2c7f19aca6beb398
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
@@ -46,6 +59,7 @@ aliases:
           VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
           # Remove all SSH keys from the runner container.
           VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+          #;< !PROVISION_TYPE_PROFILE
           # How often to refresh the cache of the DB dump. Refer to `date` command.
           VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
           # Use previous database caches on this branch as a fallback if the above cache
@@ -54,6 +68,7 @@ aliases:
           VORTEX_CI_DB_CACHE_FALLBACK: "yes"
           # Which branch to use as a source of DB caches.
           VORTEX_CI_DB_CACHE_BRANCH: "develop"
+          #;> !PROVISION_TYPE_PROFILE
           # Directory to store test results.
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
@@ -93,19 +108,11 @@ aliases:
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
 ################################################################################
-# PARAMETERS
-################################################################################
-
-parameters:
-  run_update_dependencies:
-    type: boolean
-    default: false
-
-################################################################################
 # JOBS
 ################################################################################
 
 jobs:
+  #;< !PROVISION_TYPE_PROFILE
   # Database handling is a first step of the build.
   # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
   #   should be downloaded for the current build. Usually, a daily database dump
@@ -142,15 +149,22 @@ jobs:
             # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
             # Lookup cache based on the default branch and a timestamp. Allows
             # to use cache from the very first build on the day (sanitized database dump, for example).
-            - __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
             # Fallback to caching by default branch name only. Allows to use
             # cache from the branch build on the previous day.
-            - __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
 
       - run:
           name: Download DB
           command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
+
+      #;< MIGRATION
+      - run:
+          name: Download migration DB
+          command: VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+          no_output_timeout: 30m
+      #;> MIGRATION
 
       # Execute commands after database download script finished: if the
       # DB dump was downloaded - build the site (to ensure that the DB dump
@@ -175,11 +189,12 @@ jobs:
           # The cache will not be saved if it already exists.
           # Note that the cache fallback flag is enabled for this case in order
           # to save cache even if the fallback is not used when restoring it.
-          key: __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          key: v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
             - /root/project/.data
 
   # Nightly database job. Same as above, but with additional variables set.
+  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
   database-nightly:
     <<: *job-database
     environment:
@@ -188,11 +203,12 @@ jobs:
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database (if database-in-image storage is used).
-      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:__VERSION__
+      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:26.1.0
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
+  #;> !PROVISION_TYPE_PROFILE
 
   # Build and test is a second step of the build. The testing is performed
   # within the same job to save time on provisioning during the job.
@@ -211,6 +227,7 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      #;< !PROVISION_TYPE_PROFILE
       - run:
           name: Set cache keys for database caching
           command: |
@@ -222,8 +239,9 @@ jobs:
           keys:
             # Use cached artifacts from previous builds of this branch.
             # https://circleci.com/docs/2.0/caching/#restoring-cache
-            - __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            - __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+            - v26.2.0-db11-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
+      #;> !PROVISION_TYPE_PROFILE
 
       - *step_setup_remote_docker
 
@@ -243,7 +261,7 @@ jobs:
           name: Lint Docker Compose files with DCLint
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker run --rm -v "${PWD}":/app zavoloklom/dclint:3.1.0 . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Build stack
@@ -263,6 +281,9 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+            #;< TOOL_ESLINT_STYLELINT
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            #;> TOOL_ESLINT_STYLELINT
 
       - run:
           name: Audit Composer packages
@@ -274,29 +295,37 @@ jobs:
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      #;< TOOL_PHPCS
       - run:
           name: Lint code with PHPCS
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli vendor/bin/phpcs || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_PHPCS
 
+      #;< TOOL_PHPSTAN
       - run:
           name: Lint code with PHPStan
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli vendor/bin/phpstan || [ "${VORTEX_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_PHPSTAN
 
+      #;< TOOL_RECTOR
       - run:
           name: Lint code with Rector
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli vendor/bin/rector --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_RECTOR
 
+      #;< TOOL_PHPMD
       - run:
           name: Lint code with PHPMD
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${VORTEX_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_PHPMD
 
       - run:
           name: Lint code with Twig CS Fixer
@@ -304,11 +333,29 @@ jobs:
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      #;< TOOL_BEHAT
       - run:
           name: Lint code with Gherkin Lint
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_BEHAT
+
+      #;< TOOL_ESLINT_STYLELINT
+      - run:
+          name: Lint module code with NodeJS linters
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_ESLINT_STYLELINT
+
+      #;< DRUPAL_THEME
+      - run:
+          name: Lint theme code with NodeJS linters
+          command: |
+            { [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ]; } || [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
+            docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> DRUPAL_THEME
 
       - run:
           name: Provision site
@@ -317,9 +364,16 @@ jobs:
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
             fi
+            #;< MIGRATION
+            if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
+              docker compose exec -T cli mkdir -p .data
+              docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
+            fi
+            #;> MIGRATION
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
 
+      #;< TOOL_PHPUNIT
       - run:
           name: Test with PHPUnit
           command: |
@@ -372,7 +426,9 @@ jobs:
             if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ] && ! echo "${CIRCLE_BRANCH}" | grep -q '^deps/'; then
               codecov -Z -s /tmp/artifacts/coverage;
             fi
+      #;> TOOL_PHPUNIT
 
+      #;< TOOL_BEHAT
       - run:
           name: Test with Behat
           command: |
@@ -382,6 +438,7 @@ jobs:
               docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
               [ "${VORTEX_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
           no_output_timeout: 30m
+      #;> TOOL_BEHAT
 
       - run:
           name: Process test logs and artifacts
@@ -406,6 +463,7 @@ jobs:
           paths:
             - code
 
+  #;< DEPLOYMENT
   # Deploy primary branches.
   deploy: &job_deploy
     <<: *runner_config
@@ -463,26 +521,79 @@ jobs:
 
       - store_artifacts:
           path: *artifacts
+  #;> DEPLOYMENT
+
+  #;============================================================================
+  #; Vortex development section. Removed during Vortex installation/update.
+  #;============================================================================
+  #;< VORTEX_DEV
+  #-----------------------------------------------------------------------------
+  # Test suite for Vortex.
+  #-----------------------------------------------------------------------------
+
+  # Run Vortex tests after 'build' job to test CircleCI's configuration.
+  vortex-dev-test-ci-postbuild:
+    <<: *runner_config
+    steps:
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+      - *step_setup_remote_docker
+
+      - run:
+          name:  Install Ahoy
+          command: |
+            version=2.4.0 && \
+            set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+            chmod +x /usr/local/bin/ahoy && \
+            ahoy --version
+
+      - run:
+          name: Install test dependencies
+          command: |
+            cd .vortex/tests
+            composer install --no-interaction --prefer-dist
+
+      - run:
+          name: Run CircleCI post-build tests
+          command: |
+            cd .vortex/tests
+            ./vendor/bin/phpunit --group=postbuild
+
+      - store_test_results:
+          path: *test_results
+
+      - store_artifacts:
+          path: *artifacts
+  #=============================================================================
+  #;> VORTEX_DEV
 
 ################################################################################
 # WORKFLOWS
 ################################################################################
 
 workflows:
-  version: 2
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
+      #;< !PROVISION_TYPE_PROFILE
       - database:
           filters:
             tags:
               only: /.*/
+      #;> !PROVISION_TYPE_PROFILE
       - build:
+          #;< !PROVISION_TYPE_PROFILE
           requires:
             - database
+          #;> !PROVISION_TYPE_PROFILE
           filters:
             tags:
               only: /.*/
+      #;< DEPLOYMENT
       - deploy:
           requires:
             - build
@@ -494,9 +605,9 @@ workflows:
               # - deps/*
               # - feature/description, feature/123-description
               # - bugfix/description, bugfix/123-description
-              # - release/__VERSION__, release/__VERSION__ (per https://semver.org/)
+              # - release/123.456.789, release/123.456.789-rc.123 (per https://semver.org/)
               # - release/2023-04-17, release/2023-04-17.123 (date-based)
-              # - hotfix/__VERSION__, hotfix/__VERSION__ (per https://semver.org/)
+              # - hotfix/123.456.789, hotfix/123.456.789-rc.1213 (per https://semver.org/)
               # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
               only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
             tags:
@@ -509,18 +620,37 @@ workflows:
               ignore: /.*/
             tags:
               # Allowed tags:
-              # - __VERSION__, __VERSION__ (per https://semver.org/)
+              # - 123.456.789, 123.456.789-rc.123 (per https://semver.org/)
               # - 2023-04-17, 2023-04-17.123 (date-based)
               only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+      #;> DEPLOYMENT
 
-  # Nightly database workflow runs overnight to capture fresh database and cache it.
-  nightly-db:
-    triggers:
-      - schedule:
-          cron: *nightly_db_schedule
+  #;============================================================================
+  #; Vortex development section. Removed during Vortex installation/update.
+  #;============================================================================
+  #;
+  #;< VORTEX_DEV
+  # Run functional tests for Vortex to assert CircleCI configuration is correct.
+  # Note that these jobs must run within the "commit" workflow, because they
+  # depend on the "build" job.
+      # Run tests after 'build' job.
+      - vortex-dev-test-ci-postbuild:
+          requires:
+            - build
           filters:
-            branches:
-              only:
-                - develop
+            tags:
+              only: /.*/
+  #=============================================================================
+  #;> VORTEX_DEV
+
+  #;< !PROVISION_TYPE_PROFILE
+  # Nightly database workflow runs overnight to capture fresh database and cache it.
+  # Requires a "nightly-db" schedule trigger configured in CircleCI UI.
+  nightly-db:
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["nightly-db", << pipeline.schedule.name >>]
     jobs:
       - database-nightly
+  #;> !PROVISION_TYPE_PROFILE

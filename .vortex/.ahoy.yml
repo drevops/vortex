@@ -48,6 +48,7 @@ commands:
       ahoy lint-dockerfiles
       ahoy lint-docs
       ahoy lint-markdown
+      ahoy lint-ci
 
   lint-fix:
     name: Fix linting issues in Vortex project.
@@ -56,6 +57,13 @@ commands:
       ahoy lint-tests-fix
       ahoy lint-docs-fix
       ahoy lint-markdown-fix
+      ahoy lint-ci-fix
+
+  lint-ci:
+    cmd: ./tests/lint.ci.sh
+
+  lint-ci-fix:
+    cmd: ./tests/lint.ci.sh --fix
 
   lint-installer:
     cmd: composer --working-dir installer lint

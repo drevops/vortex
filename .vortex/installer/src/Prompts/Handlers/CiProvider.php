@@ -64,7 +64,7 @@ class CiProvider extends AbstractHandler {
       return self::GITHUB_ACTIONS;
     }
 
-    if (is_readable($this->dstDir . '/.circleci/config.yml')) {
+    if (is_readable($this->dstDir . '/.circleci/build-test-deploy.yml') || is_readable($this->dstDir . '/.circleci/config.yml')) {
       return self::CIRCLECI;
     }
 

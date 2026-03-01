@@ -62,7 +62,8 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return self::RENOVATEBOT_CI;
     }
 
-    if (File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
+    if (File::contains($this->dstDir . '/.circleci/build-test-deploy.yml', 'update-dependencies')
+      || File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
       return self::RENOVATEBOT_CI;
     }
 
@@ -86,12 +87,14 @@ class DependencyUpdatesProvider extends AbstractHandler {
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
       File::replaceContentInFile($t . '/renovate.json', '/\s*"ignorePaths":\s*\[\s*"[^"]*"\s*\],?\n/s', "\n");
       File::remove($t . '/.github/workflows/update-dependencies.yml');
+      File::remove($t . '/.circleci/update-dependencies.yml');
     }
     else {
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER');
       File::remove($t . '/renovate.json');
+      File::remove($t . '/.circleci/update-dependencies.yml');
     }
   }
 

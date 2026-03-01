@@ -267,7 +267,7 @@ trait SutTrait {
 
     // Documentation and CI files that should not exist in some contexts.
     $this->assertFileDoesNotExist('.ahoy.yml');
-    $this->assertFileDoesNotExist('.circleci/config.yml');
+    $this->assertFileDoesNotExist('.circleci/build-test-deploy.yml');
     $this->assertFileDoesNotExist('.github/workflows/build-test-deploy.yml');
     $this->assertFileDoesNotExist('README.md');
     $this->assertFileDoesNotExist('docs/faqs.md');
@@ -409,8 +409,8 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-common.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-installer.yml');
 
-    if (file_exists('.circleci/config.yml')) {
-      $this->assertFileNotContainsString('.circleci/config.yml', 'vortex-dev', 'CircleCI config should not contain development Vortex references');
+    if (file_exists('.circleci/build-test-deploy.yml')) {
+      $this->assertFileNotContainsString('.circleci/build-test-deploy.yml', 'vortex-dev', 'CircleCI config should not contain development Vortex references');
     }
 
     // Assert that documentation was processed correctly.

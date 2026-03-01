@@ -28,9 +28,9 @@ Before you begin, ensure you have:
 ### 1. Enable the project
 
 [Log in to CircleCI](https://app.circleci.com/) and add your repository as a new
-project. CircleCI will connect to your GitHub account, detect the
-[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml)
-configuration file, and start running builds automatically when you push code.
+project. CircleCI will connect to your GitHub account, detect the configuration
+files in the [`.circleci/`](https://github.com/drevops/vortex/blob/main/.circleci/)
+directory, and start running builds automatically when you push code.
 
 ### 2. Add SSH key for database download
 
@@ -84,7 +84,7 @@ same provider, you can use a single key for both operations.
 
 CircleCI uses SSH key fingerprints to load the correct keys into the runner
 container. Update the YAML anchors in your
-[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml)
+[`.circleci/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.circleci/build-test-deploy.yml)
 file:
 
 - `db_ssh_fingerprint` - your database download SSH key fingerprint
@@ -101,13 +101,53 @@ Add the following variables in **Project Settings → Environment Variables**:
 | `VORTEX_ACQUIA_KEY`    | Acquia Cloud API key    |
 | `VORTEX_ACQUIA_SECRET` | Acquia Cloud API secret |
 
+### 6. Configure schedule triggers
+
+Some workflows run on a schedule rather than on every push. These schedules must
+be configured in the CircleCI UI.
+
+Go to **Project Settings → Triggers** and create the following scheduled
+triggers:
+
+#### Nightly database
+
+Caches a fresh database dump overnight so that builds the next day start faster.
+
+| Setting       | Value                       |
+|---------------|-----------------------------|
+| Trigger name  | `nightly-db`                |
+| Config source | `build-test-deploy.yml`     |
+| Branch        | `develop`                   |
+| Schedule      | Every day at 18:00 UTC      |
+
+#### Update dependencies (optional)
+
+Runs [Renovate](https://docs.renovatebot.com/) to automatically update
+project dependencies. Only needed if you use the self-hosted Renovate
+workflow provided in
+[`.circleci/update-dependencies.yml`](https://github.com/drevops/vortex/blob/main/.circleci/update-dependencies.yml).
+
+| Setting       | Value                              |
+|---------------|------------------------------------|
+| Trigger name  | `update-dependencies`              |
+| Config source | `update-dependencies.yml`          |
+| Branch        | `develop`                          |
+| Schedule      | Every day at 11:05 and 23:05 UTC   |
+
+:::note
+
+The trigger names (`nightly-db`, `update-dependencies`) must match exactly -
+they are referenced in the workflow `when` conditions in the configuration files.
+
+:::
+
 ## Maintenance
 
 ### Update deployment branches
 
 The `deploy` job only runs for specific branch patterns. To modify which branches
 trigger deployments, update the `only` filter regex in the `deploy` job under
-the `workflows` section of `.circleci/config.yml`:
+the `workflows` section of `.circleci/build-test-deploy.yml`:
 
 ```yaml
 filters:
@@ -118,12 +158,11 @@ filters:
 ### Update nightly database schedule
 
 The nightly database job caches a fresh database dump for faster builds the next
-day. To change when this runs, update the `nightly_db_schedule` YAML anchor
-([cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
+day. To change the schedule, update the trigger in the CircleCI UI under
+**Project Settings → Triggers → nightly-db**.
 
-```yaml
-- &nightly_db_schedule "0 18 * * *"  # 6 PM UTC daily
-```
+See [Configure schedule triggers](#6-configure-schedule-triggers) for the
+recommended default values.
 
 ### Change runner resource class
 

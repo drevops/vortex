@@ -37,7 +37,7 @@ class CiProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         [CiProvider::id() => CiProvider::CIRCLECI] + $expected_installed,
         function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
           $test->stubVortexProject($config);
-          File::dump(static::$sut . '/.circleci/config.yml');
+          File::dump(static::$sut . '/.circleci/build-test-deploy.yml');
         },
       ],
 

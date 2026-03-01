@@ -19,12 +19,18 @@
     <arg name="colors"/>
 
     <file>phpunit</file>
+    <file>generate-vortex-dev-circleci</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>
+    </rule>
+
+    <!-- Allow missing file doc comment for shebang scripts. -->
+    <rule ref="Drupal.Commenting.FileComment.Missing">
+        <exclude-pattern>generate-vortex-dev-circleci</exclude-pattern>
     </rule>
 
     <!-- Allow missing class description in tests. -->

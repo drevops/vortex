@@ -1,4 +1,4 @@
-# CircleCI 2.0 configuration file.
+# CircleCI configuration file for building, testing, and deploying.
 #
 # This configuration file uses the "docker" executor to run the Docker stack.
 #
@@ -7,6 +7,15 @@
 # containers defined in `docker-compose.yml` run on a *remote* Docker server
 # controlled by CircleCI.
 # The "runner" container uses Docker client to control the remote Docker server.
+#
+# Scheduled pipelines:
+# The `nightly-db` workflow requires a schedule trigger configured in CircleCI UI.
+# Go to Project Settings > Triggers > Add Scheduled Trigger:
+#   - Trigger name: nightly-db
+#   - Config source: build-test-deploy.yml
+#   - Branch: develop
+#   - Schedule: Every day at 18:00 UTC (or a custom time)
+# See https://www.vortextemplate.com/docs/continuous-integration/circleci
 version: '2.1'
 
 aliases:
@@ -17,9 +26,6 @@ aliases:
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
-
-  # Schedule to run nightly database build (to cache the database for the next day).
-  - &nightly_db_schedule "0 18 * * *"
 
   # Shared runner container configuration applied to each job.
   - &runner_config
@@ -91,15 +97,6 @@ aliases:
       name: Load environment variables from .env file
       # Load variables from .env file, respecting existing values, and make them available for the next steps.
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
-
-################################################################################
-# PARAMETERS
-################################################################################
-
-parameters:
-  run_update_dependencies:
-    type: boolean
-    default: false
 
 ################################################################################
 # JOBS
@@ -180,6 +177,7 @@ jobs:
             - /root/project/.data
 
   # Nightly database job. Same as above, but with additional variables set.
+  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
   database-nightly:
     <<: *job-database
     environment:
@@ -419,14 +417,74 @@ jobs:
           paths:
             - code
 
+  # Deploy primary branches.
+  deploy: &job_deploy
+    <<: *runner_config
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+
+      - run:
+          name: Check if deployment should be skipped
+          command: |
+            if [ "${CIRCLE_PULL_REQUEST}" != "" ] && echo "${CIRCLE_BRANCH}" | grep -q "^project/"; then
+              echo "Skipping deployment - PR from project/* branch"
+              circleci-agent step halt
+            fi
+
+      - run:
+          name: Deploy
+          command: |
+            VORTEX_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
+            VORTEX_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
+            VORTEX_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
+            ./scripts/vortex/deploy.sh
+          no_output_timeout: 30m
+
+      - store_artifacts:
+          path: *artifacts
+
+  # Deploy tags.
+  deploy-tags: &job-deploy-tags
+    <<: *runner_config
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+
+      - run:
+          name: Deploy
+          command: VORTEX_DEPLOY_MODE="tag" ./scripts/vortex/deploy.sh
+          no_output_timeout: 30m
+
+      - store_artifacts:
+          path: *artifacts
+
 ################################################################################
 # WORKFLOWS
 ################################################################################
 
 workflows:
-  version: 2
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - database:
           filters:
@@ -438,15 +496,42 @@ workflows:
           filters:
             tags:
               only: /.*/
-
-  # Nightly database workflow runs overnight to capture fresh database and cache it.
-  nightly-db:
-    triggers:
-      - schedule:
-          cron: *nightly_db_schedule
+      - deploy:
+          requires:
+            - build
           filters:
             branches:
-              only:
-                - develop
+              # Allowed branches:
+              # - production, main, master, develop, ci, cisomething
+              # - project/description
+              # - deps/*
+              # - feature/description, feature/123-description
+              # - bugfix/description, bugfix/123-description
+              # - release/__VERSION__, release/__VERSION__ (per https://semver.org/)
+              # - release/2023-04-17, release/2023-04-17.123 (date-based)
+              # - hotfix/__VERSION__, hotfix/__VERSION__ (per https://semver.org/)
+              # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
+              only: /^(production|main|master|develop)$|^project\/[a-zA-z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+            tags:
+              ignore: /.*/
+      - deploy-tags:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              # Allowed tags:
+              # - __VERSION__, __VERSION__ (per https://semver.org/)
+              # - 2023-04-17, 2023-04-17.123 (date-based)
+              only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+
+  # Nightly database workflow runs overnight to capture fresh database and cache it.
+  # Requires a "nightly-db" schedule trigger configured in CircleCI UI.
+  nightly-db:
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["nightly-db", << pipeline.schedule.name >>]
     jobs:
       - database-nightly
