@@ -40,7 +40,7 @@
         "drevops/behat-steps": "^3.5.0",
         "drevops/phpcs-standard": "^0.6.2",
         "drupal/coder": "^9@alpha",
-        "drupal/drupal-extension": "^5.1",
+        "drupal/drupal-extension": "dev-main as 5.0.0",
         "ergebnis/composer-normalize": "^2.50.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "lullabot/php-webdriver": "^2.0.7",
