@@ -205,7 +205,7 @@ abstract class SettingsTestCase extends TestCase {
   /**
    * Require settings file.
    */
-  protected function requireSettingsFile(array $pre_settings = []): void {
+  protected function requireSettingsFile(array $pre_settings = [], array $pre_config = []): void {
     $app_root = getcwd() . '/web';
 
     if (!file_exists($app_root)) {
@@ -213,7 +213,7 @@ abstract class SettingsTestCase extends TestCase {
     }
 
     $site_path = 'sites/default';
-    $config = [];
+    $config = $pre_config;
     $settings = $pre_settings;
     $databases = [];
 

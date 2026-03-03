@@ -1,14 +1,14 @@
-@@ -301,449 +301,6 @@
+@@ -301,504 +301,6 @@
    }
  
    /**
 -   * Test Shield config.
 -   */
 -  #[DataProvider('dataProviderShield')]
--  public function testShield(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
+-  public function testShield(string $env, array $vars, array $expected_present, array $expected_absent = [], array $pre_config = []): void {
 -    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
 -
--    $this->requireSettingsFile();
+-    $this->requireSettingsFile([], $pre_config);
 -
 -    $this->assertConfigContains($expected_present);
 -    $this->assertConfigNotContains($expected_absent);
@@ -312,6 +312,61 @@
 -        ],
 -        [
 -          'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-        ],
+-      ],
+-
+-      [
+-        self::ENVIRONMENT_DEV,
+-        [
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-        ],
+-        [
+-          'shield.settings' => [
+-            'method' => 0,
+-            'paths' => "/custom/path/*\n/.well-known/acme-challenge/*",
+-          ],
+-        ],
+-        [],
+-        [
+-          'shield.settings' => ['paths' => '/custom/path/*'],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_DEV,
+-        [
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-        ],
+-        [
+-          'shield.settings' => [
+-            'method' => 0,
+-            'paths' => "/.well-known/acme-challenge/*\n/other/path/*",
+-          ],
+-        ],
+-        [],
+-        [
+-          'shield.settings' => ['paths' => "/.well-known/acme-challenge/*\n/other/path/*"],
+-        ],
+-      ],
+-      [
+-        self::ENVIRONMENT_DEV,
+-        [
+-          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-        ],
+-        [
+-          'shield.settings' => [
+-            'method' => 0,
+-            'paths' => "/admin/*\n/api/*\n/.well-known/acme-challenge/*",
+-          ],
+-        ],
+-        [],
+-        [
+-          'shield.settings' => ['paths' => "/admin/*\n/api/*"],
 -        ],
 -      ],
 -    ];
