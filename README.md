@@ -16,7 +16,7 @@
 [![Test docs](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml/badge.svg)](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml)
 [![codecov](https://codecov.io/gh/drevops/vortex/graph/badge.svg?token=YDTAEWWT5H)](https://codecov.io/gh/drevops/vortex)
 ![GitHub release](https://img.shields.io/github/v/release/drevops/vortex?logo=github)
-![LICENSE](https://img.shields.io/github/license/drevops/vortex)
+![LICENSE](https://img.shields.io/github/license/drevops/vortex?cachebust=123)
 
 </div>
 
