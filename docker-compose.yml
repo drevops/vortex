@@ -207,9 +207,9 @@ services:
       MYSQL_PASSWORD: drupal
     <<: *default-user
     ports:
-      - '3306'
+      - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database2 3306`.
     labels:
-      lagoon.type: none
+      lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
   #;> MIGRATION
 
   #;< SERVICE_REDIS
