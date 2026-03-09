@@ -48,7 +48,7 @@ class CircleCiConfigTest extends TestCase {
    */
   #[DataProvider('dataProviderDeployBranchRegex')]
   public function testDeployBranchRegex(string $branch, bool $expected = TRUE): void {
-    $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][2]['deploy']['filters']['branches']['only'], $branch));
+    $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][3]['deploy']['filters']['branches']['only'], $branch));
   }
 
   /**
@@ -222,7 +222,7 @@ class CircleCiConfigTest extends TestCase {
    */
   #[DataProvider('dataProviderDeployTagRegex')]
   public function testDeployTagRegex(string $branch, bool $expected = TRUE): void {
-    $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][3]['deploy-tags']['filters']['tags']['only'], $branch));
+    $this->assertEquals($expected, preg_match($this->config['workflows']['commit']['jobs'][4]['deploy-tags']['filters']['tags']['only'], $branch));
   }
 
   /**
