@@ -86,12 +86,14 @@ class DependencyUpdatesProvider extends AbstractHandler {
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
       File::replaceContentInFile($t . '/renovate.json', '/\s*"ignorePaths":\s*\[\s*"[^"]*"\s*\],?\n/s', "\n");
       File::remove($t . '/.github/workflows/update-dependencies.yml');
+      File::remove($t . '/.circleci/update-dependencies.yml');
     }
     else {
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER');
       File::remove($t . '/renovate.json');
+      File::remove($t . '/.circleci/update-dependencies.yml');
     }
   }
 

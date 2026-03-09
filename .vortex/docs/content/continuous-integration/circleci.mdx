@@ -28,9 +28,9 @@ Before you begin, ensure you have:
 ### 1. Enable the project
 
 [Log in to CircleCI](https://app.circleci.com/) and add your repository as a new
-project. CircleCI will connect to your GitHub account, detect the
-[`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml)
-configuration file, and start running builds automatically when you push code.
+project. CircleCI will connect to your GitHub account, detect the configuration
+files in the [`.circleci/`](https://github.com/drevops/vortex/blob/main/.circleci/)
+directory, and start running builds automatically when you push code.
 
 ### 2. Add SSH key for database download
 
@@ -101,6 +101,37 @@ Add the following variables in **Project Settings → Environment Variables**:
 | `VORTEX_ACQUIA_KEY`    | Acquia Cloud API key    |
 | `VORTEX_ACQUIA_SECRET` | Acquia Cloud API secret |
 
+### 6. Configure schedule triggers
+
+If you use the self-hosted Renovate workflow for automatic dependency updates,
+the `update-dependencies.yml` pipeline requires a schedule trigger configured
+in the CircleCI UI. Without this trigger, the workflow will not run.
+
+Go to **Project Settings → Triggers** and create the following scheduled
+trigger:
+
+| Setting       | Value                              |
+|---------------|------------------------------------|
+| Trigger name  | `update-dependencies`              |
+| Config source | `update-dependencies.yml`          |
+| Branch        | `develop`                          |
+| Schedule      | Every day at 11:05 and 23:05 UTC   |
+
+:::note
+
+The trigger name `update-dependencies` must match exactly - it is referenced
+in the workflow `when` condition in the configuration file.
+
+:::
+
+:::tip
+
+The nightly database schedule is defined directly in `.circleci/config.yml`
+using the `nightly_db_schedule` YAML anchor. No UI configuration is needed
+for this schedule.
+
+:::
+
 ## Maintenance
 
 ### Update deployment branches
@@ -119,6 +150,7 @@ filters:
 
 The nightly database job caches a fresh database dump for faster builds the next
 day. To change when this runs, update the `nightly_db_schedule` YAML anchor
+in `.circleci/config.yml`
 ([cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
 
 ```yaml

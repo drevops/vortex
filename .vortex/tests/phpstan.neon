@@ -8,6 +8,7 @@ parameters:
 
   paths:
     - phpunit
+    - generate-vortex-dev-circleci
 
   excludePaths:
     - vendor/*

@@ -1,4 +1,4 @@
-# CircleCI 2.0 configuration file.
+# CircleCI configuration file for building, testing, and deploying.
 #
 # This configuration file uses the "docker" executor to run the Docker stack.
 #
@@ -104,15 +104,6 @@ aliases:
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
 ################################################################################
-# PARAMETERS
-################################################################################
-
-parameters:
-  run_update_dependencies:
-    type: boolean
-    default: false
-
-################################################################################
 # JOBS
 ################################################################################
 
@@ -199,6 +190,7 @@ jobs:
             - /root/project/.data
 
   # Nightly database job. Same as above, but with additional variables set.
+  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
   database-nightly:
     <<: *job-database
     environment:
@@ -527,53 +519,6 @@ jobs:
           path: *artifacts
   #;> DEPLOYMENT
 
-  #;< DEPS_UPDATE_PROVIDER_CI
-  # Self-hosted dependency updates.
-  # Add the following environment variables to the CircleCI project:
-  # - RENOVATE_TOKEN: GitHub access token.
-  # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
-  # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
-  # Variables provided below can be overridden in the CircleCI project settings.
-  update-dependencies:
-    docker:
-      - image: renovate/renovate:40.36.8
-        environment:
-          RENOVATE_PLATFORM: 'github'
-          RENOVATE_AUTODISCOVER: false
-          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by CircleCI'
-          RENOVATE_DEPENDENCY_DASHBOARD: false
-          RENOVATE_DRY_RUN: false
-          LOG_LEVEL: 'debug'
-
-    steps:
-      - checkout
-      - run:
-          name: Check if RENOVATE_TOKEN is set
-          command: |
-            if [ -z "${RENOVATE_TOKEN}" ]; then
-              echo "RENOVATE_TOKEN is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_REPOSITORIES}" ]; then
-              echo "Renovate repository is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-            if [ -z "${RENOVATE_GIT_AUTHOR}" ]; then
-              echo "Renovate git author is not set. Skipping job."
-              circleci-agent step halt
-            fi
-
-      - run:
-          name: Validate Renovate configuration
-          command: renovate-config-validator
-
-      - run:
-          name: Run Renovate
-          command: renovate
-  #;> DEPS_UPDATE_PROVIDER_CI
-
   #;============================================================================
   #; Vortex development section. Removed during Vortex installation/update.
   #;============================================================================
@@ -616,96 +561,6 @@ jobs:
 
       - store_artifacts:
           path: *artifacts
-
-  #-----------------------------------------------------------------------------
-  # Launching and testing databases stored within Docker data image.
-  #-----------------------------------------------------------------------------
-  #
-  # Switching between "database in file" (DIF, mounted data volume) and
-  # "database-in-image" (DIDI, data volume is a part of the image) is
-  # done by providing the value of VORTEX_DB_IMAGE environment variable,
-  # which would be set in .env file for consumer projects.
-  #
-  # Also, the source of the database can be either file (downloaded from
-  # remote location) or a previous version of the data image.
-  #
-  # This means that there should be the following tests for Vortex
-  # database-in-image workflow functionality:
-  # 1. DB is file -> create data image -> cache data image and push it to registry -> build and test site
-  # 2. DB is image -> create data image -> cache data image and push it to registry -> build and test site
-  #
-  # Since we need to have "database" job generic for consumer sites and any
-  # logic is controlled within Vortex scripts, we have to create additional
-  # test jobs below and run them as a part of the CI system for Vortex itself.
-  #
-  # Job to test creation of the image from DB dump file when using
-  # VORTEX_DB_IMAGE workflow.
-  vortex-dev-didi-database-fi:
-    <<: *job-database
-    environment:
-      VORTEX_DOWNLOAD_DB_SOURCE: url
-      VORTEX_DOWNLOAD_DB_FORCE: 1
-      # Use container image database storage despite that the file is coming
-      # from CURL - this is to make sure that image is exported into cache
-      # to be used between jobs. Note that in consumer project .env file would
-      # have VORTEX_DB_IMAGE variable set and this environment variable
-      # would not be required.
-      #
-      # Note that here and below we are using "destination" demo image - this
-      # is to allow updating of this image from CI tests without jeopardizing
-      # main demo image.
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
-      # Use a separate tag to make sure that pushed image does not affect
-      # other tests (pushing broken image as 'latest' would fail other tests).
-      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
-      # Also, use this job to test pushing of the DB image to the container
-      # registry to replicate what database-nightly job would do.
-      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
-      # Use custom cache key for this workflow to make sure that caches from
-      # the main workflow are separated from this one.
-      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
-
-  # Job to test creation of the image from the previous version of the image
-  # when using database-in-image workflow.
-  vortex-dev-database-ii:
-    <<: *job-database
-    environment:
-      VORTEX_DOWNLOAD_DB_SOURCE: VORTEX_CONTAINER_REGISTRY
-      VORTEX_DOWNLOAD_DB_FORCE: 1
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
-      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
-      # Also, use this job to test pushing of the DB image to the container
-      # registry so replicate what database-nightly job would do.
-      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
-      # Use custom cache key for this workflow to make sure that caches from
-      # the main workflow are separated from this one.
-      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
-
-  # Job to test build of the image from the previous stage of the image when
-  # using database-in-image workflow. Overwriting just the VORTEX_DB_IMAGE
-  # variable should change the storage mechanisms, but preserve application-level
-  # stack operation.
-  vortex-dev-didi-build-fi:
-    <<: *job_build
-    environment:
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
-      # Use custom cache key for this workflow to make sure that caches from
-      # the main workflow are separated from this one.
-      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
-      # Migration database is always file-based and is not supported as an
-      # image. Skip migration in DIDI test jobs.
-      MIGRATION_SKIP: 1
-
-  vortex-dev-didi-build-ii:
-    <<: *job_build
-    environment:
-      VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
-      # Use custom cache key for this workflow to make sure that caches from
-      # the main workflow are separated from this one.
-      VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
-      # Migration database is always file-based and is not supported as an
-      # image. Skip migration in DIDI test jobs.
-      MIGRATION_SKIP: 1
   #=============================================================================
   #;> VORTEX_DEV
 
@@ -714,7 +569,6 @@ jobs:
 ################################################################################
 
 workflows:
-  version: 2
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
@@ -769,7 +623,7 @@ workflows:
   #;============================================================================
   #;
   #;< VORTEX_DEV
-  # Run functional tests for Vortex.
+  # Run functional tests for Vortex to assert CircleCI configuration is correct.
   # Note that these jobs must run within the "commit" workflow, because they
   # depend on the "build" job.
       # Run tests after 'build' job.
@@ -779,22 +633,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-
-  # Test workflow to test VORTEX_DB_IMAGE workflow for DB from file.
-  vortex-dev-didi-fi:
-    jobs:
-      - vortex-dev-didi-database-fi
-      - vortex-dev-didi-build-fi:
-          requires:
-            - vortex-dev-didi-database-fi
-
-  # Test workflow to test VORTEX_DB_IMAGE workflow for DB from the container registry.
-  vortex-dev-didi-ii:
-    jobs:
-      - vortex-dev-database-ii
-      - vortex-dev-didi-build-ii:
-          requires:
-            - vortex-dev-database-ii
   #=============================================================================
   #;> VORTEX_DEV
 
@@ -811,22 +649,3 @@ workflows:
     jobs:
       - database-nightly
   #;> !PROVISION_TYPE_PROFILE
-
-  #;< DEPS_UPDATE_PROVIDER_CI
-  # Self-hosted Renovate workflow.
-  update-dependencies:
-    triggers:
-      - schedule:
-          cron: "5 11,23 * * *"
-          filters:
-            branches:
-              only:
-                - develop
-    jobs:
-      - update-dependencies
-
-  update-dependencies-manual:
-    when: << pipeline.parameters.run_update_dependencies >>
-    jobs:
-      - update-dependencies
-  #;> DEPS_UPDATE_PROVIDER_CI

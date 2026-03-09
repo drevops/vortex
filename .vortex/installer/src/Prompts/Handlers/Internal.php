@@ -88,6 +88,14 @@ class Internal extends AbstractHandler {
     File::remove($t . 'LICENSE');
     File::remove($t . 'SECURITY.md');
 
+    // Remove Vortex internal CircleCI configs.
+    $files = glob($t . '/.circleci/vortex-*.yml');
+    if ($files) {
+      foreach ($files as $file) {
+        @unlink($file);
+      }
+    }
+
     // Remove Vortex internal GHAs.
     $files = glob($t . '/.github/workflows/vortex-*.yml');
     if ($files) {

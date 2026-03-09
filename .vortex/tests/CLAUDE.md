@@ -15,6 +15,18 @@ cd .vortex
 ahoy install  # Install dependencies (run once)
 ```
 
+## Commands
+
+```bash
+cd .vortex/installer
+
+composer install      # Install dependencies
+composer lint         # Run phpcs, phpstan, rector --dry-run
+composer lint-fix     # Run rector, phpcbf
+composer test         # Run tests (no coverage)
+
+```
+
 ## BATS - Unit Testing Shell Scripts
 
 **Use when**: Changed a shell script in `scripts/vortex/*.sh` or provision logic.
