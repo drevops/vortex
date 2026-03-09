@@ -1,16 +1,15 @@
-@@ -290,11 +290,6 @@
+@@ -133,10 +133,6 @@
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
  
 -      - name: Lint code with Gherkin Lint
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
 -        continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 -
        - name: Lint module code with NodeJS linters
-         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli bash -c "yarn run lint"
-@@ -360,18 +355,6 @@
+         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
+@@ -395,18 +391,6 @@
            token: ${{ secrets.CODECOV_TOKEN }}
          env:
            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

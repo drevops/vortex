@@ -97,6 +97,74 @@ aliases:
 ################################################################################
 
 jobs:
+
+  # Lint job runs in parallel with database and build jobs.
+  lint:
+    <<: *runner_config
+    steps:
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+
+      - run:
+          name: Validate Composer configuration
+          command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - *step_setup_remote_docker
+
+      - run:
+          name: Login to container registry
+          command: ./scripts/vortex/login-container-registry.sh
+
+      - run:
+          name: Lint Dockerfiles with Hadolint
+          command: |
+            for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
+              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            done
+
+      - run:
+          name: Lint Docker Compose files with DCLint
+          command: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Build stack
+          command: docker compose up --no-deps --detach cli
+
+      - run:
+          name: Install development dependencies
+          command: |
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+
+      - run:
+          name: Audit Composer packages
+          command: docker compose exec -T cli composer audit || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Validate Composer configuration is normalized
+          command: docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Lint code with Twig CS Fixer
+          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Lint code with Gherkin Lint
+          command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Lint module code with NodeJS linters
+          command: docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Lint theme code with NodeJS linters
+          command: |
+            [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
+            docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
   # Database handling is a first step of the build.
   # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
   #   should be downloaded for the current build. Usually, a daily database dump
@@ -224,20 +292,6 @@ jobs:
           command: ./scripts/vortex/login-container-registry.sh
 
       - run:
-          name: Lint Dockerfiles with Hadolint
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            for file in $(find .docker -name 'Dockerfile' -o -name '*.dockerfile'); do
-              echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
-            done
-
-      - run:
-          name: Lint Docker Compose files with DCLint
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
 
@@ -255,41 +309,6 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-
-      - run:
-          name: Audit Composer packages
-          command: docker compose exec -T cli composer audit || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Validate Composer configuration is normalized
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint code with Twig CS Fixer
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint code with Gherkin Lint
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint module code with NodeJS linters
-          command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
-            docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
-          name: Lint theme code with NodeJS linters
-          command: |
-            { [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ]; } || [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
-            docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Provision site
@@ -457,6 +476,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - lint:
+          filters:
+            tags:
+              only: /.*/
       - build:
           requires:
             - database
@@ -466,6 +489,7 @@ workflows:
       - deploy:
           requires:
             - build
+            - lint
           filters:
             branches:
               # Allowed branches:
@@ -484,6 +508,7 @@ workflows:
       - deploy-tags:
           requires:
             - build
+            - lint
           filters:
             branches:
               ignore: /.*/

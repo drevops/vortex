@@ -1,12 +1,11 @@
-@@ -270,11 +270,6 @@
+@@ -117,10 +117,6 @@
          run: docker compose exec -T cli vendor/bin/phpcs
          continue-on-error: ${{ vars.VORTEX_CI_PHPCS_IGNORE_FAILURE == '1' }}
  
 -      - name: Lint code with PHPStan
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: docker compose exec -T cli vendor/bin/phpstan
 -        continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
 -
        - name: Lint code with Rector
-         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli vendor/bin/rector --dry-run
+         continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}

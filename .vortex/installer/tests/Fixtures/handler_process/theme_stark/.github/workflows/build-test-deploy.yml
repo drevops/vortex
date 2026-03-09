@@ -1,12 +1,12 @@
-@@ -300,11 +300,6 @@
+@@ -141,11 +141,6 @@
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
 -      - name: Lint theme code with NodeJS linters
--        if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
+-        if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
 -        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 -
-       - name: Provision site
-         run: |
-           if [ -f .data/db.sql ]; then
+   database:
+     runs-on: ubuntu-latest
+     if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
