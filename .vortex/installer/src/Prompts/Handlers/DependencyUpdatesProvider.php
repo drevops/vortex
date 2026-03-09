@@ -62,8 +62,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return self::RENOVATEBOT_CI;
     }
 
-    if (File::contains($this->dstDir . '/.circleci/build-test-deploy.yml', 'update-dependencies')
-      || File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
+    if (File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
       return self::RENOVATEBOT_CI;
     }
 
