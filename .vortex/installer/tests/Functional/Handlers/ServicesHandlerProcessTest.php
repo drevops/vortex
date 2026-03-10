@@ -37,7 +37,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           Env::put(Services::envName(), Converter::toList([Services::CLAMAV, Services::REDIS]));
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
         }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['solr', '_search'])),
+        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
       ],
 
       'services_none' => [

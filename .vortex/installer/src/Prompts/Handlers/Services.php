@@ -33,18 +33,42 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function options(array $responses): ?array {
-    return [
+    $options = [
       self::CLAMAV => 'ClamAV',
       self::SOLR => 'Solr',
       self::REDIS => 'Redis',
     ];
+
+    // Hide Solr if the search custom module is not selected and Solr is not
+    // already discovered in the existing codebase.
+    if (isset($responses[CustomModules::id()])) {
+      $custom_modules = $responses[CustomModules::id()];
+      if (is_array($custom_modules) && !in_array(CustomModules::SEARCH, $custom_modules)) {
+        // Check if Solr is discovered in the existing docker-compose.yml.
+        $discovered = $this->discover();
+        $solr_discovered = is_array($discovered) && in_array(self::SOLR, $discovered);
+        if (!$solr_discovered) {
+          unset($options[self::SOLR]);
+        }
+      }
+    }
+
+    return $options;
   }
 
   /**
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return [self::CLAMAV, self::REDIS, self::SOLR];
+    $defaults = [self::CLAMAV, self::REDIS, self::SOLR];
+
+    // Filter defaults to only include available options.
+    $options = $this->options($responses);
+    if (is_array($options)) {
+      $defaults = array_values(array_intersect($defaults, array_keys($options)));
+    }
+
+    return $defaults;
   }
 
   /**
@@ -129,21 +153,6 @@ class Services extends AbstractHandler {
       File::removeLineInFile($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) && \\');
       // @todo Remove after 25.10.0 release.
       File::removeLineInFile($t . DIRECTORY_SEPARATOR . '.ahoy.yml', 'VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2) \\');
-      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'scripts/custom/provision-10-example.sh', 'drush pm:install ys_base ys_search', 'drush pm:install ys_base');
-
-      $locations = [
-        $t . sprintf('/%s/modules/custom/*_search', $w),
-        $t . sprintf('/%s/sites/all/modules/custom/*_search', $w),
-        $t . sprintf('/%s/profiles/*/modules/*_search', $w),
-        $t . sprintf('/%s/profiles/*/modules/custom/*_search', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/*_search', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/custom/*_search', $w),
-      ];
-
-      $path = File::findMatchingPath($locations);
-      if ($path) {
-        File::remove($path);
-      }
     }
 
     if (!in_array(self::REDIS, $v)) {

@@ -9,6 +9,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
@@ -64,7 +65,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 31;
+  const TOTAL_RESPONSES = 32;
 
   /**
    * Array of responses.
@@ -141,6 +142,7 @@ class PromptManager {
           )
       ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Modules::class, $r), Modules::id())
       ->add(fn(array $r, $pr, $n): mixed => $this->prompt(ModulePrefix::class, $r), ModulePrefix::id())
+      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CustomModules::class, $r), CustomModules::id())
       ->add(
           fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
           Theme::id()
@@ -303,6 +305,7 @@ class PromptManager {
       Profile::id(),
       Domain::id(),
       HostingProjectName::id(),
+      CustomModules::id(),
       ModulePrefix::id(),
       ThemeCustom::id(),
       Theme::id(),
@@ -428,6 +431,7 @@ class PromptManager {
     $values['Webroot'] = $responses[Webroot::id()];
     $values['Profile'] = $responses[Profile::id()];
     $values['Module prefix'] = $responses[ModulePrefix::id()];
+    $values['Custom modules'] = Converter::toList($responses[CustomModules::id()], ', ');
     $values['Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;

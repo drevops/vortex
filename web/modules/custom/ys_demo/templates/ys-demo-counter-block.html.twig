@@ -1,0 +1,26 @@
+{#
+/**
+ * @file
+ * Template for the YS Demo counter block.
+ *
+ * Available variables:
+ * - counter_value: The initial counter value.
+ */
+#}
+<div class="ys-demo-counter-block" data-ys-demo-counter>
+  <div class="ys-demo-counter-display">
+    <span class="ys-demo-counter-label">Counter:</span>
+    <span class="ys-demo-counter-value" data-counter-value>{{ counter_value }}</span>
+  </div>
+  <div class="ys-demo-counter-controls">
+    <button class="ys-demo-counter-btn ys-demo-counter-btn--decrement" data-counter-action="decrement" aria-label="Decrease counter">
+      <span class="ys-demo-counter-btn-text">-</span>
+    </button>
+    <button class="ys-demo-counter-btn ys-demo-counter-btn--increment" data-counter-action="increment" aria-label="Increase counter">
+      <span class="ys-demo-counter-btn-text">+</span>
+    </button>
+  </div>
+  <div class="ys-demo-counter-actions">
+    <button class="ys-demo-counter-btn ys-demo-counter-btn--reset" data-counter-action="reset">Reset</button>
+  </div>
+</div>

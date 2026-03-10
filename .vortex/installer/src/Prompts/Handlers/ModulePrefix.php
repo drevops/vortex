@@ -95,20 +95,26 @@ class ModulePrefix extends AbstractHandler {
     $w = $this->webroot;
 
     File::replaceContentAsync([
+      'ys_demo' => $v . '_demo',
+      'ys-demo' => Converter::kebab($v) . '-demo',
       'ys_base' => $v . '_base',
       'ys-base' => Converter::kebab($v) . '-base',
       'ys_search' => $v . '_search',
       'ys-search' => Converter::kebab($v) . '-search',
+      'YsDemo' => Converter::pascal($v) . 'Demo',
       'YsBase' => Converter::pascal($v) . 'Base',
       'YsSearch' => Converter::pascal($v) . 'Search',
       'YSBASE' => Converter::cobol($v),
       'YSSEARCH' => Converter::cobol($v),
     ]);
 
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_demo', $v . '_demo');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys-demo', Converter::kebab($v) . '-demo');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_base', $v . '_base');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys-base', Converter::kebab($v) . '-base');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_search', $v . '_search');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys-search', Converter::kebab($v) . '-search');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsDemo', Converter::pascal($v) . 'Demo');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsBase', Converter::pascal($v) . 'Base');
     File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsSearch', Converter::pascal($v) . 'Search');
     File::renameInDir($t . sprintf('/%s/sites/default/includes', $w), 'ys_base', $v . '_base');

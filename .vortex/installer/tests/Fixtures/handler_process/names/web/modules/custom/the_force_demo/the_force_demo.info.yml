@@ -1,0 +1,5 @@
+name: New hope Demo
+type: module
+description: Demo feature for New hope site.
+core_version_requirement: ^11
+package: the_new_hope

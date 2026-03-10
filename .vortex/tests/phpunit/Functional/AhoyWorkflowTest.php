@@ -225,7 +225,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyInfo();
 
-    $this->assertWebpageNotContains('/', 'demo', 'Homepage should not show any demo content ');
+    $this->assertWebpageNotContains('/', 'demo site', 'Homepage should not show any demo database content');
 
     // Cannot run all the tests as DB was refreshed and the provisioning
     // did not run (the post-provisioning hooks did not enable the modules).

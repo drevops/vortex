@@ -121,6 +121,8 @@ trait SutTrait {
     $this->logNote('Smoke test the installer processing');
     $this->assertDirectoryNotContainsString('.', 'your_site');
     $this->assertDirectoryNotContainsString('.', 'ys_base');
+    $this->assertDirectoryNotContainsString('.', 'ys_demo');
+    $this->assertDirectoryNotContainsString('.', 'ys_search');
     $this->assertDirectoryNotContainsString('.', 'YOURSITE');
     $this->assertDirectoryNotContainsString('.', 'YourSite');
     $this->assertDirectoryNotContainsString('.', 'your_site_theme');
@@ -252,6 +254,7 @@ trait SutTrait {
   protected function assertCommonFilesAbsent(string $webroot = 'web'): void {
     // Example directories and files that should not exist after Vortex removed.
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_base');
+    $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_demo');
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_search');
     $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Functional/YourSiteCoreFunctionalTestBase.php');
     $this->assertFileDoesNotExist($webroot . '/modules/custom/ys_base/tests/src/Functional/YourSiteExampleFunctionalTest.php');
@@ -425,8 +428,9 @@ trait SutTrait {
   protected function assertDrupalFilesPresent(string $webroot = 'web'): void {
     // Stub profile removed.
     $this->assertDirectoryDoesNotExist($webroot . '/profiles/custom/your_site_profile');
-    // Stub code module removed.
+    // Stub code modules removed.
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_base');
+    $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_demo');
     // Stub theme removed.
     $this->assertDirectoryDoesNotExist($webroot . '/themes/custom/your_site_theme');
 
@@ -445,6 +449,15 @@ trait SutTrait {
     // Site search module created.
     $this->assertDirectoryExists($webroot . '/modules/custom/sw_search');
     $this->assertFileExists($webroot . '/modules/custom/sw_search/sw_search.info.yml');
+
+    // Site demo module created.
+    $this->assertDirectoryExists($webroot . '/modules/custom/sw_demo');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/sw_demo.info.yml');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/sw_demo.module');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/src/Plugin/Block/CounterBlock.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Unit/CounterBlockTest.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Kernel/CounterBlockTest.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/FunctionalJavascript/CounterBlockTest.php');
 
     // Drupal Scaffold files exist.
     $this->assertFileDoesNotExist($webroot . '/.editorconfig');

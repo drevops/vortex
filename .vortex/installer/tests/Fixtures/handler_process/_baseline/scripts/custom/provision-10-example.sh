@@ -59,6 +59,8 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
 
   drush pm:install sw_search
 
+  drush pm:install sw_demo
+
   task "Running deployment hooks."
   drush deploy:hook
 

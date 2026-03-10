@@ -1,8 +1,0 @@
-@@ -12,7 +12,6 @@
- /**
-  * Implements hook_theme().
-  *
-- * @phpstan-ignore-next-line
-  */
- function sw_base_theme(): array {
-   return [
