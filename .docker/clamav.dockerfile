@@ -12,7 +12,7 @@
 
 FROM uselagoon/commons:26.2.0 AS commons
 
-FROM clamav/clamav-debian:1.5.2-31
+FROM clamav/clamav-debian:1.5.2-32
 
 COPY --from=commons /lagoon /lagoon
 COPY --from=commons /bin/fix-permissions /bin/ep /bin/docker-sleep /bin/wait-for /bin/
