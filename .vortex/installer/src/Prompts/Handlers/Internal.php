@@ -168,7 +168,7 @@ class Internal extends AbstractHandler {
     }
 
     if (!$is_demo) {
-      File::removeTokenAsync('DEMO');
+      File::removeTokenAsync('DEMO_MODE');
     }
 
     $this->config->set(Config::IS_DEMO, $is_demo);

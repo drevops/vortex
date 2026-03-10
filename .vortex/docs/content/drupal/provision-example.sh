@@ -37,7 +37,9 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
 
   # 👇 Enable custom site modules and run its deployment hooks.
   task "Installing custom site modules."
-  drush pm:install ys_base ys_search
+  drush pm:install ys_base
+  drush pm:install ys_search
+  drush pm:install ys_demo
 
   # 👇 Conditionally perform an action if this is a "fresh" database.
   if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then

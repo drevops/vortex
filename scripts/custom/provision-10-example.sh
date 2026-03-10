@@ -63,11 +63,17 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   # Note that deployment hooks for already enabled modules have run in the
   # parent "provision.sh" script.
   task "Installing custom site modules."
+  #;< CUSTOM_MODULE_BASE
   drush pm:install ys_base
+  #;> CUSTOM_MODULE_BASE
 
-  #;< SERVICE_SOLR
+  #;< CUSTOM_MODULE_SEARCH
   drush pm:install ys_search
-  #;> SERVICE_SOLR
+  #;> CUSTOM_MODULE_SEARCH
+
+  #;< CUSTOM_MODULE_DEMO
+  drush pm:install ys_demo
+  #;> CUSTOM_MODULE_DEMO
 
   task "Running deployment hooks."
   drush deploy:hook

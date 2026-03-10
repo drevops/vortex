@@ -22,5 +22,5 @@
 -
 -  drush pm:install sw_search
  
-   task "Running deployment hooks."
-   drush deploy:hook
+   drush pm:install sw_demo
+ 

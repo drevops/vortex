@@ -5,3 +5,4 @@ yarn.lock
 node_modules
 scripts/vortex/*
 vendor
+.env.local

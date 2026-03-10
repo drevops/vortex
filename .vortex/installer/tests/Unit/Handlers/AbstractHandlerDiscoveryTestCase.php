@@ -10,6 +10,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
@@ -132,6 +133,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Profile::id() => Profile::STANDARD,
       Modules::id() => array_keys(Modules::getAvailableModules()),
       ModulePrefix::id() => 'mypr',
+      CustomModules::id() => [CustomModules::BASE, CustomModules::SEARCH, CustomModules::DEMO],
       Theme::id() => 'myproject',
       CodeProvider::id() => CodeProvider::GITHUB,
       VersionScheme::id() => VersionScheme::CALVER,
@@ -206,6 +208,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Profile::id() => static::TUI_DEFAULT,
       Modules::id() => static::TUI_DEFAULT,
       ModulePrefix::id() => static::TUI_DEFAULT,
+      CustomModules::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
       ThemeCustom::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
