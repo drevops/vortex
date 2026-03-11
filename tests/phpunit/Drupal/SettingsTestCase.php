@@ -49,7 +49,6 @@ abstract class SettingsTestCase extends TestCase {
    */
   final const ENVIRONMENT_PROD = 'prod';
 
-
   /**
    * Defines a constant for the allowed environment variables.
    *
@@ -217,7 +216,9 @@ abstract class SettingsTestCase extends TestCase {
     $settings = $pre_settings;
     $databases = [];
 
+    putenv('DRUPAL_SETTINGS_LOCAL_SKIP=1');
     require $app_root . DIRECTORY_SEPARATOR . $site_path . DIRECTORY_SEPARATOR . 'settings.php';
+    putenv('DRUPAL_SETTINGS_LOCAL_SKIP');
 
     $this->app_root = $app_root;
     $this->site_path = $site_path;

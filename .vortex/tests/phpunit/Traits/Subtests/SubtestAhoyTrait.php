@@ -437,6 +437,25 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyTestUnitSettingsLocalSkip(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Create settings.local.php to verify DRUPAL_SETTINGS_LOCAL_SKIP works');
+    $this->createDevelopmentSettings($webroot);
+    $this->syncToContainer($webroot . '/sites/default/settings.local.php');
+    $this->syncToContainer($webroot . '/sites/default/services.local.yml');
+
+    $this->logSubstep('Run unit tests with settings.local.php present');
+    $this->cmd('ahoy test-unit --no-coverage --group=drupal_settings', 'OK (', txt: 'Settings unit tests pass with settings.local.php present');
+
+    $this->logSubstep('Clean up settings.local.php');
+    $this->removeDevelopmentSettings($webroot);
+    $this->removePathHostAndContainer($webroot . '/sites/default/settings.local.php');
+    $this->removePathHostAndContainer($webroot . '/sites/default/services.local.yml');
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyTestKernel(string $webroot = 'web'): void {
     $this->logStepStart();
 
