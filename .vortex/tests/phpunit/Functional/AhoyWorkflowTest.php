@@ -94,6 +94,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyTestUnit();
 
+    $this->subtestAhoyTestUnitSettingsLocalSkip();
+
     $this->subtestAhoyTestKernel();
 
     $this->subtestAhoyTestFunctional();

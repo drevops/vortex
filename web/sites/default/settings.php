@@ -190,7 +190,7 @@ if (file_exists($app_root . '/' . $site_path . '/settings.migration.php')) {
 //
 // Keep this code block at the end of this file to take full effect.
 // @codeCoverageIgnoreStart
-if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php') && getenv('DRUPAL_SETTINGS_LOCAL_SKIP') !== '1') {
   require $app_root . '/' . $site_path . '/settings.local.php';
 }
 // @codeCoverageIgnoreEnd
