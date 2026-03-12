@@ -12,23 +12,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(AiCodeInstructions::class)]
 class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'ai_instructions_enabled' => [
-        static::cw(fn() => Env::put(AiCodeInstructions::envName(), Env::TRUE)),
-        static::cw(function (FunctionalTestCase $test): void {
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'ai_instructions_enabled' => [
+      static::cw(fn() => Env::put(AiCodeInstructions::envName(), Env::TRUE)),
+      static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileExists(static::$sut . '/AGENTS.md');
           $test->assertFileExists(static::$sut . '/CLAUDE.md');
-        }),
-      ],
-
-      'ai_instructions_disabled' => [
-        static::cw(fn() => Env::put(AiCodeInstructions::envName(), Env::FALSE)),
-        static::cw(function (FunctionalTestCase $test): void {
+      }),
+    ];
+    yield 'ai_instructions_disabled' => [
+      static::cw(fn() => Env::put(AiCodeInstructions::envName(), Env::FALSE)),
+      static::cw(function (FunctionalTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/AGENTS.md');
           $test->assertFileDoesNotExist(static::$sut . '/CLAUDE.md');
-        }),
-      ],
+      }),
     ];
   }
 

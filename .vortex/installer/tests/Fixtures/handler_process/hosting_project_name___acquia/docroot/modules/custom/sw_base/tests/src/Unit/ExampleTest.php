@@ -37,11 +37,9 @@ class ExampleTest extends SwBaseUnitTestBase {
   /**
    * Data provider for testAdd().
    */
-  public static function dataProviderAdd(): array {
-    return [
-      [0, 0, 0],
-      [1, 1, 2],
-    ];
+  public static function dataProviderAdd(): \Iterator {
+    yield [0, 0, 0];
+    yield [1, 1, 2];
   }
 
   /**
@@ -64,12 +62,10 @@ class ExampleTest extends SwBaseUnitTestBase {
   /**
    * Data provider for testSubtract().
    */
-  public static function dataProviderSubtract(): array {
-    return [
-      [0, 0, 0],
-      [1, 1, 0],
-      [2, 1, 1],
-    ];
+  public static function dataProviderSubtract(): \Iterator {
+    yield [0, 0, 0];
+    yield [1, 1, 0];
+    yield [2, 1, 1];
   }
 
   /**
@@ -93,12 +89,10 @@ class ExampleTest extends SwBaseUnitTestBase {
   /**
    * Data provider for testMultiplication().
    */
-  public static function dataProviderMultiplication(): array {
-    return [
-      [0, 0, 0],
-      [1, 1, 1],
-      [2, 1, 2],
-    ];
+  public static function dataProviderMultiplication(): \Iterator {
+    yield [0, 0, 0];
+    yield [1, 1, 1];
+    yield [2, 1, 2];
   }
 
 }

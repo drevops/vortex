@@ -65,32 +65,30 @@ class ConfigTest extends UnitTestCase {
     }
   }
 
-  public static function dataProviderFromStringValid(): array {
-    return [
-      'empty_json' => [
-        '{}',
+  public static function dataProviderFromStringValid(): \Iterator {
+    yield 'empty_json' => [
+      '{}',
         [],
-      ],
-      'single_value' => [
-        '{"name": "test"}',
+    ];
+    yield 'single_value' => [
+      '{"name": "test"}',
         ['NAME' => 'test'],
-      ],
-      'multiple_values' => [
-        '{"name": "test", "version": "1.0.0", "debug": true}',
+    ];
+    yield 'multiple_values' => [
+      '{"name": "test", "version": "1.0.0", "debug": true}',
         ['NAME' => 'test', 'VERSION' => '1.0.0', 'DEBUG' => TRUE],
-      ],
-      'mixed_types' => [
-        '{"string": "value", "number": 42, "boolean": true, "null": null}',
+    ];
+    yield 'mixed_types' => [
+      '{"string": "value", "number": 42, "boolean": true, "null": null}',
         ['STRING' => 'value', 'NUMBER' => 42, 'BOOLEAN' => TRUE],
-      ],
-      'nested_objects_and_arrays' => [
-        '{"config": {"nested": "value"}, "list": [1, 2, 3]}',
+    ];
+    yield 'nested_objects_and_arrays' => [
+      '{"config": {"nested": "value"}, "list": [1, 2, 3]}',
         ['CONFIG' => ['nested' => 'value'], 'LIST' => [1, 2, 3]],
-      ],
-      'lowercase_keys_get_uppercased' => [
-        '{"lowercase_key": "value", "MixedCase": "value2"}',
+    ];
+    yield 'lowercase_keys_get_uppercased' => [
+      '{"lowercase_key": "value", "MixedCase": "value2"}',
         ['LOWERCASE_KEY' => 'value', 'MIXEDCASE' => 'value2'],
-      ],
     ];
   }
 
@@ -102,36 +100,34 @@ class ConfigTest extends UnitTestCase {
     Config::fromString($json);
   }
 
-  public static function dataProviderFromStringInvalid(): array {
-    return [
-      'invalid_json' => [
-        '{invalid json}',
-        'Invalid configuration JSON string provided.',
-      ],
-      'non_object_json' => [
-        '"just a string"',
-        'Invalid configuration JSON string provided.',
-      ],
-      'array_json' => [
-        '[1, 2, 3]',
-        'Invalid key "0" in JSON string provided.',
-      ],
-      'numeric_json' => [
-        '42',
-        'Invalid configuration JSON string provided.',
-      ],
-      'boolean_json' => [
-        'true',
-        'Invalid configuration JSON string provided.',
-      ],
-      'null_json' => [
-        'null',
-        'Invalid configuration JSON string provided.',
-      ],
-      'numeric_key' => [
-        '{"123": "value"}',
-        'Invalid key "123" in JSON string provided.',
-      ],
+  public static function dataProviderFromStringInvalid(): \Iterator {
+    yield 'invalid_json' => [
+      '{invalid json}',
+      'Invalid configuration JSON string provided.',
+    ];
+    yield 'non_object_json' => [
+      '"just a string"',
+      'Invalid configuration JSON string provided.',
+    ];
+    yield 'array_json' => [
+      '[1, 2, 3]',
+      'Invalid key "0" in JSON string provided.',
+    ];
+    yield 'numeric_json' => [
+      '42',
+      'Invalid configuration JSON string provided.',
+    ];
+    yield 'boolean_json' => [
+      'true',
+      'Invalid configuration JSON string provided.',
+    ];
+    yield 'null_json' => [
+      'null',
+      'Invalid configuration JSON string provided.',
+    ];
+    yield 'numeric_key' => [
+      '{"123": "value"}',
+      'Invalid key "123" in JSON string provided.',
     ];
   }
 
@@ -149,16 +145,14 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals($expected, $config->get($name));
   }
 
-  public static function dataProviderGetAndSet(): array {
-    return [
-      'string_value' => ['TEST_STRING', 'test_value', 'default', 'test_value'],
-      'integer_value' => ['TEST_INT', 42, 0, 42],
-      'boolean_true' => ['TEST_BOOL_TRUE', TRUE, FALSE, TRUE],
-      'boolean_false' => ['TEST_BOOL_FALSE', FALSE, TRUE, FALSE],
-      'null_value' => ['TEST_NULL', NULL, 'default', NULL],
-      'array_value' => ['TEST_ARRAY', ['a', 'b', 'c'], [], ['a', 'b', 'c']],
-      'object_value' => ['TEST_OBJECT', (object) ['key' => 'value'], NULL, (object) ['key' => 'value']],
-    ];
+  public static function dataProviderGetAndSet(): \Iterator {
+    yield 'string_value' => ['TEST_STRING', 'test_value', 'default', 'test_value'];
+    yield 'integer_value' => ['TEST_INT', 42, 0, 42];
+    yield 'boolean_true' => ['TEST_BOOL_TRUE', TRUE, FALSE, TRUE];
+    yield 'boolean_false' => ['TEST_BOOL_FALSE', FALSE, TRUE, FALSE];
+    yield 'null_value' => ['TEST_NULL', NULL, 'default', NULL];
+    yield 'array_value' => ['TEST_ARRAY', ['a', 'b', 'c'], [], ['a', 'b', 'c']];
+    yield 'object_value' => ['TEST_OBJECT', (object) ['key' => 'value'], NULL, (object) ['key' => 'value']];
   }
 
   public function testSetWithEnvironmentVariable(): void {
@@ -213,18 +207,16 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals($expected, $config->isQuiet());
   }
 
-  public static function dataProviderIsQuiet(): array {
-    return [
-      'boolean_true' => [TRUE, TRUE],
-      'boolean_false' => [FALSE, FALSE],
-      'string_true' => ['true', TRUE],
-      // Non-empty string is truthy.
-      'string_false' => ['false', TRUE],
-      'string_empty' => ['', FALSE],
-      'integer_zero' => [0, FALSE],
-      'integer_non_zero' => [1, TRUE],
-      'null' => [NULL, FALSE],
-    ];
+  public static function dataProviderIsQuiet(): \Iterator {
+    yield 'boolean_true' => [TRUE, TRUE];
+    yield 'boolean_false' => [FALSE, FALSE];
+    yield 'string_true' => ['true', TRUE];
+    // Non-empty string is truthy.
+    yield 'string_false' => ['false', TRUE];
+    yield 'string_empty' => ['', FALSE];
+    yield 'integer_zero' => [0, FALSE];
+    yield 'integer_non_zero' => [1, TRUE];
+    yield 'null' => [NULL, FALSE];
   }
 
   public function testSetQuiet(): void {
@@ -251,18 +243,16 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals($expected, $config->getNoInteraction());
   }
 
-  public static function dataProviderGetNoInteraction(): array {
-    return [
-      'boolean_true' => [TRUE, TRUE],
-      'boolean_false' => [FALSE, FALSE],
-      'string_true' => ['true', TRUE],
-      // Non-empty string is truthy.
-      'string_false' => ['false', TRUE],
-      'string_empty' => ['', FALSE],
-      'integer_zero' => [0, FALSE],
-      'integer_non_zero' => [1, TRUE],
-      'null' => [NULL, FALSE],
-    ];
+  public static function dataProviderGetNoInteraction(): \Iterator {
+    yield 'boolean_true' => [TRUE, TRUE];
+    yield 'boolean_false' => [FALSE, FALSE];
+    yield 'string_true' => ['true', TRUE];
+    // Non-empty string is truthy.
+    yield 'string_false' => ['false', TRUE];
+    yield 'string_empty' => ['', FALSE];
+    yield 'integer_zero' => [0, FALSE];
+    yield 'integer_non_zero' => [1, TRUE];
+    yield 'null' => [NULL, FALSE];
   }
 
   public function testSetNoInteraction(): void {
@@ -289,18 +279,16 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals($expected, $config->isVortexProject());
   }
 
-  public static function dataProviderIsVortexProject(): array {
-    return [
-      'boolean_true' => [TRUE, TRUE],
-      'boolean_false' => [FALSE, FALSE],
-      'string_true' => ['true', TRUE],
-      // Non-empty string is truthy.
-      'string_false' => ['false', TRUE],
-      'string_empty' => ['', FALSE],
-      'integer_zero' => [0, FALSE],
-      'integer_non_zero' => [1, TRUE],
-      'null' => [NULL, FALSE],
-    ];
+  public static function dataProviderIsVortexProject(): \Iterator {
+    yield 'boolean_true' => [TRUE, TRUE];
+    yield 'boolean_false' => [FALSE, FALSE];
+    yield 'string_true' => ['true', TRUE];
+    // Non-empty string is truthy.
+    yield 'string_false' => ['false', TRUE];
+    yield 'string_empty' => ['', FALSE];
+    yield 'integer_zero' => [0, FALSE];
+    yield 'integer_non_zero' => [1, TRUE];
+    yield 'null' => [NULL, FALSE];
   }
 
   public function testConstants(): void {

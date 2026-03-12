@@ -46,4 +46,10 @@
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
+    <!-- Avoid false positives on type-hinted return statements. -->
+    <rule ref="Drupal.Commenting.FunctionComment.MissingReturnComment">
+        <exclude-pattern>*.Test\.php</exclude-pattern>
+        <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+    </rule>
 </ruleset>

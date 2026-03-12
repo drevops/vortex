@@ -52,18 +52,17 @@ class DockerComposeTest extends FunctionalTestCase {
     $this->assertFileEquals($expected_file, 'docker-compose.actual.json', 'Docker Compose configuration should match expected fixture');
   }
 
-  public static function dataProviderDockerComposeConfig(): array {
-    return [
-      ['docker-compose.noenv.json'],
-      [
-        'docker-compose.env.json',
-        function (): void {
+  public static function dataProviderDockerComposeConfig(): \Iterator {
+    yield ['docker-compose.noenv.json'];
+    yield [
+      'docker-compose.env.json',
+      function (): void {
           File::copy(static::$root . '/.env', '.env');
-        },
-      ],
-      [
-        'docker-compose.env_mod.json',
-        function (FunctionalTestCase $test): void {
+      },
+    ];
+    yield [
+      'docker-compose.env_mod.json',
+      function (FunctionalTestCase $test): void {
           File::copy(static::$root . '/.env', '.env');
 
           // Add modified environment variables.
@@ -75,15 +74,14 @@ class DockerComposeTest extends FunctionalTestCase {
           $test->fileAddVar('.env', 'DRUPAL_SHIELD_PASS', 'passw');
           $test->fileAddVar('.env', 'DRUPAL_REDIS_ENABLED', '1');
           $test->fileAddVar('.env', 'LAGOON_ENVIRONMENT_TYPE', 'development');
-        },
-      ],
-      [
-        'docker-compose.env_local.json',
-        function (): void {
+      },
+    ];
+    yield [
+      'docker-compose.env_local.json',
+      function (): void {
           File::copy(static::$root . '/.env', '.env');
           File::copy(static::$root . '/.env.local.example', '.env.local');
-        },
-      ],
+      },
     ];
   }
 

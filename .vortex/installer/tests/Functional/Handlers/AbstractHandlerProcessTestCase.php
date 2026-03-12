@@ -73,7 +73,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
     }
   }
 
-  abstract public static function dataProviderHandlerProcess(): array;
+  abstract public static function dataProviderHandlerProcess(): \Iterator;
 
   protected function assertCommon(): void {
     $this->assertDirectoriesIdentical(static::$root . '/scripts/vortex', static::$sut . '/scripts/vortex', 'Vortex scripts were not modified.');

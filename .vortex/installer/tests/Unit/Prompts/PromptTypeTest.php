@@ -23,13 +23,10 @@ class PromptTypeTest extends UnitTestCase {
   /**
    * Data provider for testAllCasesHavePromptFunction.
    */
-  public static function dataProviderAllCasesHavePromptFunction(): array {
-    $cases = [];
+  public static function dataProviderAllCasesHavePromptFunction(): \Iterator {
     foreach (PromptType::cases() as $case) {
-      $cases[$case->name] = [$case];
+      yield $case->name => [$case];
     }
-
-    return $cases;
   }
 
   #[DataProvider('dataProviderPromptFunctionMatchesCaseValue')]
@@ -40,13 +37,10 @@ class PromptTypeTest extends UnitTestCase {
   /**
    * Data provider for testPromptFunctionMatchesCaseValue.
    */
-  public static function dataProviderPromptFunctionMatchesCaseValue(): array {
-    $cases = [];
+  public static function dataProviderPromptFunctionMatchesCaseValue(): \Iterator {
     foreach (PromptType::cases() as $case) {
-      $cases[$case->name] = [$case];
+      yield $case->name => [$case];
     }
-
-    return $cases;
   }
 
   #[DataProvider('dataProviderFromValidString')]
@@ -57,20 +51,18 @@ class PromptTypeTest extends UnitTestCase {
   /**
    * Data provider for testFromValidString.
    */
-  public static function dataProviderFromValidString(): array {
-    return [
-      'text' => ['text', PromptType::Text],
-      'select' => ['select', PromptType::Select],
-      'multiselect' => ['multiselect', PromptType::MultiSelect],
-      'confirm' => ['confirm', PromptType::Confirm],
-      'suggest' => ['suggest', PromptType::Suggest],
-      'number' => ['number', PromptType::Number],
-      'textarea' => ['textarea', PromptType::Textarea],
-      'password' => ['password', PromptType::Password],
-      'search' => ['search', PromptType::Search],
-      'multisearch' => ['multisearch', PromptType::MultiSearch],
-      'pause' => ['pause', PromptType::Pause],
-    ];
+  public static function dataProviderFromValidString(): \Iterator {
+    yield 'text' => ['text', PromptType::Text];
+    yield 'select' => ['select', PromptType::Select];
+    yield 'multiselect' => ['multiselect', PromptType::MultiSelect];
+    yield 'confirm' => ['confirm', PromptType::Confirm];
+    yield 'suggest' => ['suggest', PromptType::Suggest];
+    yield 'number' => ['number', PromptType::Number];
+    yield 'textarea' => ['textarea', PromptType::Textarea];
+    yield 'password' => ['password', PromptType::Password];
+    yield 'search' => ['search', PromptType::Search];
+    yield 'multisearch' => ['multisearch', PromptType::MultiSearch];
+    yield 'pause' => ['pause', PromptType::Pause];
   }
 
   public function testFromInvalidString(): void {

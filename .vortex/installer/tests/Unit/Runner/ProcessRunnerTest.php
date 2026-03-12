@@ -224,161 +224,151 @@ class ProcessRunnerTest extends UnitTestCase {
   /**
    * Data provider for run command tests.
    */
-  public static function dataProviderRun(): array {
-    return [
-      'simple echo command' => [
-        'command' => 'echo',
-        'args' => ['hello', 'world'],
-        'expected_output_pattern' => '/hello world/',
-        'expected_exit_code' => 0,
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with single argument' => [
-        'command' => 'echo "test message"',
-        'args' => [],
-        'expected_output_pattern' => '/test message/',
-        'expected_exit_code' => 0,
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command not found' => [
-        'command' => 'nonexistent_command_12345',
-        'args' => [],
-        'expected_output_pattern' => '//',
-        'expected_exit_code' => 0,
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Command not found',
-      ],
-      'command with invalid characters' => [
-        'command' => '$invalid-cmd',
-        'args' => [],
-        'expected_output_pattern' => '//',
-        'expected_exit_code' => 0,
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Invalid command',
-      ],
-      'command utility is not allowed' => [
-        'command' => 'command',
-        'args' => ['-v', 'ls'],
-        'expected_output_pattern' => '//',
-        'expected_exit_code' => 0,
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder',
-      ],
+  public static function dataProviderRun(): \Iterator {
+    yield 'simple echo command' => [
+      'command' => 'echo',
+      'args' => ['hello', 'world'],
+      'expected_output_pattern' => '/hello world/',
+      'expected_exit_code' => 0,
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with single argument' => [
+      'command' => 'echo "test message"',
+      'args' => [],
+      'expected_output_pattern' => '/test message/',
+      'expected_exit_code' => 0,
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command not found' => [
+      'command' => 'nonexistent_command_12345',
+      'args' => [],
+      'expected_output_pattern' => '//',
+      'expected_exit_code' => 0,
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Command not found',
+    ];
+    yield 'command with invalid characters' => [
+      'command' => '$invalid-cmd',
+      'args' => [],
+      'expected_output_pattern' => '//',
+      'expected_exit_code' => 0,
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Invalid command',
+    ];
+    yield 'command utility is not allowed' => [
+      'command' => 'command',
+      'args' => ['-v', 'ls'],
+      'expected_output_pattern' => '//',
+      'expected_exit_code' => 0,
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder',
     ];
   }
 
   /**
    * Data provider for streaming modes.
    */
-  public static function dataProviderRunWithStreaming(): array {
-    return [
-      'streaming enabled' => [
-        'streaming_enabled' => TRUE,
-        'should_have_output_in_stream' => TRUE,
-      ],
-      'streaming disabled' => [
-        'streaming_enabled' => FALSE,
-        'should_have_output_in_stream' => FALSE,
-      ],
+  public static function dataProviderRunWithStreaming(): \Iterator {
+    yield 'streaming enabled' => [
+      'streaming_enabled' => TRUE,
+      'should_have_output_in_stream' => TRUE,
+    ];
+    yield 'streaming disabled' => [
+      'streaming_enabled' => FALSE,
+      'should_have_output_in_stream' => FALSE,
     ];
   }
 
   /**
    * Data provider for resolveCommand tests.
    */
-  public static function dataProviderResolveCommand(): array {
-    return [
-      'simple command (echo)' => [
-        'command' => 'echo',
-        'expect_success' => TRUE,
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with arguments' => [
-        'command' => 'echo hello',
-        'expect_success' => TRUE,
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command not in PATH' => [
-        'command' => 'nonexistent_cmd_xyz',
-        'expect_success' => FALSE,
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Command not found',
-      ],
-      'command with invalid characters' => [
-        'command' => 'echo$test',
-        'expect_success' => FALSE,
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Invalid command',
-      ],
-      'command utility is not allowed' => [
-        'command' => 'command',
-        'expect_success' => FALSE,
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder to check if a command exists instead.',
-      ],
+  public static function dataProviderResolveCommand(): \Iterator {
+    yield 'simple command (echo)' => [
+      'command' => 'echo',
+      'expect_success' => TRUE,
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with arguments' => [
+      'command' => 'echo hello',
+      'expect_success' => TRUE,
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command not in PATH' => [
+      'command' => 'nonexistent_cmd_xyz',
+      'expect_success' => FALSE,
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Command not found',
+    ];
+    yield 'command with invalid characters' => [
+      'command' => 'echo$test',
+      'expect_success' => FALSE,
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Invalid command',
+    ];
+    yield 'command utility is not allowed' => [
+      'command' => 'command',
+      'expect_success' => FALSE,
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder to check if a command exists instead.',
     ];
   }
 
   /**
    * Data provider for prepareArguments tests.
    */
-  public static function dataProviderPrepareArguments(): array {
-    return [
-      'merge parsed and additional args' => [
-        'parsed_args' => ['arg1', 'arg2'],
-        'additional_args' => ['arg3', 'arg4'],
-        'expected' => ['arg1', 'arg2', 'arg3', 'arg4'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'convert numeric args to strings' => [
-        'parsed_args' => ['test'],
-        'additional_args' => [123, 456],
-        'expected' => ['test', '123', '456'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'boolean arguments' => [
-        'parsed_args' => [],
-        'additional_args' => ['--verbose' => TRUE, '--quiet' => FALSE],
-        'expected' => ['--verbose'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'non-scalar argument throws exception' => [
-        'parsed_args' => ['arg1', ['array']],
-        'additional_args' => [],
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Argument at index "1" must be a scalar value, array given.',
-      ],
+  public static function dataProviderPrepareArguments(): \Iterator {
+    yield 'merge parsed and additional args' => [
+      'parsed_args' => ['arg1', 'arg2'],
+      'additional_args' => ['arg3', 'arg4'],
+      'expected' => ['arg1', 'arg2', 'arg3', 'arg4'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'convert numeric args to strings' => [
+      'parsed_args' => ['test'],
+      'additional_args' => [123, 456],
+      'expected' => ['test', '123', '456'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'boolean arguments' => [
+      'parsed_args' => [],
+      'additional_args' => ['--verbose' => TRUE, '--quiet' => FALSE],
+      'expected' => ['--verbose'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'non-scalar argument throws exception' => [
+      'parsed_args' => ['arg1', ['array']],
+      'additional_args' => [],
+      'expected' => [],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Argument at index "1" must be a scalar value, array given.',
     ];
   }
 
   /**
    * Data provider for environment variables tests.
    */
-  public static function dataProviderValidateEnvironmentVars(): array {
-    return [
-      'valid scalar env vars' => [
-        'env' => ['VAR1' => 'value1', 'VAR2' => 'value2'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'empty env vars' => [
-        'env' => [],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'non-scalar env var throws exception' => [
-        'env' => ['VAR1' => ['array']],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Environment variable "VAR1" must be a scalar value, array given.',
-      ],
+  public static function dataProviderValidateEnvironmentVars(): \Iterator {
+    yield 'valid scalar env vars' => [
+      'env' => ['VAR1' => 'value1', 'VAR2' => 'value2'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'empty env vars' => [
+      'env' => [],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'non-scalar env var throws exception' => [
+      'env' => ['VAR1' => ['array']],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Environment variable "VAR1" must be a scalar value, array given.',
     ];
   }
 

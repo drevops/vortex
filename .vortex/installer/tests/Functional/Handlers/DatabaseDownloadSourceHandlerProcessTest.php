@@ -14,35 +14,28 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(DatabaseImage::class)]
 class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'db_download_source_url' => [
-        static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::URL)),
-      ],
-
-      'db_download_source_ftp' => [
-        static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::FTP)),
-      ],
-
-      'db_download_source_acquia' => [
-        static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::ACQUIA)),
-      ],
-
-      'db_download_source_lagoon' => [
-        static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::LAGOON)),
-      ],
-
-      'db_download_source_container_registry' => [
-        static::cw(function (): void {
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'db_download_source_url' => [
+      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::URL)),
+    ];
+    yield 'db_download_source_ftp' => [
+      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::FTP)),
+    ];
+    yield 'db_download_source_acquia' => [
+      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::ACQUIA)),
+    ];
+    yield 'db_download_source_lagoon' => [
+      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::LAGOON)),
+    ];
+    yield 'db_download_source_container_registry' => [
+      static::cw(function (): void {
           Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::CONTAINER_REGISTRY);
           Env::put(DatabaseImage::envName(), 'the_empire/star_wars:latest');
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
-        }),
-      ],
-
-      'db_download_source_s3' => [
-        static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::S3)),
-      ],
+      }),
+    ];
+    yield 'db_download_source_s3' => [
+      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::S3)),
     ];
   }
 

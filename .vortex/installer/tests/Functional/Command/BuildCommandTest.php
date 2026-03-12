@@ -147,27 +147,17 @@ class BuildCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testBuildWithMockedRunner.
    *
-   * @return array<string, array{
-   *   exit_code_callback: \Closure,
-   *   command_inputs: array<string, mixed>,
-   *   expect_failure: bool,
-   *   output_assertions: array<string>,
-   *   requirements_exit_callback?: ?\Closure,
-   *   requirements_finder_callback?: ?\Closure,
-   *   docker_compose_url?: ?string,
-   *   before?: ?\Closure
-   *   }>
+   * @return \Iterator<string, array{exit_code_callback: \Closure, command_inputs: array<string, mixed>, expect_failure: bool, output_assertions: array<string>, requirements_exit_callback?: (\Closure | null), requirements_finder_callback?: (\Closure | null), docker_compose_url?: (string | null), before?: (\Closure | null)}>
    */
-  public static function dataProviderBuildCommand(): array {
-    return [
-      // -----------------------------------------------------------------------
-      // Requirements check scenarios.
-      // -----------------------------------------------------------------------
-      'Build runs requirements check by default, success' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+  public static function dataProviderBuildCommand(): \Iterator {
+    // -----------------------------------------------------------------------
+    // Requirements check scenarios.
+    // -----------------------------------------------------------------------
+    yield 'Build runs requirements check by default, success' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
             TuiOutput::BUILD_BUILDING_SITE,
@@ -176,15 +166,14 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::BUILD_EXPORT_DATABASE,
           ]),
-        ),
-        'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-      ],
-
-      'Requirements check fails - one missing, Docker' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      ),
+      'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+    ];
+    yield 'Requirements check fails - one missing, Docker' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
@@ -193,16 +182,15 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
-        ),
-        'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'requirements_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
-      ],
-
-      'Requirements check fails - all missing' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      ),
+      'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'requirements_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
+    ];
+    yield 'Requirements check fails - all missing' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
@@ -211,19 +199,18 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
-        ),
-        'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
-        'requirements_finder_callback' => fn(string $name): ?string => NULL,
-      ],
-
-      // -----------------------------------------------------------------------
-      // Basic build scenarios.
-      // -----------------------------------------------------------------------
-      'Build with skip requirements check, success' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+      'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
+      'requirements_finder_callback' => fn(string $name): ?string => NULL,
+    ];
+    // -----------------------------------------------------------------------
+    // Basic build scenarios.
+    // -----------------------------------------------------------------------
+    yield 'Build with skip requirements check, success' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
@@ -232,21 +219,20 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
             TuiOutput::BUILD_EXPORT_DATABASE,
           ]),
-        ),
+      ),
 
+    ];
+    // -----------------------------------------------------------------------
+    // Profile flag scenarios.
+    // -----------------------------------------------------------------------
+    yield 'Build with profile flag and skip requirements, success' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [
+        '--profile' => TRUE,
+        '--skip-requirements-check' => TRUE,
       ],
-
-      // -----------------------------------------------------------------------
-      // Profile flag scenarios.
-      // -----------------------------------------------------------------------
-      'Build with profile flag and skip requirements, success' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [
-          '--profile' => TRUE,
-          '--skip-requirements-check' => TRUE,
-        ],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
@@ -255,48 +241,45 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
           ]),
-        ),
+      ),
 
+    ];
+    yield 'Build with profile flag and requirements check, success' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--profile' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => TuiOutput::present([
+        TuiOutput::BUILD_CHECKING_REQUIREMENTS,
+        TuiOutput::BUILD_BUILDING_SITE,
+        TuiOutput::BUILD_BUILD_COMPLETED,
+        TuiOutput::BUILD_EXPORT_DATABASE,
+      ]),
+      'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+    ];
+    yield 'Build with profile shows export database step' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [
+        '--profile' => TRUE,
+        '--skip-requirements-check' => TRUE,
       ],
-
-      'Build with profile flag and requirements check, success' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--profile' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => TuiOutput::present([
-          TuiOutput::BUILD_CHECKING_REQUIREMENTS,
+      'expect_failure' => FALSE,
+      'output_assertions' => [
+        ...TuiOutput::present([
           TuiOutput::BUILD_BUILDING_SITE,
           TuiOutput::BUILD_BUILD_COMPLETED,
-          TuiOutput::BUILD_EXPORT_DATABASE,
         ]),
-        'requirements_exit_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+        '* ' . TuiOutput::BUILD_EXPORT_DATABASE . ' ahoy export-db',
       ],
 
-      'Build with profile shows export database step' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [
-          '--profile' => TRUE,
-          '--skip-requirements-check' => TRUE,
-        ],
-        'expect_failure' => FALSE,
-        'output_assertions' => [
-          ...TuiOutput::present([
-            TuiOutput::BUILD_BUILDING_SITE,
-            TuiOutput::BUILD_BUILD_COMPLETED,
-          ]),
-          '* ' . TuiOutput::BUILD_EXPORT_DATABASE . ' ahoy export-db',
-        ],
-
-      ],
-
-      // -----------------------------------------------------------------------
-      // Build failure scenarios.
-      // -----------------------------------------------------------------------
-      'Build failure, ahoy build fails, exit code 1' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+    ];
+    // -----------------------------------------------------------------------
+    // Build failure scenarios.
+    // -----------------------------------------------------------------------
+    yield 'Build failure, ahoy build fails, exit code 1' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_FAILED,
@@ -305,18 +288,17 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
-        ),
+      ),
 
+    ];
+    yield 'Build failure with profile, ahoy build fails, exit code 1' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
+      'command_inputs' => [
+        '--profile' => TRUE,
+        '--skip-requirements-check' => TRUE,
       ],
-
-      'Build failure with profile, ahoy build fails, exit code 1' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
-        'command_inputs' => [
-          '--profile' => TRUE,
-          '--skip-requirements-check' => TRUE,
-        ],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_FAILED,
@@ -326,15 +308,14 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_BUILD_COMPLETED,
             TuiOutput::BUILD_EXPORT_DATABASE,
           ]),
-        ),
+      ),
 
-      ],
-
-      'Build failure, ahoy build fails, exit code 2' => [
-        'exit_code_callback' => fn(string $current_command): int => 2,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+    ];
+    yield 'Build failure, ahoy build fails, exit code 2' => [
+      'exit_code_callback' => fn(string $current_command): int => 2,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_FAILED,
@@ -343,15 +324,14 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
-        ),
+      ),
 
-      ],
-
-      'Build failure, ahoy build fails, exit code 127' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+    ];
+    yield 'Build failure, ahoy build fails, exit code 127' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_FAILED,
@@ -360,46 +340,43 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
-        ),
+      ),
 
-      ],
-
-      'Build failure shows log file path' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+    ];
+    yield 'Build failure shows log file path' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_FAILURE,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_FAILED,
           ]),
           ['* ' . TuiOutput::INSTALL_LOG_FILE . '   /tmp/mock.log'],
-        ),
+      ),
 
-      ],
-
-      // -----------------------------------------------------------------------
-      // Success output verification scenarios.
-      // -----------------------------------------------------------------------
-      'Build success shows log file path' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+    ];
+    // -----------------------------------------------------------------------
+    // Success output verification scenarios.
+    // -----------------------------------------------------------------------
+    yield 'Build success shows log file path' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
           ]),
           ['* ' . TuiOutput::INSTALL_LOG_FILE . ' /tmp/mock.log'],
-        ),
+      ),
 
-      ],
-
-      'Build success shows site URL from docker compose' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+    ];
+    yield 'Build success shows site URL from docker compose' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
@@ -411,17 +388,16 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             'your_site.docker.amazee.io',
           ]),
-        ),
-        'requirements_exit_callback' => NULL,
-        'requirements_finder_callback' => NULL,
-        'docker_compose_url' => 'my-custom-project.docker.amazee.io',
-      ],
-
-      'Build success hides site URL when docker compose fails' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+      'requirements_exit_callback' => NULL,
+      'requirements_finder_callback' => NULL,
+      'docker_compose_url' => 'my-custom-project.docker.amazee.io',
+    ];
+    yield 'Build success hides site URL when docker compose fails' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_BUILDING_SITE,
             TuiOutput::BUILD_BUILD_COMPLETED,
@@ -431,70 +407,65 @@ class BuildCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::BUILD_SITE_URL,
           ]),
-        ),
-        'requirements_exit_callback' => NULL,
-        'requirements_finder_callback' => NULL,
-        'docker_compose_url' => NULL,
-      ],
+      ),
+      'requirements_exit_callback' => NULL,
+      'requirements_finder_callback' => NULL,
+      'docker_compose_url' => NULL,
+    ];
+    yield 'Build success shows next steps' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => TuiOutput::present([
+        TuiOutput::BUILD_BUILDING_SITE,
+        TuiOutput::BUILD_BUILD_COMPLETED,
+        TuiOutput::INSTALL_NEXT_STEPS,
+        TuiOutput::BUILD_REVIEW_DOCS,
+      ]),
 
-      'Build success shows next steps' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => TuiOutput::present([
-          TuiOutput::BUILD_BUILDING_SITE,
-          TuiOutput::BUILD_BUILD_COMPLETED,
-          TuiOutput::INSTALL_NEXT_STEPS,
-          TuiOutput::BUILD_REVIEW_DOCS,
-        ]),
-
-      ],
-
-      'Valid destination directory' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => TuiOutput::present([TuiOutput::BUILD_BUILD_COMPLETED]),
-        'requirements_exit_callback' => NULL,
-        'requirements_finder_callback' => NULL,
-        'docker_compose_url' => NULL,
-        'before' => function (array $inputs, string $tmp): array {
+    ];
+    yield 'Valid destination directory' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => TuiOutput::present([TuiOutput::BUILD_BUILD_COMPLETED]),
+      'requirements_exit_callback' => NULL,
+      'requirements_finder_callback' => NULL,
+      'docker_compose_url' => NULL,
+      'before' => function (array $inputs, string $tmp): array {
           $dir = $tmp . '/valid_dest_' . uniqid();
           File::mkdir($dir);
           $inputs['--destination'] = $dir;
           return $inputs;
-        },
-      ],
-
-      'Destination is file instead of directory' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => TRUE,
-        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
-        'requirements_exit_callback' => NULL,
-        'requirements_finder_callback' => NULL,
-        'docker_compose_url' => NULL,
-        'before' => function (array $inputs, string $tmp): array {
+      },
+    ];
+    yield 'Destination is file instead of directory' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => TRUE,
+      'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+      'requirements_exit_callback' => NULL,
+      'requirements_finder_callback' => NULL,
+      'docker_compose_url' => NULL,
+      'before' => function (array $inputs, string $tmp): array {
           $file = $tmp . '/test_file_' . uniqid() . '.txt';
           File::dump($file, 'test content');
           $inputs['--destination'] = $file;
           return $inputs;
-        },
-      ],
-
-      'Destination directory does not exist' => [
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--skip-requirements-check' => TRUE],
-        'expect_failure' => TRUE,
-        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
-        'requirements_exit_callback' => NULL,
-        'requirements_finder_callback' => NULL,
-        'docker_compose_url' => NULL,
-        'before' => function (array $inputs, string $tmp): array {
+      },
+    ];
+    yield 'Destination directory does not exist' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => TRUE,
+      'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+      'requirements_exit_callback' => NULL,
+      'requirements_finder_callback' => NULL,
+      'docker_compose_url' => NULL,
+      'before' => function (array $inputs, string $tmp): array {
           $inputs['--destination'] = $tmp . '/non_existent_' . uniqid();
           return $inputs;
-        },
-      ],
+      },
     ];
   }
 

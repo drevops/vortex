@@ -79,23 +79,15 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testCheckRequirementsCommand.
    *
-   * @return array<string, array{
-   *   executable_finder_callback: \Closure,
-   *   exit_code_callback: \Closure,
-   *   command_inputs: array<string, mixed>,
-   *   expect_failure: bool,
-   *   output_assertions: array<string>,
-   *   before?: ?\Closure
-   *   }>
+   * @return \Iterator<string, array{executable_finder_callback: \Closure, exit_code_callback: \Closure, command_inputs: array<string, mixed>, expect_failure: bool, output_assertions: array<string>, before?: (\Closure | null)}>
    */
-  public static function dataProviderCheckRequirementsCommand(): array {
-    return [
-      'Check all requirements' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+  public static function dataProviderCheckRequirementsCommand(): \Iterator {
+    yield 'Check all requirements' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
@@ -106,15 +98,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             '* Ahoy: version 1.0.0',
             '* Pygmy: version 1.0.0',
           ],
-        ),
-      ],
-
-      'All requirements missing' => [
-        'executable_finder_callback' => fn(string $name): ?string => NULL,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
-        'command_inputs' => [],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'All requirements missing' => [
+      'executable_finder_callback' => fn(string $name): ?string => NULL,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND,
+      'command_inputs' => [],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
@@ -129,30 +120,28 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
           ]),
-        ),
-      ],
-
-      'Check only Docker' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'docker'],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Check only Docker' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'docker'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
           ]),
           ['* Docker: version 1.0.0'],
           ['! Ahoy:', '! Pygmy:'],
-        ),
-      ],
-
-      'Check only Docker and Ahoy' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'docker,ahoy'],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Check only Docker and Ahoy' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'docker,ahoy'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
@@ -162,15 +151,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             '* Ahoy: version 1.0.0',
           ],
           ['! Pygmy:'],
-        ),
-      ],
-
-      'Check with no-summary option' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--no-summary' => TRUE],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Check with no-summary option' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--no-summary' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
           ]),
@@ -178,15 +166,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
           ]),
-        ),
-      ],
-
-      'Docker missing' => [
-        'executable_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'docker'],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Docker missing' => [
+      'executable_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'docker'],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
@@ -196,15 +183,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_DOCKER_AVAILABLE,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
           ]),
-        ),
-      ],
-
-      'Ahoy missing' => [
-        'executable_finder_callback' => fn(string $name): ?string => $name === 'ahoy' ? NULL : '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'ahoy'],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Ahoy missing' => [
+      'executable_finder_callback' => fn(string $name): ?string => $name === 'ahoy' ? NULL : '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'ahoy'],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
@@ -214,15 +200,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_AHOY_AVAILABLE,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
           ]),
-        ),
-      ],
-
-      'Pygmy command not found' => [
-        'executable_finder_callback' => fn(string $name): ?string => $name === 'pygmy' ? NULL : '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'pygmy'],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Pygmy command not found' => [
+      'executable_finder_callback' => fn(string $name): ?string => $name === 'pygmy' ? NULL : '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'pygmy'],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
@@ -232,15 +217,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_PYGMY_RUNNING,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
           ]),
-        ),
-      ],
-
-      'Pygmy status command succeeds' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'pygmy'],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Pygmy status command succeeds' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'pygmy'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
@@ -249,21 +233,20 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
           ]),
-        ),
-      ],
-
-      'Pygmy status fails but amazeeio containers found' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => function (string $current_command): int {
+      ),
+    ];
+    yield 'Pygmy status fails but amazeeio containers found' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => function (string $current_command): int {
           // Pygmy status fails.
-          if (str_contains($current_command, 'pygmy status')) {
-            return RunnerInterface::EXIT_FAILURE;
-          }
+        if (str_contains($current_command, 'pygmy status')) {
+          return RunnerInterface::EXIT_FAILURE;
+        }
           return RunnerInterface::EXIT_SUCCESS;
-        },
-        'command_inputs' => ['--only' => 'pygmy'],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      },
+      'command_inputs' => ['--only' => 'pygmy'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
@@ -272,25 +255,24 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
           ]),
-        ),
-      ],
-
-      'Pygmy status fails and no amazeeio containers' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => function (string $current_command): int {
+      ),
+    ];
+    yield 'Pygmy status fails and no amazeeio containers' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => function (string $current_command): int {
           // Pygmy status fails.
-          if (str_contains($current_command, 'pygmy status')) {
-            return RunnerInterface::EXIT_FAILURE;
-          }
+        if (str_contains($current_command, 'pygmy status')) {
+          return RunnerInterface::EXIT_FAILURE;
+        }
           // No amazeeio containers.
-          if (str_contains($current_command, 'docker ps') && str_contains($current_command, 'amazeeio')) {
-            return RunnerInterface::EXIT_FAILURE;
-          }
+        if (str_contains($current_command, 'docker ps') && str_contains($current_command, 'amazeeio')) {
+          return RunnerInterface::EXIT_FAILURE;
+        }
           return RunnerInterface::EXIT_SUCCESS;
-        },
-        'command_inputs' => ['--only' => 'pygmy'],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      },
+      'command_inputs' => ['--only' => 'pygmy'],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
@@ -300,15 +282,14 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_PYGMY_RUNNING,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
           ]),
-        ),
-      ],
-
-      'Docker Compose via modern syntax' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'docker-compose'],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      ),
+    ];
+    yield 'Docker Compose via modern syntax' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'docker-compose'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
@@ -317,21 +298,20 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
           ]),
-        ),
-      ],
-
-      'Docker Compose via legacy command' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => function (string $current_command): int {
+      ),
+    ];
+    yield 'Docker Compose via legacy command' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => function (string $current_command): int {
           // Modern syntax fails.
-          if (str_contains($current_command, 'docker compose version')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
-          }
+        if (str_contains($current_command, 'docker compose version')) {
+          return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+        }
           return RunnerInterface::EXIT_SUCCESS;
-        },
-        'command_inputs' => ['--only' => 'docker-compose'],
-        'expect_failure' => FALSE,
-        'output_assertions' => array_merge(
+      },
+      'command_inputs' => ['--only' => 'docker-compose'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
@@ -340,21 +320,20 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
           TuiOutput::absent([
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
           ]),
-        ),
-      ],
-
-      'Docker Compose missing completely' => [
-        'executable_finder_callback' => fn(string $name): ?string => $name === 'docker-compose' ? NULL : '/usr/bin/' . $name,
-        'exit_code_callback' => function (string $current_command): int {
+      ),
+    ];
+    yield 'Docker Compose missing completely' => [
+      'executable_finder_callback' => fn(string $name): ?string => $name === 'docker-compose' ? NULL : '/usr/bin/' . $name,
+      'exit_code_callback' => function (string $current_command): int {
           // Modern docker compose command fails.
-          if (str_contains($current_command, 'docker compose version')) {
-            return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
-          }
+        if (str_contains($current_command, 'docker compose version')) {
+          return RunnerInterface::EXIT_COMMAND_NOT_FOUND;
+        }
           return RunnerInterface::EXIT_SUCCESS;
-        },
-        'command_inputs' => ['--only' => 'docker-compose'],
-        'expect_failure' => TRUE,
-        'output_assertions' => array_merge(
+      },
+      'command_inputs' => ['--only' => 'docker-compose'],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::CHECK_REQUIREMENTS_MISSING,
             TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
@@ -364,70 +343,64 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             TuiOutput::CHECK_REQUIREMENTS_DOCKER_COMPOSE_AVAILABLE,
             TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
           ]),
-        ),
+      ),
+    ];
+    yield 'Invalid requirement name' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'invalid'],
+      'expect_failure' => TRUE,
+      'output_assertions' => [
+        '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
+        '* Available: docker, docker-compose, ahoy',
       ],
-
-      'Invalid requirement name' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'invalid'],
-        'expect_failure' => TRUE,
-        'output_assertions' => [
-          '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
-          '* Available: docker, docker-compose, ahoy',
-        ],
+    ];
+    yield 'Mixed valid and invalid requirements' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'docker,invalid'],
+      'expect_failure' => TRUE,
+      'output_assertions' => [
+        '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
+        '* Available: docker, docker-compose, ahoy',
       ],
-
-      'Mixed valid and invalid requirements' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => ['--only' => 'docker,invalid'],
-        'expect_failure' => TRUE,
-        'output_assertions' => [
-          '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
-          '* Available: docker, docker-compose, ahoy',
-        ],
-      ],
-
-      'Valid destination directory' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => FALSE,
-        'output_assertions' => TuiOutput::present([TuiOutput::CHECK_REQUIREMENTS_ALL_MET]),
-        'before' => function (array $inputs, string $tmp): array {
+    ];
+    yield 'Valid destination directory' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => FALSE,
+      'output_assertions' => TuiOutput::present([TuiOutput::CHECK_REQUIREMENTS_ALL_MET]),
+      'before' => function (array $inputs, string $tmp): array {
           $dir = $tmp . '/valid_dest_' . uniqid();
           File::mkdir($dir);
           $inputs['--destination'] = $dir;
           return $inputs;
-        },
-      ],
-
-      'Destination is file instead of directory' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => TRUE,
-        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
-        'before' => function (array $inputs, string $tmp): array {
+      },
+    ];
+    yield 'Destination is file instead of directory' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => TRUE,
+      'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+      'before' => function (array $inputs, string $tmp): array {
           $file = $tmp . '/test_file_' . uniqid() . '.txt';
           File::dump($file, 'test content');
           $inputs['--destination'] = $file;
           return $inputs;
-        },
-      ],
-
-      'Destination directory does not exist' => [
-        'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
-        'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
-        'command_inputs' => [],
-        'expect_failure' => TRUE,
-        'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
-        'before' => function (array $inputs, string $tmp): array {
+      },
+    ];
+    yield 'Destination directory does not exist' => [
+      'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => [],
+      'expect_failure' => TRUE,
+      'output_assertions' => TuiOutput::present([TuiOutput::DESTINATION_NOT_EXIST]),
+      'before' => function (array $inputs, string $tmp): array {
           $inputs['--destination'] = $tmp . '/non_existent_' . uniqid();
           return $inputs;
-        },
-      ],
+      },
     ];
   }
 

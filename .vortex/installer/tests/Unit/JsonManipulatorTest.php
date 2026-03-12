@@ -111,40 +111,34 @@ class JsonManipulatorTest extends UnitTestCase {
     $this->assertSame($expected, $result);
   }
 
-  public static function dataProviderGetProperty(): array {
-    return [
-      // Top-level properties.
-      'name property' => ['name', 'test/package'],
-      'description property' => ['description', 'A test package'],
-      'version property' => ['version', '1.0.0'],
-
-      // Nested object properties.
-      'require.php' => ['require.php', '^8.1'],
-      'require.symfony/console' => ['require.symfony/console', '^6.0'],
-      'require-dev.phpunit/phpunit' => ['require-dev.phpunit/phpunit', '^9.0'],
-      'autoload.psr-4.Test\\' => ['autoload.psr-4.Test\\', 'src/'],
-      'scripts.test' => ['scripts.test', 'phpunit'],
-
-      // Entire objects.
-      'require object' => [
-        'require',
+  public static function dataProviderGetProperty(): \Iterator {
+    // Top-level properties.
+    yield 'name property' => ['name', 'test/package'];
+    yield 'description property' => ['description', 'A test package'];
+    yield 'version property' => ['version', '1.0.0'];
+    // Nested object properties.
+    yield 'require.php' => ['require.php', '^8.1'];
+    yield 'require.symfony/console' => ['require.symfony/console', '^6.0'];
+    yield 'require-dev.phpunit/phpunit' => ['require-dev.phpunit/phpunit', '^9.0'];
+    yield 'autoload.psr-4.Test\\' => ['autoload.psr-4.Test\\', 'src/'];
+    yield 'scripts.test' => ['scripts.test', 'phpunit'];
+    // Entire objects.
+    yield 'require object' => [
+      'require',
         ['php' => '^8.1', 'symfony/console' => '^6.0'],
-      ],
-      'autoload.psr-4 object' => [
-        'autoload.psr-4',
-        ['Test\\' => 'src/'],
-      ],
-
-      // Non-existent properties.
-      'nonexistent top-level' => ['nonexistent', NULL],
-      'nonexistent nested' => ['require.nonexistent', NULL],
-      'nonexistent deep nested' => ['require.nested.deep', NULL],
-      'empty property name' => ['', NULL],
-
-      // Edge cases with dots.
-      'property with trailing dot' => ['require.', NULL],
-      'property with multiple dots' => ['require..php', NULL],
     ];
+    yield 'autoload.psr-4 object' => [
+      'autoload.psr-4',
+        ['Test\\' => 'src/'],
+    ];
+    // Non-existent properties.
+    yield 'nonexistent top-level' => ['nonexistent', NULL];
+    yield 'nonexistent nested' => ['require.nonexistent', NULL];
+    yield 'nonexistent deep nested' => ['require.nested.deep', NULL];
+    yield 'empty property name' => ['', NULL];
+    // Edge cases with dots.
+    yield 'property with trailing dot' => ['require.', NULL];
+    yield 'property with multiple dots' => ['require..php', NULL];
   }
 
   public function testGetPropertyWithInvalidJson(): void {

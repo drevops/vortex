@@ -233,157 +233,147 @@ class FileLoggerTest extends UnitTestCase {
   /**
    * Data provider for enable/disable tests.
    */
-  public static function dataProviderEnableDisable(): array {
-    return [
-      'initially enabled' => [
-        'initial_state' => TRUE,
-        'after_enable' => TRUE,
-        'after_disable' => FALSE,
-      ],
-      'initially disabled' => [
-        'initial_state' => FALSE,
-        'after_enable' => TRUE,
-        'after_disable' => FALSE,
-      ],
+  public static function dataProviderEnableDisable(): \Iterator {
+    yield 'initially enabled' => [
+      'initial_state' => TRUE,
+      'after_enable' => TRUE,
+      'after_disable' => FALSE,
+    ];
+    yield 'initially disabled' => [
+      'initial_state' => FALSE,
+      'after_enable' => TRUE,
+      'after_disable' => FALSE,
     ];
   }
 
   /**
    * Data provider for directory paths.
    */
-  public static function dataProviderDirectoryManagement(): array {
-    return [
-      'default directory (cwd)' => [
-        'dir' => '',
-        'test_default' => TRUE,
-      ],
-      'absolute path' => [
-        'dir' => '/tmp/test-dir',
-        'test_default' => FALSE,
-      ],
-      'relative path' => [
-        'dir' => './test-dir',
-        'test_default' => FALSE,
-      ],
+  public static function dataProviderDirectoryManagement(): \Iterator {
+    yield 'default directory (cwd)' => [
+      'dir' => '',
+      'test_default' => TRUE,
+    ];
+    yield 'absolute path' => [
+      'dir' => '/tmp/test-dir',
+      'test_default' => FALSE,
+    ];
+    yield 'relative path' => [
+      'dir' => './test-dir',
+      'test_default' => FALSE,
     ];
   }
 
   /**
    * Data provider for open scenarios.
    */
-  public static function dataProviderOpen(): array {
-    return [
-      'simple command, enabled' => [
-        'command' => 'test-command',
-        'args' => [],
-        'enabled' => TRUE,
-        'expected_pattern' => '/test-command-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with positional args' => [
-        'command' => 'install',
-        'args' => ['project', 'arg2'],
-        'enabled' => TRUE,
-        'expected_pattern' => '/install-project-arg2-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with option args (filtered)' => [
-        'command' => 'test',
-        'args' => ['positional', '--option=value', '-f'],
-        'enabled' => TRUE,
-        'expected_pattern' => '/test-positional-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with special characters' => [
-        'command' => 'test:command',
-        'args' => ['arg/with/slashes', 'arg with spaces'],
-        'enabled' => TRUE,
-        'expected_pattern' => '/test-command-arg-with-slashes-arg-with-spaces-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'disabled logger' => [
-        'command' => 'test-disabled',
-        'args' => [],
-        'enabled' => FALSE,
-        'expected_pattern' => NULL,
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
+  public static function dataProviderOpen(): \Iterator {
+    yield 'simple command, enabled' => [
+      'command' => 'test-command',
+      'args' => [],
+      'enabled' => TRUE,
+      'expected_pattern' => '/test-command-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with positional args' => [
+      'command' => 'install',
+      'args' => ['project', 'arg2'],
+      'enabled' => TRUE,
+      'expected_pattern' => '/install-project-arg2-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option args (filtered)' => [
+      'command' => 'test',
+      'args' => ['positional', '--option=value', '-f'],
+      'enabled' => TRUE,
+      'expected_pattern' => '/test-positional-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with special characters' => [
+      'command' => 'test:command',
+      'args' => ['arg/with/slashes', 'arg with spaces'],
+      'enabled' => TRUE,
+      'expected_pattern' => '/test-command-arg-with-slashes-arg-with-spaces-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'disabled logger' => [
+      'command' => 'test-disabled',
+      'args' => [],
+      'enabled' => FALSE,
+      'expected_pattern' => NULL,
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
   }
 
   /**
    * Data provider for write content.
    */
-  public static function dataProviderWrite(): array {
-    return [
-      'single write, logger open' => [
-        'content' => 'Test log entry',
-        'is_open' => TRUE,
-        'expected_writes' => 1,
-      ],
-      'multiple writes, logger open' => [
-        'content' => 'Line of text',
-        'is_open' => TRUE,
-        'expected_writes' => 3,
-      ],
-      'empty content, logger open' => [
-        'content' => '',
-        'is_open' => TRUE,
-        'expected_writes' => 1,
-      ],
-      'multiline content, logger open' => [
-        'content' => "Line 1\nLine 2\nLine 3\n",
-        'is_open' => TRUE,
-        'expected_writes' => 1,
-      ],
-      'write when logger not open (no-op)' => [
-        'content' => 'Should not be written',
-        'is_open' => FALSE,
-        'expected_writes' => 1,
-      ],
+  public static function dataProviderWrite(): \Iterator {
+    yield 'single write, logger open' => [
+      'content' => 'Test log entry',
+      'is_open' => TRUE,
+      'expected_writes' => 1,
+    ];
+    yield 'multiple writes, logger open' => [
+      'content' => 'Line of text',
+      'is_open' => TRUE,
+      'expected_writes' => 3,
+    ];
+    yield 'empty content, logger open' => [
+      'content' => '',
+      'is_open' => TRUE,
+      'expected_writes' => 1,
+    ];
+    yield 'multiline content, logger open' => [
+      'content' => "Line 1\nLine 2\nLine 3\n",
+      'is_open' => TRUE,
+      'expected_writes' => 1,
+    ];
+    yield 'write when logger not open (no-op)' => [
+      'content' => 'Should not be written',
+      'is_open' => FALSE,
+      'expected_writes' => 1,
     ];
   }
 
   /**
    * Data provider for filename building.
    */
-  public static function dataProviderBuildFilename(): array {
-    return [
-      'command only' => [
-        'command' => 'test-command',
-        'args' => [],
-        'expected' => 'test-command',
-      ],
-      'command with positional args' => [
-        'command' => 'install',
-        'args' => ['project', 'theme'],
-        'expected' => 'install-project-theme',
-      ],
-      'command with options (filtered)' => [
-        'command' => 'run',
-        'args' => ['script', '--verbose', '-f', 'value'],
-        'expected' => 'run-script-value',
-      ],
-      'special characters sanitized' => [
-        'command' => 'test/command:name',
-        'args' => ['arg@with#special', 'arg with spaces'],
-        'expected' => 'test-command-name-arg-with-special-arg-with-spaces',
-      ],
-      'multiple consecutive hyphens collapsed' => [
-        'command' => 'test---command',
-        'args' => ['arg***value'],
-        'expected' => 'test-command-arg-value',
-      ],
-      'empty result fallback' => [
-        'command' => '---',
-        'args' => ['--option', '-f'],
-        'expected' => 'runner',
-      ],
+  public static function dataProviderBuildFilename(): \Iterator {
+    yield 'command only' => [
+      'command' => 'test-command',
+      'args' => [],
+      'expected' => 'test-command',
+    ];
+    yield 'command with positional args' => [
+      'command' => 'install',
+      'args' => ['project', 'theme'],
+      'expected' => 'install-project-theme',
+    ];
+    yield 'command with options (filtered)' => [
+      'command' => 'run',
+      'args' => ['script', '--verbose', '-f', 'value'],
+      'expected' => 'run-script-value',
+    ];
+    yield 'special characters sanitized' => [
+      'command' => 'test/command:name',
+      'args' => ['arg@with#special', 'arg with spaces'],
+      'expected' => 'test-command-name-arg-with-special-arg-with-spaces',
+    ];
+    yield 'multiple consecutive hyphens collapsed' => [
+      'command' => 'test---command',
+      'args' => ['arg***value'],
+      'expected' => 'test-command-arg-value',
+    ];
+    yield 'empty result fallback' => [
+      'command' => '---',
+      'args' => ['--option', '-f'],
+      'expected' => 'runner',
     ];
   }
 

@@ -42,82 +42,72 @@ class TaskTest extends UnitTestCase {
   /**
    * Data provider for testAction.
    */
-  public static function dataProviderAction(): array {
-    return [
-
-      'successful action with string label and no messages' => [
-        'label' => 'Processing default messages',
-        'action' => fn(): null => NULL,
-        'hint' => NULL,
-        'success' => NULL,
-        'failure' => NULL,
-        'expected_output' => '✓ OK',
+  public static function dataProviderAction(): \Iterator {
+    yield 'successful action with string label and no messages' => [
+      'label' => 'Processing default messages',
+      'action' => fn(): null => NULL,
+      'hint' => NULL,
+      'success' => NULL,
+      'failure' => NULL,
+      'expected_output' => '✓ OK',
+    ];
+    yield 'successful action with string messages' => [
+      'label' => 'Processing task',
+      'action' => fn(): null => NULL,
+      'hint' => 'This is a hint',
+      'success' => 'Completed successfully',
+      'failure' => 'Failed',
+      'expected_output' => [
+        '✓ Completed successfully',
+        'This is a hint',
       ],
-
-      'successful action with string messages' => [
-        'label' => 'Processing task',
-        'action' => fn(): null => NULL,
-        'hint' => 'This is a hint',
-        'success' => 'Completed successfully',
-        'failure' => 'Failed',
-        'expected_output' => [
-          '✓ Completed successfully',
-          'This is a hint',
-        ],
+    ];
+    yield 'successful action with string label and TRUE value' => [
+      'label' => 'Processing task',
+      'action' => fn(): true => TRUE,
+      'hint' => 'This is a hint',
+      'success' => 'Completed successfully',
+      'failure' => 'Failed',
+      'expected_output' => '✓ Completed successfully',
+    ];
+    yield 'successful action with closures' => [
+      'label' => fn(): string => 'Dynamic label',
+      'action' => fn(): string => 'Done',
+      'hint' => fn(): string => 'Processing dynamically',
+      'success' => fn($result): string => 'Success: ' . $result,
+      'failure' => 'Failed',
+      'expected_output' => [
+        '✓ Success: Done',
+        'Processing dynamically',
       ],
-
-      'successful action with string label and TRUE value' => [
-        'label' => 'Processing task',
-        'action' => fn(): true => TRUE,
-        'hint' => 'This is a hint',
-        'success' => 'Completed successfully',
-        'failure' => 'Failed',
-        'expected_output' => '✓ Completed successfully',
+    ];
+    yield 'successful action returning array' => [
+      'label' => 'Processing array',
+      'action' => fn(): array => ['item1', 'item2'],
+      'hint' => NULL,
+      'success' => 'Processed items',
+      'failure' => 'Processing failed',
+      'expected_output' => [
+        '✓ Processed items',
+        'item1',
+        'item2',
       ],
-
-      'successful action with closures' => [
-        'label' => fn(): string => 'Dynamic label',
-        'action' => fn(): string => 'Done',
-        'hint' => fn(): string => 'Processing dynamically',
-        'success' => fn($result): string => 'Success: ' . $result,
-        'failure' => 'Failed',
-        'expected_output' => [
-          '✓ Success: Done',
-          'Processing dynamically',
-        ],
-      ],
-
-      'successful action returning array' => [
-        'label' => 'Processing array',
-        'action' => fn(): array => ['item1', 'item2'],
-        'hint' => NULL,
-        'success' => 'Processed items',
-        'failure' => 'Processing failed',
-        'expected_output' => [
-          '✓ Processed items',
-          'item1',
-          'item2',
-        ],
-      ],
-
-      'failed action with string' => [
-        'label' => fn(): string => 'Dynamic label',
-        'action' => fn(): false => FALSE,
-        'hint' => fn(): string => 'Processing dynamically',
-        'success' => fn($result): string => 'Success: ' . $result,
-        'failure' => 'Failed',
-        'expected_output' => 'Failed',
-      ],
-
-      'failed action with closure' => [
-        'label' => fn(): string => 'Dynamic label',
-        'action' => fn(): false => FALSE,
-        'hint' => fn(): string => 'Processing dynamically',
-        'success' => fn($result): string => 'Success: ' . $result,
-        'failure' => fn(): string => 'Failed dynamically',
-        'expected_output' => 'Failed dynamically',
-      ],
-
+    ];
+    yield 'failed action with string' => [
+      'label' => fn(): string => 'Dynamic label',
+      'action' => fn(): false => FALSE,
+      'hint' => fn(): string => 'Processing dynamically',
+      'success' => fn($result): string => 'Success: ' . $result,
+      'failure' => 'Failed',
+      'expected_output' => 'Failed',
+    ];
+    yield 'failed action with closure' => [
+      'label' => fn(): string => 'Dynamic label',
+      'action' => fn(): false => FALSE,
+      'hint' => fn(): string => 'Processing dynamically',
+      'success' => fn($result): string => 'Success: ' . $result,
+      'failure' => fn(): string => 'Failed dynamically',
+      'expected_output' => 'Failed dynamically',
     ];
   }
 

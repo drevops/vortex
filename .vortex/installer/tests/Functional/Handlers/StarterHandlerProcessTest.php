@@ -12,34 +12,30 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Starter::class)]
 class StarterHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'starter_demo_db' => [
-        static::cw(fn() => Env::put(Starter::envName(), Starter::LOAD_DATABASE_DEMO)),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
-          'drupal/cms',
-          'wikimedia/composer-merge-plugin',
-          'vendor/drupal/cms/composer.json',
-        ])),
-      ],
-
-      'starter_drupal_profile' => [
-        static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_CORE)),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
-          'drupal/cms',
-          'wikimedia/composer-merge-plugin',
-          'vendor/drupal/cms/composer.json',
-        ])),
-      ],
-
-      'starter_drupal_cms_profile' => [
-        static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_DRUPALCMS)),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutContains([
-          'drupal/cms',
-          'wikimedia/composer-merge-plugin',
-          'vendor/drupal/cms/composer.json',
-        ])),
-      ],
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'starter_demo_db' => [
+      static::cw(fn() => Env::put(Starter::envName(), Starter::LOAD_DATABASE_DEMO)),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+        'drupal/cms',
+        'wikimedia/composer-merge-plugin',
+        'vendor/drupal/cms/composer.json',
+      ])),
+    ];
+    yield 'starter_drupal_profile' => [
+      static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_CORE)),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+        'drupal/cms',
+        'wikimedia/composer-merge-plugin',
+        'vendor/drupal/cms/composer.json',
+      ])),
+    ];
+    yield 'starter_drupal_cms_profile' => [
+      static::cw(fn() => Env::put(Starter::envName(), Starter::INSTALL_PROFILE_DRUPALCMS)),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutContains([
+        'drupal/cms',
+        'wikimedia/composer-merge-plugin',
+        'vendor/drupal/cms/composer.json',
+      ])),
     ];
   }
 

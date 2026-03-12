@@ -12,26 +12,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(DependencyUpdatesProvider::class)]
 class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'deps_updates_provider_ci_gha' => [
-        static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI)),
-      ],
-
-      'deps_updates_provider_ci_circleci' => [
-        static::cw(function (): void {
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'deps_updates_provider_ci_gha' => [
+      static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI)),
+    ];
+    yield 'deps_updates_provider_ci_circleci' => [
+      static::cw(function (): void {
           Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI);
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
-        }),
-      ],
-
-      'deps_updates_provider_app' => [
-        static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_APP)),
-      ],
-
-      'deps_updates_provider_none' => [
-        static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::NONE)),
-      ],
+      }),
+    ];
+    yield 'deps_updates_provider_app' => [
+      static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_APP)),
+    ];
+    yield 'deps_updates_provider_none' => [
+      static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::NONE)),
     ];
   }
 

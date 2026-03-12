@@ -38,256 +38,254 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testing environment type detection.
    */
-  public static function dataProviderEnvironmentTypeDetection(): array {
-    return [
-      // By default, the default environment type is local.
-      [[], self::ENVIRONMENT_LOCAL],
+  public static function dataProviderEnvironmentTypeDetection(): \Iterator {
+    // By default, the default environment type is local.
+    yield [[], self::ENVIRONMENT_LOCAL];
 
-      // CI.
+    // CI.
+    yield [
       [
-        [
-          'CI' => 1,
-        ],
-        self::ENVIRONMENT_CI,
+        'CI' => 1,
       ],
-
-      // Container.
-      [
-        [
-          'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
-        ],
-        self::ENVIRONMENT_LOCAL,
-      ],
-
-      // #;< SETTINGS_PROVIDER_ACQUIA
-      // Acquia.
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => TRUE,
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => 'prod',
-        ],
-        self::ENVIRONMENT_PROD,
-      ],
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => 'stage',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => 'test',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => 'dev',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => 'ode1',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'AH_SITE_ENVIRONMENT' => 'nonode1',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      // phpcs:ignore #;> SETTINGS_PROVIDER_ACQUIA
-
-      // phpcs:ignore #;< SETTINGS_PROVIDER_LAGOON
-      // Lagoon.
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'production',
-        ],
-        self::ENVIRONMENT_PROD,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_GIT_BRANCH' => 'main',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'main',
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-        ],
-        self::ENVIRONMENT_PROD,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_GIT_BRANCH' => 'main',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'master',
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_GIT_BRANCH' => 'master',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_GIT_BRANCH' => 'master',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-          'LAGOON_ENVIRONMENT_TYPE' => 'production',
-        ],
-        self::ENVIRONMENT_PROD,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_GIT_BRANCH' => 'main',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_GIT_BRANCH' => 'main',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-          'LAGOON_ENVIRONMENT_TYPE' => 'production',
-        ],
-        self::ENVIRONMENT_PROD,
-      ],
-
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'release',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'release/1.2.3',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'hotfix',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
-        ],
-        self::ENVIRONMENT_STAGE,
-      ],
-
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => FALSE,
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => FALSE,
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'somebranch',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => FALSE,
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'somebranch',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => '',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => '',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-          'LAGOON_GIT_BRANCH' => 'mainbranch',
-          'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'mainbranch',
-        ],
-        self::ENVIRONMENT_PROD,
-      ],
-      [
-        [
-          'LAGOON_KUBERNETES' => 1,
-          'LAGOON_ENVIRONMENT_TYPE' => 'development',
-        ],
-        self::ENVIRONMENT_DEV,
-      ],
-      // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
+      self::ENVIRONMENT_CI,
     ];
+
+    // Container.
+    yield [
+      [
+        'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
+      ],
+      self::ENVIRONMENT_LOCAL,
+    ];
+
+    // #;< SETTINGS_PROVIDER_ACQUIA
+    // Acquia.
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => TRUE,
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => 'prod',
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => 'stage',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => 'test',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => 'dev',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => 'ode1',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'AH_SITE_ENVIRONMENT' => 'nonode1',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    // phpcs:ignore #;> SETTINGS_PROVIDER_ACQUIA
+
+    // phpcs:ignore #;< SETTINGS_PROVIDER_LAGOON
+    // Lagoon.
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'production',
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_GIT_BRANCH' => 'main',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'main',
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_GIT_BRANCH' => 'main',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'master',
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_GIT_BRANCH' => 'master',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_GIT_BRANCH' => 'master',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+        'LAGOON_ENVIRONMENT_TYPE' => 'production',
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_GIT_BRANCH' => 'main',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_GIT_BRANCH' => 'main',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+        'LAGOON_ENVIRONMENT_TYPE' => 'production',
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'release',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'release/1.2.3',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'hotfix',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'hotfix/1.2.3',
+      ],
+      self::ENVIRONMENT_STAGE,
+    ];
+
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => FALSE,
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => FALSE,
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'somebranch',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => FALSE,
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'somebranch',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => '',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => '',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+        'LAGOON_GIT_BRANCH' => 'mainbranch',
+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'mainbranch',
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+    yield [
+      [
+        'LAGOON_KUBERNETES' => 1,
+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
+      ],
+      self::ENVIRONMENT_DEV,
+    ];
+    // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
   }
 
   /**

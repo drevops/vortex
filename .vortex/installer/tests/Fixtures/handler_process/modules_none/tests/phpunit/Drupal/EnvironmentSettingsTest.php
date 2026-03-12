@@ -1,4 +1,4 @@
-@@ -72,14 +72,6 @@
+@@ -70,14 +70,6 @@
  
      $this->requireSettingsFile();
  
@@ -13,7 +13,7 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $this->assertConfig($config);
-@@ -146,14 +138,6 @@
+@@ -144,14 +136,6 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -28,7 +28,7 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
-@@ -192,20 +176,9 @@
+@@ -190,20 +174,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -49,7 +49,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -241,20 +214,9 @@
+@@ -239,20 +212,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -70,7 +70,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -292,20 +254,9 @@
+@@ -290,20 +252,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;

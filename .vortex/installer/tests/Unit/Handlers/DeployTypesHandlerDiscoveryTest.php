@@ -13,38 +13,32 @@ use Laravel\Prompts\Key;
 #[CoversClass(DeployTypes::class)]
 class DeployTypesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
-  public static function dataProviderRunPrompts(): array {
+  public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
-
-    return [
-      'deploy types - prompt' => [
-        [DeployTypes::id() => Key::ENTER],
-        [DeployTypes::id() => [DeployTypes::WEBHOOK]] + $expected_defaults,
-      ],
-
-      'deploy types - discovery' => [
-        [],
-        [DeployTypes::id() => [DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]] + $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]));
-        },
-      ],
-
-      'deploy types - discovery - order' => [
-        [],
-        [DeployTypes::id() => [DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]] + $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployTypes::WEBHOOK, DeployTypes::ARTIFACT]));
-        },
-      ],
-
-      'deploy types - discovery - invalid' => [
-        [],
-        $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test): void {
-          // No VORTEX_DEPLOY_TYPES in .env - should fall back to default.
-        },
-      ],
+    yield 'deploy types - prompt' => [
+      [DeployTypes::id() => Key::ENTER],
+      [DeployTypes::id() => [DeployTypes::WEBHOOK]] + $expected_defaults,
+    ];
+    yield 'deploy types - discovery' => [
+      [],
+      [DeployTypes::id() => [DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]] + $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]));
+      },
+    ];
+    yield 'deploy types - discovery - order' => [
+      [],
+      [DeployTypes::id() => [DeployTypes::ARTIFACT, DeployTypes::WEBHOOK]] + $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubDotenvValue('VORTEX_DEPLOY_TYPES', Converter::toList([DeployTypes::WEBHOOK, DeployTypes::ARTIFACT]));
+      },
+    ];
+    yield 'deploy types - discovery - invalid' => [
+      [],
+      $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test): void {
+        // No VORTEX_DEPLOY_TYPES in .env - should fall back to default.
+      },
     ];
   }
 

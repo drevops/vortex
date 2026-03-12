@@ -30,197 +30,196 @@ class DatabaseSettingsTest extends SettingsTestCase {
   /**
    * Data provider for resulting database settings.
    */
-  public static function dataProviderDatabases(): array {
-    return [
+  public static function dataProviderDatabases(): \Iterator {
+    yield [
+      [],
       [
-        [],
-        [
+        'default' => [
           'default' => [
-            'default' => [
-              'database' => 'drupal',
-              'username' => 'drupal',
-              'password' => 'drupal',
-              'host' => 'localhost',
-              'port' => '3306',
-              'charset' => 'utf8mb4',
-              'collation' => 'utf8mb4_general_ci',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
+            'database' => 'drupal',
+            'username' => 'drupal',
+            'password' => 'drupal',
+            'host' => 'localhost',
+            'port' => '3306',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+            'driver' => 'mysql',
+            'prefix' => '',
           ],
-          // phpcs:ignore #;< MIGRATION
-          'migrate' => [
-            'default' => [
-              'database' => 'drupal',
-              'username' => 'drupal',
-              'password' => 'drupal',
-              'host' => 'localhost',
-              'port' => '',
-              'prefix' => '',
-              'driver' => 'mysql',
-            ],
-          ],
-          // phpcs:ignore #;> MIGRATION
         ],
-      ],
-
-      [
-        [
-          'DATABASE_NAME' => 'database_db_name',
-          'DATABASE_USERNAME' => 'database_db_user',
-          'DATABASE_PASSWORD' => 'database_db_pass',
-          'DATABASE_HOST' => 'database_db_host',
-          'DATABASE_PORT' => 'database_db_port',
-          'DATABASE_CHARSET' => 'database_utf8',
-          'DATABASE_COLLATION' => 'database_utf8_unicode_ci',
-        ],
-        [
+        // phpcs:ignore #;< MIGRATION
+        'migrate' => [
           'default' => [
-            'default' => [
-              'database' => 'database_db_name',
-              'username' => 'database_db_user',
-              'password' => 'database_db_pass',
-              'host' => 'database_db_host',
-              'port' => 'database_db_port',
-              'charset' => 'database_utf8',
-              'collation' => 'database_utf8_unicode_ci',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
+            'database' => 'drupal',
+            'username' => 'drupal',
+            'password' => 'drupal',
+            'host' => 'localhost',
+            'port' => '',
+            'prefix' => '',
+            'driver' => 'mysql',
           ],
-          // phpcs:ignore #;< MIGRATION
-          'migrate' => [
-            'default' => [
-              'database' => 'drupal',
-              'username' => 'drupal',
-              'password' => 'drupal',
-              'host' => 'localhost',
-              'port' => '',
-              'prefix' => '',
-              'driver' => 'mysql',
-            ],
-          ],
-          // phpcs:ignore #;> MIGRATION
         ],
+        // phpcs:ignore #;> MIGRATION
       ],
-
-      [
-        [
-          'MARIADB_DATABASE' => 'mariadb_db_name',
-          'MARIADB_USERNAME' => 'mariadb_db_user',
-          'MARIADB_PASSWORD' => 'mariadb_db_pass',
-          'MARIADB_HOST' => 'mariadb_db_host',
-          'MARIADB_PORT' => 'mariadb_db_port',
-          'MARIADB_CHARSET' => 'mariadb_latin1',
-          'MARIADB_COLLATION' => 'mariadb_latin1_swedish_ci',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'mariadb_db_name',
-              'username' => 'mariadb_db_user',
-              'password' => 'mariadb_db_pass',
-              'host' => 'mariadb_db_host',
-              'port' => 'mariadb_db_port',
-              'charset' => 'mariadb_latin1',
-              'collation' => 'mariadb_latin1_swedish_ci',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-          // phpcs:ignore #;< MIGRATION
-          'migrate' => [
-            'default' => [
-              'database' => 'drupal',
-              'username' => 'drupal',
-              'password' => 'drupal',
-              'host' => 'localhost',
-              'port' => '',
-              'prefix' => '',
-              'driver' => 'mysql',
-            ],
-          ],
-          // phpcs:ignore #;> MIGRATION
-        ],
-      ],
-
-      [
-        [
-          'DATABASE_DATABASE' => 'database_db_name',
-          'DATABASE_USERNAME' => 'database_db_user',
-          'DATABASE_PASSWORD' => 'database_db_pass',
-          'DATABASE_HOST' => 'database_db_host',
-          'DATABASE_PORT' => 'database_db_port',
-          'MYSQL_CHARSET' => 'mysql_utf8mb3',
-          'MYSQL_COLLATION' => 'mysql_utf8mb3_bin',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'database_db_name',
-              'username' => 'database_db_user',
-              'password' => 'database_db_pass',
-              'host' => 'database_db_host',
-              'port' => 'database_db_port',
-              'charset' => 'mysql_utf8mb3',
-              'collation' => 'mysql_utf8mb3_bin',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-          // phpcs:ignore #;< MIGRATION
-          'migrate' => [
-            'default' => [
-              'database' => 'drupal',
-              'username' => 'drupal',
-              'password' => 'drupal',
-              'host' => 'localhost',
-              'port' => '',
-              'prefix' => '',
-              'driver' => 'mysql',
-            ],
-          ],
-          // phpcs:ignore #;> MIGRATION
-        ],
-      ],
-      // phpcs:ignore #;< MIGRATION
-      [
-        [
-          'DATABASE2_NAME' => 'migrate_db_name',
-          'DATABASE2_USERNAME' => 'migrate_db_user',
-          'DATABASE2_PASSWORD' => 'migrate_db_pass',
-          'DATABASE2_HOST' => 'migrate_db_host',
-          'DATABASE2_PORT' => '3307',
-        ],
-        [
-          'default' => [
-            'default' => [
-              'database' => 'drupal',
-              'username' => 'drupal',
-              'password' => 'drupal',
-              'host' => 'localhost',
-              'port' => '3306',
-              'charset' => 'utf8mb4',
-              'collation' => 'utf8mb4_general_ci',
-              'driver' => 'mysql',
-              'prefix' => '',
-            ],
-          ],
-          'migrate' => [
-            'default' => [
-              'database' => 'migrate_db_name',
-              'username' => 'migrate_db_user',
-              'password' => 'migrate_db_pass',
-              'host' => 'migrate_db_host',
-              'port' => '3307',
-              'prefix' => '',
-              'driver' => 'mysql',
-            ],
-          ],
-        ],
-      ],
-      // phpcs:ignore #;> MIGRATION
     ];
+
+    yield [
+      [
+        'DATABASE_NAME' => 'database_db_name',
+        'DATABASE_USERNAME' => 'database_db_user',
+        'DATABASE_PASSWORD' => 'database_db_pass',
+        'DATABASE_HOST' => 'database_db_host',
+        'DATABASE_PORT' => 'database_db_port',
+        'DATABASE_CHARSET' => 'database_utf8',
+        'DATABASE_COLLATION' => 'database_utf8_unicode_ci',
+      ],
+      [
+        'default' => [
+          'default' => [
+            'database' => 'database_db_name',
+            'username' => 'database_db_user',
+            'password' => 'database_db_pass',
+            'host' => 'database_db_host',
+            'port' => 'database_db_port',
+            'charset' => 'database_utf8',
+            'collation' => 'database_utf8_unicode_ci',
+            'driver' => 'mysql',
+            'prefix' => '',
+          ],
+        ],
+        // phpcs:ignore #;< MIGRATION
+        'migrate' => [
+          'default' => [
+            'database' => 'drupal',
+            'username' => 'drupal',
+            'password' => 'drupal',
+            'host' => 'localhost',
+            'port' => '',
+            'prefix' => '',
+            'driver' => 'mysql',
+          ],
+        ],
+        // phpcs:ignore #;> MIGRATION
+      ],
+    ];
+
+    yield [
+      [
+        'MARIADB_DATABASE' => 'mariadb_db_name',
+        'MARIADB_USERNAME' => 'mariadb_db_user',
+        'MARIADB_PASSWORD' => 'mariadb_db_pass',
+        'MARIADB_HOST' => 'mariadb_db_host',
+        'MARIADB_PORT' => 'mariadb_db_port',
+        'MARIADB_CHARSET' => 'mariadb_latin1',
+        'MARIADB_COLLATION' => 'mariadb_latin1_swedish_ci',
+      ],
+      [
+        'default' => [
+          'default' => [
+            'database' => 'mariadb_db_name',
+            'username' => 'mariadb_db_user',
+            'password' => 'mariadb_db_pass',
+            'host' => 'mariadb_db_host',
+            'port' => 'mariadb_db_port',
+            'charset' => 'mariadb_latin1',
+            'collation' => 'mariadb_latin1_swedish_ci',
+            'driver' => 'mysql',
+            'prefix' => '',
+          ],
+        ],
+        // phpcs:ignore #;< MIGRATION
+        'migrate' => [
+          'default' => [
+            'database' => 'drupal',
+            'username' => 'drupal',
+            'password' => 'drupal',
+            'host' => 'localhost',
+            'port' => '',
+            'prefix' => '',
+            'driver' => 'mysql',
+          ],
+        ],
+        // phpcs:ignore #;> MIGRATION
+      ],
+    ];
+
+    yield [
+      [
+        'DATABASE_DATABASE' => 'database_db_name',
+        'DATABASE_USERNAME' => 'database_db_user',
+        'DATABASE_PASSWORD' => 'database_db_pass',
+        'DATABASE_HOST' => 'database_db_host',
+        'DATABASE_PORT' => 'database_db_port',
+        'MYSQL_CHARSET' => 'mysql_utf8mb3',
+        'MYSQL_COLLATION' => 'mysql_utf8mb3_bin',
+      ],
+      [
+        'default' => [
+          'default' => [
+            'database' => 'database_db_name',
+            'username' => 'database_db_user',
+            'password' => 'database_db_pass',
+            'host' => 'database_db_host',
+            'port' => 'database_db_port',
+            'charset' => 'mysql_utf8mb3',
+            'collation' => 'mysql_utf8mb3_bin',
+            'driver' => 'mysql',
+            'prefix' => '',
+          ],
+        ],
+        // phpcs:ignore #;< MIGRATION
+        'migrate' => [
+          'default' => [
+            'database' => 'drupal',
+            'username' => 'drupal',
+            'password' => 'drupal',
+            'host' => 'localhost',
+            'port' => '',
+            'prefix' => '',
+            'driver' => 'mysql',
+          ],
+        ],
+        // phpcs:ignore #;> MIGRATION
+      ],
+    ];
+
+    // phpcs:ignore #;< MIGRATION
+    yield [
+      [
+        'DATABASE2_NAME' => 'migrate_db_name',
+        'DATABASE2_USERNAME' => 'migrate_db_user',
+        'DATABASE2_PASSWORD' => 'migrate_db_pass',
+        'DATABASE2_HOST' => 'migrate_db_host',
+        'DATABASE2_PORT' => '3307',
+      ],
+      [
+        'default' => [
+          'default' => [
+            'database' => 'drupal',
+            'username' => 'drupal',
+            'password' => 'drupal',
+            'host' => 'localhost',
+            'port' => '3306',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+            'driver' => 'mysql',
+            'prefix' => '',
+          ],
+        ],
+        'migrate' => [
+          'default' => [
+            'database' => 'migrate_db_name',
+            'username' => 'migrate_db_user',
+            'password' => 'migrate_db_pass',
+            'host' => 'migrate_db_host',
+            'port' => '3307',
+            'prefix' => '',
+            'driver' => 'mysql',
+          ],
+        ],
+      ],
+    ];
+    // phpcs:ignore #;> MIGRATION
   }
 
 }

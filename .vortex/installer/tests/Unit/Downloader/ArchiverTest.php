@@ -98,136 +98,126 @@ class ArchiverTest extends UnitTestCase {
   /**
    * Data provider for testDetectFormat().
    *
-   * @return array<string, array<string, string|callable>>
+   * @return \Iterator<string, array<string, string|callable>>
    *   Test data.
    */
-  public static function dataProviderDetectFormat(): array {
-    return [
-      'tar.gz' => [
-        'creator' => 'createTestTarGz',
-        'expected' => 'tar.gz',
-      ],
-      'tar' => [
-        'creator' => 'createTestTar',
-        'expected' => 'tar',
-      ],
-      'zip' => [
-        'creator' => 'createTestZip',
-        'expected' => 'zip',
-      ],
+  public static function dataProviderDetectFormat(): \Iterator {
+    yield 'tar.gz' => [
+      'creator' => 'createTestTarGz',
+      'expected' => 'tar.gz',
+    ];
+    yield 'tar' => [
+      'creator' => 'createTestTar',
+      'expected' => 'tar',
+    ];
+    yield 'zip' => [
+      'creator' => 'createTestZip',
+      'expected' => 'zip',
     ];
   }
 
   /**
    * Data provider for testValidateValidArchive().
    *
-   * @return array<string, array<string, string>>
+   * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
-  public static function dataProviderValidateValidArchive(): array {
-    return [
-      'tar.gz' => [
-        'creator' => 'createTestTarGz',
-      ],
-      'zip' => [
-        'creator' => 'createTestZip',
-      ],
+  public static function dataProviderValidateValidArchive(): \Iterator {
+    yield 'tar.gz' => [
+      'creator' => 'createTestTarGz',
+    ];
+    yield 'zip' => [
+      'creator' => 'createTestZip',
     ];
   }
 
   /**
    * Data provider for testValidateInvalid().
    *
-   * @return array<string, array<string, string|null>>
+   * @return \Iterator<string, array<string, string|null>>
    *   Test data.
    */
-  public static function dataProviderValidateInvalid(): array {
-    return [
-      'non-existent file' => [
-        'path' => '/non/existent/file.tar.gz',
-        'content' => NULL,
-        'expectedMessage' => 'Archive file does not exist',
-      ],
-      'empty file' => [
-        'path' => NULL,
-        'content' => '',
-        'expectedMessage' => 'Archive is empty',
-      ],
-      'invalid archive' => [
-        'path' => NULL,
-        'content' => 'This is not an archive',
-        'expectedMessage' => 'File does not appear to be a valid archive',
-      ],
+  public static function dataProviderValidateInvalid(): \Iterator {
+    yield 'non-existent file' => [
+      'path' => '/non/existent/file.tar.gz',
+      'content' => NULL,
+      'expectedMessage' => 'Archive file does not exist',
+    ];
+    yield 'empty file' => [
+      'path' => NULL,
+      'content' => '',
+      'expectedMessage' => 'Archive is empty',
+    ];
+    yield 'invalid archive' => [
+      'path' => NULL,
+      'content' => 'This is not an archive',
+      'expectedMessage' => 'File does not appear to be a valid archive',
     ];
   }
 
   /**
    * Data provider for testExtract().
    *
-   * @return array<string, array<string, string|bool>>
+   * @return \Iterator<string, array<string, string|bool>>
    *   Test data.
    */
-  public static function dataProviderExtract(): array {
-    return [
-      'tar.gz without strip' => [
-        'creator' => 'createTestTarGz',
-        'strip' => FALSE,
-        'expectedPath' => '/test_archive/test_file.txt',
-      ],
-      'tar.gz with strip' => [
-        'creator' => 'createTestTarGz',
-        'strip' => TRUE,
-        'expectedPath' => '/test_file.txt',
-      ],
-      'zip without strip' => [
-        'creator' => 'createTestZip',
-        'strip' => FALSE,
-        'expectedPath' => '/test_archive/test_file.txt',
-      ],
-      'zip with strip' => [
-        'creator' => 'createTestZip',
-        'strip' => TRUE,
-        'expectedPath' => '/test_file.txt',
-      ],
+  public static function dataProviderExtract(): \Iterator {
+    yield 'tar.gz without strip' => [
+      'creator' => 'createTestTarGz',
+      'strip' => FALSE,
+      'expectedPath' => '/test_archive/test_file.txt',
+    ];
+    yield 'tar.gz with strip' => [
+      'creator' => 'createTestTarGz',
+      'strip' => TRUE,
+      'expectedPath' => '/test_file.txt',
+    ];
+    yield 'zip without strip' => [
+      'creator' => 'createTestZip',
+      'strip' => FALSE,
+      'expectedPath' => '/test_archive/test_file.txt',
+    ];
+    yield 'zip with strip' => [
+      'creator' => 'createTestZip',
+      'strip' => TRUE,
+      'expectedPath' => '/test_file.txt',
     ];
   }
 
   /**
    * Data provider for testExtractErrors().
    *
-   * @return array<string, array<string, string|bool|null>>
+   * @return \Iterator<string, array<string, string|bool|null>>
    *   Test data.
    */
-  public static function dataProviderExtractErrors(): array {
-    return [
-      'unsupported format' => [
-        'extension' => '.rar',
-        'content' => 'Rar! fake content',
-        'strip' => FALSE,
-        'creator' => NULL,
-        'expectedMessage' => 'Unsupported archive format',
-      ],
-      'invalid tar.gz archive' => [
-        'extension' => '.tar.gz',
-        'content' => "\x1f\x8b" . 'invalid tar content',
-        'strip' => FALSE,
-        'creator' => NULL,
-        'expectedMessage' => 'Failed to extract tar archive',
-      ],
-      'invalid zip archive' => [
-        'extension' => '.zip',
-        'content' => "\x50\x4b\x03\x04invalid zip content",
-        'strip' => FALSE,
-        'creator' => NULL,
-        'expectedMessage' => 'Failed to extract ZIP archive',
-      ],
-      'multiple top-level directories with strip' => [
-        'extension' => NULL,
-        'content' => NULL,
-        'strip' => TRUE,
-        'creator' => 'createTestMultipleTopLevel',
-        'expectedMessage' => 'Expected single top-level directory in archive',
-      ],
+  public static function dataProviderExtractErrors(): \Iterator {
+    yield 'unsupported format' => [
+      'extension' => '.rar',
+      'content' => 'Rar! fake content',
+      'strip' => FALSE,
+      'creator' => NULL,
+      'expectedMessage' => 'Unsupported archive format',
+    ];
+    yield 'invalid tar.gz archive' => [
+      'extension' => '.tar.gz',
+      'content' => "\x1f\x8b" . 'invalid tar content',
+      'strip' => FALSE,
+      'creator' => NULL,
+      'expectedMessage' => 'Failed to extract tar archive',
+    ];
+    yield 'invalid zip archive' => [
+      'extension' => '.zip',
+      'content' => "\x50\x4b\x03\x04invalid zip content",
+      'strip' => FALSE,
+      'creator' => NULL,
+      'expectedMessage' => 'Failed to extract ZIP archive',
+    ];
+    yield 'multiple top-level directories with strip' => [
+      'extension' => NULL,
+      'content' => NULL,
+      'strip' => TRUE,
+      'creator' => 'createTestMultipleTopLevel',
+      'expectedMessage' => 'Expected single top-level directory in archive',
     ];
   }
 

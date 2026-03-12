@@ -199,12 +199,11 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testValidate.
    */
-  public static function dataProviderValidate(): array {
-    return [
-      // Valid configs.
-      'full config with lagoon hosting' => ['valid_full.json', ['valid' => TRUE]],
-      'minimal config with defaults' => [
-        'valid_minimal.json',
+  public static function dataProviderValidate(): \Iterator {
+    // Valid configs.
+    yield 'full config with lagoon hosting' => ['valid_full.json', ['valid' => TRUE]];
+    yield 'minimal config with defaults' => [
+      'valid_minimal.json',
         [
           'valid' => TRUE,
           'resolved' => [
@@ -213,59 +212,53 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
             Name::id() => 'Minimal Site',
           ],
         ],
-      ],
-      'config using env var key names' => ['valid_env_keys.json', ['valid' => TRUE]],
-      'database provision with container registry' => ['valid_database_provision.json', ['valid' => TRUE]],
-      'migration enabled' => ['valid_migration.json', ['valid' => TRUE]],
-      'acquia hosting' => ['valid_acquia.json', ['valid' => TRUE]],
-
-      // Invalid configs.
-      'invalid hosting provider value' => [
-        'invalid_hosting_provider.json',
+    ];
+    yield 'config using env var key names' => ['valid_env_keys.json', ['valid' => TRUE]];
+    yield 'database provision with container registry' => ['valid_database_provision.json', ['valid' => TRUE]];
+    yield 'migration enabled' => ['valid_migration.json', ['valid' => TRUE]];
+    yield 'acquia hosting' => ['valid_acquia.json', ['valid' => TRUE]];
+    // Invalid configs.
+    yield 'invalid hosting provider value' => [
+      'invalid_hosting_provider.json',
         ['valid' => FALSE, 'error_prompt' => HostingProvider::id(), 'error_message' => 'aws'],
-      ],
-      'non-boolean for confirm field' => [
-        'invalid_confirm_not_boolean.json',
+    ];
+    yield 'non-boolean for confirm field' => [
+      'invalid_confirm_not_boolean.json',
         ['valid' => FALSE, 'error_prompt' => Migration::id(), 'error_message' => 'Expected boolean'],
-      ],
-      'invalid database download source' => [
-        'invalid_database_source.json',
+    ];
+    yield 'invalid database download source' => [
+      'invalid_database_source.json',
         ['valid' => FALSE, 'error_prompt' => DatabaseDownloadSource::id(), 'error_message' => 'dropbox'],
-      ],
-      'invalid provision type' => [
-        'invalid_provision_type.json',
+    ];
+    yield 'invalid provision type' => [
+      'invalid_provision_type.json',
         ['valid' => FALSE, 'error_prompt' => 'provision_type', 'error_message' => 'magic'],
-      ],
-
-      // Warnings.
-      'warning for unmet dependency' => [
-        'warning_unmet_dependency.json',
+    ];
+    // Warnings.
+    yield 'warning for unmet dependency' => [
+      'warning_unmet_dependency.json',
         ['valid' => TRUE, 'warning_prompt' => HostingProjectName::id()],
-      ],
-
-      // Empty and array configs.
-      'empty JSON object uses defaults' => [
-        'empty.json',
+    ];
+    // Empty and array configs.
+    yield 'empty JSON object uses defaults' => [
+      'empty.json',
         [
           'valid' => FALSE,
           'resolved' => [HostingProvider::id() => HostingProvider::NONE],
         ],
-      ],
-      'JSON array treated as empty config' => [
-        'json_array.json',
-        ['valid' => FALSE],
-      ],
-
-      // Broken/unparseable inputs.
-      'broken JSON syntax' => ['broken_json.json', ['output_contains' => 'Invalid JSON']],
-      'plain text file' => ['not_json.txt', ['output_contains' => 'Invalid JSON']],
-      'empty file' => ['empty_file.txt', ['output_contains' => 'Invalid JSON']],
-      'JSON string instead of object' => ['json_string.json', ['output_contains' => 'Invalid JSON']],
-      'non-existent file treated as raw JSON' => ['/nonexistent/path/config.json', ['output_contains' => 'Invalid JSON']],
-
-      // Missing --config.
-      'validate without --config fails' => [NULL, ['output_contains' => '--config']],
     ];
+    yield 'JSON array treated as empty config' => [
+      'json_array.json',
+        ['valid' => FALSE],
+    ];
+    // Broken/unparseable inputs.
+    yield 'broken JSON syntax' => ['broken_json.json', ['output_contains' => 'Invalid JSON']];
+    yield 'plain text file' => ['not_json.txt', ['output_contains' => 'Invalid JSON']];
+    yield 'empty file' => ['empty_file.txt', ['output_contains' => 'Invalid JSON']];
+    yield 'JSON string instead of object' => ['json_string.json', ['output_contains' => 'Invalid JSON']];
+    yield 'non-existent file treated as raw JSON' => ['/nonexistent/path/config.json', ['output_contains' => 'Invalid JSON']];
+    // Missing --config.
+    yield 'validate without --config fails' => [NULL, ['output_contains' => '--config']];
   }
 
   // -------------------------------------------------------------------------

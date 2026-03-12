@@ -66,51 +66,45 @@ class AbstractHandlerTypeTest extends UnitTestCase {
   /**
    * Data provider for testTypeInference.
    */
-  public static function dataProviderTypeInference(): array {
-    return [
-      // Text handlers.
-      'name' => [Name::id(), PromptType::Text],
-      'machine_name' => [MachineName::id(), PromptType::Text],
-      'org' => [Org::id(), PromptType::Text],
-      'org_machine_name' => [OrgMachineName::id(), PromptType::Text],
-      'domain' => [Domain::id(), PromptType::Text],
-      'profile_custom' => [ProfileCustom::id(), PromptType::Text],
-      'module_prefix' => [ModulePrefix::id(), PromptType::Text],
-      'theme_custom' => [ThemeCustom::id(), PromptType::Text],
-      'hosting_project_name' => [HostingProjectName::id(), PromptType::Text],
-      'webroot' => [Webroot::id(), PromptType::Text],
-      'database_image' => [DatabaseImage::id(), PromptType::Text],
-
-      // Select handlers.
-      'starter' => [Starter::id(), PromptType::Select],
-      'profile' => [Profile::id(), PromptType::Select],
-      'theme' => [Theme::id(), PromptType::Select],
-      'code_provider' => [CodeProvider::id(), PromptType::Select],
-      'version_scheme' => [VersionScheme::id(), PromptType::Select],
-      'hosting_provider' => [HostingProvider::id(), PromptType::Select],
-      'provision_type' => [ProvisionType::id(), PromptType::Select],
-      'database_download_source' => [DatabaseDownloadSource::id(), PromptType::Select],
-      'migration_download_source' => [MigrationDownloadSource::id(), PromptType::Select],
-      'ci_provider' => [CiProvider::id(), PromptType::Select],
-      'dependency_updates_provider' => [DependencyUpdatesProvider::id(), PromptType::Select],
-
-      // MultiSelect handlers.
-      'modules' => [Modules::id(), PromptType::MultiSelect],
-      'services' => [Services::id(), PromptType::MultiSelect],
-      'tools' => [Tools::id(), PromptType::MultiSelect],
-      'deploy_types' => [DeployTypes::id(), PromptType::MultiSelect],
-      'notification_channels' => [NotificationChannels::id(), PromptType::MultiSelect],
-
-      // Confirm handlers.
-      'migration' => [Migration::id(), PromptType::Confirm],
-      'assign_author_pr' => [AssignAuthorPr::id(), PromptType::Confirm],
-      'label_merge_conflicts_pr' => [LabelMergeConflictsPr::id(), PromptType::Confirm],
-      'preserve_docs_project' => [PreserveDocsProject::id(), PromptType::Confirm],
-      'ai_code_instructions' => [AiCodeInstructions::id(), PromptType::Confirm],
-
-      // Suggest handlers.
-      'timezone' => [Timezone::id(), PromptType::Suggest],
-    ];
+  public static function dataProviderTypeInference(): \Iterator {
+    // Text handlers.
+    yield 'name' => [Name::id(), PromptType::Text];
+    yield 'machine_name' => [MachineName::id(), PromptType::Text];
+    yield 'org' => [Org::id(), PromptType::Text];
+    yield 'org_machine_name' => [OrgMachineName::id(), PromptType::Text];
+    yield 'domain' => [Domain::id(), PromptType::Text];
+    yield 'profile_custom' => [ProfileCustom::id(), PromptType::Text];
+    yield 'module_prefix' => [ModulePrefix::id(), PromptType::Text];
+    yield 'theme_custom' => [ThemeCustom::id(), PromptType::Text];
+    yield 'hosting_project_name' => [HostingProjectName::id(), PromptType::Text];
+    yield 'webroot' => [Webroot::id(), PromptType::Text];
+    yield 'database_image' => [DatabaseImage::id(), PromptType::Text];
+    // Select handlers.
+    yield 'starter' => [Starter::id(), PromptType::Select];
+    yield 'profile' => [Profile::id(), PromptType::Select];
+    yield 'theme' => [Theme::id(), PromptType::Select];
+    yield 'code_provider' => [CodeProvider::id(), PromptType::Select];
+    yield 'version_scheme' => [VersionScheme::id(), PromptType::Select];
+    yield 'hosting_provider' => [HostingProvider::id(), PromptType::Select];
+    yield 'provision_type' => [ProvisionType::id(), PromptType::Select];
+    yield 'database_download_source' => [DatabaseDownloadSource::id(), PromptType::Select];
+    yield 'migration_download_source' => [MigrationDownloadSource::id(), PromptType::Select];
+    yield 'ci_provider' => [CiProvider::id(), PromptType::Select];
+    yield 'dependency_updates_provider' => [DependencyUpdatesProvider::id(), PromptType::Select];
+    // MultiSelect handlers.
+    yield 'modules' => [Modules::id(), PromptType::MultiSelect];
+    yield 'services' => [Services::id(), PromptType::MultiSelect];
+    yield 'tools' => [Tools::id(), PromptType::MultiSelect];
+    yield 'deploy_types' => [DeployTypes::id(), PromptType::MultiSelect];
+    yield 'notification_channels' => [NotificationChannels::id(), PromptType::MultiSelect];
+    // Confirm handlers.
+    yield 'migration' => [Migration::id(), PromptType::Confirm];
+    yield 'assign_author_pr' => [AssignAuthorPr::id(), PromptType::Confirm];
+    yield 'label_merge_conflicts_pr' => [LabelMergeConflictsPr::id(), PromptType::Confirm];
+    yield 'preserve_docs_project' => [PreserveDocsProject::id(), PromptType::Confirm];
+    yield 'ai_code_instructions' => [AiCodeInstructions::id(), PromptType::Confirm];
+    // Suggest handlers.
+    yield 'timezone' => [Timezone::id(), PromptType::Suggest];
   }
 
 }

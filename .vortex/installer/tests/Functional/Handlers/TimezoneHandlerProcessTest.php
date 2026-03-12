@@ -13,15 +13,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Timezone::class)]
 class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-
-      'timezone_gha' => [
-        static::cw(function (): void {
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'timezone_gha' => [
+      static::cw(function (): void {
           Env::put(Timezone::envName(), 'America/New_York');
           Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
-        }),
-        static::cw(function (FunctionalTestCase $test): void {
+      }),
+      static::cw(function (FunctionalTestCase $test): void {
           // Timezone should be replaced in .env file.
           $test->assertFileContainsString(static::$sut . '/.env', 'TZ=America/New_York');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'UTC');
@@ -38,21 +36,19 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
           // Timezone should not be replaced in Docker Compose config.
           $test->assertFileNotContainsString(static::$sut . '/docker-compose.yml', 'America/New_York');
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'UTC');
-        }),
-      ],
-
-      'timezone_circleci' => [
-        static::cw(function (): void {
+      }),
+    ];
+    yield 'timezone_circleci' => [
+      static::cw(function (): void {
           Env::put(Timezone::envName(), 'America/New_York');
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
-        }),
-        static::cw(function (FunctionalTestCase $test): void {
+      }),
+      static::cw(function (FunctionalTestCase $test): void {
           // Timezone should not be replaced in CircleCI config in code as it
           // should be overridden via UI.
           $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'TZ: America/New_York');
           $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'TZ: UTC');
-        }),
-      ],
+      }),
     ];
   }
 

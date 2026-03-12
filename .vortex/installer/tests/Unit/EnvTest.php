@@ -54,15 +54,13 @@ class EnvTest extends UnitTestCase {
     $this->assertSame($expected, Env::get($name, $default));
   }
 
-  public static function dataProviderGet(): array {
-    return [
-      ['VAR', 'VAL1', 'DEF1', 'VAL1'],
-      ['VAR', 'VAL1', NULL, 'VAL1'],
-      ['VAR', 'VAL1', 'VAL2', 'VAL1'],
-      ['VAR', '', 'DEF1', 'DEF1'],
-      ['VAR', '', NULL, ''],
-      ['VAR', '', 'VAL2', 'VAL2'],
-    ];
+  public static function dataProviderGet(): \Iterator {
+    yield ['VAR', 'VAL1', 'DEF1', 'VAL1'];
+    yield ['VAR', 'VAL1', NULL, 'VAL1'];
+    yield ['VAR', 'VAL1', 'VAL2', 'VAL1'];
+    yield ['VAR', '', 'DEF1', 'DEF1'];
+    yield ['VAR', '', NULL, ''];
+    yield ['VAR', '', 'VAL2', 'VAL2'];
   }
 
   #[DataProvider('dataProviderGetFromDotenv')]
@@ -85,13 +83,11 @@ class EnvTest extends UnitTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProviderGetFromDotenv(): array {
-    return [
-      ['VAR', 'VAL1', NULL, 'VAL1'],
-      ['VAR', 'VAL1', 'VALDOTENV1', 'VAL1'],
-      ['VAR', NULL, 'VALDOTENV1', 'VALDOTENV1'],
-      ['VAR', NULL, NULL, NULL],
-    ];
+  public static function dataProviderGetFromDotenv(): \Iterator {
+    yield ['VAR', 'VAL1', NULL, 'VAL1'];
+    yield ['VAR', 'VAL1', 'VALDOTENV1', 'VAL1'];
+    yield ['VAR', NULL, 'VALDOTENV1', 'VALDOTENV1'];
+    yield ['VAR', NULL, NULL, NULL];
   }
 
   #[DataProvider('dataProviderPutFromDotenv')]
@@ -115,18 +111,15 @@ class EnvTest extends UnitTestCase {
     $this->assertEquals($GLOBALS['_SERVER'][$name], $expected);
   }
 
-  public static function dataProviderPutFromDotenv(): array {
-    return [
-      ['VAR', 'VAL1', NULL, FALSE, 'VAL1'],
-      ['VAR', 'VAL1', 'VALDOTENV1', FALSE, 'VAL1'],
-      ['VAR', NULL, 'VALDOTENV1', FALSE, 'VALDOTENV1'],
-      ['VAR', NULL, NULL, FALSE, NULL],
-
-      ['VAR', 'VAL1', NULL, TRUE, 'VAL1'],
-      ['VAR', 'VAL1', 'VALDOTENV1', TRUE, 'VALDOTENV1'],
-      ['VAR', NULL, 'VALDOTENV1', TRUE, 'VALDOTENV1'],
-      ['VAR', NULL, NULL, TRUE, NULL],
-    ];
+  public static function dataProviderPutFromDotenv(): \Iterator {
+    yield ['VAR', 'VAL1', NULL, FALSE, 'VAL1'];
+    yield ['VAR', 'VAL1', 'VALDOTENV1', FALSE, 'VAL1'];
+    yield ['VAR', NULL, 'VALDOTENV1', FALSE, 'VALDOTENV1'];
+    yield ['VAR', NULL, NULL, FALSE, NULL];
+    yield ['VAR', 'VAL1', NULL, TRUE, 'VAL1'];
+    yield ['VAR', 'VAL1', 'VALDOTENV1', TRUE, 'VALDOTENV1'];
+    yield ['VAR', NULL, 'VALDOTENV1', TRUE, 'VALDOTENV1'];
+    yield ['VAR', NULL, NULL, TRUE, NULL];
   }
 
   public function testWriteValueDotenv(): void {
@@ -165,61 +158,55 @@ class EnvTest extends UnitTestCase {
     $this->assertEquals($expected, $result);
   }
 
-  public static function dataProviderFormatValueForDotenv(): array {
-    return [
-      // Values without special characters or whitespace - should not be quoted.
-      ['simple_value', 'simple_value'],
-      ['123', '123'],
-      ['true', 'true'],
-      ['path/to/file', 'path/to/file'],
-      ['with-dashes', 'with-dashes'],
-      ['with_underscores', 'with_underscores'],
-      ['UPPERCASE', 'UPPERCASE'],
-      ['mixedCase', 'mixedCase'],
-      ['email@domain.com', 'email@domain.com'],
-      ['https://example.com', 'https://example.com'],
-      ['', ''],
-
-      // Values with whitespace - should be quoted.
-      ['value with spaces', '"value with spaces"'],
-      [' leading space', '" leading space"'],
-      ['trailing space ', '"trailing space "'],
-      [' both spaces ', '" both spaces "'],
-      ['multiple   spaces', '"multiple   spaces"'],
-      ["tab\tcharacter", "\"tab\tcharacter\""],
-      ["new\nline", "\"new\nline\""],
-      ['path with spaces/to/file', '"path with spaces/to/file"'],
-      ['sentence with multiple words', '"sentence with multiple words"'],
-
-      // Values with shell special characters - should be quoted.
-      ['value#comment', '"value#comment"'],
-      ['value$variable', '"value$variable"'],
-      ['value!history', '"value!history"'],
-      ['command;another', '"command;another"'],
-      ['background&process', '"background&process"'],
-      ['pipe|value', '"pipe|value"'],
-      ['redirect>output', '"redirect>output"'],
-      ['input<file', '"input<file"'],
-      ['glob*pattern', '"glob*pattern"'],
-      ['wildcard?match', '"wildcard?match"'],
-      ['group(content)', '"group(content)"'],
-      ['expand{a,b}', '"expand{a,b}"'],
-      ['array[index]', '"array[index]"'],
-      ['command`substitution', '"command`substitution"'],
-      ["single'quote", '"single\'quote"'],
-      ['double"quote', '"double\\"quote"'],
-
-      // Combined cases (whitespace + special characters).
-      ['value with "quotes"', '"value with \\"quotes\\""'],
-      ['email|name with spaces', '"email|name with spaces"'],
-      ['command; with spaces', '"command; with spaces"'],
-      ['path with spaces & special', '"path with spaces & special"'],
-
-      // Edge cases.
+  public static function dataProviderFormatValueForDotenv(): \Iterator {
+    // Values without special characters or whitespace - should not be quoted.
+    yield ['simple_value', 'simple_value'];
+    yield ['123', '123'];
+    yield ['true', 'true'];
+    yield ['path/to/file', 'path/to/file'];
+    yield ['with-dashes', 'with-dashes'];
+    yield ['with_underscores', 'with_underscores'];
+    yield ['UPPERCASE', 'UPPERCASE'];
+    yield ['mixedCase', 'mixedCase'];
+    yield ['email@domain.com', 'email@domain.com'];
+    yield ['https://example.com', 'https://example.com'];
+    yield ['', ''];
+    // Values with whitespace - should be quoted.
+    yield ['value with spaces', '"value with spaces"'];
+    yield [' leading space', '" leading space"'];
+    yield ['trailing space ', '"trailing space "'];
+    yield [' both spaces ', '" both spaces "'];
+    yield ['multiple   spaces', '"multiple   spaces"'];
+    yield ["tab\tcharacter", "\"tab\tcharacter\""];
+    yield ["new\nline", "\"new\nline\""];
+    yield ['path with spaces/to/file', '"path with spaces/to/file"'];
+    yield ['sentence with multiple words', '"sentence with multiple words"'];
+    // Values with shell special characters - should be quoted.
+    yield ['value#comment', '"value#comment"'];
+    yield ['value$variable', '"value$variable"'];
+    yield ['value!history', '"value!history"'];
+    yield ['command;another', '"command;another"'];
+    yield ['background&process', '"background&process"'];
+    yield ['pipe|value', '"pipe|value"'];
+    yield ['redirect>output', '"redirect>output"'];
+    yield ['input<file', '"input<file"'];
+    yield ['glob*pattern', '"glob*pattern"'];
+    yield ['wildcard?match', '"wildcard?match"'];
+    yield ['group(content)', '"group(content)"'];
+    yield ['expand{a,b}', '"expand{a,b}"'];
+    yield ['array[index]', '"array[index]"'];
+    yield ['command`substitution', '"command`substitution"'];
+    yield ["single'quote", '"single\'quote"'];
+    yield ['double"quote', '"double\\"quote"'];
+    // Combined cases (whitespace + special characters).
+    yield ['value with "quotes"', '"value with \\"quotes\\""'];
+    yield ['email|name with spaces', '"email|name with spaces"'];
+    yield ['command; with spaces', '"command; with spaces"'];
+    yield ['path with spaces & special', '"path with spaces & special"'];
+    // Edge cases.
     // = is not a special character, so no quoting needed.
-      ['key=value', 'key=value'],
-      ['webmaster@your-site-domain.example|Webmaster', '"webmaster@your-site-domain.example|Webmaster"'],
-    ];
+    yield ['key=value', 'key=value'];
+    yield ['webmaster@your-site-domain.example|Webmaster', '"webmaster@your-site-domain.example|Webmaster"'];
   }
 
   #[DataProvider('dataProviderParseDotenv')]
@@ -240,24 +227,20 @@ class EnvTest extends UnitTestCase {
     File::remove($filename);
   }
 
-  public static function dataProviderParseDotenv(): array {
-    return [
-      // Valid .env content.
-      ['VAR1=value1', ['VAR1' => 'value1'], NULL],
-      ["VAR1=value1\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL],
-      ['VAR="quoted value"', ['VAR' => 'quoted value'], NULL],
-      ['VAR=', ['VAR' => ''], NULL],
-      ['', [], NULL],
-
-      // Valid content with comments.
-      ["VAR1=value1\n# This is a comment\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL],
-      ['VAR="value with # in quotes"', ['VAR' => 'value with # in quotes'], NULL],
-
-      // Invalid .env content that should throw exceptions.
-      ['VAR[invalid', NULL, 'Unable to parse file'],
-      ['VAR=value1' . "\n" . 'INVALID[bracket', NULL, 'Unable to parse file'],
-      ["VAR1=value1\nVAR2[invalid=value2", NULL, 'Unable to parse file'],
-    ];
+  public static function dataProviderParseDotenv(): \Iterator {
+    // Valid .env content.
+    yield ['VAR1=value1', ['VAR1' => 'value1'], NULL];
+    yield ["VAR1=value1\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL];
+    yield ['VAR="quoted value"', ['VAR' => 'quoted value'], NULL];
+    yield ['VAR=', ['VAR' => ''], NULL];
+    yield ['', [], NULL];
+    // Valid content with comments.
+    yield ["VAR1=value1\n# This is a comment\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL];
+    yield ['VAR="value with # in quotes"', ['VAR' => 'value with # in quotes'], NULL];
+    // Invalid .env content that should throw exceptions.
+    yield ['VAR[invalid', NULL, 'Unable to parse file'];
+    yield ['VAR=value1' . "\n" . 'INVALID[bracket', NULL, 'Unable to parse file'];
+    yield ["VAR1=value1\nVAR2[invalid=value2", NULL, 'Unable to parse file'];
   }
 
   public function testParseDotenvFileNotReadable(): void {
@@ -284,26 +267,21 @@ class EnvTest extends UnitTestCase {
     $this->assertSame($expected, $result);
   }
 
-  public static function dataProviderToValue(): array {
-    return [
-      // String constants.
-      ['true', TRUE],
-      ['false', FALSE],
-      ['null', NULL],
-
-      // Numeric values.
-      ['123', 123],
-      ['0', 0],
-      ['-456', -456],
-
-      // Regular strings.
-      ['regular_string', 'regular_string'],
-      ['non-numeric', 'non-numeric'],
-
-      // List values (contains comma).
-      ['item1,item2,item3', ['item1', 'item2', 'item3']],
-      ['single,item', ['single', 'item']],
-    ];
+  public static function dataProviderToValue(): \Iterator {
+    // String constants.
+    yield ['true', TRUE];
+    yield ['false', FALSE];
+    yield ['null', NULL];
+    // Numeric values.
+    yield ['123', 123];
+    yield ['0', 0];
+    yield ['-456', -456];
+    // Regular strings.
+    yield ['regular_string', 'regular_string'];
+    yield ['non-numeric', 'non-numeric'];
+    // List values (contains comma).
+    yield ['item1,item2,item3', ['item1', 'item2', 'item3']];
+    yield ['single,item', ['single', 'item']];
   }
 
   public function testPut(): void {
@@ -431,124 +409,110 @@ class EnvTest extends UnitTestCase {
     File::remove($filename);
   }
 
-  public static function dataProviderWriteValueDotenvWithEnabled(): array {
-    return [
-      // Test commenting out an active variable.
-      'disable active variable' => [
-        "VAR=active_value\n",
-        'VAR',
-        'active_value',
-        FALSE,
-        "# VAR=active_value\n",
-      ],
-
-      // Test activating a commented variable.
-      'enable commented variable' => [
-        "# VAR=commented_value\n",
-        'VAR',
-        'new_value',
-        TRUE,
-        "VAR=new_value\n",
-      ],
-
-      // Test updating and commenting out an active variable.
-      'disable and update active variable' => [
-        "VAR=old_value\n",
-        'VAR',
-        'new_value',
-        FALSE,
-        "# VAR=new_value\n",
-      ],
-
-      // Test updating and activating a commented variable.
-      'enable and update commented variable' => [
-        "# VAR=old_value\n",
-        'VAR',
-        'new_value',
-        TRUE,
-        "VAR=new_value\n",
-      ],
-
-      // Test adding new disabled variable.
-      'add new disabled variable' => [
-        "EXISTING=value\n",
-        'NEW_VAR',
-        'new_value',
-        FALSE,
-        "EXISTING=value\n# NEW_VAR=new_value\n",
-      ],
-
-      // Test adding new active variable (default behavior).
-      'add new active variable' => [
-        "EXISTING=value\n",
-        'NEW_VAR',
-        'new_value',
-        TRUE,
-        "EXISTING=value\nNEW_VAR=new_value\n",
-      ],
-
-      // Test with commented variable with spaces after #.
-      'update variable commented with spaces' => [
-        "#  VAR=old_value\n",
-        'VAR',
-        'new_value',
-        TRUE,
-        "VAR=new_value\n",
-      ],
-
-      // Test disabled with NULL value (empty).
-      'disabled empty variable' => [
-        "EXISTING=value\n",
-        'NEW_VAR',
-        NULL,
-        FALSE,
-        "EXISTING=value\n# NEW_VAR=\n",
-      ],
-
-      // Test active with NULL value (empty).
-      'active empty variable' => [
-        "EXISTING=value\n",
-        'NEW_VAR',
-        NULL,
-        TRUE,
-        "EXISTING=value\nNEW_VAR=\n",
-      ],
-
-      // Test disabling variable with special characters.
-      'disable variable with special chars' => [
-        "VAR=value\n",
-        'VAR',
-        'value with spaces',
-        FALSE,
-        "# VAR=\"value with spaces\"\n",
-      ],
-
-      // Test enabling variable with special characters.
-      'enable variable with special chars' => [
-        "# VAR=old\n",
-        'VAR',
-        'value with spaces',
-        TRUE,
-        "VAR=\"value with spaces\"\n",
-      ],
-
-      // Test with multiple variables, disable one.
-      'disable one among multiple variables' => [
-        "VAR1=value1\nVAR2=value2\nVAR3=value3\n",
-        'VAR2',
-        'new_value2',
-        FALSE,
-        "VAR1=value1\n# VAR2=new_value2\nVAR3=value3\n",
-      ],
-
-      // Test with multiple variables, enable commented one.
-      'enable one among multiple variables' => [
-        "VAR1=value1\n# VAR2=value2\nVAR3=value3\n",
-        'VAR2',
-        'new_value2',
-        TRUE,
-        "VAR1=value1\nVAR2=new_value2\nVAR3=value3\n",
-      ],
+  public static function dataProviderWriteValueDotenvWithEnabled(): \Iterator {
+    // Test commenting out an active variable.
+    yield 'disable active variable' => [
+      "VAR=active_value\n",
+      'VAR',
+      'active_value',
+      FALSE,
+      "# VAR=active_value\n",
+    ];
+    // Test activating a commented variable.
+    yield 'enable commented variable' => [
+      "# VAR=commented_value\n",
+      'VAR',
+      'new_value',
+      TRUE,
+      "VAR=new_value\n",
+    ];
+    // Test updating and commenting out an active variable.
+    yield 'disable and update active variable' => [
+      "VAR=old_value\n",
+      'VAR',
+      'new_value',
+      FALSE,
+      "# VAR=new_value\n",
+    ];
+    // Test updating and activating a commented variable.
+    yield 'enable and update commented variable' => [
+      "# VAR=old_value\n",
+      'VAR',
+      'new_value',
+      TRUE,
+      "VAR=new_value\n",
+    ];
+    // Test adding new disabled variable.
+    yield 'add new disabled variable' => [
+      "EXISTING=value\n",
+      'NEW_VAR',
+      'new_value',
+      FALSE,
+      "EXISTING=value\n# NEW_VAR=new_value\n",
+    ];
+    // Test adding new active variable (default behavior).
+    yield 'add new active variable' => [
+      "EXISTING=value\n",
+      'NEW_VAR',
+      'new_value',
+      TRUE,
+      "EXISTING=value\nNEW_VAR=new_value\n",
+    ];
+    // Test with commented variable with spaces after #.
+    yield 'update variable commented with spaces' => [
+      "#  VAR=old_value\n",
+      'VAR',
+      'new_value',
+      TRUE,
+      "VAR=new_value\n",
+    ];
+    // Test disabled with NULL value (empty).
+    yield 'disabled empty variable' => [
+      "EXISTING=value\n",
+      'NEW_VAR',
+      NULL,
+      FALSE,
+      "EXISTING=value\n# NEW_VAR=\n",
+    ];
+    // Test active with NULL value (empty).
+    yield 'active empty variable' => [
+      "EXISTING=value\n",
+      'NEW_VAR',
+      NULL,
+      TRUE,
+      "EXISTING=value\nNEW_VAR=\n",
+    ];
+    // Test disabling variable with special characters.
+    yield 'disable variable with special chars' => [
+      "VAR=value\n",
+      'VAR',
+      'value with spaces',
+      FALSE,
+      "# VAR=\"value with spaces\"\n",
+    ];
+    // Test enabling variable with special characters.
+    yield 'enable variable with special chars' => [
+      "# VAR=old\n",
+      'VAR',
+      'value with spaces',
+      TRUE,
+      "VAR=\"value with spaces\"\n",
+    ];
+    // Test with multiple variables, disable one.
+    yield 'disable one among multiple variables' => [
+      "VAR1=value1\nVAR2=value2\nVAR3=value3\n",
+      'VAR2',
+      'new_value2',
+      FALSE,
+      "VAR1=value1\n# VAR2=new_value2\nVAR3=value3\n",
+    ];
+    // Test with multiple variables, enable commented one.
+    yield 'enable one among multiple variables' => [
+      "VAR1=value1\n# VAR2=value2\nVAR3=value3\n",
+      'VAR2',
+      'new_value2',
+      TRUE,
+      "VAR1=value1\nVAR2=new_value2\nVAR3=value3\n",
     ];
   }
 

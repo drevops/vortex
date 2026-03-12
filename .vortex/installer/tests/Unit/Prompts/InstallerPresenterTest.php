@@ -65,13 +65,11 @@ class InstallerPresenterTest extends UnitTestCase {
     $this->assertStringContainsString('stable', $output);
   }
 
-  public static function dataProviderHeaderWithStableArtifact(): array {
-    return [
-      'new project, interactive' => [FALSE, FALSE],
-      'new project, non-interactive' => [FALSE, TRUE],
-      'existing project, interactive' => [TRUE, FALSE],
-      'existing project, non-interactive' => [TRUE, TRUE],
-    ];
+  public static function dataProviderHeaderWithStableArtifact(): \Iterator {
+    yield 'new project, interactive' => [FALSE, FALSE];
+    yield 'new project, non-interactive' => [FALSE, TRUE];
+    yield 'existing project, interactive' => [TRUE, FALSE];
+    yield 'existing project, non-interactive' => [TRUE, TRUE];
   }
 
   public function testHeaderWithDevelopmentArtifact(): void {
@@ -241,23 +239,21 @@ class InstallerPresenterTest extends UnitTestCase {
     }
   }
 
-  public static function dataProviderFooterBuildSkipped(): array {
-    return [
-      'demo database starter' => [
-        Starter::LOAD_DATABASE_DEMO,
-        FALSE,
-        FALSE,
-      ],
-      'core profile starter' => [
-        Starter::INSTALL_PROFILE_CORE,
-        TRUE,
-        TRUE,
-      ],
-      'drupalcms profile starter' => [
-        Starter::INSTALL_PROFILE_DRUPALCMS,
-        TRUE,
-        TRUE,
-      ],
+  public static function dataProviderFooterBuildSkipped(): \Iterator {
+    yield 'demo database starter' => [
+      Starter::LOAD_DATABASE_DEMO,
+      FALSE,
+      FALSE,
+    ];
+    yield 'core profile starter' => [
+      Starter::INSTALL_PROFILE_CORE,
+      TRUE,
+      TRUE,
+    ];
+    yield 'drupalcms profile starter' => [
+      Starter::INSTALL_PROFILE_DRUPALCMS,
+      TRUE,
+      TRUE,
     ];
   }
 
@@ -319,12 +315,10 @@ class InstallerPresenterTest extends UnitTestCase {
     $this->assertSame($expected, $constant);
   }
 
-  public static function dataProviderBuildResultConstants(): array {
-    return [
-      'success' => [InstallerPresenter::BUILD_RESULT_SUCCESS, 'success'],
-      'skipped' => [InstallerPresenter::BUILD_RESULT_SKIPPED, 'skipped'],
-      'failed' => [InstallerPresenter::BUILD_RESULT_FAILED, 'failed'],
-    ];
+  public static function dataProviderBuildResultConstants(): \Iterator {
+    yield 'success' => [InstallerPresenter::BUILD_RESULT_SUCCESS, 'success'];
+    yield 'skipped' => [InstallerPresenter::BUILD_RESULT_SKIPPED, 'skipped'];
+    yield 'failed' => [InstallerPresenter::BUILD_RESULT_FAILED, 'failed'];
   }
 
 }

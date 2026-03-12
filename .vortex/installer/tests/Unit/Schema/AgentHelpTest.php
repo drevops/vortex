@@ -28,17 +28,15 @@ class AgentHelpTest extends UnitTestCase {
     $this->assertStringContainsString($section, $result);
   }
 
-  public static function dataProviderRenderContainsSections(): array {
-    return [
-      'title' => ['# Vortex Installer - AI Agent Instructions'],
-      'workflow section' => ['## Workflow'],
-      'commands section' => ['## Commands'],
-      'schema format section' => ['## Schema Format'],
-      'value types section' => ['## Value Types by Prompt Type'],
-      'dependencies section' => ['## Dependencies'],
-      'validation output section' => ['## Validation Output'],
-      'tips section' => ['## Tips'],
-    ];
+  public static function dataProviderRenderContainsSections(): \Iterator {
+    yield 'title' => ['# Vortex Installer - AI Agent Instructions'];
+    yield 'workflow section' => ['## Workflow'];
+    yield 'commands section' => ['## Commands'];
+    yield 'schema format section' => ['## Schema Format'];
+    yield 'value types section' => ['## Value Types by Prompt Type'];
+    yield 'dependencies section' => ['## Dependencies'];
+    yield 'validation output section' => ['## Validation Output'];
+    yield 'tips section' => ['## Tips'];
   }
 
   #[DataProvider('dataProviderRenderContainsCommandExamples')]
@@ -48,14 +46,12 @@ class AgentHelpTest extends UnitTestCase {
     $this->assertStringContainsString($example, $result);
   }
 
-  public static function dataProviderRenderContainsCommandExamples(): array {
-    return [
-      'schema flag' => ['--schema'],
-      'validate flag' => ['--validate'],
-      'no-interaction flag' => ['--no-interaction'],
-      'config flag' => ['--config'],
-      'destination flag' => ['--destination'],
-    ];
+  public static function dataProviderRenderContainsCommandExamples(): \Iterator {
+    yield 'schema flag' => ['--schema'];
+    yield 'validate flag' => ['--validate'];
+    yield 'no-interaction flag' => ['--no-interaction'];
+    yield 'config flag' => ['--config'];
+    yield 'destination flag' => ['--destination'];
   }
 
   #[DataProvider('dataProviderRenderContainsPromptTypes')]
@@ -65,14 +61,12 @@ class AgentHelpTest extends UnitTestCase {
     $this->assertStringContainsString('`' . $type . '`', $result);
   }
 
-  public static function dataProviderRenderContainsPromptTypes(): array {
-    return [
-      'text' => ['text'],
-      'select' => ['select'],
-      'multiselect' => ['multiselect'],
-      'confirm' => ['confirm'],
-      'suggest' => ['suggest'],
-    ];
+  public static function dataProviderRenderContainsPromptTypes(): \Iterator {
+    yield 'text' => ['text'];
+    yield 'select' => ['select'];
+    yield 'multiselect' => ['multiselect'];
+    yield 'confirm' => ['confirm'];
+    yield 'suggest' => ['suggest'];
   }
 
   #[DataProvider('dataProviderRenderContainsSchemaFields')]
@@ -82,17 +76,15 @@ class AgentHelpTest extends UnitTestCase {
     $this->assertStringContainsString('`' . $field . '`', $result);
   }
 
-  public static function dataProviderRenderContainsSchemaFields(): array {
-    return [
-      'id field' => ['id'],
-      'env field' => ['env'],
-      'type field' => ['type'],
-      'label field' => ['label'],
-      'options field' => ['options'],
-      'default field' => ['default'],
-      'required field' => ['required'],
-      'depends_on field' => ['depends_on'],
-    ];
+  public static function dataProviderRenderContainsSchemaFields(): \Iterator {
+    yield 'id field' => ['id'];
+    yield 'env field' => ['env'];
+    yield 'type field' => ['type'];
+    yield 'label field' => ['label'];
+    yield 'options field' => ['options'];
+    yield 'default field' => ['default'];
+    yield 'required field' => ['required'];
+    yield 'depends_on field' => ['depends_on'];
   }
 
   #[DataProvider('dataProviderRenderContainsValidationFields')]
@@ -102,13 +94,11 @@ class AgentHelpTest extends UnitTestCase {
     $this->assertStringContainsString('`' . $field . '`', $result);
   }
 
-  public static function dataProviderRenderContainsValidationFields(): array {
-    return [
-      'valid' => ['valid'],
-      'errors' => ['errors'],
-      'warnings' => ['warnings'],
-      'resolved' => ['resolved'],
-    ];
+  public static function dataProviderRenderContainsValidationFields(): \Iterator {
+    yield 'valid' => ['valid'];
+    yield 'errors' => ['errors'];
+    yield 'warnings' => ['warnings'];
+    yield 'resolved' => ['resolved'];
   }
 
   public function testRenderIsIdempotent(): void {

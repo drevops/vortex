@@ -1,55 +1,55 @@
-@@ -59,6 +59,50 @@
-         self::ENVIRONMENT_LOCAL,
-       ],
- 
-+      // Acquia.
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => TRUE,
-+        ],
-+        self::ENVIRONMENT_DEV,
-+      ],
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => 'prod',
-+        ],
-+        self::ENVIRONMENT_PROD,
-+      ],
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => 'stage',
-+        ],
-+        self::ENVIRONMENT_STAGE,
-+      ],
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => 'test',
-+        ],
-+        self::ENVIRONMENT_STAGE,
-+      ],
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => 'dev',
-+        ],
-+        self::ENVIRONMENT_DEV,
-+      ],
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => 'ode1',
-+        ],
-+        self::ENVIRONMENT_DEV,
-+      ],
-+      [
-+        [
-+          'AH_SITE_ENVIRONMENT' => 'nonode1',
-+        ],
-+        self::ENVIRONMENT_DEV,
-+      ],
-+
+@@ -58,6 +58,50 @@
+       self::ENVIRONMENT_LOCAL,
      ];
+ 
++    // Acquia.
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => TRUE,
++      ],
++      self::ENVIRONMENT_DEV,
++    ];
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => 'prod',
++      ],
++      self::ENVIRONMENT_PROD,
++    ];
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => 'stage',
++      ],
++      self::ENVIRONMENT_STAGE,
++    ];
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => 'test',
++      ],
++      self::ENVIRONMENT_STAGE,
++    ];
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => 'dev',
++      ],
++      self::ENVIRONMENT_DEV,
++    ];
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => 'ode1',
++      ],
++      self::ENVIRONMENT_DEV,
++    ];
++    yield [
++      [
++        'AH_SITE_ENVIRONMENT' => 'nonode1',
++      ],
++      self::ENVIRONMENT_DEV,
++    ];
++
    }
  
-@@ -325,6 +369,283 @@
+   /**
+@@ -323,6 +367,283 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
