@@ -82,6 +82,108 @@ EOF
   popd >/dev/null
 }
 
+@test "download-db: Container registry source skips file existence check" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Create existing database files that would normally trigger the cache check.
+  mkdir -p .data
+  touch .data/db.sql
+  touch .data/db.tar
+
+  # Mock the container registry sub-script.
+  mkdir -p scripts/vortex
+  cat >scripts/vortex/download-db-container-registry.sh <<'EOF'
+#!/usr/bin/env bash
+echo "Started database data container image download."
+echo "Finished database data container image download."
+EOF
+  chmod +x scripts/vortex/download-db-container-registry.sh
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_DOWNLOAD_DB_SOURCE="container_registry"
+  export VORTEX_DOWNLOAD_DB_PROCEED="1"
+  export VORTEX_DOWNLOAD_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_FORCE=""
+
+  run scripts/vortex/download-db.sh
+  assert_success
+  assert_output_contains "Started database download."
+  assert_output_contains "Started database data container image download."
+  assert_output_contains "Finished database data container image download."
+  assert_output_contains "Finished database download."
+  assert_output_not_contains "Found existing database dump file(s)."
+  assert_output_not_contains "Using existing database dump file(s)."
+  assert_output_not_contains "Download will not proceed."
+
+  popd >/dev/null
+}
+
+@test "download-db: Resolve indexed long-form variables with VORTEX_DB_INDEX" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Mock the URL sub-script.
+  mkdir -p scripts/vortex
+  cat >scripts/vortex/download-db-url.sh <<'EOF'
+#!/usr/bin/env bash
+echo "Started database dump download from URL."
+echo "Finished database dump download from URL."
+EOF
+  chmod +x scripts/vortex/download-db-url.sh
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  # Set database index to pick up long-form indexed variables.
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_DOWNLOAD_DB2_SOURCE="url"
+  export VORTEX_DOWNLOAD_DB2_PROCEED="1"
+  export VORTEX_DOWNLOAD_DB2_DIR=".data"
+  export VORTEX_DOWNLOAD_DB2_FILE="db2.sql"
+
+  run scripts/vortex/download-db.sh
+  assert_success
+  assert_output_contains "Started database 2 download."
+  assert_output_contains "Started database dump download from URL."
+  assert_output_contains "Finished database 2 download."
+
+  popd >/dev/null
+}
+
+@test "download-db: Resolve indexed shorthand variables with VORTEX_DB_INDEX" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Mock the URL sub-script.
+  mkdir -p scripts/vortex
+  cat >scripts/vortex/download-db-url.sh <<'EOF'
+#!/usr/bin/env bash
+echo "Started database dump download from URL."
+echo "Finished database dump download from URL."
+EOF
+  chmod +x scripts/vortex/download-db-url.sh
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  # Set database index to pick up shorthand indexed variables.
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_DOWNLOAD_DB2_SOURCE="url"
+  export VORTEX_DOWNLOAD_DB2_PROCEED="1"
+  # Use shorthand forms for DIR and FILE.
+  export VORTEX_DB2_DIR=".data"
+  export VORTEX_DB2_FILE="db2.sql"
+
+  run scripts/vortex/download-db.sh
+  assert_success
+  assert_output_contains "Started database 2 download."
+  assert_output_contains "Started database dump download from URL."
+  assert_output_contains "Finished database 2 download."
+
+  popd >/dev/null
+}
+
 @test "download-db: Existing database file handling" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

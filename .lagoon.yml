@@ -67,7 +67,7 @@ tasks:
         command: |
           export VORTEX_DOWNLOAD_DB_SSH_FILE=false
           export VORTEX_DB_DIR=/tmp/data
-          VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+          VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
         service: cli
     #;> MIGRATION
 

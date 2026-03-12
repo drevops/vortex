@@ -265,7 +265,7 @@ jobs:
 
       #;< MIGRATION
       - name: Download migration DB
-        run: VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+        run: VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
       #;> MIGRATION
 
       - name: Export DB

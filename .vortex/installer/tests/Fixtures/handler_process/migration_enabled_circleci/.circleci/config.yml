@@ -229,7 +229,7 @@ jobs:
 
       - run:
           name: Download migration DB
-          command: VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+          command: VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
           no_output_timeout: 30m
 
       # Execute commands after database download script finished: if the

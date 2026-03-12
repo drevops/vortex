@@ -8,33 +8,44 @@
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
-_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
-VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
-for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
-
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # The FTP user.
-VORTEX_DOWNLOAD_DB_FTP_USER="${VORTEX_DOWNLOAD_DB_FTP_USER:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_USER"
+VORTEX_DOWNLOAD_DB_FTP_USER="${!_v:-}"
 
 # The FTP password.
-VORTEX_DOWNLOAD_DB_FTP_PASS="${VORTEX_DOWNLOAD_DB_FTP_PASS:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_PASS"
+VORTEX_DOWNLOAD_DB_FTP_PASS="${!_v:-}"
 
 # The FTP host.
-VORTEX_DOWNLOAD_DB_FTP_HOST="${VORTEX_DOWNLOAD_DB_FTP_HOST:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_HOST"
+VORTEX_DOWNLOAD_DB_FTP_HOST="${!_v:-}"
 
 # The FTP port.
-VORTEX_DOWNLOAD_DB_FTP_PORT="${VORTEX_DOWNLOAD_DB_FTP_PORT:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_PORT"
+VORTEX_DOWNLOAD_DB_FTP_PORT="${!_v:-}"
 
 # The file name, including any directories.
-VORTEX_DOWNLOAD_DB_FTP_FILE="${VORTEX_DOWNLOAD_DB_FTP_FILE:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_FILE"
+VORTEX_DOWNLOAD_DB_FTP_FILE="${!_v:-}"
 
 # Directory with database dump file.
-VORTEX_DOWNLOAD_DB_FTP_DB_DIR="${VORTEX_DOWNLOAD_DB_FTP_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_DB_DIR"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_DOWNLOAD_DB_FTP_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
 
 # Database dump file name.
-VORTEX_DOWNLOAD_DB_FTP_DB_FILE="${VORTEX_DOWNLOAD_DB_FTP_DB_FILE:-${VORTEX_DOWNLOAD_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FTP_DB_FILE"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_DOWNLOAD_DB_FTP_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
 
 #-------------------------------------------------------------------------------
 

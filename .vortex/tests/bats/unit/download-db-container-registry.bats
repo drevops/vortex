@@ -142,6 +142,37 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "download-db-container-registry: Resolve indexed variables with VORTEX_DB_INDEX" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "exit 1" 1
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 2
+
+  # Mock the login script.
+  mock_set_side_effect "$(mock_command "./scripts/vortex/login-container-registry.sh")" "echo 'logged in'" 1
+
+  # Set database index as used in CI: VORTEX_DB_INDEX=2.
+  export VORTEX_DB_INDEX="2"
+
+  # Set the shorthand image variable with index.
+  export VORTEX_DB2_IMAGE="myorg/migration-db"
+
+  # Set remaining required variables with index in the DB part.
+  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run scripts/vortex/download-db-container-registry.sh
+  assert_success
+  assert_output_contains "[INFO] Started database data container image download."
+  assert_output_contains "Downloading myorg/migration-db image from the registry."
+  assert_output_contains "[ OK ] Finished database data container image download."
+
+  popd >/dev/null
+}
+
 @test "download-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

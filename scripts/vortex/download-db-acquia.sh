@@ -22,42 +22,56 @@
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
-_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
-VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
-for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
-
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # Acquia Cloud API key.
-VORTEX_DOWNLOAD_DB_ACQUIA_KEY="${VORTEX_DOWNLOAD_DB_ACQUIA_KEY:-${VORTEX_ACQUIA_KEY:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_KEY"
+VORTEX_DOWNLOAD_DB_ACQUIA_KEY="${!_v:-${VORTEX_ACQUIA_KEY:-}}"
 
 # Acquia Cloud API secret.
-VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="${VORTEX_DOWNLOAD_DB_ACQUIA_SECRET:-${VORTEX_ACQUIA_SECRET:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_SECRET"
+VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="${!_v:-${VORTEX_ACQUIA_SECRET:-}}"
 
 # Application name. Used to discover UUID.
-VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="${VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME:-${VORTEX_ACQUIA_APP_NAME:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_APP_NAME"
+VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="${!_v:-${VORTEX_ACQUIA_APP_NAME:-}}"
 
 # Source environment name used to download the database dump from.
-VORTEX_DOWNLOAD_DB_ENVIRONMENT="${VORTEX_DOWNLOAD_DB_ENVIRONMENT:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ENVIRONMENT"
+VORTEX_DOWNLOAD_DB_ENVIRONMENT="${!_v:-}"
 
 # Database name within source environment used to download the database dump.
-VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_DB_NAME"
+VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="${!_v:-}"
 
 # Directory where DB dumps are stored.
-VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_DB_DIR"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
 
 # Database dump file name.
-VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE:-${VORTEX_DOWNLOAD_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_DB_FILE"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
 
 # Flag to download a fresh copy of the database by triggering a new backup.
-VORTEX_DOWNLOAD_DB_FRESH="${VORTEX_DOWNLOAD_DB_FRESH:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FRESH"
+VORTEX_DOWNLOAD_DB_FRESH="${!_v:-}"
 
 # Interval in seconds to wait between backup status checks.
-VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL="${VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL:-10}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_BACKUP_WAIT_INTERVAL"
+VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL="${!_v:-10}"
 
 # Maximum time in seconds to wait for backup completion.
-VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT="${VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT:-600}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ACQUIA_BACKUP_MAX_WAIT"
+VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT="${!_v:-600}"
 
 #-------------------------------------------------------------------------------
 

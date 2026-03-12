@@ -145,7 +145,7 @@ commands:
     aliases: [fetch-db2]
     cmd: |
       case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FORCE=1;; esac
-      VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2 ./scripts/vortex/download-db.sh
+      VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
   #;> MIGRATION
   #;> !PROVISION_TYPE_PROFILE
 

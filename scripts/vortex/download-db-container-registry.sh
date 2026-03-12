@@ -8,32 +8,42 @@
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
-_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
-VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
-for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
-
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant (e.g., VORTEX_DB2_IMAGE instead of VORTEX_DB_IMAGE).
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # The container image containing database passed in a form of `<org>/<repository>`.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE:-${VORTEX_DB_IMAGE:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_CONTAINER_REGISTRY_IMAGE"
+_vs="VORTEX_DB${_db_index}_IMAGE"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="${!_v:-${!_vs:-}}"
 
 # Container registry name.
 #
 # Provide port, if required as `<server_name>:<port>`.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_CONTAINER_REGISTRY"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="${!_v:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
 
 # The username to login into the container registry.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_CONTAINER_REGISTRY_USER"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="${!_v:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
 
 # The password to login into the container registry.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_CONTAINER_REGISTRY_PASS"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="${!_v:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
 
 # Directory with database dump file.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_CONTAINER_REGISTRY_DB_DIR"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
 
 # The base container image used as a fallback when the archive does not exist.
-VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE:-${VORTEX_DB_IMAGE_BASE:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_CONTAINER_REGISTRY_IMAGE_BASE"
+_vs="VORTEX_DB${_db_index}_IMAGE_BASE"
+VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE="${!_v:-${!_vs:-}}"
 
 #-------------------------------------------------------------------------------
 
