@@ -21,7 +21,7 @@ load ../_helper.bash
     "S3 region:      ap-southeast-2"
     "Storage class:  STANDARD"
 
-    "@curl * # 0"
+    "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump upload to S3."
   )
@@ -60,7 +60,7 @@ load ../_helper.bash
     "Local file:     ./.data/db.sql"
     "Remote file:    db.sql"
 
-    "@curl * # 0"
+    "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump upload to S3."
   )
@@ -98,7 +98,7 @@ load ../_helper.bash
     "S3 bucket:      shortcut-bucket"
     "S3 region:      us-east-1"
 
-    "@curl * # 0"
+    "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump upload to S3."
   )
@@ -140,7 +140,7 @@ load ../_helper.bash
 
     "Remote file:    backup/db_latest.sql"
 
-    "@curl * # 0"
+    "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump upload to S3."
   )
@@ -179,7 +179,7 @@ load ../_helper.bash
     "Remote file:    backups/daily/db.sql"
     "S3 prefix:      backups/daily/"
 
-    "@curl * # 0"
+    "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump upload to S3."
   )
@@ -218,7 +218,7 @@ load ../_helper.bash
     "Remote file:    backups/daily/db.sql"
     "S3 prefix:      backups/daily/"
 
-    "@curl * # 0"
+    "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump upload to S3."
   )
@@ -240,6 +240,42 @@ load ../_helper.bash
   run_steps "assert" "${mocks}"
 
   assert_success
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "upload-db-s3: Fail when S3 upload returns non-2xx status" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "CREATE TABLE test (id INT);" >.data/db.sql
+
+  declare -a STEPS=(
+    "[INFO] Started database dump upload to S3."
+
+    "@curl * # 0 # AccessDenied\n403"
+
+    "ERROR: S3 upload failed with HTTP status 403."
+    "- [ OK ] Finished database dump upload to S3."
+  )
+
+  # Clear shortcut variables to prevent environment leakage.
+  unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+
+  export VORTEX_UPLOAD_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_UPLOAD_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_UPLOAD_DB_S3_BUCKET="test-bucket"
+  export VORTEX_UPLOAD_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_UPLOAD_DB_S3_DB_DIR=".data"
+  export VORTEX_UPLOAD_DB_S3_DB_FILE="db.sql"
+
+  mocks="$(run_steps "setup")"
+  run scripts/vortex/upload-db-s3.sh
+  run_steps "assert" "${mocks}"
+
+  assert_failure
 
   rm -rf .data
 
