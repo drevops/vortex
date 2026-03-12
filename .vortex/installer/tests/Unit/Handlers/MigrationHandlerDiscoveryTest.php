@@ -16,59 +16,51 @@ use Laravel\Prompts\Key;
 #[CoversClass(Migration::class)]
 class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
-  public static function dataProviderRunPrompts(): array {
+  public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
-
-    return [
-      'migration - prompt - disabled' => [
-        [Migration::id() => Key::ENTER],
-        [Migration::id() => FALSE] + $expected_defaults,
+    yield 'migration - prompt - disabled' => [
+      [Migration::id() => Key::ENTER],
+      [Migration::id() => FALSE] + $expected_defaults,
+    ];
+    yield 'migration - prompt - enabled' => [
+      [
+        Migration::id() => Key::LEFT . Key::ENTER,
+        MigrationDownloadSource::id() => Key::ENTER,
       ],
-
-      'migration - prompt - enabled' => [
-        [
-          Migration::id() => Key::LEFT . Key::ENTER,
-          MigrationDownloadSource::id() => Key::ENTER,
-        ],
-        [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_defaults,
+    ];
+    yield 'migration - discovery - database2 exists' => [
+      [
+        MigrationDownloadSource::id() => Key::ENTER,
       ],
-
-      'migration - discovery - database2 exists' => [
-        [
-          MigrationDownloadSource::id() => Key::ENTER,
-        ],
-        [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_installed,
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
-        },
-      ],
-
-      'migration - discovery - no database2 service' => [
-        [],
-        [Migration::id() => FALSE] + $expected_installed,
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubVortexProject($config);
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
-        },
-      ],
-
-      'migration - discovery - no docker-compose' => [
-        [],
-        $expected_installed,
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubVortexProject($config);
-        },
-      ],
-
-      'migration - discovery - non-Vortex' => [
-        [],
-        $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test): void {
-          File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
-        },
-      ],
+      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+      },
+    ];
+    yield 'migration - discovery - no database2 service' => [
+      [],
+      [Migration::id() => FALSE] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+      },
+    ];
+    yield 'migration - discovery - no docker-compose' => [
+      [],
+      $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+      },
+    ];
+    yield 'migration - discovery - non-Vortex' => [
+      [],
+      $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test): void {
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+      },
     ];
   }
 

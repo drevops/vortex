@@ -1,4 +1,4 @@
-@@ -76,93 +76,6 @@
+@@ -76,91 +76,6 @@
    }
  
    /**
@@ -19,71 +19,69 @@
 -  /**
 -   * Data provider for testConfigSplit().
 -   */
--  public static function dataProviderConfigSplit(): array {
--    return [
+-  public static function dataProviderConfigSplit(): \Iterator {
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'config_split.config_split.local' => ['status' => TRUE],
--        ],
--        [
--          'config_split.config_split.stage' => NULL,
--          'config_split.config_split.dev' => NULL,
--          'config_split.config_split.ci' => NULL,
--        ],
+-        'config_split.config_split.local' => ['status' => TRUE],
 -      ],
 -      [
--        self::ENVIRONMENT_CI,
--        [
--          'config_split.config_split.ci' => ['status' => TRUE],
--        ],
--        [
--          'config_split.config_split.stage' => NULL,
--          'config_split.config_split.dev' => NULL,
--          'config_split.config_split.local' => NULL,
--        ],
+-        'config_split.config_split.stage' => NULL,
+-        'config_split.config_split.dev' => NULL,
+-        'config_split.config_split.ci' => NULL,
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_CI,
+-      [
+-        'config_split.config_split.ci' => ['status' => TRUE],
 -      ],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'config_split.config_split.dev' => ['status' => TRUE],
--        ],
--        [
--          'config_split.config_split.stage' => NULL,
--          'config_split.config_split.ci' => NULL,
--          'config_split.config_split.local' => NULL,
--        ],
+-        'config_split.config_split.stage' => NULL,
+-        'config_split.config_split.dev' => NULL,
+-        'config_split.config_split.local' => NULL,
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'config_split.config_split.dev' => ['status' => TRUE],
 -      ],
 -      [
--        self::ENVIRONMENT_STAGE,
--        [
--          'config_split.config_split.stage' => ['status' => TRUE],
--        ],
--        [
--          'config_split.config_split.dev' => NULL,
--          'config_split.config_split.ci' => NULL,
--          'config_split.config_split.local' => NULL,
--        ],
+-        'config_split.config_split.stage' => NULL,
+-        'config_split.config_split.ci' => NULL,
+-        'config_split.config_split.local' => NULL,
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_STAGE,
+-      [
+-        'config_split.config_split.stage' => ['status' => TRUE],
 -      ],
 -      [
--        self::ENVIRONMENT_PROD,
--        [],
--        [
--          'config_split.config_split.stage' => NULL,
--          'config_split.config_split.dev' => NULL,
--          'config_split.config_split.ci' => NULL,
--          'config_split.config_split.local' => NULL,
--        ],
+-        'config_split.config_split.dev' => NULL,
+-        'config_split.config_split.ci' => NULL,
+-        'config_split.config_split.local' => NULL,
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_PROD,
+-      [],
 -      [
--        self::ENVIRONMENT_SUT,
--        [],
--        [
--          'config_split.config_split.stage' => NULL,
--          'config_split.config_split.dev' => NULL,
--          'config_split.config_split.ci' => NULL,
--          'config_split.config_split.local' => NULL,
--        ],
+-        'config_split.config_split.stage' => NULL,
+-        'config_split.config_split.dev' => NULL,
+-        'config_split.config_split.ci' => NULL,
+-        'config_split.config_split.local' => NULL,
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_SUT,
+-      [],
+-      [
+-        'config_split.config_split.stage' => NULL,
+-        'config_split.config_split.dev' => NULL,
+-        'config_split.config_split.ci' => NULL,
+-        'config_split.config_split.local' => NULL,
 -      ],
 -    ];
 -  }

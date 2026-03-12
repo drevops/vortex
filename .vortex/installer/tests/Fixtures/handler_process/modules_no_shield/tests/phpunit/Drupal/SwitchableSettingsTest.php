@@ -1,4 +1,4 @@
-@@ -301,377 +301,6 @@
+@@ -297,375 +297,6 @@
    }
  
    /**
@@ -17,357 +17,355 @@
 -  /**
 -   * Data provider for testShield().
 -   */
--  public static function dataProviderShield(): array {
--    return [
+-  public static function dataProviderShield(): \Iterator {
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [],
--        [
--          'shield.settings' => ['shield_enable' => FALSE],
--        ],
--        [
--          'shield.settings' => ['credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['shield_enable' => FALSE],
 -      ],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE],
--        ],
--        [
--          'shield.settings' => ['credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
 -      ],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['shield_enable' => FALSE],
 -      ],
+-      [
+-        'shield.settings' => ['credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_CI,
 -      [
--        self::ENVIRONMENT_CI,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
 -      ],
+-      [
+-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
 -      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_STAGE,
 -      [
--        self::ENVIRONMENT_STAGE,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
 -      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_PROD,
 -      [
--        self::ENVIRONMENT_PROD,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--        ],
--        [
--          'shield.settings' => ['credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
 -      ],
+-      [
+-        'shield.settings' => ['credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => FALSE],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_SUT,
 -      [
--        self::ENVIRONMENT_SUT,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
 -      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => '',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => '',
 -      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => 0,
--        ],
--        [
--          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => 0,
 -      ],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => 1,
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => 1,
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => '0',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => '0',
 -      ],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => '1',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => '1',
 -      ],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => 'false',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => 'false',
 -      ],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
--          'DRUPAL_SHIELD_DISABLED' => 'true',
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
--        ],
+-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => 'true',
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_DISABLED' => TRUE,
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE],
--        ],
+-        'DRUPAL_SHIELD_DISABLED' => TRUE,
 -      ],
 -      [
--        self::ENVIRONMENT_STAGE,
--        [
--          'DRUPAL_SHIELD_DISABLED' => TRUE,
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE],
--        ],
+-        'shield.settings' => ['shield_enable' => FALSE],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_STAGE,
+-      [
+-        'DRUPAL_SHIELD_DISABLED' => TRUE,
 -      ],
 -      [
--        self::ENVIRONMENT_PROD,
--        [
--          'DRUPAL_SHIELD_DISABLED' => TRUE,
--        ],
--        [
--          'shield.settings' => ['shield_enable' => FALSE],
--        ],
+-        'shield.settings' => ['shield_enable' => FALSE],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_PROD,
+-      [
+-        'DRUPAL_SHIELD_DISABLED' => TRUE,
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => FALSE],
+-      ],
+-    ];
 -
--      // ACME challenge passthrough tests.
+-    // ACME challenge passthrough tests.
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+-          'method' => 0,
+-          'paths' => '/.well-known/acme-challenge/*',
 -        ],
--        [
--          'shield.settings' => [
--            'shield_enable' => TRUE,
--            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
--            'method' => 0,
--            'paths' => '/.well-known/acme-challenge/*',
--          ],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => FALSE,
+-          'method' => 0,
+-          'paths' => '/.well-known/acme-challenge/*',
+-        ],
+-      ],
+-    ];
+-    // ACME challenge disabled - verify settings are absent.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
 -        ],
 -      ],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
--        ],
--        [
--          'shield.settings' => [
--            'shield_enable' => FALSE,
--            'method' => 0,
--            'paths' => '/.well-known/acme-challenge/*',
--          ],
--        ],
+-        'shield.settings' => ['method' => NULL, 'paths' => NULL],
 -      ],
--      // ACME challenge disabled - verify settings are absent.
+-    ];
+-    // ACME challenge with empty value - should not set.
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [
--          'shield.settings' => [
--            'shield_enable' => TRUE,
--            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
--          ],
--        ],
--        [
--          'shield.settings' => ['method' => NULL, 'paths' => NULL],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => '',
 -      ],
--      // ACME challenge with empty value - should not set.
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => '',
--        ],
--        [
--          'shield.settings' => [
--            'shield_enable' => TRUE,
--            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
--          ],
--        ],
--        [
--          'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
 -        ],
 -      ],
--      // ACME challenge with 0 value - should not set.
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
--        ],
--        [
--          'shield.settings' => [
--            'shield_enable' => TRUE,
--            'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
--          ],
--        ],
--        [
--          'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-        'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-      ],
+-    ];
+-    // ACME challenge with 0 value - should not set.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
 -        ],
 -      ],
+-      [
+-        'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
--        ],
--        [
--          'shield.settings' => [
--            'method' => 0,
--            'paths' => "/custom/path/*\n/.well-known/acme-challenge/*",
--          ],
--        ],
--        [],
--        [
--          'shield.settings' => ['paths' => '/custom/path/*'],
--        ],
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
 -      ],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
--        ],
--        [
--          'shield.settings' => [
--            'method' => 0,
--            'paths' => "/.well-known/acme-challenge/*\n/other/path/*",
--          ],
--        ],
--        [],
--        [
--          'shield.settings' => ['paths' => "/.well-known/acme-challenge/*\n/other/path/*"],
+-        'shield.settings' => [
+-          'method' => 0,
+-          'paths' => "/custom/path/*\n/.well-known/acme-challenge/*",
 -        ],
 -      ],
+-      [],
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--          'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-        'shield.settings' => ['paths' => '/custom/path/*'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'method' => 0,
+-          'paths' => "/.well-known/acme-challenge/*\n/other/path/*",
 -        ],
--        [
--          'shield.settings' => [
--            'method' => 0,
--            'paths' => "/admin/*\n/api/*\n/.well-known/acme-challenge/*",
--          ],
+-      ],
+-      [],
+-      [
+-        'shield.settings' => ['paths' => "/.well-known/acme-challenge/*\n/other/path/*"],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 1,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'method' => 0,
+-          'paths' => "/admin/*\n/api/*\n/.well-known/acme-challenge/*",
 -        ],
--        [],
--        [
--          'shield.settings' => ['paths' => "/admin/*\n/api/*"],
--        ],
+-      ],
+-      [],
+-      [
+-        'shield.settings' => ['paths' => "/admin/*\n/api/*"],
 -      ],
 -    ];
 -  }

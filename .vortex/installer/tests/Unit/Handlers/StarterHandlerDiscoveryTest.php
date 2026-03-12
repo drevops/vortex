@@ -13,43 +13,37 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Starter::class)]
 class StarterHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
-  public static function dataProviderRunPrompts(): array {
+  public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
+    yield 'starter - prompt' => [
+      [Starter::id() => Key::ENTER],
+      [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
+    ];
+    yield 'starter - prompt - Drupal profile' => [
+      [Starter::id() => Key::DOWN . Key::ENTER],
+      [Starter::id() => Starter::INSTALL_PROFILE_CORE] + $expected_defaults,
+    ];
+    yield 'starter - prompt - Drupal CMS profile' => [
+      [Starter::id() => Key::DOWN . Key::DOWN . Key::ENTER],
+      [
+        Starter::id() => Starter::INSTALL_PROFILE_DRUPALCMS,
+        Profile::id() => Starter::INSTALL_PROFILE_DRUPALCMS_PATH,
+      ] + $expected_defaults,
 
-    return [
-      'starter - prompt' => [
-        [Starter::id() => Key::ENTER],
-        [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
-      ],
-
-      'starter - prompt - Drupal profile' => [
-        [Starter::id() => Key::DOWN . Key::ENTER],
-        [Starter::id() => Starter::INSTALL_PROFILE_CORE] + $expected_defaults,
-      ],
-      'starter - prompt - Drupal CMS profile' => [
-        [Starter::id() => Key::DOWN . Key::DOWN . Key::ENTER],
-        [
-          Starter::id() => Starter::INSTALL_PROFILE_DRUPALCMS,
-          Profile::id() => Starter::INSTALL_PROFILE_DRUPALCMS_PATH,
-        ] + $expected_defaults,
-
-      ],
-
-      'starter - discovery' => [
-        [],
-        [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test): void {
-          // Noop.
-        },
-      ],
-
-      'starter - installed project - skipped' => [
-        [],
-        [Starter::id() => Starter::LOAD_DATABASE_DEMO] + static::getExpectedInstalled(),
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubVortexProject($config);
-        },
-      ],
+    ];
+    yield 'starter - discovery' => [
+      [],
+      [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test): void {
+        // Noop.
+      },
+    ];
+    yield 'starter - installed project - skipped' => [
+      [],
+      [Starter::id() => Starter::LOAD_DATABASE_DEMO] + static::getExpectedInstalled(),
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+      },
     ];
   }
 

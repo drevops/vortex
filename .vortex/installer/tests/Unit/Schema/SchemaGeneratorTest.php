@@ -86,15 +86,13 @@ class SchemaGeneratorTest extends UnitTestCase {
   /**
    * Data provider for testPromptTypes.
    */
-  public static function dataProviderPromptTypes(): array {
-    return [
-      'name' => [Name::id(), 'text'],
-      'hosting_provider' => [HostingProvider::id(), 'select'],
-      'ci_provider' => [CiProvider::id(), 'select'],
-      'migration' => [Migration::id(), 'confirm'],
-      'database_image' => [DatabaseImage::id(), 'text'],
-      'ai_code_instructions' => [AiCodeInstructions::id(), 'confirm'],
-    ];
+  public static function dataProviderPromptTypes(): \Iterator {
+    yield 'name' => [Name::id(), 'text'];
+    yield 'hosting_provider' => [HostingProvider::id(), 'select'];
+    yield 'ci_provider' => [CiProvider::id(), 'select'];
+    yield 'migration' => [Migration::id(), 'confirm'];
+    yield 'database_image' => [DatabaseImage::id(), 'text'];
+    yield 'ai_code_instructions' => [AiCodeInstructions::id(), 'confirm'];
   }
 
   public function testOptionsFormat(): void {
@@ -127,15 +125,13 @@ class SchemaGeneratorTest extends UnitTestCase {
   /**
    * Data provider for testDependsOnFormat.
    */
-  public static function dataProviderDependsOnFormat(): array {
-    return [
-      'hosting_project_name' => [HostingProjectName::id()],
-      'profile_custom' => [ProfileCustom::id()],
-      'theme_custom' => [ThemeCustom::id()],
-      'database_download_source' => [DatabaseDownloadSource::id()],
-      'database_image' => [DatabaseImage::id()],
-      'migration_download_source' => [MigrationDownloadSource::id()],
-    ];
+  public static function dataProviderDependsOnFormat(): \Iterator {
+    yield 'hosting_project_name' => [HostingProjectName::id()];
+    yield 'profile_custom' => [ProfileCustom::id()];
+    yield 'theme_custom' => [ThemeCustom::id()];
+    yield 'database_download_source' => [DatabaseDownloadSource::id()];
+    yield 'database_image' => [DatabaseImage::id()];
+    yield 'migration_download_source' => [MigrationDownloadSource::id()];
   }
 
   public function testUtilityHandlersExcluded(): void {

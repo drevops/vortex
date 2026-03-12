@@ -37,12 +37,10 @@ class ExampleTest extends YourSiteThemeKernelTestBase {
   /**
    * Data provider for testAdd().
    */
-  public static function dataProviderAdd(): array {
-    return [
-      [0, 0, 0],
-      [1, 1, 2],
-      [3, 1, 4],
-    ];
+  public static function dataProviderAdd(): \Iterator {
+    yield [0, 0, 0];
+    yield [1, 1, 2];
+    yield [3, 1, 4];
   }
 
   /**
@@ -65,13 +63,11 @@ class ExampleTest extends YourSiteThemeKernelTestBase {
   /**
    * Data provider for testSubtract().
    */
-  public static function dataProviderSubtract(): array {
-    return [
-      [0, 0, 0],
-      [1, 1, 0],
-      [2, 1, 1],
-      [3, 1, 2],
-    ];
+  public static function dataProviderSubtract(): \Iterator {
+    yield [0, 0, 0];
+    yield [1, 1, 0];
+    yield [2, 1, 1];
+    yield [3, 1, 2];
   }
 
   /**
@@ -95,12 +91,10 @@ class ExampleTest extends YourSiteThemeKernelTestBase {
   /**
    * Data provider for testMultiplication().
    */
-  public static function dataProviderMultiplication(): array {
-    return [
-      [0, 0, 0],
-      [1, 1, 1],
-      [2, 1, 2],
-    ];
+  public static function dataProviderMultiplication(): \Iterator {
+    yield [0, 0, 0];
+    yield [1, 1, 1];
+    yield [2, 1, 2];
   }
 
 }

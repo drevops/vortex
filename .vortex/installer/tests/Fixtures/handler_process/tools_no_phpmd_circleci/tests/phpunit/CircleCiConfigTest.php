@@ -53,165 +53,163 @@ class CircleCiConfigTest extends TestCase {
   /**
    * Data provider for testDeployBranchRegex().
    */
-  public static function dataProviderDeployBranchRegex(): array {
-    return [
-      // Positive branches.
-      ['production'],
-      ['main'],
-      ['master'],
-      ['develop'],
+  public static function dataProviderDeployBranchRegex(): \Iterator {
+    // Positive branches.
+    yield ['production'];
+    yield ['main'];
+    yield ['master'];
+    yield ['develop'];
 
-      ['ci'],
-      ['cisomething'],
+    yield ['ci'];
+    yield ['cisomething'];
 
-      ['release/__VERSION__'],
-      ['release/__VERSION__'],
-      ['hotfix/__VERSION__'],
-      ['hotfix/__VERSION__'],
+    yield ['release/__VERSION__'];
+    yield ['release/__VERSION__'];
+    yield ['hotfix/__VERSION__'];
+    yield ['hotfix/__VERSION__'];
 
-      ['release/2023-04-17'],
-      ['release/2023-04-17.1'],
-      ['hotfix/2023-04-17'],
-      ['hotfix/2023-04-17.1'],
+    yield ['release/2023-04-17'];
+    yield ['release/2023-04-17.1'];
+    yield ['hotfix/2023-04-17'];
+    yield ['hotfix/2023-04-17.1'];
 
-      ['feature/description'],
-      ['feature/Description'],
-      ['feature/Description-With-Hyphens'],
-      ['feature/Description-With_Underscores'],
-      ['feature/123-description'],
-      ['feature/123-Description'],
-      ['feature/UNDERSCORES_UNDERSCORES'],
-      ['feature/123-Description-With_UNDERSCORES'],
-      ['feature/1.x'],
-      ['feature/0.x'],
-      ['feature/0.1.x'],
-      ['feature/__VERSION__.x'],
-      ['feature/1.x-description'],
-      ['feature/0.x-description'],
-      ['feature/0.1.x-description'],
-      ['feature/__VERSION__.x-description'],
+    yield ['feature/description'];
+    yield ['feature/Description'];
+    yield ['feature/Description-With-Hyphens'];
+    yield ['feature/Description-With_Underscores'];
+    yield ['feature/123-description'];
+    yield ['feature/123-Description'];
+    yield ['feature/UNDERSCORES_UNDERSCORES'];
+    yield ['feature/123-Description-With_UNDERSCORES'];
+    yield ['feature/1.x'];
+    yield ['feature/0.x'];
+    yield ['feature/0.1.x'];
+    yield ['feature/__VERSION__.x'];
+    yield ['feature/1.x-description'];
+    yield ['feature/0.x-description'];
+    yield ['feature/0.1.x-description'];
+    yield ['feature/__VERSION__.x-description'];
 
-      ['bugfix/description'],
-      ['bugfix/Description'],
-      ['bugfix/Description-With-Hyphens'],
-      ['bugfix/Description-With_Underscores'],
-      ['bugfix/123-description'],
-      ['bugfix/123-Description'],
-      ['bugfix/UNDERSCORES_UNDERSCORES'],
-      ['bugfix/123-Description-With_UNDERSCORES'],
-      ['bugfix/1.x'],
-      ['bugfix/0.x'],
-      ['bugfix/0.1.x'],
-      ['bugfix/__VERSION__.x'],
-      ['bugfix/1.x-description'],
-      ['bugfix/0.x-description'],
-      ['bugfix/0.1.x-description'],
-      ['bugfix/__VERSION__.x-description'],
+    yield ['bugfix/description'];
+    yield ['bugfix/Description'];
+    yield ['bugfix/Description-With-Hyphens'];
+    yield ['bugfix/Description-With_Underscores'];
+    yield ['bugfix/123-description'];
+    yield ['bugfix/123-Description'];
+    yield ['bugfix/UNDERSCORES_UNDERSCORES'];
+    yield ['bugfix/123-Description-With_UNDERSCORES'];
+    yield ['bugfix/1.x'];
+    yield ['bugfix/0.x'];
+    yield ['bugfix/0.1.x'];
+    yield ['bugfix/__VERSION__.x'];
+    yield ['bugfix/1.x-description'];
+    yield ['bugfix/0.x-description'];
+    yield ['bugfix/0.1.x-description'];
+    yield ['bugfix/__VERSION__.x-description'];
 
-      ['project/description'],
-      ['project/Description'],
-      ['project/Description-With-Hyphens'],
-      ['project/123-description'],
-      ['project/123-Description'],
-      ['project/1.x'],
-      ['project/0.x'],
-      ['project/0.1.x'],
-      ['project/__VERSION__.x'],
-      ['project/1.x-description'],
-      ['project/0.x-description'],
-      ['project/0.1.x-description'],
-      ['project/__VERSION__.x-description'],
+    yield ['project/description'];
+    yield ['project/Description'];
+    yield ['project/Description-With-Hyphens'];
+    yield ['project/123-description'];
+    yield ['project/123-Description'];
+    yield ['project/1.x'];
+    yield ['project/0.x'];
+    yield ['project/0.1.x'];
+    yield ['project/__VERSION__.x'];
+    yield ['project/1.x-description'];
+    yield ['project/0.x-description'];
+    yield ['project/0.1.x-description'];
+    yield ['project/__VERSION__.x-description'];
 
-      // Negative branches.
-      ['something', FALSE],
-      ['premain', FALSE],
-      ['premaster', FALSE],
-      ['predevelop', FALSE],
-      ['mainpost', FALSE],
-      ['masterpost', FALSE],
-      ['developpost', FALSE],
-      ['premainpost', FALSE],
-      ['premasterpost', FALSE],
-      ['predeveloppost', FALSE],
+    // Negative branches.
+    yield ['something', FALSE];
+    yield ['premain', FALSE];
+    yield ['premaster', FALSE];
+    yield ['predevelop', FALSE];
+    yield ['mainpost', FALSE];
+    yield ['masterpost', FALSE];
+    yield ['developpost', FALSE];
+    yield ['premainpost', FALSE];
+    yield ['premasterpost', FALSE];
+    yield ['predeveloppost', FALSE];
 
-      ['preci', FALSE],
-      ['precipost', FALSE],
+    yield ['preci', FALSE];
+    yield ['precipost', FALSE];
 
-      ['deps/something', FALSE],
-      ['deps', FALSE],
-      ['predeps', FALSE],
-      ['depspost', FALSE],
-      ['predepspost', FALSE],
+    yield ['deps/something', FALSE];
+    yield ['deps', FALSE];
+    yield ['predeps', FALSE];
+    yield ['depspost', FALSE];
+    yield ['predepspost', FALSE];
 
-      ['feature', FALSE],
-      ['release', FALSE],
-      ['hotfix', FALSE],
-      ['prefeature', FALSE],
-      ['prerelease', FALSE],
-      ['prehotfix', FALSE],
-      ['featurepost', FALSE],
-      ['releasepost', FALSE],
-      ['hotfixpost', FALSE],
-      ['prefeaturepost', FALSE],
-      ['prereleasepost', FALSE],
-      ['prehotfixpost', FALSE],
+    yield ['feature', FALSE];
+    yield ['release', FALSE];
+    yield ['hotfix', FALSE];
+    yield ['prefeature', FALSE];
+    yield ['prerelease', FALSE];
+    yield ['prehotfix', FALSE];
+    yield ['featurepost', FALSE];
+    yield ['releasepost', FALSE];
+    yield ['hotfixpost', FALSE];
+    yield ['prefeaturepost', FALSE];
+    yield ['prereleasepost', FALSE];
+    yield ['prehotfixpost', FALSE];
 
-      ['release/123', FALSE],
-      ['release/123.456', FALSE],
-      ['hotfix/123', FALSE],
-      ['hotfix/123.456', FALSE],
+    yield ['release/123', FALSE];
+    yield ['release/123.456', FALSE];
+    yield ['hotfix/123', FALSE];
+    yield ['hotfix/123.456', FALSE];
 
-      ['release/202-04-17', FALSE],
-      ['release/2023-4-17', FALSE],
-      ['release/2023-04-1', FALSE],
-      ['release/pre2023-04-17', FALSE],
-      ['release/2023-04-17post', FALSE],
-      ['release/pre2023-04-17post', FALSE],
+    yield ['release/202-04-17', FALSE];
+    yield ['release/2023-4-17', FALSE];
+    yield ['release/2023-04-1', FALSE];
+    yield ['release/pre2023-04-17', FALSE];
+    yield ['release/2023-04-17post', FALSE];
+    yield ['release/pre2023-04-17post', FALSE];
 
-      ['hotfix/202-04-17', FALSE],
-      ['hotfix/2023-4-17', FALSE],
-      ['hotfix/2023-04-1', FALSE],
-      ['hotfix/pre2023-04-17', FALSE],
-      ['hotfix/2023-04-17post', FALSE],
-      ['hotfix/pre2023-04-17post', FALSE],
+    yield ['hotfix/202-04-17', FALSE];
+    yield ['hotfix/2023-4-17', FALSE];
+    yield ['hotfix/2023-04-1', FALSE];
+    yield ['hotfix/pre2023-04-17', FALSE];
+    yield ['hotfix/2023-04-17post', FALSE];
+    yield ['hotfix/pre2023-04-17post', FALSE];
 
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
-      ['release/__VERSION__', FALSE],
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
+    yield ['release/__VERSION__', FALSE];
 
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
-      ['hotfix/__VERSION__', FALSE],
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
+    yield ['hotfix/__VERSION__', FALSE];
 
-      ['prefeature/something', FALSE],
-      ['prefbugfix/something', FALSE],
-      ['prerelease/something', FALSE],
-      ['prehotfix/something', FALSE],
-      ['featurepost/something', FALSE],
-      ['bugfixpost/something', FALSE],
-      ['releasepost/something', FALSE],
-      ['hotfixpost/something', FALSE],
-      ['prefeaturepost/something', FALSE],
-      ['prebugfixpost/something', FALSE],
-      ['prereleasepost/something', FALSE],
-      ['prehotfixpost/something', FALSE],
-      ['preproject/something', FALSE],
-      ['projectpost/something', FALSE],
-    ];
+    yield ['prefeature/something', FALSE];
+    yield ['prefbugfix/something', FALSE];
+    yield ['prerelease/something', FALSE];
+    yield ['prehotfix/something', FALSE];
+    yield ['featurepost/something', FALSE];
+    yield ['bugfixpost/something', FALSE];
+    yield ['releasepost/something', FALSE];
+    yield ['hotfixpost/something', FALSE];
+    yield ['prefeaturepost/something', FALSE];
+    yield ['prebugfixpost/something', FALSE];
+    yield ['prereleasepost/something', FALSE];
+    yield ['prehotfixpost/something', FALSE];
+    yield ['preproject/something', FALSE];
+    yield ['projectpost/something', FALSE];
   }
 
   /**
@@ -227,34 +225,32 @@ class CircleCiConfigTest extends TestCase {
   /**
    * Data provider for testDeployTagRegex().
    */
-  public static function dataProviderDeployTagRegex(): array {
-    return [
-      // Positive tags.
-      ['__VERSION__'],
-      ['__VERSION__'],
-      ['2023-04-17'],
-      ['2023-04-17.123'],
+  public static function dataProviderDeployTagRegex(): \Iterator {
+    // Positive tags.
+    yield ['__VERSION__'];
+    yield ['__VERSION__'];
+    yield ['2023-04-17'];
+    yield ['2023-04-17.123'];
 
-      // Negative tags.
-      ['123', FALSE],
-      ['123.456', FALSE],
-      ['__VERSION__', FALSE],
-      ['__VERSION__', FALSE],
-      ['__VERSION__', FALSE],
-      ['__VERSION__', FALSE],
-      ['__VERSION__', FALSE],
+    // Negative tags.
+    yield ['123', FALSE];
+    yield ['123.456', FALSE];
+    yield ['__VERSION__', FALSE];
+    yield ['__VERSION__', FALSE];
+    yield ['__VERSION__', FALSE];
+    yield ['__VERSION__', FALSE];
+    yield ['__VERSION__', FALSE];
 
-      ['202-04-17', FALSE],
-      ['2023-0-17', FALSE],
-      ['2023-04-1', FALSE],
-      ['pre2023-04-17', FALSE],
-      ['2023-04-17post', FALSE],
-      ['pre2023-04-17post', FALSE],
-      ['2023-04-17.123.', FALSE],
-      ['2023-04-17.pre123', FALSE],
-      ['2023-04-17.pre123post', FALSE],
-      ['2023-04-17.123post', FALSE],
-    ];
+    yield ['202-04-17', FALSE];
+    yield ['2023-0-17', FALSE];
+    yield ['2023-04-1', FALSE];
+    yield ['pre2023-04-17', FALSE];
+    yield ['2023-04-17post', FALSE];
+    yield ['pre2023-04-17post', FALSE];
+    yield ['2023-04-17.123.', FALSE];
+    yield ['2023-04-17.pre123', FALSE];
+    yield ['2023-04-17.pre123post', FALSE];
+    yield ['2023-04-17.123post', FALSE];
   }
 
 }

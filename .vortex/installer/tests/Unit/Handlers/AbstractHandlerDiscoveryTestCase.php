@@ -117,7 +117,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
   /**
    * Abstract data provider that must be implemented by handler test classes.
    */
-  abstract public static function dataProviderRunPrompts(): array;
+  abstract public static function dataProviderRunPrompts(): \Iterator;
 
   /**
    * Get expected defaults for a new project.

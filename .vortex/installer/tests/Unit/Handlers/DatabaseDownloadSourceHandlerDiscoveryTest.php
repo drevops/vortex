@@ -11,39 +11,32 @@ use Laravel\Prompts\Key;
 #[CoversClass(DatabaseDownloadSource::class)]
 class DatabaseDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
-  public static function dataProviderRunPrompts(): array {
+  public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
-
-    return [
-      'database download source - prompt' => [
-        [DatabaseDownloadSource::id() => Key::ENTER],
-        [DatabaseDownloadSource::id() => DatabaseDownloadSource::URL] + $expected_defaults,
-      ],
-
-      'database download source - discovery' => [
-        [],
-        [DatabaseDownloadSource::id() => DatabaseDownloadSource::FTP] + $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test): void {
-          $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::FTP);
-        },
-      ],
-
-      'database download source - discovery - s3' => [
-        [],
-        [DatabaseDownloadSource::id() => DatabaseDownloadSource::S3] + $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test): void {
-          $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::S3);
-        },
-      ],
-
-      'database download source - discovery - invalid' => [
-        [],
-        $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test): void {
-          $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', 'invalid_source');
-        },
-      ],
-
+    yield 'database download source - prompt' => [
+      [DatabaseDownloadSource::id() => Key::ENTER],
+      [DatabaseDownloadSource::id() => DatabaseDownloadSource::URL] + $expected_defaults,
+    ];
+    yield 'database download source - discovery' => [
+      [],
+      [DatabaseDownloadSource::id() => DatabaseDownloadSource::FTP] + $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test): void {
+        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::FTP);
+      },
+    ];
+    yield 'database download source - discovery - s3' => [
+      [],
+      [DatabaseDownloadSource::id() => DatabaseDownloadSource::S3] + $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test): void {
+        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::S3);
+      },
+    ];
+    yield 'database download source - discovery - invalid' => [
+      [],
+      $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test): void {
+        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', 'invalid_source');
+      },
     ];
   }
 

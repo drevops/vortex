@@ -77,20 +77,18 @@ class GitTest extends UnitTestCase {
     $this->assertSame($expected, Git::extractOwnerRepo($uri));
   }
 
-  public static function dataProviderExtractOwnerRepo(): array {
-    return [
-      ['git@github.com:owner/repo.git', 'owner/repo'],
-      ['ssh://git@github.com/owner/repo.git', 'owner/repo'],
-      ['https://github.com/owner/repo.git', 'owner/repo'],
-      ['git://github.com/owner/repo.git', 'owner/repo'],
-      ['https://github.com/owner/repo', 'owner/repo'],
-      ['git@bitbucket.org:myteam/myproject.git', 'myteam/myproject'],
-      ['ssh://git@gitlab.com/mygroup/myrepo.git', 'mygroup/myrepo'],
-      ['https://gitlab.com/mygroup/myrepo.git', 'mygroup/myrepo'],
-      ['file:///local/path/to/repo.git', NULL],
-      ['/absolute/path/to/repo', NULL],
-      ['invalid_string', NULL],
-    ];
+  public static function dataProviderExtractOwnerRepo(): \Iterator {
+    yield ['git@github.com:owner/repo.git', 'owner/repo'];
+    yield ['ssh://git@github.com/owner/repo.git', 'owner/repo'];
+    yield ['https://github.com/owner/repo.git', 'owner/repo'];
+    yield ['git://github.com/owner/repo.git', 'owner/repo'];
+    yield ['https://github.com/owner/repo', 'owner/repo'];
+    yield ['git@bitbucket.org:myteam/myproject.git', 'myteam/myproject'];
+    yield ['ssh://git@gitlab.com/mygroup/myrepo.git', 'mygroup/myrepo'];
+    yield ['https://gitlab.com/mygroup/myrepo.git', 'mygroup/myrepo'];
+    yield ['file:///local/path/to/repo.git', NULL];
+    yield ['/absolute/path/to/repo', NULL];
+    yield ['invalid_string', NULL];
   }
 
   public function testInit(): void {

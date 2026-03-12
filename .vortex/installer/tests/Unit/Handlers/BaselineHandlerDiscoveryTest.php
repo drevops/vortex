@@ -25,34 +25,29 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Tui::class)]
 class BaselineHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
-  public static function dataProviderRunPrompts(): array {
+  public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
-
-    return [
-      'defaults' => [
-        [],
-        $expected_defaults,
-      ],
-
-      'installed project' => [
-        [],
-        $expected_installed,
-        function (BaselineHandlerDiscoveryTest $test, Config $config): void {
-          $test->stubComposerJsonValue('type', 'drupal-project');
-          $test->stubComposerJsonValue('name', 'myproject_org/myproject');
-          $test->stubVortexProject($config);
-        },
-      ],
-
-      'installed project - minimal' => [
-        [],
-        $expected_installed,
-        function (BaselineHandlerDiscoveryTest $test, Config $config): void {
-          $test->stubComposerJsonValue('name', 'myproject_org/myproject');
-          $test->stubVortexProject($config);
-        },
-      ],
+    yield 'defaults' => [
+      [],
+      $expected_defaults,
+    ];
+    yield 'installed project' => [
+      [],
+      $expected_installed,
+      function (BaselineHandlerDiscoveryTest $test, Config $config): void {
+        $test->stubComposerJsonValue('type', 'drupal-project');
+        $test->stubComposerJsonValue('name', 'myproject_org/myproject');
+        $test->stubVortexProject($config);
+      },
+    ];
+    yield 'installed project - minimal' => [
+      [],
+      $expected_installed,
+      function (BaselineHandlerDiscoveryTest $test, Config $config): void {
+        $test->stubComposerJsonValue('name', 'myproject_org/myproject');
+        $test->stubVortexProject($config);
+      },
     ];
   }
 

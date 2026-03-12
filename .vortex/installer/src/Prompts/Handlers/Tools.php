@@ -382,6 +382,9 @@ class Tools extends AbstractHandler {
             'ahoy test-functional',
             'ahoy test -- --filter=TestClassName',
           ],
+          'rector.php' => [
+            'YieldDataProviderRector',
+          ],
         ],
         'ahoy' => [
           '/^.*phpunit.*\n?/m',

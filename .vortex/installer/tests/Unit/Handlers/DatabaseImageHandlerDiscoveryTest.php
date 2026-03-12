@@ -13,46 +13,40 @@ use Laravel\Prompts\Key;
 #[CoversClass(DatabaseImage::class)]
 class DatabaseImageHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
-  public static function dataProviderRunPrompts(): array {
+  public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
-
-    return [
-      'database image - prompt' => [
-        [
-          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-          DatabaseImage::id() => 'myregistry/myimage:mytag',
-        ],
-        [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $expected_defaults,
+    yield 'database image - prompt' => [
+      [
+        DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        DatabaseImage::id() => 'myregistry/myimage:mytag',
       ],
-
-      'database image - invalid' => [
-        [
-          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-          DatabaseImage::id() => 'myregistry:myimage:mytag',
-        ],
-        'Please enter a valid container image name with an optional tag.',
+      [DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY, DatabaseImage::id() => 'myregistry/myimage:mytag'] + $expected_defaults,
+    ];
+    yield 'database image - invalid' => [
+      [
+        DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        DatabaseImage::id() => 'myregistry:myimage:mytag',
       ],
-
-      'database image - invalid - capitalization' => [
-        [
-          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-          DatabaseImage::id() => 'MyRegistry/MyImage:mytag',
-        ],
-        'Please enter a valid container image name with an optional tag.',
+      'Please enter a valid container image name with an optional tag.',
+    ];
+    yield 'database image - invalid - capitalization' => [
+      [
+        DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        DatabaseImage::id() => 'MyRegistry/MyImage:mytag',
       ],
-
-      'database image - discovery' => [
-        [
-          DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
-        ],
-        [
-          DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
-          DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
-        ] + $expected_defaults,
-        function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-          $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
-        },
+      'Please enter a valid container image name with an optional tag.',
+    ];
+    yield 'database image - discovery' => [
+      [
+        DatabaseDownloadSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
       ],
+      [
+        DatabaseDownloadSource::id() => DatabaseDownloadSource::CONTAINER_REGISTRY,
+        DatabaseImage::id() => 'discovered_owner/discovered_image:tag',
+      ] + $expected_defaults,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubDotenvValue('VORTEX_DB_IMAGE', 'discovered_owner/discovered_image:tag');
+      },
     ];
   }
 

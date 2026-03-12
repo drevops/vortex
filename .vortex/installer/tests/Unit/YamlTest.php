@@ -36,23 +36,21 @@ class YamlTest extends UnitTestCase {
     Yaml::validateFile($non_existent_file);
   }
 
-  public static function dataProviderValidateFile(): array {
-    return [
-      'valid YAML file' => [
+  public static function dataProviderValidateFile(): \Iterator {
+    yield 'valid YAML file' => [
         <<<YAML
 key: value
 list:
   - item1
   - item2
 YAML
-      ],
-      'invalid YAML syntax' => [
+    ];
+    yield 'invalid YAML syntax' => [
         <<<YAML
 key: value
 invalid_yaml: [
   missing_closing_bracket
 YAML, 'Malformed inline YAML string',
-      ],
     ];
   }
 
@@ -70,14 +68,13 @@ YAML, 'Malformed inline YAML string',
     }
   }
 
-  public static function dataProviderValidate(): array {
-    return [
-      'valid simple YAML' => [
+  public static function dataProviderValidate(): \Iterator {
+    yield 'valid simple YAML' => [
         <<<YAML
 key: value
 YAML,
-      ],
-      'valid complex YAML' => [
+    ];
+    yield 'valid complex YAML' => [
         <<<YAML
 users:
   - name: john
@@ -88,17 +85,17 @@ config:
   debug: true
   port: 8080
 YAML,
-      ],
-      'valid empty YAML' => [''],
-      'valid YAML with arrays' => [
+    ];
+    yield 'valid empty YAML' => [''];
+    yield 'valid YAML with arrays' => [
         <<<YAML
 items:
   - item1
   - item2
   - item3
 YAML,
-      ],
-      'valid YAML with nested objects' => [
+    ];
+    yield 'valid YAML with nested objects' => [
         <<<YAML
 database:
   host: localhost
@@ -107,28 +104,27 @@ database:
     username: user
     password: pass
 YAML,
-      ],
-      'invalid YAML missing closing bracket' => [
+    ];
+    yield 'invalid YAML missing closing bracket' => [
         <<<YAML
 list: [
   item1,
   item2
 YAML, 'Malformed inline YAML string',
-      ],
-      'invalid YAML unclosed quotes' => ['key: "unclosed string', 'Malformed inline YAML string'],
-      'invalid YAML syntax' => [
+    ];
+    yield 'invalid YAML unclosed quotes' => ['key: "unclosed string', 'Malformed inline YAML string'];
+    yield 'invalid YAML syntax' => [
         <<<YAML
 key: value
 !!invalid
 YAML, 'Unable to parse',
-      ],
-      'invalid YAML tabs mixed with spaces' => [
+    ];
+    yield 'invalid YAML tabs mixed with spaces' => [
         <<<'YAML'
 key:
 	value1
   value2
 YAML, 'A YAML file cannot contain tabs',
-      ],
     ];
   }
 
@@ -138,9 +134,8 @@ YAML, 'A YAML file cannot contain tabs',
     $this->assertEquals($expected, $result);
   }
 
-  public static function dataProviderCollapseEmptyLinesInLiteralBlock(): array {
-    return [
-      'no literal blocks' => [
+  public static function dataProviderCollapseEmptyLinesInLiteralBlock(): \Iterator {
+    yield 'no literal blocks' => [
         <<<YAML
 key: value
 other: data
@@ -149,9 +144,8 @@ YAML,
 key: value
 other: data
 YAML,
-      ],
-
-      'single empty line' => [
+    ];
+    yield 'single empty line' => [
         <<<YAML
   cmd: |
     echo "hello"
@@ -163,9 +157,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      'multiple empty lines' => [
+    ];
+    yield 'multiple empty lines' => [
         <<<YAML
   cmd: |
     echo "hello"
@@ -179,9 +172,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      'multiple empty lines start and end' => [
+    ];
+    yield 'multiple empty lines start and end' => [
         <<<YAML
   cmd: |
 
@@ -199,9 +191,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      'multiple blocks with empty lines' => [
+    ];
+    yield 'multiple blocks with empty lines' => [
         <<<YAML
   step1:
     op: |
@@ -227,9 +218,8 @@ YAML,
       echo "second"
       echo "command"
 YAML,
-      ],
-
-      'multiple blocks with empty lines with line between' => [
+    ];
+    yield 'multiple blocks with empty lines with line between' => [
         <<<YAML
   step1:
     cmd: |
@@ -257,9 +247,8 @@ YAML,
       echo "second"
       echo "command"
 YAML,
-      ],
-
-      'multiple blocks with empty lines with multiple lines between' => [
+    ];
+    yield 'multiple blocks with empty lines with multiple lines between' => [
         <<<YAML
   step1:
     cmd: |
@@ -291,9 +280,8 @@ YAML,
       echo "second"
       echo "command"
 YAML,
-      ],
-
-      'multiple blocks with empty lines with multiple lines between and same level' => [
+    ];
+    yield 'multiple blocks with empty lines with multiple lines between and same level' => [
         <<<YAML
   step1:
     cmd: |
@@ -336,9 +324,8 @@ YAML,
       echo "second"
       echo "command"
 YAML,
-      ],
-
-      'no empty lines' => [
+    ];
+    yield 'no empty lines' => [
         <<<YAML
   cmd: |
     echo "hello"
@@ -349,9 +336,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      'end of document with empty lines' => [
+    ];
+    yield 'end of document with empty lines' => [
         <<<YAML
   cmd: |
     echo "hello"
@@ -365,9 +351,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      'full document' => [
+    ];
+    yield 'full document' => [
         <<<YAML
   lint-be:
     usage: Lint back-end code.
@@ -413,7 +398,6 @@ YAML,
     cmd: |
       ahoy cli vendor/bin/gherkinlint lint tests/behat/features
 YAML,
-      ],
     ];
   }
 
@@ -423,9 +407,8 @@ YAML,
     $this->assertEquals($expected, $result);
   }
 
-  public static function dataProviderCollapseFirstEmptyLinesInLiteralBlock(): array {
-    return [
-      'no empty lines' => [
+  public static function dataProviderCollapseFirstEmptyLinesInLiteralBlock(): \Iterator {
+    yield 'no empty lines' => [
         <<<YAML
   cmd: |
     echo "hello"
@@ -436,9 +419,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      '1 empty line at start' => [
+    ];
+    yield '1 empty line at start' => [
         <<<YAML
   cmd: |
 
@@ -450,9 +432,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      '2 empty lines at start' => [
+    ];
+    yield '2 empty lines at start' => [
         <<<YAML
   cmd: |
 
@@ -465,9 +446,8 @@ YAML,
     echo "hello"
     echo "world"
 YAML,
-      ],
-
-      '2 empty lines at start and 2 in middle' => [
+    ];
+    yield '2 empty lines at start and 2 in middle' => [
         <<<YAML
   cmd: |
 
@@ -484,7 +464,6 @@ YAML,
 
     echo "world"
 YAML,
-      ],
     ];
   }
 

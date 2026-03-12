@@ -11,15 +11,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Profile::class)]
 class ProfileHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'profile_minimal' => [
-        static::cw(fn() => Env::put(Profile::envName(), Profile::MINIMAL)),
-      ],
-
-      'profile_the_empire' => [
-        static::cw(fn() => Env::put(Profile::envName(), 'the_empire')),
-      ],
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'profile_minimal' => [
+      static::cw(fn() => Env::put(Profile::envName(), Profile::MINIMAL)),
+    ];
+    yield 'profile_the_empire' => [
+      static::cw(fn() => Env::put(Profile::envName(), 'the_empire')),
     ];
   }
 

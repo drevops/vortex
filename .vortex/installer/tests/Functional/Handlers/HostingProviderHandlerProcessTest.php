@@ -13,22 +13,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(HostingProvider::class)]
 class HostingProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'hosting_acquia' => [
-        static::cw(function (): void {
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'hosting_acquia' => [
+      static::cw(function (): void {
           Env::put(HostingProvider::envName(), HostingProvider::ACQUIA);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
-        }),
-      ],
-
-      'hosting_lagoon' => [
-        static::cw(function (): void {
+      }),
+    ];
+    yield 'hosting_lagoon' => [
+      static::cw(function (): void {
           Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
           Env::put(AiCodeInstructions::envName(), Env::TRUE);
-        }),
-        static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('acquia')),
-      ],
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('acquia')),
     ];
   }
 

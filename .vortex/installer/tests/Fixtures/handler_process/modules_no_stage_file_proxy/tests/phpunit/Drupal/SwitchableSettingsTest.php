@@ -1,4 +1,4 @@
-@@ -672,133 +672,6 @@
+@@ -666,131 +666,6 @@
    }
  
    /**
@@ -17,114 +17,112 @@
 -  /**
 -   * Data provider for testStageFileProxy().
 -   */
--  public static function dataProviderStageFileProxy(): array {
--    return [
+-  public static function dataProviderStageFileProxy(): \Iterator {
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [],
+-      [],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [],
--        [],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
--        ],
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
 -      ],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
--        ],
--        [],
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
+-      ],
+-      [],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -      ],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
--        ],
--        [],
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-      ],
+-      [],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
+-      [
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
 -      ],
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
--        ],
--        [],
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://example.com/'],
 -      ],
+-      [],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_CI,
 -      [
--        self::ENVIRONMENT_CI,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
--        ],
--        [],
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -      ],
+-      [
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-      ],
+-      [],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
--        ],
--        [],
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -      ],
+-      [
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-      ],
+-      [],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_STAGE,
 -      [
--        self::ENVIRONMENT_STAGE,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
--        ],
--        [],
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -      ],
+-      [
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-      ],
+-      [],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_PROD,
 -      [
--        self::ENVIRONMENT_PROD,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
--        ],
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -      ],
+-      [],
+-      [
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-      ],
+-    ];
 -
+-    yield [
+-      self::ENVIRONMENT_SUT,
 -      [
--        self::ENVIRONMENT_SUT,
--        [
--          'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
--          'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
--          'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
--        ],
--        [
--          'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
--        ],
--        [],
+-        'DRUPAL_STAGE_FILE_PROXY_ORIGIN' => 'https://example.com/',
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -      ],
+-      [
+-        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
+-      ],
+-      [],
 -    ];
 -  }
 -

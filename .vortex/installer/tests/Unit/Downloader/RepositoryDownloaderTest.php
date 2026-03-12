@@ -273,162 +273,156 @@ class RepositoryDownloaderTest extends UnitTestCase {
   /**
    * Data provider for testDiscoverLatestReleaseRemote().
    *
-   * @return array<string, array<string, mixed>>
+   * @return \Iterator<string, array<string, mixed>>
    *   Test data.
    */
-  public static function dataProviderDiscoverLatestReleaseRemote(): array {
-    return [
-      'valid releases' => [
-        'repo' => 'https://github.com/user/repo',
-        'releaseData' => [
+  public static function dataProviderDiscoverLatestReleaseRemote(): \Iterator {
+    yield 'valid releases' => [
+      'repo' => 'https://github.com/user/repo',
+      'releaseData' => [
           ['tag_name' => 'v2.0.0', 'draft' => FALSE],
           ['tag_name' => 'v1.0.0', 'draft' => FALSE],
-        ],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => 'v2.0.0',
-        'expectedException' => NULL,
-        'expectedMessage' => NULL,
       ],
-      'skips drafts' => [
-        'repo' => 'https://github.com/user/repo',
-        'releaseData' => [
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => 'v2.0.0',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
+    ];
+    yield 'skips drafts' => [
+      'repo' => 'https://github.com/user/repo',
+      'releaseData' => [
           ['tag_name' => 'v3.0.0', 'draft' => TRUE],
           ['tag_name' => 'v2.0.0', 'draft' => FALSE],
-        ],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => 'v2.0.0',
-        'expectedException' => NULL,
-        'expectedMessage' => NULL,
       ],
-      'no releases' => [
-        'repo' => 'https://github.com/user/repo',
-        'releaseData' => [],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => NULL,
-        'expectedException' => \RuntimeException::class,
-        'expectedMessage' => 'Unable to discover the latest release',
-      ],
-      'request exception' => [
-        'repo' => 'https://github.com/user/repo',
-        'releaseData' => NULL,
-        'throwException' => TRUE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => NULL,
-        'expectedException' => \RuntimeException::class,
-        'expectedMessage' => 'Unable to access repository',
-      ],
-      'empty response' => [
-        'repo' => 'https://github.com/user/repo',
-        'releaseData' => '',
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => NULL,
-        'expectedException' => \RuntimeException::class,
-        'expectedMessage' => 'Unable to download release information from',
-      ],
-      'invalid url' => [
-        'repo' => 'https://',
-        'releaseData' => NULL,
-        'throwException' => FALSE,
-        'skipMockSetup' => TRUE,
-        'expectedVersion' => NULL,
-        'expectedException' => \RuntimeException::class,
-        'expectedMessage' => 'Local repository path does not exist',
-      ],
-      'SemVer+CalVer format - single release' => [
-        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-        'releaseData' => [
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => 'v2.0.0',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
+    ];
+    yield 'no releases' => [
+      'repo' => 'https://github.com/user/repo',
+      'releaseData' => [],
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => NULL,
+      'expectedException' => \RuntimeException::class,
+      'expectedMessage' => 'Unable to discover the latest release',
+    ];
+    yield 'request exception' => [
+      'repo' => 'https://github.com/user/repo',
+      'releaseData' => NULL,
+      'throwException' => TRUE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => NULL,
+      'expectedException' => \RuntimeException::class,
+      'expectedMessage' => 'Unable to access repository',
+    ];
+    yield 'empty response' => [
+      'repo' => 'https://github.com/user/repo',
+      'releaseData' => '',
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => NULL,
+      'expectedException' => \RuntimeException::class,
+      'expectedMessage' => 'Unable to download release information from',
+    ];
+    yield 'invalid url' => [
+      'repo' => 'https://',
+      'releaseData' => NULL,
+      'throwException' => FALSE,
+      'skipMockSetup' => TRUE,
+      'expectedVersion' => NULL,
+      'expectedException' => \RuntimeException::class,
+      'expectedMessage' => 'Local repository path does not exist',
+    ];
+    yield 'SemVer+CalVer format - single release' => [
+      'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+      'releaseData' => [
           ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
-        ],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.0.0+2025.11.0',
-        'expectedException' => NULL,
-        'expectedMessage' => NULL,
       ],
-      'SemVer+CalVer format - multiple releases' => [
-        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-        'releaseData' => [
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => '1.0.0+2025.11.0',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
+    ];
+    yield 'SemVer+CalVer format - multiple releases' => [
+      'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+      'releaseData' => [
           ['tag_name' => '1.2.0+2025.12.0', 'draft' => FALSE],
           ['tag_name' => '1.1.0+2025.11.0', 'draft' => FALSE],
           ['tag_name' => '1.0.0+2025.10.0', 'draft' => FALSE],
-        ],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.2.0+2025.12.0',
-        'expectedException' => NULL,
-        'expectedMessage' => NULL,
       ],
-      'SemVer+CalVer format - skip draft' => [
-        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-        'releaseData' => [
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => '1.2.0+2025.12.0',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
+    ];
+    yield 'SemVer+CalVer format - skip draft' => [
+      'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+      'releaseData' => [
           ['tag_name' => '2.0.0+2026.01.0', 'draft' => TRUE],
           ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
-        ],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.0.0+2025.11.0',
-        'expectedException' => NULL,
-        'expectedMessage' => NULL,
       ],
-      'Mixed format - SemVer+CalVer and CalVer' => [
-        'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-        'releaseData' => [
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => '1.0.0+2025.11.0',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
+    ];
+    yield 'Mixed format - SemVer+CalVer and CalVer' => [
+      'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
+      'releaseData' => [
           ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
           ['tag_name' => '25.10.0', 'draft' => FALSE],
           ['tag_name' => '25.9.0', 'draft' => FALSE],
-        ],
-        'throwException' => FALSE,
-        'skipMockSetup' => FALSE,
-        'expectedVersion' => '1.0.0+2025.11.0',
-        'expectedException' => NULL,
-        'expectedMessage' => NULL,
       ],
+      'throwException' => FALSE,
+      'skipMockSetup' => FALSE,
+      'expectedVersion' => '1.0.0+2025.11.0',
+      'expectedException' => NULL,
+      'expectedMessage' => NULL,
     ];
   }
 
   /**
    * Data provider for testDownloadWithNullDestination().
    *
-   * @return array<string, array<string, string>>
+   * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
-  public static function dataProviderDownloadWithNullDestination(): array {
-    return [
-      'remote repository' => [
-        'repo' => 'https://github.com/user/repo',
-        'expectedMessage' => 'Destination cannot be null for remote downloads',
-      ],
-      'local repository' => [
-        'repo' => '/path/to/repo',
-        'expectedMessage' => 'Destination cannot be null for local downloads',
-      ],
+  public static function dataProviderDownloadWithNullDestination(): \Iterator {
+    yield 'remote repository' => [
+      'repo' => 'https://github.com/user/repo',
+      'expectedMessage' => 'Destination cannot be null for remote downloads',
+    ];
+    yield 'local repository' => [
+      'repo' => '/path/to/repo',
+      'expectedMessage' => 'Destination cannot be null for local downloads',
     ];
   }
 
   /**
    * Data provider for testDownloadFromLocal().
    *
-   * @return array<string, array<string, string>>
+   * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
-  public static function dataProviderDownloadFromLocal(): array {
-    return [
-      'HEAD ref' => [
-        'ref' => 'HEAD',
-        'expectedVersion' => 'develop',
-      ],
-      'stable ref' => [
-        'ref' => 'stable',
-        'expectedVersion' => 'develop',
-      ],
-      'commit hash' => [
-        'ref' => 'COMMIT_HASH',
-        'expectedVersion' => 'COMMIT_HASH',
-      ],
+  public static function dataProviderDownloadFromLocal(): \Iterator {
+    yield 'HEAD ref' => [
+      'ref' => 'HEAD',
+      'expectedVersion' => 'develop',
+    ];
+    yield 'stable ref' => [
+      'ref' => 'stable',
+      'expectedVersion' => 'develop',
+    ];
+    yield 'commit hash' => [
+      'ref' => 'COMMIT_HASH',
+      'expectedVersion' => 'COMMIT_HASH',
     ];
   }
 

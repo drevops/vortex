@@ -49,12 +49,10 @@ class OptionsResolverTest extends UnitTestCase {
     OptionsResolver::checkRequirements($finder);
   }
 
-  public static function dataProviderCheckRequirementsThrowsOnMissing(): array {
-    return [
-      'missing git' => ['git'],
-      'missing tar' => ['tar'],
-      'missing composer' => ['composer'],
-    ];
+  public static function dataProviderCheckRequirementsThrowsOnMissing(): \Iterator {
+    yield 'missing git' => ['git'];
+    yield 'missing tar' => ['tar'];
+    yield 'missing composer' => ['composer'];
   }
 
   public function testCheckRequirementsStopsAtFirstMissing(): void {
@@ -90,17 +88,15 @@ class OptionsResolverTest extends UnitTestCase {
     }
   }
 
-  public static function dataProviderResolveBooleanOptions(): array {
-    return [
-      'no-interaction true' => ['no-interaction', 'getNoInteraction', TRUE],
-      'no-interaction false' => ['no-interaction', 'getNoInteraction', FALSE],
-      'quiet true' => ['quiet', 'isQuiet', TRUE],
-      'quiet false' => ['quiet', 'isQuiet', FALSE],
-      'build true' => ['build', Config::BUILD_NOW, TRUE],
-      'build false' => ['build', Config::BUILD_NOW, FALSE],
-      'no-cleanup true' => ['no-cleanup', Config::NO_CLEANUP, TRUE],
-      'no-cleanup false' => ['no-cleanup', Config::NO_CLEANUP, FALSE],
-    ];
+  public static function dataProviderResolveBooleanOptions(): \Iterator {
+    yield 'no-interaction true' => ['no-interaction', 'getNoInteraction', TRUE];
+    yield 'no-interaction false' => ['no-interaction', 'getNoInteraction', FALSE];
+    yield 'quiet true' => ['quiet', 'isQuiet', TRUE];
+    yield 'quiet false' => ['quiet', 'isQuiet', FALSE];
+    yield 'build true' => ['build', Config::BUILD_NOW, TRUE];
+    yield 'build false' => ['build', Config::BUILD_NOW, FALSE];
+    yield 'no-cleanup true' => ['no-cleanup', Config::NO_CLEANUP, TRUE];
+    yield 'no-cleanup false' => ['no-cleanup', Config::NO_CLEANUP, FALSE];
   }
 
   public function testResolveSetsDestination(): void {
@@ -162,28 +158,26 @@ class OptionsResolverTest extends UnitTestCase {
     $this->assertEquals($expected_ref, $artifact->getRef());
   }
 
-  public static function dataProviderResolveUri(): array {
-    return [
-      'default (null uri)' => [
-        NULL,
-        RepositoryDownloader::DEFAULT_REPO,
-        RepositoryDownloader::REF_STABLE,
-      ],
-      'repo with branch ref' => [
-        'https://github.com/drevops/vortex.git#main',
-        'https://github.com/drevops/vortex.git',
-        'main',
-      ],
-      'repo with tag ref' => [
-        'https://github.com/drevops/vortex.git#25.11.0',
-        'https://github.com/drevops/vortex.git',
-        '25.11.0',
-      ],
-      'repo with stable ref' => [
-        RepositoryDownloader::DEFAULT_REPO . '#' . RepositoryDownloader::REF_STABLE,
-        RepositoryDownloader::DEFAULT_REPO,
-        RepositoryDownloader::REF_STABLE,
-      ],
+  public static function dataProviderResolveUri(): \Iterator {
+    yield 'default (null uri)' => [
+      NULL,
+      RepositoryDownloader::DEFAULT_REPO,
+      RepositoryDownloader::REF_STABLE,
+    ];
+    yield 'repo with branch ref' => [
+      'https://github.com/drevops/vortex.git#main',
+      'https://github.com/drevops/vortex.git',
+      'main',
+    ];
+    yield 'repo with tag ref' => [
+      'https://github.com/drevops/vortex.git#25.11.0',
+      'https://github.com/drevops/vortex.git',
+      '25.11.0',
+    ];
+    yield 'repo with stable ref' => [
+      RepositoryDownloader::DEFAULT_REPO . '#' . RepositoryDownloader::REF_STABLE,
+      RepositoryDownloader::DEFAULT_REPO,
+      RepositoryDownloader::REF_STABLE,
     ];
   }
 

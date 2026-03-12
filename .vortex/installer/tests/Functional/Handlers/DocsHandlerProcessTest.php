@@ -11,16 +11,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(PreserveDocsProject::class)]
 class DocsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'preserve_docs_project_enabled' => [
-        static::cw(fn() => Env::put(PreserveDocsProject::envName(), Env::TRUE)),
-      ],
-
-      'preserve_docs_project_disabled' => [
-        static::cw(fn() => Env::put(PreserveDocsProject::envName(), Env::FALSE)),
-      ],
-
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'preserve_docs_project_enabled' => [
+      static::cw(fn() => Env::put(PreserveDocsProject::envName(), Env::TRUE)),
+    ];
+    yield 'preserve_docs_project_disabled' => [
+      static::cw(fn() => Env::put(PreserveDocsProject::envName(), Env::FALSE)),
     ];
   }
 

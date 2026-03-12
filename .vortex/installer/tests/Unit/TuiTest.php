@@ -75,18 +75,16 @@ class TuiTest extends UnitTestCase {
     $this->assertStringContainsString($input, $result);
   }
 
-  public static function dataProviderColorMethods(): array {
-    return [
-      'green method' => ['green', 'Hello', "\033[32m"],
-      'blue method' => ['blue', 'Hello', "\033[34m"],
-      'purple method' => ['purple', 'Hello', "\033[35m"],
-      'yellow method' => ['yellow', 'Hello', "\033[33m"],
-      'cyan method' => ['cyan', 'Hello', "\033[36m"],
-      'bold method' => ['bold', 'Hello', "\033[1m"],
-      'underscore method' => ['underscore', 'Hello', "\033[4m"],
-      'dim method' => ['dim', 'Hello', "\033[2m"],
-      'undim method' => ['undim', 'Hello', "\033[22m"],
-    ];
+  public static function dataProviderColorMethods(): \Iterator {
+    yield 'green method' => ['green', 'Hello', "\033[32m"];
+    yield 'blue method' => ['blue', 'Hello', "\033[34m"];
+    yield 'purple method' => ['purple', 'Hello', "\033[35m"];
+    yield 'yellow method' => ['yellow', 'Hello', "\033[33m"];
+    yield 'cyan method' => ['cyan', 'Hello', "\033[36m"];
+    yield 'bold method' => ['bold', 'Hello', "\033[1m"];
+    yield 'underscore method' => ['underscore', 'Hello', "\033[4m"];
+    yield 'dim method' => ['dim', 'Hello', "\033[2m"];
+    yield 'undim method' => ['undim', 'Hello', "\033[22m"];
   }
 
   #[DataProvider('dataProviderColorMethodsMultiline')]
@@ -95,24 +93,22 @@ class TuiTest extends UnitTestCase {
     $this->assertSame($expected, $result);
   }
 
-  public static function dataProviderColorMethodsMultiline(): array {
-    return [
-      'green multiline' => [
-        'green',
+  public static function dataProviderColorMethodsMultiline(): \Iterator {
+    yield 'green multiline' => [
+      'green',
         <<<'INPUT'
 Line 1
 Line 2
 INPUT,
-        "\033[32mLine 1\033[39m\n\033[32mLine 2\033[39m",
-      ],
-      'blue multiline' => [
-        'blue',
+      "\033[32mLine 1\033[39m\n\033[32mLine 2\033[39m",
+    ];
+    yield 'blue multiline' => [
+      'blue',
         <<<'INPUT'
 First
 Second
 INPUT,
-        "\033[34mFirst\033[39m\n\033[34mSecond\033[39m",
-      ],
+      "\033[34mFirst\033[39m\n\033[34mSecond\033[39m",
     ];
   }
 
@@ -186,14 +182,13 @@ TEXT;
     $this->assertSame($expected_clean, $actual_clean);
   }
 
-  public static function dataProviderBox(): array {
-    return [
-      'simple content without title' => [
-        'content' => 'Simple content',
-        'title' => NULL,
-        'width' => 50,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+  public static function dataProviderBox(): \Iterator {
+    yield 'simple content without title' => [
+      'content' => 'Simple content',
+      'title' => NULL,
+      'width' => 50,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────────────┐
  │ Simple content │
@@ -201,14 +196,13 @@ TEXT;
 
 
 EXPECTED,
-      ],
-
-      'content with title' => [
-        'content' => 'Content with title',
-        'title' => 'Box Title',
-        'width' => 50,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'content with title' => [
+      'content' => 'Content with title',
+      'title' => 'Box Title',
+      'width' => 50,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────────────────┐
  │ Box Title          │
@@ -219,14 +213,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'empty content with title' => [
-        'content' => '',
-        'title' => 'Empty Content',
-        'width' => 40,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'empty content with title' => [
+      'content' => '',
+      'title' => 'Empty Content',
+      'width' => 40,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌───────────────┐
  │ Empty Content │
@@ -237,14 +230,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'empty title' => [
-        'content' => 'Content with empty title',
-        'title' => '',
-        'width' => 40,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'empty title' => [
+      'content' => 'Content with empty title',
+      'title' => '',
+      'width' => 40,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌──────────────────────────┐
  │ Content with empty title │
@@ -252,14 +244,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'single character content' => [
-        'content' => 'X',
-        'title' => 'A',
-        'width' => 25,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'single character content' => [
+      'content' => 'X',
+      'title' => 'A',
+      'width' => 25,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌───┐
  │ A │
@@ -270,14 +261,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'whitespace only content' => [
-        'content' => '   ',
-        'title' => NULL,
-        'width' => 30,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'whitespace only content' => [
+      'content' => '   ',
+      'title' => NULL,
+      'width' => 30,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌─────┐
  │     │
@@ -285,14 +275,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'terminal width constraint' => [
-        'content' => 'Terminal width test',
-        'title' => 'Narrow Terminal',
-        'width' => 100,
-        'terminal_width' => 30,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'terminal width constraint' => [
+      'content' => 'Terminal width test',
+      'title' => 'Narrow Terminal',
+      'width' => 100,
+      'terminal_width' => 30,
+      'expected_output' => <<<EXPECTED
 
  ┌─────────────────────┐
  │ Narrow Terminal     │
@@ -303,14 +292,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'default width when not specified' => [
-        'content' => 'Default width content',
-        'title' => 'Default Width',
-        'width' => NULL,
-        'terminal_width' => 50,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'default width when not specified' => [
+      'content' => 'Default width content',
+      'title' => 'Default Width',
+      'width' => NULL,
+      'terminal_width' => 50,
+      'expected_output' => <<<EXPECTED
 
  ┌───────────────────────┐
  │ Default Width         │
@@ -321,14 +309,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'long content word wrapping' => [
-        'content' => 'This is a very long line of content that should definitely be wrapped when the box width is narrow',
-        'title' => 'Long Content Test',
-        'width' => 40,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'long content word wrapping' => [
+      'content' => 'This is a very long line of content that should definitely be wrapped when the box width is narrow',
+      'title' => 'Long Content Test',
+      'width' => 40,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌───────────────────────────────────┐
  │ Long Content Test                 │
@@ -342,14 +329,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'long title word wrapping' => [
-        'content' => 'Short line',
-        'title' => 'This is a very long title that should be wrapped across multiple lines when the box width is constrained',
-        'width' => 35,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'long title word wrapping' => [
+      'content' => 'Short line',
+      'title' => 'This is a very long title that should be wrapped across multiple lines when the box width is constrained',
+      'width' => 35,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌───────────────────────────────┐
  │ This is a very long title     │
@@ -363,14 +349,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'multiline content with literal newlines' => [
-        'content' => "Multi\nLine\nContent\nHere",
-        'title' => 'Multi-Line Test',
-        'width' => 30,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'multiline content with literal newlines' => [
+      'content' => "Multi\nLine\nContent\nHere",
+      'title' => 'Multi-Line Test',
+      'width' => 30,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌─────────────────┐
  │ Multi-Line Test │
@@ -384,14 +369,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'narrow width wrapping' => [
-        'content' => 'This line has some words and should wrap nicely',
-        'title' => NULL,
-        'width' => 25,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'narrow width wrapping' => [
+      'content' => 'This line has some words and should wrap nicely',
+      'title' => NULL,
+      'width' => 25,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────────────────┐
  │ This line has some │
@@ -401,14 +385,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'unbreakable long word' => [
-        'content' => 'OneVeryLongWordThatCannotBeWrappedNormally',
-        'title' => 'Unbreakable',
-        'width' => 20,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'unbreakable long word' => [
+      'content' => 'OneVeryLongWordThatCannotBeWrappedNormally',
+      'title' => 'Unbreakable',
+      'width' => 20,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────────────┐
  │ Unbreakable    │
@@ -421,14 +404,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'multi paragraph content' => [
-        'content' => "Paragraph one with some text.\n\nParagraph two with more text after empty line.",
-        'title' => 'Multi-Paragraph',
-        'width' => 45,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'multi paragraph content' => [
+      'content' => "Paragraph one with some text.\n\nParagraph two with more text after empty line.",
+      'title' => 'Multi-Paragraph',
+      'width' => 45,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────────────────────────────────┐
  │ Multi-Paragraph                    │
@@ -442,14 +424,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'content with special characters' => [
-        'content' => 'Content with émojis 🌟 and special chars ñáéíóú that affect wrapping calculations',
-        'title' => 'Special Chars',
-        'width' => 35,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'content with special characters' => [
+      'content' => 'Content with émojis 🌟 and special chars ñáéíóú that affect wrapping calculations',
+      'title' => 'Special Chars',
+      'width' => 35,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────────────────────────┐
  │ Special Chars              │
@@ -463,14 +444,13 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
-
-      'extreme narrow width' => [
-        'content' => 'Short',
-        'title' => 'Normal Title',
-        'width' => 10,
-        'terminal_width' => 100,
-        'expected_output' => <<<EXPECTED
+    ];
+    yield 'extreme narrow width' => [
+      'content' => 'Short',
+      'title' => 'Normal Title',
+      'width' => 10,
+      'terminal_width' => 100,
+      'expected_output' => <<<EXPECTED
 
  ┌────────┐
  │ Normal │
@@ -483,7 +463,6 @@ EXPECTED,
 
 
 EXPECTED,
-      ],
     ];
   }
 
@@ -500,26 +479,24 @@ EXPECTED,
     }
   }
 
-  public static function dataProviderList(): array {
-    return [
-      'simple list' => [
-        'values' => ['key1' => 'value1', 'key2' => 'value2'],
-        'title' => 'Test List',
-        'expected_strings' => ['key1', 'value1', 'key2', 'value2', 'Test List'],
+  public static function dataProviderList(): \Iterator {
+    yield 'simple list' => [
+      'values' => ['key1' => 'value1', 'key2' => 'value2'],
+      'title' => 'Test List',
+      'expected_strings' => ['key1', 'value1', 'key2', 'value2', 'Test List'],
+    ];
+    yield 'list with array values' => [
+      'values' => ['items' => ['item1', 'item2', 'item3']],
+      'title' => 'Array Test',
+      'expected_strings' => ['items', 'item1, item2, item3', 'Array Test'],
+    ];
+    yield 'list with section title' => [
+      'values' => [
+        'Section A' => Tui::LIST_SECTION_TITLE,
+        'key1' => 'value1',
       ],
-      'list with array values' => [
-        'values' => ['items' => ['item1', 'item2', 'item3']],
-        'title' => 'Array Test',
-        'expected_strings' => ['items', 'item1, item2, item3', 'Array Test'],
-      ],
-      'list with section title' => [
-        'values' => [
-          'Section A' => Tui::LIST_SECTION_TITLE,
-          'key1' => 'value1',
-        ],
-        'title' => 'Section Test',
-        'expected_strings' => ['Section A', 'key1', 'value1'],
-      ],
+      'title' => 'Section Test',
+      'expected_strings' => ['Section A', 'key1', 'value1'],
     ];
   }
 
@@ -553,96 +530,84 @@ EXPECTED,
     $this->assertSame($expected_padding, $result);
   }
 
-  public static function dataProviderUtfPadding(): array {
-    return [
-      // JetBrains terminal conditions.
-      'JetBrains with 1-byte UTF-8 char' => [
+  public static function dataProviderUtfPadding(): \Iterator {
+    // JetBrains terminal conditions.
+    yield 'JetBrains with 1-byte UTF-8 char' => [
     // 2 bytes, 1 mb_strlen
-        'char' => 'é',
-        'terminal_emulator' => 'JetBrains-something',
-        'term_program' => NULL,
-        'expected_padding' => ' ',
-      ],
-
-      'JetBrains with 3-byte UTF-8 char' => [
+      'char' => 'é',
+      'terminal_emulator' => 'JetBrains-something',
+      'term_program' => NULL,
+      'expected_padding' => ' ',
+    ];
+    yield 'JetBrains with 3-byte UTF-8 char' => [
       // 3 bytes, 1 mb_strlen
-        'char' => 'あ',
-        'terminal_emulator' => 'JetBrains-IDE',
-        'term_program' => NULL,
-        'expected_padding' => ' ',
-      ],
-
-      'JetBrains with 4-byte UTF-8 char' => [
+      'char' => 'あ',
+      'terminal_emulator' => 'JetBrains-IDE',
+      'term_program' => NULL,
+      'expected_padding' => ' ',
+    ];
+    yield 'JetBrains with 4-byte UTF-8 char' => [
       // 4 bytes, 1 mb_strlen - should NOT get padding (len >= 4)
-        'char' => '🌟',
-        'terminal_emulator' => 'JetBrains-IDE',
-        'term_program' => NULL,
-        'expected_padding' => '',
-      ],
-
-      'Non-JetBrains terminal' => [
-        'char' => 'é',
-        'terminal_emulator' => 'other-terminal',
-        'term_program' => NULL,
-        'expected_padding' => '',
-      ],
-
-      // Apple Terminal conditions.
-      'Apple Terminal with multi-byte char under 8 bytes' => [
+      'char' => '🌟',
+      'terminal_emulator' => 'JetBrains-IDE',
+      'term_program' => NULL,
+      'expected_padding' => '',
+    ];
+    yield 'Non-JetBrains terminal' => [
+      'char' => 'é',
+      'terminal_emulator' => 'other-terminal',
+      'term_program' => NULL,
+      'expected_padding' => '',
+    ];
+    // Apple Terminal conditions.
+    yield 'Apple Terminal with multi-byte char under 8 bytes' => [
       // 2 chars × 3 bytes = 6 bytes total, mblen=2, len=6 < 8
-        'char' => 'あい',
-        'terminal_emulator' => NULL,
-        'term_program' => 'Apple_Terminal',
-        'expected_padding' => ' ',
-      ],
-
-      'Apple Terminal with long multi-byte string' => [
+      'char' => 'あい',
+      'terminal_emulator' => NULL,
+      'term_program' => 'Apple_Terminal',
+      'expected_padding' => ' ',
+    ];
+    yield 'Apple Terminal with long multi-byte string' => [
       // 5 chars × 3 bytes = 15 bytes, mblen=5, len=15 >= 8
-        'char' => 'あいうえお',
-        'terminal_emulator' => NULL,
-        'term_program' => 'Apple_Terminal',
-        'expected_padding' => '',
-      ],
-
-      'Apple Terminal with single-byte char' => [
+      'char' => 'あいうえお',
+      'terminal_emulator' => NULL,
+      'term_program' => 'Apple_Terminal',
+      'expected_padding' => '',
+    ];
+    yield 'Apple Terminal with single-byte char' => [
       // Single byte, single mb_strlen.
-        'char' => 'A',
-        'terminal_emulator' => NULL,
-        'term_program' => 'Apple_Terminal',
-        'expected_padding' => '',
-      ],
-
-      // No special terminal conditions.
-      'No special terminal with UTF-8' => [
-        'char' => '🌟',
-        'terminal_emulator' => NULL,
-        'term_program' => NULL,
-        'expected_padding' => '',
-      ],
-
-      'Regular ASCII character' => [
-        'char' => 'A',
-        'terminal_emulator' => NULL,
-        'term_program' => NULL,
-        'expected_padding' => '',
-      ],
-
-      // Both terminals set - JetBrains takes precedence.
-      'Both JetBrains and Apple set' => [
-        'char' => 'é',
-        'terminal_emulator' => 'JetBrains-IDE',
-        'term_program' => 'Apple_Terminal',
+      'char' => 'A',
+      'terminal_emulator' => NULL,
+      'term_program' => 'Apple_Terminal',
+      'expected_padding' => '',
+    ];
+    // No special terminal conditions.
+    yield 'No special terminal with UTF-8' => [
+      'char' => '🌟',
+      'terminal_emulator' => NULL,
+      'term_program' => NULL,
+      'expected_padding' => '',
+    ];
+    yield 'Regular ASCII character' => [
+      'char' => 'A',
+      'terminal_emulator' => NULL,
+      'term_program' => NULL,
+      'expected_padding' => '',
+    ];
+    // Both terminals set - JetBrains takes precedence.
+    yield 'Both JetBrains and Apple set' => [
+      'char' => 'é',
+      'terminal_emulator' => 'JetBrains-IDE',
+      'term_program' => 'Apple_Terminal',
       // JetBrains condition should trigger first.
-        'expected_padding' => ' ',
-      ],
-
-      // Empty/null environment values.
-      'Empty environment values' => [
-        'char' => 'é',
-        'terminal_emulator' => '',
-        'term_program' => '',
-        'expected_padding' => '',
-      ],
+      'expected_padding' => ' ',
+    ];
+    // Empty/null environment values.
+    yield 'Empty environment values' => [
+      'char' => 'é',
+      'terminal_emulator' => '',
+      'term_program' => '',
+      'expected_padding' => '',
     ];
   }
 
@@ -660,91 +625,83 @@ EXPECTED,
   /**
    * Data provider for testCenter.
    */
-  public static function dataProviderCenter(): array {
-    return [
-
-      'single line text with default width' => [
-        'text' => 'Hello',
-        'width' => 80,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+  public static function dataProviderCenter(): \Iterator {
+    yield 'single line text with default width' => [
+      'text' => 'Hello',
+      'width' => 80,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
                                      Hello
 EXPECTED,
-      ],
-
-      'single line text with custom width' => [
-        'text' => 'Test',
-        'width' => 20,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+    ];
+    yield 'single line text with custom width' => [
+      'text' => 'Test',
+      'width' => 20,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
         Test
 EXPECTED,
-      ],
-
-      'multiline text without border' => [
-        'text' => <<<'TEXT'
+    ];
+    yield 'multiline text without border' => [
+      'text' => <<<'TEXT'
 Line 1
 Line 2
 TEXT,
-        'width' => 20,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+      'width' => 20,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
        Line 1
        Line 2
 EXPECTED,
-      ],
-
-      'multiline text with different line lengths' => [
-        'text' => <<<'TEXT'
+    ];
+    yield 'multiline text with different line lengths' => [
+      'text' => <<<'TEXT'
 Short
 Longer line
 X
 TEXT,
-        'width' => 30,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+      'width' => 30,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
          Short
          Longer line
          X
 EXPECTED,
-      ],
-
-      'empty line in multiline text' => [
-        'text' => <<<'TEXT'
+    ];
+    yield 'empty line in multiline text' => [
+      'text' => <<<'TEXT'
 Line 1
 
 Line 3
 TEXT,
-        'width' => 20,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+      'width' => 20,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
        Line 1
 
        Line 3
 EXPECTED,
-      ],
-
-      'single line text with border' => [
-        'text' => 'Hello',
-        'width' => 20,
-        'border' => '=',
-        'expected' => <<<EXPECTED
+    ];
+    yield 'single line text with border' => [
+      'text' => 'Hello',
+      'width' => 20,
+      'border' => '=',
+      'expected' => <<<EXPECTED
 ==================
 
        Hello
 
 ==================
 EXPECTED,
-      ],
-
-      'multiline text with border' => [
-        'text' => <<<'TEXT'
+    ];
+    yield 'multiline text with border' => [
+      'text' => <<<'TEXT'
 Line 1
 Line 2
 TEXT,
-        'width' => 25,
-        'border' => '-',
-        'expected' => <<<EXPECTED
+      'width' => 25,
+      'border' => '-',
+      'expected' => <<<EXPECTED
 -----------------------
 
          Line 1
@@ -752,64 +709,56 @@ TEXT,
 
 -----------------------
 EXPECTED,
-      ],
-
-      'text with exact width match' => [
-        'text' => 'Exact',
-        'width' => 5,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+    ];
+    yield 'text with exact width match' => [
+      'text' => 'Exact',
+      'width' => 5,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
 Exact
 EXPECTED,
-      ],
-
-      'text wider than available width' => [
-        'text' => 'Very long text',
-        'width' => 20,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+    ];
+    yield 'text wider than available width' => [
+      'text' => 'Very long text',
+      'width' => 20,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
    Very long text
 EXPECTED,
-      ],
-
-      'single character text' => [
-        'text' => 'X',
-        'width' => 10,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+    ];
+    yield 'single character text' => [
+      'text' => 'X',
+      'width' => 10,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
     X
 EXPECTED,
-      ],
-
-      'empty text' => [
-        'text' => '',
-        'width' => 10,
-        'border' => NULL,
-        'expected' => <<<EXPECTED
+    ];
+    yield 'empty text' => [
+      'text' => '',
+      'width' => 10,
+      'border' => NULL,
+      'expected' => <<<EXPECTED
 
 EXPECTED,
-      ],
-
-      'whitespace only text' => [
-        'text' => '   ',
-        'width' => 15,
-        'border' => NULL,
-        'expected' => '         ',
-      ],
-
-      'text with border using different character' => [
-        'text' => 'Bordered',
-        'width' => 16,
-        'border' => '*',
-        'expected' => <<<EXPECTED
+    ];
+    yield 'whitespace only text' => [
+      'text' => '   ',
+      'width' => 15,
+      'border' => NULL,
+      'expected' => '         ',
+    ];
+    yield 'text with border using different character' => [
+      'text' => 'Bordered',
+      'width' => 16,
+      'border' => '*',
+      'expected' => <<<EXPECTED
 **************
 
     Bordered
 
 **************
 EXPECTED,
-      ],
-
     ];
   }
 
@@ -819,55 +768,45 @@ EXPECTED,
     $this->assertEquals($expected, $result);
   }
 
-  public static function dataProviderNormalizeText(): array {
-    return [
-      // Test whitespace collapsing.
-      'multiple spaces' => [
-        'input' => 'Hello    world',
-        'expected' => 'Hello world',
-      ],
-
-      'multiple types of whitespace' => [
-        'input' => "Hello\t\t  \n  world",
-        'expected' => 'Hello world',
-      ],
-
-      'leading and trailing spaces with multiple interior spaces' => [
-        'input' => '  Hello    world  ',
-        'expected' => ' Hello world ',
-      ],
-
-      // Test non-ASCII text gets whitespace normalized + UTF padding.
-      'text starting with non-ASCII character' => [
-        'input' => 'éHello    world',
-        'expected' => 'éHello    world',
-      ],
-
-      // Test ASCII text processing (with UTF padding).
-      'simple ASCII text' => [
-        'input' => 'Hello world',
-        'expected' => 'Hello world',
-      ],
-
-      'ASCII text with UTF-8 characters' => [
-        'input' => 'Hello 🌟 world',
-        'expected' => 'Hello 🌟 world',
-      ],
-
-      'empty string' => [
-        'input' => '',
-        'expected' => '',
-      ],
-
-      'single space' => [
-        'input' => ' ',
-        'expected' => ' ',
-      ],
-
-      'only multiple spaces' => [
-        'input' => '    ',
-        'expected' => ' ',
-      ],
+  public static function dataProviderNormalizeText(): \Iterator {
+    // Test whitespace collapsing.
+    yield 'multiple spaces' => [
+      'input' => 'Hello    world',
+      'expected' => 'Hello world',
+    ];
+    yield 'multiple types of whitespace' => [
+      'input' => "Hello\t\t  \n  world",
+      'expected' => 'Hello world',
+    ];
+    yield 'leading and trailing spaces with multiple interior spaces' => [
+      'input' => '  Hello    world  ',
+      'expected' => ' Hello world ',
+    ];
+    // Test non-ASCII text gets whitespace normalized + UTF padding.
+    yield 'text starting with non-ASCII character' => [
+      'input' => 'éHello    world',
+      'expected' => 'éHello    world',
+    ];
+    // Test ASCII text processing (with UTF padding).
+    yield 'simple ASCII text' => [
+      'input' => 'Hello world',
+      'expected' => 'Hello world',
+    ];
+    yield 'ASCII text with UTF-8 characters' => [
+      'input' => 'Hello 🌟 world',
+      'expected' => 'Hello 🌟 world',
+    ];
+    yield 'empty string' => [
+      'input' => '',
+      'expected' => '',
+    ];
+    yield 'single space' => [
+      'input' => ' ',
+      'expected' => ' ',
+    ];
+    yield 'only multiple spaces' => [
+      'input' => '    ',
+      'expected' => ' ',
     ];
   }
 

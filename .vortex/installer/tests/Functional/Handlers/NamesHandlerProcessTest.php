@@ -17,19 +17,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Name::class)]
 class NamesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      'names' => [
-        static::cw(function (): void {
-          Env::put(Name::envName(), 'New hope');
-          Env::put(MachineName::envName(), 'the_new_hope');
-          Env::put(Org::envName(), 'Jedi Order');
-          Env::put(OrgMachineName::envName(), 'the_jedi_order');
-          Env::put(Domain::envName(), 'death-star.com');
-          Env::put(ModulePrefix::envName(), 'the_force');
-          Env::put(Theme::envName(), 'lightsaber');
-        }),
-      ],
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield 'names' => [
+      static::cw(function (): void {
+        Env::put(Name::envName(), 'New hope');
+        Env::put(MachineName::envName(), 'the_new_hope');
+        Env::put(Org::envName(), 'Jedi Order');
+        Env::put(OrgMachineName::envName(), 'the_jedi_order');
+        Env::put(Domain::envName(), 'death-star.com');
+        Env::put(ModulePrefix::envName(), 'the_force');
+        Env::put(Theme::envName(), 'lightsaber');
+      }),
     ];
   }
 

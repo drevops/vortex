@@ -173,194 +173,192 @@ class AbstractRunnerTest extends UnitTestCase {
   /**
    * Data provider for parseCommand.
    */
-  public static function dataProviderParseCommand(): array {
-    return [
-      'simple command' => [
-        'command' => 'echo',
-        'expected' => ['echo'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with arguments' => [
-        'command' => 'echo hello world',
-        'expected' => ['echo', 'hello', 'world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with single-quoted argument' => [
-        'command' => "echo 'hello world'",
-        'expected' => ['echo', 'hello world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with double-quoted argument' => [
-        'command' => 'echo "hello world"',
-        'expected' => ['echo', 'hello world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with escaped character' => [
-        'command' => 'echo hello\\ world',
-        'expected' => ['echo', 'hello world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with escaped quote inside single quotes' => [
-        'command' => "echo 'It\\'s working'",
-        'expected' => ['echo', "It's working"],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with mixed quotes' => [
-        'command' => 'echo "hello" \'world\'',
-        'expected' => ['echo', 'hello', 'world'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with end-of-options marker' => [
-        'command' => 'echo -- --not-an-option',
-        'expected' => ['echo', '--', '--not-an-option'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with single short option' => [
-        'command' => 'ls -l',
-        'expected' => ['ls', '-l'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with multiple short options' => [
-        'command' => 'ls -la',
-        'expected' => ['ls', '-la'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with separate short options' => [
-        'command' => 'ls -l -a -h',
-        'expected' => ['ls', '-l', '-a', '-h'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with long option' => [
-        'command' => 'ls --all',
-        'expected' => ['ls', '--all'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with long option with equals value' => [
-        'command' => 'composer require --dev=phpunit',
-        'expected' => ['composer', 'require', '--dev=phpunit'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with long option with space-separated value' => [
-        'command' => 'git commit -m "commit message"',
-        'expected' => ['git', 'commit', '-m', 'commit message'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with option value with equals' => [
-        'command' => 'command --option=value',
-        'expected' => ['command', '--option=value'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with option value with spaces' => [
-        'command' => 'command --option="value with spaces"',
-        'expected' => ['command', '--option=value with spaces'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with mixed options and arguments' => [
-        'command' => 'ls -la /path/to/dir',
-        'expected' => ['ls', '-la', '/path/to/dir'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with options and quoted arguments' => [
-        'command' => 'grep -r "search term" /path/to/dir',
-        'expected' => ['grep', '-r', 'search term', '/path/to/dir'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'complex command with multiple options and arguments' => [
-        'command' => 'docker run -it --rm --name=mycontainer -v /host:/container ubuntu:latest bash',
-        'expected' => ['docker', 'run', '-it', '--rm', '--name=mycontainer', '-v', '/host:/container', 'ubuntu:latest', 'bash'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with option containing special characters' => [
-        'command' => 'curl -H "Authorization: Bearer token123"',
-        'expected' => ['curl', '-H', 'Authorization: Bearer token123'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with multiple long options with values' => [
-        'command' => 'command --option1=value1 --option2=value2 --flag',
-        'expected' => ['command', '--option1=value1', '--option2=value2', '--flag'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with mixed short and long options' => [
-        'command' => 'command -a -b --long-option --another=value arg1 arg2',
-        'expected' => ['command', '-a', '-b', '--long-option', '--another=value', 'arg1', 'arg2'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with options before and after arguments' => [
-        'command' => 'find /path -name "*.txt" -type f',
-        'expected' => ['find', '/path', '-name', '*.txt', '-type', 'f'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with option value containing equals sign' => [
-        'command' => 'command --url="http://example.com?param=value"',
-        'expected' => ['command', '--url=http://example.com?param=value'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with negative number argument' => [
-        'command' => 'command -n -42',
-        'expected' => ['command', '-n', '-42'],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'command with option and empty string value' => [
-        'command' => 'command --option=""',
-        'expected' => ['command', '--option='],
-        'expected_exception' => NULL,
-        'expected_message' => NULL,
-      ],
-      'empty command' => [
-        'command' => '',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Command cannot be empty.',
-      ],
-      'whitespace only command' => [
-        'command' => '   ',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Command cannot be empty.',
-      ],
-      'unclosed single quote' => [
-        'command' => "echo 'unclosed",
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Unclosed quote in command string.',
-      ],
-      'unclosed double quote' => [
-        'command' => 'echo "unclosed',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Unclosed quote in command string.',
-      ],
-      'trailing escape' => [
-        'command' => 'echo trailing\\',
-        'expected' => [],
-        'expected_exception' => \InvalidArgumentException::class,
-        'expected_message' => 'Trailing escape character in command string.',
-      ],
+  public static function dataProviderParseCommand(): \Iterator {
+    yield 'simple command' => [
+      'command' => 'echo',
+      'expected' => ['echo'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with arguments' => [
+      'command' => 'echo hello world',
+      'expected' => ['echo', 'hello', 'world'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with single-quoted argument' => [
+      'command' => "echo 'hello world'",
+      'expected' => ['echo', 'hello world'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with double-quoted argument' => [
+      'command' => 'echo "hello world"',
+      'expected' => ['echo', 'hello world'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with escaped character' => [
+      'command' => 'echo hello\\ world',
+      'expected' => ['echo', 'hello world'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with escaped quote inside single quotes' => [
+      'command' => "echo 'It\\'s working'",
+      'expected' => ['echo', "It's working"],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with mixed quotes' => [
+      'command' => 'echo "hello" \'world\'',
+      'expected' => ['echo', 'hello', 'world'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with end-of-options marker' => [
+      'command' => 'echo -- --not-an-option',
+      'expected' => ['echo', '--', '--not-an-option'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with single short option' => [
+      'command' => 'ls -l',
+      'expected' => ['ls', '-l'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with multiple short options' => [
+      'command' => 'ls -la',
+      'expected' => ['ls', '-la'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with separate short options' => [
+      'command' => 'ls -l -a -h',
+      'expected' => ['ls', '-l', '-a', '-h'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with long option' => [
+      'command' => 'ls --all',
+      'expected' => ['ls', '--all'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with long option with equals value' => [
+      'command' => 'composer require --dev=phpunit',
+      'expected' => ['composer', 'require', '--dev=phpunit'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with long option with space-separated value' => [
+      'command' => 'git commit -m "commit message"',
+      'expected' => ['git', 'commit', '-m', 'commit message'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option value with equals' => [
+      'command' => 'command --option=value',
+      'expected' => ['command', '--option=value'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option value with spaces' => [
+      'command' => 'command --option="value with spaces"',
+      'expected' => ['command', '--option=value with spaces'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with mixed options and arguments' => [
+      'command' => 'ls -la /path/to/dir',
+      'expected' => ['ls', '-la', '/path/to/dir'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with options and quoted arguments' => [
+      'command' => 'grep -r "search term" /path/to/dir',
+      'expected' => ['grep', '-r', 'search term', '/path/to/dir'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'complex command with multiple options and arguments' => [
+      'command' => 'docker run -it --rm --name=mycontainer -v /host:/container ubuntu:latest bash',
+      'expected' => ['docker', 'run', '-it', '--rm', '--name=mycontainer', '-v', '/host:/container', 'ubuntu:latest', 'bash'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option containing special characters' => [
+      'command' => 'curl -H "Authorization: Bearer token123"',
+      'expected' => ['curl', '-H', 'Authorization: Bearer token123'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with multiple long options with values' => [
+      'command' => 'command --option1=value1 --option2=value2 --flag',
+      'expected' => ['command', '--option1=value1', '--option2=value2', '--flag'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with mixed short and long options' => [
+      'command' => 'command -a -b --long-option --another=value arg1 arg2',
+      'expected' => ['command', '-a', '-b', '--long-option', '--another=value', 'arg1', 'arg2'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with options before and after arguments' => [
+      'command' => 'find /path -name "*.txt" -type f',
+      'expected' => ['find', '/path', '-name', '*.txt', '-type', 'f'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option value containing equals sign' => [
+      'command' => 'command --url="http://example.com?param=value"',
+      'expected' => ['command', '--url=http://example.com?param=value'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with negative number argument' => [
+      'command' => 'command -n -42',
+      'expected' => ['command', '-n', '-42'],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option and empty string value' => [
+      'command' => 'command --option=""',
+      'expected' => ['command', '--option='],
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'empty command' => [
+      'command' => '',
+      'expected' => [],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Command cannot be empty.',
+    ];
+    yield 'whitespace only command' => [
+      'command' => '   ',
+      'expected' => [],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Command cannot be empty.',
+    ];
+    yield 'unclosed single quote' => [
+      'command' => "echo 'unclosed",
+      'expected' => [],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Unclosed quote in command string.',
+    ];
+    yield 'unclosed double quote' => [
+      'command' => 'echo "unclosed',
+      'expected' => [],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Unclosed quote in command string.',
+    ];
+    yield 'trailing escape' => [
+      'command' => 'echo trailing\\',
+      'expected' => [],
+      'expected_exception' => \InvalidArgumentException::class,
+      'expected_message' => 'Trailing escape character in command string.',
     ];
   }
 
@@ -450,44 +448,42 @@ class AbstractRunnerTest extends UnitTestCase {
   /**
    * Data provider for getOutput variations.
    */
-  public static function dataProviderGetOutputVariations(): array {
-    return [
-      'string output, as_array=false, no limit' => [
-        'output' => "Line 1\nLine 2\nLine 3",
-        'as_array' => FALSE,
-        'lines' => NULL,
-        'expected' => "Line 1\nLine 2\nLine 3",
-      ],
-      'string output, as_array=true, no limit' => [
-        'output' => "Line 1\nLine 2\nLine 3",
-        'as_array' => TRUE,
-        'lines' => NULL,
-        'expected' => ['Line 1', 'Line 2', 'Line 3'],
-      ],
-      'string output, as_array=false, limit=2' => [
-        'output' => "Line 1\nLine 2\nLine 3",
-        'as_array' => FALSE,
-        'lines' => 2,
-        'expected' => "Line 1\nLine 2",
-      ],
-      'string output, as_array=true, limit=2' => [
-        'output' => "Line 1\nLine 2\nLine 3",
-        'as_array' => TRUE,
-        'lines' => 2,
-        'expected' => ['Line 1', 'Line 2'],
-      ],
-      'empty output, as_array=false' => [
-        'output' => '',
-        'as_array' => FALSE,
-        'lines' => NULL,
-        'expected' => '',
-      ],
-      'empty output, as_array=true' => [
-        'output' => '',
-        'as_array' => TRUE,
-        'lines' => NULL,
-        'expected' => [''],
-      ],
+  public static function dataProviderGetOutputVariations(): \Iterator {
+    yield 'string output, as_array=false, no limit' => [
+      'output' => "Line 1\nLine 2\nLine 3",
+      'as_array' => FALSE,
+      'lines' => NULL,
+      'expected' => "Line 1\nLine 2\nLine 3",
+    ];
+    yield 'string output, as_array=true, no limit' => [
+      'output' => "Line 1\nLine 2\nLine 3",
+      'as_array' => TRUE,
+      'lines' => NULL,
+      'expected' => ['Line 1', 'Line 2', 'Line 3'],
+    ];
+    yield 'string output, as_array=false, limit=2' => [
+      'output' => "Line 1\nLine 2\nLine 3",
+      'as_array' => FALSE,
+      'lines' => 2,
+      'expected' => "Line 1\nLine 2",
+    ];
+    yield 'string output, as_array=true, limit=2' => [
+      'output' => "Line 1\nLine 2\nLine 3",
+      'as_array' => TRUE,
+      'lines' => 2,
+      'expected' => ['Line 1', 'Line 2'],
+    ];
+    yield 'empty output, as_array=false' => [
+      'output' => '',
+      'as_array' => FALSE,
+      'lines' => NULL,
+      'expected' => '',
+    ];
+    yield 'empty output, as_array=true' => [
+      'output' => '',
+      'as_array' => TRUE,
+      'lines' => NULL,
+      'expected' => [''],
     ];
   }
 
@@ -506,44 +502,42 @@ class AbstractRunnerTest extends UnitTestCase {
   /**
    * Data provider for buildCommandString.
    */
-  public static function dataProviderBuildCommandString(): array {
-    return [
-      'command only' => [
-        'command' => 'echo',
-        'args' => [],
-        'opts' => [],
-        'expected' => 'echo',
-      ],
-      'command with positional args' => [
-        'command' => 'echo',
-        'args' => ['hello', 'world'],
-        'opts' => [],
-        'expected' => 'echo hello world',
-      ],
-      'command with named options' => [
-        'command' => 'echo',
-        'args' => [],
-        'opts' => ['--verbose' => TRUE, '--format' => 'json'],
-        'expected' => 'echo --verbose --format=json',
-      ],
-      'command with mixed args and options' => [
-        'command' => 'echo',
-        'args' => ['hello'],
-        'opts' => ['--verbose' => TRUE],
-        'expected' => 'echo hello --verbose',
-      ],
-      'argument with spaces requires quoting' => [
-        'command' => 'echo',
-        'args' => ['hello world'],
-        'opts' => [],
-        'expected' => "echo 'hello world'",
-      ],
-      'empty string argument' => [
-        'command' => 'echo',
-        'args' => [''],
-        'opts' => [],
-        'expected' => "echo ''",
-      ],
+  public static function dataProviderBuildCommandString(): \Iterator {
+    yield 'command only' => [
+      'command' => 'echo',
+      'args' => [],
+      'opts' => [],
+      'expected' => 'echo',
+    ];
+    yield 'command with positional args' => [
+      'command' => 'echo',
+      'args' => ['hello', 'world'],
+      'opts' => [],
+      'expected' => 'echo hello world',
+    ];
+    yield 'command with named options' => [
+      'command' => 'echo',
+      'args' => [],
+      'opts' => ['--verbose' => TRUE, '--format' => 'json'],
+      'expected' => 'echo --verbose --format=json',
+    ];
+    yield 'command with mixed args and options' => [
+      'command' => 'echo',
+      'args' => ['hello'],
+      'opts' => ['--verbose' => TRUE],
+      'expected' => 'echo hello --verbose',
+    ];
+    yield 'argument with spaces requires quoting' => [
+      'command' => 'echo',
+      'args' => ['hello world'],
+      'opts' => [],
+      'expected' => "echo 'hello world'",
+    ];
+    yield 'empty string argument' => [
+      'command' => 'echo',
+      'args' => [''],
+      'opts' => [],
+      'expected' => "echo ''",
     ];
   }
 
@@ -562,36 +556,34 @@ class AbstractRunnerTest extends UnitTestCase {
   /**
    * Data provider for quoteArgument.
    */
-  public static function dataProviderQuoteArgument(): array {
-    return [
-      'simple string (no quoting)' => [
-        'argument' => 'hello',
-        'expected' => 'hello',
-      ],
-      'string with spaces' => [
-        'argument' => 'hello world',
-        'expected' => "'hello world'",
-      ],
-      'string with single quote' => [
-        'argument' => "It's working",
-        'expected' => "'It'\\''s working'",
-      ],
-      'string with double quote' => [
-        'argument' => 'Say "hello"',
-        'expected' => "'Say \"hello\"'",
-      ],
-      'string with shell special chars' => [
-        'argument' => 'test$variable',
-        'expected' => "'test\$variable'",
-      ],
-      'empty string' => [
-        'argument' => '',
-        'expected' => "''",
-      ],
-      'string with backslash' => [
-        'argument' => 'path\\to\\file',
-        'expected' => "'path\\to\\file'",
-      ],
+  public static function dataProviderQuoteArgument(): \Iterator {
+    yield 'simple string (no quoting)' => [
+      'argument' => 'hello',
+      'expected' => 'hello',
+    ];
+    yield 'string with spaces' => [
+      'argument' => 'hello world',
+      'expected' => "'hello world'",
+    ];
+    yield 'string with single quote' => [
+      'argument' => "It's working",
+      'expected' => "'It'\\''s working'",
+    ];
+    yield 'string with double quote' => [
+      'argument' => 'Say "hello"',
+      'expected' => "'Say \"hello\"'",
+    ];
+    yield 'string with shell special chars' => [
+      'argument' => 'test$variable',
+      'expected' => "'test\$variable'",
+    ];
+    yield 'empty string' => [
+      'argument' => '',
+      'expected' => "''",
+    ];
+    yield 'string with backslash' => [
+      'argument' => 'path\\to\\file',
+      'expected' => "'path\\to\\file'",
     ];
   }
 
@@ -610,36 +602,34 @@ class AbstractRunnerTest extends UnitTestCase {
   /**
    * Data provider for formatArgs.
    */
-  public static function dataProviderFormatArgs(): array {
-    return [
-      'positional args' => [
-        'args' => ['arg1', 'arg2'],
-        'expected' => ['arg1', 'arg2'],
-      ],
-      'named args with string values' => [
-        'args' => ['--option' => 'value', '--flag' => 'enabled'],
-        'expected' => ['--option=value', '--flag=enabled'],
-      ],
-      'named args with bool TRUE' => [
-        'args' => ['--verbose' => TRUE],
-        'expected' => ['--verbose'],
-      ],
-      'named args with bool FALSE (excluded)' => [
-        'args' => ['--verbose' => FALSE],
-        'expected' => [],
-      ],
-      'positional args with bool TRUE' => [
-        'args' => [TRUE],
-        'expected' => ['1'],
-      ],
-      'positional args with bool FALSE (excluded)' => [
-        'args' => [FALSE],
-        'expected' => [],
-      ],
-      'mixed positional and named' => [
-        'args' => ['pos1', '--opt' => 'val', 'pos2'],
-        'expected' => ['pos1', '--opt=val', 'pos2'],
-      ],
+  public static function dataProviderFormatArgs(): \Iterator {
+    yield 'positional args' => [
+      'args' => ['arg1', 'arg2'],
+      'expected' => ['arg1', 'arg2'],
+    ];
+    yield 'named args with string values' => [
+      'args' => ['--option' => 'value', '--flag' => 'enabled'],
+      'expected' => ['--option=value', '--flag=enabled'],
+    ];
+    yield 'named args with bool TRUE' => [
+      'args' => ['--verbose' => TRUE],
+      'expected' => ['--verbose'],
+    ];
+    yield 'named args with bool FALSE (excluded)' => [
+      'args' => ['--verbose' => FALSE],
+      'expected' => [],
+    ];
+    yield 'positional args with bool TRUE' => [
+      'args' => [TRUE],
+      'expected' => ['1'],
+    ];
+    yield 'positional args with bool FALSE (excluded)' => [
+      'args' => [FALSE],
+      'expected' => [],
+    ];
+    yield 'mixed positional and named' => [
+      'args' => ['pos1', '--opt' => 'val', 'pos2'],
+      'expected' => ['pos1', '--opt=val', 'pos2'],
     ];
   }
 

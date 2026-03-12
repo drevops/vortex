@@ -61,8 +61,8 @@
     * Test Config Split config.
     */
    #[DataProvider('dataProviderConfigSplit')]
-@@ -225,79 +169,6 @@
-         ],
+@@ -221,79 +165,6 @@
+         'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
        ],
      ];
 -  }

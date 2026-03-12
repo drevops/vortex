@@ -38,28 +38,26 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   /**
    * Data provider for testing environment type detection.
    */
-  public static function dataProviderEnvironmentTypeDetection(): array {
-    return [
-      // By default, the default environment type is local.
-      [[], self::ENVIRONMENT_LOCAL],
+  public static function dataProviderEnvironmentTypeDetection(): \Iterator {
+    // By default, the default environment type is local.
+    yield [[], self::ENVIRONMENT_LOCAL];
 
-      // CI.
+    // CI.
+    yield [
       [
-        [
-          'CI' => 1,
-        ],
-        self::ENVIRONMENT_CI,
+        'CI' => 1,
       ],
-
-      // Container.
-      [
-        [
-          'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
-        ],
-        self::ENVIRONMENT_LOCAL,
-      ],
-
+      self::ENVIRONMENT_CI,
     ];
+
+    // Container.
+    yield [
+      [
+        'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
+      ],
+      self::ENVIRONMENT_LOCAL,
+    ];
+
   }
 
   /**

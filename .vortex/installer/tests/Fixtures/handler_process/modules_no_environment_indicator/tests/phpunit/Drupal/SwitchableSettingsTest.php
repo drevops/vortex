@@ -1,4 +1,4 @@
-@@ -163,71 +163,6 @@
+@@ -161,69 +161,6 @@
    }
  
    /**
@@ -19,49 +19,47 @@
 -  /**
 -   * Data provider for testEnvironmentIndicator().
 -   */
--  public static function dataProviderEnvironmentIndicator(): array {
--    return [
+-  public static function dataProviderEnvironmentIndicator(): \Iterator {
+-    yield [
+-      self::ENVIRONMENT_LOCAL,
 -      [
--        self::ENVIRONMENT_LOCAL,
--        [
--          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_LOCAL, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
--          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
--        ],
+-        'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_LOCAL, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+-        'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_CI,
 -      [
--        self::ENVIRONMENT_CI,
--        [
--          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_CI, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
--          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
--        ],
+-        'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_CI, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+-        'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
 -      [
--        self::ENVIRONMENT_DEV,
--        [
--          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_DEV, 'bg_color' => '#4caf50', 'fg_color' => '#000000'],
--          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
--        ],
+-        'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_DEV, 'bg_color' => '#4caf50', 'fg_color' => '#000000'],
+-        'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_STAGE,
 -      [
--        self::ENVIRONMENT_STAGE,
--        [
--          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_STAGE, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
--          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
--        ],
+-        'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_STAGE, 'bg_color' => '#fff176', 'fg_color' => '#000000'],
+-        'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_PROD,
 -      [
--        self::ENVIRONMENT_PROD,
--        [
--          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_PROD, 'bg_color' => '#ef5350', 'fg_color' => '#000000'],
--          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
--        ],
+-        'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_PROD, 'bg_color' => '#ef5350', 'fg_color' => '#000000'],
+-        'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
 -      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_SUT,
 -      [
--        self::ENVIRONMENT_SUT,
--        [
--          'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_SUT, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
--          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
--        ],
+-        'environment_indicator.indicator' => ['name' => self::ENVIRONMENT_SUT, 'bg_color' => '#006600', 'fg_color' => '#ffffff'],
+-        'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
 -      ],
 -    ];
 -  }

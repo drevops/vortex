@@ -65,22 +65,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Tui::class)]
 class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
-  public static function dataProviderHandlerProcess(): array {
-    return [
-      static::BASELINE_DATASET => [
-        NULL,
-        NULL,
+  public static function dataProviderHandlerProcess(): \Iterator {
+    yield static::BASELINE_DATASET => [
+      NULL,
+      NULL,
         ['Welcome to the Vortex non-interactive installer'],
-      ],
-
-      'non_interactive' => [
-        NULL,
-        NULL,
+    ];
+    yield 'non_interactive' => [
+      NULL,
+      NULL,
         ['Welcome to the Vortex non-interactive installer'],
-      ],
-
-      'non_interactive_config_file' => [
-        static::cw(function (AbstractHandlerProcessTestCase $test): void {
+    ];
+    yield 'non_interactive_config_file' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_file = static::$tmp . DIRECTORY_SEPARATOR . 'config.json';
           File::dump($config_file, (string) json_encode([
             // Test overriding scalar value.
@@ -89,13 +86,12 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
             Services::envName() => [Services::SOLR, Services::CLAMAV],
           ]));
           $test->installOptions['config'] = $config_file;
-        }),
-        NULL,
+      }),
+      NULL,
         ['Welcome to the Vortex non-interactive installer'],
-      ],
-
-      'non_interactive_config_string' => [
-        static::cw(function (AbstractHandlerProcessTestCase $test): void {
+    ];
+    yield 'non_interactive_config_string' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config_string = (string) json_encode([
             // Test overriding scalar value.
             Org::envName() => 'My other custom org',
@@ -103,10 +99,9 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
             Services::envName() => [Services::SOLR, Services::REDIS],
           ]);
           $test->installOptions['config'] = $config_string;
-        }),
-        NULL,
+      }),
+      NULL,
         ['Welcome to the Vortex non-interactive installer'],
-      ],
     ];
   }
 

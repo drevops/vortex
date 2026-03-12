@@ -196,16 +196,14 @@ class CommandRunnerTest extends UnitTestCase {
   /**
    * Data provider for streaming modes.
    */
-  public static function dataProviderRunWithStreaming(): array {
-    return [
-      'streaming enabled' => [
-        'streaming_enabled' => TRUE,
-        'should_have_output' => TRUE,
-      ],
-      'streaming disabled' => [
-        'streaming_enabled' => FALSE,
-        'should_have_output' => FALSE,
-      ],
+  public static function dataProviderRunWithStreaming(): \Iterator {
+    yield 'streaming enabled' => [
+      'streaming_enabled' => TRUE,
+      'should_have_output' => TRUE,
+    ];
+    yield 'streaming disabled' => [
+      'streaming_enabled' => FALSE,
+      'should_have_output' => FALSE,
     ];
   }
 
