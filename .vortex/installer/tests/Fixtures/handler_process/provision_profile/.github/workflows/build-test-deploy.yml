@@ -59,7 +59,7 @@
 -
 -      - name: Add SSH private key used to download database
 -        if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
--        uses: shimataro/ssh-key-action@__VERSION__
+-        uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
 -        with:
 -          key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
 -          known_hosts: unnecessary

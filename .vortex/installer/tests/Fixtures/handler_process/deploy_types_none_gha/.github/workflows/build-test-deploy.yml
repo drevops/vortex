@@ -52,7 +52,7 @@
 -
 -      - name: Add SSH private key to the runner
 -        if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
--        uses: shimataro/ssh-key-action@__VERSION__
+-        uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
 -        with:
 -          key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 -          known_hosts: unnecessary
