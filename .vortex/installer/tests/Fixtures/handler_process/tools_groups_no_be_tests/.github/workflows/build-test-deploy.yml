@@ -9,7 +9,7 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -358,65 +354,6 @@
+@@ -358,72 +354,6 @@
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
@@ -28,16 +28,13 @@
 -             docker compose cp cli:/app/.logs/. ".logs/"
 -          fi
 -
--      - name: Check code coverage threshold
+-      - name: Extract code coverage
 -        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: |
 -          RATE=$(grep -om1 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
 -          PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
 -          echo "Coverage: $PERCENT% (threshold: $VORTEX_CI_CODE_COVERAGE_THRESHOLD%)" | tee -a "$GITHUB_STEP_SUMMARY"
--          if [ "${PERCENT//./}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
--            echo "FAIL: coverage too low"
--            exit 1
--          fi
+-          echo "COVERAGE_PERCENT=${PERCENT}" >> "$GITHUB_ENV"
 -          { echo "COVERAGE_CONTENT<<EOF"; sed '/./,$!d' .logs/coverage/phpunit/coverage.txt; echo "EOF"; } >> "$GITHUB_ENV"
 -        env:
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
@@ -61,6 +58,16 @@
 -          token: ${{ secrets.CODECOV_TOKEN }}
 -        env:
 -          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+-
+-      - name: Check code coverage threshold
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: |
+-          if [ "${COVERAGE_PERCENT//.}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
+-            echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD}%"
+-            exit 1
+-          fi
+-        env:
+-          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Test with Behat
 -        run: |
