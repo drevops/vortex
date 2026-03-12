@@ -29,6 +29,7 @@ jobs:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
         VORTEX_DOCTOR_CHECK_MINIMAL: 1
+        TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
         TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
         TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
@@ -129,6 +130,7 @@ jobs:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
         VORTEX_DOCTOR_CHECK_MINIMAL: 1
+        TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
         TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
         TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
         TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
