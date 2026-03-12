@@ -175,7 +175,7 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -456,7 +316,6 @@
+@@ -463,7 +323,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
