@@ -112,13 +112,13 @@ It handles:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MIGRATION_SKIP` | `0` | Skip all migration operations |
-| `MIGRATION_ROLLBACK_SKIP` | `1` | Skip rollback before import |
-| `MIGRATION_IMPORT_LIMIT` | `50` | Limit entities per migration (use `all` for unlimited) |
-| `MIGRATION_UPDATE` | `0` | Update already imported entities |
-| `MIGRATION_FEEDBACK` | `50` | Progress feedback frequency |
-| `MIGRATION_SOURCE_DB_IMPORT` | `$VORTEX_PROVISION_OVERRIDE_DB` | Import source database (`1` to import, `0` to skip) |
-| `MIGRATION_SOURCE_DB_PROBE_TABLE` | `categories` | Table name to probe for corruption detection |
+| `DRUPAL_MIGRATION_SKIP` | `0` | Skip all migration operations |
+| `DRUPAL_MIGRATION_ROLLBACK_SKIP` | `1` | Skip rollback before import |
+| `DRUPAL_MIGRATION_IMPORT_LIMIT` | `50` | Limit entities per migration (use `all` for unlimited) |
+| `DRUPAL_MIGRATION_UPDATE` | `0` | Update already imported entities |
+| `DRUPAL_MIGRATION_FEEDBACK` | `50` | Progress feedback frequency |
+| `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` | `$VORTEX_PROVISION_OVERRIDE_DB` | Import source database (`1` to import, `0` to skip) |
+| `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE` | `categories` | Table name to probe for corruption detection |
 
 ### Adding migrations
 
@@ -131,8 +131,8 @@ run_migration ys_migrate_categories --limit=all
 
 ### Corruption detection
 
-If `MIGRATION_SOURCE_DB_IMPORT` is `0`, the script probes the source database
-for the table specified in `MIGRATION_SOURCE_DB_PROBE_TABLE`. If the table is
+If `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` is `0`, the script probes the source database
+for the table specified in `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE`. If the table is
 missing (corrupted or empty database), the script automatically re-imports the
 dump file.
 

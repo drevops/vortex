@@ -16,7 +16,7 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SOURCE_DB_IMPORT=1
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
 
   declare -a STEPS=(
     # Get environment.
@@ -54,7 +54,7 @@ load ../_helper.bash
     "Finished migration operations."
 
     # Not expected.
-    "- Skipping migrations. MIGRATION_SKIP is set to 1."
+    "- Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
     "- Using existing migration source database."
     "- Migration source database is corrupted."
     "- Rolling back all migrations."
@@ -78,14 +78,14 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SKIP=1
+  export DRUPAL_MIGRATION_SKIP=1
 
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
 
     "Started migration operations."
     "Migration skip:          1"
-    "Skipping migrations. MIGRATION_SKIP is set to 1."
+    "Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
 
     "- Importing migration source database."
     "- Starting migrations."
@@ -117,7 +117,7 @@ load ../_helper.bash
     "Started migration operations."
     "Environment: prod"
     "Migration skip:          1"
-    "Skipping migrations. MIGRATION_SKIP is set to 1."
+    "Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
 
     "- Importing migration source database."
     "- Starting migrations."
@@ -141,7 +141,7 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SOURCE_DB_IMPORT=0
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0
 
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
@@ -189,7 +189,7 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SOURCE_DB_IMPORT=0
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0
 
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
@@ -240,7 +240,7 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SOURCE_DB_IMPORT=1
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
 
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
@@ -273,7 +273,7 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SOURCE_DB_IMPORT=1
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
 
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
@@ -318,8 +318,8 @@ load ../_helper.bash
 
   create_global_command_wrapper "vendor/bin/drush"
 
-  export MIGRATION_SOURCE_DB_IMPORT=1
-  export MIGRATION_ROLLBACK_SKIP=0
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+  export DRUPAL_MIGRATION_ROLLBACK_SKIP=0
 
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
