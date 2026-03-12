@@ -63,7 +63,7 @@ $output = implode("\n", [
   build_variant_job('vortex-dev-didi-build-fi', '*job_build', [
     'VORTEX_DB_IMAGE' => 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi',
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-fi',
-    'MIGRATION_SKIP' => 1,
+    'DRUPAL_MIGRATION_SKIP' => 1,
   ]),
   '',
   '  # DIDI-II variant jobs',
@@ -79,7 +79,7 @@ $output = implode("\n", [
   build_variant_job('vortex-dev-didi-build-ii', '*job_build', [
     'VORTEX_DB_IMAGE' => 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii',
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-ii',
-    'MIGRATION_SKIP' => 1,
+    'DRUPAL_MIGRATION_SKIP' => 1,
   ]),
   '',
   '################################################################################',

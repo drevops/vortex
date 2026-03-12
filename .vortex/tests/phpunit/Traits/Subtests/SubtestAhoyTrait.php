@@ -906,25 +906,25 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyMigrationSkip(): void {
     $this->logStepStart();
 
-    $this->logSubstep('Test MIGRATION_SKIP flag');
-    $this->fileAddVar('.env', 'MIGRATION_SKIP', '1');
+    $this->logSubstep('Test DRUPAL_MIGRATION_SKIP flag');
+    $this->fileAddVar('.env', 'DRUPAL_MIGRATION_SKIP', '1');
     $this->syncToContainer('.env');
 
     $this->cmd(
       'ahoy provision',
       [
-        '* Skipping migrations. MIGRATION_SKIP is set to 1.',
+        '* Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1.',
         '! Importing migration source database.',
         '! Starting migrations.',
       ],
-      'Provision with MIGRATION_SKIP=1 should skip all migration operations',
+      'Provision with DRUPAL_MIGRATION_SKIP=1 should skip all migration operations',
     );
 
     $this->fileRestore('.env');
     $this->syncToContainer('.env');
 
-    $this->logSubstep('Test MIGRATION_SOURCE_DB_IMPORT skip with existing database');
-    $this->fileAddVar('.env', 'MIGRATION_SOURCE_DB_IMPORT', '0');
+    $this->logSubstep('Test DRUPAL_MIGRATION_SOURCE_DB_IMPORT skip with existing database');
+    $this->fileAddVar('.env', 'DRUPAL_MIGRATION_SOURCE_DB_IMPORT', '0');
     $this->syncToContainer('.env');
 
     $this->cmd(
@@ -934,7 +934,7 @@ trait SubtestAhoyTrait {
         '* Using existing migration source database.',
         '! Importing migration source database.',
       ],
-      'Provision with MIGRATION_SOURCE_DB_IMPORT=0 should skip DB import but still run migrations',
+      'Provision with DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0 should skip DB import but still run migrations',
     );
 
     $this->fileRestore('.env');
