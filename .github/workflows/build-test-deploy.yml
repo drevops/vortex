@@ -82,6 +82,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
+      - name: Fix Git ownership permissions
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
 
@@ -209,6 +212,9 @@ jobs:
           # Do not keep SSH credentials after checkout to allow adding custom SSH keys.
           persist-credentials: false
 
+      - name: Fix Git ownership permissions
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Add SSH private key used to download database
         if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@v2
@@ -329,6 +335,9 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Fix Git ownership permissions
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Process the codebase to run in CI
         run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
@@ -527,6 +536,9 @@ jobs:
           # to allow using the custom credentials to push to a remote repo.
           persist-credentials: false
           ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Fix Git ownership permissions
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"

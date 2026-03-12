@@ -1,4 +1,4 @@
-@@ -117,10 +117,6 @@
+@@ -120,10 +120,6 @@
          run: docker compose exec -T cli composer normalize --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
  
