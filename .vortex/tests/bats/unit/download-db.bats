@@ -82,6 +82,45 @@ EOF
   popd >/dev/null
 }
 
+@test "download-db: Container registry source skips file existence check" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Create existing database files that would normally trigger the cache check.
+  mkdir -p .data
+  touch .data/db.sql
+  touch .data/db.tar
+
+  # Mock the container registry sub-script.
+  mkdir -p scripts/vortex
+  cat >scripts/vortex/download-db-container-registry.sh <<'EOF'
+#!/usr/bin/env bash
+echo "Started database data container image download."
+echo "Finished database data container image download."
+EOF
+  chmod +x scripts/vortex/download-db-container-registry.sh
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_DOWNLOAD_DB_SOURCE="container_registry"
+  export VORTEX_DOWNLOAD_DB_PROCEED="1"
+  export VORTEX_DOWNLOAD_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
+  export VORTEX_DOWNLOAD_DB_FORCE=""
+
+  run scripts/vortex/download-db.sh
+  assert_success
+  assert_output_contains "Started database download."
+  assert_output_contains "Started database data container image download."
+  assert_output_contains "Finished database data container image download."
+  assert_output_contains "Finished database download."
+  assert_output_not_contains "Found existing database dump file(s)."
+  assert_output_not_contains "Using existing database dump file(s)."
+  assert_output_not_contains "Download will not proceed."
+
+  popd >/dev/null
+}
+
 @test "download-db: Existing database file handling" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

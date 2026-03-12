@@ -48,20 +48,24 @@ info "Started database download."
 
 [ "${VORTEX_DOWNLOAD_DB_PROCEED}" != "1" ] && pass "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1." && exit 0
 
-db_file_basename="${VORTEX_DOWNLOAD_DB_FILE%.*}"
-[ -d "${VORTEX_DOWNLOAD_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DOWNLOAD_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
+# Skip file existence check for container_registry source as the database is
+# stored as a Docker image, not a file.
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" != "container_registry" ]; then
+  db_file_basename="${VORTEX_DOWNLOAD_DB_FILE%.*}"
+  [ -d "${VORTEX_DOWNLOAD_DB_DIR:-}" ] && found_db=$(find "${VORTEX_DOWNLOAD_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
 
-if [ -n "${found_db:-}" ]; then
-  note "Found existing database dump file(s)."
-  ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" 2>/dev/null || true
+  if [ -n "${found_db:-}" ]; then
+    note "Found existing database dump file(s)."
+    ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" 2>/dev/null || true
 
-  if [ "${VORTEX_DOWNLOAD_DB_FORCE}" != "1" ]; then
-    note "Using existing database dump file(s)."
-    note "Download will not proceed."
-    note "Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download."
-    exit 0
-  else
-    note "Will download a fresh copy of the database."
+    if [ "${VORTEX_DOWNLOAD_DB_FORCE}" != "1" ]; then
+      note "Using existing database dump file(s)."
+      note "Download will not proceed."
+      note "Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download."
+      exit 0
+    else
+      note "Will download a fresh copy of the database."
+    fi
   fi
 fi
 
