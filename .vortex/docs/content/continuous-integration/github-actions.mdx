@@ -100,6 +100,8 @@ The workflow triggers on pushes and pull requests to specific branches defined
 in the `on.push.branches` and `on.pull_request.branches` sections of
 `.github/workflows/build-test-deploy.yml`:
 
+**Push triggers** (direct pushes and merges):
+
 | Pattern | Description |
 |---------|-------------|
 | `production` | Production environment branch |
@@ -107,11 +109,20 @@ in the `on.push.branches` and `on.pull_request.branches` sections of
 | `develop` | Integration branch for ongoing work |
 | `release/**` | Release preparation branches (e.g., `release/1.2.3`, `release/2023-04-17`) |
 | `hotfix/**` | Urgent production fixes (e.g., `hotfix/1.2.4`, `hotfix/2023-04-17`) |
-| `feature/**` | New feature branches (e.g., `feature/login`, `feature/123-new-ui`) |
-| `bugfix/**` | Non-urgent bug fix branches (e.g., `bugfix/fix-auth`, `bugfix/456-crash`) |
 | `project/**` | Long-lived project branches for large initiatives |
 
-To add or remove branches, update both the `push` and `pull_request` sections
+**Pull request triggers** (PRs targeting these branches):
+
+| Pattern | Description |
+|---------|-------------|
+| All push branches above | Same as push triggers |
+| `feature/**` | New feature branches (e.g., `feature/login`, `feature/123-new-ui`) |
+| `bugfix/**` | Non-urgent bug fix branches (e.g., `bugfix/fix-auth`, `bugfix/456-crash`) |
+
+Short-lived branches like `feature/**` and `bugfix/**` only trigger CI through
+pull requests, not on direct pushes.
+
+To add or remove branches, update the `push` and `pull_request` sections
 in the workflow file.
 
 ### Update nightly database schedule

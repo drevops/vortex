@@ -14,8 +14,6 @@ on:
       - develop
       - release/**
       - hotfix/**
-      - feature/**
-      - bugfix/**
       - project/**
     # Pushes of tags will also trigger the workflow.
     tags:
