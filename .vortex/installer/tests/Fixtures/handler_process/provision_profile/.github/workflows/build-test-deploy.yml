@@ -15,7 +15,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -150,111 +147,8 @@
+@@ -153,114 +150,8 @@
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -53,6 +53,9 @@
 -        with:
 -          # Do not keep SSH credentials after checkout to allow adding custom SSH keys.
 -          persist-credentials: false
+-
+-      - name: Fix Git ownership permissions
+-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 -
 -      - name: Add SSH private key used to download database
 -        if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
@@ -127,7 +130,7 @@
  
      strategy:
        # A matrix to run multiple jobs in parallel.
-@@ -275,14 +169,6 @@
+@@ -281,14 +172,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -142,7 +145,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -301,29 +187,6 @@
+@@ -310,29 +193,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -172,7 +175,7 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -449,7 +312,6 @@
+@@ -458,7 +318,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]

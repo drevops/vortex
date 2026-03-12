@@ -1,4 +1,4 @@
-@@ -137,10 +137,6 @@
+@@ -140,10 +140,6 @@
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
  
@@ -9,7 +9,7 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -399,18 +395,6 @@
+@@ -408,18 +404,6 @@
            token: ${{ secrets.CODECOV_TOKEN }}
          env:
            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
