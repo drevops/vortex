@@ -53,6 +53,19 @@ the version constraint you need. For example, to allow `alpha`, `beta`, and `RC`
 
 To install JavaScript or CSS libraries as Drupal libraries with Composer,
 they must be defined as [inline Composer packages](https://getcomposer.org/doc/04-schema.md#repositories).
+The package type for inline packages must be `drupal-library`, as Drupal
+treats these as libraries and places them into the `web/libraries/` directory
+where it expects all libraries to reside.
+
+:::warning Avoid Asset Packagist
+
+Do not use [Asset Packagist](https://asset-packagist.org) to install front-end
+libraries. Unlike Drupal.org, which maintains the distribution of Composer
+packages with established security policies, Asset Packagist is a third-party
+service that lacks the safeguards needed to protect against supply chain attacks.
+Instead, define packages as inline Composer packages as shown below.
+
+:::
 
 1. Define the package in `composer.json` under the `repositories` section:
 
@@ -158,18 +171,20 @@ To override package installation paths, modify `composer.json`:
 {
     "extra": {
         "installer-paths": {
-            "web/libraries/chosen": [
-                "npm-asset/chosen-js"
+            "web/libraries/jquery-easing": [
+                "gdsmith/jquery.easing"
             ],
             "web/libraries/{$name}": [
-                "type:drupal-library",
-                "type:npm-asset",
-                "type:bower-asset"
+                "type:drupal-library"
             ]
         }
     }
 }
 ```
+
+The first entry overrides the path for a specific package, placing it into a
+custom directory name. The second entry is a catch-all that routes all
+`drupal-library` type packages to `web/libraries/{$name}` by default.
 
 ## Patching
 
