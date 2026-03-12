@@ -51,6 +51,12 @@ VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT
 # Default SSH file used if custom fingerprint is not provided.
 VORTEX_DEPLOY_ARTIFACT_SSH_FILE="${VORTEX_DEPLOY_ARTIFACT_SSH_FILE:-${VORTEX_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}}"
 
+# Version of git-artifact to download.
+VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION:-1.4.0}"
+
+# SHA256 checksum of the git-artifact binary.
+VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256:-1fa99ff2a6f8dc6c1a42bcfc87ce75d04b2eab375216b0e3195a0e3b51a47646}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -62,6 +68,12 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 info "Started ARTIFACT deployment."
+
+# shellcheck disable=SC2043
+for cmd in curl; do command -v "${cmd}" >/dev/null || {
+  fail "Command ${cmd} is not available."
+  exit 1
+}; done
 
 # Check all required values.
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
@@ -79,7 +91,12 @@ info "Started ARTIFACT deployment."
 export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT" && . ./scripts/vortex/setup-ssh.sh
 
 task "Installing artifact builder."
-composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2
+curl -sS -L "https://github.com/drevops/git-artifact/releases/download/${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION}/git-artifact" -o "${TMPDIR:-/tmp}"/git-artifact
+if ! echo "${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256}  ${TMPDIR:-/tmp}/git-artifact" | sha256sum -c; then
+  fail "SHA256 checksum verification failed for git-artifact binary."
+  exit 1
+fi
+chmod +x "${TMPDIR:-/tmp}"/git-artifact
 
 # Try resolving absolute paths.
 if command -v realpath >/dev/null 2>&1; then
@@ -99,7 +116,7 @@ cp -a "${VORTEX_DEPLOY_ARTIFACT_ROOT}"/.gitignore.artifact "${VORTEX_DEPLOY_ARTI
 
 task "Running artifact builder."
 # Add --debug to debug any deployment issues.
-"${HOME}/.composer/vendor/bin/git-artifact" "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" \
+"${TMPDIR:-/tmp}"/git-artifact "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" \
   --root="${VORTEX_DEPLOY_ARTIFACT_ROOT}" \
   --src="${VORTEX_DEPLOY_ARTIFACT_SRC}" \
   --branch="${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" \

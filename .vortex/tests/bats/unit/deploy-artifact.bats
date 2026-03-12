@@ -69,6 +69,42 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "Artifact deployment fails when SHA256 checksum does not match" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  fixture_robo
+  export VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE="git@github.com:yourorg/your-repo-destination.git"
+  export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="main"
+  export VORTEX_DEPLOY_ARTIFACT_SRC="dist"
+  export VORTEX_DEPLOY_ARTIFACT_ROOT="."
+  export VORTEX_DEPLOY_ARTIFACT_LOG="deploy-report.txt"
+  export VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="test_user"
+  export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test_user@example.com"
+  local file=${HOME}/.ssh/id_rsa
+
+  declare -a STEPS=(
+    "@git config --global user.name #"
+    "@git config --global user.name ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME} # 0 #"
+    "@git config --global user.email #"
+    "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
+    "@ssh-add -l # ${file}"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@sha256sum -c # 1"
+    "SHA256 checksum verification failed for git-artifact binary."
+    "- Finished ARTIFACT deployment."
+  )
+  mocks="$(run_steps "setup")"
+
+  run scripts/vortex/deploy-artifact.sh
+  assert_failure
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
 @test "Artifact deployment, global git username and email configured, default SSH Key" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -100,7 +136,9 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
-    "@composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@sha256sum -c"
+    "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Copying git repo files meta file to the deploy code repo."
     "Copying deployment .gitignore as it may not exist in deploy code source files."
     "Running artifact builder."
