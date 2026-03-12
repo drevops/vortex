@@ -15,58 +15,74 @@
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
-# shellcheck disable=SC1090,SC1091,SC2029,SC2124,SC2140
+# shellcheck disable=SC1090,SC1091,SC2029,SC2034,SC2124,SC2140
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
-
-_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
-VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
-for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # Flag to download a fresh copy of the database.
-VORTEX_DOWNLOAD_DB_FRESH="${VORTEX_DOWNLOAD_DB_FRESH:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_FRESH"
+VORTEX_DOWNLOAD_DB_FRESH="${!_v:-}"
 
 # Lagoon project name.
-VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="${VORTEX_DOWNLOAD_DB_LAGOON_PROJECT:-${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_PROJECT"
+VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="${!_v:-${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}}"
 
 # The source environment branch for the database source.
-VORTEX_DOWNLOAD_DB_ENVIRONMENT="${VORTEX_DOWNLOAD_DB_ENVIRONMENT:-main}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_ENVIRONMENT"
+VORTEX_DOWNLOAD_DB_ENVIRONMENT="${!_v:-main}"
 
 # Remote DB dump directory location.
 VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_DIR="/tmp"
 
 # Remote DB dump file name. Cached by the date suffix.
-VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE="${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE:-db_$(date +%Y%m%d).sql}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_REMOTE_FILE"
+VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE="${!_v:-db_$(date +%Y%m%d).sql}"
 
 # Wildcard file name to cleanup previously created dump files.
 #
 # Cleanup runs only if the variable is set and $VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE
 # does not exist.
-VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP="${VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP:-db_*.sql}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_REMOTE_FILE_CLEANUP"
+VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP="${!_v:-db_*.sql}"
 
 # SSH key fingerprint used to connect to a remote.
-VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT="${VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT:-}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_SSH_FINGERPRINT"
+VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT="${!_v:-}"
 
 # Default SSH file used if custom fingerprint is not provided.
-VORTEX_DOWNLOAD_DB_SSH_FILE="${VORTEX_DOWNLOAD_DB_SSH_FILE:-${HOME}/.ssh/id_rsa}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_SSH_FILE"
+VORTEX_DOWNLOAD_DB_SSH_FILE="${!_v:-${HOME}/.ssh/id_rsa}"
 
 # The SSH host of the Lagoon environment.
-VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST:-ssh.lagoon.amazeeio.cloud}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_SSH_HOST"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST="${!_v:-ssh.lagoon.amazeeio.cloud}"
 
 # The SSH port of the Lagoon environment.
-VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT:-32222}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_SSH_PORT"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT="${!_v:-32222}"
 
 # The SSH user of the Lagoon environment.
-VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER="${VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER:-${VORTEX_DOWNLOAD_DB_LAGOON_PROJECT}-${VORTEX_DOWNLOAD_DB_ENVIRONMENT}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_SSH_USER"
+VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER="${!_v:-${VORTEX_DOWNLOAD_DB_LAGOON_PROJECT}-${VORTEX_DOWNLOAD_DB_ENVIRONMENT}}"
 
 # Directory where DB dumps are stored on the host.
-VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR="${VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_DB_DIR"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
 
 # Database dump file name on the host.
-VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="${VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE:-${VORTEX_DOWNLOAD_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_LAGOON_DB_FILE"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
 
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"

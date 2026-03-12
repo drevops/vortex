@@ -10,33 +10,44 @@
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
-_vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
-VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
-for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
-
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # AWS access key.
-VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="${VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_ACCESS_KEY"
+VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="${!_v:-${S3_ACCESS_KEY:-}}"
 
 # AWS secret key.
-VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="${VORTEX_DOWNLOAD_DB_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_SECRET_KEY"
+VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="${!_v:-${S3_SECRET_KEY:-}}"
 
 # S3 bucket name.
-VORTEX_DOWNLOAD_DB_S3_BUCKET="${VORTEX_DOWNLOAD_DB_S3_BUCKET:-${S3_BUCKET:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_BUCKET"
+VORTEX_DOWNLOAD_DB_S3_BUCKET="${!_v:-${S3_BUCKET:-}}"
 
 # S3 region.
-VORTEX_DOWNLOAD_DB_S3_REGION="${VORTEX_DOWNLOAD_DB_S3_REGION:-${S3_REGION:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_REGION"
+VORTEX_DOWNLOAD_DB_S3_REGION="${!_v:-${S3_REGION:-}}"
 
 # S3 prefix (path within the bucket).
-VORTEX_DOWNLOAD_DB_S3_PREFIX="${VORTEX_DOWNLOAD_DB_S3_PREFIX:-${S3_PREFIX:-}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_PREFIX"
+VORTEX_DOWNLOAD_DB_S3_PREFIX="${!_v:-${S3_PREFIX:-}}"
 
 # Directory with database dump file.
-VORTEX_DOWNLOAD_DB_S3_DB_DIR="${VORTEX_DOWNLOAD_DB_S3_DB_DIR:-${VORTEX_DOWNLOAD_DB_DIR:-${VORTEX_DB_DIR:-./.data}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_DB_DIR"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_DOWNLOAD_DB_S3_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
 
 # Database dump file name.
-VORTEX_DOWNLOAD_DB_S3_DB_FILE="${VORTEX_DOWNLOAD_DB_S3_DB_FILE:-${VORTEX_DOWNLOAD_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
+_v="VORTEX_DOWNLOAD_DB${_db_index}_S3_DB_FILE"
+_vs="VORTEX_DOWNLOAD_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_DOWNLOAD_DB_S3_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
 
 # ------------------------------------------------------------------------------
 

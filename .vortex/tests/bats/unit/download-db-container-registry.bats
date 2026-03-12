@@ -142,7 +142,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Remap shorthand VORTEX_DB_IMAGE from custom prefix" {
+@test "download-db-container-registry: Resolve indexed variables with VORTEX_DB_INDEX" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -152,14 +152,13 @@ load ../_helper.bash
   # Mock the login script.
   mock_set_side_effect "$(mock_command "./scripts/vortex/login-container-registry.sh")" "echo 'logged in'" 1
 
-  # Set custom prefix as used in CI: VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2.
-  export VORTEX_VAR_PREFIX="VORTEX_DOWNLOAD_DB2"
+  # Set database index as used in CI: VORTEX_DB_INDEX=2.
+  export VORTEX_DB_INDEX="2"
 
-  # Set the shorthand image variable under the custom prefix.
-  # This should be remapped to VORTEX_DB_IMAGE by the shorthand remap logic.
+  # Set the shorthand image variable with index.
   export VORTEX_DB2_IMAGE="myorg/migration-db"
 
-  # Set remaining required variables under the long-form custom prefix.
+  # Set remaining required variables with index in the DB part.
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY="registry.example.com"
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_PASS="testpass"

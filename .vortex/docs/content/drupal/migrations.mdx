@@ -92,9 +92,10 @@ which resolves to this connection.
 | `ahoy db2` | Open the migration database in Sequel Ace |
 
 The `download-db2` command reuses the existing `download-db.sh` script with
-`VORTEX_VAR_PREFIX=VORTEX_DOWNLOAD_DB2`, which remaps all `VORTEX_DOWNLOAD_DB2_*`
-variables to `VORTEX_DOWNLOAD_DB_*` so all existing download sources (URL, FTP,
-Acquia, Lagoon, S3) work for the migration database as well.
+`VORTEX_DB_INDEX=2`, which makes all scripts resolve indexed variable names
+(e.g., `VORTEX_DOWNLOAD_DB2_SOURCE` instead of `VORTEX_DOWNLOAD_DB_SOURCE`,
+`VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so all existing download
+sources (URL, FTP, Acquia, Lagoon, S3) work for the migration database as well.
 
 ## Provision script
 

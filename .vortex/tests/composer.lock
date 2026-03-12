@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca43f8ab404c706822d64e47ccd737f1",
+    "content-hash": "69959cf9dc11bee22cf4a87bcf77b347",
     "packages": [
         {
             "name": "cweagans/composer-configurable-plugin",
@@ -324,16 +324,16 @@
         },
         {
             "name": "alexskrypnyk/shellvar",
-            "version": "1.5.1",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/shellvar.git",
-                "reference": "33b6090be78e4adad3def322ce5a788b6a8b0f39"
+                "reference": "f235988354a26ba0a23a95d132cfbe7580ee5a68"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/33b6090be78e4adad3def322ce5a788b6a8b0f39",
-                "reference": "33b6090be78e4adad3def322ce5a788b6a8b0f39",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/f235988354a26ba0a23a95d132cfbe7580ee5a68",
+                "reference": "f235988354a26ba0a23a95d132cfbe7580ee5a68",
                 "shasum": ""
             },
             "require": {
@@ -389,7 +389,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-02-10T02:05:14+00:00"
+            "time": "2026-03-12T06:18:49+00:00"
         },
         {
             "name": "czproject/git-php",
