@@ -12,6 +12,15 @@ _vortex_var_prefix_default="VORTEX_DOWNLOAD_DB"
 VORTEX_VAR_PREFIX="${VORTEX_VAR_PREFIX:-${_vortex_var_prefix_default}}"
 for v in $(env | grep "^${VORTEX_VAR_PREFIX}_" | cut -d= -f1); do export "${_vortex_var_prefix_default}_${v#"${VORTEX_VAR_PREFIX}"_}=${!v}"; done
 
+# Remap shorthand VORTEX_DB_IMAGE from custom prefix.
+# When VORTEX_VAR_PREFIX is "VORTEX_DOWNLOAD_DB2", the shorthand prefix is
+# "VORTEX_DB2" and VORTEX_DB2_IMAGE is remapped to VORTEX_DB_IMAGE.
+if [ "${VORTEX_VAR_PREFIX}" != "${_vortex_var_prefix_default}" ]; then
+  _short_prefix="${VORTEX_VAR_PREFIX/DOWNLOAD_DB/DB}"
+  _prefixed_db_image="${_short_prefix}_IMAGE"
+  [ -n "${!_prefixed_db_image:-}" ] && export VORTEX_DB_IMAGE="${!_prefixed_db_image}"
+fi
+
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
