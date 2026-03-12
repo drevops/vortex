@@ -33,6 +33,15 @@ artifact during the continuous integration pipeline build).
 Modifying targets in the `.gitignore.artifact` file works just like updating
 a regular `.gitignore` file.
 
+The `git-artifact` binary is downloaded from
+[GitHub Releases](https://github.com/drevops/git-artifact/releases) and verified
+with a SHA256 checksum before execution.
+
+The version and checksum are controlled by:
+
+- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download (default: `1.4.0`).
+- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256`: Expected SHA256 checksum of the binary.
+
 It is required to set the following environment variables in the continuous
 integration environment:
 
