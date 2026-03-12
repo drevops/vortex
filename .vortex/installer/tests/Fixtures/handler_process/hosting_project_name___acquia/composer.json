@@ -1,4 +1,4 @@
-@@ -123,40 +123,40 @@
+@@ -123,38 +123,38 @@
                  "[web-root]/web.config": false
              },
              "locations": {
@@ -13,9 +13,7 @@
              ],
 -            "web/libraries/{$name}": [
 +            "docroot/libraries/{$name}": [
-                 "type:bower-asset",
-                 "type:drupal-library",
-                 "type:npm-asset"
+                 "type:drupal-library"
              ],
 -            "web/modules/contrib/{$name}": [
 +            "docroot/modules/contrib/{$name}": [

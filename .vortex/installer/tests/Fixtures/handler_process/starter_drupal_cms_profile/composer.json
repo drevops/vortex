@@ -39,7 +39,7 @@
          },
          "audit": {
              "abandoned": "report",
-@@ -168,7 +175,20 @@
+@@ -164,7 +171,20 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },

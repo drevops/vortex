@@ -133,9 +133,7 @@
                 "type:drupal-core"
             ],
             "web/libraries/{$name}": [
-                "type:bower-asset",
-                "type:drupal-library",
-                "type:npm-asset"
+                "type:drupal-library"
             ],
             "web/modules/contrib/{$name}": [
                 "type:drupal-module"
@@ -163,8 +161,6 @@
             ]
         },
         "installer-types": [
-            "bower-asset",
-            "npm-asset",
             "drupal-library"
         ],
         "patchLevel": {
