@@ -302,8 +302,7 @@ class Tools extends AbstractHandler {
 
       self::PHPMD => [
         'title' => 'PHP Mess Detector',
-        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpmd/phpmd') ||
-        File::exists($this->dstDir . '/phpmd.xml'),
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpmd/phpmd'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpmd/phpmd');
         },

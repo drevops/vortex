@@ -144,11 +144,12 @@ class Webroot extends AbstractHandler {
       sprintf('%s/', $webroot) => $v . '/',
       sprintf('%s\/', $webroot) => $v . '\/',
       sprintf(': %s', $webroot) => ': ' . $v,
-      sprintf('=%s', $webroot) => '=' . $v,
       sprintf('!%s', $webroot) => '!' . $v,
       sprintf('/\/%s\//', $webroot) => '/' . $v . '/',
       sprintf('/\'\/%s\'/', $webroot) => "'/" . $v . "'",
     ]);
+
+    File::replaceContentAsync(fn(string $content): string => preg_replace('/=' . preg_quote($webroot, '/') . '\b/', '=' . $v, $content) ?? $content);
 
     rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
   }

@@ -140,14 +140,6 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         $test->stubComposerJsonDependencies(['phpmd/phpmd' => '*'], TRUE);
       },
     ];
-    yield 'tools - discovery - phpmd, alt' => [
-      [],
-      [Tools::id() => [Tools::PHPMD]] + $expected_installed,
-      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        $test->stubVortexProject($config);
-        File::dump(static::$sut . '/phpmd.xml');
-      },
-    ];
     yield 'tools - discovery - phpunit' => [
       [],
       [Tools::id() => [Tools::PHPUNIT]] + $expected_installed,
