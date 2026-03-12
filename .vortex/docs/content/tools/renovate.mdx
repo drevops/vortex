@@ -10,21 +10,33 @@ The configuration is stored in [`renovate.json`](https://github.com/drevops/vort
 based on [Renovate configuration for automated Drupal dependency updates](https://github.com/drevops/renovate-drupal)
 project.
 
-## Features
+## How updates are organized
 
-1. Dual schedules for Drupal package updates (root `composer.json` only):
-    - Daily update schedule for critical Drupal core and related packages created in
-      the `deps/drupal-minor-patch-core` branch.
-    - Weekly update schedule for all other packages created in
-      the `deps/drupal-minor-patch-contrib` branch.
-2. npm/yarn package updates (root `package.json` only) in the `deps/npm-minor-patch` branch.
-3. Container image updates in `.docker/` directory in the `deps/docker` branch.
-4. GitHub Actions updates in the `deps/github-actions` branch.
-5. Automatically adds a `dependencies` label to a pull request.
-6. Automatically adds assignees to a pull request.
-7. Configuration for running Renovate self-hosted instance using CircleCI.
-8. Manual trigger from GitHub Actions UI and CircleCI pipeline.
-9. Debug logging enabled for detailed troubleshooting.
+All Renovate PRs use the branch prefix `deps/` and are labeled `Dependencies`.
+Assignees can be configured in the `assignees` field.
+
+### Update rules
+
+| Group | Packages | Update types | Schedule |
+|---|---|---|---|
+| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold` and other `drupal/core-*` packages | Minor, patch | Daily before 2 AM UTC |
+| **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC |
+| **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC |
+| **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC |
+| **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC |
+
+### Disabled updates
+
+These are intentionally skipped by Renovate — update them manually:
+
+| Group | What is skipped | Why |
+|---|---|---|
+| Drupal core major | `drupal/core-recommended`, `drupal/core-composer-scaffold` and other `drupal/core-*` packages | Major version upgrades may introduce breaking changes |
+| PHP and Drupal contrib major | All Drupal contrib modules and non-Drupal Packagist packages | Major version upgrades may introduce breaking changes |
+| JS major | All npm packages | Major version upgrades may introduce breaking changes |
+| PHP language version | `php` constraint in `composer.json` | Major version upgrades may introduce breaking changes |
+| JS language versions | `node`, `yarn` in `package.json` | Major version upgrades may introduce breaking changes |
+| JS non-root packages | Any `package.json` not at the root | Theme dependencies are managed separately |
 
 ## Self-hosted vs GitHub app
 
