@@ -125,7 +125,7 @@ ${canonical_request_hash}"
 
 signature=$(aws_sign4 "${VORTEX_UPLOAD_DB_S3_SECRET_KEY}" "${date_short}" "${VORTEX_UPLOAD_DB_S3_REGION}" "${service}" "${string_to_sign}")
 
-curl --silent --location --proto-redir =https --request "${request_type}" --upload-file "${local_file}" \
+response=$(curl --silent --location --proto-redir =https --request "${request_type}" --upload-file "${local_file}" \
   --header "Content-Type: ${content_type}" \
   --header "Host: ${VORTEX_UPLOAD_DB_S3_BUCKET}${base_url}" \
   --header "X-Amz-Content-SHA256: ${payload_hash}" \
@@ -133,6 +133,19 @@ curl --silent --location --proto-redir =https --request "${request_type}" --uplo
   --header "X-Amz-Server-Side-Encryption: AES256" \
   --header "X-Amz-Storage-Class: ${VORTEX_UPLOAD_DB_S3_STORAGE_CLASS}" \
   --header "Authorization: ${auth_type} Credential=${VORTEX_UPLOAD_DB_S3_ACCESS_KEY}/${date_short}/${VORTEX_UPLOAD_DB_S3_REGION}/${service}/aws4_request, SignedHeaders=${header_list}, Signature=${signature}" \
-  "${object_url}"
+  --write-out "\n%{http_code}" \
+  "${object_url}")
+
+http_code=$(echo "${response}" | tail -1)
+response_body=$(echo "${response}" | sed '$d')
+
+case "${http_code}" in
+  2*) ;;
+  *)
+    echo "ERROR: S3 upload failed with HTTP status ${http_code}."
+    [ -n "${response_body}" ] && echo "Response: ${response_body}"
+    exit 1
+    ;;
+esac
 
 pass "Finished database dump upload to S3."
