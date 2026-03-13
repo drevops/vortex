@@ -49,6 +49,12 @@ defaults:
   run:
     shell: bash
 
+# Workaround for the Actions runner creating /root/.docker/config.json
+# with permissions that prevent the container from reading it.
+# https://github.com/actions/runner/issues/863
+env:
+  DOCKER_CONFIG: /tmp/.docker
+
 jobs:
 
   lint:

@@ -7,7 +7,7 @@
  
  defaults:
    run:
-@@ -53,7 +51,6 @@
+@@ -59,7 +57,6 @@
  
    lint:
      runs-on: ubuntu-latest
@@ -15,7 +15,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -151,114 +148,8 @@
+@@ -157,114 +154,8 @@
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -130,7 +130,7 @@
  
      strategy:
        # A matrix to run multiple jobs in parallel.
-@@ -279,14 +170,6 @@
+@@ -285,14 +176,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -145,7 +145,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -308,29 +191,6 @@
+@@ -314,29 +197,6 @@
          run: composer validate --strict
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE == '1' }}
  
@@ -175,7 +175,7 @@
        - name: Login to container registry
          run: ./scripts/vortex/login-container-registry.sh
  
-@@ -463,7 +323,6 @@
+@@ -469,7 +329,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
