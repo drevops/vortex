@@ -41,7 +41,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -364,72 +339,6 @@
+@@ -364,74 +339,6 @@
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
@@ -75,7 +75,9 @@
 -        if: ${{ github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
 -        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
 -        with:
+-          header: coverage-gha
 -          message: |
+-            **Code coverage (GitHub Actions)**
 -            ```
 -            ${{ env.COVERAGE_CONTENT }}
 -            ```

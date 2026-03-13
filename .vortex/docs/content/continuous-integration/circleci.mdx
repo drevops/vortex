@@ -224,5 +224,6 @@ environment variable in **Project Settings → Environment Variables**. Default
 is `90` (percent).
 
 Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN`
-environment variable with permission to post comments. To disable PR comments,
-set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+environment variable with permission to post comments. Each new report replaces
+the previous one — older comments are minimized to keep the PR timeline clean.
+To disable PR comments, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.

@@ -192,5 +192,7 @@ Configure the threshold by setting the `VORTEX_CI_CODE_COVERAGE_THRESHOLD`
 variable in **Settings → Secrets and variables → Actions → Variables**. Default
 is `90` (percent).
 
-Coverage reports are automatically posted as PR comments. To disable this, set
-`VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+Coverage reports are automatically posted as PR comments. Each new report
+replaces the previous one — older comments are minimized to keep the PR
+timeline clean. To disable this, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP`
+to `1`.

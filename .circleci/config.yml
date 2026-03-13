@@ -410,18 +410,7 @@ jobs:
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             [ "${VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP:-0}" = "1" ] && exit 0
-            [ -z "${CIRCLE_PULL_REQUEST}" ] && exit 0
-            [ -z "${GITHUB_TOKEN}" ] && exit 0
-            COVERAGE_CONTENT=$(sed '/./,$!d' /tmp/artifacts/coverage/phpunit/coverage.txt)
-            PR_NUMBER=$(echo "${CIRCLE_PULL_REQUEST}" | cut -d'/' -f 7)
-            REPO_SLUG="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
-            curl -s -X POST \
-              -H "Authorization: token ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${REPO_SLUG}/issues/${PR_NUMBER}/comments" \
-              -d "$(jq -n --arg body "\`\`\`
-            ${COVERAGE_CONTENT}
-            \`\`\`" '{body: $body}')"
+            .circleci/post-coverage-comment.sh /tmp/artifacts/coverage/phpunit/coverage.txt
 
       - run:
           name: Upload code coverage reports to Codecov

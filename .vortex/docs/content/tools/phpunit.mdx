@@ -153,8 +153,12 @@ minimum percentage (default: `90`).
 
 ### PR comments
 
-Coverage reports are posted as PR comments automatically. Set
-`VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1` to disable.
+Coverage reports are posted as PR comments automatically. Each new report
+replaces the previous one — older comments are minimized to keep the PR
+timeline clean. The comment includes a header indicating the CI source
+(GitHub Actions or CircleCI).
+
+Set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1` to disable.
 
 ### Ignoring lines from coverage
 
