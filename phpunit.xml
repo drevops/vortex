@@ -61,7 +61,7 @@
         <!-- Example for changing the driver args to mink tests MINK_DRIVER_ARGS value: '["http://127.0.0.1:8510"]' -->
         <env name="MINK_DRIVER_ARGS" value=""/>
         <!-- Driver args for webdriver tests. -->
-        <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"goog:chromeOptions": {"w3c": true, "args": ["--disable-extensions", "--disable-translate", "--force-prefers-reduced-motion", "--test-type", "--window-size=1920,1080"]}}, "http://chrome:4444/wd/hub"]'/>
+        <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"goog:chromeOptions": {"w3c": true, "args": ["--disable-extensions", "--disable-popup-blocking", "--disable-translate", "--force-prefers-reduced-motion", "--test-type", "--window-size=1920,1080"]}}, "http://chrome:4444/wd/hub"]'/>
     </php>
     <testsuites>
         <testsuite name="unit">
