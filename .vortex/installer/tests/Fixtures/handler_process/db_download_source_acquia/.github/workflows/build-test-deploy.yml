@@ -1,4 +1,4 @@
-@@ -233,6 +233,9 @@
+@@ -239,6 +239,9 @@
            VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30

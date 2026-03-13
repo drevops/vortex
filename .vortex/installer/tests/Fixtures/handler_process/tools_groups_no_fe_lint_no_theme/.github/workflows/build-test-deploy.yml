@@ -1,4 +1,4 @@
-@@ -108,7 +108,6 @@
+@@ -114,7 +114,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -6,7 +6,7 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -141,15 +140,6 @@
+@@ -147,15 +146,6 @@
        - name: Lint code with Gherkin Lint
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
