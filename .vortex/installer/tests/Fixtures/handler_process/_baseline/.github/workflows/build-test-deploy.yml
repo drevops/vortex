@@ -394,7 +394,9 @@ jobs:
         if: ${{ github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
         uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
         with:
+          header: coverage-gha
           message: |
+            **Code coverage (GitHub Actions)**
             ```
             ${{ env.COVERAGE_CONTENT }}
             ```
