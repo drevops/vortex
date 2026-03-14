@@ -1,5 +1,5 @@
 @@ -14,10 +14,10 @@
-   phpVersion: 80328
+   phpVersion: __VERSION__
  
    paths:
 -    - web/modules/custom
