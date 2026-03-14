@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
+use AlexSkrypnyk\File\Replacer\Replacement;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
 
@@ -117,6 +118,8 @@ abstract class FunctionalTestCase extends UnitTestCase {
   protected function replaceVersions(string $dir): void {
     File::getReplacer()
       ->addVersionReplacements()
+      // PHPStan phpVersion is an integer (e.g., 80330), not semver.
+      ->addReplacement(Replacement::create('phpstan_version', '/(phpVersion:\s)\d{5,6}/', '${1}' . Replacement::VERSION))
       ->addExclusions(['127.0.0.1'])
       // Increase max replacements to handle large files with many version
       // strings (GHA workflows, lock files, etc). This value was empirically

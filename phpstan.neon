@@ -11,7 +11,7 @@ parameters:
 
   level: 7
 
-  phpVersion: 80328
+  phpVersion: 80330
 
   paths:
     - web/modules/custom

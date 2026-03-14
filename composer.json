@@ -37,25 +37,25 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/behat-format-progress-fail": "^1.4",
         "drevops/behat-screenshot": "^2.2",
-        "drevops/behat-steps": "^3.5.0",
+        "drevops/behat-steps": "^3.5.2",
         "drevops/phpcs-standard": "^0.6.2",
         "drupal/coder": "^9@alpha",
-        "drupal/drupal-extension": "^5.1",
+        "drupal/drupal-extension": "^5.2.1",
         "ergebnis/composer-normalize": "^2.50.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "lullabot/php-webdriver": "^2.0.7",
-        "mglaman/phpstan-drupal": "^2.0.10",
+        "mglaman/phpstan-drupal": "^2.0.11",
         "mikey179/vfsstream": "^1.6.12",
         "palantirnet/drupal-rector": "^0.21.1",
         "phpcompatibility/php-compatibility": "^10.0@alpha",
         "phpmd/phpmd": "^2.15",
         "phpspec/prophecy-phpunit": "^2.5",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.1.39",
+        "phpstan/phpstan": "^2.1.40",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.3.7",
-        "vincentlanglet/twig-cs-fixer": "^3.13"
+        "rector/rector": "^2.3.8",
+        "vincentlanglet/twig-cs-fixer": "^3.14"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -98,7 +98,7 @@
         "bump-after-update": true,
         "discard-changes": true,
         "platform": {
-            "php": "8.3.28"
+            "php": "8.3.30"
         },
         "sort-packages": true
     },
