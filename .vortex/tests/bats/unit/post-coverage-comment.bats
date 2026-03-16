@@ -70,7 +70,7 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p .logs/coverage/phpunit
-  printf "Code Coverage Report:\n  Lines: 100.00%%\n" >.logs/coverage/phpunit/coverage.txt
+  printf "Code Coverage Report:\n  2024-01-01 12:00:00\n\n Summary:\n  Classes: 100.00%% (1/1)\n  Methods: 100.00%% (2/2)\n  Lines:   100.00%% (4/4)\n\nApp\\\\MyClass\n  Methods: 100.00%% ( 2/ 2)   Lines: 100.00%% (  4/  4)\n" >.logs/coverage/phpunit/coverage.txt
 
   declare -a STEPS=(
     # GET existing comments - return empty array.
@@ -98,7 +98,7 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p .logs/coverage/phpunit
-  printf "Code Coverage Report:\n  Lines: 95.00%%\n" >.logs/coverage/phpunit/coverage.txt
+  printf "Code Coverage Report:\n  2024-01-01 12:00:00\n\n Summary:\n  Classes: 50.00%% (1/2)\n  Methods: 66.67%% (2/3)\n  Lines:   95.00%% (6/8)\n\nApp\\\\ClassA\n  Methods: 100.00%% ( 2/ 2)   Lines: 100.00%% (  4/  4)\nApp\\\\ClassB\n  Methods:   0.00%% ( 0/ 1)   Lines:   50.00%% (  2/  4)\n" >.logs/coverage/phpunit/coverage.txt
 
   declare -a STEPS=(
     # GET existing comments - return one with marker.

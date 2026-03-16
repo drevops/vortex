@@ -41,7 +41,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -364,74 +339,6 @@
+@@ -364,88 +339,6 @@
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
@@ -66,8 +66,15 @@
 -          RATE=$(grep -om1 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
 -          PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
 -          echo "Coverage: $PERCENT% (threshold: $VORTEX_CI_CODE_COVERAGE_THRESHOLD%)" | tee -a "$GITHUB_STEP_SUMMARY"
--          echo "COVERAGE_PERCENT=${PERCENT}" >> "$GITHUB_ENV"
--          { echo "COVERAGE_CONTENT<<EOF"; sed '/./,$!d' .logs/coverage/phpunit/coverage.txt; echo "EOF"; } >> "$GITHUB_ENV"
+-          {
+-            echo "COVERAGE_PERCENT=${PERCENT}"
+-            echo "COVERAGE_SUMMARY<<EOF"
+-            awk '/^ *Summary:/{f=1;next} f && /^$/{exit} f' .logs/coverage/phpunit/coverage.txt
+-            echo "EOF"
+-            echo "COVERAGE_DETAILS<<EOF"
+-            awk 'BEGIN{s=0} /^ *Summary:/{s=1} s==1 && /^$/{s=2;next} s==2' .logs/coverage/phpunit/coverage.txt
+-            echo "EOF"
+-          } >> "$GITHUB_ENV"
 -        env:
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
@@ -77,10 +84,17 @@
 -        with:
 -          header: coverage-gha
 -          message: |
--            **Code coverage (GitHub Actions)**
+-            **Code coverage** (threshold: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}%)
 -            ```
--            ${{ env.COVERAGE_CONTENT }}
+-            ${{ env.COVERAGE_SUMMARY }}
 -            ```
+-            <details>
+-            <summary>Per-class coverage</summary>
+-
+-            ```
+-            ${{ env.COVERAGE_DETAILS }}
+-            ```
+-            </details>
 -          hide_and_recreate: true
 -
 -      - name: Upload coverage report to Codecov

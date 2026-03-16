@@ -9,6 +9,7 @@
 ##   GITHUB_TOKEN         - GitHub token for API access.
 ##   CIRCLE_PROJECT_USERNAME - GitHub org/user.
 ##   CIRCLE_PROJECT_REPONAME - GitHub repo name.
+##   VORTEX_CI_CODE_COVERAGE_THRESHOLD - Coverage threshold percentage (default: 90).
 ##
 ## Usage:
 ##   .circleci/post-coverage-comment.sh /path/to/coverage.txt
@@ -32,16 +33,25 @@ if [ -z "${GITHUB_TOKEN:-}" ]; then
   exit 0
 fi
 
-COVERAGE_CONTENT=$(sed '/./,$!d' "${COVERAGE_FILE}")
+COVERAGE_SUMMARY=$(awk '/^ *Summary:/{f=1;next} f && /^$/{exit} f' "${COVERAGE_FILE}")
+COVERAGE_DETAILS=$(awk 'BEGIN{s=0} /^ *Summary:/{s=1} s==1 && /^$/{s=2;next} s==2' "${COVERAGE_FILE}")
 PR_NUMBER=$(echo "${CIRCLE_PULL_REQUEST}" | cut -d'/' -f 7)
 REPO_SLUG="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+THRESHOLD="${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}"
 
 MARKER="<!-- coverage-circleci -->"
 
-BODY=$(jq -n --arg body "**Code coverage (CircleCI)**
+BODY=$(jq -n --arg body "**Code coverage** (threshold: ${THRESHOLD}%)
 \`\`\`
-${COVERAGE_CONTENT}
+${COVERAGE_SUMMARY}
 \`\`\`
+<details>
+<summary>Per-class coverage</summary>
+
+\`\`\`
+${COVERAGE_DETAILS}
+\`\`\`
+</details>
 ${MARKER}" '{body: $body}')
 
 # Minimize previous coverage comments.
