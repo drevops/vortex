@@ -307,10 +307,12 @@ trait SubtestDockerComposeTrait {
       '1024M',
       'PHP memory_limit should be 1024M after second change'
     );
+    $this->processRun('docker compose exec -T cli php -r "echo E_ALL;"');
+    $e_all = trim($this->processGet()->getOutput());
     $this->cmd(
       'docker compose exec -T cli php -r "echo ini_get(\'error_reporting\');"',
-      '32767',
-      'PHP error_reporting should be 32767 (E_ALL) from drush.ini'
+      $e_all,
+      'PHP error_reporting should be E_ALL from drush.ini'
     );
 
     $this->logSubstep('Restore drush.ini to original state.');

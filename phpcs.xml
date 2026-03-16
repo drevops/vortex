@@ -27,7 +27,7 @@
     <arg name="parallel" value="10"/>
 
     <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
-    <config name="testVersion" value="8.3"/>
+    <config name="testVersion" value="8.4"/>
 
     <!-- Exclude theme assets. -->
     <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>

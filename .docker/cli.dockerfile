@@ -4,10 +4,10 @@
 #
 # hadolint global ignore=DL3018,SC2174
 #
-# @see https://hub.docker.com/r/uselagoon/php-8.3-cli-drupal/tags
+# @see https://hub.docker.com/r/uselagoon/php-8.4-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
 
-FROM uselagoon/php-8.3-cli-drupal:26.2.0
+FROM uselagoon/php-8.4-cli-drupal:26.2.0
 
 # Add missing variables.
 # @todo Remove once https://github.com/uselagoon/lagoon/issues/3121 is resolved.

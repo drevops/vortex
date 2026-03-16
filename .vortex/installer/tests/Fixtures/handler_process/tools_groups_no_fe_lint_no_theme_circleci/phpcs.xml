@@ -7,7 +7,7 @@
      <file>web/sites/default/includes</file>
      <file>tests</file>
 @@ -30,10 +29,6 @@
-     <config name="testVersion" value="8.3"/>
+     <config name="testVersion" value="8.4"/>
  
      <!-- Exclude theme assets. -->
 -    <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
