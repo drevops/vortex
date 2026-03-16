@@ -6,7 +6,7 @@
     */
    protected function setEnvVars(array $vars): void {
      // Unset the existing environment variable if not set in the test.
-@@ -310,7 +309,6 @@
+@@ -302,7 +301,6 @@
     * @param string $message
     *   Message to display on failure.
     *
