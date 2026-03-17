@@ -1,200 +1,30 @@
 {
-    "extends": [
-        "config:recommended"
-    ],
-    "branchPrefix": "deps/",
-    "labels": [
-        "Dependencies"
-    ],
-    "assignees": [],
-    "ignorePresets": [
-        ":prHourlyLimit2"
-    ],
+    "extends": ["config:recommended"],
+    "automerge": true,
     "rangeStrategy": "bump",
-    "timezone": "UTC",
-    "configMigration": true,
-    "ignorePaths": [
-        ".vortex/**"
-    ],
-    "enabledManagers": [
-        "composer",
-        "npm",
-        "dockerfile",
-        "docker-compose",
-        "github-actions",
-        "custom.regex"
-    ],
+    "dependencyDashboard": true,
+    "pinDigests": true,
+    "branchPrefix": "deps/",
     "packageRules": [
         {
-            "groupName": "PHP - Language version - Skipped to update manually",
-            "groupSlug": "php-language-version",
-            "matchDepNames": [
-                "php"
-            ],
-            "matchManagers": [
-                "composer"
-            ],
+            "matchDepNames": ["php"],
+            "matchManagers": ["composer"],
             "enabled": false
         },
         {
-            "groupName": "JavaScript - Language versions - Skipped to update manually",
-            "groupSlug": "js-language-versions",
-            "matchDepNames": [
-                "node",
-                "yarn"
-            ],
-            "matchManagers": [
-                "npm"
-            ],
+            "matchDepNames": ["node", "yarn"],
+            "matchManagers": ["npm"],
             "enabled": false
         },
         {
-            "groupName": "PHP - All packages - Major - Skipped to update manually",
-            "groupSlug": "php-all-major",
-            "matchDatasources": [
-                "packagist"
-            ],
-            "matchFileNames": [
-                "composer.json"
-            ],
-            "matchUpdateTypes": [
-                "major"
-            ],
-            "enabled": false,
-            "matchPackageNames": [
-                "/.*/"
-            ]
+            "matchManagers": ["npm", "composer"],
+            "matchUpdateTypes": ["major"],
+            "enabled": false
         },
         {
-            "groupName": "PHP - All packages except core - Minor and patch",
-            "groupSlug": "php-all-except-core-minor-patch",
-            "matchDatasources": [
-                "packagist"
-            ],
-            "matchFileNames": [
-                "composer.json"
-            ],
-            "separateMinorPatch": false,
-            "schedule": [
-                "before 2am on Sunday"
-            ],
-            "matchPackageNames": [
-                "/.*/",
-                "!drupal/core-composer-scaffold",
-                "!drupal/core-project-message",
-                "!drupal/core-recommended",
-                "!drupal/core-dev"
-            ]
-        },
-        {
-            "groupName": "PHP - Drupal core - Minor and patch",
-            "groupSlug": "php-drupal-core-minor-patch",
-            "matchFileNames": [
-                "composer.json"
-            ],
-            "schedule": [
-                "before 2am"
-            ],
-            "matchDatasources": [
-                "packagist"
-            ],
-            "matchUpdateTypes": [
-                "patch",
-                "minor"
-            ],
-            "matchDepNames": [
-                "drupal/core-composer-scaffold",
-                "drupal/core-project-message",
-                "drupal/core-recommended",
-                "drupal/core-dev"
-            ]
-        },
-        {
-            "groupName": "JavaScript - Non-root packages - Skipped to update manually",
-            "groupSlug": "js-non-root",
-            "matchDatasources": [
-                "npm"
-            ],
-            "matchFileNames": [
-                "!package.json"
-            ],
-            "enabled": false,
-            "matchPackageNames": [
-                "/.*/"
-            ]
-        },
-        {
-            "groupName": "JavaScript - All packages - Major - Skipped to update manually",
-            "groupSlug": "js-all-major",
-            "matchDatasources": [
-                "npm"
-            ],
-            "matchFileNames": [
-                "package.json"
-            ],
-            "matchUpdateTypes": [
-                "major"
-            ],
-            "enabled": false,
-            "matchPackageNames": [
-                "/.*/"
-            ]
-        },
-        {
-            "groupName": "JavaScript - All packages - Minor and patch",
-            "groupSlug": "js-all-minor-patch",
-            "matchDatasources": [
-                "npm"
-            ],
-            "matchFileNames": [
-                "package.json"
-            ],
-            "separateMinorPatch": false,
-            "schedule": [
-                "before 2am on Sunday"
-            ],
-            "matchPackageNames": [
-                "/.*/"
-            ]
-        },
-        {
-            "groupName": "Container images - All - Major, minor and patch",
-            "groupSlug": "container-images-all-major-minor-patch",
-            "matchFileNames": [
-                ".docker/**"
-            ],
-            "schedule": [
-                "before 3am"
-            ],
-            "matchManagers": [
-                "dockerfile",
-                "docker-compose",
-                "custom.regex"
-            ]
-        },
-        {
-            "groupName": "GitHub Actions - All - Major, minor and patch",
-            "groupSlug": "github-actions-all-major-minor-patch",
-            "schedule": [
-                "before 3am"
-            ],
-            "matchManagers": [
-                "github-actions"
-            ],
-            "pinDigests": true
-        }
-    ],
-    "customManagers": [
-        {
-            "customType": "regex",
-            "managerFilePatterns": [
-                "/^docker-compose\\.yml$/"
-            ],
-            "matchStrings": [
-                "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
-            ],
-            "datasourceTemplate": "docker",
-            "versioningTemplate": "docker"
+            "matchPackageNames": ["*"],
+            "groupName": "all dependencies",
+            "groupSlug": "all"
         }
     ]
 }
