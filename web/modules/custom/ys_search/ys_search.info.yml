@@ -6,3 +6,5 @@ package: your_site
 dependencies:
   - search_api:search_api
   - search_api_solr:search_api_solr
+  - drupal:workflows
+  - drupal:content_moderation

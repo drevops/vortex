@@ -6,3 +6,5 @@ package: the_new_hope
 dependencies:
   - search_api:search_api
   - search_api_solr:search_api_solr
+  - drupal:workflows
+  - drupal:content_moderation
