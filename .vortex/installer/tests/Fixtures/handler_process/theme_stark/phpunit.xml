@@ -27,9 +27,9 @@
              <directory>web/sites/default/includes</directory>
              <directory>web/sites/default/settings.php</directory>
          </include>
-@@ -109,8 +104,6 @@
-         <exclude>
+@@ -110,8 +105,6 @@
              <directory suffix="Test.php">web/modules/custom</directory>
+             <directory suffix=".deploy.php">web/modules/custom</directory>
              <directory>web/modules/custom/**/node_modules</directory>
 -            <directory suffix="Test.php">web/themes/custom</directory>
 -            <directory>web/themes/custom/**/node_modules</directory>

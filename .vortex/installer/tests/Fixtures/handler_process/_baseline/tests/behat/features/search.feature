@@ -8,10 +8,10 @@ Feature: Search API
   @api
   Scenario: User searches for Page content
     Given page content:
-      | title                              | status |
-      | [TEST] Test page uniquestring      | 1      |
-      | [TEST] Test page otheruniquestring | 1      |
-      | [TEST] Test page thirduniquestring | 0      |
+      | title                              | status | moderation_state |
+      | [TEST] Test page uniquestring      | 1      | published        |
+      | [TEST] Test page otheruniquestring | 1      | published        |
+      | [TEST] Test page thirduniquestring | 0      | draft            |
     And I add the "page" content with the title "[TEST] Test page uniquestring" to the search index
     And I add the "page" content with the title "[TEST] Test page otheruniquestring" to the search index
     And I add the "page" content with the title "[TEST] Test page thirduniquestring" to the search index
