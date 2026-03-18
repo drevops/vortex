@@ -129,7 +129,7 @@ commands:
     cmd: |
       export XDEBUG_MODE=off
       composer --working-dir=tests update-snapshots
-      composer --working-dir=installer update-snapshots
+      composer --working-dir=installer update-snapshots -- --jobs=8
 
   update-snapshots-install:
     aliases: [usi]

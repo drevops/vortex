@@ -45,7 +45,7 @@ trait CircleCiTrait {
       throw new \RuntimeException('Unable to retrieve workflow ID from CircleCI API response.');
     }
 
-    return (string) $data['latest_workflow']['id'];
+    return is_array($data['latest_workflow']) && is_string($data['latest_workflow']['id']) ? $data['latest_workflow']['id'] : '';
   }
 
   /**
@@ -90,22 +90,24 @@ trait CircleCiTrait {
       }
 
       if (($item['job_number'] ?? '') == $current_job_number) {
-        $dependencies_job_ids = $item['dependencies'] ?? [];
+        $dependencies_job_ids = is_array($item['dependencies'] ?? []) ? $item['dependencies'] : [];
         break;
       }
     }
 
     // Map dependency IDs to job numbers.
     $previous_job_numbers = [];
-    foreach ($dependencies_job_ids as $dependency_job_id) {
-      foreach ($workflow_data['items'] as $item) {
-        if (!is_array($item)) {
-          continue;
-        }
+    if (is_array($dependencies_job_ids)) {
+      foreach ($dependencies_job_ids as $dependency_job_id) {
+        foreach ($workflow_data['items'] as $item) {
+          if (!is_array($item)) {
+            continue;
+          }
 
-        if ($item['id'] === $dependency_job_id) {
-          $previous_job_numbers[] = (int) $item['job_number'];
-          break;
+          if ($item['id'] === $dependency_job_id && is_numeric($item['job_number'])) {
+            $previous_job_numbers[] = (int) $item['job_number'];
+            break;
+          }
         }
       }
     }
@@ -246,7 +248,7 @@ trait CircleCiTrait {
         continue;
       }
 
-      if (($item['node_index'] ?? '') === $node_index) {
+      if (($item['node_index'] ?? '') === $node_index && is_string($item['path'] ?? NULL)) {
         $paths[] = $item['path'];
       }
     }

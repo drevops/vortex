@@ -109,7 +109,7 @@ trait GitTrait {
         "fatal: your current branch 'master' does not have any commits yet",
       ];
 
-      if (!in_array(trim($exception->getMessage()), $expected_error_messages)) {
+      if (!in_array(trim($exception->getMessage()), $expected_error_messages, TRUE)) {
         throw $exception;
       }
     }
