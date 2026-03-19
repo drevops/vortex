@@ -40,9 +40,19 @@ on:
 
   workflow_dispatch:
     inputs:
+      deploy_target:
+        type: string
+        description: 'Deploy target: "<branch>" or "PR-<num>"'
+        required: false
+        default: ''
+      override_db:
+        type: boolean
+        description: 'Override existing database'
+        required: false
+        default: false
       enable_terminal:
         type: boolean
-        description: 'Enable terminal session.'
+        description: 'Enable terminal session'
         required: false
         default: false
   #;< !PROVISION_TYPE_PROFILE
@@ -65,7 +75,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
@@ -183,7 +193,7 @@ jobs:
   #;< !PROVISION_TYPE_PROFILE
   database:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
+    if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
@@ -300,7 +310,7 @@ jobs:
     runs-on: ubuntu-latest
     #;< !PROVISION_TYPE_PROFILE
     needs: database
-    if: ${{ github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     strategy:
@@ -538,7 +548,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, lint]
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
@@ -554,6 +564,21 @@ jobs:
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
+      - name: Resolve deploy target
+        if: ${{ inputs.deploy_target }}
+        env:
+          DEPLOY_TARGET: ${{ inputs.deploy_target }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "DEPLOY_BRANCH=${DEPLOY_TARGET}"
+            if echo "${DEPLOY_TARGET}" | grep -iq '^pr-'; then
+              echo "DEPLOY_PR_NUMBER=${DEPLOY_TARGET#*-}"
+              echo "DEPLOY_PR_HEAD_SHA=$(gh pr view "${DEPLOY_TARGET#*-}" --repo "${{ github.repository }}" --json headRefOid --jq '.headRefOid')"
+              echo "DEPLOY_BRANCH=$(gh pr view "${DEPLOY_TARGET#*-}" --repo "${{ github.repository }}" --json headRefName --jq '.headRefName')"
+            fi
+          } >> "$GITHUB_ENV"
+
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -562,7 +587,7 @@ jobs:
           # Do not persist credentials after checkout
           # to allow using the custom credentials to push to a remote repo.
           persist-credentials: false
-          ref: ${{ github.head_ref || github.ref_name }}
+          ref: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -570,15 +595,16 @@ jobs:
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
 
+      # Artifact deployments do not work for manual deploys as the build job is skipped.
       - name: Download exported codebase as an artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        if: ${{ !inputs.deploy_target && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
           path: "/tmp/artifacts"
 
       - name: Unpack downloaded exported codebase
-        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        if: ${{ !inputs.deploy_target && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         run: |
           mkdir -p /tmp/workspace
           tar -xpf /tmp/artifacts/code.tar -C /tmp/workspace
@@ -596,10 +622,9 @@ jobs:
         run: ./scripts/vortex/deploy.sh
         env:
           VORTEX_DEPLOY_MODE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || 'branch' }}
-          # Get branch for PR from 'head_ref' or for branch from 'ref_name'.
-          VORTEX_DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
-          VORTEX_DEPLOY_PR: ${{ github.event.number }}
-          VORTEX_DEPLOY_PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          VORTEX_DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}
+          VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
+          VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
           VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
           VORTEX_DEPLOY_ARTIFACT_ROOT: ${{ github.workspace }}
           VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
@@ -610,5 +635,6 @@ jobs:
           VORTEX_DEPLOY_ALLOW_SKIP: ${{ vars.VORTEX_DEPLOY_ALLOW_SKIP }}
           VORTEX_DEPLOY_SKIP_PRS: ${{ vars.VORTEX_DEPLOY_SKIP_PRS }}
           VORTEX_DEPLOY_SKIP_BRANCHES: ${{ vars.VORTEX_DEPLOY_SKIP_BRANCHES }}
+          VORTEX_DEPLOY_ACTION: ${{ inputs.override_db && 'deploy_override_db' || '' }}
         timeout-minutes: 30
   #;> DEPLOYMENT
