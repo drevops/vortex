@@ -165,6 +165,32 @@ to the additional containers to keep build times balanced.
 See [Test parallelism](/docs/continuous-integration#test-parallelism) for details
 on how tests are distributed across containers.
 
+### Manual deployment
+
+The workflow supports triggering deployments directly from the GitHub UI without
+running `lint`, `build`, or `test` jobs. Navigate to **Actions → Database, Build,
+Test and Deploy → Run workflow** and provide:
+
+| Input           | Description                                                                      |
+|-----------------|----------------------------------------------------------------------------------|
+| `deploy_target` | Branch name (e.g., `develop`) or PR reference (e.g., `PR-123`, case-insensitive) |
+| `override_db`   | Override the existing database in the deployment environment                     |
+
+When `deploy_target` is set, all other jobs are skipped and only the deploy
+job runs. For PR targets, the workflow resolves the PR's head branch and
+commit SHA automatically.
+
+When `override_db` is checked, the database in the existing deployment
+environment will be overridden with a fresh copy taken from the production
+environment.
+
+:::note
+
+Artifact-based deployments do not work with manual deploys as the build job
+is skipped.
+
+:::
+
 ### Terminal access for debugging
 
 The workflow includes a `tmate` session for debugging. Trigger a manual workflow

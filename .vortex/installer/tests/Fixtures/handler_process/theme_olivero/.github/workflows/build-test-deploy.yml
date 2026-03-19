@@ -1,4 +1,4 @@
-@@ -152,11 +152,6 @@
+@@ -162,11 +162,6 @@
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -9,4 +9,4 @@
 -
    database:
      runs-on: ubuntu-latest
-     if: ${{ github.event_name == 'push' || !startsWith(github.head_ref, 'project/') }}
+     if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
