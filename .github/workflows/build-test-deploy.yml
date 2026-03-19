@@ -249,7 +249,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           path: .data
           key: v26.2.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
@@ -289,7 +289,7 @@ jobs:
       # Note that the cache fallback flag is enabled for this case in order
       # to save cache even if the fallback is not used when restoring it.
       - name: Save DB cache
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
@@ -368,7 +368,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           path: .data
           fail-on-cache-miss: true
@@ -465,7 +465,7 @@ jobs:
           hide_and_recreate: true
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
         with:
           directory: .logs/coverage
