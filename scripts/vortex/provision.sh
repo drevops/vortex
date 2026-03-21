@@ -214,7 +214,13 @@ provision_from_profile() {
 
   if [ "${is_fallback}" = "1" ] && [ "${has_config}" = "1" ]; then
     note "Removing entities and config created by the profile to prevent conflicts during configuration import."
-    drush entity:delete shortcut_set || true
+    # Use direct SQL to delete shortcut entities to avoid triggering hooks
+    # from modules that are not yet installed (e.g., redirect module's
+    # redirect_delete_by_path() queries a table that does not exist).
+    drush sql:query "DELETE FROM shortcut_set_users" || true
+    drush sql:query "DELETE FROM shortcut_field_data" || true
+    drush sql:query "DELETE FROM shortcut" || true
+    drush sql:query "DELETE FROM config WHERE name LIKE 'shortcut.set.%'" || true
     drush config:delete field.field.node.article.body || true
     drush config:delete field.field.node.article.field_image || true
     drush config:delete field.storage.node.field_image || true
