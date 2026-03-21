@@ -217,15 +217,15 @@ provision_from_profile() {
     # Use direct SQL to delete shortcut entities to avoid triggering hooks
     # from modules that are not yet installed (e.g., redirect module's
     # redirect_delete_by_path() queries a table that does not exist).
-    drush sql:query "DELETE FROM shortcut_set_users" || true
-    drush sql:query "DELETE FROM shortcut_field_data" || true
-    drush sql:query "DELETE FROM shortcut" || true
-    drush sql:query "DELETE FROM config WHERE name LIKE 'shortcut.set.%'" || true
-    drush config:delete field.field.node.article.body || true
-    drush config:delete field.field.node.article.field_image || true
-    drush config:delete field.storage.node.field_image || true
-    drush config:delete taxonomy.vocabulary.tags || true
-    drush config:delete user.role.content_editor || true
+    drush sql:query "DELETE FROM shortcut_set_users" >/dev/null 2>&1 || true
+    drush sql:query "DELETE FROM shortcut_field_data" >/dev/null 2>&1 || true
+    drush sql:query "DELETE FROM shortcut" >/dev/null 2>&1 || true
+    drush sql:query "DELETE FROM config WHERE name LIKE 'shortcut.set.%'" >/dev/null 2>&1 || true
+    drush config:delete field.field.node.article.body >/dev/null 2>&1 || true
+    drush config:delete field.field.node.article.field_image >/dev/null 2>&1 || true
+    drush config:delete field.storage.node.field_image >/dev/null 2>&1 || true
+    drush config:delete taxonomy.vocabulary.tags >/dev/null 2>&1 || true
+    drush config:delete user.role.content_editor >/dev/null 2>&1 || true
   fi
 
   pass "Installed a site from the profile."
