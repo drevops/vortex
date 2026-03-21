@@ -1639,6 +1639,224 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
+@test "Provision: DB; no site; fallback to profile; configs" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/custom/provision-20-migration.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  # Create the data directory but do NOT create the dump file.
+  mkdir "./.data"
+
+  # Create config files so site_has_config_files=1.
+  mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
+  echo "uuid: ${mocked_uuid}" >"./config/default/system.site.yml"
+  echo "name: 'SUT'" >>"./config/default/system.site.yml"
+
+  export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
+  export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+
+    # Fallback to profile - should NOT use --existing-config.
+    "Database dump file is not available. Falling back to profile installation."
+    "@drush -y sql:drop"
+    "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "Installed a site from the profile."
+
+    # Cleanup of profile-created entities and config.
+    "Removing entities and config created by the profile to prevent conflicts during configuration import."
+    "@drush -y sql:query DELETE FROM shortcut_set_users"
+    "@drush -y sql:query DELETE FROM shortcut_field_data"
+    "@drush -y sql:query DELETE FROM shortcut"
+    "@drush -y sql:query DELETE FROM config WHERE name LIKE 'shortcut.set.%'"
+    "@drush -y config:delete field.field.node.article.body"
+    "@drush -y config:delete field.field.node.article.field_image"
+    "@drush -y config:delete field.storage.node.field_image"
+    "@drush -y config:delete taxonomy.vocabulary.tags"
+    "@drush -y config:delete user.role.content_editor"
+
+    # Should NOT see --existing-config in the site:install command.
+    "- --existing-config"
+
+    # Should NOT see the hard failure messages.
+    "- Unable to import database from file."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
+    "- Site content was not changed."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Post-provision operations skipped.
+    "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./scripts/vortex/provision.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: DB; no site; cache rebuild skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/custom/provision-20-migration.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  mkdir "./.data"
+  touch "./.data/db.sql"
+
+  export VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:connect"
+    "Imported database from the dump file."
+    # Profile.
+    "- Provisioning site from the profile."
+    "- Installed a site from the profile."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Importing configuration."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild after database updates - SKIPPED.
+    "Skipped cache rebuild after database updates."
+    "- Clearing cache after database updates."
+    "- Cache was cleared."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Deployment hooks.
+    "Running deployment hooks."
+    "@drush -y deploy:hook"
+    "Completed deployment hooks."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+
+    # Custom post-install script.
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "    > Setting site name."
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "    > Installing contrib modules."
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "    > Installing Redis module."
+    "@drush -y pm:install redis"
+    "    > Installing and configuring ClamAV."
+    "@drush -y pm:install clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav --input-format=yaml"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.port 3310 --input-format=yaml"
+    "    > Installing and configuring Solr modules."
+    "@drush -y pm:install search_api search_api_solr"
+    "    > Installing custom modules."
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_search"
+    "@drush -y pm:install ys_demo"
+    "    > Running deployment hooks."
+    "@drush -y deploy:hook"
+    "  ==> Started example operations."
+    "      Environment: ci"
+    "      Running example operations in non-production environment."
+    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
+    "      Fresh database detected. Performing additional example operations."
+    "-      Existing database detected. Performing additional example operations."
+    "  ==> Finished example operations."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./scripts/vortex/provision.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision: DB; no site; no fallback" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
