@@ -163,7 +163,7 @@ provision_from_db() {
   if [ ! -f "${VORTEX_PROVISION_DB}" ]; then
     if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
       info "Database dump file is not available. Falling back to profile installation."
-      provision_from_profile
+      provision_from_profile 1 "${site_has_config_files}"
       return
     fi
 
@@ -186,6 +186,8 @@ provision_from_db() {
 # Provision site from the profile.
 #
 provision_from_profile() {
+  local is_fallback="${1:-0}"
+  local has_config="${2:-0}"
   local opts=()
 
   opts+=(
@@ -199,12 +201,23 @@ provision_from_profile() {
 
   [ -n "${DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DRUPAL_ADMIN_EMAIL:-}")
 
-  [ "${site_has_config_files}" = "1" ] && opts+=(--existing-config)
+  # Only use --existing-config for direct profile provisions.
+  [ "${is_fallback}" != "1" ] && [ "${has_config}" = "1" ] && opts+=(--existing-config)
 
   # Database may exist in non-bootstrappable state - truncate it.
   drush sql:drop || true
 
   drush site:install "${opts[@]}"
+
+  if [ "${is_fallback}" = "1" ] && [ "${has_config}" = "1" ]; then
+    note "Removing entities and config created by the profile to prevent conflicts during configuration import."
+    drush entity:delete shortcut_set || true
+    drush config:delete field.field.node.article.body || true
+    drush config:delete field.field.node.article.field_image || true
+    drush config:delete field.storage.node.field_image || true
+    drush config:delete taxonomy.vocabulary.tags || true
+    drush config:delete user.role.content_editor || true
+  fi
 
   pass "Installed a site from the profile."
 }
@@ -242,7 +255,7 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
       note "Database is baked into the container image."
       if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
         info "Database in the container image is not available. Falling back to profile installation."
-        provision_from_profile
+        provision_from_profile 1 "${site_has_config_files}"
         export VORTEX_PROVISION_OVERRIDE_DB=1
       else
         note "Looks like the database in the container image is corrupted."
@@ -265,7 +278,7 @@ else
 
     if [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
       note "Existing site content will be removed and new content will be created from the profile."
-      provision_from_profile
+      provision_from_profile 0 "${site_has_config_files}"
       # Let the downstream scripts know that the database is fresh.
       export VORTEX_PROVISION_OVERRIDE_DB=1
     else
@@ -276,7 +289,7 @@ else
   else
     note "Existing site was not found."
     note "Fresh site content will be created from the profile."
-    provision_from_profile
+    provision_from_profile 0 "${site_has_config_files}"
     export VORTEX_PROVISION_OVERRIDE_DB=1
   fi
 fi
@@ -344,6 +357,10 @@ fi
 
 pass "Completed running database updates."
 echo
+
+task "Clearing cache after database updates."
+drush cache:rebuild
+pass "Cache was cleared."
 
 # Import configuration if config files are present.
 if [ "${site_has_config_files}" = "1" ]; then
