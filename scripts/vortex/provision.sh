@@ -44,6 +44,9 @@ VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-
 # drush config:import from silently overwriting those changes.
 VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE="${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE:-0}"
 
+# Skip cache rebuild after database updates.
+VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP="${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP:-0}"
+
 # Provision database dump file.
 # If not set, it will be auto-discovered from the VORTEX_DB_DIR directory using
 # the VORTEX_DB_FILE name.
@@ -358,9 +361,15 @@ fi
 pass "Completed running database updates."
 echo
 
-task "Clearing cache after database updates."
-drush cache:rebuild
-pass "Cache was cleared."
+if [ "${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP}" != "1" ]; then
+  task "Clearing cache after database updates."
+  drush cache:rebuild
+  pass "Cache was cleared."
+  echo
+else
+  pass "Skipped cache rebuild after database updates."
+  echo
+fi
 
 # Import configuration if config files are present.
 if [ "${site_has_config_files}" = "1" ]; then
