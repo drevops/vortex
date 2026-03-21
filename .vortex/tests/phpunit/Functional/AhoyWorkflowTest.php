@@ -494,7 +494,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     );
 
     $this->logSubstep('Assert that required modules are enabled');
-    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* ys_demo', 'ys_demo module should be enabled after fallback provision');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* sw_demo', 'Demo module should be enabled after fallback provision');
 
     $this->logSubstep('Assert that homepage does not contain database dump content');
     $this->assertWebpageNotContains('/', 'This demo page is sourced from the Vortex database dump file', 'Homepage should not show database dump content after fallback provision');
