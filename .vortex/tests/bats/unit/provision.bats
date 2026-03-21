@@ -113,6 +113,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -247,6 +252,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -383,6 +393,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -524,6 +539,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Configuration import.
     "Importing configuration."
@@ -674,6 +694,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -812,6 +837,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -949,6 +979,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -1085,6 +1120,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -1253,6 +1293,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -1390,6 +1435,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -1714,6 +1764,11 @@ assert_provision_info() {
     "Completed running database updates."
     "- Configuration was changed by database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Configuration import.
     "Importing configuration."
     "@drush -y config:import"
@@ -1867,6 +1922,7 @@ assert_provision_info() {
     # These should NOT appear (script exits before them).
     "- Verified that database updates did not change configuration."
     "- Completed running database updates."
+    "- Clearing cache after database updates."
     "- Importing configuration."
     "- Rebuilding cache."
     "- Running deployment hooks."
