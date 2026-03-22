@@ -484,23 +484,16 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       [
         '* Database dump file is not available. Falling back to profile installation',
         '* Installed a site from the profile',
-        '* Removing entities and config created by the profile to prevent conflicts during configuration import',
-        '* Importing configuration',
-        '* Completed configuration import',
-        '* Running deployment hooks',
+        '* Skipped running of post-provision operations',
+        '! Importing configuration',
+        '! Running deployment hooks',
       ],
       'Provision with fallback should complete successfully',
       tio: 15 * 60,
     );
 
-    $this->logSubstep('Assert that required modules are enabled');
-    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* sw_demo', 'Demo module should be enabled after fallback provision');
-
-    $this->logSubstep('Assert that homepage does not contain database dump content');
-    $this->assertWebpageNotContains('/', 'This demo page is sourced from the Vortex database dump file', 'Homepage should not show database dump content after fallback provision');
-
-    $this->logSubstep('Assert that homepage is accessible');
-    $this->assertWebpageContains('/', '<html', 'Homepage should be a valid HTML page');
+    $this->logSubstep('Assert that Shield module is enabled');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* shield', 'Shield module should be enabled after fallback provision');
   }
 
 }

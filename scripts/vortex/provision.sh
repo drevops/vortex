@@ -204,7 +204,6 @@ provision_from_profile() {
 
   [ -n "${DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DRUPAL_ADMIN_EMAIL:-}")
 
-  # Only use --existing-config for direct profile provisions.
   [ "${is_fallback}" != "1" ] && [ "${has_config}" = "1" ] && opts+=(--existing-config)
 
   # Database may exist in non-bootstrappable state - truncate it.
@@ -212,20 +211,11 @@ provision_from_profile() {
 
   drush site:install "${opts[@]}"
 
-  if [ "${is_fallback}" = "1" ] && [ "${has_config}" = "1" ]; then
-    note "Removing entities and config created by the profile to prevent conflicts during configuration import."
-    # Use direct SQL to delete shortcut entities to avoid triggering hooks
-    # from modules that are not yet installed (e.g., redirect module's
-    # redirect_delete_by_path() queries a table that does not exist).
-    drush sql:query "DELETE FROM shortcut_set_users" >/dev/null 2>&1 || true
-    drush sql:query "DELETE FROM shortcut_field_data" >/dev/null 2>&1 || true
-    drush sql:query "DELETE FROM shortcut" >/dev/null 2>&1 || true
-    drush sql:query "DELETE FROM config WHERE name LIKE 'shortcut.set.%'" >/dev/null 2>&1 || true
-    drush config:delete field.field.node.article.body >/dev/null 2>&1 || true
-    drush config:delete field.field.node.article.field_image >/dev/null 2>&1 || true
-    drush config:delete field.storage.node.field_image >/dev/null 2>&1 || true
-    drush config:delete taxonomy.vocabulary.tags >/dev/null 2>&1 || true
-    drush config:delete user.role.content_editor >/dev/null 2>&1 || true
+  # On fallback, enable Shield to protect the site and skip post-provision
+  # operations since the site was installed from profile without configuration.
+  if [ "${is_fallback}" = "1" ]; then
+    drush pm:install shield
+    export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
   fi
 
   pass "Installed a site from the profile."

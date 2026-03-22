@@ -1526,7 +1526,6 @@ assert_provision_info() {
   mkdir "./.data"
 
   export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
-  export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -1543,10 +1542,11 @@ assert_provision_info() {
     "Existing site was not found."
     "Fresh site content will be imported from the database dump file."
 
-    # Fallback to profile.
+    # Fallback to profile: install and enable Shield.
     "Database dump file is not available. Falling back to profile installation."
     "@drush -y sql:drop"
     "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "@drush -y pm:install shield"
     "Installed a site from the profile."
 
     # Should NOT see the hard failure messages.
@@ -1558,7 +1558,7 @@ assert_provision_info() {
     "Current Drupal environment: ci"
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
-    # Post-provision operations skipped.
+    # Post-provision operations skipped (set internally by fallback).
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Installation completion.
@@ -1589,7 +1589,6 @@ assert_provision_info() {
   touch "./.data/db.sql"
 
   export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
-  export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -1611,95 +1610,13 @@ assert_provision_info() {
     "Database in the container image is not available. Falling back to profile installation."
     "@drush -y sql:drop"
     "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "@drush -y pm:install shield"
     "Installed a site from the profile."
 
     # Should NOT see the corrupted error messages or file-based provisioning.
     "- Looks like the database in the container image is corrupted."
     "- Site content was not changed."
     "- Fresh site content will be imported from the database dump file."
-
-    # Drupal environment information.
-    "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-
-    # Post-provision operations skipped.
-    "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
-
-    # Installation completion.
-    "Finished site provisioning"
-  )
-
-  mocks="$(run_steps "setup")"
-
-  run ./scripts/vortex/provision.sh
-  assert_success
-
-  run_steps "assert" "${mocks[@]}"
-
-  popd >/dev/null || exit 1
-}
-
-@test "Provision: DB; no site; fallback to profile; configs" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  # Remove .env file to test in isolation.
-  rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
-
-  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
-  export CI=1
-
-  # Create the data directory but do NOT create the dump file.
-  mkdir "./.data"
-
-  # Create config files so site_has_config_files=1.
-  mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
-  echo "uuid: ${mocked_uuid}" >"./config/default/system.site.yml"
-  echo "name: 'SUT'" >>"./config/default/system.site.yml"
-
-  export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
-  export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
-
-  create_global_command_wrapper "vendor/bin/drush"
-
-  declare -a STEPS=(
-    # Drush status calls.
-    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
-    "@drush -y status --field=drupal-version # mocked_core_version"
-    "@drush -y status --fields=bootstrap # fail"
-    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
-
-    # Site provisioning information.
-    "Provisioning site from the database dump file."
-    "Dump file path: $(pwd)/.data/db.sql"
-    "Existing site was not found."
-    "Fresh site content will be imported from the database dump file."
-
-    # Fallback to profile - should NOT use --existing-config.
-    "Database dump file is not available. Falling back to profile installation."
-    "@drush -y sql:drop"
-    "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
-    "Installed a site from the profile."
-
-    # Cleanup of profile-created entities and config.
-    "Removing entities and config created by the profile to prevent conflicts during configuration import."
-    "@drush -y sql:query DELETE FROM shortcut_set_users"
-    "@drush -y sql:query DELETE FROM shortcut_field_data"
-    "@drush -y sql:query DELETE FROM shortcut"
-    "@drush -y sql:query DELETE FROM config WHERE name LIKE 'shortcut.set.%'"
-    "@drush -y config:delete field.field.node.article.body"
-    "@drush -y config:delete field.field.node.article.field_image"
-    "@drush -y config:delete field.storage.node.field_image"
-    "@drush -y config:delete taxonomy.vocabulary.tags"
-    "@drush -y config:delete user.role.content_editor"
-
-    # Should NOT see --existing-config in the site:install command.
-    "- --existing-config"
-
-    # Should NOT see the hard failure messages.
-    "- Unable to import database from file."
-    "- Dump file $(pwd)/.data/db.sql does not exist."
-    "- Site content was not changed."
 
     # Drupal environment information.
     "Current Drupal environment: ci"
