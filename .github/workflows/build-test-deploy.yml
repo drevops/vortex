@@ -231,7 +231,7 @@ jobs:
 
       - name: Add SSH private key used to download database
         if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
-        uses: shimataro/ssh-key-action@6b84f2e793b32fa0b03a379cadadec75cc539391 # v2.8.0
+        uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
@@ -611,7 +611,7 @@ jobs:
 
       - name: Add SSH private key to the runner
         if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
-        uses: shimataro/ssh-key-action@6b84f2e793b32fa0b03a379cadadec75cc539391 # v2.8.0
+        uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
