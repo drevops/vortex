@@ -113,6 +113,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -247,6 +252,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -383,6 +393,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -524,6 +539,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Configuration import.
     "Importing configuration."
@@ -674,6 +694,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -812,6 +837,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -949,6 +979,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -1085,6 +1120,11 @@ assert_provision_info() {
     "Running database updates."
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Cache rebuild.
     "Rebuilding cache."
@@ -1253,6 +1293,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -1391,6 +1436,11 @@ assert_provision_info() {
     "@drush -y updatedb --no-cache-clear"
     "Completed running database updates."
 
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
     # Cache rebuild.
     "Rebuilding cache."
     "@drush -y cache:rebuild"
@@ -1476,7 +1526,6 @@ assert_provision_info() {
   mkdir "./.data"
 
   export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
-  export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -1493,10 +1542,11 @@ assert_provision_info() {
     "Existing site was not found."
     "Fresh site content will be imported from the database dump file."
 
-    # Fallback to profile.
+    # Fallback to profile: install and enable Shield.
     "Database dump file is not available. Falling back to profile installation."
     "@drush -y sql:drop"
     "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "@drush -y pm:install shield"
     "Installed a site from the profile."
 
     # Should NOT see the hard failure messages.
@@ -1508,7 +1558,7 @@ assert_provision_info() {
     "Current Drupal environment: ci"
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
-    # Post-provision operations skipped.
+    # Post-provision operations skipped (set internally by fallback).
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
     # Installation completion.
@@ -1539,7 +1589,6 @@ assert_provision_info() {
   touch "./.data/db.sql"
 
   export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
-  export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -1561,6 +1610,7 @@ assert_provision_info() {
     "Database in the container image is not available. Falling back to profile installation."
     "@drush -y sql:drop"
     "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "@drush -y pm:install shield"
     "Installed a site from the profile."
 
     # Should NOT see the corrupted error messages or file-based provisioning.
@@ -1574,6 +1624,140 @@ assert_provision_info() {
 
     # Post-provision operations skipped.
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./scripts/vortex/provision.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: DB; no site; cache rebuild skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/custom/provision-20-migration.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  mkdir "./.data"
+  touch "./.data/db.sql"
+
+  export VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:connect"
+    "Imported database from the dump file."
+    # Profile.
+    "- Provisioning site from the profile."
+    "- Installed a site from the profile."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Importing configuration."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild after database updates - SKIPPED.
+    "Skipped cache rebuild after database updates."
+    "- Clearing cache after database updates."
+    "- Cache was cleared."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Deployment hooks.
+    "Running deployment hooks."
+    "@drush -y deploy:hook"
+    "Completed deployment hooks."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+
+    # Custom post-install script.
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "    > Setting site name."
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "    > Installing contrib modules."
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "    > Installing Redis module."
+    "@drush -y pm:install redis"
+    "    > Installing and configuring ClamAV."
+    "@drush -y pm:install clamav"
+    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "    > Installing Solr search modules."
+    "@drush -y pm:install search_api search_api_solr"
+    "    > Installing custom site modules."
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_search"
+    "@drush -y pm:install ys_demo"
+    "    > Running deployment hooks."
+    "@drush -y deploy:hook"
+    "  ==> Started example operations."
+    "      Environment: ci"
+    "      Running example operations in non-production environment."
+    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
+    "      Fresh database detected. Performing additional example operations."
+    "-      Existing database detected. Performing additional example operations."
+    "  ==> Finished example operations."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
 
     # Installation completion.
     "Finished site provisioning"
@@ -1713,6 +1897,11 @@ assert_provision_info() {
     "Verified that database updates did not change configuration."
     "Completed running database updates."
     "- Configuration was changed by database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
 
     # Configuration import.
     "Importing configuration."
@@ -1867,6 +2056,7 @@ assert_provision_info() {
     # These should NOT appear (script exits before them).
     "- Verified that database updates did not change configuration."
     "- Completed running database updates."
+    "- Clearing cache after database updates."
     "- Importing configuration."
     "- Rebuilding cache."
     "- Running deployment hooks."
