@@ -151,9 +151,6 @@ jobs:
             #;< TOOL_ESLINT_STYLELINT
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
             #;> TOOL_ESLINT_STYLELINT
-            #;< TOOL_JEST
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-            #;> TOOL_JEST
 
       - run:
           name: Audit Composer packages
@@ -202,12 +199,6 @@ jobs:
           name: Lint module code with NodeJS linters
           command: docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_ESLINT_STYLELINT
-
-      #;< TOOL_JEST
-      - run:
-          name: Test module code with Jest
-          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> TOOL_JEST
 
       #;< DRUPAL_THEME
       - run:
@@ -372,6 +363,9 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+            #;< TOOL_JEST
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            #;> TOOL_JEST
 
       - run:
           name: Provision site
@@ -388,6 +382,12 @@ jobs:
             #;> MIGRATION
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
+
+      #;< TOOL_JEST
+      - run:
+          name: Test with Jest
+          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_JEST
 
       #;< TOOL_PHPUNIT
       - run:

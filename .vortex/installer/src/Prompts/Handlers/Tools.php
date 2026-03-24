@@ -495,9 +495,6 @@ class Tools extends AbstractHandler {
       'frontend_all' => [
         'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
         'files' => ['package.json', 'yarn.lock'],
-        'ahoy' => [
-          '/^\h*ahoy cli "yarn install --frozen-lockfile"\h*\n?/m',
-        ],
       ],
     ];
 
