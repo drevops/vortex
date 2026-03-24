@@ -17,17 +17,20 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
+
 // URL of the remote database.
-$url = getenv_required('VORTEX_DOWNLOAD_DB_URL');
+$url = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_URL', 'VORTEX_DOWNLOAD_DB_URL'])));
 
 // Directory with database dump file.
-$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_URL_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_URL_DB_DIR', 'VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_URL_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // Database dump file name.
-$db_file = getenv_default('VORTEX_DOWNLOAD_DB_URL_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_URL_DB_FILE', 'VORTEX_DOWNLOAD_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_DOWNLOAD_DB_URL_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
 // Password for unzipping password-protected zip files.
-$unzip_password = getenv_default('VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD', '');
+$unzip_password = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_UNZIP_PASSWORD', 'VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD', ''])));
 
 // -----------------------------------------------------------------------------
 

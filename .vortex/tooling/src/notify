@@ -67,7 +67,7 @@ if (empty($channels)) {
   quit(0);
 }
 
-if (!in_array($event, ['pre_deployment', 'post_deployment'])) {
+if (!in_array($event, ['pre_deployment', 'post_deployment'], TRUE)) {
   fail('Unsupported event %s provided.', $event);
 }
 

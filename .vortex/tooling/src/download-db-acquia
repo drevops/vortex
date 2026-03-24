@@ -21,35 +21,38 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
+
 // Acquia Cloud API key.
-$acquia_key = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_KEY', 'VORTEX_ACQUIA_KEY');
+$acquia_key = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_KEY', 'VORTEX_DOWNLOAD_DB_ACQUIA_KEY', 'VORTEX_ACQUIA_KEY'])));
 
 // Acquia Cloud API secret.
-$acquia_secret = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET');
+$acquia_secret = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_SECRET', 'VORTEX_DOWNLOAD_DB_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET'])));
 
 // Application name. Used to discover UUID.
-$app_name = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME');
+$app_name = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_APP_NAME', 'VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME'])));
 
 // Source environment name used to download the database dump from.
-$environment = getenv_required('VORTEX_DOWNLOAD_DB_ENVIRONMENT');
+$environment = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ENVIRONMENT', 'VORTEX_DOWNLOAD_DB_ENVIRONMENT'])));
 
 // Database name within source environment.
-$db_name = getenv_required('VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME');
+$db_name = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_DB_NAME', 'VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME'])));
 
 // Directory where DB dumps are stored.
-$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_DB_DIR', 'VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // Database dump file name.
-$db_file = getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_DB_FILE', 'VORTEX_DOWNLOAD_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
 // Flag to download a fresh copy by triggering a new backup.
-$fresh = getenv_default('VORTEX_DOWNLOAD_DB_FRESH', '');
+$fresh = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FRESH', 'VORTEX_DOWNLOAD_DB_FRESH', ''])));
 
 // Interval in seconds to wait between backup status checks.
-$backup_wait_interval = (int) getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '10');
+$backup_wait_interval = (int) getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_BACKUP_WAIT_INTERVAL', 'VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '10'])));
 
 // Maximum time in seconds to wait for backup completion.
-$backup_max_wait = (int) getenv_default('VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT', '600');
+$backup_max_wait = (int) getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ACQUIA_BACKUP_MAX_WAIT', 'VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT', '600'])));
 
 // -----------------------------------------------------------------------------
 

@@ -62,9 +62,17 @@ $deploy_ssh_fingerprint = getenv_default('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT
 // Falls back to VORTEX_DEPLOY_SSH_FILE, then VORTEX_SSH_FILE.
 $deploy_ssh_file = getenv_default('VORTEX_DEPLOY_ARTIFACT_SSH_FILE', 'VORTEX_DEPLOY_SSH_FILE', 'VORTEX_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
 
+// Version of git-artifact to download.
+$git_artifact_version = getenv_default('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION', '1.4.0');
+
+// SHA256 checksum of the git-artifact binary.
+$git_artifact_sha256 = getenv_default('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256', '1fa99ff2a6f8dc6c1a42bcfc87ce75d04b2eab375216b0e3195a0e3b51a47646');
+
 // -----------------------------------------------------------------------------
 
 info('Started ARTIFACT deployment.');
+
+command_must_exist('curl');
 
 // Configure global git settings, if they do not exist.
 $global_git_name = trim((string) shell_exec('git config --global user.name'));
@@ -86,7 +94,20 @@ putenv('VORTEX_SSH_PREFIX=DEPLOY_ARTIFACT');
 passthru_or_fail(__DIR__ . '/setup-ssh');
 
 task('Installing artifact builder.');
-passthru_or_fail('composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2');
+$tmp_dir = getenv('TMPDIR') ?: '/tmp';
+$git_artifact_bin = $tmp_dir . '/git-artifact';
+$git_artifact_url = sprintf('https://github.com/drevops/git-artifact/releases/download/%s/git-artifact', $git_artifact_version);
+$dl_response = request($git_artifact_url, ['method' => 'GET', 'save_to' => $git_artifact_bin, 'timeout' => 120]);
+if (!$dl_response['ok']) {
+  fail('Failed to download git-artifact binary.');
+}
+
+$actual_sha256 = hash_file('sha256', $git_artifact_bin);
+if ($actual_sha256 !== $git_artifact_sha256) {
+  @unlink($git_artifact_bin);
+  fail('SHA256 checksum verification failed for git-artifact binary.');
+}
+chmod($git_artifact_bin, 0755);
 
 $deploy_artifact_root = realpath($deploy_artifact_root);
 $deploy_artifact_src = realpath($deploy_artifact_src);
@@ -106,7 +127,6 @@ if (file_exists($deploy_artifact_root . '/.gitignore.artifact')) {
 }
 
 task('Running artifact builder.');
-$git_artifact_bin = getenv('HOME') . '/.composer/vendor/bin/git-artifact';
 $git_artifact_args = [
   escapeshellarg($git_artifact_bin),
   escapeshellarg($deploy_git_remote),

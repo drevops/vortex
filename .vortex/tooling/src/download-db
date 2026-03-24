@@ -19,55 +19,64 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+// use the indexed variant (e.g., VORTEX_DOWNLOAD_DB2_SOURCE instead of
+// VORTEX_DOWNLOAD_DB_SOURCE).
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
+
 // Database download source.
-$source = getenv_default('VORTEX_DOWNLOAD_DB_SOURCE', 'url');
+$source = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_SOURCE', 'VORTEX_DOWNLOAD_DB_SOURCE', 'url'])));
 
 // Force DB download even if the cache exists.
-$force = getenv_default('VORTEX_DOWNLOAD_DB_FORCE', '');
+$force = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FORCE', 'VORTEX_DOWNLOAD_DB_FORCE', ''])));
 
 // Proceed with download.
-$proceed = getenv_default('VORTEX_DOWNLOAD_DB_PROCEED', '1');
+$proceed = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_PROCEED', 'VORTEX_DOWNLOAD_DB_PROCEED', '1'])));
 
 // Database dump file name.
-$db_file = getenv_default('VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
 // Directory with database dump file.
-$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // Semaphore file to indicate download completion.
 $semaphore = getenv_default('VORTEX_DOWNLOAD_DB_SEMAPHORE', '');
 
 // -----------------------------------------------------------------------------
 
-info('Started database download.');
+info('Started database%s download.', $db_index !== '' ? ' ' . $db_index : '');
 
 if ($proceed !== '1') {
   pass('Skipping database download as VORTEX_DOWNLOAD_DB_PROCEED is not set to 1.');
   quit(0);
 }
 
-// Check for existing dump files.
-$db_file_basename = pathinfo($db_file, PATHINFO_FILENAME);
-$found_db = '';
-if (is_dir($db_dir)) {
-  $files = glob($db_dir . '/' . $db_file_basename . '.{sql,tar}', GLOB_BRACE);
-  if ($files !== FALSE && count($files) > 0) {
-    $found_db = implode("\n", $files);
-  }
-}
-
-if ($found_db !== '') {
-  note('Found existing database dump file(s).');
-  passthru('ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true');
-
-  if ($force !== '1') {
-    note('Using existing database dump file(s).');
-    note('Download will not proceed.');
-    note('Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download.');
-    quit(0);
+// Skip file existence check for container_registry source as the database is
+// stored as a Docker image, not a file.
+if ($source !== 'container_registry') {
+  // Check for existing dump files.
+  $db_file_basename = pathinfo($db_file, PATHINFO_FILENAME);
+  $found_db = '';
+  if (is_dir($db_dir)) {
+    $files = glob($db_dir . '/' . $db_file_basename . '.{sql,tar}', GLOB_BRACE);
+    if ($files !== FALSE && count($files) > 0) {
+      $found_db = implode("\n", $files);
+    }
   }
 
-  note('Will download a fresh copy of the database.');
+  if ($found_db !== '') {
+    note('Found existing database dump file(s).');
+    passthru('ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true');
+
+    if ($force !== '1') {
+      note('Using existing database dump file(s).');
+      note('Download will not proceed.');
+      note('Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download.');
+      quit(0);
+    }
+
+    note('Will download a fresh copy of the database.');
+  }
 }
 
 $sources = [
@@ -92,4 +101,4 @@ if ($semaphore !== '') {
   touch($semaphore);
 }
 
-pass('Finished database download.');
+pass('Finished database%s download.', $db_index !== '' ? ' ' . $db_index : '');

@@ -26,41 +26,47 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
+
 // Flag to download a fresh copy of the database.
-$fresh = getenv_default('VORTEX_DOWNLOAD_DB_FRESH', '');
+$fresh = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FRESH', 'VORTEX_DOWNLOAD_DB_FRESH', ''])));
 
 // Lagoon project name.
-$lagoon_project = getenv_required('VORTEX_DOWNLOAD_DB_LAGOON_PROJECT', 'LAGOON_PROJECT');
+$lagoon_project = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_PROJECT', 'VORTEX_DOWNLOAD_DB_LAGOON_PROJECT', 'LAGOON_PROJECT'])));
 
 // The source environment branch for the database source.
-$environment = getenv_default('VORTEX_DOWNLOAD_DB_ENVIRONMENT', 'main');
+$environment = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_ENVIRONMENT', 'VORTEX_DOWNLOAD_DB_ENVIRONMENT', 'main'])));
 
 // Remote DB dump directory location.
 $remote_dir = '/tmp';
 
 // Remote DB dump file name. Cached by the date suffix.
-$remote_file = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE', 'db_' . date('Ymd') . '.sql');
+$remote_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_REMOTE_FILE', 'VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE', 'db_' . date('Ymd') . '.sql'])));
 
 // Wildcard file name to cleanup previously created dump files.
-$remote_file_cleanup = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP', 'db_*.sql');
+$remote_file_cleanup = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_REMOTE_FILE_CLEANUP', 'VORTEX_DOWNLOAD_DB_LAGOON_REMOTE_FILE_CLEANUP', 'db_*.sql'])));
+
+// SSH key fingerprint used to connect to a remote.
+$ssh_fingerprint = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_SSH_FINGERPRINT', 'VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT', ''])));
 
 // Default SSH file used if custom fingerprint is not provided.
-$ssh_file = getenv_default('VORTEX_DOWNLOAD_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
+$ssh_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_SSH_FILE', 'VORTEX_DOWNLOAD_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa'])));
 
 // The SSH host of the Lagoon environment.
-$ssh_host = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud');
+$ssh_host = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_SSH_HOST', 'VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud'])));
 
 // The SSH port of the Lagoon environment.
-$ssh_port = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT', '32222');
+$ssh_port = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_SSH_PORT', 'VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT', '32222'])));
 
 // The SSH user of the Lagoon environment.
-$ssh_user = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER', $lagoon_project . '-' . $environment);
+$ssh_user = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_SSH_USER', 'VORTEX_DOWNLOAD_DB_LAGOON_SSH_USER', $lagoon_project . '-' . $environment])));
 
 // Directory where DB dumps are stored on the host.
-$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_DB_DIR', 'VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // Database dump file name on the host.
-$db_file = getenv_default('VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_LAGOON_DB_FILE', 'VORTEX_DOWNLOAD_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
 // Name of the webroot directory with Drupal codebase.
 $webroot = getenv_default('WEBROOT', 'web');
