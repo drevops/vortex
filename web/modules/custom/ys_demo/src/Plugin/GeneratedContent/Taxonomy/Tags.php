@@ -9,6 +9,8 @@ use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
 
 /**
  * Generate tags taxonomy terms.
+ *
+ * @codeCoverageIgnore
  */
 #[GeneratedContent(
   id: 'ys_demo_taxonomy_term_tags',
