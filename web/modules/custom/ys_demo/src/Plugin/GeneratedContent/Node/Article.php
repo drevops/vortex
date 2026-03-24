@@ -39,8 +39,8 @@ class Article extends GeneratedContentPluginBase {
         'format' => 'full_html',
       ]);
 
-      $tags = $this->helper::randomTerms('tags', rand(1, 3));
-      if ($tags) {
+      $tags = $this->helper::randomTerms('tags', random_int(1, 3));
+      if ($tags !== []) {
         $node->set('field_tags', $tags);
       }
 

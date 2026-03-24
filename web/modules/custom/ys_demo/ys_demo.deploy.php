@@ -9,6 +9,10 @@
 
 declare(strict_types=1);
 
+use Drupal\drupal_helpers\Helper;
+use Drupal\menu_link_content\MenuLinkContentInterface;
+use Drupal\testmode\Testmode;
+
 /**
  * Place counter block in the "content" region.
  *
@@ -54,12 +58,12 @@ function ys_demo_deploy_place_counter_block(): string {
  * @codeCoverageIgnore
  */
 function ys_demo_deploy_create_articles_menu_link(): string {
-  $existing = \Drupal\drupal_helpers\Helper::menu()->findItem('main', ['title' => 'Articles']);
-  if ($existing) {
+  $existing = Helper::menu()->findItem('main', ['title' => 'Articles']);
+  if ($existing instanceof MenuLinkContentInterface) {
     return 'Articles menu link already exists.';
   }
 
-  \Drupal\drupal_helpers\Helper::menu()->createTree('main', [
+  Helper::menu()->createTree('main', [
     'Articles' => '/articles',
   ]);
 
@@ -75,7 +79,7 @@ function ys_demo_deploy_create_articles_menu_link(): string {
  * @codeCoverageIgnore
  */
 function ys_demo_deploy_configure_testmode(): string {
-  $testmode = \Drupal\testmode\Testmode::getInstance();
+  $testmode = Testmode::getInstance();
 
   $views = $testmode->getNodeViews();
   if (!in_array('ys_demo_articles', $views)) {
