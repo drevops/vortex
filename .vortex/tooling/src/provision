@@ -463,7 +463,7 @@ info('Current Drupal environment: %s', $environment);
 echo PHP_EOL;
 
 // Re-read in case provision_from_profile() changed it via putenv().
-$provision_post_operations_skip = getenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP') ?: $provision_post_operations_skip;
+$provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIONS_SKIP', $provision_post_operations_skip);
 
 if ($provision_post_operations_skip === '1') {
   info('Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1.');

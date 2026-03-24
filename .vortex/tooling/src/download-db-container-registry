@@ -21,7 +21,7 @@ execute_override(basename(__FILE__));
 $db_index = getenv_default('VORTEX_DB_INDEX', '');
 
 // The container image containing database in a form of `<org>/<repository>`.
-$image = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_CONTAINER_REGISTRY_IMAGE', 'VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE', 'VORTEX_DB' . $db_index . '_IMAGE', 'VORTEX_DB_IMAGE'])));
+$image = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_CONTAINER_REGISTRY_IMAGE', 'VORTEX_DB' . $db_index . '_IMAGE', 'VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE', 'VORTEX_DB_IMAGE'])));
 
 // Container registry name.
 //
@@ -38,7 +38,7 @@ $registry_pass = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_
 $db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_CONTAINER_REGISTRY_DB_DIR', 'VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // The base container image used as a fallback when the archive does not exist.
-$image_base = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB' . $db_index . '_IMAGE_BASE', 'VORTEX_DB_IMAGE_BASE', ''])));
+$image_base = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB' . $db_index . '_IMAGE_BASE', 'VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB_IMAGE_BASE', ''])));
 
 // -----------------------------------------------------------------------------
 
