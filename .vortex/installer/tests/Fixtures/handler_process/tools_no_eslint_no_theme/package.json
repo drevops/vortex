@@ -1,4 +1,4 @@
-@@ -8,24 +8,12 @@
+@@ -8,27 +8,15 @@
      "node": ">= __VERSION__"
    },
    "scripts": {
@@ -8,11 +8,14 @@
 -    "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
 +    "lint": "yarn run lint-css",
      "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
--    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
-+    "lint-fix": "yarn run lint-fix-css"
+-    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
++    "lint-fix": "yarn run lint-fix-css",
+     "test": "jest"
    },
    "devDependencies": {
 -    "@homer0/prettier-plugin-jsdoc": "__VERSION__",
+     "jest": "__VERSION__",
+     "jest-environment-jsdom": "__VERSION__",
 -    "eslint": "__VERSION__",
 -    "eslint-config-airbnb-base": "__VERSION__",
 -    "eslint-config-prettier": "__VERSION__",

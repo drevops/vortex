@@ -11,6 +11,6 @@
 -    "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
 +    "lint-fix-js": "eslint docroot/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
 +    "lint-fix-css": "stylelint --allow-empty-input \"docroot/modules/custom/**/*.css\" --fix",
-     "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
+     "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
+     "test": "jest"
    },
-   "devDependencies": {

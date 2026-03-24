@@ -6,11 +6,10 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -157,15 +156,6 @@
-       - name: Lint code with Gherkin Lint
+@@ -158,15 +157,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
--
+ 
 -      - name: Lint module code with NodeJS linters
 -        run: docker compose exec -T cli bash -c "yarn run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
@@ -19,6 +18,27 @@
 -        if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
 -        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
- 
+-
    database:
      runs-on: ubuntu-latest
+     if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+@@ -366,7 +356,6 @@
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+             if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+ 
+       - name: Provision site
+         run: |
+@@ -376,11 +365,6 @@
+           fi
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+         timeout-minutes: 30
+-
+-      - name: Test with Jest
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: docker compose exec -T cli bash -c "yarn test"
+-        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
+ 
+       - name: Test with PHPUnit
+         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}

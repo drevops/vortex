@@ -4,6 +4,8 @@
 
 ((Drupal) => {
   Drupal.behaviors.ysDemo = {
+    storageKey: 'ys_counter_value',
+
     attach(context) {
       this.initCounterBlock(context);
     },
@@ -17,7 +19,7 @@
     initCounterBlock(context) {
       const counterBlocks = context.querySelectorAll('[data-the-force-demo-counter]');
 
-      counterBlocks.forEach(function processBlock(block) {
+      counterBlocks.forEach((block) => {
         // Skip if already processed.
         if (block.classList.contains('the-force-demo-counter-processed')) {
           return;
@@ -29,39 +31,24 @@
         const buttons = block.querySelectorAll('[data-counter-action]');
 
         // Load saved value from localStorage.
-        const storageKey = 'ys_counter_value';
-        let currentValue = parseInt(localStorage.getItem(storageKey), 10) || 0;
+        let currentValue = this.getCounterValue();
         valueElement.textContent = currentValue;
 
         // Add event listeners to buttons.
-        buttons.forEach(function processButton(button) {
-          button.addEventListener('click', function handleClick() {
-            const action = this.getAttribute('data-counter-action');
+        buttons.forEach((button) => {
+          button.addEventListener('click', () => {
+            const action = button.getAttribute('data-counter-action');
+            currentValue = this.applyAction(currentValue, action);
 
-            switch (action) {
-              case 'increment':
-                currentValue += 1;
-                break;
-              case 'decrement':
-                currentValue -= 1;
-                break;
-              case 'reset':
-                currentValue = 0;
-                break;
-              default:
-                // No action for unknown action types.
-                break;
-            }
-
-            // Update display
+            // Update display.
             valueElement.textContent = currentValue;
 
             // Save to localStorage.
-            localStorage.setItem(storageKey, currentValue.toString());
+            localStorage.setItem(this.storageKey, currentValue.toString());
 
             // Add visual feedback.
             valueElement.classList.add('updated');
-            Drupal.behaviors.ysDemo.removeUpdatedClassAfterDelay(valueElement);
+            this.removeUpdatedClassAfterDelay(valueElement);
 
             // Log action for debugging.
             // eslint-disable-next-line no-console
@@ -69,6 +56,26 @@
           });
         });
       });
+    },
+
+    /**
+     * Apply a counter action and return the new value.
+     *
+     * @param {number} value   The current counter value.
+     * @param {string} action  The action to apply.
+     * @return {number} The new counter value.
+     */
+    applyAction(value, action) {
+      switch (action) {
+        case 'increment':
+          return value + 1;
+        case 'decrement':
+          return value - 1;
+        case 'reset':
+          return 0;
+        default:
+          return value;
+      }
     },
 
     /**
@@ -88,8 +95,7 @@
      * @return {number} The current counter value, or 0 if not set.
      */
     getCounterValue() {
-      const storageKey = 'ys_counter_value';
-      return parseInt(localStorage.getItem(storageKey), 10) || 0;
+      return parseInt(localStorage.getItem(this.storageKey), 10) || 0;
     },
   };
 })(Drupal);

@@ -1,0 +1,11 @@
+@@ -239,10 +239,6 @@
+     usage: Run PHPUnit functional JavaScript tests.
+     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
+ 
+-  test-js:
+-    usage: Run Jest JavaScript unit tests.
+-    cmd: ahoy cli "yarn test"
+-
+   test-bdd:
+     usage: Run BDD tests.
+     aliases: [test-behat]

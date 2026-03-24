@@ -1,4 +1,4 @@
-@@ -52,16 +52,6 @@
+@@ -52,19 +52,6 @@
  ahoy lint     # Check code style
  ahoy lint-fix # Auto-fix code style
  
@@ -8,6 +8,9 @@
 -ahoy test-kernel     # Run PHPUnit Kernel tests
 -ahoy test-functional # Run PHPUnit Functional tests
 -ahoy test -- --filter=TestClassName  # Run specific PHPUnit test class
+-
+-# Jest testing
+-ahoy test-js  # Run Jest JavaScript unit tests
 -
 -# Behat testing
 -ahoy test-bdd # Run Behat tests

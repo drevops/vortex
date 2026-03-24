@@ -125,7 +125,6 @@ jobs:
             if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
       - name: Audit Composer packages
         run: docker compose exec -T cli composer audit
@@ -162,10 +161,6 @@ jobs:
       - name: Lint module code with NodeJS linters
         run: docker compose exec -T cli bash -c "yarn run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-
-      - name: Test module code with Jest
-        run: docker compose exec -T cli bash -c "yarn test"
-        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Lint theme code with NodeJS linters
         if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
@@ -371,6 +366,7 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
       - name: Provision site
         run: |
@@ -380,6 +376,11 @@ jobs:
           fi
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
         timeout-minutes: 30
+
+      - name: Test with Jest
+        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        run: docker compose exec -T cli bash -c "yarn test"
+        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Test with PHPUnit
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
