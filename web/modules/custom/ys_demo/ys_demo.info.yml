@@ -4,6 +4,7 @@ description: Demo feature for YOURSITE site.
 core_version_requirement: ^11
 package: your_site
 dependencies:
+  - drupal:file
   - drupal:node
   - drupal:views
   - drupal_helpers:drupal_helpers
