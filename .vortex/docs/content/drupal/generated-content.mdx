@@ -1,0 +1,100 @@
+---
+sidebar_position: 7
+---
+
+# Generated content
+
+[Generated content](https://www.drupal.org/project/generated_content) provides
+a plugin-based system for programmatically generating deterministic content
+entities. Unlike random dummy content, generated content produces reproducible
+sets useful for visual regression testing and consistent demo environments.
+
+## Plugin system
+
+Content generators are PHP classes placed in a module's
+`src/Plugin/GeneratedContent/` directory, annotated with the `#[GeneratedContent]`
+attribute.
+
+### Creating a plugin
+
+```php
+namespace Drupal\ys_demo\Plugin\GeneratedContent;
+
+use Drupal\generated_content\Attribute\GeneratedContent;
+use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
+use Drupal\taxonomy\Entity\Term;
+
+#[GeneratedContent(
+  id: 'ys_demo_taxonomy_term_tags',
+  entity_type: 'taxonomy_term',
+  bundle: 'tags',
+  weight: 10,
+)]
+class TaxonomyTermTags extends GeneratedContentPluginBase {
+
+  public function generate(): array {
+    $entities = [];
+
+    foreach (['Technology', 'Science', 'Health'] as $name) {
+      $term = Term::create(['vid' => 'tags', 'name' => $name]);
+      $term->save();
+      $entities[] = $term;
+    }
+
+    return $entities;
+  }
+
+}
+```
+
+### Attribute parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | yes | Unique plugin ID |
+| `entity_type` | string | yes | Target entity type (`node`, `taxonomy_term`, etc.) |
+| `bundle` | string | yes | Target bundle |
+| `weight` | int | no | Execution order (lower = earlier) |
+| `tracking` | bool | no | Track created entities for cleanup (default: `TRUE`) |
+| `helper` | string | no | Custom helper class extending `GeneratedContentHelper` |
+
+### Cross-referencing entities
+
+Use `weight` to control execution order and `$this->helper` to reference
+previously generated entities:
+
+```php
+// In a node plugin with weight: 20 (runs after terms at weight: 10).
+$tags = $this->helper::randomTerms('tags', 3);
+$node->set('field_tags', $tags);
+```
+
+## Triggering generation
+
+### Drush command
+
+```shell
+drush generated-content:create-content
+drush generated-content:create-content node article
+```
+
+### Admin UI
+
+Visit `/admin/config/development/generated-content` to generate content through
+the admin interface.
+
+### Environment variable
+
+Set `GENERATED_CONTENT_CREATE=1` before provisioning to auto-generate content
+on module install. Optionally filter:
+
+```shell
+GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-article"
+```
+
+## Example in Vortex
+
+The `ys_demo` module ships two generated content plugins:
+
+- `TaxonomyTermTags` — generates 5 taxonomy terms in the `tags` vocabulary
+- `NodeArticle` — generates 20 article nodes referencing generated tags

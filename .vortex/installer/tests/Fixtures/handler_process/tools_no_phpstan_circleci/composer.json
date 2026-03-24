@@ -1,4 +1,4 @@
-@@ -42,14 +42,11 @@
+@@ -45,14 +45,11 @@
          "ergebnis/composer-normalize": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
          "lullabot/php-webdriver": "__VERSION__",
@@ -13,7 +13,7 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
-@@ -85,7 +82,6 @@
+@@ -88,7 +85,6 @@
              "ergebnis/composer-normalize": true,
              "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,

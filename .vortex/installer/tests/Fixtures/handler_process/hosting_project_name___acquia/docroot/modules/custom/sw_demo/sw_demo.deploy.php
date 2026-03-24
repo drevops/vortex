@@ -9,6 +9,10 @@
 
 declare(strict_types=1);
 
+use Drupal\drupal_helpers\Helper;
+use Drupal\menu_link_content\MenuLinkContentInterface;
+use Drupal\testmode\Testmode;
+
 /**
  * Place counter block in the "content" region.
  *
@@ -43,4 +47,45 @@ function sw_demo_deploy_place_counter_block(): string {
   $block->save();
 
   return 'Counter block placed in the "content" region';
+}
+
+/**
+ * Create "Articles" menu link in the main navigation.
+ *
+ * Demonstrates using the drupal_helpers module to manage menu links
+ * within deploy hooks.
+ *
+ * @codeCoverageIgnore
+ */
+function sw_demo_deploy_create_articles_menu_link(): string {
+  $existing = Helper::menu()->findItem('main', ['title' => 'Articles']);
+  if ($existing instanceof MenuLinkContentInterface) {
+    return 'Articles menu link already exists.';
+  }
+
+  Helper::menu()->createTree('main', [
+    'Articles' => '/articles',
+  ]);
+
+  return 'Created "Articles" menu link in main navigation.';
+}
+
+/**
+ * Configure testmode to filter the articles view.
+ *
+ * Registers the 'sw_demo_articles' view with testmode so that only
+ * content matching the [TEST] prefix appears during test runs.
+ *
+ * @codeCoverageIgnore
+ */
+function sw_demo_deploy_configure_testmode(): string {
+  $testmode = Testmode::getInstance();
+
+  $views = $testmode->getNodeViews();
+  if (!in_array('sw_demo_articles', $views)) {
+    $views[] = 'sw_demo_articles';
+    $testmode->setNodeViews($views);
+  }
+
+  return 'Configured testmode to filter the articles view.';
 }

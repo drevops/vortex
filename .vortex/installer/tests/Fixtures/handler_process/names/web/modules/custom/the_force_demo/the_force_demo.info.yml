@@ -3,3 +3,10 @@ type: module
 description: Demo feature for New hope site.
 core_version_requirement: ^11
 package: the_new_hope
+dependencies:
+  - drupal:file
+  - drupal:node
+  - drupal:views
+  - drupal_helpers:drupal_helpers
+  - generated_content:generated_content
+  - testmode:testmode

@@ -1,8 +1,8 @@
-@@ -14,7 +14,6 @@
-         "drupal/config_update": "__VERSION__",
+@@ -15,7 +15,6 @@
          "drupal/core-composer-scaffold": "__VERSION__",
          "drupal/core-recommended": "__VERSION__",
+         "drupal/drupal_helpers": "__VERSION__",
 -        "drupal/environment_indicator": "__VERSION__",
+         "drupal/generated_content": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
-         "drupal/redis": "__VERSION__",

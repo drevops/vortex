@@ -1,4 +1,4 @@
-@counter
+@counter @demo
 Feature: Counter Block
 
   As a site visitor
