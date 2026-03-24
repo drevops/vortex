@@ -219,23 +219,10 @@ DOC;
       return;
     }
 
-    $files = glob($features_dir . '/*.feature');
-
-    if ($files === FALSE) {
-      return;
-    }
+    $files = File::findContainingInDir($features_dir, '@demo');
 
     foreach ($files as $file) {
-      $handle = fopen($file, 'r');
-      if ($handle === FALSE) {
-        continue;
-      }
-      $first_line = fgets($handle);
-      fclose($handle);
-
-      if ($first_line !== FALSE && str_contains($first_line, '@demo')) {
-        File::remove($file);
-      }
+      File::remove($file);
     }
   }
 
