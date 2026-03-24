@@ -30,6 +30,8 @@ class Tools extends AbstractHandler {
 
   const BEHAT = 'behat';
 
+  const JEST = 'jest';
+
   /**
    * {@inheritdoc}
    */
@@ -62,6 +64,7 @@ class Tools extends AbstractHandler {
     return [
       self::BEHAT,
       self::ESLINT,
+      self::JEST,
       self::PHPCS,
       self::PHPMD,
       self::PHPSTAN,
@@ -111,10 +114,10 @@ class Tools extends AbstractHandler {
       $this->processGroup($name);
     }
 
-    // Remove fei: command and its call when both FE lint tools and custom
+    // Remove fei: command and its call when all FE tools and custom
     // theme are absent, as there are no front-end dependencies to install.
-    $fe_group = $groups['frontend_linting'] ?? NULL;
-    if ($fe_group && isset($fe_group['tools']) && !array_intersect($fe_group['tools'], $selected_tools)) {
+    $fe_all_group = $groups['frontend_all'] ?? NULL;
+    if ($fe_all_group && isset($fe_all_group['tools']) && !array_intersect($fe_all_group['tools'], $selected_tools)) {
       $theme = $this->responses[Theme::id()] ?? NULL;
       if (in_array($theme, [Theme::OLIVERO, Theme::CLARO, Theme::STARK])) {
         File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_fei', function (string $content): string {
@@ -353,6 +356,27 @@ class Tools extends AbstractHandler {
         'files' => ['.stylelintrc.js'],
       ],
 
+      self::JEST => [
+        'title' => 'Jest',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"jest":') ||
+        File::exists($this->dstDir . '/jest.config.js'),
+        'package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('devDependencies', 'jest');
+          $pj->removeSubNode('devDependencies', 'jest-environment-jsdom');
+          $pj->removeSubNode('scripts', 'test');
+        },
+        'files' => fn(): array => [
+          $this->tmpDir . '/jest.config.js',
+          glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/js/*.test.js'),
+        ],
+        'lines' => [
+          'AGENTS.md' => [
+            '# Jest testing',
+            'ahoy test-js',
+          ],
+        ],
+      ],
+
       self::PHPUNIT => [
         'title' => 'PHPUnit',
         'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpunit/phpunit') ||
@@ -458,13 +482,22 @@ class Tools extends AbstractHandler {
       ],
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],
-        'files' => ['package.json', 'yarn.lock'],
         'ahoy' => [
-          '/^\h*ahoy cli "yarn install --frozen-lockfile"\h*\n?/m',
           '/^\h*ahoy cli "yarn run lint"\h*\n?/m',
           '/^\h*ahoy cli "yarn run lint-fix"\h*\n?/m',
         ],
         'token' => 'TOOL_ESLINT_STYLELINT',
+      ],
+      'frontend_testing' => [
+        'tools' => [self::JEST],
+        'token' => 'TOOL_JEST',
+      ],
+      'frontend_all' => [
+        'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
+        'files' => ['package.json', 'yarn.lock'],
+        'ahoy' => [
+          '/^\h*ahoy cli "yarn install --frozen-lockfile"\h*\n?/m',
+        ],
       ],
     ];
 

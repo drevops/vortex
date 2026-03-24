@@ -13,10 +13,13 @@
     "lint": "yarn run lint-js && yarn run lint-css",
     "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
     "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
-    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
+    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
+    "test": "jest"
   },
   "devDependencies": {
     "@homer0/prettier-plugin-jsdoc": "^11.0.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",

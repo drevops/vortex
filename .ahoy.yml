@@ -278,10 +278,15 @@ commands:
     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
 
   test-functional-javascript:
-    aliases: [test-js]
     usage: Run PHPUnit functional JavaScript tests.
     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
   #;> TOOL_PHPUNIT
+
+  #;< TOOL_JEST
+  test-js:
+    usage: Run Jest JavaScript unit tests.
+    cmd: ahoy cli "yarn test"
+  #;> TOOL_JEST
 
   #;< TOOL_BEHAT
   test-bdd:

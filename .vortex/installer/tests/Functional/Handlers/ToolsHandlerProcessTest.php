@@ -47,6 +47,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
 
           $test->assertSutContains([
             '/\blint-fe:/',
@@ -335,10 +336,40 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'rector/rector',
       ])),
     ];
+    yield 'tools_no_jest' => [
+      static::cw(function (): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::JEST])));
+          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+      }),
+      static::cw(function (FunctionalTestCase $test): void {
+          $pj = static::$sut . '/package.json';
+          $test->assertFileNotContainsString($pj, '"jest":');
+          $test->assertFileNotContainsString($pj, '"jest-environment-jsdom":');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
+          $test->assertFileContainsString($pj, '"eslint":');
+          $test->assertFileContainsString($pj, '"stylelint":');
+      }),
+    ];
+    yield 'tools_no_jest_circleci' => [
+      static::cw(function (): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::JEST])));
+          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+      }),
+      static::cw(function (FunctionalTestCase $test): void {
+          $pj = static::$sut . '/package.json';
+          $test->assertFileNotContainsString($pj, '"jest":');
+          $test->assertFileNotContainsString($pj, '"jest-environment-jsdom":');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
+          $test->assertFileContainsString($pj, '"eslint":');
+          $test->assertFileContainsString($pj, '"stylelint":');
+      }),
+    ];
     yield 'tools_groups_no_fe_lint' => [
       static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
           Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
       }),
       static::cw(function (FunctionalTestCase $test): void {
@@ -349,12 +380,13 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
       }),
     ];
     yield 'tools_groups_no_fe_lint_circleci' => [
       static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
       }),
       static::cw(function (FunctionalTestCase $test): void {
@@ -365,6 +397,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
       }),
     ];
     yield 'tools_groups_no_be_tests' => [
@@ -410,7 +443,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     yield 'tools_groups_no_fe_lint_no_theme' => [
       static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
           Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
           Env::put(Theme::envName(), Theme::OLIVERO);
       }),
@@ -422,6 +455,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
           $test->assertSutNotContains([
             'yarn install',
             'yarn run lint',
@@ -433,7 +467,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     yield 'tools_groups_no_fe_lint_no_theme_circleci' => [
       static::cw(function (): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT])));
+          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
           Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
           Env::put(Theme::envName(), Theme::OLIVERO);
       }),
@@ -445,6 +479,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
+          $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
           $test->assertSutNotContains([
             'yarn install',
             'yarn run lint',

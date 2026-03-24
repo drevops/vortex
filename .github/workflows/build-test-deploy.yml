@@ -134,6 +134,9 @@ jobs:
           #;< TOOL_ESLINT_STYLELINT
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
           #;> TOOL_ESLINT_STYLELINT
+          #;< TOOL_JEST
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+          #;> TOOL_JEST
 
       - name: Audit Composer packages
         run: docker compose exec -T cli composer audit
@@ -182,6 +185,12 @@ jobs:
         run: docker compose exec -T cli bash -c "yarn run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
       #;> TOOL_ESLINT_STYLELINT
+
+      #;< TOOL_JEST
+      - name: Test module code with Jest
+        run: docker compose exec -T cli bash -c "yarn test"
+        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
+      #;> TOOL_JEST
 
       #;< DRUPAL_THEME
       - name: Lint theme code with NodeJS linters
