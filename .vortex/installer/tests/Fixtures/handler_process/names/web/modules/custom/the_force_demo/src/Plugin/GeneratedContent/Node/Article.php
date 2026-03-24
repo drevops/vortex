@@ -9,6 +9,8 @@ use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
 
 /**
  * Generate article nodes with tags.
+ *
+ * @codeCoverageIgnore
  */
 #[GeneratedContent(
   id: 'the_force_demo_node_article',
