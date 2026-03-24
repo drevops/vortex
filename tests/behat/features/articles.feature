@@ -1,4 +1,4 @@
-@articles @p1
+@articles @demo @p1
 Feature: Articles listing
 
   As a site visitor

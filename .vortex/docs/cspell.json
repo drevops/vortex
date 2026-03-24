@@ -76,6 +76,7 @@
         "seckit",
         "shellvar",
         "simpletest",
+        "testmode",
         "standardise",
         "updatedb",
         "uselagoon",

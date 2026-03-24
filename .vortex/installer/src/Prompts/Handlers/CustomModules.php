@@ -162,7 +162,7 @@ DOC;
         File::remove($path);
       }
 
-      File::remove($t . '/tests/behat/features/counter.feature');
+      static::removeDemoBehatFeatures($t);
     }
 
     if (!in_array(self::SEARCH, $selected)) {
@@ -201,6 +201,42 @@ DOC;
     $path = File::findMatchingPath($locations);
 
     return empty($path) ? NULL : str_replace(['_base', '_core'], '', basename($path));
+  }
+
+  /**
+   * Remove Behat feature files tagged with @demo.
+   *
+   * Scans the Behat features directory for .feature files whose first line
+   * contains the @demo tag and removes them.
+   *
+   * @param string $dir
+   *   The base directory to search in.
+   */
+  protected static function removeDemoBehatFeatures(string $dir): void {
+    $features_dir = $dir . '/tests/behat/features';
+
+    if (!is_dir($features_dir)) {
+      return;
+    }
+
+    $files = glob($features_dir . '/*.feature');
+
+    if ($files === FALSE) {
+      return;
+    }
+
+    foreach ($files as $file) {
+      $handle = fopen($file, 'r');
+      if ($handle === FALSE) {
+        continue;
+      }
+      $first_line = fgets($handle);
+      fclose($handle);
+
+      if ($first_line !== FALSE && str_contains($first_line, '@demo')) {
+        File::remove($file);
+      }
+    }
   }
 
 }
