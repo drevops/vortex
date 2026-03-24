@@ -67,7 +67,8 @@
       "env": { "jest": true },
       "rules": {
         "no-eval": "off",
-        "max-nested-callbacks": ["warn", 5]
+        "max-nested-callbacks": ["warn", 5],
+        "jsdoc/check-tag-names": "off"
       }
     }
   ],
