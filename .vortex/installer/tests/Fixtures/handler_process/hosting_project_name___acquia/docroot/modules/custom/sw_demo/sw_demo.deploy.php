@@ -74,7 +74,7 @@ function sw_demo_deploy_create_articles_menu_link(): string {
  * Configure testmode to filter the articles view.
  *
  * Registers the 'sw_demo_articles' view with testmode so that only
- * content matching the [TEST] prefix appears during Behat test runs.
+ * content matching the [TEST] prefix appears during test runs.
  *
  * @codeCoverageIgnore
  */
