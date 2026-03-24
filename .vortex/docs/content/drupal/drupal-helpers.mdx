@@ -1,0 +1,61 @@
+---
+sidebar_position: 6
+---
+
+# Drupal helpers
+
+[Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a utility
+library that provides static facade helpers for common Drupal development tasks,
+primarily intended for use within deploy hooks and update scripts.
+
+## Helper facade
+
+The `Helper` class provides convenient access to helper services without needing
+dependency injection:
+
+```php
+use Drupal\drupal_helpers\Helper;
+
+// Create taxonomy terms.
+Helper::term()->createTree('tags', ['News', 'Events', 'Blog']);
+
+// Create menu links.
+Helper::menu()->createTree('main', [
+  'About' => '/about',
+  'Contact' => '/contact',
+]);
+
+// Delete all entities of a type.
+Helper::entity()->deleteAll('node', 'article');
+```
+
+## Available helpers
+
+| Helper | Access | Common operations |
+|--------|--------|-------------------|
+| Term | `Helper::term()` | `createTree()`, `deleteAll()`, `find()` |
+| Menu | `Helper::menu()` | `createTree()`, `deleteTree()`, `findItem()`, `updateItem()` |
+| Entity | `Helper::entity()` | `deleteAll()`, `batch()` |
+| Config | `Helper::config()` | Import and manage config YAML |
+| User | `Helper::user()` | Create accounts, assign roles |
+| Redirect | `Helper::redirect()` | Create redirects, import from CSV |
+| Field | `Helper::field()` | Delete fields with data purging |
+
+## Batched operations
+
+For large datasets, pass a `$sandbox` array to enable automatic batching:
+
+```php
+function ys_base_deploy_update_articles(array &$sandbox): ?string {
+  return Helper::entity($sandbox)->batch('node', 'article', function ($node) {
+    $node->set('field_migrated', TRUE);
+    $node->save();
+  });
+}
+```
+
+## Example in Vortex
+
+The [`ys_demo.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.deploy.php)
+file demonstrates using drupal_helpers to create a menu link for the articles
+page during deployment.

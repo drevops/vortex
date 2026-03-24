@@ -3,3 +3,7 @@ type: module
 description: Demo feature for YOURSITE site.
 core_version_requirement: ^11
 package: your_site
+dependencies:
+  - drupal_helpers:drupal_helpers
+  - generated_content:generated_content
+  - testmode:testmode

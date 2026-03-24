@@ -1,0 +1,76 @@
+---
+sidebar_position: 8
+---
+
+# Test mode
+
+[Testmode](https://www.drupal.org/project/testmode) filters site content during
+Behat tests, preventing live or generated content from interfering with test
+assertions.
+
+## How it works
+
+1. Test content follows a naming convention — titles prefixed with `[TEST]`
+2. Views are registered in testmode configuration
+3. Behat scenarios tagged with `@testmode` automatically enable/disable filtering
+4. When enabled, registered views only show content matching the `[TEST]` pattern
+
+## Configuration
+
+Testmode is configured via `testmode.settings`:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `views_node` | string[] | Node view machine names to filter |
+| `views_term` | string[] | Term view machine names to filter |
+| `views_user` | string[] | User view machine names to filter |
+| `pattern_node` | string[] | MySQL LIKE patterns for node titles |
+| `pattern_term` | string[] | MySQL LIKE patterns for term names |
+| `pattern_user` | string[] | MySQL LIKE patterns for user emails |
+
+### Registering a view programmatically
+
+Use deploy hooks to register views with testmode:
+
+```php
+function ys_demo_deploy_configure_testmode(): string {
+  $testmode = \Drupal\testmode\Testmode::getInstance();
+
+  $views = $testmode->getNodeViews();
+  if (!in_array('my_view', $views)) {
+    $views[] = 'my_view';
+    $testmode->setNodeViews($views);
+  }
+
+  return 'Configured testmode for my_view.';
+}
+```
+
+## Behat integration
+
+The `@testmode` tag activates test mode for individual scenarios via
+`TestmodeTrait` from
+[behat-steps](https://github.com/drevops/behat-steps):
+
+```gherkin
+@testmode
+Scenario: Articles view shows only test content
+  Given article content:
+    | title                      | status |
+    | [TEST] Test mode article   | 1      |
+    | Regular production article | 1      |
+  When I visit "/articles"
+  Then I should see "[TEST] Test mode article"
+  And I should not see "Regular production article"
+```
+
+The `[TEST]` prefix in content titles matches the default `[TEST%` pattern
+configured in testmode. Only matching content appears in registered views.
+
+## Example in Vortex
+
+The `ys_demo` module:
+
+- Ships an articles view at `/articles`
+- Registers it with testmode via a deploy hook
+- Includes a Behat feature demonstrating the `@testmode` tag

@@ -44,3 +44,44 @@ function ys_demo_deploy_place_counter_block(): string {
 
   return 'Counter block placed in the "content" region';
 }
+
+/**
+ * Create "Articles" menu link in the main navigation.
+ *
+ * Demonstrates using the drupal_helpers module to manage menu links
+ * within deploy hooks.
+ *
+ * @codeCoverageIgnore
+ */
+function ys_demo_deploy_create_articles_menu_link(): string {
+  $existing = \Drupal\drupal_helpers\Helper::menu()->findItem('main', ['title' => 'Articles']);
+  if ($existing) {
+    return 'Articles menu link already exists.';
+  }
+
+  \Drupal\drupal_helpers\Helper::menu()->createTree('main', [
+    'Articles' => '/articles',
+  ]);
+
+  return 'Created "Articles" menu link in main navigation.';
+}
+
+/**
+ * Configure testmode to filter the articles view.
+ *
+ * Registers the 'ys_demo_articles' view with testmode so that only
+ * content matching the [TEST] prefix appears during Behat test runs.
+ *
+ * @codeCoverageIgnore
+ */
+function ys_demo_deploy_configure_testmode(): string {
+  $testmode = \Drupal\testmode\Testmode::getInstance();
+
+  $views = $testmode->getNodeViews();
+  if (!in_array('ys_demo_articles', $views)) {
+    $views[] = 'ys_demo_articles';
+    $testmode->setNodeViews($views);
+  }
+
+  return 'Configured testmode to filter the articles view.';
+}

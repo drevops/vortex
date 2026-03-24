@@ -28,6 +28,18 @@ The [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modul
 file is an example of a Drush deploy file that can be used
 to run deployment commands during the site [provisioning](provision) process.
 
+## Demo module
+
+The `ys_demo` module demonstrates integration patterns for several contributed
+modules:
+
+- [Drupal helpers](drupal-helpers) — utility facades for deploy hooks
+- [Generated content](generated-content) — plugin-based content generation
+- [Test mode](test-mode) — content filtering during Behat tests
+
+The demo module ships an articles view at `/articles`, generated content plugins
+for tags and articles, and testmode configuration for Behat testing.
+
 ## Tests scaffold
 
 The `tests` directory contains working examples of tests that can be used as a
