@@ -6,7 +6,7 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -99,7 +98,6 @@
+@@ -101,7 +100,6 @@
    // Additional rules.
    ->withRules([
      DeclareStrictTypesRector::class,
