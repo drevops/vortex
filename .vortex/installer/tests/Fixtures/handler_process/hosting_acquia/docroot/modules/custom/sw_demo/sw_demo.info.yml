@@ -4,6 +4,7 @@ description: Demo feature for star wars site.
 core_version_requirement: ^11
 package: star_wars
 dependencies:
+  - drupal:file
   - drupal:node
   - drupal:views
   - drupal_helpers:drupal_helpers
