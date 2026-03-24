@@ -179,9 +179,15 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush site:install.
+    // Drush site:install (without --existing-config since this is a fallback).
     $this->mockPassthru([
       'cmd' => $this->drushCmd("site:install 'standard' --site-name='Test Site' --site-mail='test@example.com' --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"),
+      'result_code' => 0,
+    ]);
+
+    // Drush pm:install shield (fallback enables Shield).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install shield'),
       'result_code' => 0,
     ]);
 
@@ -192,6 +198,8 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Fallback sets VORTEX_PROVISION_POST_OPERATIONS_SKIP=1, so script exits
+    // early after environment detection.
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
@@ -215,9 +223,15 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush site:install.
+    // Drush site:install (without --existing-config since this is a fallback).
     $this->mockPassthru([
       'cmd' => $this->drushCmd("site:install 'standard' --site-name='Test Site' --site-mail='test@example.com' --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"),
+      'result_code' => 0,
+    ]);
+
+    // Drush pm:install shield (fallback enables Shield).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install shield'),
       'result_code' => 0,
     ]);
 
@@ -393,7 +407,13 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -418,7 +438,7 @@ class ProvisionTest extends UnitTestCase {
 
     $this->assertStringContainsString('Enabling maintenance mode.', $output);
     $this->assertStringContainsString('Completed running database updates.', $output);
-    $this->assertStringContainsString('Cache was rebuilt.', $output);
+    $this->assertStringContainsString('Cache was cleared.', $output);
     $this->assertStringContainsString('Completed deployment hooks.', $output);
     $this->assertStringContainsString('Disabling maintenance mode.', $output);
   }
@@ -450,6 +470,12 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
     // Drush config:import.
     $this->mockPassthru([
       'cmd' => $this->drushCmd('config:import'),
@@ -469,7 +495,7 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -488,6 +514,7 @@ class ProvisionTest extends UnitTestCase {
 
     $this->assertStringContainsString('Updated site UUID from the configuration', $output);
     $this->assertStringContainsString('Completed running database updates.', $output);
+    $this->assertStringContainsString('Cache was cleared.', $output);
     $this->assertStringContainsString('Completed configuration import.', $output);
     $this->assertStringContainsString('Completed config_split configuration import.', $output);
     $this->assertStringContainsString('Cache was rebuilt.', $output);
@@ -696,7 +723,13 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -787,7 +820,13 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -872,7 +911,13 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -926,7 +971,13 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -973,7 +1024,13 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,
@@ -1050,6 +1107,12 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
     // Drush config:import.
     $this->mockPassthru([
       'cmd' => $this->drushCmd('config:import'),
@@ -1063,7 +1126,7 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush cache:rebuild.
+    // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
       'result_code' => 0,

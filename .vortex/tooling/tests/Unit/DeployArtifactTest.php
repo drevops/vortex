@@ -22,6 +22,7 @@ class DeployArtifactTest extends UnitTestCase {
       'VORTEX_DEPLOY_ARTIFACT_SRC' => self::$tmp . '/src',
       'VORTEX_DEPLOY_ARTIFACT_ROOT' => self::$tmp . '/root',
       'HOME' => self::$tmp,
+      'TMPDIR' => self::$tmp,
     ]);
 
     // Create required directories.
@@ -29,6 +30,10 @@ class DeployArtifactTest extends UnitTestCase {
     mkdir(self::$tmp . '/root', 0755, TRUE);
     mkdir(self::$tmp . '/root/.git', 0755, TRUE);
     file_put_contents(self::$tmp . '/root/.gitignore.artifact', "vendor/\n");
+
+    // Pre-create the dummy git-artifact binary so hash_file() works when the
+    // request() mock returns without actually writing the file.
+    $this->createDummyGitArtifactBinary();
   }
 
   public function testMissingGitRemote(): void {
@@ -63,17 +68,13 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Mock composer install.
-    $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
-      'output' => 'Installing git-artifact',
-      'result_code' => 0,
-    ]);
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
 
     // Mock git-artifact command.
     $git_artifact_cmd = sprintf(
       '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
-      escapeshellarg(self::$tmp . '/.composer/vendor/bin/git-artifact'),
+      escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
       escapeshellarg(self::$tmp . '/src'),
@@ -124,17 +125,13 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Mock composer install.
-    $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
-      'output' => 'Installing git-artifact',
-      'result_code' => 0,
-    ]);
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
 
     // Mock git-artifact command.
     $git_artifact_cmd = sprintf(
       '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
-      escapeshellarg(self::$tmp . '/.composer/vendor/bin/git-artifact'),
+      escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
       escapeshellarg(self::$tmp . '/src'),
@@ -226,7 +223,7 @@ class DeployArtifactTest extends UnitTestCase {
     $this->runScript('src/deploy-artifact');
   }
 
-  public function testComposerInstallFailure(): void {
+  public function testGitArtifactDownloadFailure(): void {
     // Mock shell_exec for git config checks.
     $this->mockShellExecMultiple([
       ['value' => 'Existing User'],
@@ -240,19 +237,36 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Mock composer install failure.
-    $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
-      'output' => 'Composer install failed',
-      'result_code' => 1,
+    // Mock git-artifact download failure.
+    $this->mockRequest(
+      'https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact',
+      ['method' => 'GET'],
+      ['ok' => FALSE, 'status' => 404, 'body' => 'Not Found'],
+    );
+
+    $this->runScriptError('src/deploy-artifact', 'Failed to download git-artifact binary.');
+  }
+
+  public function testGitArtifactSha256Failure(): void {
+    // Override with a wrong SHA to trigger verification failure.
+    $this->envSet('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256', 'wrong-sha256-value');
+
+    // Mock shell_exec for git config checks.
+    $this->mockShellExecMultiple([
+      ['value' => 'Existing User'],
+      ['value' => 'existing@example.com'],
     ]);
 
-    $this->mockQuit(1);
+    // Mock setup-ssh.
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
 
-    $this->expectException(QuitErrorException::class);
-    $this->expectExceptionCode(1);
+    $this->mockGitArtifactDownload();
 
-    $this->runScript('src/deploy-artifact');
+    $this->runScriptError('src/deploy-artifact', 'SHA256 checksum verification failed for git-artifact binary.');
   }
 
   public function testGitArtifactFailure(): void {
@@ -269,17 +283,13 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Mock composer install.
-    $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
-      'output' => 'Installing git-artifact',
-      'result_code' => 0,
-    ]);
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
 
     // Mock git-artifact command failure.
     $git_artifact_cmd = sprintf(
       '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
-      escapeshellarg(self::$tmp . '/.composer/vendor/bin/git-artifact'),
+      escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
       escapeshellarg(self::$tmp . '/src'),
@@ -320,12 +330,8 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Mock composer install.
-    $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
-      'output' => 'Installing git-artifact',
-      'result_code' => 0,
-    ]);
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
 
     $this->runScriptError('src/deploy-artifact', 'Failed to resolve real path for deployment directories.');
   }
@@ -346,17 +352,13 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Mock composer install.
-    $this->mockPassthru([
-      'cmd' => 'composer global require --dev -n --ansi --prefer-source --ignore-platform-reqs drevops/git-artifact:~1.2',
-      'output' => 'Installing git-artifact',
-      'result_code' => 0,
-    ]);
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
 
     // Mock git-artifact command with custom branch.
     $git_artifact_cmd = sprintf(
       '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
-      escapeshellarg(self::$tmp . '/.composer/vendor/bin/git-artifact'),
+      escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
       escapeshellarg(self::$tmp . '/src'),
@@ -378,6 +380,33 @@ class DeployArtifactTest extends UnitTestCase {
 
   protected function getSetupSshPath(): string {
     return dirname(__DIR__, 2) . '/src/setup-ssh';
+  }
+
+  protected function getGitArtifactBinPath(): string {
+    return self::$tmp . '/git-artifact';
+  }
+
+  /**
+   * Create a dummy git-artifact binary and set the matching SHA256.
+   *
+   * The mock request() with save_to will truncate the file to empty via
+   * fopen('w'), so we set the SHA to match an empty file.
+   */
+  protected function createDummyGitArtifactBinary(): void {
+    $bin_path = $this->getGitArtifactBinPath();
+    file_put_contents($bin_path, '');
+    $this->envSet('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+  }
+
+  /**
+   * Mock the git-artifact download request.
+   */
+  protected function mockGitArtifactDownload(): void {
+    $this->mockRequest(
+      'https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact',
+      ['method' => 'GET'],
+      ['ok' => TRUE, 'status' => 200, 'body' => ''],
+    );
   }
 
 }

@@ -19,26 +19,29 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
+
 // AWS access key.
-$access_key = getenv_required('VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY', 'S3_ACCESS_KEY');
+$access_key = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_ACCESS_KEY', 'VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY', 'S3_ACCESS_KEY'])));
 
 // AWS secret key.
-$secret_key = getenv_required('VORTEX_DOWNLOAD_DB_S3_SECRET_KEY', 'S3_SECRET_KEY');
+$secret_key = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_SECRET_KEY', 'VORTEX_DOWNLOAD_DB_S3_SECRET_KEY', 'S3_SECRET_KEY'])));
 
 // S3 bucket name.
-$bucket = getenv_required('VORTEX_DOWNLOAD_DB_S3_BUCKET', 'S3_BUCKET');
+$bucket = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_BUCKET', 'VORTEX_DOWNLOAD_DB_S3_BUCKET', 'S3_BUCKET'])));
 
 // S3 region.
-$region = getenv_required('VORTEX_DOWNLOAD_DB_S3_REGION', 'S3_REGION');
+$region = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_REGION', 'VORTEX_DOWNLOAD_DB_S3_REGION', 'S3_REGION'])));
 
 // S3 prefix (path within the bucket).
-$prefix = getenv_default('VORTEX_DOWNLOAD_DB_S3_PREFIX', 'S3_PREFIX', '');
+$prefix = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_PREFIX', 'VORTEX_DOWNLOAD_DB_S3_PREFIX', 'S3_PREFIX', ''])));
 
 // Directory with database dump file.
-$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_S3_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_DB_DIR', 'VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_S3_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // Database dump file name.
-$db_file = getenv_default('VORTEX_DOWNLOAD_DB_S3_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_S3_DB_FILE', 'VORTEX_DOWNLOAD_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_DOWNLOAD_DB_S3_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
 // -----------------------------------------------------------------------------
 

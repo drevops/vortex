@@ -17,26 +17,29 @@ execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
 
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
+
 // The FTP user.
-$ftp_user = getenv_required('VORTEX_DOWNLOAD_DB_FTP_USER');
+$ftp_user = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_USER', 'VORTEX_DOWNLOAD_DB_FTP_USER'])));
 
 // The FTP password.
-$ftp_pass = getenv_required('VORTEX_DOWNLOAD_DB_FTP_PASS');
+$ftp_pass = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_PASS', 'VORTEX_DOWNLOAD_DB_FTP_PASS'])));
 
 // The FTP host.
-$ftp_host = getenv_required('VORTEX_DOWNLOAD_DB_FTP_HOST');
+$ftp_host = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_HOST', 'VORTEX_DOWNLOAD_DB_FTP_HOST'])));
 
 // The FTP port.
-$ftp_port = getenv_required('VORTEX_DOWNLOAD_DB_FTP_PORT');
+$ftp_port = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_PORT', 'VORTEX_DOWNLOAD_DB_FTP_PORT'])));
 
 // The file name, including any directories.
-$ftp_file = getenv_required('VORTEX_DOWNLOAD_DB_FTP_FILE');
+$ftp_file = getenv_required(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_FILE', 'VORTEX_DOWNLOAD_DB_FTP_FILE'])));
 
 // Directory with database dump file.
-$db_dir = getenv_default('VORTEX_DOWNLOAD_DB_FTP_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data');
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_DB_DIR', 'VORTEX_DOWNLOAD_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_DOWNLOAD_DB_FTP_DB_DIR', 'VORTEX_DOWNLOAD_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
 // Database dump file name.
-$db_file = getenv_default('VORTEX_DOWNLOAD_DB_FTP_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_DOWNLOAD_DB' . $db_index . '_FTP_DB_FILE', 'VORTEX_DOWNLOAD_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_DOWNLOAD_DB_FTP_DB_FILE', 'VORTEX_DOWNLOAD_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
 // -----------------------------------------------------------------------------
 

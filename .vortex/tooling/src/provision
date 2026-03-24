@@ -53,6 +53,9 @@ $provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIO
 // drush config:import from silently overwriting those changes.
 $provision_verify_config = getenv_default('VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE', '0');
 
+// Skip cache rebuild after database updates.
+$provision_cache_rebuild_after_db_update_skip = getenv_default('VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP', '0');
+
 // Provision database dump file.
 //
 // If not set, it will be auto-discovered from the VORTEX_PROVISION_DB_DIR
@@ -150,8 +153,10 @@ function provision_from_db(string $provision_db): void {
  *   The admin email (optional).
  * @param bool $has_config_files
  *   Whether config files exist.
+ * @param bool $is_fallback
+ *   Whether this is a fallback installation (no --existing-config).
  */
-function provision_from_profile(string $profile, string $site_name, string $site_email, string $admin_email, bool $has_config_files): void {
+function provision_from_profile(string $profile, string $site_name, string $site_email, string $admin_email, bool $has_config_files, bool $is_fallback = FALSE): void {
   $opts = [
     escapeshellarg($profile),
     '--site-name=' . escapeshellarg($site_name),
@@ -165,7 +170,7 @@ function provision_from_profile(string $profile, string $site_name, string $site
     $opts[] = '--account-mail=' . escapeshellarg($admin_email);
   }
 
-  if ($has_config_files) {
+  if (!$is_fallback && $has_config_files) {
     $opts[] = '--existing-config';
   }
 
@@ -173,6 +178,13 @@ function provision_from_profile(string $profile, string $site_name, string $site
   drush('sql:drop', $drop_exit_code);
 
   drush('site:install ' . implode(' ', $opts));
+
+  // On fallback, enable Shield to protect the site and skip post-provision
+  // operations since the site was installed from profile without configuration.
+  if ($is_fallback) {
+    drush('pm:install shield');
+    putenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP=1');
+  }
 
   pass('Installed a site from the profile.');
 }
@@ -369,7 +381,7 @@ if ($provision_type === 'database') {
       note('Existing site content will be removed and fresh content will be imported from the database dump file.');
       if (!file_exists($provision_db) && $provision_fallback_to_profile === '1') {
         info('Database dump file is not available. Falling back to profile installation.');
-        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
+        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
       }
       else {
         provision_from_db($provision_db);
@@ -389,7 +401,7 @@ if ($provision_type === 'database') {
       note('Database is baked into the container image.');
       if ($provision_fallback_to_profile === '1') {
         info('Database in the container image is not available. Falling back to profile installation.');
-        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
+        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
         $provision_override_db = '1';
         putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
       }
@@ -403,7 +415,7 @@ if ($provision_type === 'database') {
       note('Fresh site content will be imported from the database dump file.');
       if (!file_exists($provision_db) && $provision_fallback_to_profile === '1') {
         info('Database dump file is not available. Falling back to profile installation.');
-        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
+        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
       }
       else {
         provision_from_db($provision_db);
@@ -449,6 +461,9 @@ echo PHP_EOL;
 $environment = trim(drush("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""));
 info('Current Drupal environment: %s', $environment);
 echo PHP_EOL;
+
+// Re-read in case provision_from_profile() changed it via putenv().
+$provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIONS_SKIP', $provision_post_operations_skip);
 
 if ($provision_post_operations_skip === '1') {
   info('Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1.');
@@ -514,6 +529,17 @@ else {
 
 pass('Completed running database updates.');
 echo PHP_EOL;
+
+if ($provision_cache_rebuild_after_db_update_skip !== '1') {
+  task('Clearing cache after database updates.');
+  drush('cache:rebuild');
+  pass('Cache was cleared.');
+  echo PHP_EOL;
+}
+else {
+  pass('Skipped cache rebuild after database updates.');
+  echo PHP_EOL;
+}
 
 // Import configuration if config files are present.
 if ($site_has_config_files) {
