@@ -6,8 +6,8 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -17,10 +16,8 @@
-         "drupal/environment_indicator": "__VERSION__",
+@@ -19,10 +18,8 @@
+         "drupal/generated_content": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
 -        "drupal/redis": "__VERSION__",

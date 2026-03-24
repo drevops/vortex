@@ -1,4 +1,4 @@
-@@ -7,24 +7,12 @@
+@@ -7,27 +7,15 @@
          "php": "__VERSION__",
          "composer/installers": "__VERSION__",
          "cweagans/composer-patches": "__VERSION__",
@@ -9,7 +9,9 @@
 -        "drupal/config_update": "__VERSION__",
          "drupal/core-composer-scaffold": "__VERSION__",
          "drupal/core-recommended": "__VERSION__",
+         "drupal/drupal_helpers": "__VERSION__",
 -        "drupal/environment_indicator": "__VERSION__",
+         "drupal/generated_content": "__VERSION__",
 -        "drupal/pathauto": "__VERSION__",
 -        "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",
@@ -19,6 +21,7 @@
 -        "drupal/seckit": "__VERSION__",
 -        "drupal/shield": "__VERSION__",
 -        "drupal/stage_file_proxy": "__VERSION__",
+         "drupal/testmode": "__VERSION__",
 -        "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__",
          "oomphinc/composer-installers-extender": "__VERSION__",

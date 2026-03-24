@@ -1,6 +1,6 @@
-@@ -16,7 +16,6 @@
-         "drupal/core-recommended": "__VERSION__",
+@@ -18,7 +18,6 @@
          "drupal/environment_indicator": "__VERSION__",
+         "drupal/generated_content": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
 -        "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",

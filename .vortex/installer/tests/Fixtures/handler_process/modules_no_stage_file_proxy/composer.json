@@ -1,8 +1,8 @@
-@@ -23,7 +23,6 @@
+@@ -25,7 +25,6 @@
          "drupal/search_api_solr": "__VERSION__",
          "drupal/seckit": "__VERSION__",
          "drupal/shield": "__VERSION__",
 -        "drupal/stage_file_proxy": "__VERSION__",
+         "drupal/testmode": "__VERSION__",
          "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__",
-         "oomphinc/composer-installers-extender": "__VERSION__",
