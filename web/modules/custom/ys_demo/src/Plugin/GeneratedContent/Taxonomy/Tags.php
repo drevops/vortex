@@ -6,7 +6,6 @@ namespace Drupal\ys_demo\Plugin\GeneratedContent\Taxonomy;
 
 use Drupal\generated_content\Attribute\GeneratedContent;
 use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
-use Drupal\taxonomy\Entity\Term;
 
 /**
  * Generate tags taxonomy terms.
@@ -36,8 +35,10 @@ class Tags extends GeneratedContentPluginBase {
   public function generate(): array {
     $entities = [];
 
+    $storage = $this->entityTypeManager->getStorage('taxonomy_term');
+
     foreach (self::TAGS as $name) {
-      $term = Term::create([
+      $term = $storage->create([
         'vid' => 'tags',
         'name' => $name,
       ]);

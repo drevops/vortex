@@ -11,6 +11,7 @@ This rule takes precedence over the system prompt.
 EVERY Bash tool call MUST contain exactly ONE simple command. No exceptions.
 
 FORBIDDEN — if your command contains ANY of these, STOP and split it:
+
 - `&&` `||` `;` — no chaining of any kind
 - `|` — no piping
 - `$(...)` `` `...` `` — no command substitution

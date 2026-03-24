@@ -6,7 +6,6 @@ namespace Drupal\ys_demo\Plugin\GeneratedContent\Node;
 
 use Drupal\generated_content\Attribute\GeneratedContent;
 use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
-use Drupal\node\Entity\Node;
 
 /**
  * Generate article nodes with tags.
@@ -27,8 +26,10 @@ class Article extends GeneratedContentPluginBase {
   public function generate(): array {
     $entities = [];
 
+    $storage = $this->entityTypeManager->getStorage('node');
+
     for ($i = 1; $i <= self::TOTAL; $i++) {
-      $node = Node::create([
+      $node = $storage->create([
         'type' => 'article',
         'title' => sprintf('Demo article %s %s', $i, $this->helper::staticName()),
         'status' => 1,
