@@ -47,6 +47,11 @@ VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE="${VORTEX_PROVISION_VERIFY
 # Skip cache rebuild after database updates.
 VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP="${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP:-0}"
 
+# Repeat configuration import after the initial import.
+# Useful when update hooks introduce new configuration that affects subsequent
+# configuration imports (e.g., new config_split settings).
+VORTEX_PROVISION_CONFIG_IMPORT_REPEAT="${VORTEX_PROVISION_CONFIG_IMPORT_REPEAT:-0}"
+
 # Provision database dump file.
 # If not set, it will be auto-discovered from the VORTEX_DB_DIR directory using
 # the VORTEX_DB_FILE name.
@@ -373,6 +378,13 @@ if [ "${site_has_config_files}" = "1" ]; then
   drush config:import
   pass "Completed configuration import."
   echo
+
+  if [ "${VORTEX_PROVISION_CONFIG_IMPORT_REPEAT}" = "1" ]; then
+    task "Repeating configuration import."
+    drush config:import
+    pass "Completed repeated configuration import."
+    echo
+  fi
 
   # Import config_split configuration if the module is installed.
   # Drush deploy does not import config_split configuration on the first run.

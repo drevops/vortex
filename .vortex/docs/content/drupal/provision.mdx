@@ -140,11 +140,13 @@ section.
    ▼
    ⬇️ Import configuration (if config files present)
    ▼
+⑨ 🔁 Repeat configuration import (opt-in)
+   ▼
    🧹 Rebuild caches
    ▼
    🔄 Run deployment hooks
    ▼
-⑨ 😷 Run DB sanitization
+⑩ 😷 Run DB sanitization
    ▼
    ⚙️ Run custom scripts
    ▼
@@ -165,7 +167,8 @@ You can control the provisioning flow using the following environment variables:
 6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
 7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration was not changed by database updates. When enabled and config files are present, the provision will fail if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
 8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>Skip the cache rebuild that runs between database updates and configuration import. By default, caches are rebuilt after `drush updatedb` to ensure a clean state before importing configuration.<br/><br/>
-9. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
+9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>Repeat the configuration import after the initial import. Useful when database update hooks introduce new configuration that affects subsequent configuration imports (e.g., new config_split settings). Disabled by default.<br/><br/>
+10. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
 
 :::tip
 
