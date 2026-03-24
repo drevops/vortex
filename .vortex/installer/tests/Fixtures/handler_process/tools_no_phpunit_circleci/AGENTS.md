@@ -1,4 +1,4 @@
-@@ -53,13 +53,6 @@
+@@ -51,13 +51,6 @@
  ahoy lint     # Check code style
  ahoy lint-fix # Auto-fix code style
  
