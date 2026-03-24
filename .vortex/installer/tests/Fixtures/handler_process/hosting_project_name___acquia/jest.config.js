@@ -12,8 +12,8 @@
  module.exports = {
    testEnvironment: 'jest-environment-jsdom',
 -  roots: roots.length > 0 ? roots : [path.resolve('web/modules/custom')],
+-  testMatch: ['**/web/modules/custom/*/js/**/*.test.js'],
 +  roots: roots.length > 0 ? roots : [path.resolve('docroot/modules/custom')],
-   testMatch: ['**/*.test.js'],
--  testPathIgnorePatterns: ['/node_modules/', '/vendor/', '/web/core/', '/web/modules/contrib/', '/web/themes/contrib/'],
-+  testPathIgnorePatterns: ['/node_modules/', '/vendor/', '/docroot/core/', '/docroot/modules/contrib/', '/docroot/themes/contrib/'],
++  testMatch: ['**/docroot/modules/custom/*/js/**/*.test.js'],
+   testPathIgnorePatterns: ['/node_modules/', '/vendor/'],
  };
