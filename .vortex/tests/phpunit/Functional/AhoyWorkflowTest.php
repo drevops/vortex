@@ -310,6 +310,11 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=container_registry', '.env should contain container registry source for migration');
     $this->assertFileContainsString('.env', 'VORTEX_DB2_IMAGE=' . self::VORTEX_DB_IMAGE_TEST, '.env should contain migration database image');
 
+    // Skip migration during build - we are testing the container reload
+    // mechanism, not actual migrations. The test image has a standard Drupal
+    // database, not the migration source data.
+    $this->fileAddVar('.env', 'DRUPAL_MIGRATION_SKIP', '1');
+
     $this->subtestAhoyBuild();
 
     $this->subtestAhoyMigrationReloadDb();
