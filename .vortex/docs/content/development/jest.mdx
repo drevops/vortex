@@ -1,0 +1,87 @@
+---
+sidebar_label: Jest
+sidebar_position: 6
+---
+
+# Jest
+
+**Vortex** uses [Jest](https://jestjs.io/) as a framework for JavaScript unit
+testing. Jest tests verify that JavaScript behaviors in custom Drupal modules
+work correctly in isolation, without requiring a browser or Drupal bootstrap.
+
+**Vortex** provides Jest support with configuration in [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
+that automatically discovers test files in custom modules.
+
+## Running tests
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run all Jest tests
+    ahoy test-js
+    # Run tests matching a pattern
+    ahoy test-js -- --testPathPattern=ys_demo
+    # Run a specific test by name
+    ahoy test-js -- -t "should increment the value"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run all Jest tests
+    docker compose exec cli bash -c "yarn test"
+    # Run tests matching a pattern
+    docker compose exec cli bash -c "yarn test --testPathPattern=ys_demo"
+    # Run a specific test by name
+    docker compose exec cli bash -c "yarn test -t 'should increment the value'"
+    ```
+  </TabItem>
+</Tabs>
+
+## Test file structure
+
+Test files are co-located with source files in the `js/` directory of each
+custom module:
+
+```text
+web/modules/custom/my_module/
+└── js/
+    ├── my_module.js          # Source file (Drupal behavior)
+    └── my_module.test.js     # Jest test file
+```
+
+Jest automatically discovers `*.test.js` files in `web/modules/custom/*/js/`
+directories. Adding a new module with tests requires no configuration changes.
+
+## Configuration
+
+The `jest.config.js` file in the project root configures:
+
+- Dynamic root discovery scanning `web/modules/custom/*/js/`
+- The `jsdom` test environment for DOM and browser API access
+- Path exclusions for Drupal core, contrib modules, and themes
+
+## Writing tests
+
+Drupal JavaScript uses the IIFE pattern `((Drupal) => { ... })(Drupal)` where
+`Drupal` is a global object. Jest tests load these files by:
+
+1. Setting `global.Drupal = { behaviors: {} }` in `beforeEach`
+2. Reading and executing the source file with `eval(fs.readFileSync(...))`
+3. Accessing the registered behavior via `Drupal.behaviors.myModule`
+4. Cleaning up with `delete global.Drupal` in `afterEach`
+
+This approach allows testing Drupal behaviors without a browser or Drupal
+bootstrap, while keeping the source files unchanged.
+
+## Boilerplate
+
+**Vortex** provides a Jest test boilerplate for the [demo module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/ys_demo.test.js)
+that demonstrates testing a counter block with DOM manipulation, localStorage
+interaction, and event handling.
+
+This boilerplate test runs in continuous integration pipeline when you install
+**Vortex** and can be used as a starting point for writing your own JavaScript
+tests.

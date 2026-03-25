@@ -1,0 +1,168 @@
+---
+sidebar_label: Jest
+---
+
+# Jest – JavaScript Testing Framework
+
+https://jestjs.io/
+
+> Jest is a delightful JavaScript testing framework with a focus on simplicity.
+
+**Vortex** comes with [pre-configured Jest setup](https://github.com/drevops/vortex/blob/main/jest.config.js) for testing JavaScript in custom Drupal modules.
+
+## Usage
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy test-js                                    # Run all Jest tests.
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli bash -c "yarn test"     # Run all Jest tests.
+    ```
+  </TabItem>
+</Tabs>
+
+### Running tests matching a pattern
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy test-js -- --testPathPattern=ys_demo
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli bash -c "yarn test --testPathPattern=ys_demo"
+    ```
+  </TabItem>
+</Tabs>
+
+### Running a specific test by name
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy test-js -- -t "should increment the value"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli bash -c "yarn test -t 'should increment the value'"
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+See [Jest configuration reference](https://jestjs.io/docs/configuration).
+
+All global configuration takes place in the [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js) file.
+
+By default, Jest will discover and run test files in `web/modules/custom/*/js/`
+directories. Test files must use the `.test.js` extension and be co-located
+alongside the source files they test.
+
+The configuration uses the `jsdom` test environment to provide browser globals
+like `document`, `window`, and `localStorage`.
+
+### Test discovery
+
+The `jest.config.js` file dynamically scans `web/modules/custom/` for modules
+that contain a `js/` directory, and adds each as a root for test discovery. This
+means adding a new custom module with JavaScript tests requires no configuration
+changes.
+
+## Writing tests
+
+Test files are placed next to the source file they test:
+
+```text
+web/modules/custom/my_module/
+└── js/
+    ├── my_module.js          # Source file
+    └── my_module.test.js     # Test file
+```
+
+### Loading Drupal behaviors
+
+Drupal JavaScript uses the IIFE pattern with `Drupal` as a global. Tests load
+the source file using `eval()` after setting up the global:
+
+```javascript
+/**
+ * @jest-environment jsdom
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+describe('Drupal.behaviors.myModule', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    global.Drupal = { behaviors: {} };
+
+    const filePath = path.resolve(__dirname, 'my_module.js');
+    const code = fs.readFileSync(filePath, 'utf8');
+    eval(code);
+  });
+
+  afterEach(() => {
+    delete global.Drupal;
+  });
+
+  it('should attach behavior', () => {
+    document.body.innerHTML = '<div data-my-module></div>';
+    Drupal.behaviors.myModule.attach(document);
+
+    const el = document.querySelector('[data-my-module]');
+    expect(el.classList.contains('processed')).toBe(true);
+  });
+});
+```
+
+### Key patterns
+
+- **`global.Drupal = { behaviors: {} }`** in `beforeEach` provides the Drupal
+  global that the IIFE receives as a parameter.
+- **`eval(fs.readFileSync(...))`** loads and executes the source file, which
+  registers the behavior on `Drupal.behaviors`.
+- **`delete global.Drupal`** in `afterEach` ensures test isolation.
+- **`document.body.innerHTML`** sets up the DOM for each test using jsdom.
+- **`jest.useFakeTimers()`** controls `setTimeout` and `setInterval` for
+  testing timed behavior.
+
+### ESLint configuration
+
+The `.eslintrc.json` file includes an override for `*.test.js` files that
+enables the `jest` environment and disables `no-eval` to allow the source
+loading pattern:
+
+```json
+{
+  "overrides": [
+    {
+      "files": ["*.test.js"],
+      "env": { "jest": true },
+      "rules": {
+        "no-eval": "off",
+        "max-nested-callbacks": ["warn", 5],
+        "jsdoc/check-tag-names": "off"
+      }
+    }
+  ]
+}
+```
+
+## Ignoring fail in continuous integration pipeline
+
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
+
+Set `VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.
