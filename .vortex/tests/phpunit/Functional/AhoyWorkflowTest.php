@@ -307,6 +307,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyMigrationFilesPresent();
 
     $this->logSubstep('Verify migration database image configuration');
+    $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=container_registry', '.env should contain container registry source for migration');
     $this->assertFileContainsString('.env', 'VORTEX_DB2_IMAGE=' . self::VORTEX_DB_IMAGE_TEST, '.env should contain migration database image');
 
     $this->subtestAhoyBuild();
