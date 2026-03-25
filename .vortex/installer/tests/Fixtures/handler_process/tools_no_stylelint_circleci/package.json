@@ -9,10 +9,10 @@
 -    "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
 -    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
 +    "lint-fix": "yarn run lint-fix-js",
-     "test": "jest --config jest.config.js"
+     "test": "jest"
    },
    "devDependencies": {
-@@ -28,9 +26,6 @@
+@@ -28,10 +26,7 @@
      "eslint-plugin-no-jquery": "__VERSION__",
      "eslint-plugin-prettier": "__VERSION__",
      "eslint-plugin-yml": "__VERSION__",
@@ -21,5 +21,6 @@
 -    "stylelint-config-standard": "__VERSION__",
 -    "stylelint-order": "__VERSION__"
 +    "prettier": "__VERSION__"
-   }
- }
+   },
+   "jest": {
+     "testEnvironment": "jest-environment-jsdom",
