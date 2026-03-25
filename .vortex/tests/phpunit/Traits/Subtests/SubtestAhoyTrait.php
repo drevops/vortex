@@ -533,6 +533,30 @@ trait SubtestAhoyTrait {
     $this->removePathHostAndContainer('.logs');
   }
 
+  protected function subtestAhoyTestJs(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $file = $webroot . '/modules/custom/sw_demo/js/sw_demo.test.js';
+    $this->assertFileExists($file);
+
+    $this->logSubstep('Run all Jest tests');
+    $this->cmd('ahoy test-js', 'Tests:');
+    $this->logSubstep('Run Jest tests matching a path pattern');
+    $this->cmd('ahoy test-js -- --testPathPattern=sw_demo', 'Tests:');
+
+    $this->logSubstep('Assert that Jest test failure works');
+    $this->fileBackup($file);
+    File::replaceContentInFile($file, 'toBe(true)', 'toBe(false)');
+    $this->syncToContainer($file);
+
+    $this->cmdFail('ahoy test-js');
+
+    $this->fileRestore($file);
+    $this->syncToContainer($file);
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyTestBdd(string $webroot = 'web'): void {
     $this->logStepStart();
 
