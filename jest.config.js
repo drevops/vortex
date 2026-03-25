@@ -23,4 +23,10 @@ module.exports = {
   roots: roots.length > 0 ? roots : [path.resolve('web/modules/custom')],
   testMatch: ['**/web/modules/custom/*/js/**/*.test.js'],
   testPathIgnorePatterns: ['/node_modules/', '/vendor/'],
+  modulePathIgnorePatterns: [
+    '<rootDir>/web/core/',
+    '<rootDir>/web/modules/contrib/',
+    '<rootDir>/web/themes/contrib/',
+    '<rootDir>/web/themes/custom/',
+  ],
 };
