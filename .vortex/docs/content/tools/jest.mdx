@@ -10,6 +10,9 @@ https://jestjs.io/
 
 **Vortex** comes with [pre-configured Jest setup](https://github.com/drevops/vortex/blob/main/jest.config.js) for testing JavaScript in custom Drupal modules.
 
+For writing tests, mocking Drupal globals, and test templates, see the
+[Jest development guide](/development/jest).
+
 ## Usage
 
 import Tabs from '@theme/Tabs';
@@ -164,5 +167,5 @@ loading pattern:
 This tool runs in continuous integration pipeline by default and fails the build
 if there are any violations.
 
-Set `VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE` environment variable to `1` to ignore
+Set `VORTEX_CI_JEST_IGNORE_FAILURE` environment variable to `1` to ignore
 failures. The tool will still run and report violations, if any.

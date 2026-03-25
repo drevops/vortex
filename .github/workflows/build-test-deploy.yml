@@ -430,7 +430,7 @@ jobs:
       - name: Test with Jest
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: docker compose exec -T cli bash -c "yarn test"
-        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
+        continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
       #;> TOOL_JEST
 
       #;< TOOL_PHPUNIT
