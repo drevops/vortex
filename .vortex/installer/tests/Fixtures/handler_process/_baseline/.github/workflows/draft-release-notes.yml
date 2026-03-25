@@ -41,5 +41,3 @@ jobs:
           tag: ${{ steps.calver.outputs.version }}
           name: ${{ steps.calver.outputs.version }}
           version: ${{ steps.calver.outputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
