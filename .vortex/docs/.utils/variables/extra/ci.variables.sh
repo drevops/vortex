@@ -69,6 +69,9 @@ VORTEX_CI_BEHAT_IGNORE_FAILURE=0
 # Test Behat profile to use in CI. If not set, the `default` profile will be used.
 VORTEX_CI_BEHAT_PROFILE=
 
+# Ignore Jest test failures.
+VORTEX_CI_JEST_IGNORE_FAILURE=0
+
 # Directory to store test results in CI.
 VORTEX_CI_TEST_RESULTS=/tmp/tests
 
