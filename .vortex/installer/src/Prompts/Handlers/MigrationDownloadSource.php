@@ -17,6 +17,8 @@ class MigrationDownloadSource extends AbstractHandler {
 
   const LAGOON = 'lagoon';
 
+  const CONTAINER_REGISTRY = 'container_registry';
+
   const S3 = 's3';
 
   /**
@@ -42,6 +44,7 @@ class MigrationDownloadSource extends AbstractHandler {
       self::FTP => 'FTP download',
       self::ACQUIA => 'Acquia backup',
       self::LAGOON => 'Lagoon environment',
+      self::CONTAINER_REGISTRY => 'Container registry',
       self::S3 => 'S3 bucket',
     ];
 
@@ -112,6 +115,7 @@ class MigrationDownloadSource extends AbstractHandler {
       MigrationDownloadSource::FTP,
       MigrationDownloadSource::ACQUIA,
       MigrationDownloadSource::LAGOON,
+      MigrationDownloadSource::CONTAINER_REGISTRY,
       MigrationDownloadSource::S3,
     ];
 

@@ -24,6 +24,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
@@ -195,6 +196,11 @@ class PromptManager {
           fn(array $r, $pr, $n): mixed => $this->prompt(MigrationDownloadSource::class, $r),
           MigrationDownloadSource::id()
         )
+        ->addIf(
+            fn(array $r): bool => $this->handlers[MigrationImage::id()]->shouldRun($r),
+            fn(array $r, $pr, $n): mixed => $this->prompt(MigrationImage::class, $r),
+            MigrationImage::id()
+          )
 
       ->intro('Notifications')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(NotificationChannels::class), NotificationChannels::id())
@@ -286,6 +292,7 @@ class PromptManager {
       AssignAuthorPr::id(),
       DependencyUpdatesProvider::id(),
       CiProvider::id(),
+      MigrationImage::id(),
       MigrationDownloadSource::id(),
       Migration::id(),
       DatabaseImage::id(),
@@ -467,6 +474,10 @@ class PromptManager {
       $values['Migration database'] = Converter::bool($responses[Migration::id()]);
       if ($responses[Migration::id()] === TRUE && isset($responses[MigrationDownloadSource::id()])) {
         $values['Migration database source'] = $responses[MigrationDownloadSource::id()];
+
+        if ($responses[MigrationDownloadSource::id()] == MigrationDownloadSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
+          $values['Migration database container image'] = $responses[MigrationImage::id()];
+        }
       }
     }
 

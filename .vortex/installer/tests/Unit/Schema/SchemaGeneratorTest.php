@@ -8,6 +8,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
@@ -132,6 +133,7 @@ class SchemaGeneratorTest extends UnitTestCase {
     yield 'database_download_source' => [DatabaseDownloadSource::id()];
     yield 'database_image' => [DatabaseImage::id()];
     yield 'migration_download_source' => [MigrationDownloadSource::id()];
+    yield 'migration_image' => [MigrationImage::id()];
   }
 
   public function testUtilityHandlersExcluded(): void {

@@ -21,17 +21,31 @@
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -117,6 +126,13 @@
-     cmd: |
+@@ -118,6 +127,13 @@
        case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
        ./scripts/vortex/download-db.sh
-+
+ 
 +  download-db2:
 +    usage: Download second database (migration). Run with "--fresh" to force.
 +    aliases: [fetch-db2]
 +    cmd: |
 +      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FORCE=1;; esac
 +      VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
- 
++
    reload-db:
      usage: Reload the database container using local database image.
+     cmd: |
+@@ -125,6 +141,13 @@
+       docker compose rm --force --stop --volumes database
+       docker compose build database
+       ahoy up
++
++  reload-db2:
++    usage: Reload the migration database container using local database image.
++    cmd: |
++      ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
++      docker compose rm --force --stop --volumes database2
++      ahoy up -- --build database2
+ 
+   provision:
+     usage: Provision a site from the database dump or profile.

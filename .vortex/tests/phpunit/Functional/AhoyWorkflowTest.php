@@ -293,6 +293,34 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   }
 
   #[Group('p4')]
+  public function testAhoyWorkflowMigrationDatabaseFromImage(): void {
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_IS_DEMO' => '1',
+      'VORTEX_INSTALLER_PROMPT_MIGRATION' => 'true',
+      'VORTEX_INSTALLER_PROMPT_MIGRATION_DOWNLOAD_SOURCE' => 'container_registry',
+      'VORTEX_INSTALLER_PROMPT_MIGRATION_IMAGE' => self::VORTEX_DB_IMAGE_TEST,
+    ];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
+    // Verify installer produced the migration infrastructure.
+    $this->subtestAhoyMigrationFilesPresent();
+
+    $this->logSubstep('Verify migration database image configuration');
+    $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=container_registry', '.env should contain container registry source for migration');
+    $this->assertFileContainsString('.env', 'VORTEX_DB2_IMAGE=' . self::VORTEX_DB_IMAGE_TEST, '.env should contain migration database image');
+
+    // Skip migration during build - we are testing the container reload
+    // mechanism, not actual migrations. The test image has a standard Drupal
+    // database, not the migration source data.
+    $this->fileAddVar('.env', 'DRUPAL_MIGRATION_SKIP', '1');
+
+    $this->subtestAhoyBuild();
+
+    $this->subtestAhoyMigrationReloadDb();
+  }
+
+  #[Group('p4')]
   public function testAhoyUpdateVortexLatest(): void {
     // For test performance, we only export the current codebase without git
     // history in the setUp(). For this test, though, we need git history to
