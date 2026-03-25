@@ -886,18 +886,18 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Verify database2 container has data from the image');
     $this->cmd(
-      'ahoy drush sql:query -- --database=migrate "SHOW TABLES"',
+      'ahoy cli "vendor/bin/drush sql:query --database=migrate \"SHOW TABLES\""',
       '* node',
       'Migration database should have tables from the container image',
       tio: 30,
     );
 
     $this->logSubstep('Drop all tables in database2 to simulate data loss');
-    $this->cmd('ahoy drush sql:drop -- --database=migrate -y', txt: 'Drop migration database tables', tio: 30);
+    $this->cmd('ahoy cli "vendor/bin/drush sql:drop --database=migrate -y"', txt: 'Drop migration database tables', tio: 30);
 
     $this->logSubstep('Verify database2 is empty after drop');
     $this->cmd(
-      'ahoy drush sql:query -- --database=migrate "SHOW TABLES"',
+      'ahoy cli "vendor/bin/drush sql:query --database=migrate \"SHOW TABLES\""',
       '! node',
       'Migration database should have no tables after drop',
       tio: 30,
@@ -908,7 +908,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Verify database2 data is restored after reload');
     $this->cmd(
-      'ahoy drush sql:query -- --database=migrate "SHOW TABLES"',
+      'ahoy cli "vendor/bin/drush sql:query --database=migrate \"SHOW TABLES\""',
       '* node',
       'Migration database should have tables restored after reload',
       tio: 30,
