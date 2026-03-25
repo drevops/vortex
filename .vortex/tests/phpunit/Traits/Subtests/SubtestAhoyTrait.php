@@ -541,14 +541,17 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Run all Jest tests');
     $this->cmd('ahoy test-js', 'Tests:');
+
     $this->logSubstep('Run Jest tests matching a path pattern');
     $this->cmd('ahoy test-js -- --testPathPattern=sw_demo', 'Tests:');
+
+    $this->logSubstep('Run a specific Jest test by name');
+    $this->cmd('ahoy test-js -- -t "should have the expected storage key"', 'Tests:');
 
     $this->logSubstep('Assert that Jest test failure works');
     $this->fileBackup($file);
     File::replaceContentInFile($file, 'toBe(true)', 'toBe(false)');
     $this->syncToContainer($file);
-
     $this->cmdFail('ahoy test-js');
 
     $this->fileRestore($file);
