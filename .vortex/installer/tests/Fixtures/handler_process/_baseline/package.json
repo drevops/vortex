@@ -14,7 +14,7 @@
     "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
     "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
     "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
-    "test": "jest"
+    "test": "jest --config jest.config.js"
   },
   "devDependencies": {
     "@homer0/prettier-plugin-jsdoc": "__VERSION__",
