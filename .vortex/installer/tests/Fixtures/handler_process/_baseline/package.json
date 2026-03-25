@@ -32,11 +32,5 @@
     "stylelint": "__VERSION__",
     "stylelint-config-standard": "__VERSION__",
     "stylelint-order": "__VERSION__"
-  },
-  "jest": {
-    "testEnvironment": "jest-environment-jsdom",
-    "testRegex": "web/modules/custom/.+\\.test\\.js$",
-    "testPathIgnorePatterns": ["/node_modules/", "/vendor/"],
-    "modulePathIgnorePatterns": ["<rootDir>/web/core/", "<rootDir>/web/modules/contrib/", "<rootDir>/web/themes/", "<rootDir>/.vortex/"]
   }
 }

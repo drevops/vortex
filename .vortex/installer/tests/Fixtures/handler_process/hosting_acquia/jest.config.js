@@ -7,7 +7,7 @@
  const roots = [];
  
  dirs.forEach((dir) => {
-@@ -20,8 +20,8 @@
+@@ -20,13 +20,13 @@
  
  module.exports = {
    testEnvironment: 'jest-environment-jsdom',
@@ -16,6 +16,13 @@
 +  roots: roots.length > 0 ? roots : [path.resolve('docroot/modules/custom')],
 +  testRegex: 'docroot/modules/custom/.+\\.test\\.js$',
    testPathIgnorePatterns: ['/node_modules/', '/vendor/'],
--  modulePathIgnorePatterns: ['<rootDir>/web/core/', '<rootDir>/web/modules/contrib/', '<rootDir>/web/themes/'],
-+  modulePathIgnorePatterns: ['<rootDir>/docroot/core/', '<rootDir>/docroot/modules/contrib/', '<rootDir>/docroot/themes/'],
+   modulePathIgnorePatterns: [
+-    '<rootDir>/web/core/',
+-    '<rootDir>/web/modules/contrib/',
+-    '<rootDir>/web/themes/',
++    '<rootDir>/docroot/core/',
++    '<rootDir>/docroot/modules/contrib/',
++    '<rootDir>/docroot/themes/',
+     '<rootDir>/.vortex/',
+   ],
  };

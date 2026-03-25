@@ -40,6 +40,7 @@ drush/contrib/
 !composer.lock
 !gherkinlint.json
 !package-lock.json
+!jest.config.js
 !package.json
 !patches
 !phpcs.xml

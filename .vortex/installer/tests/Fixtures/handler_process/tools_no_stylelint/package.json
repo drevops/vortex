@@ -12,7 +12,7 @@
      "test": "jest"
    },
    "devDependencies": {
-@@ -28,10 +26,7 @@
+@@ -28,9 +26,6 @@
      "eslint-plugin-no-jquery": "__VERSION__",
      "eslint-plugin-prettier": "__VERSION__",
      "eslint-plugin-yml": "__VERSION__",
@@ -21,6 +21,5 @@
 -    "stylelint-config-standard": "__VERSION__",
 -    "stylelint-order": "__VERSION__"
 +    "prettier": "__VERSION__"
-   },
-   "jest": {
-     "testEnvironment": "jest-environment-jsdom",
+   }
+ }
