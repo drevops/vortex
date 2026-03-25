@@ -9,36 +9,8 @@ sidebar_position: 6
 testing. Jest tests verify that JavaScript behaviors in custom Drupal modules
 work correctly in isolation, without requiring a browser or Drupal bootstrap.
 
-**Vortex** provides Jest support with configuration in [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
-that automatically discovers test files in custom modules.
-
-## Running tests
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Run all Jest tests
-    ahoy test-js
-    # Run tests matching a pattern
-    ahoy test-js -- --testPathPattern=ys_demo
-    # Run a specific test by name
-    ahoy test-js -- -t "should increment the value"
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Run all Jest tests
-    docker compose exec cli bash -c "yarn test"
-    # Run tests matching a pattern
-    docker compose exec cli bash -c "yarn test --testPathPattern=ys_demo"
-    # Run a specific test by name
-    docker compose exec cli bash -c "yarn test -t 'should increment the value'"
-    ```
-  </TabItem>
-</Tabs>
+For running tests, configuration, and CI settings, see the
+[Jest tool reference](/tools/jest).
 
 ## Test file structure
 
@@ -55,26 +27,102 @@ web/modules/custom/my_module/
 Jest automatically discovers `*.test.js` files in `web/modules/custom/*/js/`
 directories. Adding a new module with tests requires no configuration changes.
 
-## Configuration
-
-The `jest.config.js` file in the project root configures:
-
-- Dynamic root discovery scanning `web/modules/custom/*/js/`
-- The `jsdom` test environment for DOM and browser API access
-- Path exclusions for Drupal core, contrib modules, and themes
-
 ## Writing tests
 
 Drupal JavaScript uses the IIFE pattern `((Drupal) => { ... })(Drupal)` where
-`Drupal` is a global object. Jest tests load these files by:
+`Drupal` is a global object. Tests load these source files using `eval()` after
+setting up the required globals.
 
-1. Setting `global.Drupal = { behaviors: {} }` in `beforeEach`
-2. Reading and executing the source file with `eval(fs.readFileSync(...))`
-3. Accessing the registered behavior via `Drupal.behaviors.myModule`
-4. Cleaning up with `delete global.Drupal` in `afterEach`
+### Test template
 
-This approach allows testing Drupal behaviors without a browser or Drupal
-bootstrap, while keeping the source files unchanged.
+```javascript
+/**
+ * @jest-environment jsdom
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+describe('Drupal.behaviors.myModule', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    global.Drupal = { behaviors: {} };
+
+    const filePath = path.resolve(__dirname, 'my_module.js');
+    const code = fs.readFileSync(filePath, 'utf8');
+    eval(code);
+  });
+
+  afterEach(() => {
+    delete global.Drupal;
+  });
+
+  it('should attach behavior to the context', () => {
+    document.body.innerHTML = '<div data-my-module></div>';
+    Drupal.behaviors.myModule.attach(document);
+
+    const el = document.querySelector('[data-my-module]');
+    expect(el.classList.contains('processed')).toBe(true);
+  });
+});
+```
+
+### Loading Drupal behaviors
+
+The `eval(fs.readFileSync(...))` pattern executes the source file's IIFE, which
+receives `global.Drupal` as its `Drupal` parameter and registers the behavior.
+After `eval()`, the behavior is accessible via `Drupal.behaviors.myModule`.
+
+### Mocking globals
+
+Set globals in `beforeEach` and clean them up in `afterEach`:
+
+| Global | Setup | When needed |
+|--------|-------|-------------|
+| `Drupal` | `global.Drupal = { behaviors: {} }` | Always — required by all Drupal behaviors |
+| `jQuery` | `global.jQuery = require('jquery')` or a mock | When the source file uses `jQuery` or `$` |
+| `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
+| `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
+
+### Testing DOM interactions
+
+The `jsdom` environment provides `document` and `window`. Set up HTML before
+each test:
+
+```javascript
+document.body.innerHTML = `
+  <div data-my-widget>
+    <button data-action="save">Save</button>
+    <span data-status></span>
+  </div>
+`;
+
+Drupal.behaviors.myModule.attach(document);
+document.querySelector('[data-action="save"]').click();
+
+expect(document.querySelector('[data-status]').textContent).toBe('Saved');
+```
+
+### Testing timed behavior
+
+Use Jest fake timers for `setTimeout` and `setInterval`:
+
+```javascript
+jest.useFakeTimers();
+
+Drupal.behaviors.myModule.startPolling();
+jest.advanceTimersByTime(5000);
+
+expect(fetchSpy).toHaveBeenCalledTimes(5);
+
+jest.useRealTimers();
+```
+
+### ESLint compatibility
+
+The `.eslintrc.json` includes an override for `*.test.js` files that enables
+the `jest` environment and allows `eval()`. No additional ESLint configuration
+is needed for test files.
 
 ## Boilerplate
 
