@@ -906,6 +906,9 @@ trait SubtestAhoyTrait {
     $this->logSubstep('Reload database2 from the container image');
     $this->cmd('ahoy reload-db2', txt: '`ahoy reload-db2` reloads migration database container', tio: 60);
 
+    $this->logSubstep('Wait for database2 container to be ready');
+    $this->cmd('docker compose exec -T cli wait-for database2:3306', txt: 'Wait for database2 to accept connections', tio: 60);
+
     $this->logSubstep('Verify database2 data is restored after reload');
     $this->cmd(
       'ahoy cli "vendor/bin/drush sql:query --database=migrate \"SHOW TABLES\""',
