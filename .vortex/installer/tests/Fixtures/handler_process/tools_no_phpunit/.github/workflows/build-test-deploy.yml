@@ -1,6 +1,6 @@
-@@ -376,76 +376,6 @@
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
-         timeout-minutes: 30
+@@ -382,76 +382,6 @@
+         run: docker compose exec -T cli bash -c "yarn test"
+         continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
 -      - name: Test with PHPUnit
 -        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}

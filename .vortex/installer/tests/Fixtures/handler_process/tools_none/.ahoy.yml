@@ -1,12 +1,4 @@
-@@ -156,7 +156,6 @@
-   fei:
-     usage: Install front-end assets.
-     cmd: |
--      ahoy cli "yarn install --frozen-lockfile"
-       ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
- 
-   fe:
-@@ -176,74 +175,24 @@
+@@ -176,77 +176,24 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -70,9 +62,12 @@
 -    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional "$@"
 -
 -  test-functional-javascript:
--    aliases: [test-js]
 -    usage: Run PHPUnit functional JavaScript tests.
 -    cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
+-
+-  test-js:
+-    usage: Run Jest JavaScript unit tests.
+-    cmd: ahoy cli "yarn test"
 -
 -  test-bdd:
 -    usage: Run BDD tests.

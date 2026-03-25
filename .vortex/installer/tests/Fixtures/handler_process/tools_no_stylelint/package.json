@@ -7,12 +7,12 @@
 +    "lint": "yarn run lint-js",
      "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
 -    "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
--    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
-+    "lint-fix": "yarn run lint-fix-js"
+-    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
++    "lint-fix": "yarn run lint-fix-js",
+     "test": "jest"
    },
    "devDependencies": {
-     "@homer0/prettier-plugin-jsdoc": "__VERSION__",
-@@ -25,9 +23,6 @@
+@@ -28,9 +26,6 @@
      "eslint-plugin-no-jquery": "__VERSION__",
      "eslint-plugin-prettier": "__VERSION__",
      "eslint-plugin-yml": "__VERSION__",

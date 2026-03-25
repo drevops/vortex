@@ -321,6 +321,7 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
       - run:
           name: Provision site
@@ -331,6 +332,10 @@ jobs:
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
           no_output_timeout: 30m
+
+      - run:
+          name: Test with Jest
+          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Process test logs and artifacts

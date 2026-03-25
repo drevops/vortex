@@ -102,6 +102,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyTestFunctionalJavascript();
 
+    $this->subtestAhoyTestJs();
+
     $this->subtestAhoyTestBdd();
 
     // Run this test as a last one to make sure that there is no concurrency

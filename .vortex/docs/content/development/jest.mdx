@@ -1,0 +1,135 @@
+---
+sidebar_label: Jest
+sidebar_position: 6
+---
+
+# Jest
+
+**Vortex** uses [Jest](https://jestjs.io/) as a framework for JavaScript unit
+testing. Jest tests verify that JavaScript behaviors in custom Drupal modules
+work correctly in isolation, without requiring a browser or Drupal bootstrap.
+
+For running tests, configuration, and CI settings, see the
+[Jest tool reference](/docs/tools/jest).
+
+## Test file structure
+
+Test files are co-located with source files in the `js/` directory of each
+custom module:
+
+```text
+web/modules/custom/my_module/
+└── js/
+    ├── my_module.js          # Source file (Drupal behavior)
+    └── my_module.test.js     # Jest test file
+```
+
+Jest automatically discovers `*.test.js` files in `web/modules/custom/*/js/`
+directories. Adding a new module with tests requires no configuration changes.
+
+## Writing tests
+
+Drupal JavaScript uses the IIFE pattern `((Drupal) => { ... })(Drupal)` where
+`Drupal` is a global object. Tests load these source files using `eval()` after
+setting up the required globals.
+
+### Test template
+
+```javascript
+/**
+ * @jest-environment jsdom
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+describe('Drupal.behaviors.myModule', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    global.Drupal = { behaviors: {} };
+
+    const filePath = path.resolve(__dirname, 'my_module.js');
+    const code = fs.readFileSync(filePath, 'utf8');
+    eval(code);
+  });
+
+  afterEach(() => {
+    delete global.Drupal;
+  });
+
+  it('should attach behavior to the context', () => {
+    document.body.innerHTML = '<div data-my-module></div>';
+    Drupal.behaviors.myModule.attach(document);
+
+    const el = document.querySelector('[data-my-module]');
+    expect(el.classList.contains('processed')).toBe(true);
+  });
+});
+```
+
+### Loading Drupal behaviors
+
+The `eval(fs.readFileSync(...))` pattern executes the source file's IIFE, which
+receives `global.Drupal` as its `Drupal` parameter and registers the behavior.
+After `eval()`, the behavior is accessible via `Drupal.behaviors.myModule`.
+
+### Mocking globals
+
+Set globals in `beforeEach` and clean them up in `afterEach`:
+
+| Global | Setup | When needed |
+|--------|-------|-------------|
+| `Drupal` | `global.Drupal = { behaviors: {} }` | Always — required by all Drupal behaviors |
+| `jQuery` | `global.jQuery = require('jquery')` or a mock | When the source file uses `jQuery` or `$` |
+| `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
+| `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
+
+### Testing DOM interactions
+
+The `jsdom` environment provides `document` and `window`. Set up HTML before
+each test:
+
+```javascript
+document.body.innerHTML = `
+  <div data-my-widget>
+    <button data-action="save">Save</button>
+    <span data-status></span>
+  </div>
+`;
+
+Drupal.behaviors.myModule.attach(document);
+document.querySelector('[data-action="save"]').click();
+
+expect(document.querySelector('[data-status]').textContent).toBe('Saved');
+```
+
+### Testing timed behavior
+
+Use Jest fake timers for `setTimeout` and `setInterval`:
+
+```javascript
+jest.useFakeTimers();
+
+Drupal.behaviors.myModule.startPolling();
+jest.advanceTimersByTime(5000);
+
+expect(fetchSpy).toHaveBeenCalledTimes(5);
+
+jest.useRealTimers();
+```
+
+### ESLint compatibility
+
+The `.eslintrc.json` includes an override for `*.test.js` files that enables
+the `jest` environment and allows `eval()`. No additional ESLint configuration
+is needed for test files.
+
+## Boilerplate
+
+**Vortex** provides a Jest test boilerplate for the [demo module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/ys_demo.test.js)
+that demonstrates testing a counter block with DOM manipulation, localStorage
+interaction, and event handling.
+
+This boilerplate test runs in continuous integration pipeline when you install
+**Vortex** and can be used as a starting point for writing your own JavaScript
+tests.

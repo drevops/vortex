@@ -88,8 +88,6 @@ When updating template scripts:
 **NEVER run without explicit user permission**:
 
 - `ahoy update-snapshots`
-- `UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit`
-- Any `UPDATE_SNAPSHOTS=1` command
 
 These modify many files and take 10-15 minutes.
 

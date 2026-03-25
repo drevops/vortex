@@ -7,9 +7,9 @@
  !composer.lock
 -!gherkinlint.json
  !package-lock.json
+ !jest.config.js
  !package.json
- !patches
-@@ -45,7 +43,6 @@
+@@ -46,7 +44,6 @@
  !phpcs.xml
  !phpmd.xml
  !phpstan.neon
