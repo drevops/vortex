@@ -339,7 +339,7 @@ jobs:
 
       - run:
           name: Test with Jest
-          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_NODEJS_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Test with Behat
