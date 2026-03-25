@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -72,6 +73,20 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_S3_BUCKET');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_URL=');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_FTP_HOST');
+      }),
+    ];
+    yield 'migration_download_source_container_registry' => [
+      static::cw(function (): void {
+          Env::put(Migration::envName(), Env::TRUE);
+          Env::put(MigrationDownloadSource::envName(), MigrationDownloadSource::CONTAINER_REGISTRY);
+          Env::put(MigrationImage::envName(), 'the_empire/star_wars-migration:latest');
+      }),
+      static::cw(function (FunctionalTestCase $test): void {
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE=container_registry');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DB2_IMAGE=the_empire/star_wars-migration:latest');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_URL=');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_FTP_HOST');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_S3_BUCKET');
       }),
     ];
   }

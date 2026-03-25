@@ -159,6 +159,15 @@ commands:
       docker compose build database
       ahoy up
 
+  #;< MIGRATION
+  reload-db2:
+    usage: Reload the migration database container using local database image.
+    cmd: |
+      ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
+      docker compose rm --force --stop --volumes database2
+      ahoy up -- --build database2
+  #;> MIGRATION
+
   provision:
     usage: Provision a site from the database dump or profile.
     cmd: |

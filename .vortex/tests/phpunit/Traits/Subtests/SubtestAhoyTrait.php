@@ -866,6 +866,7 @@ trait SubtestAhoyTrait {
     $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_FILE');
     $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
     $this->assertFileContainsString('.ahoy.yml', 'download-db2');
+    $this->assertFileContainsString('.ahoy.yml', 'reload-db2');
 
     $this->logStepFinish();
   }
@@ -876,6 +877,42 @@ trait SubtestAhoyTrait {
     $this->fileAddVar('.env', 'VORTEX_DOWNLOAD_DB2_URL', static::VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST);
     $this->cmd('ahoy download-db2', txt: 'Download migration database');
     $this->assertFileExists('.data/db2.sql', 'Migration database file should exist after download');
+
+    $this->logStepFinish();
+  }
+
+  protected function subtestAhoyMigrationReloadDb(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Verify database2 container has data from the image');
+    $this->cmd(
+      'ahoy drush sql:query --database=migrate "SHOW TABLES"',
+      '* node',
+      'Migration database should have tables from the container image',
+      tio: 30,
+    );
+
+    $this->logSubstep('Drop all tables in database2 to simulate data loss');
+    $this->cmd('ahoy drush sql:drop --database=migrate -y', txt: 'Drop migration database tables', tio: 30);
+
+    $this->logSubstep('Verify database2 is empty after drop');
+    $this->cmd(
+      'ahoy drush sql:query --database=migrate "SHOW TABLES"',
+      '! node',
+      'Migration database should have no tables after drop',
+      tio: 30,
+    );
+
+    $this->logSubstep('Reload database2 from the container image');
+    $this->cmd('ahoy reload-db2', txt: '`ahoy reload-db2` reloads migration database container', tio: 60);
+
+    $this->logSubstep('Verify database2 data is restored after reload');
+    $this->cmd(
+      'ahoy drush sql:query --database=migrate "SHOW TABLES"',
+      '* node',
+      'Migration database should have tables restored after reload',
+      tio: 30,
+    );
 
     $this->logStepFinish();
   }

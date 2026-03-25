@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
@@ -79,6 +80,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'hosting_project_name' => [HostingProjectName::id(), PromptType::Text];
     yield 'webroot' => [Webroot::id(), PromptType::Text];
     yield 'database_image' => [DatabaseImage::id(), PromptType::Text];
+    yield 'migration_image' => [MigrationImage::id(), PromptType::Text];
     // Select handlers.
     yield 'starter' => [Starter::id(), PromptType::Select];
     yield 'profile' => [Profile::id(), PromptType::Select];

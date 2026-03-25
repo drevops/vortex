@@ -1,0 +1,9 @@
+@@ -17,6 +17,8 @@
+         "drupal/drupal_helpers": "__VERSION__",
+         "drupal/environment_indicator": "__VERSION__",
+         "drupal/generated_content": "__VERSION__",
++        "drupal/migrate_plus": "__VERSION__",
++        "drupal/migrate_tools": "__VERSION__",
+         "drupal/pathauto": "__VERSION__",
+         "drupal/redirect": "__VERSION__",
+         "drupal/redis": "__VERSION__",
