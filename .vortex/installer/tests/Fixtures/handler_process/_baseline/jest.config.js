@@ -21,12 +21,7 @@ dirs.forEach((dir) => {
 module.exports = {
   testEnvironment: 'jest-environment-jsdom',
   roots: roots.length > 0 ? roots : [path.resolve('web/modules/custom')],
-  testMatch: ['**/web/modules/custom/*/js/**/*.test.js'],
+  testRegex: 'web/modules/custom/.+\\.test\\.js$',
   testPathIgnorePatterns: ['/node_modules/', '/vendor/'],
-  modulePathIgnorePatterns: [
-    '<rootDir>/web/core/',
-    '<rootDir>/web/modules/contrib/',
-    '<rootDir>/web/themes/contrib/',
-    '<rootDir>/web/themes/custom/',
-  ],
+  modulePathIgnorePatterns: ['<rootDir>/web/core/', '<rootDir>/web/modules/contrib/', '<rootDir>/web/themes/'],
 };

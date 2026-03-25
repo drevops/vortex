@@ -7,23 +7,15 @@
  const roots = [];
  
  dirs.forEach((dir) => {
-@@ -20,13 +20,13 @@
+@@ -20,8 +20,8 @@
  
  module.exports = {
    testEnvironment: 'jest-environment-jsdom',
 -  roots: roots.length > 0 ? roots : [path.resolve('web/modules/custom')],
--  testMatch: ['**/web/modules/custom/*/js/**/*.test.js'],
+-  testRegex: 'web/modules/custom/.+\\.test\\.js$',
 +  roots: roots.length > 0 ? roots : [path.resolve('docroot/modules/custom')],
-+  testMatch: ['**/docroot/modules/custom/*/js/**/*.test.js'],
++  testRegex: 'docroot/modules/custom/.+\\.test\\.js$',
    testPathIgnorePatterns: ['/node_modules/', '/vendor/'],
-   modulePathIgnorePatterns: [
--    '<rootDir>/web/core/',
--    '<rootDir>/web/modules/contrib/',
--    '<rootDir>/web/themes/contrib/',
--    '<rootDir>/web/themes/custom/',
-+    '<rootDir>/docroot/core/',
-+    '<rootDir>/docroot/modules/contrib/',
-+    '<rootDir>/docroot/themes/contrib/',
-+    '<rootDir>/docroot/themes/custom/',
-   ],
+-  modulePathIgnorePatterns: ['<rootDir>/web/core/', '<rootDir>/web/modules/contrib/', '<rootDir>/web/themes/'],
++  modulePathIgnorePatterns: ['<rootDir>/docroot/core/', '<rootDir>/docroot/modules/contrib/', '<rootDir>/docroot/themes/'],
  };
