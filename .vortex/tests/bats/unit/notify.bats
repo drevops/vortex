@@ -58,9 +58,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="email,slack,github,newrelic,webhook,jira"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_BRANCH="main"
   export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
   # Email required variables
