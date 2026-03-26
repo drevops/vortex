@@ -49,13 +49,6 @@ jobs:
         with:
           node-version: 22.17.1
 
-      - name: Process manual trigger
-        if: github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false
-        run: jq 'walk(if type == "object" then del(.schedule) else . end)' renovate.json > renovate.tmp.json && mv -f renovate.tmp.json renovate.json
-
-      - name: Show Renovate configuration
-        run: cat renovate.json
-
       - name: Validate Renovate configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@ee9f69e1f683ed0d08225086482b34fc9abe9300 # v2.1.0
 
@@ -73,6 +66,5 @@ jobs:
           RENOVATE_DEPENDENCY_DASHBOARD: ${{ vars.RENOVATE_DEPENDENCY_DASHBOARD || 'false' }}
           RENOVATE_DRY_RUN: ${{ vars.RENOVATE_DRY_RUN || 'false' }}
           RENOVATE_GIT_AUTHOR: ${{ vars.RENOVATE_GIT_AUTHOR }}
-          RENOVATE_PR_HOURLY_LIMIT: ${{ github.event_name == 'workflow_dispatch' && '0' || '' }}
-          RENOVATE_BRANCH_CONCURRENT_LIMIT: ${{ github.event_name == 'workflow_dispatch' && '0' || '' }}
+          RENOVATE_FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.preserve_schedules == false && '{"schedule":[],"prHourlyLimit":0,"branchConcurrentLimit":0}' || '' }}
           LOG_LEVEL: 'debug'
