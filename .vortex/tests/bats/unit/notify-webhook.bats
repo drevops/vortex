@@ -87,6 +87,31 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: webhook, branch filter skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="webhook"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="feature/test"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/test"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
+  export VORTEX_NOTIFY_WEBHOOK_METHOD="POST"
+  export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json"
+  export VORTEX_NOTIFY_WEBHOOK_BRANCHES="main,develop"
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Skipping Webhook notification for branch 'feature/test'."
+  assert_output_not_contains "Started Webhook notification."
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: webhook, shell injection protection" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

@@ -42,6 +42,13 @@ VORTEX_NOTIFY_WEBHOOK_PAYLOAD="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-}"
 # Webhook notification expected HTTP status.
 VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS="${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS:-200}"
 
+# Webhook notification branch filter.
+#
+# Comma-separated list of branch names. When set, webhook notifications
+# are only sent for deployments on the listed branches. When empty, no
+# filtering is applied.
+VORTEX_NOTIFY_WEBHOOK_BRANCHES="${VORTEX_NOTIFY_WEBHOOK_BRANCHES:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -56,6 +63,13 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
+
+if [ -n "${VORTEX_NOTIFY_WEBHOOK_BRANCHES}" ]; then
+  if ! echo ",${VORTEX_NOTIFY_WEBHOOK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
+    pass "Skipping Webhook notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+    exit 0
+  fi
+fi
 
 [ -z "${VORTEX_NOTIFY_WEBHOOK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_PROJECT" && exit 1
 [ -z "${VORTEX_NOTIFY_WEBHOOK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LABEL" && exit 1

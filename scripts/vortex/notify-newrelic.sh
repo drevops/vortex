@@ -70,6 +70,13 @@ VORTEX_NOTIFY_NEWRELIC_ENDPOINT="${VORTEX_NOTIFY_NEWRELIC_ENDPOINT:-https://api.
 # New Relic notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_NEWRELIC_EVENT="${VORTEX_NOTIFY_NEWRELIC_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
 
+# New Relic notification branch filter.
+#
+# Comma-separated list of branch names. When set, New Relic notifications
+# are only sent for deployments on the listed branches. When empty, no
+# filtering is applied.
+VORTEX_NOTIFY_NEWRELIC_BRANCHES="${VORTEX_NOTIFY_NEWRELIC_BRANCHES:-main,master}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -83,6 +90,13 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_ENABLED}" ]; then
   info "New Relic is not enabled. Set NEWRELIC_ENABLED or VORTEX_NOTIFY_NEWRELIC_ENABLED in your environment."
   exit 0
+fi
+
+if [ -n "${VORTEX_NOTIFY_NEWRELIC_BRANCHES}" ]; then
+  if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
+    pass "Skipping New Relic notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+    exit 0
+  fi
 fi
 
 for cmd in curl; do command -v "${cmd}" >/dev/null || {

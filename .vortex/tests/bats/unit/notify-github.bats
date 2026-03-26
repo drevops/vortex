@@ -230,6 +230,30 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: github, branch filter skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="github"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
+  export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="feature/test"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/test"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_GITHUB_BRANCHES="main,develop"
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Skipping GitHub notification for branch 'feature/test'."
+  assert_output_not_contains "Started GitHub notification"
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: github, post_deployment, failure to set status" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

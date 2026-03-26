@@ -45,6 +45,13 @@ VORTEX_NOTIFY_SLACK_USERNAME="${VORTEX_NOTIFY_SLACK_USERNAME:-Deployment Bot}"
 # Slack notification bot icon emoji (optional).
 VORTEX_NOTIFY_SLACK_ICON_EMOJI="${VORTEX_NOTIFY_SLACK_ICON_EMOJI:-:rocket:}"
 
+# Slack notification branch filter.
+#
+# Comma-separated list of branch names. When set, Slack notifications
+# are only sent for deployments on the listed branches. When empty, no
+# filtering is applied.
+VORTEX_NOTIFY_SLACK_BRANCHES="${VORTEX_NOTIFY_SLACK_BRANCHES:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -59,6 +66,13 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
+
+if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
+  if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
+    pass "Skipping Slack notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+    exit 0
+  fi
+fi
 
 [ -z "${VORTEX_NOTIFY_SLACK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_PROJECT" && exit 1
 [ -z "${VORTEX_NOTIFY_SLACK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LABEL" && exit 1
