@@ -1,5 +1,5 @@
-@@ -22,7 +22,6 @@
-         "drupal/redis": "__VERSION__",
+@@ -23,7 +23,6 @@
+         "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",
          "drupal/search_api": "__VERSION__",
 -        "drupal/search_api_solr": "__VERSION__",

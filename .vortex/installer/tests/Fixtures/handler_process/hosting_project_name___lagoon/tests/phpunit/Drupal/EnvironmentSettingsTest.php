@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -325,6 +505,224 @@
+@@ -340,6 +520,236 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -215,6 +215,9 @@
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
++    $config['reroute_email.settings']['enable'] = TRUE;
++    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
++    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
@@ -270,6 +273,9 @@
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
++    $config['reroute_email.settings']['enable'] = TRUE;
++    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
++    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
@@ -325,6 +331,9 @@
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
++    $config['reroute_email.settings']['enable'] = FALSE;
++    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
++    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 +    $config['shield.settings']['shield_enable'] = TRUE;
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
@@ -379,6 +388,9 @@
 +    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PROD;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
++    $config['reroute_email.settings']['enable'] = FALSE;
++    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
++    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $config['system.performance']['css']['preprocess'] = TRUE;
 +    $config['system.performance']['js']['preprocess'] = TRUE;

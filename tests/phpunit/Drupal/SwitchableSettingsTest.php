@@ -680,6 +680,148 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> MODULE_SHIELD
+  // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+
+  /**
+   * Test Reroute Email config.
+   */
+  #[DataProvider('dataProviderRerouteEmail')]
+  public function testRerouteEmail(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
+    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+
+    $this->requireSettingsFile();
+
+    $this->assertConfigContains($expected_present);
+    $this->assertConfigNotContains($expected_absent);
+  }
+
+  /**
+   * Data provider for testRerouteEmail().
+   */
+  public static function dataProviderRerouteEmail(): \Iterator {
+    // Local: disabled by default.
+    yield [
+      self::ENVIRONMENT_LOCAL,
+      [],
+      [
+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@your-site-domain.example', 'allowed' => '*@your-site-domain.example'],
+      ],
+    ];
+
+    // CI: disabled by default.
+    yield [
+      self::ENVIRONMENT_CI,
+      [],
+      [
+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@your-site-domain.example', 'allowed' => '*@your-site-domain.example'],
+      ],
+    ];
+
+    // Dev: enabled by default.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [],
+      [
+        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@your-site-domain.example', 'allowed' => '*@your-site-domain.example'],
+      ],
+    ];
+
+    // SUT: enabled by default.
+    yield [
+      self::ENVIRONMENT_SUT,
+      [],
+      [
+        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@your-site-domain.example', 'allowed' => '*@your-site-domain.example'],
+      ],
+    ];
+
+    // Stage: disabled by default.
+    yield [
+      self::ENVIRONMENT_STAGE,
+      [],
+      [
+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@your-site-domain.example', 'allowed' => '*@your-site-domain.example'],
+      ],
+    ];
+
+    // Prod: disabled by default.
+    yield [
+      self::ENVIRONMENT_PROD,
+      [],
+      [
+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@your-site-domain.example', 'allowed' => '*@your-site-domain.example'],
+      ],
+    ];
+
+    // Dev with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+      ],
+      [
+        'reroute_email.settings' => ['enable' => FALSE],
+      ],
+    ];
+
+    // SUT with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+    yield [
+      self::ENVIRONMENT_SUT,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+      ],
+      [
+        'reroute_email.settings' => ['enable' => FALSE],
+      ],
+    ];
+
+    // Custom address and allowed list.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_REROUTE_EMAIL_ADDRESS' => 'dev@example.com',
+        'DRUPAL_REROUTE_EMAIL_ALLOWED' => '*@example.com',
+      ],
+      [
+        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'dev@example.com', 'allowed' => '*@example.com'],
+      ],
+    ];
+
+    // DRUPAL_REROUTE_EMAIL_DISABLED with empty value: not disabled.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => '',
+      ],
+      [
+        'reroute_email.settings' => ['enable' => TRUE],
+      ],
+    ];
+
+    // DRUPAL_REROUTE_EMAIL_DISABLED with 0: not disabled.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => 0,
+      ],
+      [
+        'reroute_email.settings' => ['enable' => TRUE],
+      ],
+    ];
+
+    // DRUPAL_REROUTE_EMAIL_DISABLED with string '1': disabled.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => '1',
+      ],
+      [
+        'reroute_email.settings' => ['enable' => FALSE],
+      ],
+    ];
+  }
+
+  // phpcs:ignore #;> MODULE_REROUTE_EMAIL
   // phpcs:ignore #;< MODULE_STAGE_FILE_PROXY
 
   /**

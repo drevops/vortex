@@ -1,4 +1,4 @@
-@@ -297,500 +297,6 @@
+@@ -297,375 +297,6 @@
    }
  
    /**
@@ -371,6 +371,17 @@
 -  }
 -
 -  /**
+    * Test Reroute Email config.
+    */
+   #[DataProvider('dataProviderRerouteEmail')]
+@@ -801,131 +432,6 @@
+       [
+         'reroute_email.settings' => ['enable' => FALSE],
+       ],
+-    ];
+-  }
+-
+-  /**
 -   * Test Stage File Proxy config.
 -   */
 -  #[DataProvider('dataProviderStageFileProxy')]
@@ -492,10 +503,6 @@
 -        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
 -      ],
 -      [],
--    ];
--  }
--
--  /**
-    * Test trusted host patterns settings.
-    */
-   #[DataProvider('dataProviderTrustedHostPatterns')]
+     ];
+   }
+ 

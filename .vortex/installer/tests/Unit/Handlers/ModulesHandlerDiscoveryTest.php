@@ -45,6 +45,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/environment_indicator' => '^4.0.25',
           'drupal/pathauto' => '^1.14',
           'drupal/redirect' => '^1.12',
+          'drupal/reroute_email' => '^2.3@RC',
           'drupal/robotstxt' => '^1.6',
           'drupal/seckit' => '^2.0.3',
           'drupal/shield' => '^1.8',

@@ -371,6 +371,6 @@
 -  }
 -
 -  /**
-    * Test Stage File Proxy config.
+    * Test Reroute Email config.
     */
-   #[DataProvider('dataProviderStageFileProxy')]
+   #[DataProvider('dataProviderRerouteEmail')]

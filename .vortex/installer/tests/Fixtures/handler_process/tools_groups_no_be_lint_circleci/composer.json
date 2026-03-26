@@ -1,4 +1,4 @@
-@@ -35,27 +35,17 @@
+@@ -36,27 +36,17 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -26,7 +26,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -83,12 +73,10 @@
+@@ -84,12 +74,10 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,
