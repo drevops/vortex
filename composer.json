@@ -22,6 +22,7 @@
         "drupal/pathauto": "^1.14",
         "drupal/redirect": "^1.12",
         "drupal/redis": "^1.11",
+        "drupal/reroute_email": "^2.3@RC",
         "drupal/robotstxt": "^1.6",
         "drupal/search_api": "^1.40",
         "drupal/search_api_solr": "^4.3.10",

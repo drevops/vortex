@@ -20,6 +20,7 @@
         "drupal/pathauto": "__VERSION__",
         "drupal/redirect": "__VERSION__",
         "drupal/redis": "__VERSION__",
+        "drupal/reroute_email": "__VERSION__",
         "drupal/robotstxt": "__VERSION__",
         "drupal/search_api": "__VERSION__",
         "drupal/search_api_solr": "__VERSION__",

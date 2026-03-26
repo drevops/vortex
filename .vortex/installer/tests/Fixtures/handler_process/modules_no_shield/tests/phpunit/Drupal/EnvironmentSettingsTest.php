@@ -5,16 +5,16 @@
 -    $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-     $config['system.performance']['cache']['page']['max_age'] = 900;
-@@ -150,7 +149,6 @@
+     $config['reroute_email.settings']['enable'] = TRUE;
+@@ -153,7 +152,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 -    $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-     $config['system.performance']['cache']['page']['max_age'] = 1800;
-@@ -197,7 +195,6 @@
+     $config['reroute_email.settings']['enable'] = TRUE;
+@@ -203,7 +201,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -22,7 +22,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -246,7 +243,6 @@
+@@ -255,7 +252,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -30,7 +30,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -297,7 +293,6 @@
+@@ -309,7 +305,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";

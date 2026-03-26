@@ -130,6 +130,7 @@ class Modules extends AbstractHandler {
       'environment_indicator' => 'Environment indicator',
       'pathauto' => 'Pathauto',
       'redirect' => 'Redirect',
+      'reroute_email' => 'Reroute email',
       'robotstxt' => 'Robots.txt',
       'seckit' => 'Seckit',
       'shield' => 'Shield',

@@ -1,4 +1,4 @@
-@@ -33,15 +33,9 @@
+@@ -34,15 +34,9 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {

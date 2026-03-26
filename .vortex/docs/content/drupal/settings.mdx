@@ -253,6 +253,89 @@ Each settings file should:
 
 </details>
 
+#### Shield
+
+[Shield](https://www.drupal.org/project/shield) restricts access to your site
+by requiring HTTP authentication credentials. **Vortex** configures Shield to
+protect non-production environments from public access while keeping production,
+local development, and CI environments accessible without authentication.
+
+**Environment behavior:**
+
+| Environment | Shield enabled | Reason                                          |
+|-------------|----------------|-------------------------------------------------|
+| Local       | No             | No need for HTTP auth during local development  |
+| CI          | No             | Automated tests must access the site freely     |
+| Dev         | **Yes**        | Protects development environments from crawlers |
+| Stage       | **Yes**        | Protects staging environments from public access|
+| Prod        | No             | Production is publicly accessible                |
+
+**Environment variables:**
+
+| Variable              | Default              | Purpose                                   |
+|-----------------------|----------------------|-------------------------------------------|
+| `DRUPAL_SHIELD_USER`  |                      | HTTP authentication username              |
+| `DRUPAL_SHIELD_PASS`  |                      | HTTP authentication password              |
+| `DRUPAL_SHIELD_PRINT` | `Restricted access.` | Message shown in the authentication popup |
+
+**Overriding default behavior:**
+
+Set `DRUPAL_SHIELD_DISABLED` to any non-empty value to completely disable Shield
+in an environment where it would otherwise be enabled. This is useful for
+temporary access during debugging or when an environment does not require
+protection.
+
+import ShieldModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.shield.php';
+
+<details>
+  <summary>Example of the `Shield` module `settings.shield.php` file</summary>
+
+  <CodeBlock language="php">{ShieldModuleSettingsExample}</CodeBlock>
+
+</details>
+
+#### Reroute Email
+
+[Reroute Email](https://www.drupal.org/project/reroute_email) intercepts
+outgoing emails and redirects them to a configurable address instead of the
+intended recipients. This prevents accidental email delivery to real users in
+non-production environments while still allowing email functionality to be
+tested.
+
+**Environment behavior:**
+
+| Environment | Rerouting enabled | Reason                                                        |
+|-------------|-------------------|---------------------------------------------------------------|
+| Local       | No                | Emails are typically not sent in local development            |
+| CI          | No                | Automated tests do not send real emails                       |
+| Dev         | **Yes**           | Prevents accidental delivery to real users                    |
+| Stage       | No                | Stage may require real email delivery for UAT                 |
+| Prod        | No                | Production emails must reach actual recipients                |
+
+Rerouting is also enabled in any custom environments (e.g., PR environments)
+that do not match the standard environment types listed above.
+
+**Environment variables:**
+
+| Variable                       | Default                            | Purpose                                              |
+|--------------------------------|------------------------------------|------------------------------------------------------|
+| `DRUPAL_REROUTE_EMAIL_ADDRESS` | `webmaster@your-site-domain.example` | Address to receive all rerouted emails               |
+| `DRUPAL_REROUTE_EMAIL_ALLOWED` | `*@your-site-domain.example`         | Pattern for addresses allowed to bypass rerouting    |
+
+**Overriding default behavior:**
+
+Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
+email rerouting in an environment where it would otherwise be enabled.
+
+import RerouteEmailModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.reroute_email.php';
+
+<details>
+  <summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
+
+  <CodeBlock language="php">{RerouteEmailModuleSettingsExample}</CodeBlock>
+
+</details>
+
 ### Local overrides
 
 At the end of the `settings.php`, there is an option to include additional local

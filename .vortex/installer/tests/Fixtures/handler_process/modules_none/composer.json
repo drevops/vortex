@@ -1,4 +1,4 @@
-@@ -7,27 +7,15 @@
+@@ -7,28 +7,15 @@
          "php": "__VERSION__",
          "composer/installers": "__VERSION__",
          "cweagans/composer-patches": "__VERSION__",
@@ -15,6 +15,7 @@
 -        "drupal/pathauto": "__VERSION__",
 -        "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",
+-        "drupal/reroute_email": "__VERSION__",
 -        "drupal/robotstxt": "__VERSION__",
          "drupal/search_api": "__VERSION__",
          "drupal/search_api_solr": "__VERSION__",

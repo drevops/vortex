@@ -1,4 +1,4 @@
-@@ -70,14 +70,6 @@
+@@ -70,18 +70,7 @@
  
      $this->requireSettingsFile();
  
@@ -11,9 +11,13 @@
 -    $config['shield.settings']['shield_enable'] = TRUE;
 -    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
+-    $config['reroute_email.settings']['enable'] = TRUE;
+-    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
+-    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $this->assertConfig($config);
-@@ -144,14 +136,6 @@
+ 
+@@ -147,18 +136,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -26,9 +30,13 @@
 -    $config['shield.settings']['shield_enable'] = TRUE;
 -    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
+-    $config['reroute_email.settings']['enable'] = TRUE;
+-    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
+-    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
-@@ -190,20 +174,9 @@
+ 
+@@ -196,23 +174,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -44,12 +52,15 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
+-    $config['reroute_email.settings']['enable'] = FALSE;
+-    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
+-    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -239,20 +212,9 @@
+@@ -248,23 +212,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -65,12 +76,15 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
+-    $config['reroute_email.settings']['enable'] = FALSE;
+-    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
+-    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -290,20 +252,9 @@
+@@ -302,23 +252,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -86,6 +100,9 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
+-    $config['reroute_email.settings']['enable'] = FALSE;
+-    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
+-    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
