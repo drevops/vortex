@@ -109,17 +109,17 @@ load ../_helper.bash
   export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_BRANCH="feature/test"
   export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_LABEL="feature/test"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
-  # VORTEX_NOTIFY_NEWRELIC_BRANCHES defaults to "main,master"
+  # VORTEX_NOTIFY_NEWRELIC_BRANCHES defaults to "main,master,develop"
 
   run ./scripts/vortex/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping New Relic notification for branch 'develop'."
+  assert_output_contains "Skipping New Relic notification for branch 'feature/test'."
   assert_output_not_contains "Started New Relic notification."
   assert_output_contains "Finished dispatching notifications."
 
