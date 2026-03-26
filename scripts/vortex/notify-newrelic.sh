@@ -75,7 +75,7 @@ VORTEX_NOTIFY_NEWRELIC_EVENT="${VORTEX_NOTIFY_NEWRELIC_EVENT:-${VORTEX_NOTIFY_EV
 # Comma-separated list of branch names. When set, New Relic notifications
 # are only sent for deployments on the listed branches. When empty, no
 # filtering is applied.
-VORTEX_NOTIFY_NEWRELIC_BRANCHES="${VORTEX_NOTIFY_NEWRELIC_BRANCHES:-main,master}"
+VORTEX_NOTIFY_NEWRELIC_BRANCHES="${VORTEX_NOTIFY_NEWRELIC_BRANCHES:-main,master,develop}"
 
 # ------------------------------------------------------------------------------
 
