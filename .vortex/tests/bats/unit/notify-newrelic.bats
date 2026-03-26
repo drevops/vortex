@@ -12,9 +12,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_CHANNELS="newrelic"
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_BRANCH="main"
   export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   # VORTEX_NOTIFY_NEWRELIC_ENABLED is intentionally not set
 
@@ -36,7 +36,7 @@ load ../_helper.bash
   app_id="9876543210"
   mock_curl=$(mock_command "curl")
 
-  mock_set_output "${mock_curl}" "{\"applications\": [{\"id\": ${app_id}, \"name\": \"testproject-develop\"}]}" 1
+  mock_set_output "${mock_curl}" "{\"applications\": [{\"id\": ${app_id}, \"name\": \"testproject-main\"}]}" 1
   mock_set_output "${mock_curl}" "201" 2
 
   export VORTEX_NOTIFY_CHANNELS="newrelic"
@@ -44,9 +44,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe,jane@example.com|Jane Doe"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_BRANCH="main"
   export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
   run ./scripts/vortex/notify.sh
@@ -57,9 +57,9 @@ load ../_helper.bash
   assert_output_contains "Started New Relic notification."
   assert_output_contains "Discovering APP id by name if it was not provided."
   assert_output_contains "Checking if the application ID is valid."
-  assert_output_contains "Creating a deployment notification for application testproject-develop with ID 9876543210."
+  assert_output_contains "Creating a deployment notification for application testproject-main with ID 9876543210."
 
-  assert_equal "-s -X GET https://api.newrelic.com/v2/applications.json -H Api-Key: key1234 -s -G -d filter[name]=testproject-develop&exclude_links=true" "$(mock_get_call_args "${mock_curl}" 1)"
+  assert_equal "-s -X GET https://api.newrelic.com/v2/applications.json -H Api-Key: key1234 -s -G -d filter[name]=testproject-main&exclude_links=true" "$(mock_get_call_args "${mock_curl}" 1)"
 
   # Extract revision from actual curl call (since it's auto-generated with timestamp)
   actual_curl_call="$(mock_get_call_args "${mock_curl}" 2)"
@@ -86,9 +86,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EVENT="pre_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_BRANCH="main"
   export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   run ./scripts/vortex/notify.sh
   assert_success
@@ -102,13 +102,67 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: newrelic, branch filter default skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
+  # VORTEX_NOTIFY_NEWRELIC_BRANCHES defaults to "main,master"
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Skipping New Relic notification for branch 'develop'."
+  assert_output_not_contains "Started New Relic notification."
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: newrelic, branch filter custom" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  app_id="9876543210"
+  mock_curl=$(mock_command "curl")
+
+  mock_set_output "${mock_curl}" "{\"applications\": [{\"id\": ${app_id}, \"name\": \"testproject-staging\"}]}" 1
+  mock_set_output "${mock_curl}" "201" 2
+
+  export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
+  export VORTEX_NOTIFY_BRANCH="staging"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="staging"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
+  export VORTEX_NOTIFY_NEWRELIC_BRANCHES="main,staging"
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Started New Relic notification."
+  assert_output_not_contains "Skipping New Relic notification for branch"
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: newrelic, shell injection protection" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   app_id="9876543210"
   mock_curl=$(mock_command "curl")
 
-  mock_set_output "${mock_curl}" "{\"applications\": [{\"id\": ${app_id}, \"name\": \"test-develop\"}]}" 1
+  mock_set_output "${mock_curl}" "{\"applications\": [{\"id\": ${app_id}, \"name\": \"test-main\"}]}" 1
   mock_set_output "${mock_curl}" "201" 2
 
   # Attempt shell injection through project name with PHP code that would create a file
@@ -116,9 +170,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_PROJECT="test'); file_put_contents('/tmp/injected_newrelic_test', 'HACKED'); //"
   export VORTEX_NOTIFY_NEWRELIC_USER_KEY="key1234"
-  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_BRANCH="main"
   export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
   # Ensure test file doesn't exist before

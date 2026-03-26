@@ -39,6 +39,13 @@ VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL:-${
 # where deploying one PR would mark another PR's deployment as inactive.
 VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE:-${VORTEX_NOTIFY_LABEL:-PR}}"
 
+# GitHub notification branch filter.
+#
+# Comma-separated list of branch names. When set, GitHub notifications
+# are only sent for deployments on the listed branches. When empty, no
+# filtering is applied.
+VORTEX_NOTIFY_GITHUB_BRANCHES="${VORTEX_NOTIFY_GITHUB_BRANCHES:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -53,6 +60,13 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
+
+if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
+  if ! echo ",${VORTEX_NOTIFY_GITHUB_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
+    pass "Skipping GitHub notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+    exit 0
+  fi
+fi
 
 [ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN" && exit 1
 [ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY" && exit 1

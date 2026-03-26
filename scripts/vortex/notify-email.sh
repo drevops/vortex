@@ -48,6 +48,13 @@ VORTEX_NOTIFY_EMAIL_MESSAGE="${VORTEX_NOTIFY_EMAIL_MESSAGE:-}"
 # Email notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_EMAIL_EVENT="${VORTEX_NOTIFY_EMAIL_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
 
+# Email notification branch filter.
+#
+# Comma-separated list of branch names. When set, email notifications
+# are only sent for deployments on the listed branches. When empty, no
+# filtering is applied.
+VORTEX_NOTIFY_EMAIL_BRANCHES="${VORTEX_NOTIFY_EMAIL_BRANCHES:-}"
+
 #-------------------------------------------------------------------------------
 
 # @formatter:off
@@ -57,6 +64,13 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
+
+if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
+  if ! echo ",${VORTEX_NOTIFY_EMAIL_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
+    pass "Skipping email notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+    exit 0
+  fi
+fi
 
 [ -z "${VORTEX_NOTIFY_EMAIL_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_PROJECT." && exit 1
 [ -z "${VORTEX_NOTIFY_EMAIL_FROM}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_FROM." && exit 1

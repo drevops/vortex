@@ -272,6 +272,29 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: slack, branch filter skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="slack"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="feature/test"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/test"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+  export VORTEX_NOTIFY_SLACK_BRANCHES="main,develop"
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Skipping Slack notification for branch 'feature/test'."
+  assert_output_not_contains "Started Slack notification."
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: slack, shell injection protection" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

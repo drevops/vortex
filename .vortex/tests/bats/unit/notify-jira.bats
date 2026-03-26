@@ -82,6 +82,30 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: jira, branch filter skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="jira"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-test"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-test"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_JIRA_BRANCHES="main,develop"
+
+  run ./scripts/vortex/notify.sh
+  assert_success
+
+  assert_output_contains "Started dispatching notifications."
+  assert_output_contains "Skipping JIRA notification for branch 'feature/proj-1234-test'."
+  assert_output_not_contains "Started JIRA notification."
+  assert_output_contains "Finished dispatching notifications."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: jira, shell injection protection" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
