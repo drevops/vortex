@@ -49,6 +49,14 @@
             "enabled": false
         },
         {
+            "description": "Workaround for https://github.com/renovatebot/renovate/issues/24993: avoid bumping constraints with stability flags.",
+            "matchManagers": [
+                "composer"
+            ],
+            "matchCurrentValue": "/@(dev|alpha|beta|RC|stable)$/",
+            "rangeStrategy": "update-lockfile"
+        },
+        {
             "groupName": "PHP - All packages - Major - Skipped to update manually",
             "groupSlug": "php-all-major",
             "matchDatasources": [
