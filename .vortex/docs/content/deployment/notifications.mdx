@@ -46,6 +46,22 @@ notification script.
 | `VORTEX_NOTIFY_PR_NUMBER` | No | Pull request number (empty for branch deployments) |
 | `VORTEX_NOTIFY_LABEL` | **Yes** | Human-readable deployment label |
 
+## Branch filtering
+
+Each notification channel can be restricted to specific branches using
+a `VORTEX_NOTIFY_<CHANNEL>_BRANCHES` variable. When set, the channel
+only sends notifications for deployments on the listed branches
+(comma-separated, exact match). When empty or unset, the channel runs
+on all branches.
+
+For example, to restrict New Relic notifications to only `main` and `staging`:
+
+```shell
+VORTEX_NOTIFY_NEWRELIC_BRANCHES=main,staging
+```
+
+New Relic defaults to `main,master`. All other channels default to no filter.
+
 ## Message templates and tokens
 
 Most notification channels support customizable message templates using replacement tokens:
@@ -88,6 +104,7 @@ Send deployment notification via email.
 | `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | | `.env` | Recipients (format: `email\|name`) |
 | `VORTEX_NOTIFY_EMAIL_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name for email |
 | `VORTEX_NOTIFY_EMAIL_MESSAGE` | No | Default template | `.env` | Custom message template |
+| `VORTEX_NOTIFY_EMAIL_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ---
 
@@ -108,6 +125,7 @@ Post deployment status to GitHub pull requests.
 | `VORTEX_NOTIFY_GITHUB_TOKEN` | **Yes** | | Hosting | GitHub personal access token |
 | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes** | | Hosting | Repository in `owner/repo` format |
 | `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `${VORTEX_NOTIFY_LABEL}` | `.env` | Environment name (defaults to label, e.g. `PR-123`) |
+| `VORTEX_NOTIFY_GITHUB_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ### Example
 
@@ -139,6 +157,7 @@ Post a deployment comment and optionally update issue status and assignee.
 | `VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL` | No | | `.env` | Assignee email after deployment |
 | `VORTEX_NOTIFY_JIRA_TRANSITION` | No | | `.env` | Transition name (e.g., "In Review") |
 | `VORTEX_NOTIFY_JIRA_ENDPOINT` | No | `https://jira.atlassian.com` | `.env` | JIRA API endpoint |
+| `VORTEX_NOTIFY_JIRA_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ### Issue key extraction
 
@@ -183,6 +202,7 @@ in development or feature branch environments.
 | `VORTEX_NOTIFY_NEWRELIC_CHANGELOG` | No | Description | `.env` | Deployment changelog |
 | `VORTEX_NOTIFY_NEWRELIC_USER` | No | `Deployment robot` | `.env` | User performing deployment |
 | `VORTEX_NOTIFY_NEWRELIC_ENDPOINT` | No | `https://api.newrelic.com/v2` | `.env` | API endpoint |
+| `VORTEX_NOTIFY_NEWRELIC_BRANCHES` | No | `main,master` | `.env` | Restrict to specific branches (comma-separated) |
 
 ### Example
 
@@ -209,6 +229,7 @@ Post deployment notifications to a Slack channel.
 | `VORTEX_NOTIFY_SLACK_CHANNEL` | No | | `.env` | Target channel (overrides webhook default) |
 | `VORTEX_NOTIFY_SLACK_USERNAME` | No | `Deployment Bot` | `.env` | Bot display name |
 | `VORTEX_NOTIFY_SLACK_ICON_EMOJI` | No | `:rocket:` | `.env` | Bot icon emoji |
+| `VORTEX_NOTIFY_SLACK_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ### Event behavior
 
@@ -240,6 +261,7 @@ Send HTTP requests to arbitrary webhook URLs.
 | `VORTEX_NOTIFY_WEBHOOK_HEADERS` | No | `Content-Type: application/json` | `.env` | Pipe-separated headers |
 | `VORTEX_NOTIFY_WEBHOOK_PAYLOAD` | No | Default template | `.env` | JSON payload |
 | `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` | No | `200` | `.env` | Expected HTTP status |
+| `VORTEX_NOTIFY_WEBHOOK_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ### Default payload template
 
