@@ -124,6 +124,29 @@ class OptionsResolver {
     // Internal flag to skip processing of the demo mode.
     $config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
 
+    // Parse --prompts JSON if provided.
+    if (isset($options['prompts']) && is_scalar($options['prompts'])) {
+      $prompts_candidate = strval($options['prompts']);
+      if (is_file($prompts_candidate)) {
+        if (!is_readable($prompts_candidate)) {
+          throw new \RuntimeException(sprintf('Cannot read --prompts file: %s.', $prompts_candidate));
+        }
+        $prompts_json = (string) file_get_contents($prompts_candidate);
+      }
+      else {
+        $prompts_json = $prompts_candidate;
+      }
+      $prompts = json_decode($prompts_json, TRUE);
+
+      if (!is_array($prompts)) {
+        throw new \RuntimeException('Invalid JSON provided for --prompts.');
+      }
+
+      // Store the raw parsed array. Schema validation against prompt handlers
+      // is performed in PromptManager::resolvePromptOverrides().
+      $config->set(Config::PROMPTS, $prompts, TRUE);
+    }
+
     // Set no-cleanup flag.
     $config->set(Config::NO_CLEANUP, (bool) $options['no-cleanup']);
 

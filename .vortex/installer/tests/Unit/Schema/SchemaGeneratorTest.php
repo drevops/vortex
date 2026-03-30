@@ -48,8 +48,8 @@ class SchemaGeneratorTest extends UnitTestCase {
       $prompt_manager = new PromptManager($config);
       static::$handlers = $prompt_manager->getHandlers();
 
-      $generator = new SchemaGenerator();
-      static::$schema = $generator->generate(static::$handlers);
+      $generator = new SchemaGenerator(static::$handlers);
+      static::$schema = $generator->generate();
     }
 
     return static::$schema;
@@ -66,7 +66,7 @@ class SchemaGeneratorTest extends UnitTestCase {
   public function testAllPromptsHaveRequiredFields(): void {
     $schema = $this->getSchema();
 
-    $required_fields = ['id', 'env', 'type', 'label', 'required'];
+    $required_fields = ['id', 'type', 'label', 'required'];
 
     foreach ($schema['prompts'] as $index => $prompt) {
       foreach ($required_fields as $required_field) {
@@ -143,14 +143,6 @@ class SchemaGeneratorTest extends UnitTestCase {
 
     $this->assertNotContains('dotenv', $ids, 'Dotenv handler should be excluded.');
     $this->assertNotContains('internal', $ids, 'Internal handler should be excluded.');
-  }
-
-  public function testEnvNameFormat(): void {
-    $schema = $this->getSchema();
-
-    foreach ($schema['prompts'] as $prompt) {
-      $this->assertMatchesRegularExpression('/^VORTEX_INSTALLER_PROMPT_[A-Z0-9_]+$/', $prompt['env'], sprintf('Env name for "%s" does not match expected format.', $prompt['id']));
-    }
   }
 
   public function testSchemaStaysInSync(): void {

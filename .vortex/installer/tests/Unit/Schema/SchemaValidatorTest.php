@@ -19,18 +19,18 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
-use DrevOps\VortexInstaller\Schema\ConfigValidator;
+use DrevOps\VortexInstaller\Schema\SchemaValidator;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Tests for the ConfigValidator class.
+ * Tests for the SchemaValidator class.
  */
-#[CoversClass(ConfigValidator::class)]
-class ConfigValidatorTest extends UnitTestCase {
+#[CoversClass(SchemaValidator::class)]
+class SchemaValidatorTest extends UnitTestCase {
 
-  protected ConfigValidator $validator;
+  protected SchemaValidator $validator;
 
   /**
    * @var array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
@@ -43,11 +43,10 @@ class ConfigValidatorTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->validator = new ConfigValidator();
-
     $config = Config::fromString('{}');
     $prompt_manager = new PromptManager($config);
     $this->handlers = $prompt_manager->getHandlers();
+    $this->validator = new SchemaValidator($this->handlers);
   }
 
   public function testValidConfigPasses(): void {
@@ -63,7 +62,7 @@ class ConfigValidatorTest extends UnitTestCase {
       HostingProjectName::id() => 'test-project',
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     $this->assertTrue($result['valid']);
     $this->assertEmpty($result['errors']);
@@ -74,7 +73,7 @@ class ConfigValidatorTest extends UnitTestCase {
       HostingProvider::id() => 'aws',
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     $this->assertFalse($result['valid']);
 
@@ -99,7 +98,7 @@ class ConfigValidatorTest extends UnitTestCase {
       'services' => ['nonexistent_service'],
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     $this->assertFalse($result['valid']);
 
@@ -107,17 +106,15 @@ class ConfigValidatorTest extends UnitTestCase {
     $this->assertContains('services', $error_prompts);
   }
 
-  public function testMissingRequiredField(): void {
-    // Name is required. Provide empty config.
+  public function testEmptyConfigIsValid(): void {
     $config = [];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
-    // Should have errors for required fields that don't have defaults.
-    // Name is required but has a default via default(), so it may resolve.
-    // HostingProvider is required and has a default, so it resolves.
-    // Check that resolved includes defaults.
-    $this->assertArrayHasKey('resolved', $result);
+    // Empty config is valid — prompts not provided are skipped.
+    $this->assertTrue($result['valid']);
+    $this->assertEmpty($result['errors']);
+    $this->assertEmpty($result['resolved']);
   }
 
   public function testDependencyMetValueProvided(): void {
@@ -126,7 +123,7 @@ class ConfigValidatorTest extends UnitTestCase {
       DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     // DatabaseDownloadSource depends on ProvisionType=database.
     // Both provided and condition met = OK.
@@ -141,7 +138,7 @@ class ConfigValidatorTest extends UnitTestCase {
       DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     // DatabaseDownloadSource depends on ProvisionType=database.
     // ProvisionType=profile means condition not met + value provided = warning.
@@ -154,12 +151,13 @@ class ConfigValidatorTest extends UnitTestCase {
       Migration::id() => TRUE,
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     // MigrationDownloadSource depends on Migration=true.
-    // Condition met + no value provided. It's not marked as required though,
-    // so it should use the default.
-    $this->assertArrayHasKey('resolved', $result);
+    // Condition met + no value provided + not required = OK (skip).
+    $this->assertTrue($result['valid']);
+    $error_prompts = array_column($result['errors'], 'prompt');
+    $this->assertNotContains(MigrationDownloadSource::id(), $error_prompts);
   }
 
   public function testDependencyNotMetValueMissing(): void {
@@ -167,7 +165,7 @@ class ConfigValidatorTest extends UnitTestCase {
       Migration::id() => FALSE,
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     // MigrationDownloadSource depends on Migration=true.
     // Condition not met + no value provided = OK (skip).
@@ -180,7 +178,7 @@ class ConfigValidatorTest extends UnitTestCase {
       Starter::id() => Starter::LOAD_DATABASE_DEMO,
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     // Starter has a _system dependency which should be skipped.
     $error_prompts = array_column($result['errors'], 'prompt');
@@ -189,39 +187,19 @@ class ConfigValidatorTest extends UnitTestCase {
     $this->assertSame(Starter::LOAD_DATABASE_DEMO, $result['resolved'][Starter::id()] ?? NULL);
   }
 
-  public function testResolvedShowsDefaults(): void {
-    $config = [];
-
-    $result = $this->validator->validate($config, $this->handlers);
-
-    // Handlers with defaults should appear in resolved.
-    $this->assertArrayHasKey('resolved', $result);
-
-    // HostingProvider has a default of 'none'.
-    $this->assertSame(HostingProvider::NONE, $result['resolved'][HostingProvider::id()] ?? NULL);
-
-    // Migration has a default of FALSE.
-    $this->assertSame(FALSE, $result['resolved'][Migration::id()] ?? NULL);
-  }
-
-  public function testConfigWithEnvVarNames(): void {
+  public function testResolvedOnlyContainsProvidedValues(): void {
     $config = [
-      'VORTEX_INSTALLER_PROMPT_NAME' => 'Test Site',
-      'VORTEX_INSTALLER_PROMPT_MACHINE_NAME' => 'test_site',
-      'VORTEX_INSTALLER_PROMPT_ORG' => 'Test Org',
-      'VORTEX_INSTALLER_PROMPT_ORG_MACHINE_NAME' => 'test_org',
-      'VORTEX_INSTALLER_PROMPT_DOMAIN' => 'test-site.com',
-      'VORTEX_INSTALLER_PROMPT_MODULE_PREFIX' => 'test_site',
-      'VORTEX_INSTALLER_PROMPT_WEBROOT' => 'web',
-      'VORTEX_INSTALLER_PROMPT_HOSTING_PROVIDER' => HostingProvider::LAGOON,
-      'VORTEX_INSTALLER_PROMPT_HOSTING_PROJECT_NAME' => 'test-site',
+      HostingProvider::id() => HostingProvider::LAGOON,
+      HostingProjectName::id() => 'test-project',
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     $this->assertTrue($result['valid']);
-    $this->assertSame('Test Site', $result['resolved'][Name::id()] ?? NULL);
-    $this->assertSame(HostingProvider::LAGOON, $result['resolved'][HostingProvider::id()] ?? NULL);
+    $this->assertSame(HostingProvider::LAGOON, $result['resolved'][HostingProvider::id()]);
+    $this->assertSame('test-project', $result['resolved'][HostingProjectName::id()]);
+    // Unprovided prompts should not appear in resolved.
+    $this->assertArrayNotHasKey(Migration::id(), $result['resolved']);
   }
 
   public function testConfirmWithNonBoolValue(): void {
@@ -229,7 +207,7 @@ class ConfigValidatorTest extends UnitTestCase {
       Migration::id() => 'yes',
     ];
 
-    $result = $this->validator->validate($config, $this->handlers);
+    $result = $this->validator->validate($config);
 
     $this->assertFalse($result['valid']);
 

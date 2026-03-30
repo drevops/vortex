@@ -19,6 +19,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     parent::setUp();
 
     static::$sutInstallerEnv = [];
+    static::$sutInstallerPrompts = [];
 
     // Docker Compose tests replicate read-only environments.
     $this->forceVolumesUnmounted();
@@ -68,7 +69,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
   #[Group('p0')]
   public function testDockerComposeWorkflowNoTheme(): void {
-    static::$sutInstallerEnv = ['VORTEX_INSTALLER_PROMPT_THEME' => 'olivero'];
+    static::$sutInstallerPrompts = ['theme' => 'olivero'];
     $this->prepareSut();
 
     $this->logSubstep('Building stack with Docker Compose');

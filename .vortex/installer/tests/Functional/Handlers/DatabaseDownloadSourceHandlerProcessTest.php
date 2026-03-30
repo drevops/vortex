@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
-use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DatabaseDownloadSource::class)]
@@ -16,26 +15,26 @@ class DatabaseDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTes
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'db_download_source_url' => [
-      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::URL)),
+      static::cw(fn($test): string => $test->prompts[DatabaseDownloadSource::id()] = DatabaseDownloadSource::URL),
     ];
     yield 'db_download_source_ftp' => [
-      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::FTP)),
+      static::cw(fn($test): string => $test->prompts[DatabaseDownloadSource::id()] = DatabaseDownloadSource::FTP),
     ];
     yield 'db_download_source_acquia' => [
-      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::ACQUIA)),
+      static::cw(fn($test): string => $test->prompts[DatabaseDownloadSource::id()] = DatabaseDownloadSource::ACQUIA),
     ];
     yield 'db_download_source_lagoon' => [
-      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::LAGOON)),
+      static::cw(fn($test): string => $test->prompts[DatabaseDownloadSource::id()] = DatabaseDownloadSource::LAGOON),
     ];
     yield 'db_download_source_container_registry' => [
-      static::cw(function (): void {
-          Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::CONTAINER_REGISTRY);
-          Env::put(DatabaseImage::envName(), 'the_empire/star_wars:latest');
-          Env::put(AiCodeInstructions::envName(), Env::TRUE);
+      static::cw(function ($test): void {
+          $test->prompts[DatabaseDownloadSource::id()] = DatabaseDownloadSource::CONTAINER_REGISTRY;
+          $test->prompts[DatabaseImage::id()] = 'the_empire/star_wars:latest';
+          $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
     ];
     yield 'db_download_source_s3' => [
-      static::cw(fn() => Env::put(DatabaseDownloadSource::envName(), DatabaseDownloadSource::S3)),
+      static::cw(fn($test): string => $test->prompts[DatabaseDownloadSource::id()] = DatabaseDownloadSource::S3),
     ];
   }
 

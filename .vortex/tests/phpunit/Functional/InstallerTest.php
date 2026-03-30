@@ -19,6 +19,7 @@ class InstallerTest extends FunctionalTestCase {
     parent::setUp();
 
     static::$sutInstallerEnv = [];
+    static::$sutInstallerPrompts = [];
 
     // For test performance, we only export the current codebase without git
     // history in the parent::setUp(). For these test, though, we need git

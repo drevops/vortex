@@ -19,6 +19,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     parent::setUp();
 
     static::$sutInstallerEnv = [];
+    static::$sutInstallerPrompts = [];
 
     $this->dockerCleanup();
   }
@@ -138,9 +139,9 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p4')]
   public function testAhoyWorkflowDatabaseFromImageStorageInImage(): void {
-    static::$sutInstallerEnv = [
-      'VORTEX_INSTALLER_PROMPT_DATABASE_DOWNLOAD_SOURCE' => 'container_registry',
-      'VORTEX_INSTALLER_PROMPT_DATABASE_IMAGE' => self::VORTEX_DB_IMAGE_TEST,
+    static::$sutInstallerPrompts = [
+      'database_download_source' => 'container_registry',
+      'database_image' => self::VORTEX_DB_IMAGE_TEST,
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
@@ -212,9 +213,9 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p1')]
   public function testAhoyWorkflowProfileStandard(): void {
-    static::$sutInstallerEnv = [
-      'VORTEX_INSTALLER_PROMPT_STARTER' => 'install_profile_core',
-      'VORTEX_INSTALLER_PROMPT_PROVISION_TYPE' => 'profile',
+    static::$sutInstallerPrompts = [
+      'starter' => 'install_profile_core',
+      'provision_type' => 'profile',
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
@@ -238,9 +239,9 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p4')]
   public function testAhoyWorkflowProfileDrupalCms(): void {
-    static::$sutInstallerEnv = [
-      'VORTEX_INSTALLER_PROMPT_STARTER' => 'install_profile_drupalcms',
-      'VORTEX_INSTALLER_PROMPT_PROVISION_TYPE' => 'profile',
+    static::$sutInstallerPrompts = [
+      'starter' => 'install_profile_drupalcms',
+      'provision_type' => 'profile',
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
@@ -270,8 +271,10 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   public function testAhoyWorkflowMigration(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
-      'VORTEX_INSTALLER_PROMPT_MIGRATION' => 'true',
-      'VORTEX_INSTALLER_PROMPT_MIGRATION_DOWNLOAD_SOURCE' => 'url',
+    ];
+    static::$sutInstallerPrompts = [
+      'migration' => TRUE,
+      'migration_download_source' => 'url',
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
@@ -296,9 +299,11 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   public function testAhoyWorkflowMigrationDatabaseFromImage(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
-      'VORTEX_INSTALLER_PROMPT_MIGRATION' => 'true',
-      'VORTEX_INSTALLER_PROMPT_MIGRATION_DOWNLOAD_SOURCE' => 'container_registry',
-      'VORTEX_INSTALLER_PROMPT_MIGRATION_IMAGE' => self::VORTEX_DB_IMAGE_TEST,
+    ];
+    static::$sutInstallerPrompts = [
+      'migration' => TRUE,
+      'migration_download_source' => 'container_registry',
+      'migration_image' => self::VORTEX_DB_IMAGE_TEST,
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();

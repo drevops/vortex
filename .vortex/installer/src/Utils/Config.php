@@ -41,6 +41,8 @@ final class Config {
 
   const BUILD_NOW = 'VORTEX_INSTALLER_BUILD_NOW';
 
+  const PROMPTS = 'VORTEX_INSTALLER_PROMPTS';
+
   /**
    * Store of configuration values.
    *

@@ -43,6 +43,15 @@ trait SutTrait {
    */
   protected static $sutInstallerEnv = [];
 
+  /**
+   * Prompt values to pass via --prompts option.
+   *
+   * Keyed by handler ID with proper PHP types.
+   *
+   * @var array<string, mixed>
+   */
+  protected static array $sutInstallerPrompts = [];
+
   protected function prepareSut(string $webroot = 'web'): void {
     $this->logStepStart();
 
@@ -85,6 +94,10 @@ trait SutTrait {
     // @todo Convert options to $arguments once
     // ProcessTrait::processParseCommand() is fixed.
     $cmd = sprintf('php .vortex/installer/installer.php --no-interaction --destination=%s', escapeshellarg(static::locationsSut()));
+
+    if (!empty(static::$sutInstallerPrompts)) {
+      $cmd .= ' --prompts=' . escapeshellarg((string) json_encode(static::$sutInstallerPrompts));
+    }
 
     $this->logNote('Run the installer script');
     $this->cmd(

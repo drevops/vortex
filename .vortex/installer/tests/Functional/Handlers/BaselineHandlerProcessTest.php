@@ -78,27 +78,27 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'non_interactive_config_file' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
-          $config_file = static::$tmp . DIRECTORY_SEPARATOR . 'config.json';
-          File::dump($config_file, (string) json_encode([
+          $prompts_file = static::$tmp . DIRECTORY_SEPARATOR . 'prompts.json';
+          File::dump($prompts_file, (string) json_encode([
             // Test overriding scalar value.
-            Org::envName() => 'My custom org',
+            Org::id() => 'My custom org',
             // Test overriding array value.
-            Services::envName() => [Services::SOLR, Services::CLAMAV],
+            Services::id() => [Services::SOLR, Services::CLAMAV],
           ]));
-          $test->installOptions['config'] = $config_file;
+          $test->installOptions['prompts'] = $prompts_file;
       }),
       NULL,
         ['Welcome to the Vortex non-interactive installer'],
     ];
     yield 'non_interactive_config_string' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
-          $config_string = (string) json_encode([
+          $prompts_string = (string) json_encode([
             // Test overriding scalar value.
-            Org::envName() => 'My other custom org',
+            Org::id() => 'My other custom org',
             // Test overriding array value.
-            Services::envName() => [Services::SOLR, Services::REDIS],
+            Services::id() => [Services::SOLR, Services::REDIS],
           ]);
-          $test->installOptions['config'] = $config_string;
+          $test->installOptions['prompts'] = $prompts_string;
       }),
       NULL,
         ['Welcome to the Vortex non-interactive installer'],

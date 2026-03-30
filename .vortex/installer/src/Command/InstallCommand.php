@@ -16,8 +16,8 @@ use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareInterface;
 use DrevOps\VortexInstaller\Runner\ExecutableFinderAwareTrait;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Schema\AgentHelp;
-use DrevOps\VortexInstaller\Schema\ConfigValidator;
 use DrevOps\VortexInstaller\Schema\SchemaGenerator;
+use DrevOps\VortexInstaller\Schema\SchemaValidator;
 use DrevOps\VortexInstaller\Task\Task;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
@@ -61,6 +61,8 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   const OPTION_SCHEMA = 'schema';
 
   const OPTION_VALIDATE = 'validate';
+
+  const OPTION_PROMPTS = 'prompts';
 
   const OPTION_AGENT_HELP = 'agent-help';
 
@@ -142,6 +144,7 @@ EOF
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
     $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
     $this->addOption(static::OPTION_BUILD, 'b', InputOption::VALUE_NONE, 'Run auto-build after installation without prompting.');
+    $this->addOption(static::OPTION_PROMPTS, 'p', InputOption::VALUE_REQUIRED, 'A JSON string with prompt answers or a path to a JSON file. Keys are prompt IDs from --schema.');
     $this->addOption(static::OPTION_SCHEMA, NULL, InputOption::VALUE_NONE, 'Output prompt schema as JSON.');
     $this->addOption(static::OPTION_VALIDATE, NULL, InputOption::VALUE_NONE, 'Validate config without installing.');
     $this->addOption(static::OPTION_AGENT_HELP, NULL, InputOption::VALUE_NONE, 'Output instructions for AI agents on how to use the installer.');
@@ -306,8 +309,8 @@ EOF
     $config = Config::fromString('{}');
     $prompt_manager = new PromptManager($config);
 
-    $generator = new SchemaGenerator();
-    $schema = $generator->generate($prompt_manager->getHandlers());
+    $generator = new SchemaGenerator($prompt_manager->getHandlers());
+    $schema = $generator->generate();
 
     $output->write((string) json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
@@ -318,28 +321,30 @@ EOF
    * Handle --validate option.
    */
   protected function handleValidate(InputInterface $input, OutputInterface $output): int {
-    $config_option = $input->getOption(static::OPTION_CONFIG);
+    $prompts_option = $input->getOption(static::OPTION_PROMPTS);
 
-    if (empty($config_option) || !is_string($config_option)) {
-      $output->writeln('The --validate option requires --config.');
+    if (empty($prompts_option) || !is_string($prompts_option)) {
+      $output->writeln('The --validate option requires --prompts.');
+
+      return Command::FAILURE;
+    }
+
+    $prompts_json = is_file($prompts_option) ? (string) file_get_contents($prompts_option) : $prompts_option;
+    $decoded = json_decode($prompts_json);
+
+    if (!$decoded instanceof \stdClass) {
+      $output->writeln('Invalid JSON in --prompts. Expected a JSON object.');
 
       return Command::FAILURE;
     }
 
-    $config_json = is_file($config_option) ? (string) file_get_contents($config_option) : $config_option;
-    $user_config = json_decode($config_json, TRUE);
-
-    if (!is_array($user_config)) {
-      $output->writeln('Invalid JSON in --config.');
-
-      return Command::FAILURE;
-    }
+    $user_config = json_decode($prompts_json, TRUE);
 
     $config = Config::fromString('{}');
     $prompt_manager = new PromptManager($config);
 
-    $validator = new ConfigValidator();
-    $result = $validator->validate($user_config, $prompt_manager->getHandlers());
+    $validator = new SchemaValidator($prompt_manager->getHandlers());
+    $result = $validator->validate($user_config);
 
     $output->write((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 

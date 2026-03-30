@@ -8,8 +8,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
-use DrevOps\VortexInstaller\Utils\Converter;
-use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Tools::class)]
@@ -17,10 +15,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'tools_none' => [
-      static::cw(function (): void {
-          Env::put(Tools::envName(), Converter::toList([]));
+      static::cw(function ($test): void {
+          $test->prompts[Tools::id()] = [];
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertSutNotContains([
             'phpcs',
             'phpcbf',
@@ -56,10 +54,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_phpcs' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpcs',
@@ -70,10 +68,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpcs_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpcs',
@@ -84,10 +82,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpstan' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPSTAN]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpstan',
@@ -96,10 +94,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpstan_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPSTAN])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPSTAN]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpstan',
@@ -108,10 +106,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_rector' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::RECTOR])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::RECTOR]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'rector',
@@ -119,10 +117,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_rector_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::RECTOR])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::RECTOR]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'rector',
@@ -130,10 +128,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpmd' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPMD])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPMD]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpmd',
@@ -141,10 +139,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpmd_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPMD])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPMD]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpmd',
@@ -152,12 +150,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_eslint' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"eslint":');
           $test->assertFileNotContainsString($pj, '"eslint-config-airbnb-base":');
@@ -178,12 +176,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_eslint_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"eslint":');
           $test->assertFileNotContainsString($pj, '"eslint-config-airbnb-base":');
@@ -204,12 +202,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_stylelint' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::STYLELINT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::STYLELINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"stylelint":');
           $test->assertFileNotContainsString($pj, '"stylelint-config-standard":');
@@ -220,12 +218,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_stylelint_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::STYLELINT])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::STYLELINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"stylelint":');
           $test->assertFileNotContainsString($pj, '"stylelint-config-standard":');
@@ -236,10 +234,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_phpunit' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpunit',
@@ -249,10 +247,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpunit_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpunit',
@@ -262,10 +260,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_behat' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::BEHAT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::BEHAT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'behat',
@@ -279,10 +277,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_behat_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::BEHAT])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::BEHAT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'behat',
@@ -295,10 +293,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_be_lint' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpcs',
@@ -316,10 +314,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_be_lint_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpcs',
@@ -337,12 +335,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_jest' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::JEST])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::JEST]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"jest":');
           $test->assertFileNotContainsString($pj, '"jest-environment-jsdom":');
@@ -352,12 +350,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_jest_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::JEST])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::JEST]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"jest":');
           $test->assertFileNotContainsString($pj, '"jest-environment-jsdom":');
@@ -367,12 +365,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_fe_lint' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
@@ -384,12 +382,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_fe_lint_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
@@ -401,10 +399,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_be_tests' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpunit',
@@ -421,10 +419,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_be_tests_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'phpunit',
@@ -441,13 +439,13 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_fe_lint_no_theme' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
-          Env::put(Theme::envName(), Theme::OLIVERO);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+          $test->prompts[Theme::id()] = Theme::OLIVERO;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
@@ -465,13 +463,13 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_fe_lint_no_theme_circleci' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST])));
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
-          Env::put(Theme::envName(), Theme::OLIVERO);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
+          $test->prompts[Theme::id()] = Theme::OLIVERO;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
@@ -489,13 +487,13 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_stylelint_no_theme' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::STYLELINT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
-          Env::put(Theme::envName(), Theme::OLIVERO);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::STYLELINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+          $test->prompts[Theme::id()] = Theme::OLIVERO;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"stylelint":');
           $test->assertFileNotContainsString($pj, '"stylelint-config-standard":');
@@ -507,13 +505,13 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_eslint_no_theme' => [
-      static::cw(function (): void {
+      static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          Env::put(Tools::envName(), Converter::toList(array_diff($tools, [Tools::ESLINT])));
-          Env::put(CiProvider::envName(), CiProvider::GITHUB_ACTIONS);
-          Env::put(Theme::envName(), Theme::OLIVERO);
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+          $test->prompts[Theme::id()] = Theme::OLIVERO;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $pj = static::$sut . '/package.json';
           $test->assertFileNotContainsString($pj, '"eslint":');
           $test->assertFileNotContainsString($pj, '"eslint-config-airbnb-base":');

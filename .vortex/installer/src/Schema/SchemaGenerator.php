@@ -16,25 +16,32 @@ use DrevOps\VortexInstaller\Utils\Normalizer;
 class SchemaGenerator {
 
   /**
-   * Generate schema from handlers.
+   * Constructor.
    *
    * @param array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface> $handlers
    *   An associative array of handler instances keyed by handler ID.
+   */
+  public function __construct(
+    protected array $handlers,
+  ) {
+  }
+
+  /**
+   * Generate schema from handlers.
    *
    * @return array<string, mixed>
    *   The schema structure with a 'prompts' key.
    */
-  public function generate(array $handlers): array {
+  public function generate(): array {
     $prompts = [];
 
-    foreach ($handlers as $id => $handler) {
+    foreach ($this->handlers as $id => $handler) {
       if (in_array($id, static::getExcludedHandlers(), TRUE)) {
         continue;
       }
 
       $prompts[] = [
         'id' => $handler::id(),
-        'env' => $handler::envName(),
         'type' => $handler->type()->value,
         'label' => $handler->label(),
         'description' => $handler::description([]),

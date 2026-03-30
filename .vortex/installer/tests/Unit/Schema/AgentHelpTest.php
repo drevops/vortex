@@ -78,7 +78,6 @@ class AgentHelpTest extends UnitTestCase {
 
   public static function dataProviderRenderContainsSchemaFields(): \Iterator {
     yield 'id field' => ['id'];
-    yield 'env field' => ['env'];
     yield 'type field' => ['type'];
     yield 'label field' => ['label'];
     yield 'options field' => ['options'];
