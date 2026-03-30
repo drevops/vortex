@@ -21,6 +21,7 @@ class DeploymentTest extends FunctionalTestCase {
     parent::setUp();
 
     static::$sutInstallerEnv = [];
+    static::$sutInstallerPrompts = [];
 
     $this->dockerCleanup();
   }
@@ -205,8 +206,9 @@ class DeploymentTest extends FunctionalTestCase {
 
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
-      // Add trailing comma to simulate list input.
-      'VORTEX_INSTALLER_PROMPT_DEPLOY_TYPES' => 'artifact,',
+    ];
+    static::$sutInstallerPrompts = [
+      'deploy_types' => ['artifact'],
     ];
 
     $this->logSubstep('Prepare SUT with full build');
