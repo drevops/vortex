@@ -24,6 +24,15 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
    */
   public array $installOptions = [];
 
+  /**
+   * Prompt overrides to pass via --prompts option.
+   *
+   * Keyed by handler ID. Set in $before closures.
+   *
+   * @var array<string, mixed>
+   */
+  public array $prompts = [];
+
   protected function setUp(): void {
     parent::setUp();
 
@@ -56,6 +65,10 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
       $before($this);
     }
 
+    if (!empty($this->prompts)) {
+      $this->installOptions[InstallCommand::OPTION_PROMPTS] = json_encode($this->prompts);
+    }
+
     $this->runNonInteractiveInstall(options: $this->installOptions);
 
     $expected = empty($expected) ? ['Welcome to the Vortex non-interactive installer'] : $expected;
@@ -83,28 +96,6 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
 
     $this->assertYamlFileIsValid('.ahoy.yml');
     $this->assertJsonFileIsValid('composer.json');
-  }
-
-  protected static function defaultAnswers(): array {
-    return [
-      'namespace' => 'YodasHut',
-      'project' => 'force-crystal',
-      'author' => 'Luke Skywalker',
-      'use_php' => static::TUI_DEFAULT,
-      'use_php_command' => static::TUI_DEFAULT,
-      'php_command_name' => static::TUI_DEFAULT,
-      'use_php_command_build' => static::TUI_DEFAULT,
-      'use_php_script' => static::TUI_DEFAULT,
-      'use_nodejs' => static::TUI_DEFAULT,
-      'use_shell' => static::TUI_DEFAULT,
-      'use_release_drafter' => static::TUI_DEFAULT,
-      'use_pr_autoassign' => static::TUI_DEFAULT,
-      'use_funding' => static::TUI_DEFAULT,
-      'use_pr_template' => static::TUI_DEFAULT,
-      'use_renovate' => static::TUI_DEFAULT,
-      'use_docs' => static::TUI_DEFAULT,
-      'remove_self' => static::TUI_DEFAULT,
-    ];
   }
 
 }

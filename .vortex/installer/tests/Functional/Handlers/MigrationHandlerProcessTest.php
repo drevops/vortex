@@ -7,8 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
-use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Migration::class)]
@@ -16,8 +14,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'migration_enabled' => [
-      static::cw(fn() => Env::put(Migration::envName(), Env::TRUE)),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(fn($test): true => $test->prompts[Migration::id()] = TRUE),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories created by the handler.
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileExists(static::$sut . '/scripts/custom/provision-20-migration.sh');
@@ -38,11 +36,11 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_enabled_circleci' => [
-      static::cw(function (): void {
-          Env::put(Migration::envName(), Env::TRUE);
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+      static::cw(function ($test): void {
+          $test->prompts[Migration::id()] = TRUE;
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileExists(static::$sut . '/scripts/custom/provision-20-migration.sh');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
@@ -52,8 +50,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_disabled' => [
-      static::cw(fn() => Env::put(Migration::envName(), Env::FALSE)),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(fn($test): false => $test->prompts[Migration::id()] = FALSE),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories removed by the handler.
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/custom/provision-20-migration.sh');
@@ -74,11 +72,11 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_disabled_circleci' => [
-      static::cw(function (): void {
-          Env::put(Migration::envName(), Env::FALSE);
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+      static::cw(function ($test): void {
+          $test->prompts[Migration::id()] = FALSE;
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/custom/provision-20-migration.sh');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
@@ -88,11 +86,11 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_enabled_lagoon' => [
-      static::cw(function (): void {
-          Env::put(Migration::envName(), Env::TRUE);
-          Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
+      static::cw(function ($test): void {
+          $test->prompts[Migration::id()] = TRUE;
+          $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileExists(static::$sut . '/scripts/custom/provision-20-migration.sh');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
@@ -102,11 +100,11 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_disabled_lagoon' => [
-      static::cw(function (): void {
-          Env::put(Migration::envName(), Env::FALSE);
-          Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
+      static::cw(function ($test): void {
+          $test->prompts[Migration::id()] = FALSE;
+          $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/custom/provision-20-migration.sh');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');

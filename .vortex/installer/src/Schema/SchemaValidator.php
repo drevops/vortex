@@ -8,32 +8,52 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\PromptType;
 
 /**
- * Validates a config array against handler definitions.
+ * Validates prompt values against handler definitions.
  *
  * @package DrevOps\VortexInstaller\Schema
  */
-class ConfigValidator {
+class SchemaValidator {
+
+  /**
+   * Constructor.
+   *
+   * @param array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface> $handlers
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  public function __construct(
+    protected array $handlers,
+  ) {
+  }
 
   /**
    * Validate a config array against handlers.
    *
    * @param array<string, mixed> $config
-   *   The config array to validate, keyed by env var name or handler ID.
-   * @param array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface> $handlers
-   *   An associative array of handler instances keyed by handler ID.
+   *   The config array to validate, keyed by handler ID.
    *
    * @return array<string, mixed>
    *   Validation result with keys: valid, errors, warnings, resolved.
    */
-  public function validate(array $config, array $handlers): array {
+  public function validate(array $config): array {
     $errors = [];
     $warnings = [];
     $resolved = [];
 
-    // Normalize config keys: support both env var names and handler IDs.
-    $normalized = $this->normalizeConfig($config, $handlers);
+    // Normalize config keys to handler IDs.
+    $normalized = $this->normalizeConfig($config);
 
-    foreach ($handlers as $id => $handler) {
+    // Report unknown prompt IDs.
+    $known_ids = array_keys($this->handlers);
+    foreach (array_keys($normalized) as $key) {
+      if (!in_array($key, $known_ids, TRUE)) {
+        $errors[] = [
+          'prompt' => $key,
+          'message' => sprintf('Unknown prompt "%s".', $key),
+        ];
+      }
+    }
+
+    foreach ($this->handlers as $id => $handler) {
       if (in_array($id, SchemaGenerator::getExcludedHandlers(), TRUE)) {
         continue;
       }
@@ -41,59 +61,41 @@ class ConfigValidator {
       $has_value = array_key_exists($id, $normalized);
       $value = $normalized[$id] ?? NULL;
 
-      // Check dependency conditions.
+      // Skip prompts not provided in the input.
+      if (!$has_value) {
+        continue;
+      }
+
+      // Check dependency conditions for provided prompts.
       $depends_on = $handler->dependsOn();
       if ($depends_on !== NULL) {
         $dep_result = $this->checkDependency($depends_on, $normalized);
 
         if ($dep_result === 'skip') {
-          // System dependency - skip validation.
-          if ($has_value) {
-            $resolved[$id] = $value;
+          $type_error = $this->validateType($handler, $value);
+          if ($type_error !== NULL) {
+            $errors[] = [
+              'prompt' => $id,
+              'message' => $type_error,
+            ];
+            continue;
           }
+
+          $resolved[$id] = $value;
           continue;
         }
 
         if ($dep_result === FALSE) {
-          // Dependency not met.
-          if ($has_value) {
-            $dep_keys = array_keys($depends_on);
-            $dep_values = [];
-            foreach ($depends_on as $dep_id => $acceptable) {
-              $dep_values[] = $dep_id . '=' . implode('|', array_map(fn($v): string => var_export($v, TRUE), $acceptable));
-            }
-            $warnings[] = [
-              'prompt' => $id,
-              'message' => sprintf('Value will be ignored: %s condition is not met.', implode(', ', $dep_values)),
-            ];
+          $dep_values = [];
+          foreach ($depends_on as $dep_id => $acceptable) {
+            $dep_values[] = $dep_id . '=' . implode('|', array_map(fn($v): string => var_export($v, TRUE), $acceptable));
           }
-          // Dependency not met + missing value = OK (skip).
-          continue;
-        }
-
-        // Dependency met + missing required value = error.
-        if (!$has_value && $handler->isRequired()) {
-          $errors[] = [
+          $warnings[] = [
             'prompt' => $id,
-            'message' => sprintf('Missing required value for "%s" (dependency condition is met).', $id),
+            'message' => sprintf('Value will be ignored: %s condition is not met.', implode(', ', $dep_values)),
           ];
           continue;
         }
-      }
-
-      // If no value provided, use default.
-      if (!$has_value) {
-        $default = $handler->default($normalized);
-        if ($default !== NULL) {
-          $resolved[$id] = $default;
-        }
-        elseif ($handler->isRequired()) {
-          $errors[] = [
-            'prompt' => $id,
-            'message' => sprintf('Missing required value for "%s".', $id),
-          ];
-        }
-        continue;
       }
 
       // Validate value based on type.
@@ -124,32 +126,15 @@ class ConfigValidator {
    *
    * @param array<string, mixed> $config
    *   The raw config array.
-   * @param array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface> $handlers
-   *   Handler instances.
    *
    * @return array<string, mixed>
    *   Config keyed by handler IDs.
    */
-  protected function normalizeConfig(array $config, array $handlers): array {
+  protected function normalizeConfig(array $config): array {
     $normalized = [];
 
-    // Build env-name-to-id mapping.
-    $env_to_id = [];
-    foreach ($handlers as $id => $handler) {
-      $env_to_id[$handler::envName()] = $id;
-    }
-
     foreach ($config as $key => $value) {
-      if (isset($env_to_id[$key])) {
-        $normalized[$env_to_id[$key]] = $value;
-      }
-      elseif (isset($handlers[$key])) {
-        $normalized[$key] = $value;
-      }
-      else {
-        // Try as-is (might be an unknown key).
-        $normalized[$key] = $value;
-      }
+      $normalized[$key] = $value;
     }
 
     return $normalized;

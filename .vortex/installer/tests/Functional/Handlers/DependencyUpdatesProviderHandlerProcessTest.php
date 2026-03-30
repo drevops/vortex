@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
-use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DependencyUpdatesProvider::class)]
@@ -14,19 +13,19 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'deps_updates_provider_ci_gha' => [
-      static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI)),
+      static::cw(fn($test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_CI),
     ];
     yield 'deps_updates_provider_ci_circleci' => [
-      static::cw(function (): void {
-          Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_CI);
-          Env::put(CiProvider::envName(), CiProvider::CIRCLECI);
+      static::cw(function ($test): void {
+          $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_CI;
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
     ];
     yield 'deps_updates_provider_app' => [
-      static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::RENOVATEBOT_APP)),
+      static::cw(fn($test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_APP),
     ];
     yield 'deps_updates_provider_none' => [
-      static::cw(fn() => Env::put(DependencyUpdatesProvider::envName(), DependencyUpdatesProvider::NONE)),
+      static::cw(fn($test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::NONE),
     ];
   }
 

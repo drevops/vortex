@@ -10,7 +10,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
-use DrevOps\VortexInstaller\Schema\ConfigValidator;
+use DrevOps\VortexInstaller\Schema\SchemaValidator;
 use DrevOps\VortexInstaller\Schema\SchemaGenerator;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversClass(InstallCommand::class)]
 #[CoversClass(SchemaGenerator::class)]
-#[CoversClass(ConfigValidator::class)]
+#[CoversClass(SchemaValidator::class)]
 class SchemaValidateCommandTest extends FunctionalTestCase {
 
   /**
@@ -65,7 +65,7 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
     ]);
 
     $schema = json_decode($this->applicationGetOutput(), TRUE);
-    $required_fields = ['id', 'env', 'type', 'label', 'required'];
+    $required_fields = ['id', 'type', 'label', 'required'];
 
     foreach ($schema['prompts'] as $prompt) {
       foreach ($required_fields as $required_field) {
@@ -138,7 +138,7 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
     if ($config !== NULL) {
       // Resolve fixture files relative to the fixtures directory.
       $path = str_starts_with($config, '/') ? $config : static::$schemaFixturesDir . '/' . $config;
-      $options['--' . InstallCommand::OPTION_CONFIG] = $path;
+      $options['--' . InstallCommand::OPTION_PROMPTS] = $path;
     }
 
     $expect_failure = isset($expectations['valid']) ? !$expectations['valid'] : TRUE;
@@ -202,18 +202,15 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
   public static function dataProviderValidate(): \Iterator {
     // Valid configs.
     yield 'full config with lagoon hosting' => ['valid_full.json', ['valid' => TRUE]];
-    yield 'minimal config with defaults' => [
+    yield 'minimal config' => [
       'valid_minimal.json',
         [
           'valid' => TRUE,
           'resolved' => [
-            HostingProvider::id() => HostingProvider::NONE,
-            Migration::id() => FALSE,
             Name::id() => 'Minimal Site',
           ],
         ],
     ];
-    yield 'config using env var key names' => ['valid_env_keys.json', ['valid' => TRUE]];
     yield 'database provision with container registry' => ['valid_database_provision.json', ['valid' => TRUE]];
     yield 'migration enabled' => ['valid_migration.json', ['valid' => TRUE]];
     yield 'acquia hosting' => ['valid_acquia.json', ['valid' => TRUE]];
@@ -240,16 +237,13 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
         ['valid' => TRUE, 'warning_prompt' => HostingProjectName::id()],
     ];
     // Empty and array configs.
-    yield 'empty JSON object uses defaults' => [
+    yield 'empty JSON object is valid' => [
       'empty.json',
-        [
-          'valid' => FALSE,
-          'resolved' => [HostingProvider::id() => HostingProvider::NONE],
-        ],
+        ['valid' => TRUE],
     ];
-    yield 'JSON array treated as empty config' => [
+    yield 'JSON array rejected' => [
       'json_array.json',
-        ['valid' => FALSE],
+        ['output_contains' => 'Invalid JSON'],
     ];
     // Broken/unparseable inputs.
     yield 'broken JSON syntax' => ['broken_json.json', ['output_contains' => 'Invalid JSON']];
@@ -258,7 +252,7 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
     yield 'JSON string instead of object' => ['json_string.json', ['output_contains' => 'Invalid JSON']];
     yield 'non-existent file treated as raw JSON' => ['/nonexistent/path/config.json', ['output_contains' => 'Invalid JSON']];
     // Missing --config.
-    yield 'validate without --config fails' => [NULL, ['output_contains' => '--config']];
+    yield 'validate without --prompts fails' => [NULL, ['output_contains' => '--prompts']];
   }
 
   // -------------------------------------------------------------------------

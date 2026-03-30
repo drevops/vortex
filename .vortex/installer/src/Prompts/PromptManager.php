@@ -43,9 +43,9 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
+use DrevOps\VortexInstaller\Schema\SchemaValidator;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
-use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
@@ -88,6 +88,15 @@ class PromptManager {
   protected array $handlers = [];
 
   /**
+   * Prompt overrides from --prompts CLI option.
+   *
+   * Keyed by handler ID with validated values.
+   *
+   * @var array<string, mixed>
+   */
+  protected array $promptOverrides = [];
+
+  /**
    * PromptManager constructor.
    *
    * @param \DrevOps\VortexInstaller\Utils\Config $config
@@ -97,6 +106,7 @@ class PromptManager {
     protected Config $config,
   ) {
     $this->initHandlers();
+    $this->resolvePromptOverrides();
   }
 
   /**
@@ -578,6 +588,39 @@ class PromptManager {
   }
 
   /**
+   * Resolve prompt overrides from --prompts CLI option.
+   *
+   * Reads the raw prompt array from Config, normalizes keys to handler IDs,
+   * validates values against handler types and options, and stores the
+   * validated overrides.
+   *
+   * @throws \RuntimeException
+   *   If any prompt value is invalid.
+   */
+  private function resolvePromptOverrides(): void {
+    $raw = $this->config->get(Config::PROMPTS);
+
+    if (!is_array($raw) || empty($raw)) {
+      return;
+    }
+
+    $validator = new SchemaValidator($this->handlers);
+    $result = $validator->validate($raw);
+
+    if (!empty($result['errors'])) {
+      $messages = array_map(fn(array $error): string => sprintf('%s: %s', $error['prompt'], $error['message']), $result['errors']);
+      throw new \RuntimeException(sprintf('Invalid --prompts values: %s', implode('; ', $messages)));
+    }
+
+    // Use the resolved values which include defaults for missing prompts.
+    foreach ($raw as $key => $value) {
+      if (isset($this->handlers[$key])) {
+        $this->promptOverrides[$key] = $value;
+      }
+    }
+  }
+
+  /**
    * Dispatch a prompt using the handler's type enum.
    *
    * @param string $handler_class
@@ -646,22 +689,13 @@ class PromptManager {
 
     // Find appropriate default value.
     $default_from_handler = $handler->default($responses);
-    // Create the env var name.
-    $var_name = $handler::envName();
-    // Get from config.
-    $config_val = $this->config->get($var_name);
-    $default_from_config = is_null($config_val) ? NULL : $config_val;
-    // Get from env.
-    $env_val = Env::get($var_name);
-    $default_from_env = is_null($env_val) ? NULL : Env::toValue($env_val);
+    // Get from prompt overrides (--prompts CLI option).
+    $default_from_prompts = $this->promptOverrides[$id] ?? NULL;
     // Get from discovery.
     $default_from_discovery = $this->handlers[$id]->discover();
 
-    if (!is_null($default_from_config)) {
-      $default = $default_from_config;
-    }
-    elseif (!is_null($default_from_env)) {
-      $default = $default_from_env;
+    if (!is_null($default_from_prompts)) {
+      $default = $default_from_prompts;
     }
     elseif (!is_null($default_from_discovery)) {
       $default = $default_from_discovery;

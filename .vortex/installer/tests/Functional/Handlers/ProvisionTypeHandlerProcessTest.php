@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
-use DrevOps\VortexInstaller\Utils\Env;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(ProvisionType::class)]
@@ -15,19 +14,19 @@ class ProvisionTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'provision_database' => [
-      static::cw(fn() => Env::put(ProvisionType::envName(), ProvisionType::DATABASE)),
+      static::cw(fn($test): string => $test->prompts[ProvisionType::id()] = ProvisionType::DATABASE),
     ];
     yield 'provision_database_lagoon' => [
-      static::cw(function (): void {
-          Env::put(ProvisionType::envName(), ProvisionType::DATABASE);
-          Env::put(HostingProvider::envName(), HostingProvider::LAGOON);
-          Env::put(AiCodeInstructions::envName(), Env::TRUE);
+      static::cw(function ($test): void {
+          $test->prompts[ProvisionType::id()] = ProvisionType::DATABASE;
+          $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
+          $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
     ];
     yield 'provision_profile' => [
-      static::cw(function (): void {
-          Env::put(ProvisionType::envName(), ProvisionType::PROFILE);
-          Env::put(AiCodeInstructions::envName(), Env::TRUE);
+      static::cw(function ($test): void {
+          $test->prompts[ProvisionType::id()] = ProvisionType::PROFILE;
+          $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
     ];
   }

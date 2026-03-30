@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
-use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -15,7 +15,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'theme_olivero' => [
-      static::cw(fn() => Env::put(Theme::envName(), Theme::OLIVERO)),
+      static::cw(fn($test): string => $test->prompts[Theme::id()] = Theme::OLIVERO),
       static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
         '.gitignore',
         'scripts/vortex',
@@ -25,7 +25,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'theme_claro' => [
-      static::cw(fn() => Env::put(Theme::envName(), Theme::CLARO)),
+      static::cw(fn($test): string => $test->prompts[Theme::id()] = Theme::CLARO),
       static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
         '.gitignore',
         'scripts/vortex',
@@ -35,7 +35,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'theme_stark' => [
-      static::cw(fn() => Env::put(Theme::envName(), Theme::STARK)),
+      static::cw(fn($test): string => $test->prompts[Theme::id()] = Theme::STARK),
       static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
         '.gitignore',
         'scripts/vortex',
@@ -45,12 +45,16 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'theme_custom' => [
-      static::cw(fn() => Env::put(Theme::envName(), 'light_saber')),
+      static::cw(function ($test): void {
+          $test->prompts[Theme::id()] = Theme::CUSTOM;
+          $test->prompts[ThemeCustom::id()] = 'light_saber';
+      }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'your_site_theme')),
     ];
     yield 'theme_custom_non_vortex' => [
-      static::cw(function (FunctionalTestCase $test): void {
-        Env::put(Theme::envName(), 'star_wars');
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->prompts[Theme::id()] = Theme::CUSTOM;
+        $test->prompts[ThemeCustom::id()] = 'star_wars';
 
         // Run a first install to create a proper Vortex project
         // with a Vortex-sourced custom theme.
@@ -68,7 +72,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         File::dump($theme_dir . '/package.json', '{"name": "star_wars_custom"}' . PHP_EOL);
         File::dump($theme_dir . '/styles.css', '.star-wars { color: blue; }' . PHP_EOL);
       }),
-      static::cw(function (FunctionalTestCase $test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
         // The project's own theme files must be preserved unchanged —
         // Vortex must not overwrite them with its template theme files.
         $theme_dir = static::$sut . '/web/themes/custom/star_wars';

@@ -11,7 +11,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
 use DrevOps\VortexInstaller\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
-use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Name::class)]
@@ -19,14 +19,15 @@ class NamesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'names' => [
-      static::cw(function (): void {
-        Env::put(Name::envName(), 'New hope');
-        Env::put(MachineName::envName(), 'the_new_hope');
-        Env::put(Org::envName(), 'Jedi Order');
-        Env::put(OrgMachineName::envName(), 'the_jedi_order');
-        Env::put(Domain::envName(), 'death-star.com');
-        Env::put(ModulePrefix::envName(), 'the_force');
-        Env::put(Theme::envName(), 'lightsaber');
+      static::cw(function ($test): void {
+        $test->prompts[Name::id()] = 'New hope';
+        $test->prompts[MachineName::id()] = 'the_new_hope';
+        $test->prompts[Org::id()] = 'Jedi Order';
+        $test->prompts[OrgMachineName::id()] = 'the_jedi_order';
+        $test->prompts[Domain::id()] = 'death-star.com';
+        $test->prompts[ModulePrefix::id()] = 'the_force';
+        $test->prompts[Theme::id()] = Theme::CUSTOM;
+        $test->prompts[ThemeCustom::id()] = 'lightsaber';
       }),
     ];
   }

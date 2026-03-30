@@ -31,17 +31,16 @@ programmatically.
    available configuration prompts, their types, valid values, defaults, and
    dependencies.
 
-2. **Build a config**: Using the schema, construct a JSON object where keys are
-   either prompt IDs (e.g., `hosting_provider`) or environment variable names
-   (e.g., `VORTEX_INSTALLER_PROMPT_HOSTING_PROVIDER`). Set values according to
-   the prompt types and allowed options from the schema.
+2. **Build prompt answers**: Using the schema, construct a JSON object where
+   keys are prompt IDs (the `id` field from the schema). Set values according
+   to the prompt types and allowed options.
 
-3. **Validate the config**: Run with `--validate --config='<json>'` to check
-   your config without performing an installation. The output is a JSON object
-   with `valid`, `errors`, `warnings`, and `resolved` fields.
+3. **Validate**: Run with `--validate --prompts='<json>'` to check your prompt
+   answers without performing an installation. The output is a JSON object with
+   `valid`, `errors`, `warnings`, and `resolved` fields.
 
-4. **Install**: Run with `--no-interaction --config='<json>' --destination=<dir>`
-   to perform the actual installation using your validated config.
+4. **Install**: Run with `--no-interaction --prompts='<json>' --destination=<dir>`
+   to perform the actual installation using your validated prompt answers.
 
 ## Commands
 
@@ -49,22 +48,31 @@ programmatically.
 # Get the prompt schema
 php installer.php --schema
 
-# Validate a config (JSON string)
-php installer.php --validate --config='{"name":"My Project","hosting_provider":"lagoon"}'
+# Validate prompt answers (JSON string)
+php installer.php --validate --prompts='{"name":"My Project","hosting_provider":"lagoon"}'
 
-# Validate a config (JSON file)
-php installer.php --validate --config=config.json
+# Validate prompt answers (JSON file)
+php installer.php --validate --prompts=prompts.json
 
 # Install non-interactively
-php installer.php --no-interaction --config='<json>' --destination=./my-project
+php installer.php --no-interaction --prompts='<json>' --destination=./my-project
 ```
+
+## Options
+
+- `--prompts` (`-p`): JSON object of prompt answers, keyed by prompt ID.
+  Accepts a JSON string or a path to a JSON file.
+- `--config` (`-c`): JSON object of installer configuration (repository, ref,
+  and other internal settings). Not for prompt answers.
+- `--destination`: Target directory for installation.
+- `--no-interaction` (`-n`): Non-interactive mode. Prompts without answers in
+  `--prompts` use discovered or default values.
 
 ## Schema Format
 
 The `--schema` output contains a `prompts` array. Each prompt has:
 
-- `id`: The prompt identifier (use as config key).
-- `env`: The environment variable name (alternative config key).
+- `id`: The prompt identifier (use as key in `--prompts` JSON).
 - `type`: One of `text`, `select`, `multiselect`, `confirm`, `suggest`.
 - `label`: Human-readable label.
 - `description`: Optional description text.
@@ -80,7 +88,7 @@ The `--schema` output contains a `prompts` array. Each prompt has:
 
 - `text` / `suggest`: string value.
 - `select`: string value matching one of the option values.
-- `multiselect`: array of strings, each matching an option value.
+- `multiselect`: JSON array of strings, each matching an option value.
 - `confirm`: boolean (`true` or `false`).
 
 ## Dependencies
@@ -110,7 +118,7 @@ The `--validate` output contains:
 - Start with `--schema` to understand what prompts exist.
 - Provide values only for prompts you want to customize; defaults will be
   used for the rest.
-- Use `--validate` to check your config before installing.
+- Use `--validate` to check your prompt answers before installing.
 - The `resolved` field in validation output shows the complete config that
   would be used, including defaults.
 AGENT_HELP;
