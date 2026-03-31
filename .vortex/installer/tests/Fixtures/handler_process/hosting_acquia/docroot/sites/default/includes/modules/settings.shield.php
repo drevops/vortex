@@ -49,7 +49,7 @@ if (!empty(getenv('DRUPAL_SHIELD_DISABLED'))) {
 // Allow ACME challenge path for Let's Encrypt certificate generation.
 if (!empty(getenv('DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE'))) {
   $config['shield.settings']['method'] = 0;
-  $acme_path = '/.well-known/acme-challenge/*';
-  $existing = $config['shield.settings']['paths'] ?? '';
-  $config['shield.settings']['paths'] = str_contains($existing, $acme_path) ? $existing : trim($existing . "\n" . $acme_path);
+  $shield_acme_path = '/.well-known/acme-challenge/*';
+  $shield_existing_paths = $config['shield.settings']['paths'] ?? '';
+  $config['shield.settings']['paths'] = str_contains($shield_existing_paths, $shield_acme_path) ? $shield_existing_paths : trim($shield_existing_paths . "\n" . $shield_acme_path);
 }
