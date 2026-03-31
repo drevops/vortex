@@ -73,6 +73,13 @@ When updating template scripts:
 4. Update BATS tests in `.vortex/tests/bats/`
 5. Run `ahoy update-snapshots` (requires permission)
 
+When updating template files (settings, configs, etc.):
+
+1. Make and commit code changes first
+2. Then run `ahoy update-snapshots` (requires permission) — snapshots
+   compare against the committed baseline, so uncommitted changes will
+   not be picked up correctly
+
 ## Environment Variables
 
 | Variable              | Purpose                |
