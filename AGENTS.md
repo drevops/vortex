@@ -87,6 +87,7 @@ ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
 
 - **Never modify** `scripts/vortex/` - use `scripts/custom/` for your scripts
 - **Never use** `ahoy drush php:eval` - use `ahoy drush php:script` instead
+- **Never pass inline code to commands** via stdin, heredocs, or `/dev/stdin` - always write code to a temporary file first, then pass the file path to the command (e.g. `ahoy drush php:script path/to/fix.php`)
 - **Always export config** after admin UI changes: `ahoy drush cex`
 - **Never use compound Bash commands.** See the highest priority rule at the top.
 
