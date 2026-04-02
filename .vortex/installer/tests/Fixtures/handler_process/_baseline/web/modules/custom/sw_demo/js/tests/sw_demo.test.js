@@ -2,26 +2,26 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-
 describe('Drupal.behaviors.ysDemo', () => {
   beforeEach(() => {
     localStorage.clear();
     global.Drupal = { behaviors: {} };
 
-    const filePath = path.resolve(__dirname, 'the_force_demo.js');
-    const code = fs.readFileSync(filePath, 'utf8');
-    eval(code);
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    jest.resetModules();
+    // eslint-disable-next-line global-require
+    require('../sw_demo.js');
   });
 
   afterEach(() => {
     delete global.Drupal;
+    jest.restoreAllMocks();
   });
 
   function createCounterBlockHtml() {
     return `
-      <div data-the-force-demo-counter>
+      <div data-sw-demo-counter>
         <span data-counter-value>0</span>
         <button data-counter-action="increment">+</button>
         <button data-counter-action="decrement">-</button>
@@ -131,14 +131,14 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const block = document.querySelector('[data-the-force-demo-counter]');
-      expect(block.classList.contains('the-force-demo-counter-processed')).toBe(true);
+      const block = document.querySelector('[data-sw-demo-counter]');
+      expect(block.classList.contains('sw-demo-counter-processed')).toBe(true);
     });
 
     it('should not re-process already processed blocks', () => {
       document.body.innerHTML = createCounterBlockHtml();
-      const block = document.querySelector('[data-the-force-demo-counter]');
-      block.classList.add('the-force-demo-counter-processed');
+      const block = document.querySelector('[data-sw-demo-counter]');
+      block.classList.add('sw-demo-counter-processed');
 
       const value = document.querySelector('[data-counter-value]');
       value.textContent = 'original';
@@ -225,22 +225,22 @@ describe('Drupal.behaviors.ysDemo', () => {
 
     it('should handle multiple counter blocks', () => {
       document.body.innerHTML = `
-        <div data-the-force-demo-counter>
+        <div data-sw-demo-counter>
           <span data-counter-value>0</span>
           <button data-counter-action="increment">+</button>
         </div>
-        <div data-the-force-demo-counter>
+        <div data-sw-demo-counter>
           <span data-counter-value>0</span>
           <button data-counter-action="increment">+</button>
         </div>
       `;
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const blocks = document.querySelectorAll('[data-the-force-demo-counter]');
-      expect(blocks[0].classList.contains('the-force-demo-counter-processed')).toBe(
+      const blocks = document.querySelectorAll('[data-sw-demo-counter]');
+      expect(blocks[0].classList.contains('sw-demo-counter-processed')).toBe(
         true,
       );
-      expect(blocks[1].classList.contains('the-force-demo-counter-processed')).toBe(
+      expect(blocks[1].classList.contains('sw-demo-counter-processed')).toBe(
         true,
       );
     });

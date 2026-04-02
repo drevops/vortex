@@ -2,21 +2,21 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-
 describe('Drupal.behaviors.ysDemo', () => {
   beforeEach(() => {
     localStorage.clear();
     global.Drupal = { behaviors: {} };
 
-    const filePath = path.resolve(__dirname, 'ys_demo.js');
-    const code = fs.readFileSync(filePath, 'utf8');
-    eval(code);
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    jest.resetModules();
+    // eslint-disable-next-line global-require
+    require('../ys_demo.js');
   });
 
   afterEach(() => {
     delete global.Drupal;
+    jest.restoreAllMocks();
   });
 
   function createCounterBlockHtml() {

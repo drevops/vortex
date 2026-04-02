@@ -66,7 +66,8 @@
       "files": ["*.test.js"],
       "env": { "jest": true },
       "rules": {
-        "no-eval": "off",
+        "global-require": "off",
+        "import/extensions": "off",
         "max-nested-callbacks": ["warn", 5],
         "jsdoc/check-tag-names": "off"
       }

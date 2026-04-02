@@ -51,8 +51,7 @@
             this.removeUpdatedClassAfterDelay(valueElement);
 
             // Log action for debugging.
-            // eslint-disable-next-line no-console
-            console.log(`Counter ${action}: ${currentValue}`);
+            this.log(`Counter ${action}: ${currentValue}`);
           });
         });
       });
@@ -96,6 +95,16 @@
      */
     getCounterValue() {
       return parseInt(localStorage.getItem(this.storageKey), 10) || 0;
+    },
+
+    /**
+     * Log a message to the console.
+     *
+     * @param {string} message  The message to log.
+     */
+    log(message) {
+      // eslint-disable-next-line no-console
+      console.log(message);
     },
   };
 })(Drupal);

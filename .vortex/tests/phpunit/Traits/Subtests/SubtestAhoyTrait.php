@@ -536,11 +536,19 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyTestJs(string $webroot = 'web'): void {
     $this->logStepStart();
 
-    $file = $webroot . '/modules/custom/sw_demo/js/sw_demo.test.js';
+    $file = $webroot . '/modules/custom/sw_demo/js/tests/sw_demo.test.js';
     $this->assertFileExists($file);
 
     $this->logSubstep('Run all Jest tests');
     $this->cmd('ahoy test-js', 'Tests:');
+
+    $this->logSubstep('Assert Jest coverage files are present');
+    $this->syncToHost('.logs');
+    $this->assertDirectoryExists('.logs/coverage/jest');
+    $this->assertFileExists('.logs/coverage/jest/cobertura.xml');
+    $this->assertDirectoryExists('.logs/coverage/jest/lcov-report');
+    $this->assertFileContainsString('.logs/coverage/jest/cobertura.xml', 'line-rate="1"');
+    $this->assertFileContainsString('.logs/coverage/jest/cobertura.xml', 'branch-rate="1"');
 
     $this->logSubstep('Run Jest tests matching a path pattern');
     $this->cmd('ahoy test-js -- --testPathPattern=sw_demo', 'Tests:');

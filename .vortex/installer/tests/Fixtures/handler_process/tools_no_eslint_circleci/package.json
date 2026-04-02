@@ -10,7 +10,7 @@
      "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
 -    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
 +    "lint-fix": "yarn run lint-fix-css",
-     "test": "jest"
+     "test": "jest --coverage"
    },
    "devDependencies": {
 -    "@homer0/prettier-plugin-jsdoc": "__VERSION__",
