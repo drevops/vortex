@@ -39,7 +39,7 @@ load ../_helper.bash
 
     # Mock file download curl call with its message and side effect to create zipped archive
     "Downloading DB dump into file .data/testdb_backup_backup-id-789.sql.gz."
-    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://backup.example.com/db.sql.gz -o .data/testdb_backup_backup-id-789.sql.gz # 0 #  # echo "CREATE TABLE test (id INT);" | gzip > .data/testdb_backup_backup-id-789.sql.gz'
+    '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o .data/testdb_backup_backup-id-789.sql.gz # 0 #  # echo "CREATE TABLE test (id INT);" | gzip > .data/testdb_backup_backup-id-789.sql.gz'
 
     # Mock gunzip operations with their message
     "Expanding DB file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
@@ -228,7 +228,7 @@ load ../_helper.bash
 
     # Mock file download curl call with its message and side effect to create zipped archive
     "Downloading DB dump into file ./.data/testdb_backup_backup-id-789.sql.gz."
-    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://backup.example.com/db.sql.gz -o ./.data/testdb_backup_backup-id-789.sql.gz # 0 #  # mkdir -p ./.data && echo "database content" | gzip > ./.data/testdb_backup_backup-id-789.sql.gz'
+    '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o ./.data/testdb_backup_backup-id-789.sql.gz # 0 #  # mkdir -p ./.data && echo "database content" | gzip > ./.data/testdb_backup_backup-id-789.sql.gz'
 
     # Mock gunzip operations with their message
     "Expanding DB file ./.data/testdb_backup_backup-id-789.sql.gz into ./.data/testdb_backup_backup-id-789.sql."
@@ -494,7 +494,7 @@ load ../_helper.bash
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-new-123/actions/download # {"url":"https://backup.example.com/db-fresh.sql.gz"}'
 
     "[TASK] Downloading DB dump into file .data/testdb_backup_backup-id-new-123.sql.gz."
-    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://backup.example.com/db-fresh.sql.gz -o .data/testdb_backup_backup-id-new-123.sql.gz # 0 #  # echo "CREATE TABLE fresh (id INT);" | gzip > .data/testdb_backup_backup-id-new-123.sql.gz'
+    '@curl --progress-bar -L https://backup.example.com/db-fresh.sql.gz -o .data/testdb_backup_backup-id-new-123.sql.gz # 0 #  # echo "CREATE TABLE fresh (id INT);" | gzip > .data/testdb_backup_backup-id-new-123.sql.gz'
 
     "[TASK] Expanding DB file .data/testdb_backup_backup-id-new-123.sql.gz into .data/testdb_backup_backup-id-new-123.sql."
     "@gunzip -t .data/testdb_backup_backup-id-new-123.sql.gz # 0"
