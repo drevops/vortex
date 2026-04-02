@@ -9,7 +9,7 @@
 -    "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
 -    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
 +    "lint-fix": "yarn run lint-fix-js",
-     "test": "jest"
+     "test": "jest --coverage"
    },
    "devDependencies": {
 @@ -28,9 +26,6 @@

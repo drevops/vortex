@@ -29,4 +29,7 @@ module.exports = {
     '<rootDir>/web/themes/',
     '<rootDir>/.vortex/',
   ],
+  collectCoverageFrom: ['web/modules/custom/**/js/**/*.js', '!**/*.test.js'],
+  coverageReporters: ['text', 'lcov', 'html', ['cobertura', { file: 'cobertura.xml' }]],
+  coverageDirectory: '.logs/coverage/jest',
 };

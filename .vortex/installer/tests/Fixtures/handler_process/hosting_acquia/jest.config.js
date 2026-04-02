@@ -7,7 +7,7 @@
  const roots = [];
  
  dirs.forEach((dir) => {
-@@ -20,13 +20,13 @@
+@@ -20,16 +20,16 @@
  
  module.exports = {
    testEnvironment: 'jest-environment-jsdom',
@@ -25,4 +25,8 @@
 +    '<rootDir>/docroot/themes/',
      '<rootDir>/.vortex/',
    ],
+-  collectCoverageFrom: ['web/modules/custom/**/js/**/*.js', '!**/*.test.js'],
++  collectCoverageFrom: ['docroot/modules/custom/**/js/**/*.js', '!**/*.test.js'],
+   coverageReporters: ['text', 'lcov', 'html', ['cobertura', { file: 'cobertura.xml' }]],
+   coverageDirectory: '.logs/coverage/jest',
  };

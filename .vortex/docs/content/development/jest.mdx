@@ -14,24 +14,26 @@ For running tests, configuration, and CI settings, see the
 
 ## Test file structure
 
-Test files are co-located with source files in the `js/` directory of each
-custom module:
+Test files are placed in a `tests/` subdirectory within the `js/` directory of
+each custom module:
 
 ```text
 web/modules/custom/my_module/
 └── js/
-    ├── my_module.js          # Source file (Drupal behavior)
-    └── my_module.test.js     # Jest test file
+    ├── my_module.js           # Source file (Drupal behavior)
+    └── tests/
+        └── my_module.test.js  # Jest test file
 ```
 
 Jest automatically discovers `*.test.js` files in `web/modules/custom/*/js/`
-directories. Adding a new module with tests requires no configuration changes.
+directories and their subdirectories. Adding a new module with tests requires
+no configuration changes.
 
 ## Writing tests
 
 Drupal JavaScript uses the IIFE pattern `((Drupal) => { ... })(Drupal)` where
-`Drupal` is a global object. Tests load these source files using `eval()` after
-setting up the required globals.
+`Drupal` is a global object. Tests load these source files using `require()`
+after setting up the required globals.
 
 ### Test template
 
@@ -40,17 +42,14 @@ setting up the required globals.
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-
 describe('Drupal.behaviors.myModule', () => {
   beforeEach(() => {
     localStorage.clear();
     global.Drupal = { behaviors: {} };
 
-    const filePath = path.resolve(__dirname, 'my_module.js');
-    const code = fs.readFileSync(filePath, 'utf8');
-    eval(code);
+    jest.resetModules();
+    // eslint-disable-next-line global-require
+    require('../my_module.js');
   });
 
   afterEach(() => {
@@ -69,9 +68,12 @@ describe('Drupal.behaviors.myModule', () => {
 
 ### Loading Drupal behaviors
 
-The `eval(fs.readFileSync(...))` pattern executes the source file's IIFE, which
-receives `global.Drupal` as its `Drupal` parameter and registers the behavior.
-After `eval()`, the behavior is accessible via `Drupal.behaviors.myModule`.
+The `require()` call executes the source file's IIFE, which receives
+`global.Drupal` as its `Drupal` parameter and registers the behavior.
+After `require()`, the behavior is accessible via `Drupal.behaviors.myModule`.
+
+The `jest.resetModules()` call before `require()` clears the module cache so
+the IIFE re-executes on each test with a fresh `global.Drupal` object.
 
 ### Mocking globals
 
@@ -121,12 +123,35 @@ jest.useRealTimers();
 ### ESLint compatibility
 
 The `.eslintrc.json` includes an override for `*.test.js` files that enables
-the `jest` environment and allows `eval()`. No additional ESLint configuration
-is needed for test files.
+the `jest` environment and allows `global-require`. No additional ESLint
+configuration is needed for test files.
+
+## Coverage
+
+Jest collects code coverage automatically when running tests via `ahoy test-js`.
+Coverage is configured in [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
+with the following settings:
+
+- **Source files**: all `*.js` files in `web/modules/custom/*/js/` directories,
+  excluding `*.test.js` files
+- **Reporters**: text (terminal summary), lcov, HTML, and Cobertura XML
+- **Output directory**: `.logs/coverage/jest`
+
+After running tests, coverage reports are available at:
+
+| Report | Location |
+|--------|----------|
+| Terminal summary | Printed to stdout during test run |
+| HTML report | `.logs/coverage/jest/lcov-report/index.html` |
+| LCOV data | `.logs/coverage/jest/lcov.info` |
+| Cobertura XML | `.logs/coverage/jest/cobertura.xml` |
+
+The Cobertura XML report is used by continuous integration to track coverage
+trends and can be consumed by CI tools that support the Cobertura format.
 
 ## Boilerplate
 
-**Vortex** provides a Jest test boilerplate for the [demo module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/ys_demo.test.js)
+**Vortex** provides a Jest test boilerplate for the [demo module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/tests/ys_demo.test.js)
 that demonstrates testing a counter block with DOM manipulation, localStorage
 interaction, and event handling.
 
