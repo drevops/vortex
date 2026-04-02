@@ -15,22 +15,23 @@
 declare(strict_types=1);
 
 if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
+  $ah_site_group = getenv('AH_SITE_GROUP');
+  $ah_site_env = getenv('AH_SITE_ENVIRONMENT');
+
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
 
   // Include Acquia environment settings.
-  // The path is built dynamically from the AH_SITE_GROUP environment variable
-  // provided by Acquia Cloud.
-  $ah_site_group = getenv('AH_SITE_GROUP');
-  // @codeCoverageIgnoreStart
   if (!empty($ah_site_group)) {
-    $ah_settings_file = sprintf('/var/www/site-php/%s/%s-settings.inc', $ah_site_group, $ah_site_group);
+    $ah_settings_file = getenv('DRUPAL_ACQUIA_SETTINGS_FILE') ?: sprintf('/var/www/site-php/%s/%s-settings.inc', $ah_site_group, $ah_site_group);
+    // @codeCoverageIgnoreStart
     if (!file_exists($ah_settings_file)) {
       throw new \RuntimeException(sprintf('Acquia settings file "%s" not found. Check Acquia Cloud environment configuration.', $ah_settings_file));
     }
     require $ah_settings_file;
+    // @codeCoverageIgnoreEnd
   }
-  // @codeCoverageIgnoreEnd
+
   // Default all environments to 'dev', including ODE environments.
   $settings['environment'] = ENVIRONMENT_DEV;
 
@@ -51,9 +52,9 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Override the config sync directory with the DRUPAL_CONFIG_PATH environment
   // variable if provided, or fall back to the config_vcs_directory setting
   // provided by Acquia.
-  $drupal_config_path = getenv('DRUPAL_CONFIG_PATH');
-  if (!empty($drupal_config_path)) {
-    $settings['config_sync_directory'] = $drupal_config_path;
+  $config_path = getenv('DRUPAL_CONFIG_PATH');
+  if (!empty($config_path)) {
+    $settings['config_sync_directory'] = $config_path;
   }
   elseif (!empty($settings['config_vcs_directory'])) {
     $settings['config_sync_directory'] = $settings['config_vcs_directory'];
@@ -61,4 +62,18 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
 
   // Automatically create an Apache HTTP .htaccess file in writable directories.
   $settings['auto_create_htaccess'] = TRUE;
+
+  // Allow to override temporary path using per-head mounted directory or
+  // DRUPAL_TMP_PATH variable.
+  // @see https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations
+  $settings['file_temp_path'] = '/tmp';
+
+  if (!empty($ah_site_group) && getenv('DRUPAL_TMP_PATH_IS_SHARED')) {
+    // @see https://acquia.my.site.com/s/article/360054835954-Bulk-Upload-Not-Working-Correctly
+    $settings['file_temp_path'] = sprintf('/mnt/gfs/%s.%s/tmp', $ah_site_group, $ah_site_env);
+  }
+
+  if (getenv('DRUPAL_TMP_PATH')) {
+    $settings['file_temp_path'] = getenv('DRUPAL_TMP_PATH');
+  }
 }

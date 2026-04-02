@@ -47,6 +47,27 @@ settings from [`web/sites/default/includes/providers/settings.acquia.php`](https
 This includes Acquia-specific configurations for caching, file paths, and
 environment variables.
 
+#### Acquia settings file
+
+By default, Vortex includes the Acquia-provided settings file from
+`/var/www/site-php/{group}/{group}-settings.inc`. You can override this path
+by setting the `DRUPAL_ACQUIA_SETTINGS_FILE` environment variable.
+
+#### Temporary file path
+
+Vortex configures the temporary file path (`file_temp_path`) with a three-tier
+priority:
+
+1. **Default**: `/tmp`
+2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set, uses
+   `/mnt/gfs/{group}.{env}/tmp` — a per-head mounted directory on Acquia's
+   shared filesystem. This is useful for operations like bulk uploads that
+   require a shared temporary directory across web heads. See
+   [Acquia temporary files documentation](https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations)
+   for details.
+3. **Explicit override**: If `DRUPAL_TMP_PATH` is set, its value is used
+   regardless of other settings.
+
 ## Onboarding
 
 Before you begin, ensure you have:
@@ -63,6 +84,9 @@ file:
 | Variable | Description |
 |----------|-------------|
 | `VORTEX_ACQUIA_APP_NAME` | Your Acquia application name (machine name) |
+| `DRUPAL_ACQUIA_SETTINGS_FILE` | Override the path to Acquia's settings `.inc` file (optional) |
+| `DRUPAL_TMP_PATH` | Override the temporary file path (optional) |
+| `DRUPAL_TMP_PATH_IS_SHARED` | Use Acquia's shared GFS mount for temporary files (optional) |
 
 For CI environments, configure these secrets in your CI provider ([GitHub Actions](/docs/continuous-integration/github-actions) or [CircleCI](/docs/continuous-integration/circleci)):
 
