@@ -5,7 +5,7 @@ Feature: Behat configuration
   I want to ensure Behat is properly configured
   So that behavioral tests can run successfully across all environments
 
-  @api
+  @api @javascript
   Scenario: Screenshot functionality works
     Given I am an anonymous user
     When I am on the homepage
