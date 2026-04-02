@@ -1,5 +1,5 @@
-@@ -127,38 +127,38 @@
-                 "[web-root]/web.config": false
+@@ -123,38 +123,38 @@
+                 "[web-root]/update.php": false
              },
              "locations": {
 -                "web-root": "web/"
