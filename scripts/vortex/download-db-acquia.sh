@@ -262,7 +262,7 @@ else
     [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'. API response: ${backup_json}" && exit 1
 
     task "Downloading DB dump into file ${file_name_compressed}."
-    curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${backup_url}" -o "${file_name_compressed}"
+    curl --progress-bar -L "${backup_url}" -o "${file_name_compressed}"
     download_result=$?
 
     # shellcheck disable=SC2181
