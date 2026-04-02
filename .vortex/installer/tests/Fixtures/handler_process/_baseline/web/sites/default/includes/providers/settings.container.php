@@ -15,10 +15,10 @@ declare(strict_types=1);
 $vortex_localdev_url = getenv('VORTEX_LOCALDEV_URL');
 if (!empty($vortex_localdev_url)) {
   // Local development URL.
-  $patterns = str_replace(['.', 'https://', 'http://', ','], [
+  $container_patterns = str_replace(['.', 'https://', 'http://', ','], [
     '\.', '', '', '|',
   ], $vortex_localdev_url);
-  $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
+  $settings['trusted_host_patterns'][] = '^' . $container_patterns . '$';
 
   // URL for internal container access (e.g., via drush, in tests etc.).
   $settings['trusted_host_patterns'][] = '^nginx$';
