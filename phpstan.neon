@@ -30,8 +30,18 @@ parameters:
   treatPhpDocTypesAsCertain: false
 
   ignoreErrors:
-    -
-      # Since tests and data providers do not have to have parameter docblocks,
+    - # Hook implementations do not provide full type information for
+      # parameters or return values in iterable type arrays.
+      message: '#.*no value type specified in iterable type array#'
+      paths:
+        - web/modules/custom/*
+        - web/themes/custom/*
+    - # Included settings files are not aware about global variables.
+      message: '#Variable .* might not be defined.#'
+      paths:
+        - web/sites/default/includes
+      reportUnmatched: false
+    - # Since tests and data providers do not have to have parameter docblocks,
       # it is not possible to specify the type of the parameter, so we ignore
       # this error.
       message: '#.*no value type specified in iterable type array.#'
@@ -39,18 +49,4 @@ parameters:
         - web/modules/custom/*/tests/*
         - web/themes/custom/*/tests/*
         - tests/phpunit/*
-      reportUnmatched: false
-    -
-      # Hook implementations do not provide docblocks for parameters, so there
-      # is no way to provide this information.
-      message: '#.* with no value type specified in iterable type array#'
-      paths:
-        - web/modules/custom/*
-        - web/themes/custom/*
-      reportUnmatched: false
-    -
-      # Included settings files are not aware about global variables.
-      message: '#Variable .* might not be defined.#'
-      paths:
-        - web/sites/default/includes
       reportUnmatched: false

@@ -13,7 +13,23 @@
      - tests
  
    excludePaths:
-@@ -36,8 +36,8 @@
+@@ -34,12 +34,12 @@
+       # parameters or return values in iterable type arrays.
+       message: '#.*no value type specified in iterable type array#'
+       paths:
+-        - web/modules/custom/*
+-        - web/themes/custom/*
++        - docroot/modules/custom/*
++        - docroot/themes/custom/*
+     - # Included settings files are not aware about global variables.
+       message: '#Variable .* might not be defined.#'
+       paths:
+-        - web/sites/default/includes
++        - docroot/sites/default/includes
+       reportUnmatched: false
+     - # Since tests and data providers do not have to have parameter docblocks,
+       # it is not possible to specify the type of the parameter, so we ignore
+@@ -46,7 +46,7 @@
        # this error.
        message: '#.*no value type specified in iterable type array.#'
        paths:
@@ -22,21 +38,4 @@
 +        - docroot/modules/custom/*/tests/*
 +        - docroot/themes/custom/*/tests/*
          - tests/phpunit/*
-       reportUnmatched: false
-     -
-@@ -45,12 +45,12 @@
-       # is no way to provide this information.
-       message: '#.* with no value type specified in iterable type array#'
-       paths:
--        - web/modules/custom/*
--        - web/themes/custom/*
-+        - docroot/modules/custom/*
-+        - docroot/themes/custom/*
-       reportUnmatched: false
-     -
-       # Included settings files are not aware about global variables.
-       message: '#Variable .* might not be defined.#'
-       paths:
--        - web/sites/default/includes
-+        - docroot/sites/default/includes
        reportUnmatched: false
