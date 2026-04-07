@@ -1,8 +1,6 @@
-@@ -38,7 +38,6 @@
+@@ -48,5 +48,4 @@
        paths:
          - web/modules/custom/*/tests/*
          - web/themes/custom/*/tests/*
 -        - tests/phpunit/*
        reportUnmatched: false
-     -
-       # Hook implementations do not provide docblocks for parameters, so there
