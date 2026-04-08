@@ -82,7 +82,6 @@ default:
       dir: '%paths.base%/.logs/screenshots'  # Directory to save screenshots.
       on_failed: true                        # Change to 'false' (no quotes) to disable screenshots on failure.
       always_fullscreen: true                # Always capture full page screenshots.
-      fullscreen_algorithm: resize           # Options: 'stitch' or 'resize'
       purge: false                           # Purge screenshots before each run. Use `BEHAT_SCREENSHOT_PURGE=true` to override.
       info_types:                            # Additional information to include in screenshots.
         - url
