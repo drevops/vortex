@@ -71,6 +71,7 @@ trait SubtestDeploymentTrait {
     $this->assertFileDoesNotExist($dir . '/.gitignore.artifact', '.gitignore.artifact should not exist in deployment');
 
     // Required directories should exist.
+    $this->assertDirectoryExists($dir . '/drush', 'Drush directory should exist in deployment');
     $this->assertDirectoryExists($dir . '/scripts', 'Scripts directory should exist in deployment');
     $this->assertDirectoryExists($dir . '/vendor', 'Vendor directory should exist in deployment');
 
