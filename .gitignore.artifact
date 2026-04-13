@@ -4,11 +4,12 @@
 /*
 
 # Do not ignore required files.
+!.env
 !/config/
+!/drush/
 !/scripts/
 !/vendor/
 !composer.json
-!.env
 
 # Do not ignore webroot (manage Drupal Scaffold files using the composer.json)
 !web
