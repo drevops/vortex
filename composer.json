@@ -29,7 +29,7 @@
         "drupal/seckit": "^2.0.3",
         "drupal/shield": "^1.8",
         "drupal/stage_file_proxy": "^3.1.6",
-        "drupal/testmode": "^2.6.1",
+        "drupal/testmode": "^2.7.0",
         "drupal/xmlsitemap": "^2.0",
         "drush/drush": "^13.7.2",
         "oomphinc/composer-installers-extender": "^2.0.1",
@@ -40,8 +40,8 @@
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "drevops/behat-format-progress-fail": "^1.4",
-        "drevops/behat-screenshot": "^2.2",
-        "drevops/behat-steps": "^3.6.0",
+        "drevops/behat-screenshot": "^2.3.0",
+        "drevops/behat-steps": "^3.7.0",
         "drevops/phpcs-standard": "^0.7.0",
         "drupal/coder": "^9@alpha",
         "drupal/drupal-extension": "^5.3.2",
@@ -58,7 +58,7 @@
         "phpstan/phpstan": "^2.1.46",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.4.0",
+        "rector/rector": "^2.4.1",
         "vincentlanglet/twig-cs-fixer": "^3.14"
     },
     "conflict": {
