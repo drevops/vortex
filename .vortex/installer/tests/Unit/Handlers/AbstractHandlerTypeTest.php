@@ -8,6 +8,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
@@ -93,6 +94,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'migration_download_source' => [MigrationDownloadSource::id(), PromptType::Select];
     yield 'ci_provider' => [CiProvider::id(), PromptType::Select];
     yield 'dependency_updates_provider' => [DependencyUpdatesProvider::id(), PromptType::Select];
+    yield 'code_coverage_provider' => [CodeCoverageProvider::id(), PromptType::Select];
     // MultiSelect handlers.
     yield 'modules' => [Modules::id(), PromptType::MultiSelect];
     yield 'services' => [Services::id(), PromptType::MultiSelect];

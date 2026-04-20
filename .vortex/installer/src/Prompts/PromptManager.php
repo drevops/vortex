@@ -8,6 +8,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
@@ -66,7 +67,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 32;
+  const TOTAL_RESPONSES = 33;
 
   /**
    * Array of responses.
@@ -220,6 +221,7 @@ class PromptManager {
 
       ->intro('Automations')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeCoverageProvider::class), CodeCoverageProvider::id())
       ->add(fn($r, $pr, $n): mixed => $this->prompt(AssignAuthorPr::class), AssignAuthorPr::id())
       ->add(fn($r, $pr, $n): mixed => $this->prompt(LabelMergeConflictsPr::class), LabelMergeConflictsPr::id())
 
@@ -300,6 +302,7 @@ class PromptManager {
       PreserveDocsProject::id(),
       LabelMergeConflictsPr::id(),
       AssignAuthorPr::id(),
+      CodeCoverageProvider::id(),
       DependencyUpdatesProvider::id(),
       CiProvider::id(),
       MigrationImage::id(),
@@ -499,6 +502,7 @@ class PromptManager {
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
     $values['Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
+    $values['Code coverage provider'] = $responses[CodeCoverageProvider::id()];
     $values['Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
     $values['Auto-add a CONFLICT label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);
 

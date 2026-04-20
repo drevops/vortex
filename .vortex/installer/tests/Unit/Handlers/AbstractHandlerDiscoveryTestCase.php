@@ -9,6 +9,7 @@ use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
@@ -153,6 +154,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationImage::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
+      CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
@@ -169,6 +171,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Tools::id() => [],
       CiProvider::id() => CiProvider::NONE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
+      CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
       PreserveDocsProject::id() => FALSE,
@@ -229,6 +232,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationImage::id() => static::TUI_SKIP,
       CiProvider::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
+      CodeCoverageProvider::id() => static::TUI_DEFAULT,
       AssignAuthorPr::id() => static::TUI_DEFAULT,
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
