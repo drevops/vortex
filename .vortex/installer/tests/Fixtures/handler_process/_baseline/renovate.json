@@ -1,4 +1,5 @@
 {
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
         "config:recommended"
     ],
@@ -6,10 +7,13 @@
     "labels": [
         "Dependencies"
     ],
-    "assignees": [],
-    "ignorePresets": [
-        ":prHourlyLimit2"
+    "dependencyDashboardLabels": [
+        "Dependencies"
     ],
+    "assignees": [],
+    "prConcurrentLimit": 10,
+    "prHourlyLimit": 0,
+    "commitBodyTable": true,
     "rangeStrategy": "bump",
     "timezone": "UTC",
     "configMigration": true,
@@ -186,7 +190,8 @@
             "matchManagers": [
                 "github-actions"
             ],
-            "pinDigests": true
+            "pinDigests": true,
+            "automerge": true
         }
     ],
     "customManagers": [
