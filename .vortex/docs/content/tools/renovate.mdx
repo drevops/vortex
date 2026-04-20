@@ -25,6 +25,16 @@ Assignees can be configured in the `assignees` field.
 | **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC |
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC |
 
+Updates in the **GitHub Actions** group are auto-merged after CI passes. This
+requires two repository settings:
+
+1. **"Allow auto-merge"** enabled under *Settings > General > Pull Requests*.
+2. **"Require status checks to pass before merging"** configured in the base
+   branch's branch protection rules, with at least one required status check
+   selected - otherwise GitHub may merge even if CI is red.
+
+All other groups open PRs for manual review.
+
 ### Disabled updates
 
 These are intentionally skipped by Renovate — update them manually:
@@ -37,6 +47,17 @@ These are intentionally skipped by Renovate — update them manually:
 | PHP language version | `php` constraint in `composer.json` | Major version upgrades may introduce breaking changes |
 | JS language versions | `node`, `yarn` in `package.json` | Major version upgrades may introduce breaking changes |
 | JS non-root packages | Any `package.json` not at the root | Theme dependencies are managed separately |
+
+### PR throughput and presentation
+
+- **Concurrent PR limit:** `prConcurrentLimit: 10` - at most 10 open PRs
+  across all groups at any time.
+- **Hourly PR limit:** `prHourlyLimit: 0` - no hourly cap; the per-group
+  schedules above provide throttling.
+- **Commit body table:** `commitBodyTable: true` - grouped update commits
+  include a version-comparison table in the commit message body.
+- **Dashboard labels:** the Renovate dependency dashboard issue is labeled
+  `Dependencies` (`dependencyDashboardLabels`).
 
 ## Self-hosted vs GitHub app
 
