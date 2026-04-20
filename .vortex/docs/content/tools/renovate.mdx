@@ -26,9 +26,14 @@ Assignees can be configured in the `assignees` field.
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC |
 
 Updates in the **GitHub Actions** group are auto-merged after CI passes. This
-requires "Allow auto-merge" to be enabled in the repository settings
-(*Settings > General > Pull Requests*). All other groups open PRs for
-manual review.
+requires two repository settings:
+
+1. **"Allow auto-merge"** enabled under *Settings > General > Pull Requests*.
+2. **"Require status checks to pass before merging"** configured in the base
+   branch's branch protection rules, with at least one required status check
+   selected - otherwise GitHub may merge even if CI is red.
+
+All other groups open PRs for manual review.
 
 ### Disabled updates
 
@@ -49,8 +54,8 @@ These are intentionally skipped by Renovate — update them manually:
   across all groups at any time.
 - **Hourly PR limit:** `prHourlyLimit: 0` - no hourly cap; the per-group
   schedules above provide throttling.
-- **PR body table:** `commitBodyTable: true` - multi-package group PRs
-  include a version-comparison table in the body.
+- **Commit body table:** `commitBodyTable: true` - grouped update commits
+  include a version-comparison table in the commit message body.
 - **Dashboard labels:** the Renovate dependency dashboard issue is labeled
   `Dependencies` (`dependencyDashboardLabels`).
 
