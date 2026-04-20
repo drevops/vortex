@@ -54,6 +54,28 @@ cd .vortex/installer
 UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
 ```
 
+### Updating the Installer Video
+
+**Whenever the installer prompt flow changes** (new handler added, prompt
+renamed, section reordered, prompt removed), the installer video shown in the
+documentation goes stale and must be regenerated.
+
+```bash
+# From .vortex/ directory
+ahoy update-installer-video
+```
+
+Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces
+`installer.json` (asciicast), `installer.svg`, `installer.png`, and
+`installer.gif` under `.vortex/docs/static/img/`. Requires explicit user
+permission before running, same as `ahoy update-snapshots`.
+
+Triggers that require re-recording:
+- New `Handlers/*.php` class or handler removal.
+- Wording change to `label()` or `hint()` of any existing handler.
+- Reordering prompts inside `PromptManager::runPrompts()`.
+- Change to `TOTAL_RESPONSES` constant.
+
 ## Conditional Token System
 
 ### Patterns
