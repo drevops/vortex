@@ -255,11 +255,13 @@ else
     [ ! -d "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}" && mkdir -p "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}"
 
     task "Discovering backup URL."
-    backup_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
-    [ "${VORTEX_DEBUG-}" = "1" ] && note "Backup URL API response: ${backup_json}"
-    backup_url=$(echo "${backup_json}" | extract_json_value "url")
+    # The Acquia API responds with a 302 redirect to the final S3 download URL.
+    # Capture the redirect URL without following it to avoid sending the
+    # Authorization header to S3 - the auth header is required only to query
+    # the Acquia API.
+    backup_url=$(curl -s -o /dev/null -w "%{redirect_url}" -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup URL: ${backup_url}"
-    [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'. API response: ${backup_json}" && exit 1
+    [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'." && exit 1
 
     task "Downloading DB dump into file ${file_name_compressed}."
     curl --progress-bar -L "${backup_url}" -o "${file_name_compressed}"
@@ -268,10 +270,10 @@ else
     # shellcheck disable=SC2181
     [ "${download_result}" -ne 0 ] && fail "Unable to download database ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}. curl exit code: ${download_result}" && exit 1
 
-    # Check if the downloaded file exists and has content
+    # Check if the downloaded file exists and has content. Leave the file in
+    # place on failure so it can be inspected.
     if [ ! -f "${file_name_compressed}" ] || [ ! -s "${file_name_compressed}" ]; then
       fail "Downloaded file is empty or missing: ${file_name_compressed}"
-      rm -f "${file_name_compressed}"
       exit 1
     fi
 
@@ -283,24 +285,25 @@ else
   task "Expanding DB file ${file_name_compressed} into ${file_name}."
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Starting decompression of ${file_name_compressed}"
 
-  # Test the gzip file first to ensure it's valid
+  # Test the gzip file first to ensure it's valid. Leave the file in place
+  # on failure so it can be inspected.
   if ! gunzip -t "${file_name_compressed}" 2>/dev/null; then
     fail "Downloaded file is not a valid gzip archive: ${file_name_compressed}"
-    rm -f "${file_name_compressed}"
     exit 1
   fi
 
   gunzip -c "${file_name_compressed}" >"${file_name}"
   decompress_result=$?
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression result: ${decompress_result}"
-  rm "${file_name_compressed}"
 
-  # Check decompression result and file validity
+  # Check decompression result and file validity. Leave both files in place
+  # on failure so they can be inspected.
   if [ "${decompress_result}" != 0 ] || [ ! -f "${file_name}" ] || [ ! -s "${file_name}" ]; then
     fail "Unable to process DB dump file \"${file_name}\". Decompression exit code: ${decompress_result}"
-    rm -f "${file_name_compressed}" "${file_name}"
     exit 1
   fi
+
+  rm "${file_name_compressed}"
 
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully"
 fi
