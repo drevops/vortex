@@ -35,7 +35,7 @@ load ../_helper.bash
 
     # Mock backup URL curl call with its message
     "Discovering backup URL."
-    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz","expires":"2024-01-01T01:00:00+00:00"}'
+    '@curl -s -o /dev/null -w %{redirect_url} -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # https://backup.example.com/db.sql.gz'
 
     # Mock file download curl call with its message and side effect to create zipped archive
     "Downloading DB dump into file .data/testdb_backup_backup-id-789.sql.gz."
@@ -224,7 +224,7 @@ load ../_helper.bash
 
     # Mock backup URL curl call with its message
     "Discovering backup URL."
-    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz"}'
+    '@curl -s -o /dev/null -w %{redirect_url} -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # https://backup.example.com/db.sql.gz'
 
     # Mock file download curl call with its message and side effect to create zipped archive
     "Downloading DB dump into file ./.data/testdb_backup_backup-id-789.sql.gz."
@@ -491,7 +491,7 @@ load ../_helper.bash
 
     # Rest of download steps...
     "[TASK] Discovering backup URL."
-    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-new-123/actions/download # {"url":"https://backup.example.com/db-fresh.sql.gz"}'
+    '@curl -s -o /dev/null -w %{redirect_url} -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-new-123/actions/download # https://backup.example.com/db-fresh.sql.gz'
 
     "[TASK] Downloading DB dump into file .data/testdb_backup_backup-id-new-123.sql.gz."
     '@curl --progress-bar -L https://backup.example.com/db-fresh.sql.gz -o .data/testdb_backup_backup-id-new-123.sql.gz # 0 #  # echo "CREATE TABLE fresh (id INT);" | gzip > .data/testdb_backup_backup-id-new-123.sql.gz'
