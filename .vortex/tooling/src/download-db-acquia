@@ -230,6 +230,15 @@ else {
     // the Acquia API.
     $backup_url_response = request(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), ['method' => 'GET', 'headers' => dl_acquia_api_headers($token), 'follow_redirects' => FALSE]);
 
+    if (!$backup_url_response['ok']) {
+      fail(sprintf(
+        'Unable to discover backup URL for backup ID \'%s\' (status: %s, error: %s).',
+        $backup_id,
+        (string) ($backup_url_response['status'] ?? 'unknown'),
+        (string) ($backup_url_response['error'] ?? 'none')
+      ));
+    }
+
     $backup_url = (string) ($backup_url_response['info']['redirect_url'] ?? '');
 
     if ($backup_url === '') {

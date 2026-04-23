@@ -43,6 +43,16 @@ class NotifyNewrelicTest extends UnitTestCase {
     $this->runScriptEarlyPass('src/notify-newrelic', "Skipping New Relic notification for branch 'develop'.");
   }
 
+  public function testEnabledGateTakesPrecedenceOverBranchFilter(): void {
+    // When disabled, the enabled gate must short-circuit before the branch
+    // filter runs, even if the branch is not in the allowed list.
+    $this->envUnset('VORTEX_NOTIFY_NEWRELIC_ENABLED');
+    $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->runScriptEarlyPass('src/notify-newrelic', 'New Relic is not enabled');
+  }
+
   public function testNotificationProceedsWhenBranchInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,develop');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');

@@ -447,7 +447,10 @@ class ProvisionTest extends UnitTestCase {
     $this->createDbDumpFile();
     $this->createConfigFiles();
 
-    $this->envSet('VORTEX_PROVISION_POST_OPERATIONS_SKIP', '0');
+    $this->envSetMultiple([
+      'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '0',
+      'VORTEX_PROVISION_CONFIG_IMPORT_REPEAT' => '0',
+    ]);
 
     $this->mockDrushStartupSequenceWithConfig(TRUE);
 
