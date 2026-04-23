@@ -1,4 +1,4 @@
-@@ -40,7 +40,7 @@
+@@ -41,7 +41,7 @@
    pass "Set site name."
  
    task "Installing contrib modules."

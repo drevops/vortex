@@ -1,4 +1,4 @@
-@@ -52,10 +52,6 @@
+@@ -53,10 +53,6 @@
    drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
    pass "Installed and configured ClamAV."
  
@@ -9,7 +9,7 @@
    # Enable custom site module and run its deployment hooks.
    #
    # Note that deployment hooks for already enabled modules have run in the
-@@ -62,8 +58,6 @@
+@@ -63,8 +59,6 @@
    # parent "provision.sh" script.
    task "Installing custom site modules."
    drush pm:install sw_base

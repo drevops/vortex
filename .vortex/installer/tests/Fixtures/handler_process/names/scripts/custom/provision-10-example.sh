@@ -1,4 +1,4 @@
-@@ -36,7 +36,7 @@
+@@ -37,7 +37,7 @@
    note "Running example operations in non-production environment."
  
    task "Setting site name."
@@ -7,7 +7,7 @@
    pass "Set site name."
  
    task "Installing contrib modules."
-@@ -61,11 +61,11 @@
+@@ -62,11 +62,11 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."
