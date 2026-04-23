@@ -41,8 +41,8 @@ INSTALLER_BUILD="${PROJECT_ROOT}/.vortex/installer/build/installer.phar"
 INSTALLER_SOURCE_DIR="${PROJECT_ROOT}/.vortex/installer"
 
 # Logging functions
-note() { printf "       %s\n" "${1}"; }
 info() { echo -e "\033[0;34m[INFO]\033[0m $1" >&2; }
+note() { printf "       %s\n" "${1}"; }
 pass() { echo -e "\033[0;32m[ OK ]\033[0m $1" >&2; }
 fail() { echo -e "\033[0;31m[FAIL]\033[0m $1" >&2; }
 

@@ -4,12 +4,42 @@
 #
 # LCOV_EXCL_START
 
-set -eu
+set -euo pipefail
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
 [ ! -f "${ROOT_DIR}/.vortex/tests/vendor/bin/shellvar" ] && composer --working-dir="${ROOT_DIR}/.vortex/tests" install
+
+# Mask out lines between '# @formatter:off' and '# @formatter:on' so that
+# shfmt does not reformat helper functions that are intentionally kept on
+# a single line. Each masked line is replaced with a ':' (no-op) placeholder
+# indented to match the '# @formatter:off' line's own indentation, so the
+# surrounding code parses as valid bash at the expected scope.
+mask_protected() {
+  awk -v file="${1}" '
+    /# @formatter:off/ {
+      in_block = 1
+      match($0, /^[[:space:]]*/)
+      indent = substr($0, 1, RLENGTH)
+      print
+      next
+    }
+    /# @formatter:on/ {
+      in_block = 0
+      print
+      next
+    }
+    in_block { print indent ":"; next }
+    { print }
+    END {
+      if (in_block) {
+        printf "Unclosed formatter block in %s: missing # @formatter:on\n", file > "/dev/stderr"
+        exit 2
+      }
+    }
+  ' "${1}"
+}
 
 targets=()
 while IFS= read -r -d $'\0'; do
@@ -37,7 +67,7 @@ for file in "${targets[@]}"; do
       exit 1
     fi
 
-    if ! LC_ALL=C.UTF-8 shfmt -i 2 -ci -s -d "${file}"; then
+    if ! mask_protected "${file}" | LC_ALL=C.UTF-8 shfmt -i 2 -ci -s -d; then
       exit 1
     fi
   fi

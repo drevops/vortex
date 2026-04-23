@@ -20,8 +20,10 @@ set -eu
 # ------------------------------------------------------------------------------
 
 info() { printf "   ==> %s\n" "${1}"; }
-task() { printf "     > %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
+task() { printf "     > %s\n" "${1}"; }
+pass() { printf "     < %s\n" "${1}"; }
+fail() { printf "     ! %s\n" "${1}"; }
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
@@ -36,19 +38,24 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
 
   task "Setting site name."
   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
+  pass "Set site name."
 
   task "Installing contrib modules."
   drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
+  pass "Installed contrib modules."
 
   task "Installing Redis module."
   drush pm:install redis || true
+  pass "Installed Redis module."
 
   task "Installing and configuring ClamAV."
   drush pm:install clamav
   drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
+  pass "Installed and configured ClamAV."
 
   task "Installing Solr search modules."
   drush pm:install search_api search_api_solr
+  pass "Installed Solr search modules."
 
   # Enable custom site module and run its deployment hooks.
   #
@@ -60,9 +67,11 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   drush pm:install sw_search
 
   drush pm:install sw_demo
+  pass "Installed custom site modules."
 
   task "Running deployment hooks."
   drush deploy:hook
+  pass "Ran deployment hooks."
 
   # Conditionally perform an action if this is a "fresh" database.
   if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then

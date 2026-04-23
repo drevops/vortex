@@ -40,11 +40,11 @@ VORTEX_DOWNLOAD_DB2_FILE="${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
 # ------------------------------------------------------------------------------
 
 # @formatter:off
+info() { printf "   ==> %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
-task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+task() { printf "     > %s\n" "${1}"; }
+pass() { printf "     < %s\n" "${1}"; }
+fail() { printf "     ! %s\n" "${1}"; }
 # @formatter:on
 
 drush() { ./vendor/bin/drush -y "$@"; }
@@ -104,13 +104,17 @@ run_migration() {
     drush migrate:messages "${migration_name}"
     exit 1
   }
+
+  pass "Migrated: ${migration_name}."
 }
 
 # Detect if existing migration source database is corrupted.
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   note "Source database import is set to be skipped. Checking existing database."
   task "Probing for '${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}' table in the source database."
-  if ! drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}" >/dev/null 2>&1; then
+  if drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}" >/dev/null 2>&1; then
+    pass "Source database is intact."
+  else
     note "Migration source database is corrupted or empty. Re-importing."
     DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
   fi
@@ -137,18 +141,21 @@ if ! drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION
   drush sql:query --database=migrate "SHOW TABLES;"
   exit 1
 fi
+pass "Verified migration source database."
 
 # Enable custom migration modules.
 task "Enabling migration modules."
 drush pm:install ys_migrate
+pass "Enabled migration modules."
 
-task "Starting migrations."
+info "Starting migrations."
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
   note "Skipping rollback of all migrations."
 else
   task "Rolling back all migrations."
   drush migrate:rollback --all || true
+  pass "Rolled back all migrations."
 fi
 echo
 
