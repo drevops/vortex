@@ -447,7 +447,10 @@ class ProvisionTest extends UnitTestCase {
     $this->createDbDumpFile();
     $this->createConfigFiles();
 
-    $this->envSet('VORTEX_PROVISION_POST_OPERATIONS_SKIP', '0');
+    $this->envSetMultiple([
+      'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '0',
+      'VORTEX_PROVISION_CONFIG_IMPORT_REPEAT' => '0',
+    ]);
 
     $this->mockDrushStartupSequenceWithConfig(TRUE);
 
@@ -516,9 +519,85 @@ class ProvisionTest extends UnitTestCase {
     $this->assertStringContainsString('Completed running database updates.', $output);
     $this->assertStringContainsString('Cache was cleared.', $output);
     $this->assertStringContainsString('Completed configuration import.', $output);
+    $this->assertStringNotContainsString('Repeating configuration import.', $output);
     $this->assertStringContainsString('Completed config_split configuration import.', $output);
     $this->assertStringContainsString('Cache was rebuilt.', $output);
     $this->assertStringContainsString('Completed deployment hooks.', $output);
+  }
+
+  public function testPostOperationsWithRepeatedConfigImport(): void {
+    $this->createDbDumpFile();
+    $this->createConfigFiles();
+
+    $this->envSet('VORTEX_PROVISION_POST_OPERATIONS_SKIP', '0');
+    $this->envSet('VORTEX_PROVISION_CONFIG_IMPORT_REPEAT', '1');
+
+    $this->mockDrushStartupSequenceWithConfig(TRUE);
+
+    // Drush php:eval (environment).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'output' => 'production',
+      'result_code' => 0,
+    ]);
+
+    // Drush config-set system.site uuid.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd("config-set system.site uuid 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'"),
+      'result_code' => 0,
+    ]);
+
+    // Drush updatedb.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('updatedb --no-cache-clear'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush config:import (initial).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('config:import'),
+      'result_code' => 0,
+    ]);
+
+    // Drush config:import (repeated).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('config:import'),
+      'result_code' => 0,
+    ]);
+
+    // Drush pm:list (config_split check) - module not enabled.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:list --status=enabled'),
+      'output' => '',
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (post-provision).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush deploy:hook.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('deploy:hook'),
+      'result_code' => 0,
+    ]);
+
+    $this->mockQuit(0);
+    $this->expectException(QuitSuccessException::class);
+
+    $output = $this->runScript('src/provision');
+
+    $this->assertStringContainsString('Completed configuration import.', $output);
+    $this->assertStringContainsString('Repeating configuration import.', $output);
+    $this->assertStringContainsString('Completed repeated configuration import.', $output);
   }
 
   public function testSummaryOutputIncludesNewVariables(): void {

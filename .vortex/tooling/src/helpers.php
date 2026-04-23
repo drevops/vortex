@@ -546,7 +546,7 @@ function request_post(string $url, $body = NULL, array $headers = [], int $timeo
  *
  * @param string $url
  *   URL to request.
- * @param array{method?: string, headers?: array<int, string>, body?: mixed, timeout?: int, save_to?: string, upload_file?: string, auth?: string} $options
+ * @param array{method?: string, headers?: array<int, string>, body?: mixed, timeout?: int, save_to?: string, upload_file?: string, auth?: string, follow_redirects?: bool} $options
  *   Array of options:
  *   - method: HTTP method (GET, POST, PUT, etc.)
  *   - headers: Array of HTTP headers
@@ -554,7 +554,9 @@ function request_post(string $url, $body = NULL, array $headers = [], int $timeo
  *   - timeout: Request timeout in seconds
  *   - save_to: Path to save response body to file
  *   - upload_file: Path to file to upload (sets CURLOPT_UPLOAD)
- *   - auth: 'user:pass' for CURLOPT_USERPWD authentication.
+ *   - auth: 'user:pass' for CURLOPT_USERPWD authentication
+ *   - follow_redirects: Whether to follow HTTP redirects (default: TRUE).
+ *     When FALSE, the redirect target is exposed via info.redirect_url.
  *
  * @return array{ok: bool, status: int, body: string|false, error: string|null, info: array<string, mixed>}
  *   Array with keys:
@@ -579,7 +581,7 @@ function request(string $url, array $options = []): array {
     /** @var array<int, mixed> $opts */
     $opts = [
       CURLOPT_RETURNTRANSFER => TRUE,
-      CURLOPT_FOLLOWLOCATION => TRUE,
+      CURLOPT_FOLLOWLOCATION => $options['follow_redirects'] ?? TRUE,
       CURLOPT_TIMEOUT => $options['timeout'] ?? 10,
     ];
 

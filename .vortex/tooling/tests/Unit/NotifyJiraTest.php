@@ -204,6 +204,43 @@ class NotifyJiraTest extends UnitTestCase {
     $this->runScriptEarlyPass('src/notify-jira', 'Skipping JIRA notification for pre_deployment event');
   }
 
+  public function testNotificationSkippedWhenBranchNotInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_JIRA_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
+
+    $this->runScriptEarlyPass('src/notify-jira', "Skipping JIRA notification for branch 'feature/x'.");
+  }
+
+  public function testNotificationProceedsWhenBranchInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_JIRA_BRANCHES', 'main,feature/TEST-123-test-feature');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/TEST-123-test-feature');
+
+    $this->mockRequestGet(
+      'https://jira.example.com/rest/api/3/myself',
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 200, 'body' => '{"accountId": "123456789012345678901234"}']
+    );
+
+    $this->mockRequestPost(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/comment',
+      $this->callback(fn(): true => TRUE),
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 201, 'body' => '{"id": "10001"}']
+    );
+
+    $output = $this->runScript('src/notify-jira');
+
+    $this->assertStringContainsString('Finished JIRA notification', $output);
+  }
+
   public function testAuthenticationFailure(): void {
     // Mock authentication check returning invalid account ID.
     $this->mockRequestGet(

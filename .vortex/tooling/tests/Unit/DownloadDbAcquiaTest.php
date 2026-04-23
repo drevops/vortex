@@ -156,10 +156,10 @@ class DownloadDbAcquiaTest extends UnitTestCase {
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
         'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
       ],
-      // Backup download URL.
+      // Backup download URL: API responds with 302 redirect to S3.
       [
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups/12345/actions/download',
-        'response' => ['body' => json_encode(['url' => 'https://acquia-backup.s3.amazonaws.com/backup.sql.gz'])],
+        'response' => ['status' => 302, 'info' => ['redirect_url' => 'https://acquia-backup.s3.amazonaws.com/backup.sql.gz']],
       ],
       // Download request fails.
       [
@@ -177,7 +177,8 @@ class DownloadDbAcquiaTest extends UnitTestCase {
     mkdir($db_dir, 0755, TRUE);
 
     // Pre-create an invalid gz file.
-    file_put_contents($db_dir . '/mydb_backup_12345.sql.gz', 'NOT VALID GZIP DATA');
+    $invalid_gz = $db_dir . '/mydb_backup_12345.sql.gz';
+    file_put_contents($invalid_gz, 'NOT VALID GZIP DATA');
 
     $this->mockRequestMultiple([
       [
@@ -199,6 +200,9 @@ class DownloadDbAcquiaTest extends UnitTestCase {
     ]);
 
     $this->runScriptError('src/download-db-acquia', 'Downloaded file is not a valid gzip archive');
+
+    // Invalid file is left in place for inspection.
+    $this->assertFileExists($invalid_gz);
   }
 
   public function testNoBackups(): void {
@@ -246,10 +250,10 @@ class DownloadDbAcquiaTest extends UnitTestCase {
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
         'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
       ],
-      // Backup download URL returns empty.
+      // Backup download URL returns no redirect (empty redirect_url).
       [
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups/12345/actions/download',
-        'response' => ['body' => json_encode([])],
+        'response' => ['info' => ['redirect_url' => '']],
       ],
     ]);
 
