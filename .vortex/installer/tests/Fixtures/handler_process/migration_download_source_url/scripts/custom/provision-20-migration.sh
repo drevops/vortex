@@ -40,11 +40,10 @@ VORTEX_DOWNLOAD_DB2_FILE="${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
 # ------------------------------------------------------------------------------
 
 # @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+info() { printf "   ==> %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+task() { printf "     > %s\n" "${1}"; }
+pass() { printf "     < %s\n" "${1}"; }
 # @formatter:on
 
 drush() { ./vendor/bin/drush -y "$@"; }

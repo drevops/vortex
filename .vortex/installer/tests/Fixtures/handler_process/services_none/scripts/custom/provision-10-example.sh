@@ -1,4 +1,4 @@
-@@ -46,19 +46,6 @@
+@@ -43,19 +43,6 @@
    drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
    pass "Installed contrib modules."
  
@@ -18,7 +18,7 @@
    # Enable custom site module and run its deployment hooks.
    #
    # Note that deployment hooks for already enabled modules have run in the
-@@ -65,8 +52,6 @@
+@@ -62,8 +49,6 @@
    # parent "provision.sh" script.
    task "Installing custom site modules."
    drush pm:install sw_base

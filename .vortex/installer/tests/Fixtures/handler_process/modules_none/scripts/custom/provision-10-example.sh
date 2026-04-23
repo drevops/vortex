@@ -1,4 +1,4 @@
-@@ -42,10 +42,6 @@
+@@ -39,10 +39,6 @@
    drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
    pass "Set site name."
  
