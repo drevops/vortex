@@ -23,6 +23,7 @@ info() { printf "   ==> %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
 task() { printf "     > %s\n" "${1}"; }
 pass() { printf "     < %s\n" "${1}"; }
+fail() { printf "     ! %s\n" "${1}"; }
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
