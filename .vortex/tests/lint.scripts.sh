@@ -4,7 +4,7 @@
 #
 # LCOV_EXCL_START
 
-set -eu
+set -euo pipefail
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
@@ -17,7 +17,7 @@ ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 # indented to match the '# @formatter:off' line's own indentation, so the
 # surrounding code parses as valid bash at the expected scope.
 mask_protected() {
-  awk '
+  awk -v file="${1}" '
     /# @formatter:off/ {
       in_block = 1
       match($0, /^[[:space:]]*/)
@@ -32,6 +32,12 @@ mask_protected() {
     }
     in_block { print indent ":"; next }
     { print }
+    END {
+      if (in_block) {
+        printf "Unclosed formatter block in %s: missing # @formatter:on\n", file > "/dev/stderr"
+        exit 2
+      }
+    }
   ' "${1}"
 }
 
