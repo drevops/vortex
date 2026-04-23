@@ -104,13 +104,17 @@ run_migration() {
     drush migrate:messages "${migration_name}"
     exit 1
   }
+
+  pass "Migrated: ${migration_name}."
 }
 
 # Detect if existing migration source database is corrupted.
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   note "Source database import is set to be skipped. Checking existing database."
   task "Probing for '${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}' table in the source database."
-  if ! drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}" >/dev/null 2>&1; then
+  if drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}" >/dev/null 2>&1; then
+    pass "Source database is intact."
+  else
     note "Migration source database is corrupted or empty. Re-importing."
     DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
   fi
@@ -137,18 +141,21 @@ if ! drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION
   drush sql:query --database=migrate "SHOW TABLES;"
   exit 1
 fi
+pass "Verified migration source database."
 
 # Enable custom migration modules.
 task "Enabling migration modules."
 drush pm:install ys_migrate
+pass "Enabled migration modules."
 
-task "Starting migrations."
+info "Starting migrations."
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
   note "Skipping rollback of all migrations."
 else
   task "Rolling back all migrations."
   drush migrate:rollback --all || true
+  pass "Rolled back all migrations."
 fi
 echo
 
