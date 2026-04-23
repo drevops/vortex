@@ -56,6 +56,12 @@ $provision_verify_config = getenv_default('VORTEX_PROVISION_VERIFY_CONFIG_UNCHAN
 // Skip cache rebuild after database updates.
 $provision_cache_rebuild_after_db_update_skip = getenv_default('VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP', '0');
 
+// Repeat configuration import after the initial import.
+//
+// Useful when update hooks introduce new configuration that affects
+// subsequent configuration imports (e.g., new config_split settings).
+$provision_config_import_repeat = getenv_default('VORTEX_PROVISION_CONFIG_IMPORT_REPEAT', '0');
+
 // Provision database dump file.
 //
 // If not set, it will be auto-discovered from the VORTEX_PROVISION_DB_DIR
@@ -547,6 +553,13 @@ if ($site_has_config_files) {
   drush('config:import');
   pass('Completed configuration import.');
   echo PHP_EOL;
+
+  if ($provision_config_import_repeat === '1') {
+    task('Repeating configuration import.');
+    drush('config:import');
+    pass('Completed repeated configuration import.');
+    echo PHP_EOL;
+  }
 
   // Import config_split configuration if the module is installed.
   // Drush deploy does not import config_split configuration on the first run.

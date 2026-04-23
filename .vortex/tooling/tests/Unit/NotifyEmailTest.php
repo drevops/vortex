@@ -119,6 +119,29 @@ class NotifyEmailTest extends UnitTestCase {
     $this->runScriptEarlyPass('src/notify-email', 'Skipping email notification for pre_deployment event');
   }
 
+  public function testNotificationSkippedWhenBranchNotInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->runScriptEarlyPass('src/notify-email', "Skipping email notification for branch 'develop'.");
+  }
+
+  public function testNotificationProceedsWhenBranchInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_BRANCHES', 'main,develop');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => $this->defaultMessageMatcher(),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/notify-email');
+
+    $this->assertStringContainsString('Finished email notification', $output);
+  }
+
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);

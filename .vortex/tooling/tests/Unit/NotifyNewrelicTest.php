@@ -31,7 +31,35 @@ class NotifyNewrelicTest extends UnitTestCase {
       'VORTEX_NOTIFY_NEWRELIC_USER' => 'Deploy Bot',
       'VORTEX_NOTIFY_NEWRELIC_EVENT' => 'post_deployment',
       'VORTEX_NOTIFY_NEWRELIC_APPID' => '12345678',
+      // Match the 'main,master,develop' default of VORTEX_NOTIFY_NEWRELIC_BRANCHES.
+      'VORTEX_NOTIFY_BRANCH' => 'main',
     ]);
+  }
+
+  public function testNotificationSkippedWhenBranchNotInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->runScriptEarlyPass('src/notify-newrelic', "Skipping New Relic notification for branch 'develop'.");
+  }
+
+  public function testNotificationProceedsWhenBranchInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,develop');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+    $this->envSet('VORTEX_NOTIFY_NEWRELIC_REVISION', 'v1.0.0');
+
+    $this->mockRequestPost(
+      'https://api.newrelic.com/v2/applications/12345678/deployments.json',
+      $this->callback(fn(): true => TRUE),
+      ['Api-Key: NRAK-TEST123456', 'Content-Type: application/json'],
+      10,
+      ['status' => 201]
+    );
+
+    $output = $this->runScript('src/notify-newrelic');
+
+    $this->assertStringContainsString('Started New Relic notification', $output);
+    $this->assertStringContainsString('Finished New Relic notification', $output);
   }
 
   public function testNotificationSkippedWhenNotEnabled(): void {

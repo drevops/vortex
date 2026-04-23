@@ -67,6 +67,28 @@ class NotifyWebhookTest extends UnitTestCase {
     $this->runScriptEarlyPass('src/notify-webhook', 'Skipping Webhook notification for pre_deployment event');
   }
 
+  public function testNotificationSkippedWhenBranchNotInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->runScriptEarlyPass('src/notify-webhook', "Skipping Webhook notification for branch 'develop'.");
+  }
+
+  public function testNotificationProceedsWhenBranchInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_BRANCHES', 'main,develop');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->mockRequest(
+      'https://webhook.example.com/endpoint',
+      ['method' => 'POST'],
+      ['status' => 200]
+    );
+
+    $output = $this->runScript('src/notify-webhook');
+
+    $this->assertStringContainsString('Finished Webhook notification', $output);
+  }
+
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);

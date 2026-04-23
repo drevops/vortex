@@ -30,6 +30,31 @@ class NotifyGithubTest extends UnitTestCase {
     ]);
   }
 
+  public function testNotificationSkippedWhenBranchNotInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_GITHUB_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
+
+    $this->runScriptEarlyPass('src/notify-github', "Skipping GitHub notification for branch 'feature/x'.");
+  }
+
+  public function testNotificationProceedsWhenBranchInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_GITHUB_BRANCHES', 'main,develop');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+    $this->envSet('VORTEX_NOTIFY_GITHUB_EVENT', 'pre_deployment');
+
+    $this->mockRequestPost(
+      'https://api.github.com/repos/owner/repo/deployments',
+      $this->callback(fn(): true => TRUE),
+      ['Authorization: token ghp_test123456', 'Accept: application/vnd.github.v3+json'],
+      10,
+      ['status' => 201, 'body' => '{"id": 123456789}']
+    );
+
+    $output = $this->runScript('src/notify-github');
+
+    $this->assertStringContainsString('Finished GitHub notification', $output);
+  }
+
   public function testSuccessfulPreDeploymentNotification(): void {
     $this->envSet('VORTEX_NOTIFY_GITHUB_EVENT', 'pre_deployment');
 

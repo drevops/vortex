@@ -224,25 +224,26 @@ else {
     note(sprintf('Using the latest backup ID %s for DB %s.', $backup_id, $db_name));
 
     task('Discovering backup URL.');
-    $backup_url_response = request_get(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), dl_acquia_api_headers($token));
+    // The Acquia API responds with a 302 redirect to the final S3 download
+    // URL. Capture the redirect URL without following it to avoid sending the
+    // Authorization header to S3 - the auth header is required only to query
+    // the Acquia API.
+    $backup_url_response = request(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), ['method' => 'GET', 'headers' => dl_acquia_api_headers($token), 'follow_redirects' => FALSE]);
 
-    if (!$backup_url_response['ok']) {
-      fail('Failed to retrieve backup URL for backup ID \'%s\'.', $backup_id);
-    }
-
-    $backup_url_data = json_decode((string) $backup_url_response['body'], TRUE);
-    $backup_url = $backup_url_data['url'] ?? '';
+    $backup_url = (string) ($backup_url_response['info']['redirect_url'] ?? '');
 
     if ($backup_url === '') {
       fail(sprintf('Unable to discover backup URL for backup ID \'%s\'.', $backup_id));
     }
 
     task(sprintf('Downloading DB dump into file %s.', $file_name_compressed));
-    $dl_response = request($backup_url, ['method' => 'GET', 'headers' => dl_acquia_api_headers($token), 'save_to' => $file_name_compressed, 'timeout' => 600]);
+    $dl_response = request($backup_url, ['method' => 'GET', 'save_to' => $file_name_compressed, 'timeout' => 600]);
     if (!$dl_response['ok']) {
       fail('Unable to download database %s.', $db_name);
     }
 
+    // Check if the downloaded file exists and has content. Leave the file in
+    // place on failure so it can be inspected.
     if (!file_exists($file_name_compressed) || filesize($file_name_compressed) === 0) {
       fail(sprintf('Downloaded file is empty or missing: %s', $file_name_compressed));
     }
@@ -253,15 +254,15 @@ else {
 
   task(sprintf('Expanding DB file %s into %s.', $file_name_compressed, $file_name));
 
+  // Test the gzip file first to ensure it's valid. Leave the file in place
+  // on failure so it can be inspected.
   $header = file_get_contents($file_name_compressed, FALSE, NULL, 0, 2);
   if ($header === FALSE || $header !== "\x1f\x8b") {
-    @unlink($file_name_compressed);
     fail(sprintf('Downloaded file is not a valid gzip archive: %s', $file_name_compressed));
   }
 
   $gz_in = @fopen('compress.zlib://' . $file_name_compressed, 'rb');
   if ($gz_in === FALSE) {
-    @unlink($file_name_compressed);
     // @codeCoverageIgnoreStart
     fail(sprintf('Unable to read compressed file %s.', $file_name_compressed));
     // @codeCoverageIgnoreEnd
@@ -270,7 +271,6 @@ else {
   $out = @fopen($file_name, 'wb');
   if ($out === FALSE) {
     fclose($gz_in);
-    @unlink($file_name_compressed);
     // @codeCoverageIgnoreStart
     fail(sprintf('Unable to write decompressed file %s.', $file_name));
     // @codeCoverageIgnoreEnd
@@ -280,17 +280,17 @@ else {
   fclose($gz_in);
   fclose($out);
 
+  // Check decompression result and file validity. Leave both files in place
+  // on failure so they can be inspected.
   if ($bytes === FALSE || $bytes === 0) {
-    @unlink($file_name_compressed);
-    @unlink($file_name);
     fail(sprintf('Downloaded file is not a valid gzip archive: %s', $file_name_compressed));
   }
-
-  @unlink($file_name_compressed);
 
   if (!file_exists($file_name) || filesize($file_name) === 0) {
     fail(sprintf('Unable to process DB dump file "%s".', $file_name));
   }
+
+  @unlink($file_name_compressed);
 }
 
 task(sprintf('Renaming file "%s" to "%s/%s".', $file_name, $db_dir, $db_file));

@@ -163,6 +163,30 @@ class NotifySlackTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Slack notification', $output);
   }
 
+  public function testNotificationSkippedWhenBranchNotInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_SLACK_BRANCHES', 'main,master');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->runScriptEarlyPass('src/notify-slack', "Skipping Slack notification for branch 'develop'.");
+  }
+
+  public function testNotificationProceedsWhenBranchInFilter(): void {
+    $this->envSet('VORTEX_NOTIFY_SLACK_BRANCHES', 'main,develop');
+    $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
+
+    $this->mockRequestPost(
+      'https://hooks.slack.com/services/T00/B00/XXXX',
+      $this->callback(fn(): true => TRUE),
+      ['Content-Type: application/json'],
+      10,
+      ['status' => 200]
+    );
+
+    $output = $this->runScript('src/notify-slack');
+
+    $this->assertStringContainsString('Finished Slack notification', $output);
+  }
+
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);

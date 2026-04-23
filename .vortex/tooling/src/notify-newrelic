@@ -92,6 +92,21 @@ if (empty($newrelic_enabled)) {
   quit();
 }
 
+// Branch filter gate.
+//
+// Comma-separated list of branch names. When set, New Relic notifications
+// are only sent for deployments on the listed branches. When empty, no
+// filtering is applied. Defaults to the long-lived branches.
+$notify_newrelic_branches = getenv_default('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master,develop');
+if ($notify_newrelic_branches !== '') {
+  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
+  $branch_list = array_map('trim', explode(',', $notify_newrelic_branches));
+  if (!in_array($current_branch, $branch_list, TRUE)) {
+    pass(sprintf('Skipping New Relic notification for branch \'%s\'.', $current_branch));
+    quit();
+  }
+}
+
 info('Started New Relic notification.');
 
 // Skip if this is a pre-deployment event (New Relic only for post-deployment).

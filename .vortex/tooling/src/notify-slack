@@ -16,6 +16,25 @@ require_once __DIR__ . '/helpers.php';
 execute_override(basename(__FILE__));
 
 // -----------------------------------------------------------------------------
+// Branch filter gate.
+//
+// Comma-separated list of branch names. When set, Slack notifications are
+// only sent for deployments on the listed branches. When empty, no filtering
+// is applied. Checked before required variable validation so channels not
+// configured for the current branch can short-circuit cleanly.
+// -----------------------------------------------------------------------------
+
+$notify_slack_branches = getenv_default('VORTEX_NOTIFY_SLACK_BRANCHES', '');
+if ($notify_slack_branches !== '') {
+  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
+  $branch_list = array_map('trim', explode(',', $notify_slack_branches));
+  if (!in_array($current_branch, $branch_list, TRUE)) {
+    pass(sprintf('Skipping Slack notification for branch \'%s\'.', $current_branch));
+    quit();
+  }
+}
+
+// -----------------------------------------------------------------------------
 
 // Slack notification project name.
 $notify_project = getenv_required('VORTEX_NOTIFY_SLACK_PROJECT', 'VORTEX_NOTIFY_PROJECT');
