@@ -488,6 +488,7 @@ jobs:
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
+        continue-on-error: true
         with:
           directory: .logs/coverage
           fail_ci_if_error: true
