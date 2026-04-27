@@ -530,6 +530,53 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->logSubstep('Assert that Shield module is enabled');
     $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* shield', 'Shield module should be enabled after fallback provision');
 
+    // Diagnostic probes to understand why the homepage hits the redirect
+    // module after a fallback profile install. Each command's full output is
+    // streamed to the test log; failures here are non-fatal so we still reach
+    // the original assertions below.
+    // @todo Remove once the underlying cause is understood and fixed.
+    $this->logSubstep('DEBUG: enabled modules per core.extension');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list');
+
+    $this->logSubstep('DEBUG: core.extension config dump');
+    $this->cmd('ahoy drush config:get core.extension');
+
+    $this->logSubstep('DEBUG: redirect module status (should be disabled after fallback)');
+    $this->cmd('ahoy drush pm:list --filter=redirect --format=list');
+
+    $this->logSubstep('DEBUG: all DB tables');
+    $this->cmd('ahoy drush sql:query "SHOW TABLES"');
+
+    $this->logSubstep('DEBUG: redirect-related DB tables (should be empty)');
+    $this->cmd('ahoy drush sql:query "SHOW TABLES LIKE \'redirect%\'"');
+
+    $this->logSubstep('DEBUG: cache_container row count');
+    $this->cmd('ahoy drush sql:query "SELECT COUNT(*) FROM cache_container"');
+
+    $this->logSubstep('DEBUG: PhpStorage layout under web/sites/default/files/php');
+    $this->cmd('ahoy cli "ls -la web/sites/default/files/php/ 2>/dev/null || echo NO_PHP_DIR"');
+    $this->cmd('ahoy cli "ls -la web/sites/default/files/php/container/ 2>/dev/null || echo NO_CONTAINER_DIR"');
+    $this->cmd('ahoy cli "find web/sites/default/files/php -type f 2>/dev/null | head -30 || echo NO_FILES"');
+
+    $this->logSubstep('DEBUG: presence of redirect references in cached container files');
+    $this->cmd('ahoy cli "grep -l \"Drupal..redirect\" web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_IN_CONTAINER_CACHE"');
+    $this->cmd('ahoy cli "grep -c \"redirect.request_subscriber\\|RedirectRequestSubscriber\" web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_SUBSCRIBER_IN_CACHE"');
+
+    $this->logSubstep('DEBUG: hash_salt and deployment_identifier');
+    $this->cmd('ahoy drush php:eval "print \"hash_salt=\" . substr(\Drupal\Core\Site\Settings::get(\"hash_salt\"), 0, 12) . PHP_EOL . \"deployment_identifier=\" . (\Drupal\Core\Site\Settings::get(\"deployment_identifier\") ?? \"(null)\") . PHP_EOL;"');
+
+    $this->logSubstep('DEBUG: runtime active modules per Drupal kernel');
+    $this->cmd('ahoy drush php:eval "foreach (array_keys(\Drupal::moduleHandler()->getModuleList()) as \$m) { print \$m . PHP_EOL; }"');
+
+    $this->logSubstep('DEBUG: registered path_processor_inbound services');
+    $this->cmd('ahoy drush php:eval "foreach (\Drupal::getContainer()->getServiceIds() as \$id) { if (str_contains(\$id, \"path_processor\") || str_contains(\$id, \"redirect\")) { print \$id . PHP_EOL; } }"');
+
+    $this->logSubstep('DEBUG: last 30 watchdog entries');
+    $this->cmd('ahoy drush watchdog:show --count=30 || true');
+
+    $this->logSubstep('DEBUG: head of homepage response');
+    $this->cmd('ahoy cli "curl -sS -o - -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://nginx:8080/ | head -c 4000"');
+
     $this->logSubstep('Assert that homepage does not contain database dump content');
     $this->assertWebpageNotContains('/', 'This demo page is sourced from the Vortex database dump file', 'Homepage should not show database dump content after fallback provision');
 
