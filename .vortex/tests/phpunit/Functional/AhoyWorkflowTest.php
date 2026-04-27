@@ -511,6 +511,9 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       'Provision without fallback should fail when no database dump is available',
     );
 
+    $logs_dir = self::locationsRoot() . '/.vortex/tests/.logs';
+    @mkdir($logs_dir, 0777, TRUE);
+
     $this->logSubstep('Provision with fallback should succeed');
     $this->fileAddVar('.env', 'VORTEX_PROVISION_FALLBACK_TO_PROFILE', 1);
     $this->syncToContainer(['.env']);
@@ -527,6 +530,13 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       tio: 15 * 60,
     );
 
+    // DEBUG: capture the full output of the fallback provision run before any
+    // further probes run drush and rebuild the container.
+    file_put_contents(
+      $logs_dir . '/debug-00-provision-output.txt',
+      sprintf("--- STDOUT ---\n%s\n--- STDERR ---\n%s\n", $this->processGet()->getOutput(), $this->processGet()->getErrorOutput())
+    );
+
     $this->logSubstep('Assert that Shield module is enabled');
     $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* shield', 'Shield module should be enabled after fallback provision');
 
@@ -537,9 +547,6 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // through 'ahoy cli' with a single-quoted outer arg so they survive
     // ahoy's '$*' expansion intact.
     // @todo Remove once the underlying cause is understood and fixed.
-    $logs_dir = self::locationsRoot() . '/.vortex/tests/.logs';
-    @mkdir($logs_dir, 0777, TRUE);
-
     $this->captureProbe($logs_dir, '01-enabled-modules.txt', "ahoy cli 'vendor/bin/drush pm:list --status=enabled --type=module --format=list'");
     $this->captureProbe($logs_dir, '02-core-extension.txt', "ahoy cli 'vendor/bin/drush config:get core.extension'");
     $this->captureProbe($logs_dir, '03-redirect-module-status.txt', "ahoy cli 'vendor/bin/drush pm:list --filter=redirect --format=list || true'");
@@ -551,8 +558,11 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->captureProbe($logs_dir, '09-phpstorage-find.txt', "ahoy cli 'find web/sites/default/files/php -type f 2>/dev/null | head -50 || echo NO_FILES'");
     $this->captureProbe($logs_dir, '10-grep-redirect-in-cache.txt', "ahoy cli 'grep -l Drupal..redirect web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_IN_CONTAINER_CACHE'");
     $this->captureProbe($logs_dir, '11-grep-subscriber-in-cache.txt', "ahoy cli 'grep -c redirect.request_subscriber web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_SUBSCRIBER_IN_CACHE'");
-    $this->captureProbe($logs_dir, '12-watchdog.txt', "ahoy cli 'vendor/bin/drush watchdog:show --count=30 || true'");
+    $this->captureProbe($logs_dir, '12-watchdog.txt', "ahoy cli 'vendor/bin/drush watchdog:show --count=200 || true'");
     $this->captureProbe($logs_dir, '13-homepage.txt', "ahoy cli 'curl -sS -o /tmp/homepage.html -w HTTP_STATUS=%{http_code} http://nginx:8080/ ; echo ; head -c 4000 /tmp/homepage.html'");
+    $this->captureProbe($logs_dir, '14-config-default-listing.txt', "ahoy cli 'ls -la ../config/default/ | head -80'");
+    $this->captureProbe($logs_dir, '15-core-extension-yml.txt', "ahoy cli 'cat ../config/default/core.extension.yml 2>/dev/null || echo NO_CORE_EXTENSION_YML'");
+    $this->captureProbe($logs_dir, '16-shield-status.txt', "ahoy cli 'vendor/bin/drush pm:list --filter=shield --format=list || true'");
 
     $this->logSubstep('Assert that homepage does not contain database dump content');
     $this->assertWebpageNotContains('/', 'This demo page is sourced from the Vortex database dump file', 'Homepage should not show database dump content after fallback provision');
