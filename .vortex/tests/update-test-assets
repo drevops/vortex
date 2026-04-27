@@ -1,0 +1,555 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Rebuild and publish Vortex test assets (database dumps and container images).
+ *
+ * Mirrors '.vortex/docs/content/contributing/maintenance/template.mdx'
+ * ("Updating test assets"). Each mode encapsulates one flow from that doc.
+ *
+ * Usage:
+ *   php .vortex/tests/update-test-assets [mode] [--tag <tag>]
+ *
+ * Without arguments, runs the 'all' mode (full refresh).
+ *
+ * Modes:
+ *   demo-dump            Build demo in-place; export .data/db.demo.sql.
+ *   demo-image           Build demo in-place; push
+ *                        drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>.
+ *   test-dump            Install Vortex into /tmp/star-wars; export
+ *                        .data/db.test.sql there.
+ *   test-image           Install Vortex into /tmp/star-wars; push
+ *                        drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>.
+ *   destination-images   Tag and push the local demo image to didi destination
+ *                        tags (vortex-dev-database-ii, vortex-dev-didi-database-fi).
+ *   all                  Run all of the above (default). Optimised: builds
+ *                        the demo stack once for both demo modes and the
+ *                        test stack once for both test modes (2 stack builds
+ *                        instead of 4).
+ *
+ * Options:
+ *   --tag <tag>          Image tag for image modes (default: 'latest').
+ *                        Also accepts '--tag=<tag>'.
+ *
+ * Demo modes run in-place against the current repository and are destructive:
+ * they wipe containers and remove '.data/db.sql' before rebuilding. Test modes
+ * nuke and recreate '/tmp/star-wars'. Image modes require a Docker Hub session
+ * with push permission to 'drevops/'.
+ */
+
+const SUT_DIR = '/tmp/star-wars';
+const SEED_URL = 'https://github.com/drevops/mariadb-drupal-data/releases/latest/download/seed.sh';
+const IMAGE_DEMO = 'drevops/vortex-dev-mariadb-drupal-data-demo-11.x';
+const IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x';
+const IMAGE_DEST = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';
+
+$valid_modes = ['demo-dump', 'demo-image', 'test-dump', 'test-image', 'destination-images', 'all'];
+[$mode, $tag] = parse_args($argv ?? [], $valid_modes);
+
+$root_dir = dirname(__DIR__, 2);
+$installer = $root_dir . '/.vortex/installer/installer.php';
+
+step(sprintf('Mode: %s', $mode));
+step(sprintf('Tag: %s', $tag));
+step(sprintf('Source repo: %s', $root_dir));
+
+step('Validate environment');
+require_command('docker');
+require_command('ahoy');
+require_command('curl');
+require_command('sed');
+require_command('php');
+
+run_mode($mode, $root_dir, $installer, $tag);
+
+step('Done');
+
+// =============================================================================
+// Mode dispatcher.
+// =============================================================================
+
+function run_mode(string $mode, string $root_dir, string $installer, string $tag): void {
+  step(sprintf('--- Running mode: %s ---', $mode));
+
+  match ($mode) {
+    'demo-dump' => mode_demo_dump($root_dir),
+    'demo-image' => mode_demo_image($root_dir, $tag),
+    'test-dump' => mode_test_dump($root_dir, $installer),
+    'test-image' => mode_test_image($root_dir, $installer, $tag),
+    'destination-images' => mode_destination_images($tag),
+    'all' => mode_all($root_dir, $installer, $tag),
+  };
+}
+
+// =============================================================================
+// Modes.
+// =============================================================================
+
+function mode_demo_dump(string $root_dir): void {
+  $body = body_demo_dump();
+
+  build_demo_in_place($root_dir);
+  set_node_content($root_dir, 'Welcome to the demo site!', $body);
+  finalise_content($root_dir);
+  export_db($root_dir, 'db.demo.sql', $body);
+  print_dump_followup($root_dir, 'db.demo.sql', 'db.demo.sql');
+}
+
+function mode_demo_image(string $root_dir, string $tag): void {
+  $image = sprintf('%s:%s', IMAGE_DEMO, $tag);
+  $body = body_demo_image();
+
+  build_demo_in_place($root_dir);
+  set_node_content($root_dir, 'Welcome to the demo site!', $body);
+  finalise_content($root_dir);
+  export_db($root_dir, 'db.demo_image.sql', $body);
+  fix_collation($root_dir, 'db.demo_image.sql');
+  seed_image($root_dir, 'db.demo_image.sql', $image);
+}
+
+function mode_test_dump(string $root_dir, string $installer): void {
+  $body = body_test_dump();
+
+  reset_sut($root_dir, $installer);
+  build_in($root_dir, SUT_DIR, FALSE);
+  set_node_content(SUT_DIR, 'Welcome to the test site!', $body);
+  finalise_content(SUT_DIR);
+  export_db(SUT_DIR, 'db.test.sql', $body);
+  print_dump_followup(SUT_DIR, 'db.test.sql', 'db_d11.test.sql');
+}
+
+function mode_test_image(string $root_dir, string $installer, string $tag): void {
+  $image = sprintf('%s:%s', IMAGE_TEST, $tag);
+  $body = body_test_image();
+
+  reset_sut($root_dir, $installer);
+  build_in($root_dir, SUT_DIR, FALSE);
+  set_node_content(SUT_DIR, 'Welcome to the test site!', $body);
+  finalise_content(SUT_DIR);
+  export_db(SUT_DIR, 'db.test_image.sql', $body);
+  fix_collation(SUT_DIR, 'db.test_image.sql');
+  seed_image(SUT_DIR, 'db.test_image.sql', $image);
+}
+
+function mode_destination_images(string $tag): void {
+  $source = sprintf('%s:%s', IMAGE_DEMO, $tag);
+
+  step(sprintf('Pull source demo image %s', $source));
+  run(sprintf('docker pull %s', escapeshellarg($source)));
+
+  step('Tag and push destination images from local demo image');
+  foreach (['vortex-dev-database-ii', 'vortex-dev-didi-database-fi'] as $dest_tag) {
+    $dest = sprintf('%s:%s', IMAGE_DEST, $dest_tag);
+    run(sprintf('docker tag %s %s', escapeshellarg($source), escapeshellarg($dest)));
+    run(sprintf('docker push %s', escapeshellarg($dest)));
+  }
+}
+
+/**
+ * Optimised full refresh: 2 stack builds (demo + test) instead of 4.
+ *
+ * Within each site context (demo and test) the stack is built once, content
+ * is exported as the dump variant, then the same node's body is updated to
+ * the image variant before exporting and pushing the image. This reuses the
+ * provisioned stack and skips two 'ahoy build' invocations.
+ */
+function mode_all(string $root_dir, string $installer, string $tag): void {
+  // Demo phase: one stack build, two exports.
+  step('=== Demo phase (single stack build) ===');
+  build_demo_in_place($root_dir);
+
+  $demo_dump_body = body_demo_dump();
+  set_node_content($root_dir, 'Welcome to the demo site!', $demo_dump_body);
+  finalise_content($root_dir);
+  export_db($root_dir, 'db.demo.sql', $demo_dump_body);
+  print_dump_followup($root_dir, 'db.demo.sql', 'db.demo.sql');
+
+  $demo_image_body = body_demo_image();
+  set_node_content($root_dir, 'Welcome to the demo site!', $demo_image_body);
+  truncate_caches($root_dir);
+  export_db($root_dir, 'db.demo_image.sql', $demo_image_body);
+  fix_collation($root_dir, 'db.demo_image.sql');
+  seed_image($root_dir, 'db.demo_image.sql', sprintf('%s:%s', IMAGE_DEMO, $tag));
+
+  // Test phase: one stack build, two exports.
+  step('=== Test phase (single stack build) ===');
+  reset_sut($root_dir, $installer);
+  build_in($root_dir, SUT_DIR, FALSE);
+
+  $test_dump_body = body_test_dump();
+  set_node_content(SUT_DIR, 'Welcome to the test site!', $test_dump_body);
+  finalise_content(SUT_DIR);
+  export_db(SUT_DIR, 'db.test.sql', $test_dump_body);
+  print_dump_followup(SUT_DIR, 'db.test.sql', 'db_d11.test.sql');
+
+  $test_image_body = body_test_image();
+  set_node_content(SUT_DIR, 'Welcome to the test site!', $test_image_body);
+  truncate_caches(SUT_DIR);
+  export_db(SUT_DIR, 'db.test_image.sql', $test_image_body);
+  fix_collation(SUT_DIR, 'db.test_image.sql');
+  seed_image(SUT_DIR, 'db.test_image.sql', sprintf('%s:%s', IMAGE_TEST, $tag));
+
+  // Destination images.
+  step('=== Destination images ===');
+  mode_destination_images($tag);
+}
+
+// =============================================================================
+// Body texts.
+// =============================================================================
+
+function body_demo_dump(): string {
+  return 'This demo page is sourced from the Vortex database dump file to demonstrate database importing capabilities.';
+}
+
+function body_demo_image(): string {
+  return 'This demo page is sourced from the Vortex database container image to demonstrate database importing capabilities.';
+}
+
+function body_test_dump(): string {
+  return 'This test page is sourced from the Vortex database dump file to demonstrate database importing capabilities.';
+}
+
+function body_test_image(): string {
+  return 'This test page is sourced from the Vortex database container image to demonstrate database importing capabilities.';
+}
+
+function print_dump_followup(string $cwd, string $filename, string $asset_name): void {
+  step('Manual follow-up');
+  println(sprintf('  Upload %s/.data/%s to the latest GitHub release as asset "%s".', $cwd, $filename, $asset_name));
+}
+
+// =============================================================================
+// Shared subroutines.
+// =============================================================================
+
+function reset_sut(string $root_dir, string $installer): void {
+  step(sprintf('Reset SUT directory %s', SUT_DIR));
+
+  // Drupal stages public files inside containers running as 'www-data'
+  // (uid 33). When those bind-mounts surface on the host, plain 'rm -rf'
+  // by the current user fails with "Permission denied". Clear the contents
+  // via an ephemeral root-privileged container so file ownership doesn't
+  // matter, then leave the dir itself in place for the installer.
+  run(sprintf('mkdir -p %s', escapeshellarg(SUT_DIR)));
+  run(sprintf(
+    'docker run --rm -v %s:/sut alpine find /sut -mindepth 1 -delete',
+    escapeshellarg(SUT_DIR)
+  ));
+
+  step('Install Vortex into SUT');
+  run(sprintf(
+    'VORTEX_INSTALLER_TEMPLATE_REPO=%s php %s --no-interaction --destination=%s',
+    escapeshellarg($root_dir),
+    escapeshellarg($installer),
+    escapeshellarg(SUT_DIR)
+  ), $root_dir);
+}
+
+function build_demo_in_place(string $root_dir): void {
+  build_in($root_dir, $root_dir, TRUE);
+}
+
+function build_in(string $root_dir, string $cwd, bool $skip_post_ops): void {
+  step('Remove any pre-existing DB dump');
+  run('rm -f .data/db.sql', $cwd);
+
+  // Replicate 'ahoy build' step-by-step so COMPOSER_PROCESS_TIMEOUT=0 can be
+  // injected into the composer install step (extracting drupal/core can take
+  // longer than the default 300s on slower hosts). 'ahoy cli' does not forward
+  // COMPOSER_* env vars from the host, hence the direct 'docker compose exec'.
+  step('Reset stack');
+  run('AHOY_CONFIRM_RESPONSE=1 AHOY_CONFIRM_WAIT_SKIP=1 ahoy reset', $cwd);
+
+  step('Bring up containers');
+  run('ahoy up --build --force-recreate', $cwd);
+
+  step('Install Composer dependencies (COMPOSER_PROCESS_TIMEOUT=0)');
+  run("docker compose exec -T -e COMPOSER_MEMORY_LIMIT=-1 -e COMPOSER_PROCESS_TIMEOUT=0 cli composer --ansi install", $cwd);
+
+  step('Install front-end dependencies');
+  run('ahoy fei', $cwd);
+
+  step('Build front-end assets (skipped if theme not configured)');
+  run('ahoy fe || true', $cwd);
+
+  step('Provision');
+  $env = $skip_post_ops
+    ? 'VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1'
+    : 'VORTEX_PROVISION_TYPE=profile AHOY_CONFIRM_RESPONSE=1';
+  run(sprintf('%s ahoy provision', $env), $cwd);
+
+  step('Info');
+  run('ahoy info', $cwd);
+}
+
+function set_node_content(string $cwd, string $title, string $body): void {
+  step(sprintf('Set node 1 content ("%s")', $title));
+
+  $php = build_set_node_content_php($title, $body);
+  $drush_cmd = sprintf('drush php:eval %s', escapeshellarg($php));
+  $ahoy_cmd = sprintf('ahoy cli %s', escapeshellarg($drush_cmd));
+
+  run($ahoy_cmd, $cwd);
+}
+
+function finalise_content(string $cwd): void {
+  set_front_page($cwd, '/node/1');
+  truncate_caches($cwd);
+}
+
+function set_front_page(string $cwd, string $path): void {
+  step(sprintf('Set and verify page.front to %s', $path));
+
+  $path_escaped = addcslashes($path, '"\\$');
+  $php = implode(' ', [
+    sprintf('\Drupal::configFactory()->getEditable("system.site")->set("page.front", "%s")->save();', $path_escaped),
+    sprintf('$front = \Drupal::config("system.site")->get("page.front");'),
+    sprintf('if ($front !== "%s") { throw new \RuntimeException("page.front mismatch: " . $front); }', $path_escaped),
+    'echo "Verified page.front=" . $front . PHP_EOL;',
+  ]);
+  $drush_cmd = sprintf('drush php:eval %s', escapeshellarg($php));
+  $ahoy_cmd = sprintf('ahoy cli %s', escapeshellarg($drush_cmd));
+
+  run($ahoy_cmd, $cwd);
+}
+
+function truncate_caches(string $cwd): void {
+  step('Truncate cache_* tables and watchdog');
+  run("ahoy cli 'drush sql:query \"SHOW TABLES LIKE \\\"cache_%\\\"\" | xargs -I{} drush sql:query \"TRUNCATE TABLE {}\" && drush sql:query \"TRUNCATE TABLE watchdog\"'", $cwd);
+}
+
+function export_db(string $cwd, string $filename, ?string $expected_substring = NULL): void {
+  step(sprintf('Export database to .data/%s', $filename));
+  run(sprintf('ahoy export-db %s', escapeshellarg($filename)), $cwd);
+
+  $path = sprintf('%s/.data/%s', $cwd, $filename);
+  step(sprintf('Verify export file %s', $path));
+
+  if (!is_file($path)) {
+    fwrite(STDERR, sprintf("Error: export file %s does not exist.\n", $path));
+    exit(1);
+  }
+
+  $size = filesize($path);
+  if ($size === FALSE || $size === 0) {
+    fwrite(STDERR, sprintf("Error: export file %s is empty.\n", $path));
+    exit(1);
+  }
+
+  println(sprintf('  - File exists, %d bytes.', $size));
+
+  if ($expected_substring !== NULL) {
+    $contents = file_get_contents($path);
+    if ($contents === FALSE || !str_contains($contents, $expected_substring)) {
+      fwrite(STDERR, sprintf("Error: export file %s does not contain expected substring: %s\n", $path, $expected_substring));
+      exit(1);
+    }
+    println(sprintf('  - Contains expected body text: %s', truncate_for_log($expected_substring, 60)));
+  }
+}
+
+function fix_collation(string $cwd, string $filename): void {
+  step('Normalise collation (utf8mb4_0900_ai_ci -> utf8mb4_general_ci)');
+  $path = sprintf('.data/%s', $filename);
+  run(sprintf("sed -i.bak 's/utf8mb4_0900_ai_ci/utf8mb4_general_ci/g' %s", escapeshellarg($path)), $cwd);
+  run(sprintf('rm -f %s.bak', escapeshellarg($path)), $cwd);
+
+  step('Verify collation rewrite');
+  $abs_path = sprintf('%s/.data/%s', $cwd, $filename);
+  $contents = file_get_contents($abs_path);
+  if ($contents === FALSE) {
+    fwrite(STDERR, sprintf("Error: cannot read %s for collation verification.\n", $abs_path));
+    exit(1);
+  }
+  if (str_contains($contents, 'utf8mb4_0900_ai_ci')) {
+    fwrite(STDERR, sprintf("Error: %s still contains 'utf8mb4_0900_ai_ci' after rewrite.\n", $abs_path));
+    exit(1);
+  }
+  println(sprintf('  - No utf8mb4_0900_ai_ci references remain in %s.', $abs_path));
+}
+
+function truncate_for_log(string $value, int $max): string {
+  if (strlen($value) <= $max) {
+    return $value;
+  }
+
+  return substr($value, 0, $max) . '...';
+}
+
+function seed_image(string $cwd, string $filename, string $image): void {
+  step('Download seed.sh');
+  run(sprintf('curl -fsSL -o seed.sh %s', escapeshellarg(SEED_URL)), $cwd);
+  run('chmod +x seed.sh', $cwd);
+
+  step(sprintf('Seed and push image to %s', $image));
+  run(sprintf('./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
+}
+
+// =============================================================================
+// Helpers.
+// =============================================================================
+
+function parse_args(array $argv, array $valid_modes): array {
+  $mode = NULL;
+  $tag = 'latest';
+  $script = $argv[0] ?? __FILE__;
+
+  $args = array_slice($argv, 1);
+  $count = count($args);
+  $i = 0;
+
+  while ($i < $count) {
+    $arg = $args[$i];
+
+    if ($arg === '--tag') {
+      if (!isset($args[$i + 1])) {
+        usage_error($script, $valid_modes, "Option '--tag' requires a value.");
+      }
+      $tag = $args[$i + 1];
+      $i += 2;
+      continue;
+    }
+
+    if (str_starts_with($arg, '--tag=')) {
+      $tag = substr($arg, strlen('--tag='));
+      if ($tag === '') {
+        usage_error($script, $valid_modes, "Option '--tag' requires a value.");
+      }
+      $i += 1;
+      continue;
+    }
+
+    if ($arg === '-h' || $arg === '--help') {
+      usage_error($script, $valid_modes, NULL, 0);
+    }
+
+    if (str_starts_with($arg, '-')) {
+      usage_error($script, $valid_modes, sprintf("Unknown option '%s'.", $arg));
+    }
+
+    if ($mode !== NULL) {
+      usage_error($script, $valid_modes, sprintf("Unexpected positional argument '%s'.", $arg));
+    }
+
+    $mode = $arg;
+    $i += 1;
+  }
+
+  $mode = $mode ?? 'all';
+
+  if (!in_array($mode, $valid_modes, TRUE)) {
+    usage_error($script, $valid_modes, sprintf("Invalid mode '%s'.", $mode));
+  }
+
+  return [$mode, $tag];
+}
+
+function usage_error(string $script, array $valid_modes, ?string $message, int $code = 1): void {
+  $stream = $code === 0 ? STDOUT : STDERR;
+
+  if ($message !== NULL) {
+    fwrite($stream, sprintf("Error: %s\n\n", $message));
+  }
+
+  fwrite($stream, sprintf("Usage:\n  php %s [mode] [--tag <tag>]\n\n", $script));
+  fwrite($stream, sprintf("Modes: %s\n", implode(', ', $valid_modes)));
+  fwrite($stream, "Default mode: all. Default tag: latest.\n");
+
+  exit($code);
+}
+
+function step(string $message): void {
+  fwrite(STDOUT, "\n");
+  fwrite(STDOUT, sprintf("==> %s\n", $message));
+}
+
+function println(string $message): void {
+  fwrite(STDOUT, sprintf("%s\n", $message));
+}
+
+function require_command(string $cmd): void {
+  $output = [];
+  $code = 0;
+  exec(sprintf('command -v %s 2>/dev/null', escapeshellarg($cmd)), $output, $code);
+
+  if ($code !== 0) {
+    fwrite(STDERR, sprintf("Error: required command '%s' not found in PATH.\n", $cmd));
+    exit(1);
+  }
+
+  println(sprintf('  - %s: %s', $cmd, $output[0] ?? '(found)'));
+}
+
+function run(string $command, ?string $cwd = NULL): void {
+  if ($cwd !== NULL) {
+    println(sprintf('  $ (cd %s) %s', $cwd, $command));
+    $command = sprintf('cd %s && %s', escapeshellarg($cwd), $command);
+  }
+  else {
+    println(sprintf('  $ %s', $command));
+  }
+
+  passthru($command, $code);
+
+  if ($code !== 0) {
+    fwrite(STDERR, sprintf("\nError: command failed with exit code %d.\n", $code));
+    exit($code);
+  }
+}
+
+function build_set_node_content_php(string $title, string $body): string {
+  // Escape characters that have special meaning inside PHP double-quoted
+  // strings ('"', '\', '$') so the inline 'drush php:eval' payload stays
+  // intact through host shell, ahoy and container bash.
+  $title_escaped = addcslashes($title, '"\\$');
+  $body_escaped = addcslashes($body, '"\\$');
+
+  // Idempotent: load node 1 and update it if present, otherwise create a new
+  // page node. The node MUST be published explicitly - bundle 'page'
+  // publication defaults are only applied via NodeForm and are NOT inherited
+  // by entity API create/save, so without an explicit status the node ends up
+  // unpublished and anonymous visitors get an "Access denied" page.
+  // If Content Moderation is attached to the bundle (test phase, after
+  // 'sw_search_deploy_add_editorial_workflow'), 'status' alone is not enough -
+  // 'moderation_state' must be set to 'published' or the node defaults to
+  // draft and isPublished() returns false even with status=1.
+  // Updates skip new revisions to keep exports diff-friendly.
+  // After save, the node is reloaded and asserted to verify state ended up
+  // as expected; any mismatch throws and exits non-zero.
+  return implode(' ', [
+    '$storage = \Drupal::entityTypeManager()->getStorage("node");',
+    '$node = $storage->load(1);',
+    'if ($node) {',
+    sprintf('$node->set("title", "%s");', $title_escaped),
+    sprintf('$node->set("body", ["value" => "<p>%s</p>", "format" => "basic_html"]);', $body_escaped),
+    '$node->setPublished();',
+    'if ($node->hasField("moderation_state")) { $node->set("moderation_state", "published"); }',
+    '$node->setNewRevision(FALSE);',
+    '$node->save();',
+    'echo "Updated node " . $node->id() . PHP_EOL;',
+    '} else {',
+    '$node = $storage->create([',
+    sprintf('"type" => "page", "title" => "%s",', $title_escaped),
+    sprintf('"body" => ["value" => "<p>%s</p>", "format" => "basic_html"],', $body_escaped),
+    '"status" => 1,',
+    '"uid" => 1,',
+    ']);',
+    'if ($node->hasField("moderation_state")) { $node->set("moderation_state", "published"); }',
+    '$node->save();',
+    'echo "Created node " . $node->id() . PHP_EOL;',
+    '}',
+    // Reload and verify post-save state.
+    '$storage->resetCache([1]);',
+    '$node = $storage->load(1);',
+    'if (!$node) { throw new \RuntimeException("Node 1 missing after save."); }',
+    'if (!$node->isPublished()) { throw new \RuntimeException("Node 1 is not published."); }',
+    sprintf('if ($node->getTitle() !== "%s") { throw new \RuntimeException("Title mismatch: " . $node->getTitle()); }', $title_escaped),
+    sprintf('$expected_body = "<p>%s</p>";', $body_escaped),
+    'if ($node->get("body")->value !== $expected_body) { throw new \RuntimeException("Body mismatch: " . $node->get("body")->value); }',
+    '$mod_state = $node->hasField("moderation_state") ? $node->get("moderation_state")->value : "(no moderation)";',
+    'echo "Verified node 1: published=1, title=\"" . $node->getTitle() . "\", body length=" . strlen($node->get("body")->value) . ", moderation_state=" . $mod_state . PHP_EOL;',
+  ]);
+}
