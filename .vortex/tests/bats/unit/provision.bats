@@ -1191,7 +1191,7 @@ assert_provision_info() {
   rm -f ./scripts/custom/provision-20-migration.sh
 
   export CI=1
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.38.0-rc1"
 
   mkdir "./.data"
   touch "./.data/db.sql"
@@ -1239,7 +1239,7 @@ assert_provision_info() {
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.38.0-rc1"
 
   mkdir "./.data"
   touch "./.data/db.sql"
@@ -1380,7 +1380,7 @@ assert_provision_info() {
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.38.0-rc1"
 
   mkdir "./.data"
   touch "./.data/db.sql"
@@ -1585,7 +1585,7 @@ assert_provision_info() {
   rm -f ./scripts/custom/provision-20-migration.sh
 
   export CI=1
-  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.38.0-rc1"
 
   mkdir "./.data"
   touch "./.data/db.sql"

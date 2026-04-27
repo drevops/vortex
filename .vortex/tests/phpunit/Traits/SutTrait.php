@@ -34,7 +34,7 @@ trait SutTrait {
   /**
    * Image name for the test database.
    */
-  const VORTEX_DB_IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest';
+  const VORTEX_DB_IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.38.0-rc1';
 
   /**
    * Environment variables to set when running the installer.

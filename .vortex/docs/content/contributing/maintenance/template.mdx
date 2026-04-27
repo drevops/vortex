@@ -248,12 +248,12 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 
 | Mode | What it does | Follow-up |
 | --- | --- | --- |
-| `demo-dump` | Builds the demo profile in-place; exports `.data/db.demo.sql`. | Upload as `db_d11.demo.sql` to the latest GitHub release. |
+| `demo-dump` | Builds the demo profile in-place; exports `.data/db.demo.sql`. | Upload as `db.demo.sql` to the latest GitHub release. |
 | `demo-image` | Builds the demo profile in-place; pushes `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>`. | None. |
 | `test-dump` | Installs Vortex into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest GitHub release. |
 | `test-image` | Installs Vortex into `/tmp/star-wars`; builds; pushes `drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>`. | None. |
 | `destination-images` | Tags and pushes the local demo image to the didi destination tags (`vortex-dev-database-ii`, `vortex-dev-didi-database-fi`). | None. |
-| `all` | Runs every mode above in order. Default when no mode is given. | Upload both dump files as above. |
+| `all` | Optimised full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4), then pushes images and tags destination images. Default when no mode is given. | Upload both dump files as above. |
 
 ### Options
 
@@ -271,7 +271,7 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 - Demo modes are **destructive** against the current repository: containers
   are reset and `.data/db.sql` is removed before the rebuild.
 - Test modes wipe and recreate `/tmp/star-wars` on each run.
-- `destination-images` expects `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest`
+- `destination-images` expects `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:1.38.0-rc1`
   to already exist locally - run `demo-image` (or `all`) first.
 
 ### Examples
