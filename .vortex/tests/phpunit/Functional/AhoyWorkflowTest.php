@@ -531,57 +531,70 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* shield', 'Shield module should be enabled after fallback provision');
 
     // Diagnostic probes to understand why the homepage hits the redirect
-    // module after a fallback profile install. Each command is routed through
-    // 'ahoy cli' with a single-quoted outer arg so multi-word args (queries,
-    // eval expressions) survive ahoy's '$*' expansion intact.
+    // module after a fallback profile install. Each probe writes its full
+    // output to '.logs/debug-<name>.txt' so it ships out as a test artifact
+    // (cmd()'s streaming output is suppressed in CI). Multi-word args route
+    // through 'ahoy cli' with a single-quoted outer arg so they survive
+    // ahoy's '$*' expansion intact.
     // @todo Remove once the underlying cause is understood and fixed.
-    $this->logSubstep('DEBUG: enabled modules per core.extension');
-    $this->cmd("ahoy cli 'vendor/bin/drush pm:list --status=enabled --type=module --format=list'");
+    $logs_dir = self::locationsRoot() . '/.vortex/tests/.logs';
+    @mkdir($logs_dir, 0777, TRUE);
 
-    $this->logSubstep('DEBUG: core.extension config dump');
-    $this->cmd("ahoy cli 'vendor/bin/drush config:get core.extension'");
-
-    $this->logSubstep('DEBUG: redirect module status (should be disabled after fallback)');
-    $this->cmd("ahoy cli 'vendor/bin/drush pm:list --filter=redirect --format=list || true'");
-
-    $this->logSubstep('DEBUG: all DB tables');
-    $this->cmd("ahoy cli 'vendor/bin/drush sql:query \"SHOW TABLES\"'");
-
-    $this->logSubstep('DEBUG: redirect-related DB tables (should be empty)');
-    $this->cmd("ahoy cli 'vendor/bin/drush sql:query \"SHOW TABLES LIKE \\\"redirect%\\\"\" || true'");
-
-    $this->logSubstep('DEBUG: cache_container row count');
-    $this->cmd("ahoy cli 'vendor/bin/drush sql:query \"SELECT COUNT(*) FROM cache_container\" || true'");
-
-    $this->logSubstep('DEBUG: PhpStorage layout under web/sites/default/files/php');
-    $this->cmd("ahoy cli 'ls -la web/sites/default/files/php/ 2>/dev/null || echo NO_PHP_DIR'");
-    $this->cmd("ahoy cli 'ls -la web/sites/default/files/php/container/ 2>/dev/null || echo NO_CONTAINER_DIR'");
-    $this->cmd("ahoy cli 'find web/sites/default/files/php -type f 2>/dev/null | head -30 || echo NO_FILES'");
-
-    $this->logSubstep('DEBUG: presence of redirect references in cached container files');
-    $this->cmd("ahoy cli 'grep -l \"Drupal..redirect\" web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_IN_CONTAINER_CACHE'");
-    $this->cmd("ahoy cli 'grep -c \"redirect.request_subscriber\\|RedirectRequestSubscriber\" web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_SUBSCRIBER_IN_CACHE'");
-
-    $this->logSubstep('DEBUG: hash_salt and deployment_identifier');
-    $this->cmd("ahoy cli 'vendor/bin/drush php:eval \"echo \\\"hash_salt=\\\" . substr(\\\\Drupal\\\\Core\\\\Site\\\\Settings::get(\\\"hash_salt\\\"), 0, 12) . PHP_EOL; echo \\\"deployment_identifier=\\\" . (\\\\Drupal\\\\Core\\\\Site\\\\Settings::get(\\\"deployment_identifier\\\") ?? \\\"(null)\\\") . PHP_EOL;\"'");
-
-    $this->logSubstep('DEBUG: runtime active modules per Drupal kernel');
-    $this->cmd("ahoy cli 'vendor/bin/drush php:eval \"foreach (array_keys(\\\\Drupal::moduleHandler()->getModuleList()) as \\\$m) { echo \\\$m . PHP_EOL; }\"'");
-
-    $this->logSubstep('DEBUG: redirect/path_processor service ids in live container');
-    $this->cmd("ahoy cli 'vendor/bin/drush php:eval \"foreach (\\\\Drupal::getContainer()->getServiceIds() as \\\$id) { if (str_contains(\\\$id, \\\"path_processor\\\") || str_contains(\\\$id, \\\"redirect\\\")) { echo \\\$id . PHP_EOL; } }\"'");
-
-    $this->logSubstep('DEBUG: last 30 watchdog entries');
-    $this->cmd("ahoy cli 'vendor/bin/drush watchdog:show --count=30 || true'");
-
-    $this->logSubstep('DEBUG: head of homepage response');
-    $this->cmd("ahoy cli 'curl -sS -o - -w \"\\nHTTP_STATUS=%{http_code}\\n\" http://nginx:8080/ | head -c 4000'");
+    $this->captureProbe($logs_dir, '01-enabled-modules.txt', "ahoy cli 'vendor/bin/drush pm:list --status=enabled --type=module --format=list'");
+    $this->captureProbe($logs_dir, '02-core-extension.txt', "ahoy cli 'vendor/bin/drush config:get core.extension'");
+    $this->captureProbe($logs_dir, '03-redirect-module-status.txt', "ahoy cli 'vendor/bin/drush pm:list --filter=redirect --format=list || true'");
+    $this->captureProbe($logs_dir, '04-show-tables.txt', "ahoy cli 'vendor/bin/drush sql:query \"SHOW TABLES\" || true'");
+    $this->captureProbe($logs_dir, '05-redirect-tables.txt', "ahoy cli 'vendor/bin/drush sql:query \"SHOW TABLES LIKE \\\"redirect%\\\"\" || true'");
+    $this->captureProbe($logs_dir, '06-cache-container-count.txt', "ahoy cli 'vendor/bin/drush sql:query \"SELECT COUNT(*) FROM cache_container\" || true'");
+    $this->captureProbe($logs_dir, '07-phpstorage-ls-php.txt', "ahoy cli 'ls -la web/sites/default/files/php/ 2>/dev/null || echo NO_PHP_DIR'");
+    $this->captureProbe($logs_dir, '08-phpstorage-ls-container.txt', "ahoy cli 'ls -la web/sites/default/files/php/container/ 2>/dev/null || echo NO_CONTAINER_DIR'");
+    $this->captureProbe($logs_dir, '09-phpstorage-find.txt', "ahoy cli 'find web/sites/default/files/php -type f 2>/dev/null | head -50 || echo NO_FILES'");
+    $this->captureProbe($logs_dir, '10-grep-redirect-in-cache.txt', "ahoy cli 'grep -l Drupal..redirect web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_IN_CONTAINER_CACHE'");
+    $this->captureProbe($logs_dir, '11-grep-subscriber-in-cache.txt', "ahoy cli 'grep -c redirect.request_subscriber web/sites/default/files/php/container/*.php 2>/dev/null || echo NO_REDIRECT_SUBSCRIBER_IN_CACHE'");
+    $this->captureProbe($logs_dir, '12-watchdog.txt', "ahoy cli 'vendor/bin/drush watchdog:show --count=30 || true'");
+    $this->captureProbe($logs_dir, '13-homepage.txt', "ahoy cli 'curl -sS -o /tmp/homepage.html -w HTTP_STATUS=%{http_code} http://nginx:8080/ ; echo ; head -c 4000 /tmp/homepage.html'");
 
     $this->logSubstep('Assert that homepage does not contain database dump content');
     $this->assertWebpageNotContains('/', 'This demo page is sourced from the Vortex database dump file', 'Homepage should not show database dump content after fallback provision');
 
     $this->logSubstep('Assert that homepage is accessible');
     $this->assertWebpageContains('/', '<html', 'Homepage should be a valid HTML page');
+  }
+
+  /**
+   * Run a diagnostic probe and dump its full output to a log artifact file.
+   *
+   * Probes are non-fatal: any process error is captured to the file along with
+   * stdout/stderr so the test continues to the next probe and finally the
+   * homepage assertion. Output ships out via the test-artifacts upload of
+   * '.vortex/tests/.logs'.
+   *
+   * @todo Remove with the diagnostic block in
+   *   testAhoyWorkflowProvisionFallbackToProfile() once the underlying cause
+   *   is understood and fixed.
+   */
+  protected function captureProbe(string $logs_dir, string $filename, string $command): void {
+    $this->logSubstep('DEBUG probe -> ' . $filename);
+
+    try {
+      $process = $this->processRun($command);
+      $payload = sprintf(
+        "COMMAND:\n  %s\n\nEXIT CODE: %d\n\n--- STDOUT ---\n%s\n--- STDERR ---\n%s\n",
+        $command,
+        $process->getExitCode() ?? -1,
+        $process->getOutput(),
+        $process->getErrorOutput()
+      );
+    }
+    catch (\Throwable $exception) {
+      $payload = sprintf(
+        "COMMAND:\n  %s\n\nEXCEPTION: %s\n",
+        $command,
+        $exception->getMessage()
+      );
+    }
+
+    file_put_contents($logs_dir . '/debug-' . $filename, $payload);
   }
 
 }
