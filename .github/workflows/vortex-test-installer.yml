@@ -80,6 +80,7 @@ jobs:
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
+        continue-on-error: true
         with:
           files: .vortex/installer/.logs/cobertura.xml
           fail_ci_if_error: true

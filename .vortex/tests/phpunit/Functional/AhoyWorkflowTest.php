@@ -498,6 +498,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->logSubstep('Drop the database to simulate a fresh environment');
     $this->cmd('ahoy drush sql:drop -y', txt: 'Database should be dropped successfully');
 
+    $this->cmd('ahoy flush-redis', txt: 'Redis cache flushed so the kernel rebuilds its container');
+
     $this->logSubstep('Provision without fallback should fail');
     $this->fileAddVar('.env', 'VORTEX_PROVISION_FALLBACK_TO_PROFILE', 0);
     $this->syncToContainer(['.env']);

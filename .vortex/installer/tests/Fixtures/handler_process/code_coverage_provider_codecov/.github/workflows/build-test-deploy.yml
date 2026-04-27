@@ -1,10 +1,11 @@
-@@ -432,6 +432,16 @@
+@@ -432,6 +432,17 @@
              </details>
            hide_and_recreate: true
  
 +      - name: Upload coverage report to Codecov
 +        uses: codecov/codecov-action@__HASH__ # __VERSION__
 +        if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
++        continue-on-error: true
 +        with:
 +          directory: .logs/coverage
 +          fail_ci_if_error: true
