@@ -102,7 +102,7 @@
         "bump-after-update": true,
         "discard-changes": true,
         "platform": {
-            "php": "8.4.17"
+            "php": "8.4.20"
         },
         "sort-packages": true
     },
