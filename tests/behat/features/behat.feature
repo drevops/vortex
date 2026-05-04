@@ -15,9 +15,9 @@ Feature: Behat configuration
   @api
   Scenario: Drush integration works
     Given I run drush "status"
-    Then drush output should contain "Drupal version"
+    Then the drush output should contain "Drupal version"
     When I run drush "core:status --field=bootstrap"
-    Then drush output should contain "Successful"
+    Then the drush output should contain "Successful"
 
   @api
   Scenario: Region map configured correctly
@@ -41,7 +41,7 @@ Feature: Behat configuration
 
   @api
   Scenario: Messages and login selectors configured correctly
-    Given users:
+    Given the following users:
       | name | mail             | roles         |
       | test | test@example.com | administrator |
     And I am an anonymous user
