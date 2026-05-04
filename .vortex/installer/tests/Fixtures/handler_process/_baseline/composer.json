@@ -42,6 +42,7 @@
         "drevops/behat-steps": "__VERSION__",
         "drevops/phpcs-standard": "__VERSION__",
         "drupal/coder": "__VERSION__",
+        "drupal/drupal-driver": "__VERSION__",
         "drupal/drupal-extension": "__VERSION__",
         "ergebnis/composer-normalize": "__VERSION__",
         "lullabot/mink-selenium2-driver": "__VERSION__",
