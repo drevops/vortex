@@ -210,7 +210,7 @@ When creating comprehensive tests for content types:
 
   ```gherkin
   Background:
-    Given "tags" terms:
+    Given the following "tags" terms:
       | name              |
       | [TEST] Topic 1    |
       | [TEST] Topic 2    |
@@ -224,7 +224,7 @@ When creating comprehensive tests for content types:
 
   ```gherkin
   Scenario: View complete content with all fields
-    Given "page" content:
+    Given the following "page" content:
       | title                     | body                          | field_tags         |
       | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
     When I visit "[TEST] Complete Page Test"

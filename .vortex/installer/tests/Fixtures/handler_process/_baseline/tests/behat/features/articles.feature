@@ -7,7 +7,7 @@ Feature: Articles listing
 
   @api @testmode
   Scenario: Articles view shows only test content when test mode is enabled
-    Given article content:
+    Given the following article content:
       | title                      | status |
       | [TEST] First test article  | 1      |
       | [TEST] Second test article | 1      |

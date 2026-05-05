@@ -8,10 +8,10 @@
          "drevops/behat-steps": "__VERSION__",
 -        "drevops/phpcs-standard": "__VERSION__",
 -        "drupal/coder": "__VERSION__",
+         "drupal/drupal-driver": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
-         "lullabot/mink-selenium2-driver": "__VERSION__",
-@@ -49,7 +46,6 @@
+@@ -50,7 +47,6 @@
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -19,7 +19,7 @@
          "phpmd/phpmd": "__VERSION__",
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
-@@ -84,7 +80,6 @@
+@@ -85,7 +81,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

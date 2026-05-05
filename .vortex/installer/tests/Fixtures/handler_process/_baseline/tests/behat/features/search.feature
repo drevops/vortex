@@ -7,7 +7,7 @@ Feature: Search API
 
   @api
   Scenario: User searches for Page content
-    Given page content:
+    Given the following page content:
       | title                              | status | moderation_state |
       | [TEST] Test page uniquestring      | 1      | published        |
       | [TEST] Test page otheruniquestring | 1      | published        |

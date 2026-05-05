@@ -1,4 +1,4 @@
-@@ -51,10 +51,8 @@
+@@ -52,10 +52,8 @@
          "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
          "phpmd/phpmd": "__VERSION__",
@@ -9,7 +9,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -73,11 +71,6 @@
+@@ -74,11 +72,6 @@
      "autoload": {
          "classmap": [
              "scripts/composer/ScriptHandler.php"
