@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "169a2c43892016323ef484c6fbc270f6",
+    "content-hash": "b4bb488ec2c64b1fcdc7731950f2aeab",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -1350,16 +1350,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.14",
+            "version": "v0.3.18",
             "source": {
                 "type": "git",
-                "url": "https://github.com/AlexSkrypnyk/prompts.git",
-                "reference": "1b099e5e1d99d9ebec38105518f20ad1140065a4"
+                "url": "https://github.com/laravel/prompts.git",
+                "reference": "a19af51bb144bf87f08397921fa619f85c7d4e72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/prompts/zipball/1b099e5e1d99d9ebec38105518f20ad1140065a4",
-                "reference": "1b099e5e1d99d9ebec38105518f20ad1140065a4",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/a19af51bb144bf87f08397921fa619f85c7d4e72",
+                "reference": "a19af51bb144bf87f08397921fa619f85c7d4e72",
                 "shasum": ""
             },
             "require": {
@@ -1389,27 +1389,23 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Laravel\\Prompts\\": "src/"
-                },
                 "files": [
                     "src/helpers.php"
-                ]
-            },
-            "autoload-dev": {
+                ],
                 "psr-4": {
-                    "Tests\\": "tests/"
+                    "Laravel\\Prompts\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "source": "https://github.com/AlexSkrypnyk/prompts/tree/v0.3.14",
-                "issues": "https://github.com/AlexSkrypnyk/prompts/issues"
+                "issues": "https://github.com/laravel/prompts/issues",
+                "source": "https://github.com/laravel/prompts/tree/v0.3.18"
             },
-            "time": "2026-02-16T00:16:53+00:00"
+            "time": "2026-05-19T00:47:18+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
