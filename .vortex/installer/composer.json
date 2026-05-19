@@ -24,7 +24,7 @@
         "cweagans/composer-patches": "^2",
         "czproject/git-php": "^4.6",
         "guzzlehttp/guzzle": "^7.10",
-        "laravel/prompts": "^0.3.14",
+        "laravel/prompts": "^0.3.18",
         "nelexa/zip": "^4.0.2",
         "nikic/iter": "^2.4.1",
         "sebastian/diff": "^6.0.2",
@@ -47,13 +47,6 @@
         "rector/rector": "^2.3.8",
         "symfony/finder": "^7.4.6"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/AlexSkrypnyk/prompts.git",
-            "canonical": true
-        }
-    ],
     "autoload": {
         "psr-4": {
             "DrevOps\\VortexInstaller\\": "src/"
@@ -80,6 +73,13 @@
         "bump-after-update": true,
         "process-timeout": 0,
         "sort-packages": true
+    },
+    "extra": {
+        "patches": {
+            "laravel/prompts": {
+                "Description support, nullable validateUsing, validator precedence, TypedValue truthy check": "patches/laravel-prompts.patch"
+            }
+        }
     },
     "scripts": {
         "build": [
