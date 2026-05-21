@@ -41,7 +41,7 @@ aliases:
       # This container has all the necessary tools to run a dockerized environment.
       # https://github.com/drevops/ci-runner
       # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:canary
+      - image: drevops/ci-runner:26.5.0@sha256:b7fe267124a98cd4b51fac244ae9572b3a5f58de1d8d7ca9173b77fe071c8bed
         auth:
           username: ${VORTEX_CONTAINER_REGISTRY_USER}
           password: ${VORTEX_CONTAINER_REGISTRY_PASS}
