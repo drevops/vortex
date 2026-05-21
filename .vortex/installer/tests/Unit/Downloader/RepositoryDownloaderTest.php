@@ -206,6 +206,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $temp_dest_dir = self::$tmp . '/test_dest_' . uniqid();
     File::mkdir($temp_repo_dir);
     File::mkdir($temp_dest_dir);
+    $original_dir = (string) getcwd();
     chdir($temp_repo_dir);
     exec('git init 2>&1');
     exec('git config user.email "test@example.com" 2>&1');
@@ -216,7 +217,12 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $downloader = new RepositoryDownloader();
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Reference "nonexistent-ref" not found in local repository');
-    $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
+    try {
+      $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
+    }
+    finally {
+      chdir($original_dir);
+    }
   }
 
   public function testDiscoverLatestReleaseRemoteWithGithubToken(): void {
