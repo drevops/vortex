@@ -219,7 +219,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $this->expectExceptionMessage('Reference "nonexistent-ref" not found in local repository');
     try {
       $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
-    } finally {
+    }
+    finally {
       chdir($original_dir);
     }
   }
