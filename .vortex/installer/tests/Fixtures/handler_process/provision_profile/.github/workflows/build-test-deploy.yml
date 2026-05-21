@@ -1,5 +1,5 @@
 @@ -52,8 +52,6 @@
-         description: 'Enable terminal session'
+         description: 'Enable terminal session for CI jobs'
          required: false
          default: false
 -  schedule:
