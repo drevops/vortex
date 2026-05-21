@@ -52,7 +52,7 @@ on:
         default: false
       enable_terminal:
         type: boolean
-        description: 'Enable terminal session'
+        description: 'Enable terminal session for CI jobs'
         required: false
         default: false
   #;< !PROVISION_TYPE_PROFILE
