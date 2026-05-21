@@ -108,6 +108,12 @@ class MigrationDownloadSource extends AbstractHandler {
       $v = $this->getResponseAsString();
 
       Env::writeValueDotenv('VORTEX_DOWNLOAD_DB2_SOURCE', $v, $t . '/.env');
+
+      // Lagoon identifies environments by branch name; the production branch
+      // is `main`. The shared default (`prod`) is correct for Acquia only.
+      if ($v === self::LAGOON) {
+        Env::writeValueDotenv('VORTEX_DOWNLOAD_DB2_ENVIRONMENT', 'main', $t . '/.env');
+      }
     }
 
     $types = [

@@ -109,6 +109,12 @@ class DatabaseDownloadSource extends AbstractHandler {
 
     Env::writeValueDotenv('VORTEX_DOWNLOAD_DB_SOURCE', $v, $t . '/.env');
 
+    // Lagoon identifies environments by branch name; the production branch
+    // is `main`. The shared default (`prod`) is correct for Acquia only.
+    if ($v === self::LAGOON) {
+      Env::writeValueDotenv('VORTEX_DOWNLOAD_DB_ENVIRONMENT', 'main', $t . '/.env');
+    }
+
     $types = [
       DatabaseDownloadSource::URL,
       DatabaseDownloadSource::FTP,
