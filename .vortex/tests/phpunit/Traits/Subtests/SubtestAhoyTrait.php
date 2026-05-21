@@ -556,6 +556,13 @@ trait SubtestAhoyTrait {
     $this->logSubstep('Run a specific Jest test by name');
     $this->cmd('ahoy test-js -- -t "should have the expected storage key"', 'Tests:');
 
+    $this->logSubstep('Assert Jest passes when there are no tests');
+    $this->fileBackup($file);
+    $this->removePathHostAndContainer($file);
+    $this->cmd('ahoy test-js', 'No tests found, exiting with code 0');
+    $this->fileRestore($file);
+    $this->syncToContainer($file);
+
     $this->logSubstep('Assert that Jest test failure works');
     $this->fileBackup($file);
     File::replaceContentInFile($file, 'toBe(true)', 'toBe(false)');

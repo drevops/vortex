@@ -57,7 +57,7 @@ subsystem:
 ```bash
 cd .vortex
 ahoy install # Install all dependencies
-ahoy update-snapshots # Update fixtures (REQUIRES PERMISSION)
+ahoy update-snapshots # Update fixtures
 ahoy lint-scripts # Lint shell scripts
 ahoy update-docs # Regenerate docs from scripts
 ahoy lint-markdown # Lint markdown files
@@ -71,14 +71,14 @@ When updating template scripts:
 2. Run `ahoy lint-scripts`
 3. Run `ahoy update-docs`
 4. Update BATS tests in `.vortex/tests/bats/`
-5. Run `ahoy update-snapshots` (requires permission)
+5. Run `ahoy update-snapshots`
 
 When updating template files (settings, configs, etc.):
 
 1. Make and commit code changes first
-2. Then run `ahoy update-snapshots` (requires permission) — snapshots
-   compare against the committed baseline, so uncommitted changes will
-   not be picked up correctly
+2. Then run `ahoy update-snapshots` — snapshots compare against the
+   committed baseline, so uncommitted changes will not be picked up
+   correctly
 
 ## Environment Variables
 
@@ -89,14 +89,6 @@ When updating template files (settings, configs, etc.):
 | `UPDATE_SNAPSHOTS=1`  | Enable fixture updates |
 
 ## AI Assistant Guidelines
-
-### Commands Requiring Permission
-
-**NEVER run without explicit user permission**:
-
-- `ahoy update-snapshots`
-
-These modify many files and take 10-15 minutes.
 
 ### Key Restrictions
 
