@@ -42,8 +42,8 @@ tests/Fixtures/install/
 
 **CRITICAL**: Never modify fixture files directly. All fixture files
 (including `_baseline/`) are regenerated from the root template files by
-`ahoy update-snapshots`. Only modify the root template files — the user
-will run the snapshot update themselves.
+`ahoy update-snapshots`. Only modify the root template files, then run
+`ahoy update-snapshots` to regenerate the fixtures.
 
 ```bash
 # From .vortex/ directory (recommended)
@@ -68,7 +68,7 @@ ahoy update-installer-video
 Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces
 `installer.json` (asciicast), `installer.svg`, `installer.png`, and
 `installer.gif` under `.vortex/docs/static/img/`. Requires explicit user
-permission before running, same as `ahoy update-snapshots`.
+permission before running.
 
 Triggers that require re-recording:
 - New `Handlers/*.php` class or handler removal.
