@@ -1,5 +1,5 @@
 @@ -10,6 +10,7 @@
-         "drevops/vortex-tooling": "@dev",
+         "drevops/vortex-tooling": "__VERSION__",
          "drupal/admin_toolbar": "__VERSION__",
          "drupal/clamav": "__VERSION__",
 +        "drupal/cms": "__VERSION__",

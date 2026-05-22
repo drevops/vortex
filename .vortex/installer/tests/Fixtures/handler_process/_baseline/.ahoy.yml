@@ -315,15 +315,17 @@ commands:
     hide: true
 
   # Internal utility command that ensures the Vortex tooling package is
-  # available in vendor/. Used as a guard before invoking host-side shipped
-  # scripts so the user gets a friendly message on a fresh clone instead of
-  # an opaque "No such file or directory" error.
+  # available in vendor/. Installs just the tooling (not the full dep tree)
+  # so commands like 'ahoy download-db' work on a fresh clone before a full
+  # 'composer install' has run.
   require-tooling:
     cmd: |
-      if [ ! -d ./vendor/drevops/vortex-tooling ]; then
-        echo "[FAIL] Vortex tooling not installed. Run 'ahoy build' or 'composer install' first." >&2
-        exit 1
-      fi
+      [ -d ./vendor/drevops/vortex-tooling ] && exit 0
+      mkdir -p vendor-temp vendor/drevops
+      [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+      echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+      composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+      mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
     hide: true
 
 # Override entrypoint to alter default behavior of Ahoy.

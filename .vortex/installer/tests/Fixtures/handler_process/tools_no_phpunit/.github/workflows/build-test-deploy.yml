@@ -1,4 +1,4 @@
-@@ -391,66 +391,6 @@
+@@ -406,66 +406,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
