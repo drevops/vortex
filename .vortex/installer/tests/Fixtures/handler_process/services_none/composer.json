@@ -1,12 +1,12 @@
-@@ -8,7 +8,6 @@
-         "composer/installers": "__VERSION__",
+@@ -9,7 +9,6 @@
          "cweagans/composer-patches": "__VERSION__",
+         "drevops/vortex-tooling": "@dev",
          "drupal/admin_toolbar": "__VERSION__",
 -        "drupal/clamav": "__VERSION__",
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -19,11 +18,9 @@
+@@ -20,11 +19,9 @@
          "drupal/generated_content": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",

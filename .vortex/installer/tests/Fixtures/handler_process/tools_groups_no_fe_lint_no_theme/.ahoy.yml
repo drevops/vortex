@@ -4,12 +4,12 @@
        ahoy composer install               # Install Composer dependencies.
 -      ahoy fei                            # Install front-end dependencies.
 -      ahoy fe                             # Build front-end assets.
+       [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
- 
-@@ -153,26 +151,6 @@
-       AHOY_CONFIRM_RESPONSE=y ahoy down || true
-       ./scripts/vortex/reset.sh "$@"
+@@ -160,26 +158,6 @@
+         ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
+       fi
  
 -  fei:
 -    usage: Install front-end assets.
@@ -34,7 +34,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -192,8 +170,6 @@
+@@ -199,8 +177,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -43,7 +43,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -216,8 +192,6 @@
+@@ -223,8 +199,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -52,7 +52,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -238,10 +212,6 @@
+@@ -245,10 +219,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"

@@ -1,13 +1,14 @@
-@@ -111,13 +111,6 @@
+@@ -113,14 +113,6 @@
      usage: Unblock user 1 and generate a one time login link.
-     cmd: ahoy cli ./scripts/vortex/login.sh
+     cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login.sh
  
 -  download-db:
 -    usage: Download database. Run with "--fresh" option to force fresh database backup.
 -    aliases: [fetch-db]
 -    cmd: |
+-      ahoy require-tooling
 -      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
--      ./scripts/vortex/download-db.sh
+-      ./vendor/drevops/vortex-tooling/src/download-db.sh
 -
    reload-db:
      usage: Reload the database container using local database image.

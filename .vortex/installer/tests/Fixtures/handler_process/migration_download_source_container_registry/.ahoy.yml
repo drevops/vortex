@@ -1,4 +1,4 @@
-@@ -30,6 +30,7 @@
+@@ -31,6 +31,7 @@
      cmd: |
        export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
        export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
@@ -6,7 +6,7 @@
        export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-@@ -43,6 +44,14 @@
+@@ -45,6 +46,14 @@
        open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
        || echo "Not a supported OS or Sequel Ace is not installed."
  
@@ -21,21 +21,22 @@
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -118,6 +127,13 @@
+@@ -121,6 +130,14 @@
        case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
-       ./scripts/vortex/download-db.sh
+       ./vendor/drevops/vortex-tooling/src/download-db.sh
  
 +  download-db2:
 +    usage: Download second database (migration). Run with "--fresh" to force.
 +    aliases: [fetch-db2]
 +    cmd: |
++      ahoy require-tooling
 +      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FORCE=1;; esac
-+      VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
++      VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db.sh
 +
    reload-db:
      usage: Reload the database container using local database image.
      cmd: |
-@@ -125,6 +141,13 @@
+@@ -128,6 +145,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up

@@ -1,4 +1,4 @@
-@@ -487,95 +487,3 @@
+@@ -496,98 +496,3 @@
          timeout-minutes: 120 # Cancel the action after 15 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -75,8 +75,11 @@
 -        env:
 -          VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 -
+-      - name: Install Vortex tooling
+-        run: composer install --no-dev --no-scripts --no-plugins
+-
 -      - name: Deploy
--        run: ./scripts/vortex/deploy.sh
+-        run: ./vendor/drevops/vortex-tooling/src/deploy.sh
 -        env:
 -          VORTEX_DEPLOY_MODE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || 'branch' }}
 -          VORTEX_DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}

@@ -32,6 +32,6 @@ export VORTEX_NOTIFY_PR_NUMBER=""
 export VORTEX_NOTIFY_LABEL="${branch}"
 export VORTEX_NOTIFY_ENVIRONMENT_URL="${url}"
 
-./scripts/vortex/notify.sh
+./vendor/drevops/vortex-tooling/src/notify.sh
 
 popd >/dev/null || exit 1

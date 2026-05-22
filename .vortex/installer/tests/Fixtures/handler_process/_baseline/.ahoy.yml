@@ -22,6 +22,7 @@ commands:
       ahoy composer install               # Install Composer dependencies.
       ahoy fei                            # Install front-end dependencies.
       ahoy fe                             # Build front-end assets.
+      [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
       VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
       VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
 
@@ -33,7 +34,8 @@ commands:
       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
       export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-      ahoy cli ./scripts/vortex/info.sh "$@"
+      ahoy require-tooling
+      ahoy cli ./vendor/drevops/vortex-tooling/src/info.sh "$@"
 
   db:
     usage: Open DB in Sequel Ace.
@@ -109,14 +111,15 @@ commands:
 
   login:
     usage: Unblock user 1 and generate a one time login link.
-    cmd: ahoy cli ./scripts/vortex/login.sh
+    cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login.sh
 
   download-db:
     usage: Download database. Run with "--fresh" option to force fresh database backup.
     aliases: [fetch-db]
     cmd: |
+      ahoy require-tooling
       case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
-      ./scripts/vortex/download-db.sh
+      ./vendor/drevops/vortex-tooling/src/download-db.sh
 
   reload-db:
     usage: Reload the database container using local database image.
@@ -131,16 +134,18 @@ commands:
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
       [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
-      ahoy cli ./scripts/vortex/provision.sh
+      ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh
       [ "${VORTEX_SHOW_LOGIN:-1}" = "1" ] && ahoy login || true
 
   export-db:
     usage: Export database dump or database image (if VORTEX_DB_IMAGE variable is set).
-    cmd: ./scripts/vortex/export-db.sh "$@"
+    cmd: |
+      ahoy require-tooling
+      ./vendor/drevops/vortex-tooling/src/export-db.sh "$@"
 
   import-db:
     usage: Import database from dump.
-    cmd: VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_PROVISION_DB="$@" ahoy cli ./scripts/vortex/provision.sh
+    cmd: VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_PROVISION_DB="$@" ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
@@ -151,7 +156,9 @@ commands:
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down || true
-      ./scripts/vortex/reset.sh "$@"
+      if [ -x ./vendor/drevops/vortex-tooling/src/reset.sh ]; then
+        ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
+      fi
 
   fei:
     usage: Install front-end assets.
@@ -258,15 +265,20 @@ commands:
     usage: Run remote deployment procedures.
     cmd: |
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'container_registry', 'webhook')" || exit 0
-      ./scripts/vortex/deploy.sh "$@"
+      ahoy require-tooling
+      ./vendor/drevops/vortex-tooling/src/deploy.sh "$@"
 
   doctor:
     usage: Find problems with current project setup.
-    cmd: ./scripts/vortex/doctor.sh "$@"
+    cmd: |
+      ahoy require-tooling
+      ./vendor/drevops/vortex-tooling/src/doctor.sh "$@"
 
   update-vortex:
     usage: Update project from the Vortex template repository.
-    cmd: ./scripts/vortex/update-vortex.sh $@
+    cmd: |
+      ahoy require-tooling
+      ./vendor/drevops/vortex-tooling/src/update-vortex.sh $@
 
   local:
     usage: Custom local commands. See `ahoy local help`.
@@ -299,6 +311,18 @@ commands:
           echo "Waiting for 3 seconds... Press Ctrl+C to cancel."
           sleep 3
         fi
+      fi
+    hide: true
+
+  # Internal utility command that ensures the Vortex tooling package is
+  # available in vendor/. Used as a guard before invoking host-side shipped
+  # scripts so the user gets a friendly message on a fresh clone instead of
+  # an opaque "No such file or directory" error.
+  require-tooling:
+    cmd: |
+      if [ ! -d ./vendor/drevops/vortex-tooling ]; then
+        echo "[FAIL] Vortex tooling not installed. Run 'ahoy build' or 'composer install' first." >&2
+        exit 1
       fi
     hide: true
 
