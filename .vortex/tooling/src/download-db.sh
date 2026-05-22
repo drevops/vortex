@@ -78,27 +78,27 @@ if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" != "container_registry" ]; then
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "ftp" ]; then
-  ./scripts/vortex/download-db-ftp.sh
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-ftp.sh"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "url" ]; then
-  ./scripts/vortex/download-db-url.sh
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-url.sh"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "acquia" ]; then
-  ./scripts/vortex/download-db-acquia.sh
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-acquia.sh"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "lagoon" ]; then
-  ./scripts/vortex/download-db-lagoon.sh
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-lagoon.sh"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "container_registry" ]; then
-  ./scripts/vortex/download-db-container-registry.sh
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-container-registry.sh"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
-  ./scripts/vortex/download-db-s3.sh
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-s3.sh"
 fi
 
 ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" || true

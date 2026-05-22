@@ -69,7 +69,7 @@ export VORTEX_UPLOAD_DB_S3_BUCKET="${S3_BUCKET}"
 export VORTEX_UPLOAD_DB_S3_REGION="${S3_REGION}"
 export VORTEX_UPLOAD_DB_S3_PREFIX="${S3_PREFIX}"
 
-./scripts/vortex/upload-db-s3.sh
+./vendor/drevops/vortex-tooling/src/upload-db-s3.sh
 
 echo ""
 echo "Upload complete!"

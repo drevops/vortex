@@ -17,7 +17,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -47,7 +47,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PR_NUMBER="123"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -77,7 +77,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -102,7 +102,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_EMAIL_BRANCHES="main,develop"
 
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -129,7 +129,7 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_email_test
 
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)

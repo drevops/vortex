@@ -104,7 +104,7 @@ for cmd in ssh rsync; do command -v "${cmd}" >/dev/null || {
 
 info "Started database dump download from Lagoon."
 
-export VORTEX_SSH_PREFIX="DOWNLOAD_DB" && . ./scripts/vortex/setup-ssh.sh
+export VORTEX_SSH_PREFIX="DOWNLOAD_DB" && . "$(dirname "${BASH_SOURCE[0]}")/setup-ssh.sh"
 
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
 ssh_opts+=(-o "StrictHostKeyChecking=no")

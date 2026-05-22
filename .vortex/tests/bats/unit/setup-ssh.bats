@@ -16,7 +16,7 @@ load ../_helper.bash
 
   fixture_ssh_key_prepare
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_failure
   assert_output_contains "Missing the required VORTEX_SSH_PREFIX environment variable"
 
@@ -32,7 +32,7 @@ load ../_helper.bash
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_TEST_SSH_FILE=false
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_success
   assert_output_contains "Found variable VORTEX_TEST_SSH_FILE with value false."
 
@@ -48,7 +48,7 @@ load ../_helper.bash
   export VORTEX_SSH_PREFIX="TEST"
   local file=${HOME}/.ssh/id_rsa
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_failure
 
   assert_output_contains "Did not find fingerprint variable VORTEX_TEST_SSH_FINGERPRINT."
@@ -82,7 +82,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -115,7 +115,7 @@ load ../_helper.bash
     "Finished SSH setup"
   )
   mocks="$(run_steps "setup")"
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -135,7 +135,7 @@ load ../_helper.bash
   export VORTEX_SSH_REMOVE_ALL_KEYS="0"
   export VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="0"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_failure
   assert_output_contains "Found fingerprint variable VORTEX_TEST_SSH_FINGERPRINT with value ${VORTEX_TEST_SSH_FINGERPRINT}."
   assert_output_contains "Using fingerprint-based deploy key because fingerprint was provided."
@@ -171,7 +171,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -211,7 +211,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -252,7 +252,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -288,7 +288,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_failure
   run_steps "assert" "${mocks[@]}"
 
@@ -328,7 +328,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/setup-ssh.sh
+  run .vortex/tooling/src/setup-ssh.sh
   assert_failure
   run_steps "assert" "${mocks[@]}"
 

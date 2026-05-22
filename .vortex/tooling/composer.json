@@ -1,0 +1,28 @@
+{
+    "name": "drevops/vortex-tooling",
+    "description": "Shell scripts for Vortex-based Drupal projects (deploy, notify, provision, download/export DB, etc.).",
+    "license": "GPL-2.0-or-later",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drevops.com",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://github.com/drevops/vortex",
+    "support": {
+        "issues": "https://github.com/drevops/vortex/issues",
+        "source": "https://github.com/drevops/vortex"
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "minimum-stability": "alpha",
+    "prefer-stable": true,
+    "config": {
+        "process-timeout": 0,
+        "sort-packages": true
+    }
+}

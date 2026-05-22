@@ -52,6 +52,7 @@ done < <(
     "${ROOT_DIR}"/.vortex/docs \
     "${ROOT_DIR}"/.vortex/tests/bats \
     "${ROOT_DIR}"/.vortex/tests/manual \
+    "${ROOT_DIR}"/.vortex/tooling/src \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" -not -path "*fixtures*" \

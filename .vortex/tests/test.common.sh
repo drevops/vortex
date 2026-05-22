@@ -9,7 +9,7 @@ set -eu
 
 ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 
-SCRIPTS_DIR="${ROOT_DIR}/scripts/vortex"
+SCRIPTS_DIR="${ROOT_DIR}/.vortex/tooling/src"
 
 TEST_DIR="${ROOT_DIR}/.vortex/tests"
 

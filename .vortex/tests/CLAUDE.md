@@ -29,7 +29,7 @@ composer test         # Run tests (no coverage)
 
 ## BATS - Unit Testing Shell Scripts
 
-**Use when**: Changed a shell script in `scripts/vortex/*.sh` or provision logic.
+**Use when**: Changed a shell script in `.vortex/tooling/src/*.sh` or provision logic.
 
 **Reference**: `node_modules/bats-helpers/README.md` - Mocking, assertions, step helpers
 

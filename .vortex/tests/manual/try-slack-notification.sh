@@ -65,7 +65,7 @@ export VORTEX_NOTIFY_SHA="abc123def456"
 export VORTEX_NOTIFY_LABEL="main"
 export VORTEX_NOTIFY_PR_NUMBER=""
 export VORTEX_NOTIFY_EVENT="pre_deployment"
-./scripts/vortex/notify.sh
+./vendor/drevops/vortex-tooling/src/notify.sh
 echo ""
 
 # Scenario 2: Branch post-deployment
@@ -76,7 +76,7 @@ export VORTEX_NOTIFY_SHA="abc123def456"
 export VORTEX_NOTIFY_LABEL="main"
 export VORTEX_NOTIFY_PR_NUMBER=""
 export VORTEX_NOTIFY_EVENT="post_deployment"
-./scripts/vortex/notify.sh
+./vendor/drevops/vortex-tooling/src/notify.sh
 echo ""
 
 # Scenario 3: PR pre-deployment
@@ -87,7 +87,7 @@ export VORTEX_NOTIFY_SHA="abc123def456"
 export VORTEX_NOTIFY_LABEL="PR-123"
 export VORTEX_NOTIFY_PR_NUMBER="123"
 export VORTEX_NOTIFY_EVENT="pre_deployment"
-./scripts/vortex/notify.sh
+./vendor/drevops/vortex-tooling/src/notify.sh
 echo ""
 
 # Scenario 4: PR post-deployment
@@ -98,7 +98,7 @@ export VORTEX_NOTIFY_SHA="abc123def456"
 export VORTEX_NOTIFY_LABEL="PR-123"
 export VORTEX_NOTIFY_PR_NUMBER="123"
 export VORTEX_NOTIFY_EVENT="post_deployment"
-./scripts/vortex/notify.sh
+./vendor/drevops/vortex-tooling/src/notify.sh
 echo ""
 
 echo "All 4 notifications sent! Check your Slack channel."

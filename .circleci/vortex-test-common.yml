@@ -113,6 +113,11 @@ jobs:
       - checkout
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
+
+      - run:
+          name: Install Vortex tooling
+          command: composer install --no-dev --no-scripts --no-plugins
+
       - *step_setup_remote_docker
 
       - run:
@@ -137,13 +142,13 @@ jobs:
 
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./scripts/vortex/download-db.sh
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db.sh
           no_output_timeout: 30m
 
       #;< MIGRATION
       - run:
           name: Download migration DB
-          command: VORTEX_DB_INDEX=2 ./scripts/vortex/download-db.sh
+          command: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db.sh
           no_output_timeout: 30m
       #;> MIGRATION
 
@@ -157,12 +162,12 @@ jobs:
           name: Export DB after download
           command: |
             [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-            ./scripts/vortex/login-container-registry.sh
+            ./vendor/drevops/vortex-tooling/src/login-container-registry.sh
             docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./scripts/vortex/provision.sh"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision.sh"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
-            ./scripts/vortex/export-db.sh db.sql
+            ./vendor/drevops/vortex-tooling/src/export-db.sh db.sql
           no_output_timeout: 30m
 
       - save_cache:
@@ -189,6 +194,10 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      - run:
+          name: Install Vortex tooling
+          command: composer install --no-dev --no-scripts --no-plugins
+
       #;< !PROVISION_TYPE_PROFILE
       - run:
           name: Set cache keys for database caching
@@ -209,7 +218,7 @@ jobs:
 
       - run:
           name: Login to container registry
-          command: ./scripts/vortex/login-container-registry.sh
+          command: ./vendor/drevops/vortex-tooling/src/login-container-registry.sh
 
       - run:
           name: Build stack
@@ -246,7 +255,7 @@ jobs:
               docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
             fi
             #;> MIGRATION
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision.sh
           no_output_timeout: 30m
 
       #;< TOOL_JEST

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for scripts/vortex/deploy-container-registry.sh script.
+# Tests for .vortex/tooling/src/deploy-container-registry.sh script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
@@ -26,7 +26,7 @@ setup_robo_fixture() {
 
   unset VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP
 
-  run scripts/vortex/deploy-container-registry.sh
+  run .vortex/tooling/src/deploy-container-registry.sh
   assert_success
   assert_output_contains "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
 
@@ -79,7 +79,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/deploy-container-registry.sh
+  run ./.vortex/tooling/src/deploy-container-registry.sh
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -110,7 +110,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/deploy-container-registry.sh
+  run ./.vortex/tooling/src/deploy-container-registry.sh
   assert_failure
   run_steps "assert" "${mocks[@]}"
 
@@ -131,21 +131,21 @@ setup_robo_fixture() {
   # No key/value pair
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1"
 
-  run ./scripts/vortex/deploy-container-registry.sh
+  run ./.vortex/tooling/src/deploy-container-registry.sh
   assert_failure
   assert_output_contains 'invalid key/value pair "service1" provided.'
 
   # Using a space delimiter.
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
-  run scripts/vortex/deploy-container-registry.sh
+  run .vortex/tooling/src/deploy-container-registry.sh
   assert_failure
   assert_output_contains 'invalid key/value pair "service1=image1 service2=image2" provided.'
 
   # No comma delimiter
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
-  run scripts/vortex/deploy-container-registry.sh
+  run .vortex/tooling/src/deploy-container-registry.sh
   assert_failure
   assert_output_contains 'invalid key/value pair "service1=image1=service2=image2" provided.'
 

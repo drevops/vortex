@@ -10,14 +10,14 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Mock the download-db-url.sh script by creating it
-  mkdir -p scripts/vortex
-  cat >scripts/vortex/download-db-url.sh <<'EOF'
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/download-db-url.sh <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump download from URL."
 echo "Downloading database dump file."
 echo "Finished database dump download from URL."
 EOF
-  chmod +x scripts/vortex/download-db-url.sh
+  chmod +x .vortex/tooling/src/download-db-url.sh
 
   # Mock ls command for final directory listing
   mock_ls=$(mock_command "ls")
@@ -33,7 +33,7 @@ EOF
   export VORTEX_DOWNLOAD_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_SEMAPHORE=".data/.db-downloaded"
 
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Started database dump download from URL."
@@ -52,19 +52,19 @@ EOF
   export VORTEX_DOWNLOAD_DB_DIR=".data"
   export VORTEX_DOWNLOAD_DB_FILE="db.sql"
 
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Skipping database download as DB_DOWNLOAD_PROCEED is not set to 1."
 
   # Test default source (should default to url/curl)
-  mkdir -p scripts/vortex
-  cat >scripts/vortex/download-db-url.sh <<'EOF'
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/download-db-url.sh <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump download from URL."
 echo "Finished database dump download from URL."
 EOF
-  chmod +x scripts/vortex/download-db-url.sh
+  chmod +x .vortex/tooling/src/download-db-url.sh
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 1024 -rw-r--r-- 1 user user 1048576 Jan 01 12:00 db.sql" 1
@@ -73,7 +73,7 @@ EOF
   unset VORTEX_DOWNLOAD_DB_SOURCE
   export VORTEX_DOWNLOAD_DB_PROCEED="1"
 
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Started database dump download from URL."
@@ -91,13 +91,13 @@ EOF
   touch .data/db.tar
 
   # Mock the container registry sub-script.
-  mkdir -p scripts/vortex
-  cat >scripts/vortex/download-db-container-registry.sh <<'EOF'
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/download-db-container-registry.sh <<'EOF'
 #!/usr/bin/env bash
 echo "Started database data container image download."
 echo "Finished database data container image download."
 EOF
-  chmod +x scripts/vortex/download-db-container-registry.sh
+  chmod +x .vortex/tooling/src/download-db-container-registry.sh
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
@@ -108,7 +108,7 @@ EOF
   export VORTEX_DOWNLOAD_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_FORCE=""
 
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Started database data container image download."
@@ -125,13 +125,13 @@ EOF
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Mock the URL sub-script.
-  mkdir -p scripts/vortex
-  cat >scripts/vortex/download-db-url.sh <<'EOF'
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/download-db-url.sh <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump download from URL."
 echo "Finished database dump download from URL."
 EOF
-  chmod +x scripts/vortex/download-db-url.sh
+  chmod +x .vortex/tooling/src/download-db-url.sh
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
@@ -143,7 +143,7 @@ EOF
   export VORTEX_DOWNLOAD_DB2_DIR=".data"
   export VORTEX_DOWNLOAD_DB2_FILE="db2.sql"
 
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database 2 download."
   assert_output_contains "Started database dump download from URL."
@@ -156,13 +156,13 @@ EOF
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Mock the URL sub-script.
-  mkdir -p scripts/vortex
-  cat >scripts/vortex/download-db-url.sh <<'EOF'
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/download-db-url.sh <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump download from URL."
 echo "Finished database dump download from URL."
 EOF
-  chmod +x scripts/vortex/download-db-url.sh
+  chmod +x .vortex/tooling/src/download-db-url.sh
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
@@ -175,7 +175,7 @@ EOF
   export VORTEX_DB2_DIR=".data"
   export VORTEX_DB2_FILE="db2.sql"
 
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database 2 download."
   assert_output_contains "Started database dump download from URL."
@@ -202,7 +202,7 @@ EOF
 
   # Test using existing file when force is not set
   export VORTEX_DOWNLOAD_DB_FORCE=""
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Found existing database dump file(s)."
@@ -211,16 +211,16 @@ EOF
   assert_output_contains "Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download."
 
   # Test forcing download when existing file found
-  mkdir -p scripts/vortex
-  cat >scripts/vortex/download-db-url.sh <<'EOF'
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/download-db-url.sh <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump download from URL."
 echo "Finished database dump download from URL."
 EOF
-  chmod +x scripts/vortex/download-db-url.sh
+  chmod +x .vortex/tooling/src/download-db-url.sh
 
   export VORTEX_DOWNLOAD_DB_FORCE="1"
-  run scripts/vortex/download-db.sh
+  run .vortex/tooling/src/download-db.sh
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Found existing database dump file(s)."

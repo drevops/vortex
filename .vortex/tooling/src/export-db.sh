@@ -38,16 +38,16 @@ info "Started database export."
 
 if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
   # Export database as a file.
-  docker compose exec -T cli ./scripts/vortex/export-db-file.sh "$@"
+  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file.sh "$@"
 else
   # Export database as a container image.
-  VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" ./scripts/vortex/export-db-image.sh "$@"
+  VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/export-db-image.sh" "$@"
 
   # Deploy container image.
   # @todo Move deployment into a separate script.
   if [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
     VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_EXPORT_DB_IMAGE} \
-      ./scripts/vortex/deploy-container-registry.sh
+      "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry.sh"
   fi
 fi
 

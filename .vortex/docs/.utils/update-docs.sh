@@ -39,7 +39,7 @@ docker run -v "${ROOT_DIR}:/app" drevops/shellvar:1.7.0 extract \
   --fields='name=Name;description=Description;default_value=Default value;paths=Defined or used in' \
   .env \
   .env.local.example \
-  scripts/vortex \
+  .vortex/tooling/src \
   scripts/custom \
   .vortex/docs/.utils/variables/extra \
   >>"${OUTPUT_FILE}"

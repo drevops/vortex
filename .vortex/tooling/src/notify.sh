@@ -95,27 +95,27 @@ note "Event          : ${VORTEX_NOTIFY_EVENT}"
 note "Channels       : ${VORTEX_NOTIFY_CHANNELS}"
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*email*}" ]; then
-  ./scripts/vortex/notify-email.sh "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/notify-email.sh" "$@"
 fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*slack*}" ]; then
-  ./scripts/vortex/notify-slack.sh "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/notify-slack.sh" "$@"
 fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*newrelic*}" ]; then
-  ./scripts/vortex/notify-newrelic.sh "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/notify-newrelic.sh" "$@"
 fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*github*}" ]; then
-  ./scripts/vortex/notify-github.sh "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/notify-github.sh" "$@"
 fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*jira*}" ]; then
-  ./scripts/vortex/notify-jira.sh "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/notify-jira.sh" "$@"
 fi
 
 if [ -z "${VORTEX_NOTIFY_CHANNELS##*webhook*}" ]; then
-  ./scripts/vortex/notify-webhook.sh "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/notify-webhook.sh" "$@"
 fi
 
 pass "Finished dispatching notifications."

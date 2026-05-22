@@ -52,7 +52,7 @@ note "Mailhog URL                 : http://mailhog.docker.amazee.io/"
 note "Xdebug                      : $(php -v | grep -q Xdebug && echo "Enabled ('ahoy up cli' to disable)" || echo "Disabled ('ahoy debug' to enable)")"
 if [ "${VORTEX_SHOW_LOGIN}" = "1" ] || [ -n "${1:-}" ]; then
   echo -n "       Site login link             : "
-  ./scripts/vortex/login.sh
+  "$(dirname "${BASH_SOURCE[0]}")/login.sh"
 else
   echo
   note "Use 'ahoy login' to generate Drupal login link."

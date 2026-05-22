@@ -174,7 +174,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
 
     $this->cmd(
-      './scripts/vortex/download-db.sh',
+      './vendor/drevops/vortex-tooling/src/download-db.sh',
       env: ['VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database downloaded from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
@@ -235,12 +235,12 @@ trait SutTrait {
 
     $this->assertFileContainsString(
       '.ahoy.yml',
-      '      ahoy cli ./scripts/vortex/provision.sh',
+      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh',
       '`ahoy provision` should exist in .ahoy.yml'
     );
     File::replaceContentInFile('.ahoy.yml',
-      '      ahoy cli ./scripts/vortex/provision.sh',
-      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./scripts/vortex/provision.sh',
+      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh',
+      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh',
     );
   }
 
@@ -349,37 +349,11 @@ trait SutTrait {
     $this->assertFileExists('scripts/composer/ScriptHandler.php');
     $this->assertFileExists('scripts/custom/.gitkeep');
 
-    // Core Vortex files.
-    $this->assertFileExists('scripts/vortex/deploy-artifact.sh');
-    $this->assertFileExists('scripts/vortex/deploy-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/deploy-lagoon.sh');
-    $this->assertFileExists('scripts/vortex/deploy-webhook.sh');
-    $this->assertFileExists('scripts/vortex/deploy.sh');
-    $this->assertFileExists('scripts/vortex/doctor.sh');
-    $this->assertFileExists('scripts/vortex/download-db-acquia.sh');
-    $this->assertFileExists('scripts/vortex/download-db-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/download-db-ftp.sh');
-    $this->assertFileExists('scripts/vortex/download-db-lagoon.sh');
-    $this->assertFileExists('scripts/vortex/download-db-url.sh');
-    $this->assertFileExists('scripts/vortex/download-db.sh');
-    $this->assertFileExists('scripts/vortex/export-db-file.sh');
-    $this->assertFileExists('scripts/vortex/export-db-image.sh');
-    $this->assertFileExists('scripts/vortex/info.sh');
-    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/login.sh');
-    $this->assertFileExists('scripts/vortex/notify-email.sh');
-    $this->assertFileExists('scripts/vortex/notify-github.sh');
-    $this->assertFileExists('scripts/vortex/notify-jira.sh');
-    $this->assertFileExists('scripts/vortex/notify-newrelic.sh');
-    $this->assertFileExists('scripts/vortex/notify.sh');
-    $this->assertFileExists('scripts/vortex/provision-sanitize-db.sh');
-    $this->assertFileExists('scripts/vortex/provision.sh');
-    $this->assertFileExists('scripts/vortex/reset.sh');
-    $this->assertFileExists('scripts/vortex/task-copy-db-acquia.sh');
-    $this->assertFileExists('scripts/vortex/task-copy-files-acquia.sh');
-    $this->assertFileExists('scripts/vortex/task-purge-cache-acquia.sh');
-    $this->assertFileExists('scripts/vortex/update-vortex.sh');
+    // Core Vortex tooling: shipped via drevops/vortex-tooling Composer
+    // package, no longer committed under scripts/vortex/. Verified via
+    // composer.json instead of file-system checks.
+    $this->assertFileExists('composer.json');
+    $this->assertFileContainsString('composer.json', '"drevops/vortex-tooling"');
 
     $this->assertFileExists('scripts/sanitize.sql');
 

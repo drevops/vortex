@@ -67,7 +67,7 @@ ahoy lint-markdown # Lint markdown files
 
 When updating template scripts:
 
-1. Modify script in `scripts/vortex/` or `scripts/custom/`
+1. Modify script in `.vortex/tooling/src/` (shipped scripts) or `scripts/custom/` (provision subscripts)
 2. Run `ahoy lint-scripts`
 3. Run `ahoy update-docs`
 4. Update BATS tests in `.vortex/tests/bats/`

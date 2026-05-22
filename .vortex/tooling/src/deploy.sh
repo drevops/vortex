@@ -105,17 +105,17 @@ fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*artifact*}" ]; then
   [ "${VORTEX_DEPLOY_MODE}" = "tag" ] && export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
-  ./scripts/vortex/deploy-artifact.sh
+  "$(dirname "${BASH_SOURCE[0]}")/deploy-artifact.sh"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*webhook*}" ]; then
-  ./scripts/vortex/deploy-webhook.sh
+  "$(dirname "${BASH_SOURCE[0]}")/deploy-webhook.sh"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*container_registry*}" ]; then
-  ./scripts/vortex/deploy-container-registry.sh
+  "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry.sh"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*lagoon*}" ]; then
-  ./scripts/vortex/deploy-lagoon.sh
+  "$(dirname "${BASH_SOURCE[0]}")/deploy-lagoon.sh"
 fi

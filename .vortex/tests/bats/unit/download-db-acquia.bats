@@ -63,7 +63,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -125,7 +125,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -188,7 +188,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -252,7 +252,7 @@ load ../_helper.bash
   unset VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -282,7 +282,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -316,7 +316,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -354,7 +354,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -396,7 +396,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="nonexistent-db"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -438,7 +438,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -516,7 +516,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -563,7 +563,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -607,7 +607,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -656,7 +656,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -714,7 +714,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
 
   mocks="$(run_steps "setup")"
-  run scripts/vortex/download-db-acquia.sh
+  run .vortex/tooling/src/download-db-acquia.sh
   run_steps "assert" "${mocks}"
 
   assert_failure

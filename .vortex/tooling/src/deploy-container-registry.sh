@@ -76,7 +76,7 @@ done
 export VORTEX_CONTAINER_REGISTRY="${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
 export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}"
 export VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}"
-./scripts/vortex/login-container-registry.sh
+"$(dirname "${BASH_SOURCE[0]}")/login-container-registry.sh"
 
 for key in "${!services[@]}"; do
   service="${services[${key}]}"

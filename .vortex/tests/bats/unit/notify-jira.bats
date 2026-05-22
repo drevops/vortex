@@ -50,7 +50,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
   export VORTEX_NOTIFY_JIRA_TRANSITION="QA"
   export VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL="jane.doe@example.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -70,7 +70,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -95,7 +95,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_JIRA_BRANCHES="main,develop"
 
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -137,7 +137,7 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_jira_test
 
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)

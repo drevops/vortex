@@ -12,7 +12,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_SKIP="1"
   export VORTEX_DEPLOY_TYPES="artifact"
 
-  run scripts/vortex/deploy.sh
+  run .vortex/tooling/src/deploy.sh
 
   assert_success
 
@@ -50,19 +50,19 @@ load ../_helper.bash
   unset VORTEX_DEPLOY_ARTIFACT_ROOT
   unset VORTEX_DEPLOY_ARTIFACT_LOG
 
-  run scripts/vortex/deploy-artifact.sh
+  run .vortex/tooling/src/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE."
 
   export VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE="git@github.com:yourorg/your-repo-destination.git"
 
-  run scripts/vortex/deploy-artifact.sh
+  run .vortex/tooling/src/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC."
 
   export VORTEX_DEPLOY_ARTIFACT_SRC="dist"
 
-  run scripts/vortex/deploy-artifact.sh
+  run .vortex/tooling/src/deploy-artifact.sh
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL."
 
@@ -97,7 +97,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/deploy-artifact.sh
+  run .vortex/tooling/src/deploy-artifact.sh
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -146,7 +146,7 @@ load ../_helper.bash
   )
   mocks="$(run_steps "setup")"
 
-  run scripts/vortex/deploy-artifact.sh
+  run .vortex/tooling/src/deploy-artifact.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"

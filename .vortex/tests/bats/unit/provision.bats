@@ -181,7 +181,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -317,7 +317,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -462,7 +462,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -619,7 +619,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -764,7 +764,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -903,7 +903,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1049,7 +1049,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1173,7 +1173,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1222,7 +1222,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -1363,7 +1363,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1506,7 +1506,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1569,7 +1569,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1633,7 +1633,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1767,7 +1767,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1928,7 +1928,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -1975,7 +1975,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -2140,7 +2140,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -2231,7 +2231,7 @@ assert_provision_info() {
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/vortex/provision.sh
+  run ./.vortex/tooling/src/provision.sh
   assert_failure
 
   run_steps "assert" "${mocks[@]}"

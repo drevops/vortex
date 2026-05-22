@@ -139,7 +139,7 @@ issues at different levels of integration before they reach consumers.
 ### Unit testing
 
 [Bats](https://github.com/bats-core/bats-core) is used to unit test the
-shell scripts in `scripts/vortex/`. Each script is tested in isolation with
+shell scripts in `vendor/drevops/vortex-tooling/src/`. Each script is tested in isolation with
 external commands (like `drush`, `docker`, `composer`) replaced by mocks.
 This allows us to verify that individual scripts handle environment variables,
 flags, and edge cases correctly without needing a running Drupal site or

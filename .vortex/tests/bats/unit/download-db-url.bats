@@ -16,7 +16,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
 
-  run scripts/vortex/download-db-url.sh
+  run .vortex/tooling/src/download-db-url.sh
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Downloading database dump file."
@@ -40,7 +40,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD=""
 
-  run scripts/vortex/download-db-url.sh
+  run .vortex/tooling/src/download-db-url.sh
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Unzipping database dump file."
@@ -64,7 +64,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD="secret123"
 
-  run scripts/vortex/download-db-url.sh
+  run .vortex/tooling/src/download-db-url.sh
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Unzipping password-protected database dump file."
@@ -80,7 +80,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
 
-  run scripts/vortex/download-db-url.sh
+  run .vortex/tooling/src/download-db-url.sh
   assert_failure
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_URL."
@@ -98,7 +98,7 @@ load ../_helper.bash
   # Don't set VORTEX_DOWNLOAD_DB_URL_DB_DIR and VORTEX_DOWNLOAD_DB_URL_DB_FILE to test defaults
   unset VORTEX_DOWNLOAD_DB_URL_DB_DIR VORTEX_DOWNLOAD_DB_URL_DB_FILE VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD
 
-  run scripts/vortex/download-db-url.sh
+  run .vortex/tooling/src/download-db-url.sh
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Downloading database dump file."

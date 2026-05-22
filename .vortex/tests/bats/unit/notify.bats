@@ -18,7 +18,7 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_NOTIFY_SKIP=1
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -36,7 +36,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_failure
 
   assert_output_contains "Started dispatching notifications."
@@ -85,7 +85,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_JIRA_USER_EMAIL="test@example.com"
   export VORTEX_NOTIFY_JIRA_TOKEN="test_token"
 
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -129,7 +129,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
-  run ./scripts/vortex/notify.sh
+  run ./.vortex/tooling/src/notify.sh
   assert_success
 
   assert_output_contains "Started dispatching notifications."
