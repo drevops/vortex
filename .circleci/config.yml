@@ -123,7 +123,15 @@ jobs:
 
       - run:
           name: Install Vortex tooling
-          command: composer install --no-dev --no-scripts --no-plugins
+          command: |
+            mkdir -p vendor-temp vendor/drevops
+            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+            #;< VORTEX_DEV
+            composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.0.0"}}}'
+            #;> VORTEX_DEV
+            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
 
       - *step_setup_remote_docker
 
@@ -235,7 +243,15 @@ jobs:
 
       - run:
           name: Install Vortex tooling
-          command: composer install --no-dev --no-scripts --no-plugins
+          command: |
+            mkdir -p vendor-temp vendor/drevops
+            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+            #;< VORTEX_DEV
+            composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.0.0"}}}'
+            #;> VORTEX_DEV
+            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
 
       - *step_setup_remote_docker
 
@@ -334,7 +350,15 @@ jobs:
 
       - run:
           name: Install Vortex tooling
-          command: composer install --no-dev --no-scripts --no-plugins
+          command: |
+            mkdir -p vendor-temp vendor/drevops
+            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+            #;< VORTEX_DEV
+            composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.0.0"}}}'
+            #;> VORTEX_DEV
+            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
 
       #;< !PROVISION_TYPE_PROFILE
       - run:
@@ -515,7 +539,15 @@ jobs:
 
       - run:
           name: Install Vortex tooling
-          command: composer install --no-dev --no-scripts --no-plugins
+          command: |
+            mkdir -p vendor-temp vendor/drevops
+            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+            #;< VORTEX_DEV
+            composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.0.0"}}}'
+            #;> VORTEX_DEV
+            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
 
       - run:
           name: Deploy
@@ -546,7 +578,15 @@ jobs:
 
       - run:
           name: Install Vortex tooling
-          command: composer install --no-dev --no-scripts --no-plugins
+          command: |
+            mkdir -p vendor-temp vendor/drevops
+            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+            #;< VORTEX_DEV
+            composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.0.0"}}}'
+            #;> VORTEX_DEV
+            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
 
       - run:
           name: Deploy

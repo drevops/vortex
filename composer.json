@@ -7,7 +7,7 @@
         "php": ">=8.4",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^2.0",
-        "drevops/vortex-tooling": "@dev",
+        "drevops/vortex-tooling": "^1.0",
         "drupal/admin_toolbar": "^3.6.3",
         "drupal/clamav": "^2.1",
         "drupal/coffee": "^2.0.1",
@@ -73,7 +73,12 @@
         },
         {
             "type": "path",
-            "url": ".vortex/tooling"
+            "url": ".vortex/tooling",
+            "options": {
+                "versions": {
+                    "drevops/vortex-tooling": "1.0.0"
+                }
+            }
         }
     ],
     "minimum-stability": "stable",
