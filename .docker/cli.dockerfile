@@ -72,6 +72,13 @@ COPY scripts /app/scripts
 # may be needed by Composer scripts to access additional variables.
 COPY composer.json composer.* .env* auth* /app/
 
+#;< VORTEX_DEV
+# Copy the in-tree drevops/vortex-tooling package so the path repository
+# declared in composer.json can resolve during the build. Consumer sites
+# get the package from packagist; the installer strips this block.
+COPY .vortex/tooling /app/.vortex/tooling
+#;> VORTEX_DEV
+
 # Install PHP dependencies without development packages to avoid exposing
 # potential security vulnerabilities in the production environment.
 # hadolint ignore=SC2155
