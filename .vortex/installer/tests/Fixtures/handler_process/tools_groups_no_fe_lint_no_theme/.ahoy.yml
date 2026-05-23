@@ -4,12 +4,12 @@
        ahoy composer install               # Install Composer dependencies.
 -      ahoy fei                            # Install front-end dependencies.
 -      ahoy fe                             # Build front-end assets.
-       [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
+ 
 @@ -158,26 +156,6 @@
-       ahoy require-tooling
-       bash ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
+         bash ./vendor/drevops/vortex-tooling/src/reset "$@"
+       fi
  
 -  fei:
 -    usage: Install front-end assets.

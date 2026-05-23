@@ -1,4 +1,4 @@
-@@ -520,106 +520,3 @@
+@@ -496,98 +496,3 @@
          timeout-minutes: 120 # Cancel the action after 15 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -76,18 +76,10 @@
 -          VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 -
 -      - name: Install Vortex tooling
--        run: |
--          mkdir -p vendor-temp vendor/drevops
--          version=
--          [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked 2>/dev/null | awk '/^versions/{print $NF}') || true
--          [ -z "$version" ] && version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
--          echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
--          [ -d .vortex/tooling ] && composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"__VERSION__"}}}'
--          composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
--          mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+-        run: ./scripts/vortex-tooling.sh
 -
 -      - name: Deploy
--        run: ./vendor/drevops/vortex-tooling/src/deploy.sh
+-        run: ./vendor/drevops/vortex-tooling/src/deploy
 -        env:
 -          VORTEX_DEPLOY_MODE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || 'branch' }}
 -          VORTEX_DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}

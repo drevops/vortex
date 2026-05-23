@@ -98,15 +98,7 @@ aliases:
   - &step_install_tooling
     run:
       name: Install Vortex tooling
-      command: |
-        mkdir -p vendor-temp vendor/drevops
-        version=
-        [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked 2>/dev/null | awk '/^versions/{print $NF}') || true
-        [ -z "$version" ] && version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
-        echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
-        [ -d .vortex/tooling ] && composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"__VERSION__"}}}'
-        composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
-        mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+      command: ./scripts/vortex-tooling.sh
 
 ################################################################################
 # JOBS
@@ -132,7 +124,7 @@ jobs:
 
       - run:
           name: Login to container registry
-          command: ./vendor/drevops/vortex-tooling/src/login-container-registry.sh
+          command: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
       - run:
           name: Lint Dockerfiles with Hadolint
@@ -229,7 +221,7 @@ jobs:
 
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db.sh
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
           no_output_timeout: 30m
 
       # Execute commands after database download script finished: if the
@@ -242,12 +234,12 @@ jobs:
           name: Export DB after download
           command: |
             [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-            ./vendor/drevops/vortex-tooling/src/login-container-registry.sh
+            ./vendor/drevops/vortex-tooling/src/login-container-registry
             docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision.sh"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
-            ./vendor/drevops/vortex-tooling/src/export-db.sh db.sql
+            ./vendor/drevops/vortex-tooling/src/export-db db.sql
           no_output_timeout: 30m
 
       - save_cache:
@@ -312,7 +304,7 @@ jobs:
 
       - run:
           name: Login to container registry
-          command: ./vendor/drevops/vortex-tooling/src/login-container-registry.sh
+          command: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
       - run:
           name: Build stack
@@ -341,7 +333,7 @@ jobs:
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
             fi
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision.sh
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
           no_output_timeout: 30m
 
       - run:
@@ -452,7 +444,7 @@ jobs:
             VORTEX_DEPLOY_BRANCH="${CIRCLE_BRANCH}" \
             VORTEX_DEPLOY_PR="$(echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f 7)" \
             VORTEX_DEPLOY_PR_HEAD=${CIRCLE_SHA1} \
-            ./vendor/drevops/vortex-tooling/src/deploy.sh
+            ./vendor/drevops/vortex-tooling/src/deploy
           no_output_timeout: 30m
 
       - store_artifacts:
@@ -477,7 +469,7 @@ jobs:
 
       - run:
           name: Deploy
-          command: VORTEX_DEPLOY_MODE="tag" ./vendor/drevops/vortex-tooling/src/deploy.sh
+          command: VORTEX_DEPLOY_MODE="tag" ./vendor/drevops/vortex-tooling/src/deploy
           no_output_timeout: 30m
 
       - store_artifacts:

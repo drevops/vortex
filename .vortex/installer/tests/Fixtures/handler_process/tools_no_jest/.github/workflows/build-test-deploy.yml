@@ -1,4 +1,4 @@
-@@ -399,7 +399,6 @@
+@@ -375,7 +375,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -6,9 +6,9 @@
  
        - name: Provision site
          run: |
-@@ -409,11 +408,6 @@
+@@ -385,11 +384,6 @@
            fi
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision.sh
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
 -
 -      - name: Test with Jest

@@ -1,23 +1,15 @@
-@@ -22,7 +22,6 @@
-       ahoy composer install               # Install Composer dependencies.
-       ahoy fei                            # Install front-end dependencies.
-       ahoy fe                             # Build front-end assets.
--      [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
-       VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
-       VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
- 
-@@ -111,14 +110,6 @@
-   login:
+@@ -111,14 +111,6 @@
      usage: Unblock user 1 and generate a one time login link.
-     cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login.sh
--
+     cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login
+ 
 -  download-db:
 -    usage: Download database. Run with "--fresh" option to force fresh database backup.
 -    aliases: [fetch-db]
 -    cmd: |
 -      ahoy require-tooling
 -      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
--      ./vendor/drevops/vortex-tooling/src/download-db.sh
- 
+-      ./vendor/drevops/vortex-tooling/src/download-db
+-
    reload-db:
      usage: Reload the database container using local database image.
+     cmd: |
