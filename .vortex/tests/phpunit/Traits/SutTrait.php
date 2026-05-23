@@ -70,6 +70,9 @@ trait SutTrait {
     $this->logSubstep('Assert that SUT has common files after installation');
     $this->assertCommonFilesPresent($webroot);
 
+    $this->logSubstep('Inject test-only path repository for drevops/vortex-tooling');
+    $this->injectTestingTooling();
+
     $this->logSubstep('Assert that created SUT is a git repository');
     $this->gitAssertIsRepository(static::$sut);
 
@@ -80,6 +83,60 @@ trait SutTrait {
     File::dump(static::locationsSut() . DIRECTORY_SEPARATOR . '.idea/idea_file.txt');
 
     $this->logStepFinish();
+  }
+
+  /**
+   * Inject a path repository for drevops/vortex-tooling into the SUT.
+   *
+   * The installer strips '.vortex/tooling' and the path repository from the
+   * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
+   * from packagist. Until the package is published, the SUT cannot resolve
+   * it, so the workflow tests would fail at the Dockerfile's composer
+   * install step. This method copies the in-tree tooling into the SUT,
+   * re-injects the path repository into composer.json, re-injects the
+   * COPY into cli.dockerfile, and whitelists the path in .dockerignore.
+   * @todo Remove once drevops/vortex-tooling is published to packagist.
+   */
+  protected function injectTestingTooling(): void {
+    $sut_root = static::locationsSut();
+    $source_tooling = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $target_tooling = $sut_root . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+
+    if (is_dir($source_tooling)) {
+      File::copy($source_tooling, $target_tooling);
+    }
+
+    $composer_json_path = $sut_root . DIRECTORY_SEPARATOR . 'composer.json';
+    if (file_exists($composer_json_path)) {
+      $composer = json_decode((string) file_get_contents($composer_json_path), TRUE);
+      if (is_array($composer)) {
+        $composer['repositories'] = $composer['repositories'] ?? [];
+        $composer['repositories'][] = [
+          'type' => 'path',
+          'url' => '.vortex/tooling',
+          'options' => [
+            'symlink' => FALSE,
+            'versions' => [
+              'drevops/vortex-tooling' => '1.0.0',
+            ],
+          ],
+        ];
+        file_put_contents($composer_json_path, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+      }
+    }
+
+    $dockerfile_path = $sut_root . DIRECTORY_SEPARATOR . '.docker' . DIRECTORY_SEPARATOR . 'cli.dockerfile';
+    if (file_exists($dockerfile_path)) {
+      $content = (string) file_get_contents($dockerfile_path);
+      $needle = 'COPY composer.json composer.* .env* auth* /app/';
+      $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .vortex/tooling /app/.vortex/tooling";
+      file_put_contents($dockerfile_path, str_replace($needle, $replacement, $content));
+    }
+
+    $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
+    if (file_exists($dockerignore_path)) {
+      file_put_contents($dockerignore_path, (string) file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling in build context.\n!.vortex\n.vortex/*\n!.vortex/tooling\n.vortex/tooling/tests\n");
+    }
   }
 
   protected function runInstaller(array $arguments = []): void {
