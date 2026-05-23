@@ -156,7 +156,7 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
     # Step 1: Get the site URL from project info
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/info.sh
+    docker compose exec cli ./vendor/drevops/vortex-tooling/src/info
     # Note the URL (e.g., http://your-project.docker.amazee.io)
     # Step 2: Get a one-time login URL
     docker compose exec cli drush uli

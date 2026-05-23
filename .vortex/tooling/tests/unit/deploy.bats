@@ -11,7 +11,7 @@ load ../_helper.bash
 
   export VORTEX_DEPLOY_TYPES=""
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_TYPES"
 
@@ -24,7 +24,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_TYPES="webhook"
   export VORTEX_DEPLOY_SKIP="1"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip all deployments."
   assert_output_contains "Skipping deployment webhook."
@@ -38,10 +38,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_TYPES="webhook"
   export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Started deployment."
   assert_output_not_contains "Found flag to skip"
@@ -56,10 +56,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
   export VORTEX_DEPLOY_ALLOW_SKIP="1"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Skipping deployment"
@@ -75,7 +75,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_PR="123"
   export VORTEX_DEPLOY_SKIP_PRS="123"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found PR 123 in skip list."
@@ -92,7 +92,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_PR="456"
   export VORTEX_DEPLOY_SKIP_PRS="123,456,789"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found PR 456 in skip list."
@@ -110,10 +110,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_PR="999"
   export VORTEX_DEPLOY_SKIP_PRS="123,456,789"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found PR 999 in skip list."
@@ -130,7 +130,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="feature/test"
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/test"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found branch feature/test in skip list."
@@ -147,7 +147,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="hotfix/urgent"
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/test,hotfix/urgent,project/experimental"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found branch hotfix/urgent in skip list."
@@ -165,10 +165,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="develop"
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/test,hotfix/urgent"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found branch develop in skip list."
@@ -187,10 +187,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="feature/test"
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/test"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_not_contains "Found flag to skip a deployment."
   assert_output_not_contains "Skipping deployment"
@@ -206,7 +206,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="feature/my-feature"
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/my-feature"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found branch feature/my-feature in skip list."
   assert_output_contains "Skipping deployment webhook."
@@ -224,7 +224,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="develop"
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/test"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found PR 123 in skip list."
   assert_output_contains "Skipping deployment webhook."
@@ -242,7 +242,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="Test User"
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test@example.com"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_output_contains "Started deployment."
   assert_output_contains "Started ARTIFACT deployment."
 
@@ -257,7 +257,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_PR="123"
   export VORTEX_DEPLOY_SKIP_PRS="123"
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found PR 123 in skip list."
   assert_output_contains "Skipping deployment webhook,artifact,container_registry."
@@ -274,10 +274,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_PR=""
   export VORTEX_DEPLOY_SKIP_PRS="123"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found PR"
@@ -295,10 +295,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH=""
   export VORTEX_DEPLOY_SKIP_BRANCHES="feature/test"
 
-  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook.sh")
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
   mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
 
-  run .vortex/tooling/src/deploy.sh
+  run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found branch"

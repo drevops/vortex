@@ -68,7 +68,7 @@ echo ""
 
 # Change to project root and run the notification
 cd "${PROJECT_ROOT}" || exit 1
-./vendor/drevops/vortex-tooling/src/notify.sh
+./vendor/drevops/vortex-tooling/src/notify
 
 echo ""
 echo "Check your webhook.site page for the notification payload!"

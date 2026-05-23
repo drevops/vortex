@@ -44,7 +44,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/download-db-lagoon.sh
+  run .vortex/tooling/src/download-db-lagoon
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -96,7 +96,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-lagoon.sh
+  run .vortex/tooling/src/download-db-lagoon
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -149,7 +149,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-lagoon.sh
+  run .vortex/tooling/src/download-db-lagoon
   run_steps "assert" "${mocks}"
 
   assert_success

@@ -21,6 +21,6 @@ export VORTEX_TASK_COPY_DB_ACQUIA_SRC="${VORTEX_TASK_COPY_DB_ACQUIA_SRC:-prod}"
 export VORTEX_TASK_COPY_DB_ACQUIA_DST="${VORTEX_TASK_COPY_DB_ACQUIA_DST:-${target_env}}"
 export VORTEX_TASK_COPY_DB_ACQUIA_NAME="${VORTEX_TASK_COPY_DB_ACQUIA_NAME?not set}"
 
-./vendor/drevops/vortex-tooling/src/task-copy-db-acquia.sh
+./vendor/drevops/vortex-tooling/src/task-copy-db-acquia
 
 popd >/dev/null || exit 1

@@ -259,7 +259,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
 
     $this->cmd(
-      './vendor/drevops/vortex-tooling/src/download-db.sh',
+      './vendor/drevops/vortex-tooling/src/download-db',
       env: ['VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database downloaded from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
@@ -320,12 +320,12 @@ trait SutTrait {
 
     $this->assertFileContainsString(
       '.ahoy.yml',
-      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh',
+      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
       '`ahoy provision` should exist in .ahoy.yml'
     );
     File::replaceContentInFile('.ahoy.yml',
-      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh',
-      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/drevops/vortex-tooling/src/provision.sh',
+      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
+      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
     );
   }
 

@@ -88,7 +88,7 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 [ "$(git config --global user.name)" = "" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
 [ "$(git config --global user.email)" = "" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
-export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT" && . "$(dirname "${BASH_SOURCE[0]}")/setup-ssh.sh"
+export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT" && . "$(dirname "${BASH_SOURCE[0]}")/setup-ssh"
 
 task "Installing artifact builder."
 curl -sS -L "https://github.com/drevops/git-artifact/releases/download/${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION}/git-artifact" -o "${TMPDIR:-/tmp}"/git-artifact

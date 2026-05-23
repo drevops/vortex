@@ -17,7 +17,7 @@ load ../_helper.bash
   # Set to an invalid value to test the error handling.
   export VORTEX_CONTAINER_REGISTRY=" "
 
-  run .vortex/tooling/src/login-container-registry.sh
+  run .vortex/tooling/src/login-container-registry
   assert_failure
   assert_output_contains "VORTEX_LOGIN_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY should not be empty."
 
@@ -36,7 +36,7 @@ load ../_helper.bash
   fixture_docker_config_file "${VORTEX_CONTAINER_REGISTRY}"
   export DOCKER_CONFIG="${BUILD_DIR}/.docker"
 
-  run .vortex/tooling/src/login-container-registry.sh
+  run .vortex/tooling/src/login-container-registry
   assert_success
 
   assert_output_contains 'Already logged in to the registry "https://www.example.com".'
@@ -53,7 +53,7 @@ load ../_helper.bash
   unset VORTEX_CONTAINER_REGISTRY_USER
   unset VORTEX_CONTAINER_REGISTRY_PASS
 
-  run .vortex/tooling/src/login-container-registry.sh
+  run .vortex/tooling/src/login-container-registry
   assert_success
   assert_output_contains "Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
 
@@ -76,7 +76,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/login-container-registry.sh
+  run .vortex/tooling/src/login-container-registry
   assert_success
   run_steps "assert" "${mocks}"
 

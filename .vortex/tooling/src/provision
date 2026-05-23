@@ -410,7 +410,7 @@ echo
 
 # Sanitize database.
 if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/provision-sanitize-db.sh"
+  "$(dirname "${BASH_SOURCE[0]}")/provision-sanitize-db"
 else
   pass "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   echo

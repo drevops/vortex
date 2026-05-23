@@ -25,7 +25,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -49,7 +49,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh" "https://github.com/custom/repo.git#main"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex" "https://github.com/custom/repo.git#main"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -75,7 +75,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -100,7 +100,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex"
   run_steps "assert" "${mocks[@]}"
 
   assert_failure
@@ -124,7 +124,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh" "file:///local/path/to/vortex"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex" "file:///local/path/to/vortex"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -148,7 +148,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh" "/local/path/to/vortex#stable"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex" "/local/path/to/vortex#stable"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -172,7 +172,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh" "git@github.com:drevops/vortex.git#v1.2.3"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex" "git@github.com:drevops/vortex.git#v1.2.3"
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -196,7 +196,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh"
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex"
   run_steps "assert" "${mocks[@]}"
 
   assert_failure
@@ -220,7 +220,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh" --interactive
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex" --interactive
   run_steps "assert" "${mocks[@]}"
 
   assert_success
@@ -244,7 +244,7 @@ load ../_helper.bash
   )
 
   mocks="$(run_steps "setup")"
-  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex.sh" --interactive https://github.com/custom/repo.git#main
+  run "${ROOT_DIR}/.vortex/tooling/src/update-vortex" --interactive https://github.com/custom/repo.git#main
   run_steps "assert" "${mocks[@]}"
 
   assert_success

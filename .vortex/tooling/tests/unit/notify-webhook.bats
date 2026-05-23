@@ -24,7 +24,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -56,7 +56,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_failure
 
   popd >/dev/null || exit 1
@@ -76,7 +76,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_METHOD="POST"
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -101,7 +101,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json"
   export VORTEX_NOTIFY_WEBHOOK_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -130,7 +130,7 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_webhook_test
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)

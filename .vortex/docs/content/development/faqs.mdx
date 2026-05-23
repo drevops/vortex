@@ -166,7 +166,7 @@ Provided that your stack is already running:
   <TabItem value="docker-compose" label="Docker Compose">
     1. Switch to your branch
     2. `docker compose exec cli composer install`
-    3. `docker compose exec cli ./vendor/drevops/vortex-tooling/src/provision.sh`
+    3. `docker compose exec cli ./vendor/drevops/vortex-tooling/src/provision`
 
     You do not need to rebuild the full stack every time you switch branches.
     The provision script will update the environment to match the current branch.
@@ -176,9 +176,9 @@ Provided that your stack is already running:
 
     ```shell
     docker compose down
-    ./vendor/drevops/vortex-tooling/src/reset.sh
+    ./vendor/drevops/vortex-tooling/src/reset
     docker compose up -d --build --force-recreate
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/provision.sh
+    docker compose exec cli ./vendor/drevops/vortex-tooling/src/provision
     ```
   </TabItem>
 </Tabs>
@@ -200,8 +200,8 @@ Provided that your stack is already running:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/import-db.sh
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/import-db.sh .data/db_custom.sql
+    docker compose exec cli ./vendor/drevops/vortex-tooling/src/import-db
+    docker compose exec cli ./vendor/drevops/vortex-tooling/src/import-db .data/db_custom.sql
     ```
   </TabItem>
 </Tabs>

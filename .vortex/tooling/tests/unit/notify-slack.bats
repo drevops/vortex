@@ -22,7 +22,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
   export VORTEX_NOTIFY_SLACK_EVENT="pre_deployment"
 
-  run ./.vortex/tooling/src/notify-slack.sh
+  run ./.vortex/tooling/src/notify-slack
   assert_success
 
   # Assert script output
@@ -63,7 +63,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
   export VORTEX_NOTIFY_SLACK_EVENT="post_deployment"
 
-  run ./.vortex/tooling/src/notify-slack.sh
+  run ./.vortex/tooling/src/notify-slack
   assert_success
 
   # Assert script output
@@ -104,7 +104,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
   export VORTEX_NOTIFY_SLACK_EVENT="pre_deployment"
 
-  run ./.vortex/tooling/src/notify-slack.sh
+  run ./.vortex/tooling/src/notify-slack
   assert_success
 
   # Assert script output
@@ -145,7 +145,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":rocket:"
   export VORTEX_NOTIFY_SLACK_EVENT="post_deployment"
 
-  run ./.vortex/tooling/src/notify-slack.sh
+  run ./.vortex/tooling/src/notify-slack
   assert_success
 
   # Assert script output
@@ -181,7 +181,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   # No VORTEX_NOTIFY_SLACK_WEBHOOK set
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_failure
 
   assert_output_contains "Started dispatching notifications."
@@ -206,7 +206,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/INVALID"
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_failure
 
   assert_output_contains "Started dispatching notifications."
@@ -234,7 +234,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SLACK_USERNAME="Custom Deploy Bot"
   export VORTEX_NOTIFY_SLACK_ICON_EMOJI=":ship:"
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -260,7 +260,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -284,7 +284,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
   export VORTEX_NOTIFY_SLACK_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -313,7 +313,7 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_slack_test
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)

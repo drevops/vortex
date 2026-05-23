@@ -30,7 +30,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -63,7 +63,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PR_NUMBER="123"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -95,7 +95,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -125,7 +125,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="nonexistingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -158,7 +158,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -191,7 +191,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -222,7 +222,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="nonexistingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -243,7 +243,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_GITHUB_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -278,7 +278,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="existingbranch"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/notify.sh
+  run ./.vortex/tooling/src/notify
   assert_failure
 
   run_steps "assert" "${mocks[@]}"

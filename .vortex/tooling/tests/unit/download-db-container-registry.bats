@@ -16,7 +16,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
 
   # Mock the login script
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry.sh")" "echo 'logged in'" 1
+  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -24,7 +24,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Not found myorg/myapp image on host."
@@ -53,7 +53,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Not found myorg/myapp image on host."
@@ -75,7 +75,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 2
 
   # Mock the login script
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry.sh")" "echo 'logged in'" 1
+  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE="myorg/base"
@@ -84,7 +84,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Database container image was not found. Using base image myorg/base."
@@ -107,7 +107,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Found myorg/myapp image on host."
@@ -124,7 +124,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'pulled from docker.io'" 2
 
   # Mock the login script
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry.sh")" "echo 'logged in'" 1
+  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   # Don't set VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY to test default
@@ -133,7 +133,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Downloading myorg/myapp image from the registry."
@@ -150,7 +150,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 2
 
   # Mock the login script.
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry.sh")" "echo 'logged in'" 1
+  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
   # Set database index as used in CI: VORTEX_DB_INDEX=2.
   export VORTEX_DB_INDEX="2"
@@ -164,7 +164,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Downloading myorg/migration-db image from the registry."
@@ -183,7 +183,7 @@ load ../_helper.bash
   unset VORTEX_CONTAINER_REGISTRY_USER
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER."
@@ -201,7 +201,7 @@ load ../_helper.bash
   # Also unset fallback variable
   unset VORTEX_CONTAINER_REGISTRY_PASS
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS."
@@ -217,7 +217,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
 
-  run .vortex/tooling/src/download-db-container-registry.sh
+  run .vortex/tooling/src/download-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "[FAIL] Destination image name is not specified. Please provide VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>."

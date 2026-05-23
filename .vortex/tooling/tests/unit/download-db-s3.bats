@@ -36,7 +36,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -79,7 +79,7 @@ load ../_helper.bash
   unset VORTEX_DOWNLOAD_DB_S3_DB_DIR VORTEX_DOWNLOAD_DB_S3_DB_FILE
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -122,7 +122,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -161,7 +161,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -201,7 +201,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -228,7 +228,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -253,7 +253,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -278,7 +278,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -303,7 +303,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION=""
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3.sh
+  run .vortex/tooling/src/download-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
