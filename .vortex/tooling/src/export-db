@@ -38,7 +38,7 @@ info "Started database export."
 
 if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
   # Export database as a file.
-  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file.sh "$@"
+  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file "$@"
 else
   # Export database as a container image.
   VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/export-db-image" "$@"
