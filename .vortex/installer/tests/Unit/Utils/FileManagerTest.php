@@ -160,6 +160,42 @@ class FileManagerTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testCopyFilesRemovesObsoleteScriptsVortex(): void {
+    // Simulate an upgrade from a Vortex version that shipped scripts at
+    // 'scripts/vortex/' before they were extracted into the
+    // 'drevops/vortex-tooling' Composer package. The legacy directory must
+    // be removed from the destination after the copy.
+    $src = self::$sut . '/src_obsolete';
+    $dst = self::$sut . '/dst_obsolete';
+    mkdir($src, 0777, TRUE);
+    mkdir($dst . '/scripts/vortex', 0777, TRUE);
+    file_put_contents($src . '/test.txt', 'new');
+    file_put_contents($dst . '/scripts/vortex/legacy.sh', 'legacy');
+    file_put_contents($dst . '/scripts/keep.sh', 'custom');
+
+    $config = new Config('/tmp/root', $dst, $src);
+    $fm = new FileManager($config);
+
+    $fm->copyFiles();
+
+    $this->assertDirectoryDoesNotExist($dst . '/scripts/vortex', 'Legacy scripts/vortex/ directory removed after copy.');
+    $this->assertFileExists($dst . '/scripts/keep.sh', 'Sibling custom scripts/ entries preserved.');
+    $this->assertFileExists($dst . '/test.txt', 'New files copied from source.');
+  }
+
+  public function testRemoveObsoletePathsSilentOnMissing(): void {
+    $dst = self::$sut . '/dst_no_obsolete';
+    mkdir($dst, 0777, TRUE);
+
+    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $fm = new FileManager($config);
+
+    // Should not throw when there is nothing to remove.
+    $fm->removeObsoletePaths();
+
+    $this->addToAssertionCount(1);
+  }
+
   /**
    * Tests for prepareDemo().
    */

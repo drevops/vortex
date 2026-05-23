@@ -87,6 +87,31 @@ class FileManager {
     if (!file_exists($dst . '/.env.local') && file_exists($dst . '/.env.local.example')) {
       File::copy($dst . '/.env.local.example', $dst . '/.env.local');
     }
+
+    $this->removeObsoletePaths();
+  }
+
+  /**
+   * Remove paths that previous Vortex versions placed in the destination but
+   * the current version no longer ships. Runs after copyFiles() so legacy
+   * artifacts do not linger across upgrades.
+   */
+  public function removeObsoletePaths(): void {
+    $dst = $this->config->getDst();
+
+    // 'scripts/vortex/' was the location of shipped Vortex scripts before
+    // they were extracted into the 'drevops/vortex-tooling' Composer package.
+    // Consumer projects updated from older Vortex versions still have it.
+    $obsolete = [
+      'scripts/vortex',
+    ];
+
+    foreach ($obsolete as $relative) {
+      $path = $dst . DIRECTORY_SEPARATOR . $relative;
+      if (file_exists($path)) {
+        File::remove($path);
+      }
+    }
   }
 
   /**
