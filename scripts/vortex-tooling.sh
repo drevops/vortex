@@ -31,7 +31,7 @@ mkdir -p vendor-temp vendor/drevops
 # composer.lock; fall back to the constraint declared in composer.json.
 version=
 [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked 2>/dev/null | awk '/^versions/{print $NF}') || true
-[ -z "${version}" ] && version=$(composer config require.drevops/vortex-tooling)
+[ -z "${version}" ] && version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
 
 # Bootstrap a throwaway Composer project that requires only the tooling.
 echo "{\"require\":{\"drevops/vortex-tooling\":\"${version}\"}}" >vendor-temp/composer.json
