@@ -27,6 +27,12 @@ fi
 
 mkdir -p vendor-temp vendor/drevops
 
+# Authenticate Composer with GitHub if a token is available, to avoid hitting
+# the anonymous API rate limit when downloading packages from GitHub.
+if [ -n "${PACKAGE_TOKEN:-}" ]; then
+  export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN}\"}}"
+fi
+
 # Resolve the version constraint to install. Prefer the exact version from
 # composer.lock; fall back to the constraint declared in composer.json.
 version=
