@@ -8,7 +8,7 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
 @@ -159,26 +157,6 @@
-         ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
+         bash ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
        fi
  
 -  fei:

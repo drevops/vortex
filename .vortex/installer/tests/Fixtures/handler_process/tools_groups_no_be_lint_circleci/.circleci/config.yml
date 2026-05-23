@@ -92,6 +92,21 @@ aliases:
       # Load variables from .env file, respecting existing values, and make them available for the next steps.
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
+  # Install only the drevops/vortex-tooling package into ./vendor/ without
+  # pulling the full project dependency tree. Used by host-side jobs that
+  # invoke shipped tooling scripts.
+  - &step_install_tooling
+    run:
+      name: Install Vortex tooling
+      command: |
+        mkdir -p vendor-temp vendor/drevops
+        version=
+        [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked 2>/dev/null | awk '/^versions/{print $NF}') || true
+        [ -z "$version" ] && version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+        echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+        composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
+        mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+
 ################################################################################
 # JOBS
 ################################################################################
@@ -110,14 +125,7 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - run:
-          name: Install Vortex tooling
-          command: |
-            mkdir -p vendor-temp vendor/drevops
-            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
-            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
-            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
-            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+      - *step_install_tooling
 
       - *step_setup_remote_docker
 
@@ -194,14 +202,7 @@ jobs:
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
 
-      - run:
-          name: Install Vortex tooling
-          command: |
-            mkdir -p vendor-temp vendor/drevops
-            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
-            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
-            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
-            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+      - *step_install_tooling
 
       - *step_setup_remote_docker
 
@@ -290,14 +291,7 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - run:
-          name: Install Vortex tooling
-          command: |
-            mkdir -p vendor-temp vendor/drevops
-            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
-            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
-            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
-            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+      - *step_install_tooling
 
       - run:
           name: Set cache keys for database caching
@@ -449,14 +443,7 @@ jobs:
               circleci-agent step halt
             fi
 
-      - run:
-          name: Install Vortex tooling
-          command: |
-            mkdir -p vendor-temp vendor/drevops
-            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
-            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
-            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
-            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+      - *step_install_tooling
 
       - run:
           name: Deploy
@@ -485,14 +472,7 @@ jobs:
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
 
-      - run:
-          name: Install Vortex tooling
-          command: |
-            mkdir -p vendor-temp vendor/drevops
-            [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
-            echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
-            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
-            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
+      - *step_install_tooling
 
       - run:
           name: Deploy

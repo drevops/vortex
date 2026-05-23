@@ -1,4 +1,4 @@
-@@ -266,6 +266,9 @@
+@@ -270,6 +270,9 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -8,7 +8,7 @@
        - name: Export DB
          run: |
            if [ ! -f /tmp/download-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
-@@ -397,6 +400,10 @@
+@@ -403,6 +406,10 @@
            if [ -f .data/db.sql ]; then
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql

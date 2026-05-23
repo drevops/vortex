@@ -1,4 +1,4 @@
-@@ -265,6 +265,9 @@
+@@ -269,6 +269,9 @@
            VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db.sh
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30

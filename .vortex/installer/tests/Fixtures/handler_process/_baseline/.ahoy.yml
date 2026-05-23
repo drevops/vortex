@@ -155,8 +155,8 @@ commands:
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down || true
-      if [ -x ./vendor/drevops/vortex-tooling/src/reset.sh ]; then
-        ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
+      if [ -f ./vendor/drevops/vortex-tooling/src/reset.sh ]; then
+        bash ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
       fi
 
   fei:
@@ -321,7 +321,9 @@ commands:
     cmd: |
       [ -d ./vendor/drevops/vortex-tooling ] && exit 0
       mkdir -p vendor-temp vendor/drevops
-      [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked | awk '/^versions/{print $NF}') || version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
+      version=
+      [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked 2>/dev/null | awk '/^versions/{print $NF}') || true
+      [ -z "$version" ] && version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
       echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
       composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
       mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
