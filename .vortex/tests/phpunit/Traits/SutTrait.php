@@ -154,8 +154,13 @@ trait SutTrait {
    */
   protected function reinstallToolingToVendor(): void {
     $sut_root = static::locationsSut();
-    $source = $sut_root . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $sut_source = $sut_root . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $repo_source = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
     $target = $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling';
+
+    // Prefer the in-SUT copy (injected by injectTestingTooling); fall back
+    // to the template-root copy for tests that bypass injectTestingTooling.
+    $source = is_dir($sut_source) ? $sut_source : $repo_source;
 
     if (is_dir($source)) {
       File::copy($source, $target);

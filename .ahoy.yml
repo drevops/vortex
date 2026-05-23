@@ -28,7 +28,7 @@ commands:
       ahoy fe                             # Build front-end assets.
       #;> DRUPAL_THEME
       #;< !PROVISION_TYPE_PROFILE
-      [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
+      [ -n "${VORTEX_DB_IMAGE:-}" ] || [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
       #;> !PROVISION_TYPE_PROFILE
       VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
       VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
