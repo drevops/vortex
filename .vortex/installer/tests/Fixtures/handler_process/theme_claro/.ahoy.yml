@@ -6,7 +6,7 @@
        [ -f .data/db.sql ] || ahoy download-db  # Download database if missing.
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
-@@ -164,22 +163,7 @@
+@@ -163,22 +162,7 @@
      usage: Install front-end assets.
      cmd: |
        ahoy cli "yarn install --frozen-lockfile"
@@ -29,7 +29,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -200,7 +184,6 @@
+@@ -199,7 +183,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
        ahoy cli "yarn run lint"
@@ -37,7 +37,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -224,7 +207,6 @@
+@@ -223,7 +206,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"

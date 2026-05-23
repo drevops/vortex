@@ -6,7 +6,7 @@
        export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-@@ -45,6 +46,14 @@
+@@ -44,6 +45,14 @@
        open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
        || echo "Not a supported OS or Sequel Ace is not installed."
  
@@ -21,7 +21,7 @@
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -121,6 +130,14 @@
+@@ -120,6 +129,14 @@
        case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
        ./vendor/drevops/vortex-tooling/src/download-db.sh
  
@@ -36,7 +36,7 @@
    reload-db:
      usage: Reload the database container using local database image.
      cmd: |
-@@ -128,6 +145,13 @@
+@@ -127,6 +144,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up

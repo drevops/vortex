@@ -6,7 +6,7 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -112,14 +111,6 @@
+@@ -111,14 +110,6 @@
    login:
      usage: Unblock user 1 and generate a one time login link.
      cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login.sh

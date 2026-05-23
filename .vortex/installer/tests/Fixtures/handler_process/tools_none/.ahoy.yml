@@ -1,4 +1,4 @@
-@@ -183,77 +183,24 @@
+@@ -182,77 +182,24 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
