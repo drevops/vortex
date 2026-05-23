@@ -5,4 +5,9 @@
 
 /.gitattributes       export-ignore
 /.github/FUNDING.yml  export-ignore
-/.vortex              export-ignore
+/.vortex/.ahoy.yml    export-ignore
+/.vortex/CLAUDE.md    export-ignore
+/.vortex/README.md    export-ignore
+/.vortex/docs         export-ignore
+/.vortex/installer    export-ignore
+/.vortex/tests        export-ignore
