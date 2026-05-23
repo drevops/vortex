@@ -23,7 +23,7 @@ fi
 
 # Get the directory of this script and navigate to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 
 # Default webhook URL for testing (requires SLACK_WEBHOOK_URL to be set externally)
 SLACK_WEBHOOK_URL="${SLACK_WEBHOOK_URL:-}"

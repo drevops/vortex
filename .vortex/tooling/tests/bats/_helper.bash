@@ -13,8 +13,9 @@
 ################################################################################
 
 setup() {
-  # The root directory of the project.
-  export ROOT_DIR="$(dirname "$(dirname "$(cd "$(dirname "${BATS_TEST_DIRNAME}")/.." && pwd)")")"
+  # The root directory of the project. BATS_TEST_DIRNAME is
+  # .vortex/tooling/tests/bats/unit; go up five levels to reach the repo root.
+  export ROOT_DIR="$(cd "${BATS_TEST_DIRNAME}/../../../../.." && pwd)"
 
   [ ! -d "${ROOT_DIR}/.vortex" ] && echo 'ERROR: The test should be run from the ".vortex" directory.' && exit 1
 
@@ -32,8 +33,10 @@ setup() {
   fi
   # LCOV_EXCL_STOP
 
-  # Register a path to libraries.
-  export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../../node_modules"
+  # Register a path to libraries. node_modules with bats-helpers is shared
+  # from '.vortex/tests/' so that '.vortex/tooling/tests/' does not need its
+  # own JS dependency tree.
+  export BATS_LIB_PATH="${ROOT_DIR}/.vortex/tests/node_modules"
 
   # Load 'bats-helpers' library.
   ASSERT_DIR_EXCLUDE=("vortex" ".data")
