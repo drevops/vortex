@@ -95,6 +95,7 @@ trait SutTrait {
    * install step. This method copies the in-tree tooling into the SUT,
    * re-injects the path repository into composer.json, re-injects the
    * COPY into cli.dockerfile, and whitelists the path in .dockerignore.
+   *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */
   protected function injectTestingTooling(): void {
