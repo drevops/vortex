@@ -15,7 +15,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -177,124 +174,8 @@
+@@ -178,125 +175,8 @@
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -76,6 +76,7 @@
 -          [ -f composer.lock ] && version=$(composer show drevops/vortex-tooling --locked 2>/dev/null | awk '/^versions/{print $NF}') || true
 -          [ -z "$version" ] && version=$(php -r 'echo json_decode(file_get_contents("composer.json"))->require->{"drevops/vortex-tooling"};')
 -          echo "{\"require\":{\"drevops/vortex-tooling\":\"$version\"}}" >vendor-temp/composer.json
+-          [ -d .vortex/tooling ] && composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"__VERSION__"}}}'
 -          composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
 -          mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
 -
@@ -140,7 +141,7 @@
  
      strategy:
        # A matrix to run multiple jobs in parallel.
-@@ -315,14 +196,6 @@
+@@ -317,14 +197,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -155,7 +156,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -354,29 +227,6 @@
+@@ -357,29 +229,6 @@
            composer --working-dir=vendor-temp install --no-dev --no-scripts --no-plugins --no-interaction
            mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/ && rm -rf vendor-temp
  
@@ -185,7 +186,7 @@
        - name: Login to container registry
          run: ./vendor/drevops/vortex-tooling/src/login-container-registry.sh
  
-@@ -521,7 +371,6 @@
+@@ -524,7 +373,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
