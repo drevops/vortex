@@ -443,8 +443,12 @@ trait SutTrait {
     $this->assertFileExists('docs/releasing.md');
     $this->assertFileExists('docs/testing.md');
 
-    // Assert that Vortex files removed.
-    $this->assertDirectoryDoesNotExist('.vortex');
+    // Assert that Vortex files removed. '.vortex/tooling' is allowed because
+    // 'injectTestingTooling' re-injects it for test purposes until the
+    // 'drevops/vortex-tooling' package is published to packagist.
+    $this->assertDirectoryDoesNotExist('.vortex/docs');
+    $this->assertDirectoryDoesNotExist('.vortex/installer');
+    $this->assertDirectoryDoesNotExist('.vortex/tests');
     $this->assertFileDoesNotExist('LICENSE');
     $this->assertFileDoesNotExist('CODE_OF_CONDUCT.md');
     $this->assertFileDoesNotExist('.github/FUNDING.yml');
