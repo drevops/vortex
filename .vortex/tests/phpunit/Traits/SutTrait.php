@@ -111,8 +111,8 @@ trait SutTrait {
     if (file_exists($composer_json_path)) {
       $composer = json_decode((string) file_get_contents($composer_json_path), TRUE);
       if (is_array($composer)) {
-        $composer['repositories'] = $composer['repositories'] ?? [];
-        $composer['repositories'][] = [
+        $repositories = isset($composer['repositories']) && is_array($composer['repositories']) ? $composer['repositories'] : [];
+        $repositories[] = [
           'type' => 'path',
           'url' => '.vortex/tooling',
           'options' => [
@@ -122,6 +122,7 @@ trait SutTrait {
             ],
           ],
         ];
+        $composer['repositories'] = $repositories;
         file_put_contents($composer_json_path, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
       }
     }
