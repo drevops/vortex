@@ -1,29 +1,16 @@
 # Vortex Testing Framework
 
-This directory contains the comprehensive testing system for the Vortex project
-to ensure the quality and reliability of Vortex workflows and scripts.
+This directory contains the PHPUnit functional testing system for the Vortex
+project.
+
+> Shell-script BATS unit tests live in the `drevops/vortex-tooling` package
+> at `.vortex/tooling/tests/`.
 
 ## Overview
 
-The Vortex testing framework is designed to validate:
-
-- Core Vortex functionality and scripts
-- Installation and deployment workflows
-- Integration scenarios
-- CI/CD pipeline components
-
-## Testing Technologies
-
-### PHPUnit
-
 PHPUnit handles functional testing of Vortex user's **workflows**: processes
-and commands are ran in the context of a Vortex installation, simulating
+and commands are run in the context of a Vortex installation, simulating
 real-world scenarios.
-
-### Bats (Bash Automated Testing System)
-
-[Bats](https://github.com/bats-core/bats-core) is used for **unit** testing
-shell scripts with coverage.
 
 ## Running Tests
 
@@ -38,11 +25,7 @@ shell scripts with coverage.
 ### Setup
 
 ```bash
-# Install PHP dependencies
 composer install
-
-# Install Node.js dependencies for BATS testing (BATS is distributed via npm, but does not require Node.js to run)
-yarn install
 ```
 
 ## Running PHPUnit Tests
@@ -53,16 +36,6 @@ yarn install
 
 # Run specific test class
 ./vendor/bin/phpunit phpunit/Functional/AhoyConfigTest.php
-```
-
-## Running BATS tests
-
-```bash
-# Run specific Bats test file
-./node_modules/.bin/bats bats/helpers.bats
-
-# Run with verbose output
-./node_modules/.bin/bats --verbose-run bats/provision.bats
 ```
 
 ## Running Individual Test Suites

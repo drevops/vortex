@@ -1,27 +1,33 @@
 # Manual Integration Tests
 
-This directory contains manual test scripts for verifying Vortex notification integrations with external services.
+This directory contains manual test scripts for verifying Vortex notification
+integrations with external services.
 
 ## Purpose
 
-These scripts are used to **manually verify** that notification integrations work correctly with real external services (Slack, JIRA, etc.) during development and testing. Unlike automated tests, these scripts actually send notifications to live services to confirm the integration and message formatting are correct.
+These scripts are used to **manually verify** that notification integrations
+work correctly with real external services (Slack, JIRA, etc.) during
+development and testing. Unlike automated tests, these scripts actually send
+notifications to live services to confirm the integration and message
+formatting are correct.
 
 ## Available Scripts
 
 ### Slack Notifications (`try-slack-notification.sh`)
 
-Manually send Slack webhook notifications to verify message formatting and delivery.
+Manually send Slack webhook notifications to verify message formatting and
+delivery.
 
 **Usage**:
 ```bash
 # From project root
-.vortex/tests/manual/try-slack-notification.sh [branch|pr]
+.vortex/tooling/playground/try-slack-notification.sh [branch|pr]
 
 # Try branch deployment notification
-.vortex/tests/manual/try-slack-notification.sh branch
+.vortex/tooling/playground/try-slack-notification.sh branch
 
 # Try PR deployment notification
-.vortex/tests/manual/try-slack-notification.sh pr
+.vortex/tooling/playground/try-slack-notification.sh pr
 ```
 
 **Configuration**:
@@ -37,18 +43,19 @@ Manually send Slack webhook notifications to verify message formatting and deliv
 
 ### JIRA Notifications (`try-jira-notification.sh`)
 
-Manually send JIRA notifications to verify comment posting, issue transitions, and assignments.
+Manually send JIRA notifications to verify comment posting, issue transitions,
+and assignments.
 
 **Usage**:
 ```bash
 # From project root
-.vortex/tests/manual/try-jira-notification.sh [branch|pr]
+.vortex/tooling/playground/try-jira-notification.sh [branch|pr]
 
 # Try branch deployment notification
-.vortex/tests/manual/try-jira-notification.sh branch
+.vortex/tooling/playground/try-jira-notification.sh branch
 
 # Try PR deployment notification
-.vortex/tests/manual/try-jira-notification.sh pr
+.vortex/tooling/playground/try-jira-notification.sh pr
 ```
 
 **Configuration**:
@@ -73,18 +80,19 @@ Manually send JIRA notifications to verify comment posting, issue transitions, a
 
 ### New Relic Notifications (`try-newrelic-notification.sh`)
 
-Manually send New Relic deployment notifications to verify message formatting and delivery.
+Manually send New Relic deployment notifications to verify message formatting
+and delivery.
 
 **Usage**:
 ```bash
 # From project root
-.vortex/tests/manual/try-newrelic-notification.sh [branch|pr]
+.vortex/tooling/playground/try-newrelic-notification.sh [branch|pr]
 
 # Try branch deployment notification
-.vortex/tests/manual/try-newrelic-notification.sh branch
+.vortex/tooling/playground/try-newrelic-notification.sh branch
 
 # Try PR deployment notification
-.vortex/tests/manual/try-newrelic-notification.sh pr
+.vortex/tooling/playground/try-newrelic-notification.sh pr
 ```
 
 **Configuration**:
@@ -107,11 +115,12 @@ Manually send New Relic deployment notifications to verify message formatting an
 
 ### JIRA Authentication (`try-jira-auth.sh`)
 
-Helper script to manually verify JIRA API authentication before trying full notifications.
+Helper script to manually verify JIRA API authentication before trying full
+notifications.
 
 **Usage**:
 ```bash
-.vortex/tests/manual/try-jira-auth.sh
+.vortex/tooling/playground/try-jira-auth.sh
 ```
 
 **What it tests**:
@@ -124,11 +133,12 @@ Helper script to manually verify JIRA API authentication before trying full noti
 
 ### New Relic Authentication (`try-newrelic-auth.sh`)
 
-Helper script to manually verify New Relic API authentication before trying full notifications.
+Helper script to manually verify New Relic API authentication before trying
+full notifications.
 
 **Usage**:
 ```bash
-.vortex/tests/manual/try-newrelic-auth.sh
+.vortex/tooling/playground/try-newrelic-auth.sh
 ```
 
 **What it tests**:
@@ -160,20 +170,20 @@ Helper script to manually verify New Relic API authentication before trying full
 ## Important Notes
 
 ### Real Service Impact
-⚠️ **These scripts interact with real external services:**
+**These scripts interact with real external services:**
 - Slack: Sends actual messages to configured channels
 - JIRA: Creates real comments, transitions issues, assigns users
 - **Use test projects/channels** to avoid cluttering production systems
 
 ### Credentials and Security
-🔐 **API tokens and webhooks**:
+**API tokens and webhooks**:
 - **All scripts require credentials to be set via environment variables**
 - Never commit credentials to version control
 - Tokens should have minimal required permissions
 - Use separate test accounts/webhooks for manual testing
 
 ### Test Data Cleanup
-🧹 **Manual cleanup may be required**:
+**Manual cleanup may be required**:
 - Slack: Messages remain in channel (cannot be deleted by bot)
 - JIRA: Comments, transitions, and assignments persist
 - Consider using dedicated test issues/channels
@@ -192,10 +202,13 @@ All scripts follow a common pattern:
 
 ## Integration with Automated Tests
 
-While these manual tests verify real integrations, automated tests handle unit-level validation:
+While these manual tests verify real integrations, automated tests handle
+unit-level validation:
 
-- **Automated BATS tests** (`.vortex/tests/bats/unit/notify-*.bats`): Mock external services, test script logic
-- **Manual tests** (this directory): Use real services, verify message formatting and delivery
+- **Automated BATS tests** (`.vortex/tooling/tests/unit/notify-*.bats`):
+  Mock external services, test script logic
+- **Manual tests** (this directory): Use real services, verify message
+  formatting and delivery
 
 Both are necessary for comprehensive testing coverage.
 
@@ -228,7 +241,7 @@ curl -X POST -H 'Content-type: application/json' --data '{"text":"Test"}' $SLACK
 echo $JIRA_TOKEN
 
 # Test authentication:
-.vortex/tests/manual/try-jira-auth.sh
+.vortex/tooling/playground/try-jira-auth.sh
 ```
 
 ### New Relic Authentication Failures
@@ -243,7 +256,7 @@ echo $JIRA_TOKEN
 echo $NEWRELIC_USER_KEY
 
 # Test authentication:
-.vortex/tests/manual/try-newrelic-auth.sh
+.vortex/tooling/playground/try-newrelic-auth.sh
 
 # Get your API key from:
 # https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher
@@ -261,7 +274,7 @@ ls -la ./vendor/drevops/vortex-tooling/src/      # Verify project structure
 
 When adding new notification integrations:
 
-1. **Create test script** following naming pattern: `test-{service}-notification.sh`
+1. **Create test script** following naming pattern: `try-{service}-notification.sh`
 2. **Include both scenarios**: branch and PR deployment notifications
 3. **Document configuration**: Required environment variables and defaults
 4. **Update this README**: Add usage instructions and what it tests
@@ -269,4 +282,5 @@ When adding new notification integrations:
 
 ---
 
-*These manual tests complement automated testing to ensure Vortex notification integrations work correctly with real external services.*
+*These manual tests complement automated testing to ensure Vortex notification
+integrations work correctly with real external services.*

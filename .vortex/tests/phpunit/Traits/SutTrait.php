@@ -137,7 +137,7 @@ trait SutTrait {
 
     $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
     if (file_exists($dockerignore_path)) {
-      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling in build context.\n!.vortex\n.vortex/*\n!.vortex/tooling\n.vortex/tooling/tests\n");
+      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling in build context.\n!.vortex\n.vortex/*\n!.vortex/tooling\n.vortex/tooling/tests\n.vortex/tooling/playground\n.vortex/tooling/node_modules\n");
     }
   }
 

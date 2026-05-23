@@ -51,8 +51,8 @@ done < <(
     "${ROOT_DIR}"/hooks/library \
     "${ROOT_DIR}"/.vortex/docs \
     "${ROOT_DIR}"/.vortex/tooling/src \
-    "${ROOT_DIR}"/.vortex/tooling/tests/bats \
-    "${ROOT_DIR}"/.vortex/tooling/tests/manual \
+    "${ROOT_DIR}"/.vortex/tooling/tests \
+    "${ROOT_DIR}"/.vortex/tooling/playground \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" -not -path "*fixtures*" \

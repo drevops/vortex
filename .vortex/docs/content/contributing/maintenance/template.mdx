@@ -222,14 +222,17 @@ Functional tests rely on database fixtures - see the section below on
 
 ### Unit tests with BATS
 
+BATS unit tests for shipped shell scripts live in the
+`drevops/vortex-tooling` package.
+
 ```shell
-cd .vortex/tests
+cd .vortex/tooling
 
 # Install npm dependencies.
-npm install
+yarn install
 
 # Run a single test.
-bats .vortex/tests/bats/deploy.bats
+node_modules/.bin/bats .vortex/tooling/tests/unit/deploy.bats
 ```
 
 ## Updating test assets

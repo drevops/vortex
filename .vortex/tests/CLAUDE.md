@@ -2,11 +2,13 @@
 
 ## Overview
 
-**BATS** - Unit testing individual shell scripts with mocked commands.
-Tests scripts in isolation without real services. Fast execution (~seconds).
+This directory holds **PHPUnit** integration tests that exercise complete
+workflows in real Docker containers. Tests run against an actual Drupal site
+with real database and services. Slow execution (~minutes).
 
-**PHPUnit** - Integration testing complete workflows in real Docker containers.
-Tests actual Drupal site with real database and services. Slow execution (~minutes).
+**BATS** unit tests for shell scripts now live in the
+`drevops/vortex-tooling` package at `.vortex/tooling/tests/`. See
+`.vortex/tooling/CLAUDE.md` for shell-script test guidance.
 
 ## Setup
 
@@ -24,52 +26,7 @@ composer install      # Install dependencies
 composer lint         # Run phpcs, phpstan, rector --dry-run
 composer lint-fix     # Run rector, phpcbf
 composer test         # Run tests (no coverage)
-
 ```
-
-## BATS - Unit Testing Shell Scripts
-
-**Use when**: Changed a shell script in `.vortex/tooling/src/*.sh` or provision logic.
-
-**Reference**: `node_modules/bats-helpers/README.md` - Mocking, assertions, step helpers
-
-```bash
-cd .vortex
-ahoy test-bats -- tests/bats/unit/notify.bats  # Single script
-ahoy test-bats -- tests/bats/unit/             # All unit tests
-ahoy test-bats -- tests/bats/provision.bats    # Provision tests
-ahoy test-bats -- tests/bats/                  # All BATS tests
-```
-
-### Helpers System
-
-Located in `node_modules/bats-helpers/src/steps.bash`:
-
-**Step Types**:
-1. **Mock**: `@<command> [<args>] # <status> [ # <output> ]`
-2. **Assert present**: `"<substring>"`
-3. **Assert absent**: `"- <substring>"`
-
-**Usage**:
-
-```bash
-declare -a STEPS=(
-  "@drush -y status # 0 # success"  # Mock
-  "Expected output"                  # Must contain
-  "-      Unwanted output"           # Must NOT contain
-)
-
-mocks="$(run_steps "setup")"
-# ... run code ...
-run_steps "assert" "${mocks}"
-```
-
-### Key Files
-
-- `provision.bats` - Provision script tests
-- `_helper.bash` - Test helpers
-- `unit/` - Individual script tests
-- `fixtures/` - Test data
 
 ## PHPUnit - Integration Testing Workflows
 
@@ -159,8 +116,9 @@ note() { printf "      %s\n" "${1}"; }
 
 ### Test Maintenance
 
-When updating scripts:
+When updating PHPUnit tests:
 
-1. Update main script
-2. Update BATS assertions
-3. Run `ahoy update-snapshots` from `.vortex/`
+1. Update test class
+2. Run `ahoy update-snapshots` from `.vortex/` (regenerates installer fixtures)
+
+For BATS tests covering shell scripts, see `.vortex/tooling/CLAUDE.md`.

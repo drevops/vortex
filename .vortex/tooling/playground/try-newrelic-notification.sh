@@ -19,7 +19,7 @@ fi
 
 # Get the directory of this script and navigate to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # Default values for testing (requires NEWRELIC_USER_KEY to be set externally)
 NEWRELIC_USER_KEY="${NEWRELIC_USER_KEY:-}"

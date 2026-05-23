@@ -1,3 +1,4 @@
 /.gitattributes  export-ignore
 /.gitignore      export-ignore
+/playground      export-ignore
 /tests           export-ignore

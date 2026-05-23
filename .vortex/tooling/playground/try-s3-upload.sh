@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ##
-# Manual test script for S3 database download.
+# Manual test script for S3 database upload.
 #
-# Downloads a database dump file from an S3 bucket using download-db-s3.sh.
+# Uploads a database dump file to an S3 bucket using upload-db-s3.sh.
 #
 # Usage:
 #   export S3_ACCESS_KEY="your-access-key"
@@ -10,7 +10,7 @@
 #   export S3_BUCKET="your-bucket"
 #   export S3_REGION="ap-southeast-2"
 #   export S3_PREFIX="path/to/folder/"
-#   ./try-s3-download.sh
+#   ./try-s3-upload.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
@@ -23,7 +23,7 @@ fi
 
 # Get the directory of this script and navigate to project root.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # S3 credentials and settings.
 S3_ACCESS_KEY="${S3_ACCESS_KEY:-}"
@@ -51,24 +51,25 @@ if [ -z "${S3_BUCKET}" ]; then
   exit 1
 fi
 
-echo "Testing S3 database download..."
+echo "Testing S3 database upload..."
 echo ""
-echo "S3 bucket:  ${S3_BUCKET}"
-echo "S3 region:  ${S3_REGION}"
-[ -n "${S3_PREFIX}" ] && echo "S3 prefix:  ${S3_PREFIX}"
-echo "DB file:    ${VORTEX_DB_FILE:-db.sql}"
-echo "Local dir:  ${VORTEX_DB_DIR:-./.data}"
+echo "S3 bucket:      ${S3_BUCKET}"
+echo "S3 region:      ${S3_REGION}"
+[ -n "${S3_PREFIX}" ] && echo "S3 prefix:      ${S3_PREFIX}"
+echo "Local file:     ${VORTEX_DB_DIR:-./.data}/${VORTEX_DB_FILE:-db.sql}"
+echo "Remote file:    ${VORTEX_UPLOAD_DB_S3_REMOTE_FILE:-db.sql}"
+echo "Storage class:  ${VORTEX_UPLOAD_DB_S3_STORAGE_CLASS:-STANDARD}"
 echo ""
 
 cd "${PROJECT_ROOT}" || exit 1
 
-export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="${S3_ACCESS_KEY}"
-export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="${S3_SECRET_KEY}"
-export VORTEX_DOWNLOAD_DB_S3_BUCKET="${S3_BUCKET}"
-export VORTEX_DOWNLOAD_DB_S3_REGION="${S3_REGION}"
-export VORTEX_DOWNLOAD_DB_S3_PREFIX="${S3_PREFIX}"
+export VORTEX_UPLOAD_DB_S3_ACCESS_KEY="${S3_ACCESS_KEY}"
+export VORTEX_UPLOAD_DB_S3_SECRET_KEY="${S3_SECRET_KEY}"
+export VORTEX_UPLOAD_DB_S3_BUCKET="${S3_BUCKET}"
+export VORTEX_UPLOAD_DB_S3_REGION="${S3_REGION}"
+export VORTEX_UPLOAD_DB_S3_PREFIX="${S3_PREFIX}"
 
-./vendor/drevops/vortex-tooling/src/download-db-s3.sh
+./vendor/drevops/vortex-tooling/src/upload-db-s3.sh
 
 echo ""
-echo "Download complete!"
+echo "Upload complete!"
