@@ -19,8 +19,6 @@
     "require": {
         "php": ">=8.2"
     },
-    "minimum-stability": "alpha",
-    "prefer-stable": true,
     "config": {
         "process-timeout": 0,
         "sort-packages": true
