@@ -200,9 +200,8 @@ commands:
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down || true
-      if [ -f ./vendor/drevops/vortex-tooling/src/reset.sh ]; then
-        bash ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
-      fi
+      ahoy require-tooling
+      bash ./vendor/drevops/vortex-tooling/src/reset.sh "$@"
 
   fei:
     usage: Install front-end assets.
