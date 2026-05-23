@@ -141,6 +141,25 @@ trait SutTrait {
     }
   }
 
+  /**
+   * Copy the in-tree tooling package into the SUT vendor/ directory.
+   *
+   * Use when a test needs 'vendor/drevops/vortex-tooling/' present without
+   * running a full Composer install (e.g. after 'ahoy reset' has wiped
+   * vendor and the next step depends on a shipped script).
+   *
+   * @todo Remove once drevops/vortex-tooling is published to packagist.
+   */
+  protected function reinstallToolingToVendor(): void {
+    $sut_root = static::locationsSut();
+    $source = $sut_root . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $target = $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling';
+
+    if (is_dir($source)) {
+      File::copy($source, $target);
+    }
+  }
+
   protected function runInstaller(array $arguments = []): void {
     $this->logNote('Switch to the project root directory');
     chdir(static::locationsRoot());
