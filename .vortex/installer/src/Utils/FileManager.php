@@ -92,7 +92,9 @@ class FileManager {
   }
 
   /**
-   * Remove paths that previous Vortex versions placed in the destination but
+   * Remove obsolete paths from previous Vortex versions.
+   *
+   * Removes paths that previous Vortex versions placed in the destination but
    * the current version no longer ships. Runs after copyFiles() so legacy
    * artifacts do not linger across upgrades.
    */
