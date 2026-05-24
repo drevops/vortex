@@ -68,7 +68,8 @@ info "Started Lagoon task ${VORTEX_TASK_CUSTOM_LAGOON_NAME}."
 [ -z "${VORTEX_TASK_CUSTOM_LAGOON_COMMAND}" ] && fail "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_COMMAND or VORTEX_TASK_LAGOON_COMMAND." && exit 1
 [ -z "${VORTEX_TASK_CUSTOM_LAGOON_PROJECT}" ] && fail "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_PROJECT or VORTEX_TASK_LAGOON_PROJECT." && exit 1
 
-export VORTEX_SSH_PREFIX="TASK_CUSTOM_LAGOON" && . "$(dirname "${BASH_SOURCE[0]}")/setup-ssh"
+export VORTEX_SSH_PREFIX="TASK_CUSTOM_LAGOON"
+. "$(dirname "${BASH_SOURCE[0]}")/setup-ssh"
 
 if ! command -v lagoon >/dev/null || [ -n "${VORTEX_TASK_CUSTOM_LAGOON_CLI_FORCE_INSTALL}" ]; then
   task "Installing Lagoon CLI."

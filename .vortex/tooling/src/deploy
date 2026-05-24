@@ -61,6 +61,8 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started deployment."
 
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+
 if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
   note "Found flag to skip all deployments."
   pass "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
@@ -105,17 +107,17 @@ fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*artifact*}" ]; then
   [ "${VORTEX_DEPLOY_MODE}" = "tag" ] && export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
-  "$(dirname "${BASH_SOURCE[0]}")/deploy-artifact"
+  "${SCRIPT_DIR}/deploy-artifact"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*webhook*}" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/deploy-webhook"
+  "${SCRIPT_DIR}/deploy-webhook"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*container_registry*}" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry"
+  "${SCRIPT_DIR}/deploy-container-registry"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*lagoon*}" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/deploy-lagoon"
+  "${SCRIPT_DIR}/deploy-lagoon"
 fi
