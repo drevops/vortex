@@ -92,14 +92,6 @@ aliases:
       # Load variables from .env file, respecting existing values, and make them available for the next steps.
       command: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && export -p >> "$BASH_ENV"
 
-  # Install only the drevops/vortex-tooling package into ./vendor/ without
-  # pulling the full project dependency tree. Used by host-side jobs that
-  # invoke shipped tooling scripts.
-  - &step_install_tooling
-    run:
-      name: Install Vortex tooling
-      command: ./scripts/vortex-tooling.sh
-
 ################################################################################
 # JOBS
 ################################################################################
@@ -118,7 +110,9 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - *step_install_tooling
+      - run:
+          name: Install Vortex tooling
+          command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
 
@@ -200,7 +194,9 @@ jobs:
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
 
-      - *step_install_tooling
+      - run:
+          name: Install Vortex tooling
+          command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
 
@@ -289,7 +285,9 @@ jobs:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - *step_install_tooling
+      - run:
+          name: Install Vortex tooling
+          command: ./scripts/vortex-tooling.sh
 
       - run:
           name: Set cache keys for database caching
@@ -436,7 +434,9 @@ jobs:
               circleci-agent step halt
             fi
 
-      - *step_install_tooling
+      - run:
+          name: Install Vortex tooling
+          command: ./scripts/vortex-tooling.sh
 
       - run:
           name: Deploy
@@ -465,7 +465,9 @@ jobs:
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
 
-      - *step_install_tooling
+      - run:
+          name: Install Vortex tooling
+          command: ./scripts/vortex-tooling.sh
 
       - run:
           name: Deploy
