@@ -109,7 +109,9 @@ commands:
 
   login:
     usage: Unblock user 1 and generate a one time login link.
-    cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login
+    cmd: |
+      ahoy require-tooling
+      ahoy cli ./vendor/drevops/vortex-tooling/src/login
 
   download-db:
     usage: Download database. Run with "--fresh" option to force fresh database backup.
@@ -131,6 +133,7 @@ commands:
     usage: Provision a site from the database dump or profile.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
+      ahoy require-tooling
       [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
       ahoy cli ./vendor/drevops/vortex-tooling/src/provision
       [ "${VORTEX_SHOW_LOGIN:-1}" = "1" ] && ahoy login || true
@@ -143,7 +146,9 @@ commands:
 
   import-db:
     usage: Import database from dump.
-    cmd: VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_PROVISION_DB="$@" ahoy cli ./vendor/drevops/vortex-tooling/src/provision
+    cmd: |
+      ahoy require-tooling
+      VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_PROVISION_DB="$@" ahoy cli ./vendor/drevops/vortex-tooling/src/provision
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
@@ -276,7 +281,7 @@ commands:
     usage: Update project from the Vortex template repository.
     cmd: |
       ahoy require-tooling
-      ./vendor/drevops/vortex-tooling/src/update-vortex $@
+      ./vendor/drevops/vortex-tooling/src/update-vortex "$@"
 
   local:
     usage: Custom local commands. See `ahoy local help`.
