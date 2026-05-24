@@ -21,7 +21,7 @@
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -121,6 +130,14 @@
+@@ -119,6 +128,14 @@
        case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
        ./vendor/drevops/vortex-tooling/src/download-db
  
@@ -36,7 +36,7 @@
    reload-db:
      usage: Reload the database container using local database image.
      cmd: |
-@@ -128,6 +145,13 @@
+@@ -126,6 +143,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up

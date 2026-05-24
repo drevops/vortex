@@ -1,6 +1,6 @@
-@@ -113,14 +113,6 @@
-       ahoy require-tooling
-       ahoy cli ./vendor/drevops/vortex-tooling/src/login
+@@ -111,14 +111,6 @@
+     usage: Unblock user 1 and generate a one time login link.
+     cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login
  
 -  download-db:
 -    usage: Download database. Run with "--fresh" option to force fresh database backup.
