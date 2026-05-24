@@ -42,7 +42,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/behat-format-progress-fail": "^1.4",
         "drevops/behat-screenshot": "^2.3.0",
-        "drevops/behat-steps": "^3.8.1",
+        "drevops/behat-steps": "^3.8.2",
         "drevops/phpcs-standard": "^0.7.0",
         "drupal/coder": "^9@alpha",
         "drupal/drupal-driver": "^3.0@alpha",
@@ -60,7 +60,7 @@
         "phpstan/phpstan": "^2.1.55",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.4.3",
+        "rector/rector": "^2.4.4",
         "vincentlanglet/twig-cs-fixer": "^3.14"
     },
     "conflict": {
