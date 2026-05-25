@@ -1,4 +1,4 @@
-@@ -21,7 +21,6 @@
+@@ -22,7 +22,6 @@
        ahoy up --build --force-recreate    # Start the stack.
        ahoy composer install               # Install Composer dependencies.
        ahoy fei                            # Install front-end dependencies.
@@ -6,22 +6,25 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -162,22 +161,7 @@
-     usage: Install front-end assets.
+@@ -170,25 +169,7 @@
+     aliases: [fe-install]
      cmd: |
        ahoy cli "yarn install --frozen-lockfile"
 -      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
  
 -  fe:
 -    usage: Build front-end assets.
+-    aliases: [fe-build]
 -    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build"
 -
 -  fed:
 -    usage: Build front-end assets for development.
+-    aliases: [fe-build-dev]
 -    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build-dev"
 -
 -  few:
 -    usage: Watch front-end assets during development.
+-    aliases: [fe-watch]
 -    cmd: |
 -      ahoy cli "pkill -9 -f grunt" || true
 -      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run watch"
@@ -29,7 +32,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -198,7 +182,6 @@
+@@ -209,7 +190,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
        ahoy cli "yarn run lint"
@@ -37,7 +40,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -222,7 +205,6 @@
+@@ -233,7 +213,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"

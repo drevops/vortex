@@ -1,4 +1,4 @@
-@@ -20,8 +20,6 @@
+@@ -21,8 +21,6 @@
        ahoy reset                          # Reset the project.
        ahoy up --build --force-recreate    # Start the stack.
        ahoy composer install               # Install Composer dependencies.
@@ -7,26 +7,30 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -158,26 +156,6 @@
+@@ -165,30 +163,6 @@
          bash ./vendor/drevops/vortex-tooling/src/reset "$@"
        fi
  
 -  fei:
 -    usage: Install front-end assets.
+-    aliases: [fe-install]
 -    cmd: |
 -      ahoy cli "yarn install --frozen-lockfile"
 -      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
 -
 -  fe:
 -    usage: Build front-end assets.
+-    aliases: [fe-build]
 -    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build"
 -
 -  fed:
 -    usage: Build front-end assets for development.
+-    aliases: [fe-build-dev]
 -    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build-dev"
 -
 -  few:
 -    usage: Watch front-end assets during development.
+-    aliases: [fe-watch]
 -    cmd: |
 -      ahoy cli "pkill -9 -f grunt" || true
 -      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run watch"
@@ -34,7 +38,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -197,8 +175,6 @@
+@@ -208,8 +182,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -43,7 +47,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -221,8 +197,6 @@
+@@ -232,8 +204,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -52,7 +56,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -243,10 +217,6 @@
+@@ -255,10 +225,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
