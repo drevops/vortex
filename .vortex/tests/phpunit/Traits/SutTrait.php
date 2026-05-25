@@ -436,11 +436,11 @@ trait SutTrait {
     $this->assertFileExists('scripts/composer/ScriptHandler.php');
     $this->assertFileExists('scripts/custom/.gitkeep');
 
-    // Core Vortex tooling: shipped via drevops/vortex-tooling Composer
-    // package, no longer committed under scripts/vortex/. Verified via
-    // composer.json instead of file-system checks.
+    // Vortex tooling is shipped via the 'drevops/vortex-tooling' Composer
+    // package and bootstrapped by 'scripts/vortex-tooling.sh'.
     $this->assertFileExists('composer.json');
     $this->assertFileContainsString('composer.json', '"drevops/vortex-tooling"');
+    $this->assertFileExists('scripts/vortex-tooling.sh');
 
     $this->assertFileExists('scripts/sanitize.sql');
 
@@ -471,15 +471,8 @@ trait SutTrait {
     $this->assertFileExists('docs/releasing.md');
     $this->assertFileExists('docs/testing.md');
 
-    // Assert that Vortex files are removed. The installer strips the whole
-    // '.vortex/' tree from consumer sites; 'injectTestingTooling' re-injects
-    // the tooling source under '.tooling-source/' (outside '.vortex/') so
-    // tests can resolve 'drevops/vortex-tooling' via a path repository until
-    // the package is published to packagist.
-    $this->assertDirectoryDoesNotExist('.vortex/docs');
-    $this->assertDirectoryDoesNotExist('.vortex/installer');
-    $this->assertDirectoryDoesNotExist('.vortex/tests');
-    $this->assertDirectoryDoesNotExist('.vortex/tooling');
+    // Assert that Vortex files are removed.
+    $this->assertDirectoryDoesNotExist('.vortex');
     $this->assertFileDoesNotExist('LICENSE');
     $this->assertFileDoesNotExist('CODE_OF_CONDUCT.md');
     $this->assertFileDoesNotExist('.github/FUNDING.yml');

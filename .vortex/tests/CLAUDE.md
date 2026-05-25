@@ -6,10 +6,6 @@ This directory holds **PHPUnit** integration tests that exercise complete
 workflows in real Docker containers. Tests run against an actual Drupal site
 with real database and services. Slow execution (~minutes).
 
-**BATS** unit tests for shell scripts now live in the
-`drevops/vortex-tooling` package at `.vortex/tooling/tests/`. See
-`.vortex/tooling/CLAUDE.md` for shell-script test guidance.
-
 ## Setup
 
 ```bash
@@ -120,5 +116,3 @@ When updating PHPUnit tests:
 
 1. Update test class
 2. Run `ahoy update-snapshots` from `.vortex/` (regenerates installer fixtures)
-
-For BATS tests covering shell scripts, see `.vortex/tooling/CLAUDE.md`.

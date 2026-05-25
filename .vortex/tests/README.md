@@ -3,9 +3,6 @@
 This directory contains the PHPUnit functional testing system for the Vortex
 project.
 
-> Shell-script BATS unit tests live in the `drevops/vortex-tooling` package
-> at `.vortex/tooling/tests/`.
-
 ## Overview
 
 PHPUnit handles functional testing of Vortex user's **workflows**: processes
