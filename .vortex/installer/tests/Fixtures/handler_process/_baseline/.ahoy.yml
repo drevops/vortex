@@ -15,6 +15,7 @@ commands:
 
   build:
     usage: Build or rebuild the project.
+    aliases: [rebuild]
     cmd: |
       ahoy confirm "All containers, build files and database will be removed. Proceed?" && export AHOY_CONFIRM_RESPONSE=y && export AHOY_CONFIRM_WAIT_SKIP=1 || exit 0
       ahoy reset                          # Reset the project.
@@ -27,6 +28,7 @@ commands:
 
   info:
     usage: Show information about this project.
+    aliases: [status, describe, ps]
     cmd: |
       export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
       export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
@@ -55,6 +57,7 @@ commands:
 
   down:
     usage: Stop and remove containers, images, volumes and networks.
+    aliases: [destroy]
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
       if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes > /dev/null 2>&1; fi
@@ -81,6 +84,7 @@ commands:
   # arguments that contain spaces.
   cli:
     usage: Start a shell or run a command inside the CLI service container.
+    aliases: [ssh, shell]
     cmd: |
       if [ "${#}" -ne 0 ]; then
         docker compose exec $(env | cut -f1 -d= | grep "TERM\|COMPOSE_\|GITHUB_\|PACKAGE_\|DOCKER_\|DRUPAL_\|VORTEX_" | sed 's/^/-e /') cli bash -c "$*"
@@ -113,7 +117,7 @@ commands:
 
   download-db:
     usage: Download database. Run with "--fresh" option to force fresh database backup.
-    aliases: [fetch-db]
+    aliases: [fetch-db, db-download, db-fetch]
     cmd: |
       ahoy require-tooling
       case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
@@ -137,12 +141,14 @@ commands:
 
   export-db:
     usage: Export database dump or database image (if VORTEX_DB_IMAGE variable is set).
+    aliases: [db-export, db-dump, dump-db]
     cmd: |
       ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/export-db "$@"
 
   import-db:
     usage: Import database from dump.
+    aliases: [db-import]
     cmd: VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_PROVISION_DB="$@" ahoy cli ./vendor/drevops/vortex-tooling/src/provision
 
   pull-db:
@@ -151,6 +157,7 @@ commands:
 
   reset:
     usage: Remove containers, all build files. Use with `hard` to reset repository to the last commit.
+    aliases: [prune, delete]
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down || true
@@ -160,20 +167,24 @@ commands:
 
   fei:
     usage: Install front-end assets.
+    aliases: [fe-install]
     cmd: |
       ahoy cli "yarn install --frozen-lockfile"
       ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
 
   fe:
     usage: Build front-end assets.
+    aliases: [fe-build]
     cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build"
 
   fed:
     usage: Build front-end assets for development.
+    aliases: [fe-build-dev]
     cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build-dev"
 
   few:
     usage: Watch front-end assets during development.
+    aliases: [fe-watch]
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
       ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run watch"
@@ -226,6 +237,7 @@ commands:
 
   test:
     usage: Run all PHPUnit tests.
+    aliases: [phpunit]
     cmd: ahoy cli vendor/bin/phpunit "$@"
 
   test-unit:
@@ -255,6 +267,7 @@ commands:
 
   debug:
     usage: Enable PHP Xdebug.
+    aliases: [xdebug]
     cmd: |
       ahoy cli php -v | grep -q Xdebug && echo "Debug configuration is already enabled. Use 'ahoy up' to disable." || \
       (XDEBUG_ENABLE=true ahoy up cli php nginx && sleep 1 && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable.")
@@ -268,6 +281,7 @@ commands:
 
   doctor:
     usage: Find problems with current project setup.
+    aliases: [diagnose, health]
     cmd: |
       ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/doctor "$@"

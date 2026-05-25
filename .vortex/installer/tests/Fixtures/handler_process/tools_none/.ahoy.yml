@@ -1,4 +1,4 @@
-@@ -181,77 +181,24 @@
+@@ -192,78 +192,24 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -47,6 +47,7 @@
 -
 -  test:
 -    usage: Run all PHPUnit tests.
+-    aliases: [phpunit]
 -    cmd: ahoy cli vendor/bin/phpunit "$@"
 -
 -  test-unit:
