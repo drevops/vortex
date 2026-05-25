@@ -92,16 +92,18 @@ trait SutTrait {
    * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
    * from packagist. Until the package is published, the SUT cannot resolve
    * it, so the workflow tests would fail at the Dockerfile's composer
-   * install step. This method copies the in-tree tooling into the SUT,
-   * re-injects the path repository into composer.json, re-injects the
-   * COPY into cli.dockerfile, and whitelists the path in .dockerignore.
+   * install step. This method copies the in-tree tooling into the SUT at
+   * '.tooling-source' (deliberately outside '.vortex/' so the SUT keeps no
+   * '.vortex/' directory at runtime), re-injects the path repository into
+   * composer.json, re-injects the COPY into cli.dockerfile, and whitelists
+   * the path in .dockerignore.
    *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */
   protected function injectTestingTooling(): void {
     $sut_root = static::locationsSut();
     $source_tooling = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
-    $target_tooling = $sut_root . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $target_tooling = $sut_root . DIRECTORY_SEPARATOR . '.tooling-source';
 
     if (is_dir($source_tooling)) {
       File::copy($source_tooling, $target_tooling);
@@ -114,7 +116,7 @@ trait SutTrait {
         $repositories = isset($composer['repositories']) && is_array($composer['repositories']) ? $composer['repositories'] : [];
         $repositories[] = [
           'type' => 'path',
-          'url' => '.vortex/tooling',
+          'url' => '.tooling-source',
           'options' => [
             'symlink' => FALSE,
             'versions' => [
@@ -131,13 +133,13 @@ trait SutTrait {
     if (file_exists($dockerfile_path)) {
       $content = (string) file_get_contents($dockerfile_path);
       $needle = 'COPY composer.json composer.* .env* auth* /app/';
-      $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .vortex/tooling /app/.vortex/tooling";
+      $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .tooling-source /app/.tooling-source";
       file_put_contents($dockerfile_path, str_replace($needle, $replacement, $content));
     }
 
     $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
     if (file_exists($dockerignore_path)) {
-      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling in build context.\n!.vortex\n.vortex/*\n!.vortex/tooling\n.vortex/tooling/tests\n.vortex/tooling/playground\n.vortex/tooling/node_modules\n");
+      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/node_modules\n");
     }
 
     $this->reinstallToolingToVendor();
@@ -154,7 +156,7 @@ trait SutTrait {
    */
   protected function reinstallToolingToVendor(): void {
     $sut_root = static::locationsSut();
-    $sut_source = $sut_root . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $sut_source = $sut_root . DIRECTORY_SEPARATOR . '.tooling-source';
     $repo_source = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
     $target = $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling';
 
@@ -469,12 +471,15 @@ trait SutTrait {
     $this->assertFileExists('docs/releasing.md');
     $this->assertFileExists('docs/testing.md');
 
-    // Assert that Vortex files removed. '.vortex/tooling' is allowed because
-    // 'injectTestingTooling' re-injects it for test purposes until the
-    // 'drevops/vortex-tooling' package is published to packagist.
+    // Assert that Vortex files are removed. The installer strips the whole
+    // '.vortex/' tree from consumer sites; 'injectTestingTooling' re-injects
+    // the tooling source under '.tooling-source/' (outside '.vortex/') so
+    // tests can resolve 'drevops/vortex-tooling' via a path repository until
+    // the package is published to packagist.
     $this->assertDirectoryDoesNotExist('.vortex/docs');
     $this->assertDirectoryDoesNotExist('.vortex/installer');
     $this->assertDirectoryDoesNotExist('.vortex/tests');
+    $this->assertDirectoryDoesNotExist('.vortex/tooling');
     $this->assertFileDoesNotExist('LICENSE');
     $this->assertFileDoesNotExist('CODE_OF_CONDUCT.md');
     $this->assertFileDoesNotExist('.github/FUNDING.yml');
