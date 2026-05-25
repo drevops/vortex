@@ -1,0 +1,85 @@
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+#
+# Publishes the contents of '.vortex/tooling/' from this monorepo to the
+# 'drevops/vortex-tooling' repository on every push, mirroring the source
+# branch name. An empty commit is created when there are no file changes so
+# every source commit is reflected at the target. The published commit
+# subject matches the source commit subject; the body records provenance.
+
+name: Vortex - Publish tooling
+
+on:
+  push:
+    branches:
+      - '**'
+
+concurrency:
+  group: vortex-publish-tooling-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  vortex-publish-tooling:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Add SSH deploy key for 'drevops/vortex-tooling'
+        uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
+        with:
+          key: ${{ secrets.VORTEX_TOOLING_DEPLOY_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Publish '.vortex/tooling/' to 'drevops/vortex-tooling'
+        env:
+          SOURCE_DIR: ${{ github.workspace }}/.vortex/tooling
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          REPO_SRC: ${{ github.repository }}
+          REPO_DST: git@github.com:drevops/vortex-tooling.git
+        run: |
+          set -eu
+
+          WORK_DIR="$(mktemp -d)"
+
+          # Subject of the latest source commit, used verbatim as the target
+          # commit subject. Body carries provenance.
+          subject="$(git -C "${GITHUB_WORKSPACE}" log -1 --pretty=%s "${SHA}")"
+          [ -z "${subject}" ] && subject="Published from ${REPO_SRC}@${SHA:0:7}"
+          body="Source: ${REPO_SRC}@${SHA}
+          Branch: ${BRANCH}"
+
+          # Try to clone the matching branch directly. If it does not exist,
+          # clone the default branch and create the matching branch as an
+          # orphan so each source branch starts from a clean history.
+          if git clone --quiet --branch "${BRANCH}" --single-branch "${REPO_DST}" "${WORK_DIR}"; then
+            echo "Cloned existing branch '${BRANCH}' from target."
+          else
+            echo "Branch '${BRANCH}' does not exist on target; creating it as an orphan."
+            rm -rf "${WORK_DIR}"
+            git clone --quiet "${REPO_DST}" "${WORK_DIR}"
+            git -C "${WORK_DIR}" checkout --orphan "${BRANCH}"
+            git -C "${WORK_DIR}" rm -rf --quiet . 2>/dev/null || true
+          fi
+
+          # Wipe the target working tree (preserve '.git').
+          find "${WORK_DIR}" -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
+
+          # Mirror source contents over. Exclude generated artefacts.
+          rsync -a --exclude='/node_modules/' --exclude='/vendor/' "${SOURCE_DIR}/" "${WORK_DIR}/"
+
+          # Configure git identity for the publishing commit.
+          git -C "${WORK_DIR}" config user.name 'Vortex Publisher'
+          git -C "${WORK_DIR}" config user.email 'noreply@drevops.com'
+
+          # Stage, commit (allow empty), and force-push.
+          git -C "${WORK_DIR}" add -A
+          git -C "${WORK_DIR}" commit --allow-empty -m "${subject}" -m "${body}"
+          git -C "${WORK_DIR}" push --force origin "${BRANCH}"
+
+          echo "Published '${REPO_SRC}@${SHA}' to drevops/vortex-tooling#${BRANCH}"

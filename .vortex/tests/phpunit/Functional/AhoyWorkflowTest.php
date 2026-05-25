@@ -354,6 +354,15 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Simulate dependencies installation');
     $this->createInstalledDependenciesStub();
+
+    // Simulate an upgrade from an older Vortex version that shipped scripts
+    // at 'scripts/vortex/' before they were extracted into the
+    // 'drevops/vortex-tooling' Composer package. The installer should remove
+    // this legacy directory on update.
+    File::dump('scripts/vortex/deploy.sh', '#!/usr/bin/env bash');
+    File::dump('scripts/vortex/notify.sh', '#!/usr/bin/env bash');
+    $this->assertFileExists('scripts/vortex/deploy.sh', 'Legacy scripts/vortex/ exists before update.');
+
     $this->gitCommitAll(static::$sut, 'Added SUT dependencies');
 
     $this->logSubstep('Adding new commits to Vortex');
@@ -394,6 +403,9 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('docker-compose.yml', '# Update 2 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 2 changes');
     $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 1 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 1 changes');
     $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 2 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 2 changes');
+
+    $this->logSubstep('Assert that legacy scripts/vortex/ was removed');
+    $this->assertDirectoryDoesNotExist('scripts/vortex', 'Legacy scripts/vortex/ directory was removed by the installer.');
 
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');

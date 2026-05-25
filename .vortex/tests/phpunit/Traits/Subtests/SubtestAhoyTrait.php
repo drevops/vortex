@@ -765,6 +765,9 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyResetHard(string $webroot = 'web'): void {
     $this->logStepStart();
 
+    $this->logSubstep('Re-install tooling so the reset script is available');
+    $this->reinstallToolingToVendor();
+
     $this->logSubstep('Create untracked files and directories');
     File::dump('untracked_file.txt', 'test content');
     $this->assertFileExists('untracked_file.txt');

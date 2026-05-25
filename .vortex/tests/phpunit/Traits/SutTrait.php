@@ -70,6 +70,9 @@ trait SutTrait {
     $this->logSubstep('Assert that SUT has common files after installation');
     $this->assertCommonFilesPresent($webroot);
 
+    $this->logSubstep('Inject test-only path repository for drevops/vortex-tooling');
+    $this->injectTestingTooling();
+
     $this->logSubstep('Assert that created SUT is a git repository');
     $this->gitAssertIsRepository(static::$sut);
 
@@ -80,6 +83,90 @@ trait SutTrait {
     File::dump(static::locationsSut() . DIRECTORY_SEPARATOR . '.idea/idea_file.txt');
 
     $this->logStepFinish();
+  }
+
+  /**
+   * Inject a path repository for drevops/vortex-tooling into the SUT.
+   *
+   * The installer strips '.vortex/tooling' and the path repository from the
+   * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
+   * from packagist. Until the package is published, the SUT cannot resolve
+   * it, so the workflow tests would fail at the Dockerfile's composer
+   * install step. This method copies the in-tree tooling into the SUT at
+   * '.tooling-source' (deliberately outside '.vortex/' so the SUT keeps no
+   * '.vortex/' directory at runtime), re-injects the path repository into
+   * composer.json, re-injects the COPY into cli.dockerfile, and whitelists
+   * the path in .dockerignore.
+   *
+   * @todo Remove once drevops/vortex-tooling is published to packagist.
+   */
+  protected function injectTestingTooling(): void {
+    $sut_root = static::locationsSut();
+    $source_tooling = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $target_tooling = $sut_root . DIRECTORY_SEPARATOR . '.tooling-source';
+
+    if (is_dir($source_tooling)) {
+      File::copy($source_tooling, $target_tooling);
+    }
+
+    $composer_json_path = $sut_root . DIRECTORY_SEPARATOR . 'composer.json';
+    if (file_exists($composer_json_path)) {
+      $composer = json_decode((string) file_get_contents($composer_json_path), TRUE);
+      if (is_array($composer)) {
+        $repositories = isset($composer['repositories']) && is_array($composer['repositories']) ? $composer['repositories'] : [];
+        $repositories[] = [
+          'type' => 'path',
+          'url' => '.tooling-source',
+          'options' => [
+            'symlink' => FALSE,
+            'versions' => [
+              'drevops/vortex-tooling' => '1.0.0',
+            ],
+          ],
+        ];
+        $composer['repositories'] = $repositories;
+        file_put_contents($composer_json_path, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+      }
+    }
+
+    $dockerfile_path = $sut_root . DIRECTORY_SEPARATOR . '.docker' . DIRECTORY_SEPARATOR . 'cli.dockerfile';
+    if (file_exists($dockerfile_path)) {
+      $content = (string) file_get_contents($dockerfile_path);
+      $needle = 'COPY composer.json composer.* .env* auth* /app/';
+      $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .tooling-source /app/.tooling-source";
+      file_put_contents($dockerfile_path, str_replace($needle, $replacement, $content));
+    }
+
+    $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
+    if (file_exists($dockerignore_path)) {
+      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/node_modules\n");
+    }
+
+    $this->reinstallToolingToVendor();
+  }
+
+  /**
+   * Copy the in-tree tooling package into the SUT vendor/ directory.
+   *
+   * Use when a test needs 'vendor/drevops/vortex-tooling/' present without
+   * running a full Composer install (e.g. after 'ahoy reset' has wiped
+   * vendor and the next step depends on a shipped script).
+   *
+   * @todo Remove once drevops/vortex-tooling is published to packagist.
+   */
+  protected function reinstallToolingToVendor(): void {
+    $sut_root = static::locationsSut();
+    $sut_source = $sut_root . DIRECTORY_SEPARATOR . '.tooling-source';
+    $repo_source = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
+    $target = $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling';
+
+    // Prefer the in-SUT copy (injected by injectTestingTooling); fall back
+    // to the template-root copy for tests that bypass injectTestingTooling.
+    $source = is_dir($sut_source) ? $sut_source : $repo_source;
+
+    if (is_dir($source)) {
+      File::copy($source, $target);
+    }
   }
 
   protected function runInstaller(array $arguments = []): void {
@@ -174,7 +261,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
 
     $this->cmd(
-      './scripts/vortex/download-db.sh',
+      './vendor/drevops/vortex-tooling/src/download-db',
       env: ['VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database downloaded from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
@@ -235,12 +322,12 @@ trait SutTrait {
 
     $this->assertFileContainsString(
       '.ahoy.yml',
-      '      ahoy cli ./scripts/vortex/provision.sh',
+      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
       '`ahoy provision` should exist in .ahoy.yml'
     );
     File::replaceContentInFile('.ahoy.yml',
-      '      ahoy cli ./scripts/vortex/provision.sh',
-      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./scripts/vortex/provision.sh',
+      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
+      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
     );
   }
 
@@ -349,37 +436,11 @@ trait SutTrait {
     $this->assertFileExists('scripts/composer/ScriptHandler.php');
     $this->assertFileExists('scripts/custom/.gitkeep');
 
-    // Core Vortex files.
-    $this->assertFileExists('scripts/vortex/deploy-artifact.sh');
-    $this->assertFileExists('scripts/vortex/deploy-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/deploy-lagoon.sh');
-    $this->assertFileExists('scripts/vortex/deploy-webhook.sh');
-    $this->assertFileExists('scripts/vortex/deploy.sh');
-    $this->assertFileExists('scripts/vortex/doctor.sh');
-    $this->assertFileExists('scripts/vortex/download-db-acquia.sh');
-    $this->assertFileExists('scripts/vortex/download-db-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/download-db-ftp.sh');
-    $this->assertFileExists('scripts/vortex/download-db-lagoon.sh');
-    $this->assertFileExists('scripts/vortex/download-db-url.sh');
-    $this->assertFileExists('scripts/vortex/download-db.sh');
-    $this->assertFileExists('scripts/vortex/export-db-file.sh');
-    $this->assertFileExists('scripts/vortex/export-db-image.sh');
-    $this->assertFileExists('scripts/vortex/info.sh');
-    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/login-container-registry.sh');
-    $this->assertFileExists('scripts/vortex/login.sh');
-    $this->assertFileExists('scripts/vortex/notify-email.sh');
-    $this->assertFileExists('scripts/vortex/notify-github.sh');
-    $this->assertFileExists('scripts/vortex/notify-jira.sh');
-    $this->assertFileExists('scripts/vortex/notify-newrelic.sh');
-    $this->assertFileExists('scripts/vortex/notify.sh');
-    $this->assertFileExists('scripts/vortex/provision-sanitize-db.sh');
-    $this->assertFileExists('scripts/vortex/provision.sh');
-    $this->assertFileExists('scripts/vortex/reset.sh');
-    $this->assertFileExists('scripts/vortex/task-copy-db-acquia.sh');
-    $this->assertFileExists('scripts/vortex/task-copy-files-acquia.sh');
-    $this->assertFileExists('scripts/vortex/task-purge-cache-acquia.sh');
-    $this->assertFileExists('scripts/vortex/update-vortex.sh');
+    // Vortex tooling is shipped via the 'drevops/vortex-tooling' Composer
+    // package and bootstrapped by 'scripts/vortex-tooling.sh'.
+    $this->assertFileExists('composer.json');
+    $this->assertFileContainsString('composer.json', '"drevops/vortex-tooling"');
+    $this->assertFileExists('scripts/vortex-tooling.sh');
 
     $this->assertFileExists('scripts/sanitize.sql');
 
@@ -410,7 +471,7 @@ trait SutTrait {
     $this->assertFileExists('docs/releasing.md');
     $this->assertFileExists('docs/testing.md');
 
-    // Assert that Vortex files removed.
+    // Assert that Vortex files are removed.
     $this->assertDirectoryDoesNotExist('.vortex');
     $this->assertFileDoesNotExist('LICENSE');
     $this->assertFileDoesNotExist('CODE_OF_CONDUCT.md');
@@ -619,6 +680,8 @@ EOT;
 
   public function createInstalledDependenciesStub(string $webroot = 'web'): void {
     File::dump('composer.lock');
+
+    $this->reinstallToolingToVendor();
 
     File::dump($webroot . '/modules/contrib/somemodule/somemodule.info.yml');
     File::dump($webroot . '/themes/contrib/sometheme/sometheme.info.yml');

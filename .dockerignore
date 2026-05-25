@@ -60,3 +60,11 @@ drush/contrib/
 #;< HOSTING_LAGOON
 !.lagoon.env.*
 #;> HOSTING_LAGOON
+
+#;< VORTEX_DEV
+# In-tree tooling package; consumer sites get it from packagist.
+!.vortex
+.vortex/*
+!.vortex/tooling
+.vortex/tooling/tests
+#;> VORTEX_DEV

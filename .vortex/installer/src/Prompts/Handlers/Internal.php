@@ -105,6 +105,9 @@ class Internal extends AbstractHandler {
     }
 
     // Remove private package from composer.json.
+    // Also remove the path repository that points at the in-tree
+    // .vortex/tooling package - consumer sites get drevops/vortex-tooling
+    // from packagist instead.
     $composer_json_path = $t . DIRECTORY_SEPARATOR . 'composer.json';
     if (file_exists($composer_json_path)) {
       $content = file_get_contents($composer_json_path);
@@ -115,7 +118,7 @@ class Internal extends AbstractHandler {
         }
 
         if (isset($composer_json->repositories)) {
-          $composer_json->repositories = array_values(array_filter($composer_json->repositories, fn($repo): bool => !isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package')));
+          $composer_json->repositories = array_values(array_filter($composer_json->repositories, fn($repo): bool => (!isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package')) && (!isset($repo->type) || $repo->type !== 'path' || !isset($repo->url) || $repo->url !== '.vortex/tooling')));
         }
 
         file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");

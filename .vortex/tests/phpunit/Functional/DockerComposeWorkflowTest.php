@@ -60,7 +60,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->downloadDatabase(TRUE);
 
     $this->logSubstep('Provisioning with direct script execution');
-    $this->cmd('docker compose exec -T cli ./scripts/vortex/provision.sh', txt: 'Run ./scripts/vortex/provision.sh in container', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/provision', txt: 'Run ./vendor/drevops/vortex-tooling/src/provision in container', tio: 10 * 60);
 
     $this->logSubstep('Run tests');
     $this->cmd('docker compose exec -T cli vendor/bin/phpunit', txt: 'Run PHPUnit tests');
@@ -92,7 +92,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->downloadDatabase(TRUE);
 
     $this->logSubstep('Provisioning with direct script execution');
-    $this->cmd('docker compose exec -T cli ./scripts/vortex/provision.sh', txt: 'Run ./scripts/vortex/provision.sh in container', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/provision', txt: 'Run ./vendor/drevops/vortex-tooling/src/provision in container', tio: 10 * 60);
 
     $this->logSubstep('Run tests');
     $this->cmd('docker compose exec -T cli vendor/bin/phpunit', txt: 'Run PHPUnit tests');

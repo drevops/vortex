@@ -30,7 +30,11 @@ vortex/
 ├── .vortex/                    # Test harness (removed on install)
 │   ├── docs/                   # Documentation website
 │   ├── installer/              # Template installer
-│   └── tests/                  # Template tests
+│   ├── tests/                  # Template tests (PHPUnit)
+│   └── tooling/                # 'drevops/vortex-tooling' Composer package
+│       ├── src/                # Shipped shell scripts
+│       ├── tests/              # BATS unit tests
+│       └── playground/         # Manual integration scripts
 └── [root files]                # The actual Drupal template
 ```
 
@@ -39,18 +43,20 @@ test harness.
 
 ## Subsystems
 
-| System       | Technology               | Purpose                |
-|--------------|--------------------------|------------------------|
-| `docs/`      | Docusaurus, Jest         | vortextemplate.com     |
-| `installer/` | Symfony Console, PHPUnit | Template customization |
-| `tests/`     | PHPUnit, BATS            | Template testing       |
+| System       | Technology               | Purpose                       |
+|--------------|--------------------------|-------------------------------|
+| `docs/`      | Docusaurus, Jest         | vortextemplate.com            |
+| `installer/` | Symfony Console, PHPUnit | Template customization        |
+| `tests/`     | PHPUnit                  | Template integration testing  |
+| `tooling/`   | Bash, BATS               | 'drevops/vortex-tooling' pkg  |
 
 Each has its own CLAUDE.md with detailed guidance. Read when working on that
 subsystem:
 
 - `.vortex/docs/CLAUDE.md` - Documentation system
 - `.vortex/installer/CLAUDE.md` - Installer, fixtures, tokens
-- `.vortex/tests/CLAUDE.md` - BATS, PHPUnit, shell scripts
+- `.vortex/tests/CLAUDE.md` - PHPUnit integration tests
+- `.vortex/tooling/CLAUDE.md` - Shell scripts, BATS tests, playground
 
 ## Quick Commands
 
@@ -67,10 +73,10 @@ ahoy lint-markdown # Lint markdown files
 
 When updating template scripts:
 
-1. Modify script in `scripts/vortex/` or `scripts/custom/`
+1. Modify script in `.vortex/tooling/src/` (shipped scripts) or `scripts/custom/` (provision subscripts)
 2. Run `ahoy lint-scripts`
 3. Run `ahoy update-docs`
-4. Update BATS tests in `.vortex/tests/bats/`
+4. Update BATS tests in `.vortex/tooling/tests/unit/`
 5. Run `ahoy update-snapshots`
 
 When updating template files (settings, configs, etc.):

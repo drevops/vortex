@@ -139,8 +139,11 @@ issues at different levels of integration before they reach consumers.
 ### Unit testing
 
 [Bats](https://github.com/bats-core/bats-core) is used to unit test the
-shell scripts in `scripts/vortex/`. Each script is tested in isolation with
-external commands (like `drush`, `docker`, `composer`) replaced by mocks.
+shell scripts shipped via the
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+Composer package (installed at `vendor/drevops/vortex-tooling/src/`). Each script
+is tested in isolation with external commands (like `drush`, `docker`,
+`composer`) replaced by mocks.
 This allows us to verify that individual scripts handle environment variables,
 flags, and edge cases correctly without needing a running Drupal site or
 Docker containers.
@@ -222,14 +225,18 @@ Functional tests rely on database fixtures - see the section below on
 
 ### Unit tests with BATS
 
+BATS unit tests for shipped shell scripts live in the
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+Composer package.
+
 ```shell
-cd .vortex/tests
+cd .vortex/tooling
 
 # Install npm dependencies.
-npm install
+yarn install
 
 # Run a single test.
-bats .vortex/tests/bats/deploy.bats
+node_modules/.bin/bats .vortex/tooling/tests/unit/deploy.bats
 ```
 
 ## Updating test assets

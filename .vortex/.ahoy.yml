@@ -10,6 +10,8 @@ commands:
       composer --working-dir tests install
       [ -d ./tests/node_modules ] && rm -rf ./tests/node_modules
       yarn --cwd=tests install --frozen-lockfile
+      [ -d ./tooling/node_modules ] && rm -rf ./tooling/node_modules
+      yarn --cwd=tooling install --frozen-lockfile
       [ -d ./installer/vendor ] && rm -rf ./installer/vendor
       composer --working-dir installer install
       [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
@@ -105,8 +107,8 @@ commands:
 
   test-bats:
     cmd: |
-      [ ! -d tests/node_modules ] && yarn --cwd=tests install --frozen-lockfile
-      tests/node_modules/.bin/bats --no-tempdir-cleanup --tap "$@"
+      [ ! -d tooling/node_modules ] && yarn --cwd=tooling install --frozen-lockfile
+      tooling/node_modules/.bin/bats --no-tempdir-cleanup --tap "$@"
 
   test-common:
     cmd: ./tests/test.common.sh

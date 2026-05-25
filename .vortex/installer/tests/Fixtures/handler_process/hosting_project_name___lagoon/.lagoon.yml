@@ -32,7 +32,7 @@ tasks:
           export VORTEX_NOTIFY_LABEL="$LAGOON_GIT_BRANCH"
           [ -n "$LAGOON_PR_NUMBER" ] && export VORTEX_NOTIFY_LABEL="PR-${LAGOON_PR_NUMBER}"
           export VORTEX_NOTIFY_EVENT=pre_deployment
-          ./scripts/vortex/notify.sh
+          ./vendor/drevops/vortex-tooling/src/notify
         service: cli
         shell: bash
 
@@ -41,7 +41,7 @@ tasks:
         command: |
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
-            VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./scripts/vortex/export-db-file.sh
+            VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./vendor/drevops/vortex-tooling/src/export-db-file
           fi
         service: cli
 
@@ -53,7 +53,7 @@ tasks:
             export VORTEX_DOWNLOAD_DB_SSH_FILE=false
             export VORTEX_DB_DIR=/tmp/data
             rm -Rf $VORTEX_DB_DIR || true
-            ./scripts/vortex/download-db.sh
+            ./vendor/drevops/vortex-tooling/src/download-db
           fi
         service: cli
 
@@ -71,7 +71,7 @@ tasks:
           fi
 
           export VORTEX_DB_DIR=/tmp/data
-          ./scripts/vortex/provision.sh
+          ./vendor/drevops/vortex-tooling/src/provision
         service: cli
         shell: bash
 
@@ -86,7 +86,7 @@ tasks:
           export VORTEX_NOTIFY_LABEL="$LAGOON_GIT_BRANCH"
           [ -n "$LAGOON_PR_NUMBER" ] && export VORTEX_NOTIFY_LABEL="PR-${LAGOON_PR_NUMBER}"
           export VORTEX_NOTIFY_EVENT=post_deployment
-          ./scripts/vortex/notify.sh
+          ./vendor/drevops/vortex-tooling/src/notify
         service: cli
         shell: bash
 

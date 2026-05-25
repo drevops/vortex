@@ -1,4 +1,4 @@
-@@ -124,7 +124,6 @@
+@@ -127,7 +127,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -6,7 +6,7 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -158,15 +157,6 @@
+@@ -161,15 +160,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
  
@@ -22,7 +22,7 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -366,7 +356,6 @@
+@@ -375,7 +365,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -30,9 +30,9 @@
  
        - name: Provision site
          run: |
-@@ -376,11 +365,6 @@
+@@ -385,11 +374,6 @@
            fi
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./scripts/vortex/provision.sh
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
 -
 -      - name: Test with Jest
