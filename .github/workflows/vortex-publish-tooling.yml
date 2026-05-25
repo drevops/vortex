@@ -1,17 +1,21 @@
 # This action is used for Vortex maintenance. It will not be used in the scaffolded project.
 #
 # Publishes the contents of '.vortex/tooling/' from this monorepo to the
-# 'drevops/vortex-tooling' repository on every push, mirroring the source
-# branch name. An empty commit is created when there are no file changes so
-# every source commit is reflected at the target. The published commit
-# subject matches the source commit subject; the body records provenance.
+# 'drevops/vortex-tooling' repository, mirroring the source branch name.
+# Runs only for 'main' and any branch whose name contains 'vortex-tooling'
+# so feature work that does not touch the tooling does not churn the
+# downstream repository. An empty commit is created when there are no file
+# changes so every source commit is reflected at the target. The published
+# commit subject matches the source commit subject; the body records
+# provenance.
 
 name: Vortex - Publish tooling
 
 on:
   push:
     branches:
-      - '**'
+      - main
+      - '**vortex-tooling**'
 
 concurrency:
   group: vortex-publish-tooling-${{ github.ref }}
