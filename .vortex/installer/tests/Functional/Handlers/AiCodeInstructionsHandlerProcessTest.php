@@ -16,6 +16,7 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/AGENTS.md');
           $test->assertFileExists(static::$sut . '/CLAUDE.md');
+          $test->assertFileExists(static::$sut . '/.claude/settings.json');
       }),
     ];
     yield 'ai_instructions_disabled' => [
@@ -23,6 +24,7 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/AGENTS.md');
           $test->assertFileDoesNotExist(static::$sut . '/CLAUDE.md');
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude');
       }),
     ];
   }

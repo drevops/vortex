@@ -41,6 +41,11 @@ web/sites/default/*
 # Ignore all recipes by default. Custom recipes should be added explicitly.
 recipes/*
 
+# Ignore all Claude files by default. Custom files should be added explicitly.
+!.claude
+.claude/*
+!.claude/settings.json
+
 # Ignore dependencies cache files.
 /vendor
 /node_modules

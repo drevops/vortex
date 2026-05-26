@@ -36,6 +36,14 @@ class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
         File::dump(static::$sut . '/CLAUDE.md');
       },
     ];
+    yield 'ai instructions - discovery - claude settings only' => [
+      [],
+      [AiCodeInstructions::id() => TRUE] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.claude/settings.json');
+      },
+    ];
     yield 'ai instructions - discovery - removed' => [
       [],
       [AiCodeInstructions::id() => FALSE] + $expected_installed,

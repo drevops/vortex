@@ -46,10 +46,18 @@ web/sites/default/*
 # Ignore all recipes by default. Custom recipes should be added explicitly.
 recipes/*
 
+#;< AI_CODE_INSTRUCTIONS
+# Ignore all Claude files by default. Custom files should be added explicitly.
+!.claude
+.claude/*
+!.claude/settings.json
+#;> AI_CODE_INSTRUCTIONS
+
 #;< VORTEX_DEV
 #; Ignore these files in Vortex itself, but do not ignore in consumer site.
 /composer.lock
 /patches.lock.json
+!.claude/skills/
 #;> VORTEX_DEV
 
 # Ignore dependencies cache files.

@@ -37,7 +37,7 @@ class AiCodeInstructions extends AbstractHandler {
       return NULL;
     }
 
-    return File::exists($this->dstDir . '/AGENTS.md') || File::exists($this->dstDir . '/CLAUDE.md');
+    return File::exists($this->dstDir . '/AGENTS.md') || File::exists($this->dstDir . '/CLAUDE.md') || File::exists($this->dstDir . '/.claude/settings.json');
   }
 
   /**
@@ -50,6 +50,8 @@ class AiCodeInstructions extends AbstractHandler {
     if (!$v) {
       File::remove($t . '/AGENTS.md');
       File::remove($t . '/CLAUDE.md');
+      File::remove($t . '/.claude');
+      File::removeTokenAsync('AI_CODE_INSTRUCTIONS');
     }
   }
 
