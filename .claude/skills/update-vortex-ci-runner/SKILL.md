@@ -52,13 +52,13 @@ This branch is reused for Phase 2; do not create a new branch when the release v
 
 For every non-fixture file from Step 1, replace:
 
-```
+```text
 drevops/ci-runner:<VERSION>@sha256:<HASH>
 ```
 
 with:
 
-```
+```text
 drevops/ci-runner:canary
 ```
 
@@ -86,7 +86,7 @@ git push -u origin feature/update-ci-runner
 
 Invoke the `/open-pr` skill. PR title:
 
-```
+```text
 Tested 'drevops/ci-runner' canary build.
 ```
 
@@ -131,13 +131,13 @@ If docker is unavailable, use `docker manifest inspect drevops/ci-runner:<NEW_VE
 
 Rediscover files (rerun the grep from Phase 1 Step 1). Replace:
 
-```
+```text
 drevops/ci-runner:canary
 ```
 
 with:
 
-```
+```text
 drevops/ci-runner:<NEW_VERSION>@sha256:<NEW_HASH>
 ```
 
@@ -181,7 +181,7 @@ Do NOT merge: the user merges.
 | Mistake | Fix |
 |---------|-----|
 | Hardcoded list of files | Always grep: the list grows over time |
-| Included fixture files in edits | Exclude `*/Fixtures/*` and `*/tests/*` paths |
+| Included fixture files in edits | Exclude fixture snapshot paths only (for example `*/tests/Fixtures/*` and `*/test/Fixtures/*`) |
 | Kept SHA pin in canary phase | Strip SHA: canary tag must be unpinned to test moving target |
 | Used `git add .` | Stage specific files only |
 | Reported CI failure raw | Read failing step, form a hypothesis, then report |

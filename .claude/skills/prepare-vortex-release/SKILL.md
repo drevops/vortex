@@ -65,13 +65,13 @@ The release-prep flow uses a single staging directory per release: `.artifacts/r
 
 Create the directory if it does not already exist:
 
-```
+```bash
 mkdir -p .artifacts/release-<full-version>
 ```
 
 Then copy the release template into the directory and fill it in at:
 
-```
+```text
 .artifacts/release-<full-version>/release-notes.md
 ```
 
@@ -158,7 +158,7 @@ Summary paragraph (1-3 sentences).
 
 Each changelog entry follows this pattern. **The title line, the `What it does:` label, and the `How to use it:` label must all be wrapped in markdown bold (`**...**`).** Do not bold the body text after the labels.
 
-```
+```markdown
  - **[#ISSUE] PR/commit title. @author (#PR_NUMBER)**
     **What it does:** <one or two sentences>.
     **How to use it:** <variable name(s), default value, or upgrade impact>.
@@ -166,7 +166,7 @@ Each changelog entry follows this pattern. **The title line, the `What it does:`
 
 Concrete examples:
 
-```
+```markdown
 - **[#2394] Added Jest for JavaScript unit testing. @username (#2418)**
    **What it does:** Adds Jest as the JavaScript unit test runner, with coverage thresholds and CI integration matching the PHP test setup.
    **How to use it:** Run `ahoy test-js` locally; CI runs it automatically. Place tests next to the JS source under `web/modules/custom/*/tests/`.
@@ -230,7 +230,7 @@ Within each category:
 
 - Many commits touch installer **fixtures** because template changes cascade into them.
   Only list changes in the Installer section if they modify actual installer **source code**
-  (`*.vortex/installer/src/`) or installer-specific test logic.
+  (`.vortex/installer/src/`) or installer-specific test logic.
 - Check for commits that touch both template and installer source - list the template
   change under Template and the installer-specific change under Installer.
 
