@@ -81,6 +81,7 @@ class Internal extends AbstractHandler {
 
     // Remove Vortex internal files.
     File::remove($t . DIRECTORY_SEPARATOR . '.vortex');
+    File::remove($t . DIRECTORY_SEPARATOR . '.claude' . DIRECTORY_SEPARATOR . 'skills');
 
     File::remove($t . '/.github/FUNDING.yml');
     File::remove($t . 'CODE_OF_CONDUCT.md');
