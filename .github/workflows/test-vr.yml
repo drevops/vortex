@@ -263,10 +263,12 @@ jobs:
           pages_changed="$(printf '%s' "${result_json}" | jq -r '[.diffs | to_entries[] | select(.value | to_entries | map(.value.percentageChanges // 0) | add > 0)] | length')"
           pages_total="$(printf '%s' "${result_json}" | jq -r '.diffs | length')"
 
-          echo "changes_percent=${changes_percent}" >> "$GITHUB_OUTPUT"
-          echo "shared_url=${shared_url}" >> "$GITHUB_OUTPUT"
-          echo "pages_changed=${pages_changed}" >> "$GITHUB_OUTPUT"
-          echo "pages_total=${pages_total}" >> "$GITHUB_OUTPUT"
+          {
+            echo "changes_percent=${changes_percent}"
+            echo "shared_url=${shared_url}"
+            echo "pages_changed=${pages_changed}"
+            echo "pages_total=${pages_total}"
+          } >> "$GITHUB_OUTPUT"
 
           echo "Diff summary: ${pages_changed} of ${pages_total} pages changed (${changes_percent}% total)."
           echo "Report URL: ${shared_url}"
