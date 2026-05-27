@@ -73,8 +73,7 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-#shellcheck disable=SC2043
-for cmd in curl; do command -v "${cmd}" >/dev/null || {
+for cmd in curl php; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available"
   exit 1
 }; done
@@ -141,6 +140,9 @@ payload=$(
   '
 )
 
+# Disable xtrace around the curl call so the Authorization header
+# does not leak the token into logs when VORTEX_DEBUG=1.
+set +x
 response_code=$(curl \
   -X POST \
   -H "Accept: application/vnd.github.v3+json" \
@@ -149,6 +151,7 @@ response_code=$(curl \
   -s -o /dev/null -w "%{http_code}" \
   "https://api.github.com/repos/${repository_sanitized}/dispatches" \
   -d "${payload}")
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 if [ "${response_code}" != "204" ]; then
   fail "GitHub repository_dispatch failed with HTTP ${response_code}."

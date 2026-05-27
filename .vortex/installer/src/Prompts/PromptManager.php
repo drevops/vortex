@@ -502,6 +502,7 @@ class PromptManager {
 
     $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
     $values['CI provider'] = $responses[CiProvider::id()];
+    $values['Visual regression testing'] = Converter::bool($responses[VisualRegression::id()]);
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
     $values['Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];

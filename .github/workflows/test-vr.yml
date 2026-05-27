@@ -32,6 +32,10 @@ on:
         required: false
         default: 'manual'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 defaults:
   run:
     shell: bash
@@ -77,14 +81,12 @@ jobs:
             exit 0
           fi
 
-          # Hosts that do not expose a PR number: derive it from the SHA.
-          # Match all PRs (open + closed) so that post-merge deploys still
-          # post their comparison summary back to the originating PR.
-          pr_number="$(gh pr list \
-            --repo "${{ github.repository }}" \
-            --search "${SHA}" \
-            --state all \
-            --json number \
+          # Hosts that do not expose a PR number: derive it from the SHA
+          # via the commits-to-pulls REST endpoint. This is deterministic
+          # (returns only PRs that actually contain the commit) and works
+          # for both open and merged PRs.
+          pr_number="$(gh api \
+            "repos/${{ github.repository }}/commits/${SHA}/pulls" \
             --jq '.[0].number // empty' 2>/dev/null || true)"
 
           if [ -n "${pr_number}" ]; then
