@@ -91,7 +91,7 @@ Multiple patterns can be combined with commas:
 empty to disable the bypass entirely (every PR, including bot PRs, then needs
 the label).
 
-### Default behaviour out of the box
+### Default behavior out of the box
 
 With `VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
 `VORTEX_VR_DIFFY_PR_LABEL=VR` (default):
@@ -130,7 +130,7 @@ This means:
 If the SHA matches multiple PRs (unusual, e.g. duplicate commits from a
 fork), the first result is used.
 
-## Missed-window behaviour
+## Missed-window behavior
 
 If the `VR` label is added to a PR **after** the deployment completes, no
 comparison is run. This is deliberate: a late-applied label should not silently
