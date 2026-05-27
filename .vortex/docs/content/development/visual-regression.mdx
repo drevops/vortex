@@ -1,0 +1,186 @@
+---
+sidebar_label: Visual regression
+---
+
+# Visual regression
+
+**Vortex** ships an optional visual regression workflow powered by
+[Diffy](../tools/diffy.mdx). It compares the just-deployed environment against
+a baseline (typically `production`) and posts the result back to the related
+pull request.
+
+## When does it run?
+
+Three entry points are supported. None of them are blocking by default - they
+become blocking only when the consumer wires the `vr-compare` check into
+GitHub branch protection rules.
+
+### 1. Automatic on deployments
+
+```mermaid
+flowchart LR
+  A[PR opened with `VR` label] --> B[build-test-deploy.yml]
+  B --> C[Hosting provider deploys async]
+  C --> D[Host post-deploy hook]
+  D --> E[notify router]
+  E --> F[notify-diffy channel]
+  F --> G[GitHub repository_dispatch event_type=vr_run]
+  G --> H[test-vr.yml workflow]
+  H --> I[vr-compare resolves PR by SHA, checks label]
+  I --> J[vr-report]
+  J --> K[PR comment + Diffy report link]
+```
+
+`notify-diffy` dispatches the workflow with a payload containing only the
+commit SHA, branch, target URL, label, and source environment - **no PR
+number**. The workflow itself looks up the associated open PR via the
+GitHub API (using the commit SHA) and verifies the `VR` label is present
+(case-insensitive). If no open PR matches the SHA, the run is skipped.
+
+This means the PR lookup works uniformly across hosting providers - the host
+only needs to expose the deployed environment URL, which all of them do.
+
+### 2. Manual on any URL
+
+```mermaid
+flowchart LR
+  A[Operator opens GitHub Actions UI] --> B[Run 'Test - Visual regression' workflow]
+  B --> C[Provides source_env + target_url + label]
+  C --> D[vr-compare job]
+  D --> E[vr-report job]
+  E --> F[Result in Diffy UI]
+```
+
+Use this entry point for ad-hoc comparisons against a known environment URL.
+No PR is involved, so the result is visible only in the Diffy UI (and in the
+workflow run log).
+
+### 3. Limiting which branches dispatch
+
+By default, every deployment that triggers the notify router dispatches the
+workflow - the workflow then decides whether to actually run by looking up
+the associated open PR and checking its labels.
+
+To skip the dispatch entirely for certain branches (and save GitHub Actions
+minutes spent on the lookup), set `VORTEX_NOTIFY_DIFFY_BRANCHES` to a
+comma-separated branch allowlist. With this set, only deployments on listed
+branches dispatch; everything else is silently skipped at the host hook.
+
+Leave this variable empty (default) to let the workflow's PR-label gate be
+the sole gate.
+
+## Automated dependency PRs
+
+PRs raised by Renovate (or any other automated dependency-update bot) typically
+do not carry the `VR` label - they carry their own bot label (e.g.
+`Dependencies`). To still run visual regression on them, the workflow consults
+`VORTEX_VR_DIFFY_AUTO_BRANCHES`: a comma-separated glob list of PR head
+branches that bypass the `VR` label gate.
+
+The default value is `deps/*`, matching Vortex's Renovate `branchPrefix`
+configuration. Other common values:
+
+| Bot | Branch prefix | Suggested value |
+|---|---|---|
+| Renovate (Vortex default) | `deps/` | `deps/*` |
+| Renovate (default config) | `renovate/` | `renovate/*` |
+| Dependabot | `dependabot/` | `dependabot/*` |
+
+Multiple patterns can be combined with commas:
+`VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Set the variable to
+empty to disable the bypass entirely (every PR, including bot PRs, then needs
+the label).
+
+### Default behaviour out of the box
+
+With `VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
+`VORTEX_VR_DIFFY_PR_LABEL=VR` (default):
+
+| PR head branch | Has `VR` label? | Runs? |
+|---|---|---|
+| `feature/foo` | yes | yes (label gate) |
+| `feature/foo` | no | no |
+| `deps/drupal-core-11.2` | no | **yes** (matches `deps/*`) |
+| `deps/drupal-core-11.2` | yes | yes (matches `deps/*`, label irrelevant) |
+
+Consumers using Dependabot just append:
+`VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Consumers who want the
+label as the only gate (no auto-bypass) set the variable to empty.
+
+## How the PR is resolved
+
+The workflow looks up the PR associated with the deployed commit SHA via
+the GitHub API. Specifically:
+
+```
+gh pr list --search "<sha>" --state all --json number
+```
+
+This means:
+
+- The deployed SHA can match an **open or closed** PR. A typical example:
+  a feature PR is merged into `dev`, the host deploys the merge commit,
+  the lookup finds the now-closed feature PR, and the comparison summary
+  is posted there as a post-merge record.
+- The lookup runs in GitHub Actions where `GITHUB_TOKEN` is available - no
+  PAT or extra config required.
+- The host does not need to provide a PR number; every host that runs the
+  `notify-diffy` channel works identically.
+
+If the SHA matches multiple PRs (unusual, e.g. duplicate commits from a
+fork), the first result is used.
+
+## Missed-window behaviour
+
+If the `VR` label is added to a PR **after** the deployment completes, no
+comparison is run. This is deliberate: a late-applied label should not silently
+launch a Diffy job against a stale environment.
+
+To re-trigger after applying the label, either push an empty commit (forces a
+new deployment → new dispatch) or use the manual workflow entry point.
+
+## Job structure
+
+```mermaid
+flowchart TD
+  A[test-vr.yml] --> B[vr-compare]
+  B --> C[vr-report]
+  B -.->|exposes| D[diff_id output]
+  C -.->|consumes| D
+  B -.->|consumed by branch protection?| E[Optional required check]
+```
+
+`vr-compare`:
+
+1. Checks the PR label (when running for a PR).
+2. Installs the pinned Diffy CLI.
+3. Calls `diffy project:compare` with the target URL, commit SHA, and a label.
+4. Polls the comparison status, printing progress to the job log every
+   `VORTEX_VR_DIFFY_POLL_INTERVAL` seconds.
+5. Exposes the diff ID as a job output.
+
+`vr-report`:
+
+1. Fetches the diff result as JSON.
+2. Extracts the overall change percentage, the per-page page count, and the
+   shared report URL.
+3. Posts (or skips, when no PR is in scope) a summary comment on the PR.
+
+## Making it blocking
+
+Vortex does not block merges on visual regression results by default.
+
+To make `vr-compare` a required check:
+
+1. Open *Settings > Branches* on the consumer repository.
+2. Edit the branch protection rule for the target branch (typically `main`).
+3. Under *Require status checks to pass before merging*, add **vr-compare**
+   to the required checks.
+
+`vr-report` is never required - its failure means the comment could not be
+posted, which is not a merge-blocker.
+
+## Configuration
+
+For the full list of secrets and variables, see
+[Diffy - Repository configuration](../tools/diffy.mdx#repository-configuration).

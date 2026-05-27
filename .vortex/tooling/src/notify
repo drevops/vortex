@@ -118,4 +118,8 @@ if [ -z "${VORTEX_NOTIFY_CHANNELS##*webhook*}" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/notify-webhook" "$@"
 fi
 
+if [ -z "${VORTEX_NOTIFY_CHANNELS##*diffy*}" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/notify-diffy" "$@"
+fi
+
 pass "Finished dispatching notifications."

@@ -43,6 +43,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
+use DrevOps\VortexInstaller\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Schema\SchemaValidator;
 use DrevOps\VortexInstaller\Utils\Config;
@@ -67,7 +68,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 33;
+  const TOTAL_RESPONSES = 34;
 
   /**
    * Array of responses.
@@ -218,6 +219,7 @@ class PromptManager {
 
       ->intro('Continuous Integration')
       ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CiProvider::class, $r), CiProvider::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(VisualRegression::class), VisualRegression::id())
 
       ->intro('Automations')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
@@ -304,6 +306,7 @@ class PromptManager {
       AssignAuthorPr::id(),
       CodeCoverageProvider::id(),
       DependencyUpdatesProvider::id(),
+      VisualRegression::id(),
       CiProvider::id(),
       MigrationImage::id(),
       MigrationDownloadSource::id(),
