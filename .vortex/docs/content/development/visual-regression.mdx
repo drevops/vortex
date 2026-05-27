@@ -112,7 +112,7 @@ label as the only gate (no auto-bypass) set the variable to empty.
 The workflow looks up the PR associated with the deployed commit SHA via
 the GitHub API. Specifically:
 
-```
+```bash
 gh pr list --search "<sha>" --state all --json number
 ```
 
