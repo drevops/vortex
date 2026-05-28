@@ -96,16 +96,16 @@
             "tbachert/spi": true
         },
         "audit": {
-            "abandoned": "report",
-            "block-insecure": true,
             "ignore": {
+                "PKSA-1tmc-rt7x-12w6": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
                 "PKSA-dwsq-ppd2-mb1x": "symfony/polyfill-intl-idn __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
                 "PKSA-fbvq-z33h-r2np": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
                 "PKSA-g9zw-qxh8-pq8w": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
-                "PKSA-yd6k-t2gh-1m43": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
-                "PKSA-1tmc-rt7x-12w6": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
-                "PKSA-xx6c-6d96-db2w": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix."
-            }
+                "PKSA-xx6c-6d96-db2w": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix.",
+                "PKSA-yd6k-t2gh-1m43": "twig/twig __VERSION__ - required by drupal/core-recommended __VERSION__, awaiting upstream fix."
+            },
+            "abandoned": "report",
+            "block-insecure": true
         },
         "bump-after-update": true,
         "discard-changes": true,
