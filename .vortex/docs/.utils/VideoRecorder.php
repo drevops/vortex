@@ -16,7 +16,7 @@ final class VideoRecorder {
 
   public const int TERMINAL_HEIGHT = 36;
 
-  public const int POSTER_TIMESTAMP_MS = 1000;
+  public const int POSTER_TIMESTAMP_MS = 5000;
 
   public const string LINE_HEIGHT = '1.1';
 
@@ -422,7 +422,7 @@ final class VideoRecorder {
     fwrite(STDERR, "\033[0;31m[FAIL]\033[0m $msg\n");
   }
 
-  private function commandExists(string $cmd): bool {
+  protected function commandExists(string $cmd): bool {
     $path = getenv('PATH');
     if (!is_string($path) || $path === '') {
       return FALSE;
@@ -439,7 +439,7 @@ final class VideoRecorder {
     return FALSE;
   }
 
-  private function rmrf(string $path): void {
+  protected function rmrf(string $path): void {
     if (is_link($path) || is_file($path)) {
       @unlink($path);
       return;
