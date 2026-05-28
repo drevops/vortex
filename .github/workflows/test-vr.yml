@@ -45,7 +45,6 @@ env:
   DIFFY_PR_LABEL: ${{ vars.VR_DIFFY_PR_LABEL || 'VR' }}
   DIFFY_AUTO_BRANCHES: ${{ vars.VR_DIFFY_AUTO_BRANCHES || 'deps/*' }}
   DIFFY_POLL_INTERVAL: ${{ vars.VR_DIFFY_POLL_INTERVAL || '30' }}
-  SHA: ${{ github.event.client_payload.sha || github.sha }}
   SOURCE_ENV: ${{ github.event.client_payload.source_env || inputs.source_env || 'production' }}
   TARGET_URL: ${{ github.event.client_payload.target_url || inputs.target_url }}
   LABEL: ${{ github.event.client_payload.label || inputs.label || 'manual' }}
@@ -58,6 +57,10 @@ jobs:
       diff_id: ${{ steps.compare.outputs.diff_id }}
       pr_number: ${{ steps.resolve_pr.outputs.pr_number }}
       skipped: ${{ steps.gate.outputs.skipped }}
+      changes_percent: ${{ steps.result.outputs.changes_percent }}
+      shared_url: ${{ steps.result.outputs.shared_url }}
+      pages_changed: ${{ steps.result.outputs.pages_changed }}
+      pages_total: ${{ steps.result.outputs.pages_total }}
 
     steps:
       - name: Resolve PR number from target URL
@@ -166,17 +169,16 @@ jobs:
         id: compare
         if: steps.gate.outputs.skipped != 'true'
         env:
-          DIFFY_PROJECT_ID: ${{ secrets.VR_DIFFY_PROJECT_ID }}
+          DIFFY_PROJECT_ID: ${{ vars.VR_DIFFY_PROJECT_ID }}
         run: |
           set -euo pipefail
-          echo "Starting Diffy comparison: source=${SOURCE_ENV} target=${TARGET_URL} label=${LABEL} sha=${SHA}"
+          echo "Starting Diffy comparison: source=${SOURCE_ENV} target=${TARGET_URL} label=${LABEL}"
 
           diff_id="$(/tmp/diffy.phar project:compare \
             "${DIFFY_PROJECT_ID}" \
             "${SOURCE_ENV}" \
             custom \
             --env2Url="${TARGET_URL}" \
-            --commit-sha="${SHA}" \
             --name="${LABEL}")"
 
           if [ -z "${diff_id}" ]; then
@@ -215,33 +217,12 @@ jobs:
             sleep "${DIFFY_POLL_INTERVAL}"
           done
 
-  vr-report:
-    runs-on: ubuntu-latest
-    needs: vr-compare
-    if: needs.vr-compare.result == 'success' && needs.vr-compare.outputs.skipped != 'true'
-    permissions:
-      contents: read
-      pull-requests: write
-
-    steps:
-      - name: Install Diffy CLI
-        run: |
-          set -euo pipefail
-          curl -fsSL -o /tmp/diffy.phar "https://github.com/DiffyWebsite/diffy-cli/releases/download/${DIFFY_CLI_VERSION}/diffy.phar"
-          chmod +x /tmp/diffy.phar
-
-      - name: Authenticate Diffy CLI
-        env:
-          DIFFY_API_KEY: ${{ secrets.VR_DIFFY_API_KEY }}
-        run: |
-          set -euo pipefail
-          /tmp/diffy.phar auth:login "${DIFFY_API_KEY}"
-
       - name: Fetch comparison result
         id: result
+        if: steps.gate.outputs.skipped != 'true'
         run: |
           set -euo pipefail
-          diff_id="${{ needs.vr-compare.outputs.diff_id }}"
+          diff_id="${{ steps.compare.outputs.diff_id }}"
 
           changes_percent="$(/tmp/diffy.phar diff:get-changes-percent "${diff_id}")"
           result_json="$(/tmp/diffy.phar diff:get-result "${diff_id}" --format=json)"
@@ -260,26 +241,26 @@ jobs:
           echo "Diff summary: ${pages_changed} of ${pages_total} pages changed (${changes_percent}% total)."
           echo "Report URL: ${shared_url}"
 
-      - name: Post PR comment
-        if: needs.vr-compare.outputs.pr_number != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ needs.vr-compare.outputs.pr_number }}
-          CHANGES_PERCENT: ${{ steps.result.outputs.changes_percent }}
-          SHARED_URL: ${{ steps.result.outputs.shared_url }}
-          PAGES_CHANGED: ${{ steps.result.outputs.pages_changed }}
-          PAGES_TOTAL: ${{ steps.result.outputs.pages_total }}
-        run: |
-          set -euo pipefail
-          body=$(cat <<EOF
-          ### Visual regression report
+  vr-report:
+    runs-on: ubuntu-latest
+    needs: vr-compare
+    if: needs.vr-compare.result == 'success' && needs.vr-compare.outputs.skipped != 'true' && needs.vr-compare.outputs.pr_number != ''
+    permissions:
+      contents: read
+      pull-requests: write
 
-          - **Pages changed**: ${PAGES_CHANGED} of ${PAGES_TOTAL}
-          - **Overall difference**: ${CHANGES_PERCENT}%
-          - **Target environment**: ${TARGET_URL}
-          - **Source environment**: ${SOURCE_ENV}
+    steps:
+      - name: Post sticky PR comment
+        uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987 # v3
+        with:
+          number: ${{ needs.vr-compare.outputs.pr_number }}
+          header: vr-diffy
+          message: |
+            ### Visual regression report
 
-          [View full Diffy report](${SHARED_URL})
-          EOF
-          )
-          gh pr comment "${PR_NUMBER}" --repo "${{ github.repository }}" --body "${body}"
+            - **Pages changed**: ${{ needs.vr-compare.outputs.pages_changed }} of ${{ needs.vr-compare.outputs.pages_total }}
+            - **Overall difference**: ${{ needs.vr-compare.outputs.changes_percent }}%
+            - **Target environment**: ${{ env.TARGET_URL }}
+            - **Source environment**: ${{ env.SOURCE_ENV }}
+
+            [View full Diffy report](${{ needs.vr-compare.outputs.shared_url }})

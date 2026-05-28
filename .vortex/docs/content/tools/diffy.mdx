@@ -31,15 +31,15 @@ secrets and repository variables.
 | Name | Required | Purpose |
 |---|---|---|
 | `VR_DIFFY_API_KEY` | yes | Diffy API key |
-| `VR_DIFFY_PROJECT_ID` | yes | Numeric Diffy project ID (visible in the Diffy project URL) |
 
-Add these under *Settings > Secrets and variables > Actions > Repository
+Add this under *Settings > Secrets and variables > Actions > Repository
 secrets*.
 
 ### Variables
 
 | Name | Default | Purpose |
 |---|---|---|
+| `VR_DIFFY_PROJECT_ID` | (none, required) | Numeric Diffy project ID (visible in the Diffy project URL) |
 | `VR_DIFFY_CLI_VERSION` | `0.1.53` | Pinned `diffy-cli` release used by both jobs |
 | `VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) |
 | `VR_DIFFY_POLL_INTERVAL` | `30` | Polling interval in seconds |
