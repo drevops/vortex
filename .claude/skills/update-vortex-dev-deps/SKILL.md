@@ -260,8 +260,9 @@ Invoke the `/open-pr` skill. The PR description must include:
 
 1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `installer` / `tests` / `tooling`. No manifest constraint changes."
 2. **Subsystems touched** - bullet list of the four subsystems with a yes/no marker for Composer and Yarn changes (read from `git diff --stat`).
-3. **Majors report** - paste the contents of `.artifacts/vortex-dev-deps-{slug}/majors.md` inline so reviewers see what is available outside the constraints in the same place as the diff.
-4. **Update log reference** - point to `.artifacts/vortex-dev-deps-{slug}/update-log.txt` for the full Composer / Yarn output; do NOT paste the full log into the PR body.
+3. **Majors report** - paste the report content generated in Step 4 inline (the body of `majors.md` or the "No major versions available" line), so reviewers see what is available outside the constraints in the same place as the diff. Do NOT reference the `.artifacts/` path - those files are not staged and will not exist in the PR branch.
+
+The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/update-log.txt` for local debugging only. Do not reference this path from the PR description and do not paste the log into the PR body.
 
 `/open-pr` handles the push, PR creation, CI watching, and review comment remediation. Local lint and tests are intentionally skipped because CI runs them already and is the source of truth.
 
