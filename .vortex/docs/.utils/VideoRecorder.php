@@ -12,11 +12,11 @@ declare(strict_types=1);
  */
 final class VideoRecorder {
 
-  public const int TERMINAL_WIDTH = 120;
+  public const int TERMINAL_WIDTH = 140;
 
-  public const int TERMINAL_HEIGHT = 36;
+  public const int TERMINAL_HEIGHT = 42;
 
-  public const int POSTER_TIMESTAMP_MS = 5000;
+  public const int POSTER_TIMESTAMP_MS = 2000;
 
   public const string LINE_HEIGHT = '1.1';
 
