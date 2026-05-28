@@ -2,99 +2,50 @@
 sidebar_label: Diffy
 ---
 
-# Diffy - Visual regression testing
+# Diffy
 
-**Vortex** integrates with [Diffy](https://diffy.website) for visual regression
-testing. After each deployment, a comparison can be triggered automatically (or
-manually) between the deployed environment and a baseline, with the result
-posted back to the related pull request.
+[Diffy](https://diffy.website) is a hosted visual regression testing service.
+It captures full-page screenshots of a website across configured breakpoints,
+compares them against a baseline (a previous screenshot set or a different
+environment), and surfaces the per-page differences in a web UI.
 
-For the end-to-end workflow, triggers, and decision points, see
-[Visual regression](../development/visual-regression.mdx) under Development.
+## Capabilities
 
-## Account setup
+- **Cross-environment comparison** - compare any two URLs (e.g. production
+  vs. a preview environment) or a URL against a saved baseline.
+- **Breakpoint coverage** - each comparison runs across configured desktop,
+  tablet, and mobile widths.
+- **Per-page diff scoring** - reports the percentage of pixels changed per
+  page and per breakpoint.
+- **DOM manipulation** - mask, hide, or replace elements before screenshots
+  (useful for hiding ads, popups, dynamic timestamps).
+- **CI-friendly CLI** - the
+  [`diffy-cli`](https://github.com/DiffyWebsite/diffy-cli) PHAR can be driven
+  from any CI runner or shell script.
+- **REST API** - all CLI operations are available as direct HTTP calls.
 
-1. Create a Diffy account at [app.diffy.website](https://app.diffy.website).
-2. Create a project for your site.
+## Account and project setup
+
+1. Create an account at [app.diffy.website](https://app.diffy.website).
+2. Create a project for the site under test.
 3. Configure the `production` (and optionally `staging`, `development`)
    environment URLs inside the Diffy project settings.
 4. Generate an API key from
    [app.diffy.website/#/keys](https://app.diffy.website/#/keys).
 
-## Repository configuration
+The numeric **project ID** is visible in the Diffy project URL and is needed
+by any automation that talks to the Diffy API.
 
-The shipped `test-vr.yml` workflow reads configuration from GitHub Actions
-secrets and repository variables.
+## Pricing
 
-### Secrets
+Diffy bills per screenshot set. Each comparison consumes one screenshot set
+per environment compared (so a "production vs. PR env" comparison consumes
+two). Plan accordingly when wiring it into CI - frequent dispatches against
+a chatty repository can exhaust a plan quickly.
 
-| Name | Required | Purpose |
-|---|---|---|
-| `VR_DIFFY_API_KEY` | yes | Diffy API key |
+## Vortex integration
 
-Add this under *Settings > Secrets and variables > Actions > Repository
-secrets*.
-
-### Variables
-
-| Name | Default | Purpose |
-|---|---|---|
-| `VR_DIFFY_PROJECT_ID` | (none, required) | Numeric Diffy project ID (visible in the Diffy project URL) |
-| `VR_DIFFY_CLI_VERSION` | `0.1.53` | Pinned `diffy-cli` release used by both jobs |
-| `VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) |
-| `VR_DIFFY_POLL_INTERVAL` | `30` | Polling interval in seconds |
-| `VR_DIFFY_PR_LABEL` | `VR` | PR label that opts a deployment into visual regression. Case-insensitive |
-| `VR_DIFFY_AUTO_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that bypass the label gate (matches Renovate's `branchPrefix`). Set to empty to require the label on every PR. |
-| `VR_DIFFY_SOURCE_ENV` | `production` | Default Diffy source environment for comparisons |
-
-Add these under *Settings > Secrets and variables > Actions > Repository
-variables*.
-
-### Deployment-side configuration
-
-For automatic dispatch, the deployment environment (Lagoon post-rollout, Acquia
-post-code-deploy hook, or similar) needs a GitHub token with `repo` scope
-exposed as `VORTEX_NOTIFY_DIFFY_TOKEN` (falls back to
-`VORTEX_NOTIFY_GITHUB_TOKEN` if set, then to `GITHUB_TOKEN`). The repository
-name is taken from `VORTEX_NOTIFY_DIFFY_REPOSITORY` (falls back to
-`VORTEX_NOTIFY_GITHUB_REPOSITORY`).
-
-Add `diffy` to `VORTEX_NOTIFY_CHANNELS` to enable the dispatch:
-
-```ini
-VORTEX_NOTIFY_CHANNELS=email,github,diffy
-```
-
-## How to trigger a comparison
-
-Two entry points are supported:
-
-1. **Automatic**: open a PR, apply the `VR` label, push. The deployment
-   completes, `notify-diffy` dispatches the workflow. The workflow then
-   resolves the PR from the deployed commit SHA via the GitHub API, checks the
-   `VR` label, runs the comparison, and posts a summary PR comment. Works
-   identically across hosting providers - every host that exposes the deployed
-   environment URL through `VORTEX_NOTIFY_ENVIRONMENT_URL` is supported.
-2. **Manual**: run *Test - Visual regression* from the GitHub Actions UI with
-   a target URL and an optional source environment. No PR is involved; the
-   result lives in the Diffy UI.
-
-To limit which branches dispatch the workflow at all (save GitHub Actions
-minutes on hosts that deploy frequently), set
-`VORTEX_NOTIFY_DIFFY_BRANCHES` to a comma-separated branch allowlist. Leave
-empty to dispatch on every deployment - the workflow itself gates by PR +
-label.
-
-## Costs and quotas
-
-Diffy charges per screenshot set. Vortex's default gating (`VR` label on PRs
-only) keeps the run rate low. Increase or decrease the gate as needed for your
-team's review rhythm.
-
-## Disabling Diffy
-
-Remove `diffy` from `VORTEX_NOTIFY_CHANNELS` and delete the
-`.github/workflows/test-vr.yml` workflow file.
-
-To remove the integration entirely, re-run the installer and answer "no" to
-the visual regression prompt.
+Vortex ships an optional, opt-in visual regression workflow that uses Diffy
+under the hood. For setup, configuration, triggers, and consumer-side
+controls, see [Visual regression](../development/visual-regression.mdx)
+under Development.
