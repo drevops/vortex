@@ -307,6 +307,47 @@ final class VideoRecorder {
   }
 
   /**
+   * Multiply every event timestamp by $factor (< 1 speeds up, > 1 slows down).
+   * Used to make recorded command demos playable in less wall-clock time.
+   */
+  public function applyTimeScale(string $cast_path, float $factor): void {
+    if (!is_file($cast_path)) {
+      throw new RuntimeException("Cast file not found: $cast_path");
+    }
+    if ($factor <= 0) {
+      throw new RuntimeException("applyTimeScale factor must be > 0, got $factor");
+    }
+
+    $this->info("Applying time scale {$factor}x to cast");
+
+    $lines = file($cast_path, FILE_IGNORE_NEW_LINES);
+    if ($lines === FALSE || count($lines) < 2) {
+      throw new RuntimeException("Cast file is empty or malformed: $cast_path");
+    }
+
+    $output = [$lines[0]];
+    for ($i = 1, $n = count($lines); $i < $n; $i++) {
+      $line = trim($lines[$i]);
+      if ($line === '') {
+        continue;
+      }
+      $event = json_decode($line, TRUE);
+      if (!is_array($event) || !isset($event[0]) || !is_numeric($event[0])) {
+        $output[] = $lines[$i];
+        continue;
+      }
+      $event[0] = round(((float) $event[0]) * $factor, 6);
+      $output[] = json_encode($event, JSON_UNESCAPED_SLASHES);
+    }
+
+    if (file_put_contents($cast_path, implode("\n", $output) . "\n") === FALSE) {
+      throw new RuntimeException("Failed to write time-scaled cast: $cast_path");
+    }
+
+    $this->pass("Cast time-scaled by {$factor}x");
+  }
+
+  /**
    * Render the cast to an animated SVG via svg-term-render.js.
    */
   public function renderSvg(string $cast_path, string $svg_path): void {

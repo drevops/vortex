@@ -47,6 +47,12 @@ const COMMAND_VIDEOS = [
   'test-bdd' => 'ahoy test-bdd',
 ];
 
+/** Per-video playback speed multiplier (1.0 = recorded speed, 0.5 = 2x faster). */
+const VIDEO_TIME_SCALE = [
+  'lint' => 0.5,
+  'test' => 0.5,
+];
+
 function usage(): void {
   fwrite(STDERR, "Usage: php update-videos.php [video-name ...]\n");
   fwrite(STDERR, '  Video names: ' . implode(', ', ALL_VIDEOS) . "\n");
@@ -220,6 +226,9 @@ function install_video_artifacts(VideoRecorder $recorder, string $workspace, str
 function render_and_install(VideoRecorder $recorder, string $workspace, string $name, string $docs_static_dir): void {
   $cast = "$workspace/$name.json";
   $recorder->postprocessCast($cast, $workspace);
+  if (isset(VIDEO_TIME_SCALE[$name])) {
+    $recorder->applyTimeScale($cast, VIDEO_TIME_SCALE[$name]);
+  }
   $recorder->renderSvg($cast, "$workspace/$name.svg");
   $poster_ms = $name === 'installer' ? VideoRecorder::POSTER_TIMESTAMP_MS : VideoRecorder::POSTER_TIMESTAMP_MS_LATE;
   $recorder->renderPng($cast, "$workspace/$name.png", $poster_ms);
@@ -255,6 +264,8 @@ function main(array $argv): int {
   $recorder = new VideoRecorder($project_root, $docs_static_dir, $renderer);
   $recorder->info('Vortex video orchestrator (PHP)');
   $recorder->note('Requested: ' . implode(', ', $requested));
+
+  $type_and_run = __DIR__ . '/type-and-run.sh';
 
   $needs_built_project = array_intersect($requested, ['build', 'provision', 'lint', 'test', 'test-bdd']) !== [];
 
@@ -313,7 +324,7 @@ function main(array $argv): int {
       $recorder->recordSession(
         cwd: $project_dir,
         cast_path: "$workspace/build.json",
-        command: 'ahoy build',
+        command: "$type_and_run ahoy build",
         title: 'Vortex ahoy build Demo',
         env: $record_env,
         rows: VideoRecorder::TERMINAL_HEIGHT_TALL,
@@ -335,7 +346,7 @@ function main(array $argv): int {
     $recorder->recordSession(
       cwd: $project_dir,
       cast_path: "$workspace/$name.json",
-      command: $command,
+      command: "$type_and_run $command",
       title: "Vortex $command Demo",
       env: $record_env,
       rows: VideoRecorder::TERMINAL_HEIGHT_TALL,
