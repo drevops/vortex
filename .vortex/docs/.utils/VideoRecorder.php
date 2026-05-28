@@ -173,10 +173,11 @@ final class VideoRecorder {
   }
 
   /**
-   * Run `ahoy build` in the given project directory. Registers a shutdown
-   * hook so the Docker stack is torn down on exit.
+   * Run `ahoy build` in the given project directory. Optionally registers a
+   * shutdown hook so the Docker stack is torn down on exit (default ON;
+   * pass FALSE when the caller wants the stack to persist between runs).
    */
-  public function runAhoyBuild(string $project_dir, string $compose_project_name): void {
+  public function runAhoyBuild(string $project_dir, string $compose_project_name, bool $register_cleanup = TRUE): void {
     $this->info('Running ahoy build (silent, outside recording)');
 
     $env = [
@@ -185,7 +186,9 @@ final class VideoRecorder {
       'COMPOSE_PROJECT_NAME' => $compose_project_name,
     ];
 
-    $this->registerDockerCleanup($project_dir, $compose_project_name);
+    if ($register_cleanup) {
+      $this->registerDockerCleanup($project_dir, $compose_project_name);
+    }
     $this->run(['ahoy', 'build'], $project_dir, $env);
 
     $this->pass('ahoy build completed');
@@ -506,7 +509,7 @@ final class VideoRecorder {
     return FALSE;
   }
 
-  protected function rmrf(string $path): void {
+  public function rmrf(string $path): void {
     if (is_link($path) || is_file($path)) {
       @unlink($path);
       return;

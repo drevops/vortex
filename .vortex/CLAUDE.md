@@ -117,6 +117,7 @@ driven by the shared `VideoRecorder` class.
 | `ahoy update-videos installer`                     | Only `installer.*` (no Docker required)      |
 | `ahoy update-videos lint provision`                | Silent install + silent build + recordings   |
 | `ahoy update-videos build lint`                    | Silent install + recorded build + lint       |
+| `ahoy update-videos --keep <names>`                | Persistent workspace + Docker stack (re-iterate without rebuilding) |
 
 Pipeline:
 
@@ -129,7 +130,20 @@ Pipeline:
    (either as the recorded `build` video or silently).
 3. Remaining requested commands (`provision`, `lint`, `test`, `test-bdd`)
    are recorded in that same `star_wars` directory, in fixed order.
-4. The shared Docker stack is torn down on exit via a shutdown hook.
+4. The shared Docker stack is torn down on exit via a shutdown hook (skipped under `--keep`).
+
+**Iterating on one video** — use `--keep` so the install + build only happens
+once, and subsequent runs replay the recording against the preserved project:
+
+```bash
+cd .vortex
+ahoy update-videos --keep lint     # full bootstrap + record lint, keep workspace
+# tweak something in the lint command or the recorder
+ahoy update-videos --keep lint     # reuse the kept workspace, record lint only
+# done iterating - discard the kept state
+ahoy update-videos lint            # fresh bootstrap, no --keep, cleans up at end
+# (or manually) rm -rf .artifacts/videos-workspace
+```
 
 A video goes stale when the command it records changes behaviour:
 

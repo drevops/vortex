@@ -54,9 +54,15 @@ const VIDEO_TIME_SCALE = [
 ];
 
 function usage(): void {
-  fwrite(STDERR, "Usage: php update-videos.php [video-name ...]\n");
+  fwrite(STDERR, "Usage: php update-videos.php [--keep] [video-name ...]\n");
   fwrite(STDERR, '  Video names: ' . implode(', ', ALL_VIDEOS) . "\n");
   fwrite(STDERR, "  Default: all videos\n");
+  fwrite(STDERR, "\n");
+  fwrite(STDERR, "Options:\n");
+  fwrite(STDERR, "  --keep   Use a persistent workspace at '.artifacts/videos-workspace/' and\n");
+  fwrite(STDERR, "           keep the Docker stack running so subsequent runs can re-record a\n");
+  fwrite(STDERR, "           specific video without re-bootstrapping. Discard with\n");
+  fwrite(STDERR, "           'rm -rf .artifacts/videos-workspace' (Docker stack stops automatically).\n");
 }
 
 function build_installer_expect_script(int|float $prompt_delay, string $uri): string {
@@ -252,6 +258,9 @@ function main(array $argv): int {
     return 0;
   }
 
+  $keep = in_array('--keep', $args, TRUE);
+  $args = array_values(array_filter($args, fn($a): bool => $a !== '--keep'));
+
   $requested = $args !== [] ? $args : ALL_VIDEOS;
   foreach ($requested as $name) {
     if (!in_array($name, ALL_VIDEOS, TRUE)) {
@@ -264,6 +273,9 @@ function main(array $argv): int {
   $recorder = new VideoRecorder($project_root, $docs_static_dir, $renderer);
   $recorder->info('Vortex video orchestrator (PHP)');
   $recorder->note('Requested: ' . implode(', ', $requested));
+  if ($keep) {
+    $recorder->note('Persistent mode (--keep): workspace and Docker stack will survive this run');
+  }
 
   $type_and_run = __DIR__ . '/type-and-run.sh';
 
@@ -276,13 +288,38 @@ function main(array $argv): int {
   }
   $recorder->checkDependencies($extra_deps);
 
-  $workspace = $recorder->workspaceInit('videos');
-  $compose_project = 'vortex_videos_' . bin2hex(random_bytes(3));
+  if ($keep) {
+    $workspace = $project_root . '/.artifacts/videos-workspace';
+    if (!is_dir($workspace) && !mkdir($workspace, 0o755, TRUE) && !is_dir($workspace)) {
+      $recorder->fail("Failed to create persistent workspace: $workspace");
+      return 1;
+    }
+    $compose_project = 'vortex_videos';
+    $recorder->info("Workspace: $workspace");
+    $recorder->note("Docker compose project: $compose_project");
+  }
+  else {
+    $workspace = $recorder->workspaceInit('videos');
+    $compose_project = 'vortex_videos_' . bin2hex(random_bytes(3));
+  }
 
-  $recorder->buildInstallerPhar("$workspace/installer.php");
+  $installer_path = "$workspace/installer.php";
+  if (!is_file($installer_path)) {
+    $recorder->buildInstallerPhar($installer_path);
+  }
+  else {
+    $recorder->note("Reusing existing installer.phar in workspace");
+  }
+
+  $project_dir = "$workspace/star_wars";
 
   // Phase 1: install (recorded or silent)
   if (in_array('installer', $requested, TRUE)) {
+    if (is_dir($project_dir)) {
+      $recorder->note("Removing existing project so the installer recording starts fresh");
+      $recorder->rmrf($project_dir);
+    }
+
     $recorder->info("===== Recording 'installer' =====");
     $expect_script = "$workspace/installer.exp";
     if (file_put_contents($expect_script, build_installer_expect_script(PROMPT_DELAY, $project_root)) === FALSE) {
@@ -298,29 +335,33 @@ function main(array $argv): int {
     );
     render_and_install($recorder, $workspace, 'installer', $docs_static_dir);
 
-    $project_dir = "$workspace/star_wars";
     if (!is_dir($project_dir)) {
       $recorder->fail("Recorded installer did not create project at $project_dir");
       return 1;
     }
   }
-  else {
+  elseif (!is_dir($project_dir)) {
     $project_dir = $recorder->runInstaller($workspace, $project_root);
+  }
+  else {
+    $recorder->note("Reusing existing project at $project_dir");
   }
 
   $record_env = [
     'AHOY_CONFIRM_RESPONSE' => 'y',
     'AHOY_CONFIRM_WAIT_SKIP' => '1',
+    'COMPOSE_PROJECT_NAME' => $compose_project,
   ];
-  if ($compose_project !== NULL) {
-    $record_env['COMPOSE_PROJECT_NAME'] = $compose_project;
-  }
 
   // Phase 2: build (recorded, silent, or skipped if nothing needs it)
+  $project_appears_built = is_dir("$project_dir/vendor");
+
   if ($needs_built_project) {
     if (in_array('build', $requested, TRUE)) {
       $recorder->info("===== Recording 'build' =====");
-      $recorder->registerDockerCleanup($project_dir, $compose_project);
+      if (!$keep) {
+        $recorder->registerDockerCleanup($project_dir, $compose_project);
+      }
       $recorder->recordSession(
         cwd: $project_dir,
         cast_path: "$workspace/build.json",
@@ -331,8 +372,14 @@ function main(array $argv): int {
       );
       render_and_install($recorder, $workspace, 'build', $docs_static_dir);
     }
+    elseif (!$project_appears_built) {
+      $recorder->runAhoyBuild($project_dir, $compose_project, register_cleanup: !$keep);
+    }
     else {
-      $recorder->runAhoyBuild($project_dir, $compose_project);
+      $recorder->note("Project already built (vendor/ exists), skipping ahoy build");
+      if (!$keep) {
+        $recorder->registerDockerCleanup($project_dir, $compose_project);
+      }
     }
   }
 
@@ -355,6 +402,12 @@ function main(array $argv): int {
   }
 
   $recorder->pass('Videos updated: ' . implode(', ', $requested));
+
+  if ($keep) {
+    $recorder->info("Workspace and Docker stack preserved (--keep)");
+    $recorder->note("Re-run with --keep to re-record a specific video without rebuilding.");
+    $recorder->note("To discard: cd '$project_dir' && COMPOSE_PROJECT_NAME=$compose_project docker compose down --volumes && rm -rf '$workspace'");
+  }
 
   return 0;
 }
