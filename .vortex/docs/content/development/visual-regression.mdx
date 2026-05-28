@@ -75,18 +75,38 @@ GitHub branch protection rules.
 
 ### 1. Automatic on deployments
 
-```mermaid
-flowchart LR
-  A[PR opened with `VR` label] --> B[build-test-deploy.yml]
-  B --> C[Hosting provider deploys async]
-  C --> D[Host post-deploy hook]
-  D --> E[notify router]
-  E --> F[notify-diffy channel]
-  F --> G[GitHub repository_dispatch event_type=vr_run]
-  G --> H[test-vr.yml workflow]
-  H --> I[vr-compare parses PR from target URL, checks label]
-  I --> J[vr-report]
-  J --> K[PR comment + Diffy report link]
+```text
+            PR opened with `VR` label
+                       │
+                       ▼
+              build-test-deploy.yml
+                       │
+                       ▼
+        Hosting provider deploys async
+                       │
+                       ▼
+             Host post-deploy hook
+                       │
+                       ▼
+                 notify router
+                       │
+                       ▼
+              notify-diffy channel
+                       │
+                       ▼
+   GitHub repository_dispatch (vr_run)
+                       │
+                       ▼
+              test-vr.yml workflow
+                       │
+                       ▼
+   vr-compare: parse PR from URL, gate
+                       │
+                       ▼
+                   vr-report
+                       │
+                       ▼
+       PR comment + Diffy report link
 ```
 
 `notify-diffy` dispatches the workflow with a payload containing the
@@ -104,13 +124,23 @@ them do.
 
 ### 2. Manual on any URL
 
-```mermaid
-flowchart LR
-  A[Operator opens GitHub Actions UI] --> B[Run 'Test - Visual regression' workflow]
-  B --> C[Provides source_env + target_url + label]
-  C --> D[vr-compare job]
-  D --> E[vr-report job]
-  E --> F[Result in Diffy UI]
+```text
+       Operator opens GitHub Actions UI
+                       │
+                       ▼
+   Run 'Test - Visual regression' workflow
+                       │
+                       ▼
+  Provide source_env + target_url + label
+                       │
+                       ▼
+                 vr-compare job
+                       │
+                       ▼
+                  vr-report job
+                       │
+                       ▼
+              Result in Diffy UI
 ```
 
 Use this entry point for ad-hoc comparisons against a known environment
@@ -140,12 +170,12 @@ typically do not carry the `VR` label - they carry their own bot label
 workflow consults `VR_DIFFY_AUTO_BRANCHES`: a comma-separated glob list
 of PR head branches that bypass the `VR` label gate.
 
-The default value is `deps/*`, matching Vortex's Renovate `branchPrefix`
+The default value is `deps/*`, matching **Vortex**'s Renovate `branchPrefix`
 configuration. Other common values:
 
 | Bot | Branch prefix | Suggested value |
 |---|---|---|
-| Renovate (Vortex default) | `deps/` | `deps/*` |
+| Renovate (**Vortex** default) | `deps/` | `deps/*` |
 | Renovate (default config) | `renovate/` | `renovate/*` |
 | Dependabot | `dependabot/` | `dependabot/*` |
 
@@ -205,13 +235,21 @@ entry point.
 
 ## Job structure
 
-```mermaid
-flowchart TD
-  A[test-vr.yml] --> B[vr-compare]
-  B --> C[vr-report]
-  B -.->|exposes| D[diff_id, pr_number, changes_percent, ...]
-  C -.->|consumes| D
-  B -.->|consumed by branch protection?| E[Optional required check]
+```text
+              test-vr.yml
+                   │
+                   ▼
+              vr-compare ────► diff_id, pr_number,
+                   │          changes_percent, ...
+                   │                │
+                   │                │ (job outputs)
+                   ▼                ▼
+              vr-report ◄───────────┘
+                   │
+                   ▼
+            (optional required
+             status check via
+             branch protection)
 ```
 
 `vr-compare`:
@@ -232,7 +270,7 @@ flowchart TD
 
 ## Making it blocking
 
-Vortex does not block merges on visual regression results by default.
+**Vortex** does not block merges on visual regression results by default.
 
 To make `vr-compare` a required check:
 
@@ -247,7 +285,7 @@ be posted, which is not a merge-blocker.
 
 ## Costs and quotas
 
-Diffy bills per screenshot set. Vortex's default gating (`VR` label on
+Diffy bills per screenshot set. **Vortex**'s default gating (`VR` label on
 PRs only, plus the `deps/*` auto-branch list) keeps the run rate low.
 Adjust `VR_DIFFY_PR_LABEL`, `VR_DIFFY_AUTO_BRANCHES`, and
 `VORTEX_NOTIFY_DIFFY_BRANCHES` to suit the team's review rhythm.

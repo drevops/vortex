@@ -36,7 +36,20 @@ docs/
 - **American English** spelling throughout
 - **Sentence case** for headings (capitalize only first letter + proper nouns)
 - Proper nouns: Vortex, GitHub, Drupal, Docker Compose, CircleCI
+- **`Vortex` must always be bold** (`**Vortex**`) when it appears in prose. Applies to every `.mdx` file under `content/`. Exception: headings, code fences, and inline code (`` `Vortex` ``) where Markdown emphasis is not appropriate.
 - Acronyms: CI/CD, SSH, API, BDD, PHPUnit
+
+## Diagrams
+
+**Use ASCII diagrams, not Mermaid.** ASCII renders consistently across all
+viewers (GitHub preview, terminal, copied into chat, plain-text exports),
+needs no plugin, and stays in source as a readable artefact. Prefer
+**vertical** ASCII flows (top-to-bottom with `│` connectors and `▼` arrows)
+over horizontal ones - they read better on narrow page widths.
+
+Reserve Mermaid for the rare case where the diagram needs interactive
+behaviour the static renderer cannot provide; do not use it for ordinary
+flowcharts.
 
 ## Sidebar Configuration
 
