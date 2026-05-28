@@ -55,7 +55,7 @@ default:
         drupal_root: web
       drush:
         root: web
-      region_map:
+      regions:
         header: '#header'
         primary_menu: '.header-nav'
         secondary_menu: '.region.region--secondary-menu'
@@ -72,10 +72,11 @@ default:
       selectors:
         login_form_selector: 'form#user-login,form#user-login-form'
         logged_in_selector: 'body.logged-in,body.user-logged-in'
-        message_selector: '.messages'
-        error_message_selector: '.messages.error,.messages.messages--error'
-        success_message_selector: '.messages.status,.messages.messages--status'
-        warning_message_selector: '.messages.warning,.messages.messages--warning'
+        messages:
+          default: '.messages'
+          error: '.messages.error,.messages.messages--error'
+          success: '.messages.status,.messages.messages--status'
+          warning: '.messages.warning,.messages.messages--warning'
 
     # Capture HTML and PNG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
