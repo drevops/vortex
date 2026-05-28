@@ -76,47 +76,59 @@ GitHub branch protection rules.
 ### 1. Automatic on deployments
 
 ```text
-            PR opened with `VR` label
-                       │
-                       ▼
-              build-test-deploy.yml
-                       │
-                       ▼
-        Hosting provider deploys async
-                       │
-                       ▼
-             Host post-deploy hook
-                       │
-                       ▼
-                 notify router
-                       │
-                       ▼
-              notify-diffy channel
-                       │
-                       ▼
-   GitHub repository_dispatch (vr_run)
-                       │
-                       ▼
-              test-vr.yml workflow
-                       │
-                       ▼
-   vr-compare: parse PR from URL, gate
-                       │
-                       ▼
-                   vr-report
-                       │
-                       ▼
-       PR comment + Diffy report link
+┌─ GitHub ────────────────────────────────────┐
+│                                             │
+│      PR opened with `VR` label              │
+│                  │                          │
+│                  ▼                          │
+│           build-test-deploy.yml             │
+│                                             │
+└────────────────────┬────────────────────────┘
+                     │
+                     ▼
+┌─ Hosting environment ───────────────────────┐
+│                                             │
+│       Hosting provider deploys async        │
+│                  │                          │
+│                  ▼                          │
+│            Host post-deploy hook            │
+│                  │                          │
+│                  ▼                          │
+│                notify router                │
+│                  │                          │
+│                  ▼                          │
+│            notify-diffy channel             │
+│                                             │
+└────────────────────┬────────────────────────┘
+                     │
+                     ▼
+┌─ GitHub ────────────────────────────────────┐
+│                                             │
+│      repository_dispatch (vr_run)           │
+│                  │                          │
+│                  ▼                          │
+│             test-vr.yml workflow            │
+│                  │                          │
+│                  ▼                          │
+│      vr-compare: parse PR from URL, gate    │
+│                  │                          │
+│                  ▼                          │
+│                vr-report                    │
+│                  │                          │
+│                  ▼                          │
+│        PR comment + Diffy report link       │
+│                                             │
+└─────────────────────────────────────────────┘
 ```
 
 `notify-diffy` dispatches the workflow with a payload containing the
 branch, target URL, label, and source environment - **no PR number, no
 commit SHA**. The workflow itself extracts the PR number from the
 deployed environment URL by matching the `pr-<number>` segment (e.g.
-`https://app.pr-123.example.lagoon.cloud/` resolves to PR #123) and
-verifies the `VR` label is present (case-insensitive). If the target URL
-has no `pr-<number>` segment, the deployment is not a PR environment and
-the run is skipped.
+`https://pr-123.example.com/` resolves to PR #123) and verifies the
+`VR` label is present (case-insensitive). If the target URL has no
+`pr-<number>` segment, the deployment is not a PR environment and the
+run is skipped.
 
 This means the PR lookup works uniformly across hosting providers - the
 host only needs to expose the deployed environment URL, which all of
@@ -125,22 +137,30 @@ them do.
 ### 2. Manual on any URL
 
 ```text
-       Operator opens GitHub Actions UI
-                       │
-                       ▼
-   Run 'Test - Visual regression' workflow
-                       │
-                       ▼
-  Provide source_env + target_url + label
-                       │
-                       ▼
-                 vr-compare job
-                       │
-                       ▼
-                  vr-report job
-                       │
-                       ▼
-              Result in Diffy UI
+┌─ GitHub ────────────────────────────────────┐
+│                                             │
+│      Operator opens GitHub Actions UI       │
+│                  │                          │
+│                  ▼                          │
+│  Run 'Test - Visual regression' workflow    │
+│                  │                          │
+│                  ▼                          │
+│  Provide source_env + target_url + label    │
+│                  │                          │
+│                  ▼                          │
+│              vr-compare job                 │
+│                  │                          │
+│                  ▼                          │
+│              vr-report job                  │
+│                                             │
+└────────────────────┬────────────────────────┘
+                     │
+                     ▼
+┌─ Diffy ─────────────────────────────────────┐
+│                                             │
+│            Result in Diffy UI               │
+│                                             │
+└─────────────────────────────────────────────┘
 ```
 
 Use this entry point for ad-hoc comparisons against a known environment
@@ -206,15 +226,15 @@ The workflow extracts the PR number from the deployed environment URL by
 matching the `pr-<number>` segment. For example:
 
 ```text
-https://app.pr-123.example.lagoon.cloud/   ->  PR #123
-https://nginx.pr-42.project.amazee.io/     ->  PR #42
+https://pr-123.example.com/         ->  PR #123
+https://app.pr-42.example.com/      ->  PR #42
 ```
 
 This means:
 
 - The host must deploy PR environments to a URL that contains the
-  `pr-<number>` segment - the standard convention on Lagoon, Acquia, and
-  most cloud hosting providers.
+  `pr-<number>` segment - a common convention across cloud hosting
+  providers.
 - No GitHub API call is needed to resolve the PR.
 - The host does not need to provide a PR number directly; the URL is the
   source of truth.
@@ -233,24 +253,7 @@ To re-trigger after applying the label, either push an empty commit
 (forces a new deployment → new dispatch) or use the manual workflow
 entry point.
 
-## Job structure
-
-```text
-              test-vr.yml
-                   │
-                   ▼
-              vr-compare ────► diff_id, pr_number,
-                   │          changes_percent, ...
-                   │                │
-                   │                │ (job outputs)
-                   ▼                ▼
-              vr-report ◄───────────┘
-                   │
-                   ▼
-            (optional required
-             status check via
-             branch protection)
-```
+## Jobs
 
 `vr-compare`:
 
