@@ -71,6 +71,15 @@ ahoy lint-markdown # Lint markdown files
 
 ## Cross-System Workflow
 
+**HARD RULE — Always use `ahoy update-snapshots` (run from `.vortex/`).
+NEVER invoke `composer update-snapshots` directly in `.vortex/tests/` or
+`.vortex/installer/`.** The ahoy target wraps both composer scripts together
+with the required environment (`XDEBUG_MODE=off`) and parallel job flags.
+Calling the underlying composer scripts directly skips part of the workflow
+and produces partial, inconsistent fixtures. There is no scenario in which
+the direct composer call is correct - if `cd .vortex` is hard, fix the cd,
+do not reach past the abstraction.
+
 **HARD RULE — Always commit before `ahoy update-snapshots`.** Snapshots are
 regenerated from the *committed* baseline. Any uncommitted changes to the
 template (root or `.vortex/`) will not be picked up and the snapshot diff
@@ -130,6 +139,7 @@ Detailed prerequisites and outputs for the video command are documented in
 ### Key Restrictions
 
 - **NEVER** modify `.vortex/installer/tests/Fixtures/` directly
+- **NEVER** run `composer update-snapshots` directly - always use `ahoy update-snapshots` from `.vortex/`
 - American English spelling in documentation
 - Sentence case for doc headings (capitalize proper nouns only)
 
