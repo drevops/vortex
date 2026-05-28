@@ -58,6 +58,25 @@ Work through each checklist item from the release process doc:
 8. **Documentation** - Run `cd .vortex && ahoy update-docs`. WARNING: this may
    revert cache version changes in CI configs - re-apply the cache version
    increment after running this command.
+9. **Demo videos** - Regenerate the terminal demo videos shown in the docs.
+   The installer video has its own command (separate bootstrap, no Docker);
+   the other five share a single bootstrap.
+
+   ```bash
+   cd .vortex
+   ahoy update-installer-video   # installer.*
+   ahoy update-videos            # build/provision/lint/test/test-bdd in one run
+   ```
+
+   - `ahoy update-videos` performs `ahoy build` exactly once per invocation.
+     When `build` is in the requested set (default) it is recorded; otherwise
+     it runs silently as bootstrap so the other commands have a built
+     project to work against.
+   - To re-record only a subset, pass the names:
+     `ahoy update-videos lint test`. Default is all five.
+   - Heavy step: ~15 minutes wall-clock; requires Docker.
+   - Neither command auto-commits; review the artifact diff under
+     `.vortex/docs/static/img/` and stage manually.
 
 ## Step 4: Generate release notes
 
