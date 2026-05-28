@@ -68,7 +68,7 @@ class ThemeCustom extends AbstractHandler {
     $discovered = $theme_handler->discoverName();
 
     // Only return discovered value if it's a custom theme.
-    if (!empty($discovered) && !in_array($discovered, [Theme::OLIVERO, Theme::CLARO, Theme::STARK])) {
+    if (!empty($discovered) && !in_array($discovered, [Theme::OLIVERO, Theme::CLARO, Theme::STARK], TRUE)) {
       return $discovered;
     }
 

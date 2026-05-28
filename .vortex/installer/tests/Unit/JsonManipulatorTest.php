@@ -125,11 +125,11 @@ class JsonManipulatorTest extends UnitTestCase {
     // Entire objects.
     yield 'require object' => [
       'require',
-        ['php' => '^8.1', 'symfony/console' => '^6.0'],
+      ['php' => '^8.1', 'symfony/console' => '^6.0'],
     ];
     yield 'autoload.psr-4 object' => [
       'autoload.psr-4',
-        ['Test\\' => 'src/'],
+      ['Test\\' => 'src/'],
     ];
     // Non-existent properties.
     yield 'nonexistent top-level' => ['nonexistent', NULL];

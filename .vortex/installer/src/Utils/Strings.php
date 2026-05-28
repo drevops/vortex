@@ -57,15 +57,15 @@ class Strings {
     // Extract the first character as the delimiter.
     $delimiter = $string[0];
 
-    if (!in_array($delimiter, ['/', '#', '~'])) {
+    if (!in_array($delimiter, ['/', '#', '~'], TRUE)) {
       return FALSE;
     }
 
     $last_char = substr($string, -1);
     $before_last_char = substr($string, -2, 1);
     if (
-      ($last_char !== $delimiter && !in_array($last_char, ['i', 'm', 's']))
-      || ($before_last_char !== $delimiter && in_array($before_last_char, ['i', 'm', 's']))
+      ($last_char !== $delimiter && !in_array($last_char, ['i', 'm', 's'], TRUE))
+      || ($before_last_char !== $delimiter && in_array($before_last_char, ['i', 'm', 's'], TRUE))
     ) {
       return FALSE;
     }

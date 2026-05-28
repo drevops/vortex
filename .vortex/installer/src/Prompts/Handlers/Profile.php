@@ -64,7 +64,7 @@ class Profile extends AbstractHandler {
     $value = $this->discoverName();
 
     if (!is_null($value)) {
-      return in_array($value, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI]) ? $value : self::CUSTOM;
+      return in_array($value, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI], TRUE) ? $value : self::CUSTOM;
     }
 
     return NULL;

@@ -68,27 +68,27 @@ class ConfigTest extends UnitTestCase {
   public static function dataProviderFromStringValid(): \Iterator {
     yield 'empty_json' => [
       '{}',
-        [],
+      [],
     ];
     yield 'single_value' => [
       '{"name": "test"}',
-        ['NAME' => 'test'],
+      ['NAME' => 'test'],
     ];
     yield 'multiple_values' => [
       '{"name": "test", "version": "1.0.0", "debug": true}',
-        ['NAME' => 'test', 'VERSION' => '1.0.0', 'DEBUG' => TRUE],
+      ['NAME' => 'test', 'VERSION' => '1.0.0', 'DEBUG' => TRUE],
     ];
     yield 'mixed_types' => [
       '{"string": "value", "number": 42, "boolean": true, "null": null}',
-        ['STRING' => 'value', 'NUMBER' => 42, 'BOOLEAN' => TRUE],
+      ['STRING' => 'value', 'NUMBER' => 42, 'BOOLEAN' => TRUE],
     ];
     yield 'nested_objects_and_arrays' => [
       '{"config": {"nested": "value"}, "list": [1, 2, 3]}',
-        ['CONFIG' => ['nested' => 'value'], 'LIST' => [1, 2, 3]],
+      ['CONFIG' => ['nested' => 'value'], 'LIST' => [1, 2, 3]],
     ];
     yield 'lowercase_keys_get_uppercased' => [
       '{"lowercase_key": "value", "MixedCase": "value2"}',
-        ['LOWERCASE_KEY' => 'value', 'MIXEDCASE' => 'value2'],
+      ['LOWERCASE_KEY' => 'value', 'MIXEDCASE' => 'value2'],
     ];
   }
 
