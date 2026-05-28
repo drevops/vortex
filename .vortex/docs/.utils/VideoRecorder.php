@@ -177,7 +177,7 @@ final class VideoRecorder {
     $this->info('Running ahoy build (silent, outside recording)');
 
     $env = [
-      'AHOY_CONFIRM_RESPONSE' => 'y',
+      'AHOY_CONFIRM_RESPONSE' => '1',
       'AHOY_CONFIRM_WAIT_SKIP' => '1',
       'COMPOSE_PROJECT_NAME' => $compose_project_name,
     ];
@@ -212,7 +212,7 @@ final class VideoRecorder {
           ['ahoy', 'reset'],
           $project_dir,
           [
-            'AHOY_CONFIRM_RESPONSE' => 'y',
+            'AHOY_CONFIRM_RESPONSE' => '1',
             'AHOY_CONFIRM_WAIT_SKIP' => '1',
             'COMPOSE_PROJECT_NAME' => $compose_project_name,
           ],
