@@ -107,9 +107,12 @@ renamed/reordered prompt, removed handler, wording change to `label()` or
    demo asciicast shown in the docs. The video records the live prompt
    flow, so it goes stale the moment the flow changes.
 
-Both commands write commits automatically when there are changes. Run them
-**after** the installer code change is committed, since the regeneration
-compares against the committed baseline.
+`update-snapshots` writes a commit automatically when fixtures change.
+`update-installer-video` updates the asciicast/SVG/PNG/GIF files in
+`.vortex/docs/static/img/` but does **not** create a commit - stage and
+commit the changes manually after running. Run both commands **after**
+the installer code change is committed, since the regeneration compares
+against the committed baseline.
 
 Detailed prerequisites and outputs for the video command are documented in
 `.vortex/installer/CLAUDE.md` under "Updating the Installer Video".

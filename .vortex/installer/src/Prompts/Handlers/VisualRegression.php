@@ -30,7 +30,7 @@ class VisualRegression extends AbstractHandler {
     return <<<DOC
 Diffy-powered visual regression workflow to compare deployed environments.
 
-Automatically triggers comparisons for dependency-update pull requests.
+Automatically triggers comparisons for dependency-update pull requests matching the configured branch pattern (`deps/*` by default).
 
 Runs comparisons for pull requests tagged with the `VR` label and posts a sticky comment.
 
