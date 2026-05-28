@@ -71,20 +71,28 @@ ahoy lint-markdown # Lint markdown files
 
 ## Cross-System Workflow
 
+**HARD RULE — Always commit before `ahoy update-snapshots`.** Snapshots are
+regenerated from the *committed* baseline. Any uncommitted changes to the
+template (root or `.vortex/`) will not be picked up and the snapshot diff
+will not reflect them. This applies to every snapshot run, no exceptions:
+template scripts, settings, configs, Dockerfiles, composer.json — all of it.
+
 When updating template scripts:
 
 1. Modify script in `.vortex/tooling/src/` (shipped scripts) or `scripts/custom/` (provision subscripts)
 2. Run `ahoy lint-scripts`
 3. Run `ahoy update-docs`
 4. Update BATS tests in `.vortex/tooling/tests/unit/`
-5. Run `ahoy update-snapshots`
+5. **Commit the changes**
+6. Run `ahoy update-snapshots`
+7. Commit the regenerated fixtures (separate commit or amend per task scope)
 
 When updating template files (settings, configs, etc.):
 
-1. Make and commit code changes first
-2. Then run `ahoy update-snapshots` — snapshots compare against the
-   committed baseline, so uncommitted changes will not be picked up
-   correctly
+1. Make the code change
+2. **Commit it**
+3. Run `ahoy update-snapshots`
+4. Commit the regenerated fixtures
 
 ## Environment Variables
 
