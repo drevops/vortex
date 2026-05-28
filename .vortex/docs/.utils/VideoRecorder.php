@@ -14,7 +14,11 @@ final class VideoRecorder {
 
   public const int TERMINAL_WIDTH = 140;
 
+  /** Default terminal height. Suitable for the installer recording where the welcome banner fits in ~30 rows. */
   public const int TERMINAL_HEIGHT = 42;
+
+  /** Taller terminal for command videos (build/provision/lint/test/test-bdd) whose output exceeds the default. */
+  public const int TERMINAL_HEIGHT_TALL = 80;
 
   public const int POSTER_TIMESTAMP_MS = 2000;
 
@@ -226,8 +230,10 @@ final class VideoRecorder {
    * @param array<string,string> $env
    *   Additional env vars to merge into the asciinema process environment.
    */
-  public function recordSession(string $cwd, string $cast_path, string $command, string $title, array $env = []): void {
-    $size = self::TERMINAL_WIDTH . 'x' . self::TERMINAL_HEIGHT;
+  public function recordSession(string $cwd, string $cast_path, string $command, string $title, array $env = [], ?int $cols = NULL, ?int $rows = NULL): void {
+    $w = $cols ?? self::TERMINAL_WIDTH;
+    $h = $rows ?? self::TERMINAL_HEIGHT;
+    $size = "{$w}x{$h}";
 
     $this->info('Recording asciinema session');
     $this->note("cwd: $cwd");
@@ -353,6 +359,7 @@ final class VideoRecorder {
 
   /**
    * Render the cast to an animated GIF via `agg`. No-op if `agg` is missing.
+   * Reads cols/rows from the cast file so the GIF matches the recording size.
    */
   public function renderGif(string $cast_path, string $gif_path): void {
     if (!$this->commandExists('agg')) {
@@ -360,12 +367,22 @@ final class VideoRecorder {
       return;
     }
 
+    $first_line = '';
+    $handle = fopen($cast_path, 'r');
+    if ($handle !== FALSE) {
+      $first_line = (string) fgets($handle);
+      fclose($handle);
+    }
+    $header = json_decode($first_line, TRUE);
+    $cols = is_array($header) && isset($header['width']) ? (int) $header['width'] : self::TERMINAL_WIDTH;
+    $rows = is_array($header) && isset($header['height']) ? (int) $header['height'] : self::TERMINAL_HEIGHT;
+
     $this->info("Rendering GIF: $gif_path");
 
     $this->run([
       'agg',
-      '--cols', (string) self::TERMINAL_WIDTH,
-      '--rows', (string) self::TERMINAL_HEIGHT,
+      '--cols', (string) $cols,
+      '--rows', (string) $rows,
       $cast_path,
       $gif_path,
     ]);
