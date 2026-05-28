@@ -4,11 +4,6 @@
 # Triggered automatically by 'notify-diffy' (via repository_dispatch)
 # when the deployed PR has the configured label, or manually via
 # 'workflow_dispatch' against any URL.
-#
-#;< VR_DIFFY
-#;
-#; Comments starting with '#;<' and '#;>' are internal Vortex comments
-#; and will be removed during installation or update of Vortex.
 name: Test - Visual regression
 
 on:
@@ -65,34 +60,21 @@ jobs:
       skipped: ${{ steps.gate.outputs.skipped }}
 
     steps:
-      - name: Resolve PR number from commit SHA
+      - name: Resolve PR number from target URL
         id: resolve_pr
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
-          # Hint from dispatch payload (some hosts can expose PR number;
-          # use it directly to skip the API call if present).
-          hint="${{ github.event.client_payload.pr }}"
-          if [ -n "${hint}" ]; then
-            echo "PR #${hint} provided by dispatch payload."
-            echo "pr_number=${hint}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Hosts that do not expose a PR number: derive it from the SHA
-          # via the commits-to-pulls REST endpoint. This is deterministic
-          # (returns only PRs that actually contain the commit) and works
-          # for both open and merged PRs.
-          pr_number="$(gh api \
-            "repos/${{ github.repository }}/commits/${SHA}/pulls" \
-            --jq '.[0].number // empty' 2>/dev/null || true)"
+          # Hosting providers expose PR environments via URLs that contain
+          # a 'pr-<number>' segment (e.g. 'app.pr-123.example.lagoon.cloud').
+          # Extract the number from the URL; if no match, this is not a PR
+          # deployment and visual regression should not run.
+          pr_number="$(printf '%s' "${TARGET_URL}" | sed -n 's|.*pr-\([0-9]\{1,\}\).*|\1|p')"
 
           if [ -n "${pr_number}" ]; then
-            echo "PR #${pr_number} resolved from commit SHA ${SHA}."
+            echo "PR #${pr_number} resolved from target URL ${TARGET_URL}."
           else
-            echo "::notice::No PR found for commit SHA ${SHA}. Visual regression will not run."
+            echo "::notice::No PR pattern found in target URL ${TARGET_URL}. Visual regression will not run."
           fi
           echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
 
@@ -301,4 +283,3 @@ jobs:
           EOF
           )
           gh pr comment "${PR_NUMBER}" --repo "${{ github.repository }}" --body "${body}"
-#;> VR_DIFFY

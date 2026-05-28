@@ -78,6 +78,30 @@ Triggers that require re-recording:
 
 ## Conditional Token System
 
+### When to use fences
+
+Fences (`#;< TOKEN` / `#;> TOKEN`) are for **partial** removal of content from
+within a file that survives the install regardless of the choice. Use them
+**only** when:
+
+- A specific block (a few lines, a section, a function) needs to disappear
+  conditionally while the rest of the file stays.
+- The choice can flip independently of any other selection.
+
+**Do not** wrap an entire file in fences if the installer removes the whole
+file via `File::remove($t . '/path/to/file')` based on the same selection.
+The file removal is the conditional behaviour - the fences are dead noise and
+add visual clutter to the shipped file. Examples:
+
+- `.github/workflows/assign-author.yml` is deleted whole by `AssignAuthorPr`
+  on "no" - no fences inside the file.
+- `.github/workflows/test-vr.yml` is deleted whole by `VisualRegression` on
+  "no" - no fences inside the file.
+
+If a fence-wrapped region would cover everything between the first and last
+line of the file, delete the fences and rely on the handler's `File::remove()`
+call instead.
+
 ### Patterns
 
 **Markdown**:

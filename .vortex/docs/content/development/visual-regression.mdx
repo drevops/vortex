@@ -26,16 +26,19 @@ flowchart LR
   E --> F[notify-diffy channel]
   F --> G[GitHub repository_dispatch event_type=vr_run]
   G --> H[test-vr.yml workflow]
-  H --> I[vr-compare resolves PR by SHA, checks label]
+  H --> I[vr-compare parses PR from target URL, checks label]
   I --> J[vr-report]
   J --> K[PR comment + Diffy report link]
 ```
 
 `notify-diffy` dispatches the workflow with a payload containing only the
 commit SHA, branch, target URL, label, and source environment - **no PR
-number**. The workflow itself looks up the associated open PR via the
-GitHub API (using the commit SHA) and verifies the `VR` label is present
-(case-insensitive). If no open PR matches the SHA, the run is skipped.
+number**. The workflow itself extracts the PR number from the deployed
+environment URL by matching the `pr-<number>` segment (e.g.
+`https://app.pr-123.example.lagoon.cloud/` resolves to PR #123) and
+verifies the `VR` label is present (case-insensitive). If the target URL
+has no `pr-<number>` segment, the deployment is not a PR environment and
+the run is skipped.
 
 This means the PR lookup works uniformly across hosting providers - the host
 only needs to expose the deployed environment URL, which all of them do.
@@ -109,26 +112,26 @@ label as the only gate (no auto-bypass) set the variable to empty.
 
 ## How the PR is resolved
 
-The workflow looks up the PR associated with the deployed commit SHA via
-the GitHub API. Specifically:
+The workflow extracts the PR number from the deployed environment URL by
+matching the `pr-<number>` segment. For example:
 
-```bash
-gh pr list --search "<sha>" --state all --json number
+```text
+https://app.pr-123.example.lagoon.cloud/   ->  PR #123
+https://nginx.pr-42.project.amazee.io/     ->  PR #42
 ```
 
 This means:
 
-- The deployed SHA can match an **open or closed** PR. A typical example:
-  a feature PR is merged into `dev`, the host deploys the merge commit,
-  the lookup finds the now-closed feature PR, and the comparison summary
-  is posted there as a post-merge record.
-- The lookup runs in GitHub Actions where `GITHUB_TOKEN` is available - no
-  PAT or extra config required.
-- The host does not need to provide a PR number; every host that runs the
-  `notify-diffy` channel works identically.
+- The host must deploy PR environments to a URL that contains the
+  `pr-<number>` segment - the standard convention on Lagoon, Acquia, and
+  most cloud hosting providers.
+- No GitHub API call is needed to resolve the PR.
+- The host does not need to provide a PR number directly; the URL is the
+  source of truth.
 
-If the SHA matches multiple PRs (unusual, e.g. duplicate commits from a
-fork), the first result is used.
+If the target URL has no `pr-<number>` segment (for example, a deploy to a
+named environment like `dev`/`test`/`prod`), the workflow treats it as
+"not a PR deployment" and exits without running.
 
 ## Missed-window behavior
 
