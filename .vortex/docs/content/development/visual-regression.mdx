@@ -31,10 +31,10 @@ flowchart LR
   J --> K[PR comment + Diffy report link]
 ```
 
-`notify-diffy` dispatches the workflow with a payload containing only the
-commit SHA, branch, target URL, label, and source environment - **no PR
-number**. The workflow itself extracts the PR number from the deployed
-environment URL by matching the `pr-<number>` segment (e.g.
+`notify-diffy` dispatches the workflow with a payload containing the
+branch, target URL, label, and source environment - **no PR number, no
+commit SHA**. The workflow itself extracts the PR number from the
+deployed environment URL by matching the `pr-<number>` segment (e.g.
 `https://app.pr-123.example.lagoon.cloud/` resolves to PR #123) and
 verifies the `VR` label is present (case-insensitive). If the target URL
 has no `pr-<number>` segment, the deployment is not a PR environment and
@@ -155,12 +155,14 @@ flowchart TD
 
 `vr-compare`:
 
-1. Checks the PR label (when running for a PR).
+1. Resolves the PR number from the target URL and gates on the label
+   (or auto-branch pattern for dependency PRs).
 2. Installs the pinned Diffy CLI.
-3. Calls `diffy project:compare` with the target URL, commit SHA, and a label.
+3. Calls `diffy project:compare` with the target URL and a label.
 4. Polls the comparison status, printing progress to the job log every
    `VR_DIFFY_POLL_INTERVAL` seconds.
-5. Exposes the diff ID as a job output.
+5. Fetches the diff result and exposes the diff ID, PR number, change
+   percentage, page counts, and shared report URL as job outputs.
 
 `vr-report`:
 

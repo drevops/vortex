@@ -36,7 +36,7 @@ defaults:
     shell: bash
 
 concurrency:
-  group: vr-${{ github.event.client_payload.sha || github.event.inputs.label || github.run_id }}
+  group: vr-${{ github.event.client_payload.target_url || github.event.inputs.target_url || github.run_id }}
   cancel-in-progress: true
 
 env:
