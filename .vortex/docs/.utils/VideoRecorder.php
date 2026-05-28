@@ -62,10 +62,15 @@ final class VideoRecorder {
   }
 
   /**
-   * Create a per-video workspace directory. Registers shutdown cleanup.
+   * Create a per-video workspace directory under `.artifacts/tmp/` within
+   * the project root. Registers shutdown cleanup.
    */
   public function workspaceInit(string $prefix): string {
-    $base = sys_get_temp_dir();
+    $base = $this->project_root . '/.artifacts/tmp';
+    if (!is_dir($base) && !mkdir($base, 0o755, TRUE) && !is_dir($base)) {
+      throw new RuntimeException("Failed to create artifacts tmp dir: $base");
+    }
+
     $unique = bin2hex(random_bytes(6));
     $workspace = "$base/vortex-video-$prefix-$unique";
 
@@ -118,24 +123,23 @@ final class VideoRecorder {
   }
 
   /**
-   * Run the installer non-interactively (and optionally `ahoy build`) so that
-   * a video can record only the target command, not the bootstrap noise.
+   * Run the installer non-interactively into `$workspace/star_wars`.
    *
-   * @param string|null $uri
-   *   Optional `--uri` value for the installer. Pass the project_root when
-   *   recording against the in-development template; pass NULL to install
-   *   the latest stable release from GitHub.
+   * @param string $uri
+   *   `--uri` value for the installer (typically the project_root so that
+   *   the in-development template is used as the source).
+   *
+   * @return string
+   *   Path to the installed project directory ($workspace/star_wars).
    */
-  public function bootstrapProject(string $workspace, bool $with_build, string $compose_project_name, ?string $uri = NULL): string {
+  public function runInstaller(string $workspace, string $uri): string {
     $installer = "$workspace/installer.php";
     if (!is_file($installer)) {
       throw new RuntimeException("Installer not found in workspace: $installer");
     }
 
-    $this->info('Bootstrapping project (silent, outside recording)');
-    if ($uri !== NULL) {
-      $this->note("URI: $uri");
-    }
+    $this->info('Running installer non-interactively');
+    $this->note("URI: $uri");
 
     $env = [
       'VORTEX_INSTALLER_PROMPT_BUILD_NOW' => '0',
@@ -143,12 +147,12 @@ final class VideoRecorder {
       'VORTEX_INSTALLER_PROMPT_ORG' => 'Rebellion',
     ];
 
-    $cmd = ['php', 'installer.php', '--no-interaction', '--destination=star_wars'];
-    if ($uri !== NULL) {
-      $cmd[] = "--uri=$uri";
-    }
-
-    $this->run($cmd, $workspace, $env);
+    $this->run([
+      'php', 'installer.php',
+      '--no-interaction',
+      '--destination=star_wars',
+      "--uri=$uri",
+    ], $workspace, $env);
 
     $project_dir = "$workspace/star_wars";
     if (!is_dir($project_dir)) {
@@ -157,19 +161,26 @@ final class VideoRecorder {
 
     $this->pass("Installer completed; project at $project_dir");
 
-    if ($with_build) {
-      $this->info('Running ahoy build (silent, outside recording)');
-      $build_env = [
-        'AHOY_CONFIRM_RESPONSE' => 'y',
-        'AHOY_CONFIRM_WAIT_SKIP' => '1',
-        'COMPOSE_PROJECT_NAME' => $compose_project_name,
-      ];
-      $this->registerDockerCleanup($project_dir, $compose_project_name);
-      $this->run(['ahoy', 'build'], $project_dir, $build_env);
-      $this->pass('ahoy build completed');
-    }
-
     return $project_dir;
+  }
+
+  /**
+   * Run `ahoy build` in the given project directory. Registers a shutdown
+   * hook so the Docker stack is torn down on exit.
+   */
+  public function runAhoyBuild(string $project_dir, string $compose_project_name): void {
+    $this->info('Running ahoy build (silent, outside recording)');
+
+    $env = [
+      'AHOY_CONFIRM_RESPONSE' => 'y',
+      'AHOY_CONFIRM_WAIT_SKIP' => '1',
+      'COMPOSE_PROJECT_NAME' => $compose_project_name,
+    ];
+
+    $this->registerDockerCleanup($project_dir, $compose_project_name);
+    $this->run(['ahoy', 'build'], $project_dir, $env);
+
+    $this->pass('ahoy build completed');
   }
 
   /**
@@ -245,8 +256,9 @@ final class VideoRecorder {
   /**
    * Post-process a recorded cast:
    *   - Drop line 2 (the spawn command echo from asciinema).
-   *   - Replace the workspace path (if provided) with /home/user/demo.
-   *   - Anonymise /Users/<name>/ and /var/folders/... temp paths.
+   *   - Replace the workspace path with /home/user/demo.
+   *   - Replace the project root path with /home/user/vortex.
+   *   - Strip any leftover /Users/<name>/ user-home references.
    */
   public function postprocessCast(string $cast_path, ?string $workspace = NULL): void {
     if (!is_file($cast_path)) {
@@ -269,10 +281,8 @@ final class VideoRecorder {
       $contents = str_replace(json_encode($workspace) ?: '', json_encode('/home/user/demo'), $contents);
     }
 
-    $contents = preg_replace('#/var/folders/[^/]+/[^/]+/T/[^/\s"\\\\]+#', '/tmp/anon', $contents);
-    if ($contents === NULL) {
-      throw new RuntimeException("Failed to scrub temp paths in cast: $cast_path");
-    }
+    $contents = str_replace($this->project_root, '/home/user/vortex', $contents);
+    $contents = str_replace(json_encode($this->project_root) ?: '', json_encode('/home/user/vortex'), $contents);
 
     $contents = preg_replace('#/Users/[^/]+/#', '/home/user/', $contents);
     if ($contents === NULL) {
@@ -361,36 +371,6 @@ final class VideoRecorder {
     ]);
 
     $this->pass("GIF rendered: $gif_path");
-  }
-
-  /**
-   * Copy $workspace/new.{json,svg,png,gif} to $docs_static_dir/$prefix.<ext>.
-   * JSON, SVG, and PNG are required; GIF is optional.
-   */
-  public function installArtifacts(string $workspace, string $prefix): void {
-    $this->info("Installing artifacts under prefix '$prefix'");
-
-    $required = ['json', 'svg', 'png'];
-    foreach ($required as $ext) {
-      $src = "$workspace/new.$ext";
-      if (!is_file($src)) {
-        throw new RuntimeException("Required artifact missing: $src");
-      }
-    }
-
-    foreach (['json', 'svg', 'png', 'gif'] as $ext) {
-      $src = "$workspace/new.$ext";
-      if (!is_file($src)) {
-        continue;
-      }
-      $dst = $this->docs_static_dir . "/$prefix.$ext";
-      if (!copy($src, $dst)) {
-        throw new RuntimeException("Failed to copy $src to $dst");
-      }
-      $this->note("Installed: $dst");
-    }
-
-    $this->pass("Artifacts installed under prefix '$prefix'");
   }
 
   /**
