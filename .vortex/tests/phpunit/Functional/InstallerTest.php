@@ -30,7 +30,7 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitAssertClean(static::$repo, 'Git working tree of the Vortex template repository should be clean');
   }
 
-  #[Group('p0')]
+  #[Group('p4')]
   public function testInstallFromLatest(): void {
     $this->logSubstep('Add custom files to SUT');
     File::dump('test1.txt', 'test content');
@@ -90,7 +90,7 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
   }
 
-  #[Group('p4')]
+  #[Group('p3')]
   public function testInstallFromRef(): void {
     $this->logSubstep('Add custom files to SUT');
     File::dump('test1.txt', 'test content');

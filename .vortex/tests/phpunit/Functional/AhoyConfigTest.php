@@ -18,7 +18,7 @@ class AhoyConfigTest extends FunctionalTestCase {
     $this->prepareSut();
   }
 
-  #[Group('p0')]
+  #[Group('p3')]
   public function testLocalConfigAbsent(): void {
     $this->cmd(
       'ahoy --version',
@@ -27,7 +27,7 @@ class AhoyConfigTest extends FunctionalTestCase {
     );
   }
 
-  #[Group('p0')]
+  #[Group('p3')]
   public function testLocalConfigPresent(): void {
     File::copy('.ahoy.local.example.yml', '.ahoy.local.yml');
     $this->cmd(
@@ -37,7 +37,7 @@ class AhoyConfigTest extends FunctionalTestCase {
     );
   }
 
-  #[Group('p0')]
+  #[Group('p3')]
   public function testLocalConfigPresentNonZeroExitCode(): void {
     File::copy('.ahoy.local.example.yml', '.ahoy.local.yml');
 
