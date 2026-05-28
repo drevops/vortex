@@ -28,7 +28,7 @@ class VisualRegression extends AbstractHandler {
    */
   public static function description(array $responses): string {
     return <<<DOC
-Ships a Diffy-powered visual regression workflow.
+Diffy-powered visual regression workflow to compare deployed environments.
 
 Automatically triggers comparisons for dependency-update pull requests.
 
