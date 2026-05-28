@@ -221,7 +221,8 @@ function render_and_install(VideoRecorder $recorder, string $workspace, string $
   $cast = "$workspace/$name.json";
   $recorder->postprocessCast($cast, $workspace);
   $recorder->renderSvg($cast, "$workspace/$name.svg");
-  $recorder->renderPng($cast, "$workspace/$name.png");
+  $poster_ms = $name === 'installer' ? VideoRecorder::POSTER_TIMESTAMP_MS : VideoRecorder::POSTER_TIMESTAMP_MS_LATE;
+  $recorder->renderPng($cast, "$workspace/$name.png", $poster_ms);
   $recorder->renderGif($cast, "$workspace/$name.gif");
   install_video_artifacts($recorder, $workspace, $name, $docs_static_dir);
 }

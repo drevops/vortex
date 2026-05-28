@@ -20,7 +20,11 @@ final class VideoRecorder {
   /** Taller terminal for command videos (build/provision/lint/test/test-bdd) whose output exceeds the default. */
   public const int TERMINAL_HEIGHT_TALL = 80;
 
+  /** Poster timestamp for the installer recording (captures the welcome banner). */
   public const int POSTER_TIMESTAMP_MS = 2000;
+
+  /** Poster timestamp for command videos that spend their first seconds bootstrapping inside Docker. */
+  public const int POSTER_TIMESTAMP_MS_LATE = 30000;
 
   public const string LINE_HEIGHT = '1.1';
 
@@ -324,10 +328,15 @@ final class VideoRecorder {
   }
 
   /**
-   * Render a single frame at POSTER_TIMESTAMP_MS to PNG (1280px wide).
+   * Render a single frame to PNG (1280px wide).
+   *
+   * @param int|null $at_ms
+   *   Cast timestamp (ms) to snapshot. Defaults to POSTER_TIMESTAMP_MS.
    */
-  public function renderPng(string $cast_path, string $png_path): void {
-    $this->info("Rendering PNG poster: $png_path");
+  public function renderPng(string $cast_path, string $png_path, ?int $at_ms = NULL): void {
+    $at = $at_ms ?? self::POSTER_TIMESTAMP_MS;
+
+    $this->info("Rendering PNG poster (at {$at}ms): $png_path");
 
     $frame_svg = $png_path . '.svg';
 
@@ -337,7 +346,7 @@ final class VideoRecorder {
       $cast_path,
       $frame_svg,
       '--line-height', self::LINE_HEIGHT,
-      '--at', (string) self::POSTER_TIMESTAMP_MS,
+      '--at', (string) $at,
     ]);
 
     $this->run([
