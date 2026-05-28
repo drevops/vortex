@@ -11,10 +11,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="diffy"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
-  export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_BRANCH="feature/my-pr-branch"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_PR_NUMBER="123"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.example.com"
   export VORTEX_NOTIFY_DIFFY_TOKEN="token12345"
@@ -37,9 +34,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="diffy"
   export VORTEX_NOTIFY_EVENT="post_deployment"
-  export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_BRANCH="feature/my-pr-branch"
-  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.example.com"
   export VORTEX_NOTIFY_DIFFY_TOKEN="token12345"
@@ -50,7 +45,7 @@ load ../_helper.bash
 
   assert_output_contains "Started Diffy notification."
   assert_output_contains "Branch           : feature/my-pr-branch"
-  assert_output_contains "SHA              : abc123def456"
+  assert_output_contains "Environment URL  : https://pr-123.example.com"
   assert_output_contains "Finished Diffy notification."
 
   popd >/dev/null || exit 1
@@ -61,9 +56,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="diffy"
   export VORTEX_NOTIFY_EVENT="post_deployment"
-  export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_BRANCH="feature/random"
-  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="feature/random"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://random.example.com"
   export VORTEX_NOTIFY_DIFFY_TOKEN="token12345"
@@ -86,9 +79,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="diffy"
   export VORTEX_NOTIFY_EVENT="post_deployment"
-  export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_BRANCH="feature/my-pr-branch"
-  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.example.com"
   export VORTEX_NOTIFY_DIFFY_TOKEN="badtoken"
@@ -107,9 +98,7 @@ load ../_helper.bash
 
   export VORTEX_NOTIFY_CHANNELS="diffy"
   export VORTEX_NOTIFY_EVENT="post_deployment"
-  export VORTEX_NOTIFY_PROJECT="testproject"
   export VORTEX_NOTIFY_BRANCH="feature/my-pr-branch"
-  export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.example.com"
   export VORTEX_NOTIFY_DIFFY_TOKEN=""
