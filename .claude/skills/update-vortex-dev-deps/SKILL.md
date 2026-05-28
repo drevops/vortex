@@ -1,12 +1,12 @@
 ---
 name: update-vortex-dev-deps
-description: Use when refreshing Composer and Yarn dev dependencies across the four '.vortex/' subsystems (docs, installer, tests, tooling). Runs in-range lock-file refreshes, produces a 'majors-available' report, makes a single bulk commit, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
+description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, installer, tests). Runs in-range lock-file refreshes, produces a 'majors-available' report, makes a single bulk commit, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
 user-invocable: true
 ---
 
 # Update Vortex Dev Dependencies
 
-Refresh Composer and Yarn dependencies across all four `.vortex/` subsystems, generate a major-versions-available report, and open a pull request. Local validation is intentionally skipped - CI is the source of truth.
+Refresh Composer and Yarn dependencies across three `.vortex/` subsystems, generate a major-versions-available report, and open a pull request. Local validation is intentionally skipped - CI is the source of truth.
 
 ## When to Use
 
@@ -17,15 +17,17 @@ Do NOT use for:
 
 - The root project's dependencies (those are handled by Renovate and `prepare-vortex-release`).
 - Major version bumps inside `.vortex/` manifests. This skill only refreshes lock files within existing constraints; the majors report flags what would need a manual bump.
+- `.vortex/tooling/`. That directory ships as the standalone `drevops/vortex-tooling` Composer library - it does not commit a `composer.lock`, its `yarn.lock` is for BATS only, and its dependencies are resolved by consumer projects via Packagist. Touching it here would produce local-only artefacts that should never land in a PR.
 
 ## Scope
 
-This skill ONLY touches files under `.vortex/`:
+This skill touches files under exactly three `.vortex/` subsystems:
 
 - `.vortex/docs/` (Yarn)
 - `.vortex/installer/` (Composer, plus `vendor-bin/box/` sub-composer)
 - `.vortex/tests/` (Composer + Yarn)
-- `.vortex/tooling/` (Composer + Yarn)
+
+`.vortex/tooling/` is explicitly out of scope - see the "Do NOT use for" list above.
 
 Manifests (`composer.json`, `package.json`) are not edited by hand. Only lock files (`composer.lock`, `yarn.lock`, `patches.lock.json`) change. A `composer.json` will only change if it has `bump-after-update` configured; in that case stage and commit it along with its lock file.
 
@@ -60,7 +62,6 @@ Process in fixed order. Smallest blast radius first.
 | 1 | `docs`                    | -                                                 | `package.json`   | -                   |
 | 2 | `installer`               | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 |
 | 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 |
-| 4 | `tooling`                 | `composer.json`                                   | `package.json`   | -                   |
 
 ## Workflow
 
@@ -136,16 +137,6 @@ composer --working-dir .vortex/tests update
 yarn --cwd .vortex/tests upgrade
 ```
 
-**3.4 - tooling (Composer + Yarn):**
-
-```bash
-composer --working-dir .vortex/tooling update
-```
-
-```bash
-yarn --cwd .vortex/tooling upgrade
-```
-
 **On command failure** (dependency resolution conflict, registry error, etc.): STOP, report which subsystem and which command failed and the relevant error excerpt, leave the working tree as-is so the user can investigate. Do NOT proceed to the next subsystem and do NOT delete the partial diff.
 
 ### Step 4: Generate majors-available report
@@ -215,10 +206,6 @@ git add .vortex/installer/vendor-bin/box/composer.json
 ```
 
 ```bash
-git add .vortex/installer/vendor-bin/box/composer.lock
-```
-
-```bash
 git add .vortex/tests/composer.json
 ```
 
@@ -234,19 +221,9 @@ git add .vortex/tests/patches.lock.json
 git add .vortex/tests/yarn.lock
 ```
 
-```bash
-git add .vortex/tooling/composer.json
-```
+Note that `.vortex/installer/vendor-bin/box/composer.lock` is gitignored (the whole `vendor-bin/` directory is excluded). Do not try to force-add it.
 
-```bash
-git add .vortex/tooling/composer.lock
-```
-
-```bash
-git add .vortex/tooling/yarn.lock
-```
-
-Run `git status` to confirm only `.vortex/**` paths are staged. Staging an unchanged file is a no-op.
+Run `git status` to confirm only `.vortex/**` paths are staged. Staging an unchanged file is a no-op. If anything under `.vortex/tooling/` appears in `git status` (a `composer.lock` that Composer wrote locally, for example), do NOT stage it - that subsystem is out of scope.
 
 Commit (with the slug title-cased, e.g. `May 2026`):
 
@@ -258,8 +235,8 @@ git commit -m "Refreshed '.vortex/' dev dependencies for {Slug Title Case}."
 
 Invoke the `/open-pr` skill. The PR description must include:
 
-1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `installer` / `tests` / `tooling`. No manifest constraint changes."
-2. **Subsystems touched** - bullet list of the four subsystems with a yes/no marker for Composer and Yarn changes (read from `git diff --stat`).
+1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `installer` / `tests`. No manifest constraint changes. `.vortex/tooling/` is out of scope."
+2. **Subsystems touched** - bullet list of the three subsystems with a yes/no marker for Composer and Yarn changes (read from `git diff --stat`).
 3. **Majors report** - paste the report content generated in Step 4 inline (the body of `majors.md` or the "No major versions available" line), so reviewers see what is available outside the constraints in the same place as the diff. Do NOT reference the `.artifacts/` path - those files are not staged and will not exist in the PR branch.
 
 The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/update-log.txt` for local debugging only. Do not reference this path from the PR description and do not paste the log into the PR body.
@@ -269,10 +246,12 @@ The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/upda
 ## Red Flags
 
 - About to run `composer update` or `yarn upgrade` at the project root: stop. The root project is out of scope for this skill.
+- About to run `composer update` or `yarn upgrade` under `.vortex/tooling/`: stop. The tooling subsystem is its own Composer library and is explicitly out of scope.
 - About to pass `--with-all-dependencies`, `--latest`, a package name, or any other flag that changes constraint behaviour: stop. This skill performs in-range refreshes only.
 - About to edit a `composer.json` or `package.json` constraint to "fix" a resolution failure: stop. Surface the failure to the user.
 - About to run `ahoy lint`, `ahoy test`, `composer test`, or any local validation: stop. CI is the source of truth.
 - About to `git add .` or `git add -A`: stop. Stage specific files only.
+- About to stage a `composer.lock` under `.vortex/tooling/` because Composer just wrote it: stop. That file is local-only.
 - About to skip the majors report because "nothing changed": still write the report (or the "no majors available" line). Reviewers expect it.
 - About to delete the partial diff after a failed update so the next subsystem can run: stop. On failure, leave the diff for investigation.
 
