@@ -77,7 +77,7 @@ the sole gate.
 PRs raised by Renovate (or any other automated dependency-update bot) typically
 do not carry the `VR` label - they carry their own bot label (e.g.
 `Dependencies`). To still run visual regression on them, the workflow consults
-`VORTEX_VR_DIFFY_AUTO_BRANCHES`: a comma-separated glob list of PR head
+`VR_DIFFY_AUTO_BRANCHES`: a comma-separated glob list of PR head
 branches that bypass the `VR` label gate.
 
 The default value is `deps/*`, matching Vortex's Renovate `branchPrefix`
@@ -90,14 +90,14 @@ configuration. Other common values:
 | Dependabot | `dependabot/` | `dependabot/*` |
 
 Multiple patterns can be combined with commas:
-`VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Set the variable to
+`VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Set the variable to
 empty to disable the bypass entirely (every PR, including bot PRs, then needs
 the label).
 
 ### Default behavior out of the box
 
-With `VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
-`VORTEX_VR_DIFFY_PR_LABEL=VR` (default):
+With `VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
+`VR_DIFFY_PR_LABEL=VR` (default):
 
 | PR head branch | Has `VR` label? | Runs? |
 |---|---|---|
@@ -107,7 +107,7 @@ With `VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
 | `deps/drupal-core-11.2` | yes | yes (matches `deps/*`, label irrelevant) |
 
 Consumers using Dependabot just append:
-`VORTEX_VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Consumers who want the
+`VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Consumers who want the
 label as the only gate (no auto-bypass) set the variable to empty.
 
 ## How the PR is resolved
@@ -159,7 +159,7 @@ flowchart TD
 2. Installs the pinned Diffy CLI.
 3. Calls `diffy project:compare` with the target URL, commit SHA, and a label.
 4. Polls the comparison status, printing progress to the job log every
-   `VORTEX_VR_DIFFY_POLL_INTERVAL` seconds.
+   `VR_DIFFY_POLL_INTERVAL` seconds.
 5. Exposes the diff ID as a job output.
 
 `vr-report`:

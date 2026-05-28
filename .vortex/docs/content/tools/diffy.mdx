@@ -30,8 +30,8 @@ secrets and repository variables.
 
 | Name | Required | Purpose |
 |---|---|---|
-| `VORTEX_VR_DIFFY_API_KEY` | yes | Diffy API key |
-| `VORTEX_VR_DIFFY_PROJECT_ID` | yes | Numeric Diffy project ID (visible in the Diffy project URL) |
+| `VR_DIFFY_API_KEY` | yes | Diffy API key |
+| `VR_DIFFY_PROJECT_ID` | yes | Numeric Diffy project ID (visible in the Diffy project URL) |
 
 Add these under *Settings > Secrets and variables > Actions > Repository
 secrets*.
@@ -40,12 +40,12 @@ secrets*.
 
 | Name | Default | Purpose |
 |---|---|---|
-| `VORTEX_VR_DIFFY_CLI_VERSION` | `0.1.53` | Pinned `diffy-cli` release used by both jobs |
-| `VORTEX_VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) |
-| `VORTEX_VR_DIFFY_POLL_INTERVAL` | `30` | Polling interval in seconds |
-| `VORTEX_VR_DIFFY_PR_LABEL` | `VR` | PR label that opts a deployment into visual regression. Case-insensitive |
-| `VORTEX_VR_DIFFY_AUTO_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that bypass the label gate (matches Renovate's `branchPrefix`). Set to empty to require the label on every PR. |
-| `VORTEX_VR_DIFFY_SOURCE_ENV` | `production` | Default Diffy source environment for comparisons |
+| `VR_DIFFY_CLI_VERSION` | `0.1.53` | Pinned `diffy-cli` release used by both jobs |
+| `VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) |
+| `VR_DIFFY_POLL_INTERVAL` | `30` | Polling interval in seconds |
+| `VR_DIFFY_PR_LABEL` | `VR` | PR label that opts a deployment into visual regression. Case-insensitive |
+| `VR_DIFFY_AUTO_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that bypass the label gate (matches Renovate's `branchPrefix`). Set to empty to require the label on every PR. |
+| `VR_DIFFY_SOURCE_ENV` | `production` | Default Diffy source environment for comparisons |
 
 Add these under *Settings > Secrets and variables > Actions > Repository
 variables*.

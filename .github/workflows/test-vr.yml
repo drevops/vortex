@@ -40,11 +40,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DIFFY_CLI_VERSION: ${{ vars.VORTEX_VR_DIFFY_CLI_VERSION || '0.1.53' }}
-  DIFFY_MAX_WAIT: ${{ vars.VORTEX_VR_DIFFY_MAX_WAIT || '2700' }}
-  DIFFY_PR_LABEL: ${{ vars.VORTEX_VR_DIFFY_PR_LABEL || 'VR' }}
-  DIFFY_AUTO_BRANCHES: ${{ vars.VORTEX_VR_DIFFY_AUTO_BRANCHES || 'deps/*' }}
-  DIFFY_POLL_INTERVAL: ${{ vars.VORTEX_VR_DIFFY_POLL_INTERVAL || '30' }}
+  DIFFY_CLI_VERSION: ${{ vars.VR_DIFFY_CLI_VERSION || '0.1.53' }}
+  DIFFY_MAX_WAIT: ${{ vars.VR_DIFFY_MAX_WAIT || '2700' }}
+  DIFFY_PR_LABEL: ${{ vars.VR_DIFFY_PR_LABEL || 'VR' }}
+  DIFFY_AUTO_BRANCHES: ${{ vars.VR_DIFFY_AUTO_BRANCHES || 'deps/*' }}
+  DIFFY_POLL_INTERVAL: ${{ vars.VR_DIFFY_POLL_INTERVAL || '30' }}
   SHA: ${{ github.event.client_payload.sha || github.sha }}
   SOURCE_ENV: ${{ github.event.client_payload.source_env || inputs.source_env || 'production' }}
   TARGET_URL: ${{ github.event.client_payload.target_url || inputs.target_url }}
@@ -132,7 +132,7 @@ jobs:
             echo "PR #${PR_NUMBER} has the '${DIFFY_PR_LABEL}' label, proceeding."
             echo "skipped=false" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::PR #${PR_NUMBER} does not have the '${DIFFY_PR_LABEL}' label and head branch '${head_ref}' does not match VORTEX_VR_DIFFY_AUTO_BRANCHES, skipping visual regression."
+            echo "::notice::PR #${PR_NUMBER} does not have the '${DIFFY_PR_LABEL}' label and head branch '${head_ref}' does not match VR_DIFFY_AUTO_BRANCHES, skipping visual regression."
             echo "skipped=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -157,7 +157,7 @@ jobs:
       - name: Authenticate Diffy CLI
         if: steps.gate.outputs.skipped != 'true'
         env:
-          DIFFY_API_KEY: ${{ secrets.VORTEX_VR_DIFFY_API_KEY }}
+          DIFFY_API_KEY: ${{ secrets.VR_DIFFY_API_KEY }}
         run: |
           set -euo pipefail
           /tmp/diffy.phar auth:login "${DIFFY_API_KEY}"
@@ -166,7 +166,7 @@ jobs:
         id: compare
         if: steps.gate.outputs.skipped != 'true'
         env:
-          DIFFY_PROJECT_ID: ${{ secrets.VORTEX_VR_DIFFY_PROJECT_ID }}
+          DIFFY_PROJECT_ID: ${{ secrets.VR_DIFFY_PROJECT_ID }}
         run: |
           set -euo pipefail
           echo "Starting Diffy comparison: source=${SOURCE_ENV} target=${TARGET_URL} label=${LABEL} sha=${SHA}"
@@ -232,7 +232,7 @@ jobs:
 
       - name: Authenticate Diffy CLI
         env:
-          DIFFY_API_KEY: ${{ secrets.VORTEX_VR_DIFFY_API_KEY }}
+          DIFFY_API_KEY: ${{ secrets.VR_DIFFY_API_KEY }}
         run: |
           set -euo pipefail
           /tmp/diffy.phar auth:login "${DIFFY_API_KEY}"
