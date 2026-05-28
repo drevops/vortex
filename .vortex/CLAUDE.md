@@ -94,6 +94,29 @@ When updating template files (settings, configs, etc.):
 3. Run `ahoy update-snapshots`
 4. Commit the regenerated fixtures
 
+### When the installer prompt flow changes
+
+**Trigger**: any change under `.vortex/installer/src/Prompts/` (new handler,
+renamed/reordered prompt, removed handler, wording change to `label()` or
+`hint()`, `TOTAL_RESPONSES` bump, etc.).
+
+**Required follow-ups** (in order):
+
+1. Run `ahoy update-snapshots` from `.vortex/` to refresh fixture files.
+2. Run `ahoy update-installer-video` from `.vortex/` to regenerate the
+   demo asciicast shown in the docs. The video records the live prompt
+   flow, so it goes stale the moment the flow changes.
+
+`update-snapshots` writes a commit automatically when fixtures change.
+`update-installer-video` updates the asciicast/SVG/PNG/GIF files in
+`.vortex/docs/static/img/` but does **not** create a commit - stage and
+commit the changes manually after running. Run both commands **after**
+the installer code change is committed, since the regeneration compares
+against the committed baseline.
+
+Detailed prerequisites and outputs for the video command are documented in
+`.vortex/installer/CLAUDE.md` under "Updating the Installer Video".
+
 ## Environment Variables
 
 | Variable              | Purpose                |

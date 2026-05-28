@@ -39,6 +39,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
+use DrevOps\VortexInstaller\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Prompts\PromptType;
@@ -107,6 +108,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'label_merge_conflicts_pr' => [LabelMergeConflictsPr::id(), PromptType::Confirm];
     yield 'preserve_docs_project' => [PreserveDocsProject::id(), PromptType::Confirm];
     yield 'ai_code_instructions' => [AiCodeInstructions::id(), PromptType::Confirm];
+    yield 'visual_regression' => [VisualRegression::id(), PromptType::Confirm];
     // Suggest handlers.
     yield 'timezone' => [Timezone::id(), PromptType::Suggest];
   }

@@ -40,6 +40,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
+use DrevOps\VortexInstaller\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
@@ -153,6 +154,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationDownloadSource::id() => NULL,
       MigrationImage::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
+      VisualRegression::id() => FALSE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
       CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => TRUE,
@@ -231,6 +233,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationDownloadSource::id() => static::TUI_SKIP,
       MigrationImage::id() => static::TUI_SKIP,
       CiProvider::id() => static::TUI_DEFAULT,
+      VisualRegression::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
       CodeCoverageProvider::id() => static::TUI_DEFAULT,
       AssignAuthorPr::id() => static::TUI_DEFAULT,
