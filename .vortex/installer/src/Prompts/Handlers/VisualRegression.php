@@ -27,7 +27,13 @@ class VisualRegression extends AbstractHandler {
    * {@inheritdoc}
    */
   public static function description(array $responses): string {
-    return 'Ships a Diffy-powered visual regression workflow. PR deployments tagged with the VR label trigger a comparison against a baseline environment; results are posted back to the PR. Runs also manually for any URL.';
+    return <<<DOC
+Ships a Diffy-powered visual regression workflow.
+
+Automatically triggers comparisons for dependency-update pull requests. Runs comparisons for pull requests tagged with the `VR` label and posts a sticky comment.
+
+Also supports manual runs against any URL.
+DOC;
   }
 
   /**
