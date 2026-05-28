@@ -142,7 +142,7 @@ ahoy update-videos --keep lint     # full bootstrap + record lint, keep workspac
 ahoy update-videos --keep lint     # reuse the kept workspace, record lint only
 # done iterating - discard the kept state
 ahoy update-videos lint            # fresh bootstrap, no --keep, cleans up at end
-# (or manually) rm -rf .artifacts/videos-workspace
+# (or manually) rm -rf .artifacts/tmp/videos-workspace
 ```
 
 A video goes stale when the command it records changes behaviour:

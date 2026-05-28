@@ -59,10 +59,9 @@ function usage(): void {
   fwrite(STDERR, "  Default: all videos\n");
   fwrite(STDERR, "\n");
   fwrite(STDERR, "Options:\n");
-  fwrite(STDERR, "  --keep   Use a persistent workspace at '.artifacts/videos-workspace/' and\n");
+  fwrite(STDERR, "  --keep   Use a persistent workspace at '.artifacts/tmp/videos-workspace/' and\n");
   fwrite(STDERR, "           keep the Docker stack running so subsequent runs can re-record a\n");
-  fwrite(STDERR, "           specific video without re-bootstrapping. Discard with\n");
-  fwrite(STDERR, "           'rm -rf .artifacts/videos-workspace' (Docker stack stops automatically).\n");
+  fwrite(STDERR, "           specific video without re-bootstrapping.\n");
 }
 
 function build_installer_expect_script(int|float $prompt_delay, string $uri): string {
@@ -277,7 +276,7 @@ function main(array $argv): int {
     $recorder->note('Persistent mode (--keep): workspace and Docker stack will survive this run');
   }
 
-  $type_and_run = __DIR__ . '/type-and-run.sh';
+  $type_and_run = __DIR__ . '/type-and-run.php';
 
   $needs_built_project = array_intersect($requested, ['build', 'provision', 'lint', 'test', 'test-bdd']) !== [];
 
@@ -289,7 +288,7 @@ function main(array $argv): int {
   $recorder->checkDependencies($extra_deps);
 
   if ($keep) {
-    $workspace = $project_root . '/.artifacts/videos-workspace';
+    $workspace = $project_root . '/.artifacts/tmp/videos-workspace';
     if (!is_dir($workspace) && !mkdir($workspace, 0o755, TRUE) && !is_dir($workspace)) {
       $recorder->fail("Failed to create persistent workspace: $workspace");
       return 1;
