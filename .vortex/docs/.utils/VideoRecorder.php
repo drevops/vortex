@@ -14,11 +14,7 @@ final class VideoRecorder {
 
   public const int TERMINAL_WIDTH = 140;
 
-  /** Default terminal height. Suitable for the installer recording where the welcome banner fits in ~30 rows. */
   public const int TERMINAL_HEIGHT = 42;
-
-  /** Taller terminal for command videos (build/provision/lint/test/test-bdd) whose output exceeds the default. */
-  public const int TERMINAL_HEIGHT_TALL = 80;
 
   /** Poster timestamp for the installer recording (captures the welcome banner). */
   public const int POSTER_TIMESTAMP_MS = 2000;

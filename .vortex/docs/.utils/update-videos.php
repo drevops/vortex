@@ -368,7 +368,6 @@ function main(array $argv): int {
         command: "$type_and_run ahoy build",
         title: 'Vortex ahoy build Demo',
         env: $record_env,
-        rows: VideoRecorder::TERMINAL_HEIGHT_TALL,
       );
       render_and_install($recorder, $workspace, 'build', $docs_static_dir);
     }
@@ -396,7 +395,6 @@ function main(array $argv): int {
       command: "$type_and_run $command",
       title: "Vortex $command Demo",
       env: $record_env,
-      rows: VideoRecorder::TERMINAL_HEIGHT_TALL,
     );
     render_and_install($recorder, $workspace, $name, $docs_static_dir);
   }
