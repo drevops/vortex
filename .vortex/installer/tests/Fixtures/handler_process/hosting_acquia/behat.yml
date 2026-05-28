@@ -7,6 +7,6 @@
        drush:
 -        root: web
 +        root: docroot
-       region_map:
+       regions:
          header: '#header'
          primary_menu: '.header-nav'
