@@ -568,7 +568,7 @@ class PromptManager {
       throw new \RuntimeException(sprintf('Could not read the directory "%s".', $dir));
     }
 
-    $handler_files = array_filter($files, fn(string $file): bool => !in_array($file, ['.', '..']));
+    $handler_files = array_filter($files, fn(string $file): bool => !in_array($file, ['.', '..'], TRUE));
 
     $classes = [];
     foreach ($handler_files as $handler_file) {

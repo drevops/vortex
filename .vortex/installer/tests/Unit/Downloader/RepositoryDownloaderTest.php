@@ -286,8 +286,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'valid releases' => [
       'repo' => 'https://github.com/user/repo',
       'releaseData' => [
-          ['tag_name' => 'v2.0.0', 'draft' => FALSE],
-          ['tag_name' => 'v1.0.0', 'draft' => FALSE],
+        ['tag_name' => 'v2.0.0', 'draft' => FALSE],
+        ['tag_name' => 'v1.0.0', 'draft' => FALSE],
       ],
       'throwException' => FALSE,
       'skipMockSetup' => FALSE,
@@ -298,8 +298,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'skips drafts' => [
       'repo' => 'https://github.com/user/repo',
       'releaseData' => [
-          ['tag_name' => 'v3.0.0', 'draft' => TRUE],
-          ['tag_name' => 'v2.0.0', 'draft' => FALSE],
+        ['tag_name' => 'v3.0.0', 'draft' => TRUE],
+        ['tag_name' => 'v2.0.0', 'draft' => FALSE],
       ],
       'throwException' => FALSE,
       'skipMockSetup' => FALSE,
@@ -346,7 +346,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'SemVer+CalVer format - single release' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
       'releaseData' => [
-          ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
+        ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
       ],
       'throwException' => FALSE,
       'skipMockSetup' => FALSE,
@@ -357,9 +357,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'SemVer+CalVer format - multiple releases' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
       'releaseData' => [
-          ['tag_name' => '1.2.0+2025.12.0', 'draft' => FALSE],
-          ['tag_name' => '1.1.0+2025.11.0', 'draft' => FALSE],
-          ['tag_name' => '1.0.0+2025.10.0', 'draft' => FALSE],
+        ['tag_name' => '1.2.0+2025.12.0', 'draft' => FALSE],
+        ['tag_name' => '1.1.0+2025.11.0', 'draft' => FALSE],
+        ['tag_name' => '1.0.0+2025.10.0', 'draft' => FALSE],
       ],
       'throwException' => FALSE,
       'skipMockSetup' => FALSE,
@@ -370,8 +370,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'SemVer+CalVer format - skip draft' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
       'releaseData' => [
-          ['tag_name' => '2.0.0+2026.01.0', 'draft' => TRUE],
-          ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
+        ['tag_name' => '2.0.0+2026.01.0', 'draft' => TRUE],
+        ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
       ],
       'throwException' => FALSE,
       'skipMockSetup' => FALSE,
@@ -382,9 +382,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'Mixed format - SemVer+CalVer and CalVer' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
       'releaseData' => [
-          ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
-          ['tag_name' => '25.10.0', 'draft' => FALSE],
-          ['tag_name' => '25.9.0', 'draft' => FALSE],
+        ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
+        ['tag_name' => '25.10.0', 'draft' => FALSE],
+        ['tag_name' => '25.9.0', 'draft' => FALSE],
       ],
       'throwException' => FALSE,
       'skipMockSetup' => FALSE,

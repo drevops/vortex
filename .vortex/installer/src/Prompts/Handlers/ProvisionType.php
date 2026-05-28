@@ -73,7 +73,7 @@ DOC;
   public function discover(): null|string|bool|array {
     $type = Env::getFromDotenv('VORTEX_PROVISION_TYPE', $this->dstDir);
 
-    return $type && in_array($type, [self::DATABASE, self::PROFILE]) ? $type : NULL;
+    return $type && in_array($type, [self::DATABASE, self::PROFILE], TRUE) ? $type : NULL;
   }
 
   /**

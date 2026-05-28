@@ -65,7 +65,7 @@ class Theme extends AbstractHandler {
     $value = $this->discoverName();
 
     if (!is_null($value)) {
-      return in_array($value, [self::OLIVERO, self::CLARO, self::STARK]) ? $value : self::CUSTOM;
+      return in_array($value, [self::OLIVERO, self::CLARO, self::STARK], TRUE) ? $value : self::CUSTOM;
     }
 
     return NULL;

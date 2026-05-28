@@ -204,12 +204,12 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
     yield 'full config with lagoon hosting' => ['valid_full.json', ['valid' => TRUE]];
     yield 'minimal config' => [
       'valid_minimal.json',
-        [
-          'valid' => TRUE,
-          'resolved' => [
-            Name::id() => 'Minimal Site',
-          ],
+      [
+        'valid' => TRUE,
+        'resolved' => [
+          Name::id() => 'Minimal Site',
         ],
+      ],
     ];
     yield 'database provision with container registry' => ['valid_database_provision.json', ['valid' => TRUE]];
     yield 'migration enabled' => ['valid_migration.json', ['valid' => TRUE]];
@@ -217,33 +217,33 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
     // Invalid configs.
     yield 'invalid hosting provider value' => [
       'invalid_hosting_provider.json',
-        ['valid' => FALSE, 'error_prompt' => HostingProvider::id(), 'error_message' => 'aws'],
+      ['valid' => FALSE, 'error_prompt' => HostingProvider::id(), 'error_message' => 'aws'],
     ];
     yield 'non-boolean for confirm field' => [
       'invalid_confirm_not_boolean.json',
-        ['valid' => FALSE, 'error_prompt' => Migration::id(), 'error_message' => 'Expected boolean'],
+      ['valid' => FALSE, 'error_prompt' => Migration::id(), 'error_message' => 'Expected boolean'],
     ];
     yield 'invalid database download source' => [
       'invalid_database_source.json',
-        ['valid' => FALSE, 'error_prompt' => DatabaseDownloadSource::id(), 'error_message' => 'dropbox'],
+      ['valid' => FALSE, 'error_prompt' => DatabaseDownloadSource::id(), 'error_message' => 'dropbox'],
     ];
     yield 'invalid provision type' => [
       'invalid_provision_type.json',
-        ['valid' => FALSE, 'error_prompt' => 'provision_type', 'error_message' => 'magic'],
+      ['valid' => FALSE, 'error_prompt' => 'provision_type', 'error_message' => 'magic'],
     ];
     // Warnings.
     yield 'warning for unmet dependency' => [
       'warning_unmet_dependency.json',
-        ['valid' => TRUE, 'warning_prompt' => HostingProjectName::id()],
+      ['valid' => TRUE, 'warning_prompt' => HostingProjectName::id()],
     ];
     // Empty and array configs.
     yield 'empty JSON object is valid' => [
       'empty.json',
-        ['valid' => TRUE],
+      ['valid' => TRUE],
     ];
     yield 'JSON array rejected' => [
       'json_array.json',
-        ['output_contains' => 'Invalid JSON'],
+      ['output_contains' => 'Invalid JSON'],
     ];
     // Broken/unparseable inputs.
     yield 'broken JSON syntax' => ['broken_json.json', ['output_contains' => 'Invalid JSON']];

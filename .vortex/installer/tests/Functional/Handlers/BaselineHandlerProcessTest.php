@@ -69,12 +69,12 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
     yield static::BASELINE_DATASET => [
       NULL,
       NULL,
-        ['Welcome to the Vortex non-interactive installer'],
+      ['Welcome to the Vortex non-interactive installer'],
     ];
     yield 'non_interactive' => [
       NULL,
       NULL,
-        ['Welcome to the Vortex non-interactive installer'],
+      ['Welcome to the Vortex non-interactive installer'],
     ];
     yield 'non_interactive_config_file' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -88,7 +88,7 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->installOptions['prompts'] = $prompts_file;
       }),
       NULL,
-        ['Welcome to the Vortex non-interactive installer'],
+      ['Welcome to the Vortex non-interactive installer'],
     ];
     yield 'non_interactive_config_string' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -101,7 +101,7 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->installOptions['prompts'] = $prompts_string;
       }),
       NULL,
-        ['Welcome to the Vortex non-interactive installer'],
+      ['Welcome to the Vortex non-interactive installer'],
     ];
   }
 

@@ -60,7 +60,7 @@ class ProfileCustom extends AbstractHandler {
     $discovered = $profile_handler->discoverName();
 
     // Only return discovered value if it's a custom profile.
-    if (!empty($discovered) && !in_array($discovered, [Profile::STANDARD, Profile::MINIMAL, Profile::DEMO_UMAMI])) {
+    if (!empty($discovered) && !in_array($discovered, [Profile::STANDARD, Profile::MINIMAL, Profile::DEMO_UMAMI], TRUE)) {
       return $discovered;
     }
 
