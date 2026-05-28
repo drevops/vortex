@@ -296,6 +296,14 @@ function main(array $argv): int {
     $project_dir = $recorder->runInstaller($workspace, $project_root);
   }
 
+  $record_env = [
+    'AHOY_CONFIRM_RESPONSE' => 'y',
+    'AHOY_CONFIRM_WAIT_SKIP' => '1',
+  ];
+  if ($compose_project !== NULL) {
+    $record_env['COMPOSE_PROJECT_NAME'] = $compose_project;
+  }
+
   // Phase 2: build (recorded, silent, or skipped if nothing needs it)
   if ($needs_built_project) {
     if (in_array('build', $requested, TRUE)) {
@@ -306,11 +314,7 @@ function main(array $argv): int {
         cast_path: "$workspace/build.json",
         command: 'ahoy build',
         title: 'Vortex ahoy build Demo',
-        env: [
-          'AHOY_CONFIRM_RESPONSE' => 'y',
-          'AHOY_CONFIRM_WAIT_SKIP' => '1',
-          'COMPOSE_PROJECT_NAME' => $compose_project,
-        ],
+        env: $record_env,
       );
       render_and_install($recorder, $workspace, 'build', $docs_static_dir);
     }
@@ -331,7 +335,7 @@ function main(array $argv): int {
       cast_path: "$workspace/$name.json",
       command: $command,
       title: "Vortex $command Demo",
-      env: ['COMPOSE_PROJECT_NAME' => $compose_project],
+      env: $record_env,
     );
     render_and_install($recorder, $workspace, $name, $docs_static_dir);
   }
