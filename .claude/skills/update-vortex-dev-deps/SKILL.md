@@ -1,12 +1,12 @@
 ---
 name: update-vortex-dev-deps
-description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, installer, tests). Runs in-range lock-file refreshes, produces a 'majors-available' report, makes a single bulk commit, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
+description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, installer, tests). Runs in-range lock-file refreshes, lints each updated subsystem locally, produces a 'majors-available' report, makes a single bulk commit, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
 user-invocable: true
 ---
 
 # Update Vortex Dev Dependencies
 
-Refresh Composer and Yarn dependencies across three `.vortex/` subsystems, generate a major-versions-available report, and open a pull request. Local validation is intentionally skipped - CI is the source of truth.
+Refresh Composer and Yarn dependencies across three `.vortex/` subsystems, run each subsystem's local lint, generate a major-versions-available report, and open a pull request. Local **lint must pass before pushing**; local **tests are intentionally skipped** because CI runs them already and is the source of truth.
 
 ## When to Use
 
@@ -57,11 +57,11 @@ Lowercase the result (e.g. `May-2026` becomes `may-2026`).
 
 Process in fixed order. Smallest blast radius first.
 
-| # | Subsystem (`.vortex/...`) | Composer manifest(s)                              | Yarn manifest    | `patches.lock.json` |
-|---|---------------------------|---------------------------------------------------|------------------|---------------------|
-| 1 | `docs`                    | -                                                 | `package.json`   | -                   |
-| 2 | `installer`               | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 |
-| 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 |
+| # | Subsystem (`.vortex/...`) | Composer manifest(s)                              | Yarn manifest    | `patches.lock.json` | Lint commands                                                                          |
+|---|---------------------------|---------------------------------------------------|------------------|---------------------|----------------------------------------------------------------------------------------|
+| 1 | `docs`                    | -                                                 | `package.json`   | -                   | `yarn --cwd .vortex/docs run lint` + `yarn --cwd .vortex/docs run spellcheck`          |
+| 2 | `installer`               | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 | `composer --working-dir .vortex/installer lint`                                        |
+| 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 | `composer --working-dir .vortex/tests lint`                                            |
 
 ## Workflow
 
@@ -181,7 +181,39 @@ If no subsystem has any major available, write a single line:
 No major versions available outside current constraints.
 ```
 
-### Step 5: Commit
+### Step 5: Lint each updated subsystem
+
+Lint MUST pass locally before committing or pushing. Tests do NOT run locally - CI is the source of truth for tests.
+
+Run the lint commands from the matrix in the same order as Step 3, from the project root.
+
+**5.1 - docs:**
+
+```bash
+yarn --cwd .vortex/docs run lint
+```
+
+```bash
+yarn --cwd .vortex/docs run spellcheck
+```
+
+**5.2 - installer:**
+
+```bash
+composer --working-dir .vortex/installer lint
+```
+
+**5.3 - tests:**
+
+```bash
+composer --working-dir .vortex/tests lint
+```
+
+**On lint failure**: STOP. Report which subsystem and which lint command failed, with the relevant error excerpt. Do NOT commit, do NOT push, do NOT open a PR. Leave the working tree as-is so the user can investigate. Fix the issue (or escalate), then re-run the lint commands from Step 5.
+
+If the lint failure is a pre-existing problem unrelated to the dependency refresh, surface that fact to the user before proceeding - the dependency refresh PR is not the right place to fix unrelated lint debt.
+
+### Step 6: Commit
 
 Stage only the dependency files. Never `git add .` or `git add -A`.
 
@@ -231,17 +263,18 @@ Commit (with the slug title-cased, e.g. `May 2026`):
 git commit -m "Refreshed '.vortex/' dev dependencies for {Slug Title Case}."
 ```
 
-### Step 6: Open PR
+### Step 7: Open PR
 
 Invoke the `/open-pr` skill. The PR description must include:
 
 1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `installer` / `tests`. No manifest constraint changes. `.vortex/tooling/` is out of scope."
 2. **Subsystems touched** - bullet list of the three subsystems with a yes/no marker for Composer and Yarn changes (read from `git diff --stat`).
-3. **Majors report** - paste the report content generated in Step 4 inline (the body of `majors.md` or the "No major versions available" line), so reviewers see what is available outside the constraints in the same place as the diff. Do NOT reference the `.artifacts/` path - those files are not staged and will not exist in the PR branch.
+3. **Lint status** - one sentence confirming local lint passed for each updated subsystem (this is the gate for opening the PR at all).
+4. **Majors report** - paste the report content generated in Step 4 inline (the body of `majors.md` or the "No major versions available" line), so reviewers see what is available outside the constraints in the same place as the diff. Do NOT reference the `.artifacts/` path - those files are not staged and will not exist in the PR branch.
 
 The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/update-log.txt` for local debugging only. Do not reference this path from the PR description and do not paste the log into the PR body.
 
-`/open-pr` handles the push, PR creation, CI watching, and review comment remediation. Local lint and tests are intentionally skipped because CI runs them already and is the source of truth.
+`/open-pr` already enforces its own pre-flight lint as part of its workflow. The Step 5 lint here is the skill's own gate - it runs before the commit, regardless of whether `/open-pr` repeats it.
 
 ## Red Flags
 
@@ -249,7 +282,8 @@ The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/upda
 - About to run `composer update` or `yarn upgrade` under `.vortex/tooling/`: stop. The tooling subsystem is its own Composer library and is explicitly out of scope.
 - About to pass `--with-all-dependencies`, `--latest`, a package name, or any other flag that changes constraint behaviour: stop. This skill performs in-range refreshes only.
 - About to edit a `composer.json` or `package.json` constraint to "fix" a resolution failure: stop. Surface the failure to the user.
-- About to run `ahoy lint`, `ahoy test`, `composer test`, or any local validation: stop. CI is the source of truth.
+- About to run `composer test`, `ahoy test`, `phpunit`, `jest`, or any local test runner: stop. Tests run in CI, not in this skill.
+- About to commit, push, or open a PR while a Step 5 lint command is failing: stop. Lint is the local gate; fix or escalate first.
 - About to `git add .` or `git add -A`: stop. Stage specific files only.
 - About to stage a `composer.lock` under `.vortex/tooling/` because Composer just wrote it: stop. That file is local-only.
 - About to skip the majors report because "nothing changed": still write the report (or the "no majors available" line). Reviewers expect it.
