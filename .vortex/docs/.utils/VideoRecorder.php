@@ -191,6 +191,43 @@ final class VideoRecorder {
   }
 
   /**
+   * Tear down a persistent workspace left over from a previous --keep run.
+   *
+   * Brings the Docker stack down and clears build artifacts (via `ahoy
+   * reset`) before removing the workspace directory, so volumes and the
+   * network slot are released first.
+   */
+  public function teardownPersistentWorkspace(string $workspace, string $compose_project_name): void {
+    if (!is_dir($workspace)) {
+      return;
+    }
+
+    $this->info("Tearing down stale persistent workspace: $workspace");
+
+    $project_dir = "$workspace/star_wars";
+    if (is_dir($project_dir) && is_file("$project_dir/docker-compose.yml")) {
+      $this->note('Running `ahoy reset` to release Docker resources');
+      try {
+        $this->run(
+          ['ahoy', 'reset'],
+          $project_dir,
+          [
+            'AHOY_CONFIRM_RESPONSE' => 'y',
+            'AHOY_CONFIRM_WAIT_SKIP' => '1',
+            'COMPOSE_PROJECT_NAME' => $compose_project_name,
+          ],
+        );
+      }
+      catch (\Throwable $e) {
+        $this->note('ahoy reset failed (non-fatal): ' . $e->getMessage());
+      }
+    }
+
+    $this->info("Removing workspace: $workspace");
+    $this->rmrf($workspace);
+  }
+
+  /**
    * Register a shutdown hook that tears down a docker compose stack.
    *
    * Called automatically by bootstrapProject() when $with_build=true so that

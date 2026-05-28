@@ -287,17 +287,23 @@ function main(array $argv): int {
   }
   $recorder->checkDependencies($extra_deps);
 
+  $persistent_workspace = $project_root . '/.artifacts/tmp/videos-workspace';
+  $persistent_compose_project = 'vortex_videos';
+
   if ($keep) {
-    $workspace = $project_root . '/.artifacts/tmp/videos-workspace';
+    $workspace = $persistent_workspace;
     if (!is_dir($workspace) && !mkdir($workspace, 0o755, TRUE) && !is_dir($workspace)) {
       $recorder->fail("Failed to create persistent workspace: $workspace");
       return 1;
     }
-    $compose_project = 'vortex_videos';
+    $compose_project = $persistent_compose_project;
     $recorder->info("Workspace: $workspace");
     $recorder->note("Docker compose project: $compose_project");
   }
   else {
+    if (is_dir($persistent_workspace)) {
+      $recorder->teardownPersistentWorkspace($persistent_workspace, $persistent_compose_project);
+    }
     $workspace = $recorder->workspaceInit('videos');
     $compose_project = 'vortex_videos_' . bin2hex(random_bytes(3));
   }
