@@ -24,7 +24,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->dockerCleanup();
   }
 
-  #[Group('p1')]
+  #[Group('p4')]
   public function testAhoyWorkflowStateless(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
@@ -71,7 +71,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
-  #[Group('p2')]
+  #[Group('p0')]
   public function testAhoyWorkflowStateful(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
@@ -237,7 +237,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyTestBddFast(tags: 'smoke');
   }
 
-  #[Group('p4')]
+  #[Group('p2')]
   public function testAhoyWorkflowProfileDrupalCms(): void {
     static::$sutInstallerPrompts = [
       'starter' => 'install_profile_drupalcms',
@@ -267,7 +267,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyTestBddFast(tags: 'smoke,counter');
   }
 
-  #[Group('p4')]
+  #[Group('p5')]
   public function testAhoyWorkflowMigration(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
@@ -295,7 +295,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyMigrationSkip();
   }
 
-  #[Group('p4')]
+  #[Group('p5')]
   public function testAhoyWorkflowMigrationDatabaseFromImage(): void {
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
@@ -325,7 +325,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyMigrationReloadDb();
   }
 
-  #[Group('p4')]
+  #[Group('p3')]
   public function testAhoyUpdateVortexLatest(): void {
     // For test performance, we only export the current codebase without git
     // history in the setUp(). For this test, though, we need git history to
@@ -414,7 +414,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileDoesNotExist('installer.php', 'Installer script should be removed after update');
   }
 
-  #[Group('p4')]
+  #[Group('p3')]
   public function testAhoyUpdateVortexRef(): void {
     // For test performance, we only export the current codebase without git
     // history in the setUp(). For this test, though, we need git history to
@@ -489,7 +489,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileDoesNotExist('installer.php', 'Installer script should be removed after update');
   }
 
-  #[Group('p0')]
+  #[Group('p2')]
   public function testAhoyWorkflowProvisionFallbackToProfile(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();

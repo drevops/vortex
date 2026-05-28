@@ -26,7 +26,7 @@ class DeploymentTest extends FunctionalTestCase {
     $this->dockerCleanup();
   }
 
-  #[Group('p2')]
+  #[Group('p3')]
   public function testDeployment(): void {
     $this->logStepStart();
 
@@ -53,7 +53,7 @@ class DeploymentTest extends FunctionalTestCase {
     $this->logStepFinish();
   }
 
-  #[Group('p3')]
+  #[Group('p4')]
   public function testDeploymentSkipFlags(): void {
     $this->logStepStart();
 
@@ -200,7 +200,7 @@ class DeploymentTest extends FunctionalTestCase {
     $this->logStepFinish();
   }
 
-  #[Group('p2')]
+  #[Group('p3')]
   public function testDeploymentArtifact(): void {
     $this->logStepStart();
 

@@ -27,7 +27,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->dockerCleanup();
   }
 
-  #[Group('p0')]
+  #[Group('p1')]
   public function testDockerComposeWorkflowFull(): void {
     $this->prepareSut();
 
@@ -67,7 +67,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/behat', txt: 'Run Behat tests');
   }
 
-  #[Group('p0')]
+  #[Group('p5')]
   public function testDockerComposeWorkflowNoTheme(): void {
     static::$sutInstallerPrompts = ['theme' => 'olivero'];
     $this->prepareSut();
@@ -99,7 +99,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/behat', txt: 'Run Behat tests');
   }
 
-  #[Group('p3')]
+  #[Group('p1')]
   public function testDockerComposeWorkflowNoFe(): void {
     $this->prepareSut();
 
@@ -114,7 +114,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
    * export TEST_PACKAGE_TOKEN=real_github_token_with_access_to_private_package
    * or this test will fail.
    */
-  #[Group('p4')]
+  #[Group('p2')]
   public function testDockerComposePackageToken(): void {
     $this->prepareSut();
 

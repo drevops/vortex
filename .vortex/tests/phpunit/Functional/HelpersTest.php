@@ -19,7 +19,7 @@ class HelpersTest extends FunctionalTestCase {
     $this->forceVolumesUnmounted();
   }
 
-  #[Group('p0')]
+  #[Group('p4')]
   public function testSyncToContainer(): void {
     $this->prepareFixtureContainer();
 
@@ -53,7 +53,7 @@ class HelpersTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli bash -c "cat /app/dir2/file22.txt|grep \"dir2/file22.txt content on host\""');
   }
 
-  #[Group('p0')]
+  #[Group('p4')]
   public function testSyncToHost(): void {
     $this->prepareFixtureContainer();
 
