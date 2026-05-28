@@ -66,39 +66,6 @@ final class VideoRecorder {
   }
 
   /**
-   * Create a per-video workspace directory under `.artifacts/tmp/` within
-   * the project root. Registers shutdown cleanup.
-   */
-  public function workspaceInit(string $prefix): string {
-    $base = $this->project_root . '/.artifacts/tmp';
-    if (!is_dir($base) && !mkdir($base, 0o755, TRUE) && !is_dir($base)) {
-      throw new RuntimeException("Failed to create artifacts tmp dir: $base");
-    }
-
-    $unique = bin2hex(random_bytes(6));
-    $workspace = "$base/vortex-video-$prefix-$unique";
-
-    if (!mkdir($workspace, 0o755, TRUE) && !is_dir($workspace)) {
-      throw new RuntimeException("Failed to create workspace: $workspace");
-    }
-
-    register_shutdown_function(function () use ($workspace): void {
-      if (getenv('VORTEX_VIDEO_KEEP_WORKSPACE') === '1') {
-        $this->note("Keeping workspace (VORTEX_VIDEO_KEEP_WORKSPACE=1): $workspace");
-        return;
-      }
-      if (is_dir($workspace)) {
-        $this->info("Cleaning up workspace: $workspace");
-        $this->rmrf($workspace);
-      }
-    });
-
-    $this->info("Created workspace: $workspace");
-
-    return $workspace;
-  }
-
-  /**
    * Build installer.phar from .vortex/installer and copy it to $dest.
    */
   public function buildInstallerPhar(string $dest): void {
@@ -169,11 +136,9 @@ final class VideoRecorder {
   }
 
   /**
-   * Run `ahoy build` in the given project directory. Optionally registers a
-   * shutdown hook so the Docker stack is torn down on exit (default ON;
-   * pass FALSE when the caller wants the stack to persist between runs).
+   * Run `ahoy build` in the given project directory.
    */
-  public function runAhoyBuild(string $project_dir, string $compose_project_name, bool $register_cleanup = TRUE): void {
+  public function runAhoyBuild(string $project_dir, string $compose_project_name): void {
     $this->info('Running ahoy build (silent, outside recording)');
 
     $env = [
@@ -182,12 +147,26 @@ final class VideoRecorder {
       'COMPOSE_PROJECT_NAME' => $compose_project_name,
     ];
 
-    if ($register_cleanup) {
-      $this->registerDockerCleanup($project_dir, $compose_project_name);
-    }
     $this->run(['ahoy', 'build'], $project_dir, $env);
 
     $this->pass('ahoy build completed');
+  }
+
+  /**
+   * Check whether at least one container with the given compose project name
+   * is currently in 'running' state.
+   */
+  public function isDockerStackRunning(string $compose_project_name): bool {
+    [$stdout, , $exit_code] = $this->runCapture([
+      'docker', 'ps',
+      '--filter', "name=$compose_project_name",
+      '--filter', 'status=running',
+      '--format', '{{.Names}}',
+    ]);
+    if ($exit_code !== 0) {
+      return FALSE;
+    }
+    return trim($stdout) !== '';
   }
 
   /**
@@ -225,35 +204,6 @@ final class VideoRecorder {
 
     $this->info("Removing workspace: $workspace");
     $this->rmrf($workspace);
-  }
-
-  /**
-   * Register a shutdown hook that tears down a docker compose stack.
-   *
-   * Called automatically by bootstrapProject() when $with_build=true so that
-   * even a failed run releases its Docker network and container slots.
-   */
-  public function registerDockerCleanup(string $project_dir, string $compose_project_name): void {
-    register_shutdown_function(function () use ($project_dir, $compose_project_name): void {
-      if (getenv('VORTEX_VIDEO_KEEP_WORKSPACE') === '1') {
-        $this->note("Keeping Docker stack (VORTEX_VIDEO_KEEP_WORKSPACE=1): $compose_project_name");
-        return;
-      }
-      if (!is_dir($project_dir)) {
-        return;
-      }
-      $this->info("Tearing down Docker stack: $compose_project_name");
-      try {
-        $this->run(
-          ['docker', 'compose', 'down', '--volumes', '--remove-orphans', '--timeout', '30'],
-          $project_dir,
-          ['COMPOSE_PROJECT_NAME' => $compose_project_name],
-        );
-      }
-      catch (\Throwable $e) {
-        $this->note('Docker cleanup failed (non-fatal): ' . $e->getMessage());
-      }
-    });
   }
 
   /**
@@ -486,6 +436,41 @@ final class VideoRecorder {
    * @param array<string,string> $env_overrides
    *   Env vars merged on top of the current environment.
    */
+  /**
+   * Run a subprocess and capture stdout/stderr. Returns [stdout, stderr, exit_code].
+   *
+   * @param array<string> $command
+   * @param array<string,string> $env_overrides
+   *
+   * @return array{0:string,1:string,2:int}
+   */
+  public function runCapture(array $command, ?string $cwd = NULL, array $env_overrides = []): array {
+    $current_env = getenv();
+    if (!is_array($current_env)) {
+      $current_env = [];
+    }
+    $env = $env_overrides === [] ? NULL : array_merge($current_env, $env_overrides);
+
+    $descriptors = [
+      0 => ['file', '/dev/null', 'r'],
+      1 => ['pipe', 'w'],
+      2 => ['pipe', 'w'],
+    ];
+
+    $proc = proc_open($command, $descriptors, $pipes, $cwd, $env);
+    if (!is_resource($proc)) {
+      return ['', '', 1];
+    }
+
+    $stdout = (string) stream_get_contents($pipes[1]);
+    $stderr = (string) stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $exit_code = proc_close($proc);
+
+    return [$stdout, $stderr, $exit_code];
+  }
+
   public function run(array $command, ?string $cwd = NULL, array $env_overrides = []): int {
     $current_env = getenv();
     if (!is_array($current_env)) {

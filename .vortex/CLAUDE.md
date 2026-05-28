@@ -113,11 +113,21 @@ driven by the shared `VideoRecorder` class.
 
 | Command                                            | Regenerates                                  |
 |----------------------------------------------------|----------------------------------------------|
-| `ahoy update-videos`                               | All six in a single bootstrap                |
-| `ahoy update-videos installer`                     | Only `installer.*` (no Docker required)      |
-| `ahoy update-videos lint provision`                | Silent install + silent build + recordings   |
-| `ahoy update-videos build lint`                    | Silent install + recorded build + lint       |
-| `ahoy update-videos --keep <names>`                | Persistent workspace + Docker stack (re-iterate without rebuilding) |
+| `ahoy update-videos`                               | Wipe workspace + bootstrap + record all six  |
+| `ahoy update-videos lint provision`                | Wipe + bootstrap + record only lint, provision |
+| `ahoy update-videos lint,test`                     | Comma-separated list also accepted           |
+| `ahoy update-videos --keep lint`                   | Skip bootstrap, re-record lint only          |
+| `ahoy update-videos --keep lint test`              | Skip bootstrap, re-record lint and test      |
+
+The orchestrator uses a single fixed workspace at
+`.artifacts/tmp/videos-workspace/` (Docker compose project name
+`vortex_videos`). Default invocation tears it down via `ahoy reset` + `rm`
+and bootstraps from scratch. `--keep` reuses the existing workspace and
+exits cleanly if the Docker stack is not running.
+
+Per-video configuration (command, speed, terminal cols/rows, poster
+timestamp, typer on/off) lives in the `VIDEOS` array at the top of
+`update-videos.php`.
 
 Pipeline:
 
