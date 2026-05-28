@@ -40,19 +40,11 @@ tests/Fixtures/install/
 
 ### Updating Fixtures
 
-**CRITICAL**: Never modify fixture files directly. All fixture files
-(including `_baseline/`) are regenerated from the root template files by
-`ahoy update-snapshots`. Only modify the root template files, then run
-`ahoy update-snapshots` to regenerate the fixtures.
+**CRITICAL**: Never modify fixture files directly. Only modify the root
+template files, then regenerate the fixtures.
 
-```bash
-# From .vortex/ directory (recommended)
-ahoy update-snapshots
-
-# Manual (for debugging specific scenarios)
-cd .vortex/installer
-UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
-```
+See `.vortex/CLAUDE.md` for the snapshot update process (always
+`ahoy update-snapshots` from `.vortex/`, never composer directly).
 
 ### Updating the Installer Video
 
