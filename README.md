@@ -103,7 +103,7 @@ curl -SsL https://vortex-docs.netlify.app/install > installer.php && php install
 
 The [DrevOps website](https://github.com/drevops/website) is a real production Drupal site built on **Vortex**. It receives regular upstream updates and shows what a long-lived **Vortex** project looks like in practice: CI configuration, testing workflows, and the update routine teams run between releases.
 
-Use it as a reference for structuring your own **Vortex**-based site, or as a working example of how the template evolves over time.
+Use it as a reference for structuring your own **Vortex**-based site, or as a working example of how the template evolves.
 
 ## Documentation
 
