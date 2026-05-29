@@ -431,39 +431,6 @@ final class VideoRecorder {
   }
 
   /**
-   * Render the cast to an animated GIF via `agg`. No-op if `agg` is missing.
-   * Reads cols/rows from the cast file so the GIF matches the recording size.
-   */
-  public function renderGif(string $cast_path, string $gif_path): void {
-    if (!$this->commandExists('agg')) {
-      $this->note('Skipping GIF render (`agg` not installed)');
-      return;
-    }
-
-    $first_line = '';
-    $handle = fopen($cast_path, 'r');
-    if ($handle !== FALSE) {
-      $first_line = (string) fgets($handle);
-      fclose($handle);
-    }
-    $header = json_decode($first_line, TRUE);
-    $cols = is_array($header) && isset($header['width']) ? (int) $header['width'] : self::TERMINAL_WIDTH;
-    $rows = is_array($header) && isset($header['height']) ? (int) $header['height'] : self::TERMINAL_HEIGHT;
-
-    $this->info("Rendering GIF: $gif_path");
-
-    $this->run([
-      'agg',
-      '--cols', (string) $cols,
-      '--rows', (string) $rows,
-      $cast_path,
-      $gif_path,
-    ]);
-
-    $this->pass("GIF rendered: $gif_path");
-  }
-
-  /**
    * Run a subprocess inheriting parent stdio. Throw on non-zero exit.
    *
    * @param array<string> $command

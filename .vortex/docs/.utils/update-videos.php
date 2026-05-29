@@ -265,7 +265,6 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
 
   $recorder->renderSvg($cast, $docs_static_dir . "/$name.svg");
   $recorder->renderPng($cast, $docs_static_dir . "/$name.png", $cfg['poster_ms'] === NULL ? NULL : (int) $cfg['poster_ms']);
-  $recorder->renderGif($cast, $docs_static_dir . "/$name.gif");
 }
 
 function record_installer(VideoRecorder $recorder, string $workspace, string $project_root, string $docs_static_dir): void {
