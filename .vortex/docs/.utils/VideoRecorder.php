@@ -355,13 +355,46 @@ final class VideoRecorder {
   }
 
   /**
+   * Inspect a cast file and return the timestamp of its last event in ms.
+   */
+  public function getCastDurationMs(string $cast_path): int {
+    $handle = fopen($cast_path, 'r');
+    if ($handle === FALSE) {
+      throw new RuntimeException("Cannot read cast: $cast_path");
+    }
+
+    fgets($handle);
+    $last_ts = 0.0;
+    while (($line = fgets($handle)) !== FALSE) {
+      $line = trim($line);
+      if ($line === '') {
+        continue;
+      }
+      $event = json_decode($line, TRUE);
+      if (is_array($event) && isset($event[0]) && is_numeric($event[0])) {
+        $last_ts = (float) $event[0];
+      }
+    }
+    fclose($handle);
+
+    return (int) round($last_ts * 1000);
+  }
+
+  /**
    * Render a single frame to PNG (1280px wide).
    *
    * @param int|null $at_ms
-   *   Cast timestamp (ms) to snapshot. Defaults to POSTER_TIMESTAMP_MS.
+   *   Cast timestamp (ms) to snapshot. NULL means the last frame of the cast.
+   *   When omitted, falls back to POSTER_TIMESTAMP_MS.
    */
   public function renderPng(string $cast_path, string $png_path, ?int $at_ms = NULL): void {
-    $at = $at_ms ?? self::POSTER_TIMESTAMP_MS;
+    if ($at_ms === NULL) {
+      $at = $this->getCastDurationMs($cast_path);
+      $this->note("Using end-of-cast timestamp: {$at}ms");
+    }
+    else {
+      $at = $at_ms;
+    }
 
     $this->info("Rendering PNG poster (at {$at}ms): $png_path");
 

@@ -41,6 +41,7 @@ const COMPOSE_PROJECT = 'vortex_videos';
  * - speed:     playback speed multiplier. 1.0 = recorded speed, 2.0 = 2x faster.
  * - cols/rows: terminal dimensions passed to asciinema and used for renders.
  * - poster_ms: cast timestamp (ms) at which the PNG poster frame is taken.
+ *              NULL means use the last frame of the cast.
  * - typer:     wrap the command with the simulated-typing intro from
  *              type-and-run.php. Installer is FALSE because the expect
  *              script handles its own prompt-driven flow.
@@ -67,7 +68,7 @@ const VIDEOS = [
     'speed' => 1.0,
     'cols' => 140,
     'rows' => 42,
-    'poster_ms' => 2000,
+    'poster_ms' => NULL,
     'typer' => TRUE,
   ],
   'lint' => [
@@ -75,7 +76,7 @@ const VIDEOS = [
     'speed' => 2.0,
     'cols' => 140,
     'rows' => 42,
-    'poster_ms' => 2000,
+    'poster_ms' => NULL,
     'typer' => TRUE,
   ],
   'test' => [

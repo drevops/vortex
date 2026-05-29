@@ -16,6 +16,10 @@
 
 const fs = require('fs');
 const {render} = require('svg-term');
+// svg-term's background rects are drawn without a theme prop, so they fall
+// back to this shared module-level object. Mutating it keeps bg colours in
+// sync with fg colours.
+const svgTermDefaultTheme = require('svg-term/lib/default-theme');
 
 // Parse command line arguments.
 const args = process.argv.slice(2);
@@ -101,36 +105,37 @@ if (lines.length > 0) {
   }
 }
 
-// Define custom theme with lineHeight set to 1.0.
-// Based on Atom One Dark theme colors.
-// Note: svg-term 1.3.1 expects RGB arrays, not hex strings.
+// Atom One Dark palette. svg-term indexes ANSI colours by numeric attribute
+// 0-15 - named keys like 'blue' are silently ignored and fall through to
+// ansi-to-rgb's dark VGA defaults.
 const theme = {
+  0: [40, 44, 52],         // black         #282c34
+  1: [224, 108, 117],      // red           #e06c75
+  2: [152, 195, 121],      // green         #98c379
+  3: [209, 154, 102],      // yellow        #d19a66
+  4: [97, 175, 239],       // blue          #61afef
+  5: [198, 120, 221],      // magenta       #c678dd
+  6: [86, 182, 194],       // cyan          #56b6c2
+  7: [171, 178, 191],      // white         #abb2bf
+  8: [92, 99, 112],        // brightBlack   #5c6370
+  9: [224, 108, 117],      // brightRed     #e06c75
+  10: [152, 195, 121],     // brightGreen   #98c379
+  11: [209, 154, 102],     // brightYellow  #d19a66
+  12: [97, 175, 239],      // brightBlue    #61afef
+  13: [198, 120, 221],     // brightMagenta #c678dd
+  14: [86, 182, 194],      // brightCyan    #56b6c2
+  15: [255, 255, 255],     // brightWhite   #ffffff
   background: [40, 44, 52],       // #282c34
   text: [171, 178, 191],          // #abb2bf
   cursor: [82, 139, 255],         // #528bff
-  black: [40, 44, 52],            // #282c34
-  red: [224, 108, 117],           // #e06c75
-  green: [152, 195, 121],         // #98c379
-  yellow: [209, 154, 102],        // #d19a66
-  blue: [97, 175, 239],           // #61afef
-  magenta: [198, 120, 221],       // #c678dd
-  cyan: [86, 182, 194],           // #56b6c2
-  white: [171, 178, 191],         // #abb2bf
-  brightBlack: [92, 99, 112],     // #5c6370
-  brightRed: [224, 108, 117],     // #e06c75
-  brightGreen: [152, 195, 121],   // #98c379
-  brightYellow: [209, 154, 102],  // #d19a66
-  brightBlue: [97, 175, 239],     // #61afef
-  brightMagenta: [198, 120, 221], // #c678dd
-  brightCyan: [86, 182, 194],     // #56b6c2
-  brightWhite: [255, 255, 255],   // #ffffff
   bold: [171, 178, 191],          // #abb2bf
   fontSize: 1.67,
   lineHeight: lineHeight,
   fontFamily: fontFamily,
 };
 
-// Render options.
+Object.assign(svgTermDefaultTheme, theme);
+
 const options = {
   theme: theme,
 };
