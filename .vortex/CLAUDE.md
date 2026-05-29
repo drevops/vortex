@@ -103,6 +103,63 @@ When updating template files (settings, configs, etc.):
 3. Run `ahoy update-snapshots`
 4. Commit the regenerated fixtures
 
+### Documentation videos
+
+Six terminal demo videos live in `.vortex/docs/static/img/`:
+`installer.*`, `build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`
+(each as `.json` cast + `.svg` + `.png` poster). They are all generated
+by a single PHP script (`.vortex/docs/.utils/update-videos.php`) driven
+by the shared `VideoRecorder` class.
+
+| Command                                            | Regenerates                                  |
+|----------------------------------------------------|----------------------------------------------|
+| `ahoy update-videos`                               | Wipe workspace + bootstrap + record all six  |
+| `ahoy update-videos lint provision`                | Wipe + bootstrap + record only lint, provision |
+| `ahoy update-videos lint,test`                     | Comma-separated list also accepted           |
+| `ahoy update-videos --keep lint`                   | Skip bootstrap, re-record lint only          |
+| `ahoy update-videos --keep lint test`              | Skip bootstrap, re-record lint and test      |
+
+The orchestrator uses a single fixed workspace at
+`.artifacts/tmp/videos-workspace/` (gitignored, Docker compose project name
+`vortex_videos`). Default invocation tears it down via `ahoy reset` + `rm`
+and bootstraps from scratch. `--keep` reuses the existing workspace and
+exits cleanly if the Docker stack is not running.
+
+Per-video configuration (command, speed, terminal cols/rows, poster
+timestamp, typer on/off) lives in the `VIDEOS` array at the top of
+`update-videos.php`.
+
+Pipeline:
+
+1. The script uses the fixed workspace at `.artifacts/tmp/videos-workspace/` and runs the installer non-interactively (or via `expect` when `installer` is in the requested set) using `--uri=<project_root>`, producing `$workspace/star_wars`.
+2. If any of `build`, `provision`, `lint`, `test`, `test-bdd` is requested, `ahoy build` runs **once** in `$workspace/star_wars` (either as the recorded `build` video or silently).
+3. Remaining requested commands (`provision`, `lint`, `test`, `test-bdd`) are recorded in that same `star_wars` directory, in fixed order.
+4. The workspace and Docker stack are preserved at exit so the next `--keep` invocation can reuse them; a stale workspace from a previous run is torn down via `ahoy reset` + `rm` at the **start** of the next non-`--keep` run.
+
+**Iterating on one video** — use `--keep` so the install + build only happens
+once, and subsequent runs replay the recording against the preserved project:
+
+```bash
+cd .vortex
+ahoy update-videos --keep lint     # full bootstrap + record lint, keep workspace
+# tweak something in the lint command or the recorder
+ahoy update-videos --keep lint     # reuse the kept workspace, record lint only
+# done iterating - discard the kept state
+ahoy update-videos lint            # fresh bootstrap, no --keep, cleans up at end
+# (or manually) rm -rf .artifacts/tmp/videos-workspace
+```
+
+A video goes stale when the command it records changes behaviour:
+
+- `installer` - any prompt flow change.
+- `build`, `provision` - changes to `.ahoy.yml` build/provision targets,
+  or scripts under `scripts/vortex/provision*`.
+- `lint`, `test`, `test-bdd` - changes to the linter or test-runner setup.
+
+The command does not auto-commit; review the diff under
+`.vortex/docs/static/img/` and commit manually. The `prepare-vortex-release`
+skill regenerates every video as part of the release checklist.
+
 ### When the installer prompt flow changes
 
 **Trigger**: any change under `.vortex/installer/src/Prompts/` (new handler,
@@ -112,19 +169,16 @@ renamed/reordered prompt, removed handler, wording change to `label()` or
 **Required follow-ups** (in order):
 
 1. Run `ahoy update-snapshots` from `.vortex/` to refresh fixture files.
-2. Run `ahoy update-installer-video` from `.vortex/` to regenerate the
+2. Run `ahoy update-videos installer` from `.vortex/` to regenerate the
    demo asciicast shown in the docs. The video records the live prompt
    flow, so it goes stale the moment the flow changes.
 
 `update-snapshots` writes a commit automatically when fixtures change.
-`update-installer-video` updates the asciicast/SVG/PNG/GIF files in
+`update-videos` updates the asciicast/SVG/PNG files in
 `.vortex/docs/static/img/` but does **not** create a commit - stage and
 commit the changes manually after running. Run both commands **after**
 the installer code change is committed, since the regeneration compares
 against the committed baseline.
-
-Detailed prerequisites and outputs for the video command are documented in
-`.vortex/installer/CLAUDE.md` under "Updating the Installer Video".
 
 ## Environment Variables
 

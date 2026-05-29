@@ -7,6 +7,7 @@ sidebar_position: 1
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
 ## Typical development process
 
@@ -27,6 +28,96 @@ import TabItem from '@theme/TabItem';
     - Create a pull request from the branch to `develop`.
     - Assign reviewers.
     - Wait for the continuous integration pipeline to pass.
+
+## Common commands
+
+The most common day-to-day commands. Each video is a live recording captured on
+a fresh **Vortex** project; re-record them with `ahoy update-videos`.
+
+### Build the project
+
+```shell title="Build"
+ahoy build
+```
+
+<AsciinemaPlayer
+  src="/img/build.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+### Re-provision the site
+
+```shell title="Provision"
+ahoy provision
+```
+
+<AsciinemaPlayer
+  src="/img/provision.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+### Run linters
+
+```shell title="Lint"
+ahoy lint
+```
+
+<AsciinemaPlayer
+  src="/img/lint.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+### Run unit, kernel and functional tests
+
+```shell title="Test"
+ahoy test
+```
+
+<AsciinemaPlayer
+  src="/img/test.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+### Run BDD tests
+
+```shell title="Test BDD"
+ahoy test-bdd
+```
+
+<AsciinemaPlayer
+  src="/img/test-bdd.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
 
 ## Running CLI commands
 
