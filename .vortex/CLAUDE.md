@@ -120,7 +120,7 @@ driven by the shared `VideoRecorder` class.
 | `ahoy update-videos --keep lint test`              | Skip bootstrap, re-record lint and test      |
 
 The orchestrator uses a single fixed workspace at
-`.artifacts/tmp/videos-workspace/` (Docker compose project name
+`.artifacts/tmp/videos-workspace/` (gitignored, Docker compose project name
 `vortex_videos`). Default invocation tears it down via `ahoy reset` + `rm`
 and bootstraps from scratch. `--keep` reuses the existing workspace and
 exits cleanly if the Docker stack is not running.
