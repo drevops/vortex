@@ -1,4 +1,4 @@
-@@ -35,16 +35,10 @@
+@@ -35,15 +35,9 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -10,7 +10,6 @@
 -        "drevops/behat-steps": "__VERSION__",
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
-         "drupal/drupal-driver": "__VERSION__",
 -        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
