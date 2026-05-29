@@ -249,23 +249,9 @@ EXPECT;
   );
 }
 
-function install_video_artifacts(VideoRecorder $recorder, string $workspace, string $name, string $docs_static_dir): void {
-  foreach (['json', 'svg', 'png', 'gif'] as $ext) {
-    $src = "$workspace/$name.$ext";
-    if (!is_file($src)) {
-      continue;
-    }
-    $dst = $docs_static_dir . "/$name.$ext";
-    if (!copy($src, $dst)) {
-      throw new RuntimeException("Failed to copy $src -> $dst");
-    }
-    $recorder->note("Installed: $dst");
-  }
-}
-
-function render_and_install(VideoRecorder $recorder, string $workspace, string $name, string $docs_static_dir): void {
+function render_video(VideoRecorder $recorder, string $name, string $workspace, string $docs_static_dir): void {
   $cfg = VIDEOS[$name];
-  $cast = "$workspace/$name.json";
+  $cast = $docs_static_dir . "/$name.json";
 
   $recorder->postprocessCast($cast, $workspace);
 
@@ -273,11 +259,9 @@ function render_and_install(VideoRecorder $recorder, string $workspace, string $
     $recorder->applyTimeScale($cast, 1.0 / (float) $cfg['speed']);
   }
 
-  $recorder->renderSvg($cast, "$workspace/$name.svg");
-  $recorder->renderPng($cast, "$workspace/$name.png", (int) $cfg['poster_ms']);
-  $recorder->renderGif($cast, "$workspace/$name.gif");
-
-  install_video_artifacts($recorder, $workspace, $name, $docs_static_dir);
+  $recorder->renderSvg($cast, $docs_static_dir . "/$name.svg");
+  $recorder->renderPng($cast, $docs_static_dir . "/$name.png", (int) $cfg['poster_ms']);
+  $recorder->renderGif($cast, $docs_static_dir . "/$name.gif");
 }
 
 function record_installer(VideoRecorder $recorder, string $workspace, string $project_root, string $docs_static_dir): void {
@@ -293,14 +277,14 @@ function record_installer(VideoRecorder $recorder, string $workspace, string $pr
 
   $recorder->recordSession(
     cwd: $workspace,
-    cast_path: "$workspace/installer.json",
+    cast_path: $docs_static_dir . '/installer.json',
     command: $expect_script,
     title: 'Vortex Installer Demo',
     cols: (int) $cfg['cols'],
     rows: (int) $cfg['rows'],
   );
 
-  render_and_install($recorder, $workspace, 'installer', $docs_static_dir);
+  render_video($recorder, 'installer', $workspace, $docs_static_dir);
 }
 
 function record_command_video(VideoRecorder $recorder, string $name, string $project_dir, string $workspace, string $type_and_run, string $docs_static_dir): void {
@@ -319,7 +303,7 @@ function record_command_video(VideoRecorder $recorder, string $name, string $pro
 
   $recorder->recordSession(
     cwd: $project_dir,
-    cast_path: "$workspace/$name.json",
+    cast_path: $docs_static_dir . "/$name.json",
     command: $recorded_cmd,
     title: "Vortex $cmd Demo",
     env: $env,
@@ -327,7 +311,7 @@ function record_command_video(VideoRecorder $recorder, string $name, string $pro
     rows: (int) $cfg['rows'],
   );
 
-  render_and_install($recorder, $workspace, $name, $docs_static_dir);
+  render_video($recorder, $name, $workspace, $docs_static_dir);
 }
 
 function main(array $argv): int {
