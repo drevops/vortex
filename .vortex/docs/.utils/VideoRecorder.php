@@ -12,17 +12,17 @@ declare(strict_types=1);
  */
 final class VideoRecorder {
 
-  public const int TERMINAL_WIDTH = 140;
+  public const TERMINAL_WIDTH = 140;
 
-  public const int TERMINAL_HEIGHT = 42;
+  public const TERMINAL_HEIGHT = 42;
 
   /** Poster timestamp for the installer recording (captures the welcome banner). */
-  public const int POSTER_TIMESTAMP_MS = 2000;
+  public const POSTER_TIMESTAMP_MS = 2000;
 
   /** Poster timestamp for command videos that spend their first seconds bootstrapping inside Docker. */
-  public const int POSTER_TIMESTAMP_MS_LATE = 30000;
+  public const POSTER_TIMESTAMP_MS_LATE = 30000;
 
-  public const string LINE_HEIGHT = '1.1';
+  public const LINE_HEIGHT = '1.1';
 
   public function __construct(
     public readonly string $project_root,
