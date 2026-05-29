@@ -133,5 +133,5 @@
 [69.904515, "o", "\u001b[34m[TASK] Disabling maintenance mode.\u001b[0m\r\n"]
 [70.52892, "o", "\u001b[32m[ OK ] Disabled maintenance mode. (1s)\u001b[0m\r\n\r\n"]
 [70.531015, "o", "\u001b[36m[INFO] Finished site provisioning (1m 8s).\u001b[0m\r\n"]
-[74.515401, "o", "http://vortex_videos.docker.amazee.io/user/reset/1/1780014413/yXrrsnhhgGs7FzBjovR_UmZ2NUvIdYFpnSJ2KUWSLg4/login\r\n"]
+[74.515401, "o", "http://vortex_videos.docker.amazee.io/user/reset/1/1780014413/[REDACTED]/login\r\n"]
 [74.56363, "x", "0"]

@@ -278,15 +278,28 @@ final class VideoRecorder {
 
     if ($workspace !== NULL && $workspace !== '') {
       $contents = str_replace($workspace, '/home/user/demo', $contents);
-      $contents = str_replace(json_encode($workspace) ?: '', json_encode('/home/user/demo'), $contents);
+      $workspace_json = json_encode($workspace);
+      $demo_json = json_encode('/home/user/demo');
+      if (is_string($workspace_json) && $workspace_json !== '' && is_string($demo_json)) {
+        $contents = str_replace($workspace_json, $demo_json, $contents);
+      }
     }
 
     $contents = str_replace($this->project_root, '/home/user/vortex', $contents);
-    $contents = str_replace(json_encode($this->project_root) ?: '', json_encode('/home/user/vortex'), $contents);
+    $project_root_json = json_encode($this->project_root);
+    $vortex_json = json_encode('/home/user/vortex');
+    if (is_string($project_root_json) && $project_root_json !== '' && is_string($vortex_json)) {
+      $contents = str_replace($project_root_json, $vortex_json, $contents);
+    }
 
     $contents = preg_replace('#/Users/[^/]+/#', '/home/user/', $contents);
     if ($contents === NULL) {
       throw new RuntimeException("Failed to anonymise user paths in cast: $cast_path");
+    }
+
+    $contents = preg_replace('#(/user/reset/\d+/\d+/)[A-Za-z0-9_-]+(/login)#', '$1[REDACTED]$2', $contents);
+    if ($contents === NULL) {
+      throw new RuntimeException("Failed to redact login tokens in cast: $cast_path");
     }
 
     if (file_put_contents($cast_path, $contents) === FALSE) {

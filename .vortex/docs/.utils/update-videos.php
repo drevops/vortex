@@ -120,7 +120,7 @@ set timeout 60
 log_user 1
 
 set prompt_delay {{PROMPT_DELAY}}
-set installer_uri {{URI}}
+set installer_uri "{{URI}}"
 
 proc safe_send {s} {
     if {[exp_pid] > 0} {
@@ -276,7 +276,9 @@ function record_installer(VideoRecorder $recorder, string $workspace, string $pr
   if (file_put_contents($expect_script, build_installer_expect_script(PROMPT_DELAY, $project_root)) === FALSE) {
     throw new RuntimeException("Failed to write expect script: $expect_script");
   }
-  chmod($expect_script, 0o755);
+  if (!chmod($expect_script, 0o755)) {
+    throw new RuntimeException("Failed to chmod expect script: $expect_script");
+  }
 
   $recorder->recordSession(
     cwd: $workspace,
@@ -296,7 +298,9 @@ function record_command_video(VideoRecorder $recorder, string $name, string $pro
   $recorder->info("===== Recording '$name' =====");
 
   $cmd = (string) $cfg['command'];
-  $recorded_cmd = $cfg['typer'] === TRUE ? "php $type_and_run $cmd" : $cmd;
+  $recorded_cmd = $cfg['typer'] === TRUE
+    ? 'php ' . escapeshellarg($type_and_run) . ' ' . escapeshellarg($cmd)
+    : $cmd;
 
   $env = [
     'AHOY_CONFIRM_RESPONSE' => '1',

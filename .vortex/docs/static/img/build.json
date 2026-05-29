@@ -650,6 +650,6 @@
 [272.628834, "o", "       Path to web root            : /app/web\r\n       DB host                     : database\r\n       DB username                 : drupal\r\n       DB password                 : drupal\r\n       DB port                     : 3306\r\n       DB port on host             : 51575 ('ahoy db' to start SequelAce)\r\n"]
 [272.628953, "o", "       Solr URL on host            : http://127.0.0.1:51576\r\n       Selenium VNC URL on host    : http://localhost:51679/?autoconnect=1&password=secret\r\n       Mailhog URL                 : http://mailhog.docker.amazee.io/\r\n"]
 [272.65688, "o", "       Xdebug                      : Disabled ('ahoy debug' to enable)\r\n       Site login link             : "]
-[276.021058, "o", "http://vortex_videos.docker.amazee.io/user/reset/1/1780014815/1iK2kNHhHJ1gmFnj6iDAeT1mPEDr4uj5YsFVe9yQZwU/login\r\n"]
+[276.021058, "o", "http://vortex_videos.docker.amazee.io/user/reset/1/1780014815/[REDACTED]/login\r\n"]
 [276.046501, "o", "\r\n"]
 [276.069743, "x", "0"]
