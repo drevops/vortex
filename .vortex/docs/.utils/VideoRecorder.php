@@ -251,12 +251,14 @@ final class VideoRecorder {
 
   /**
    * Post-process a recorded cast:
-   *   - Drop line 2 (the spawn command echo from asciinema).
+   *   - When $strip_first_event is TRUE, drop the first event line (used for
+   *     the installer's expect script where asciinema echoes the spawn
+   *     command on event 1).
    *   - Replace the workspace path with /home/user/demo.
    *   - Replace the project root path with /home/user/vortex.
    *   - Strip any leftover /Users/<name>/ user-home references.
    */
-  public function postprocessCast(string $cast_path, ?string $workspace = NULL): void {
+  public function postprocessCast(string $cast_path, ?string $workspace = NULL, bool $strip_first_event = FALSE): void {
     if (!is_file($cast_path)) {
       throw new RuntimeException("Cast file not found: $cast_path");
     }
@@ -268,7 +270,9 @@ final class VideoRecorder {
       throw new RuntimeException("Cast file is empty or malformed: $cast_path");
     }
 
-    array_splice($lines, 1, 1);
+    if ($strip_first_event) {
+      array_splice($lines, 1, 1);
+    }
 
     $contents = implode("\n", $lines) . "\n";
 

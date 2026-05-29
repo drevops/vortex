@@ -254,7 +254,10 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
   $cfg = VIDEOS[$name];
   $cast = $docs_static_dir . "/$name.json";
 
-  $recorder->postprocessCast($cast, $workspace);
+  // The installer's expect script makes asciinema echo a spawn line as the
+  // first event; for command videos using type-and-run.php there is no such
+  // echo and the first event is the typed prompt that we want to keep.
+  $recorder->postprocessCast($cast, $workspace, strip_first_event: $name === 'installer');
 
   if ((float) $cfg['speed'] !== 1.0) {
     $recorder->applyTimeScale($cast, 1.0 / (float) $cfg['speed']);
