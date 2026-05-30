@@ -1,5 +1,5 @@
-@@ -45,7 +45,6 @@
- !patches
+@@ -46,7 +46,6 @@
+ !patches.lock.json
  !phpcs.xml
  !phpmd.xml
 -!phpstan.neon

@@ -39,10 +39,11 @@ drush/contrib/
 !composer.json
 !composer.lock
 !gherkinlint.json
-!package-lock.json
 !jest.config.js
+!package-lock.json
 !package.json
 !patches
+!patches.lock.json
 !phpcs.xml
 !phpmd.xml
 !phpstan.neon

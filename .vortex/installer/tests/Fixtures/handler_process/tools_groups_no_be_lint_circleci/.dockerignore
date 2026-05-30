@@ -1,7 +1,7 @@
-@@ -43,12 +43,8 @@
- !jest.config.js
+@@ -44,12 +44,8 @@
  !package.json
  !patches
+ !patches.lock.json
 -!phpcs.xml
 -!phpmd.xml
 -!phpstan.neon

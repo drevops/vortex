@@ -1,4 +1,4 @@
-@@ -35,20 +35,13 @@
+@@ -35,21 +35,14 @@
  !.stylelintrc.js
  !.twig-cs-fixer.php
  !auth.json
@@ -6,10 +6,11 @@
  !composer.json
  !composer.lock
 -!gherkinlint.json
- !package-lock.json
  !jest.config.js
+ !package-lock.json
  !package.json
  !patches
+ !patches.lock.json
 -!phpcs.xml
 -!phpmd.xml
 -!phpstan.neon
