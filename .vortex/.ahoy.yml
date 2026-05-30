@@ -113,12 +113,6 @@ commands:
   test-common:
     cmd: ./tests/test.common.sh
 
-  test-deployment:
-    cmd: ./tests/test.deployment.sh
-
-  test-workflow:
-    cmd: ./tests/test.workflow.sh
-
   test-docs:
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=./docs install --frozen-lockfile
