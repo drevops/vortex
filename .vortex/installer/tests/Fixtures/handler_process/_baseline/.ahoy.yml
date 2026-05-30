@@ -120,7 +120,7 @@ commands:
     aliases: [fetch-db, db-download, db-fetch]
     cmd: |
       ahoy require-tooling
-      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1;; esac
+      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1 VORTEX_DOWNLOAD_DB_FORCE=1;; esac
       ./vendor/drevops/vortex-tooling/src/download-db
 
   reload-db:
