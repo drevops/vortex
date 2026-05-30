@@ -70,7 +70,7 @@ COPY scripts /app/scripts
 # to the repository.
 # The .env file (and other environment files) is copied into the image, as it
 # may be needed by Composer scripts to access additional variables.
-COPY composer.json composer.* .env* auth* /app/
+COPY composer.json composer.* patches.lock.* .env* auth* /app/
 
 # Install PHP dependencies without development packages to avoid exposing
 # potential security vulnerabilities in the production environment.
