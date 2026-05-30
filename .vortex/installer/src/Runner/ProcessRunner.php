@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Runner;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
@@ -61,13 +60,6 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
     if ($exit_code < 0 || $exit_code > 255) {
       throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
     }
-
-    match ($exit_code) {
-      Command::SUCCESS => $this->exitCode = self::EXIT_SUCCESS,
-      Command::FAILURE => $this->exitCode = self::EXIT_FAILURE,
-      127 => $this->exitCode = self::EXIT_COMMAND_NOT_FOUND,
-      default => $this->exitCode = self::EXIT_INVALID,
-    };
 
     $this->exitCode = $exit_code;
 

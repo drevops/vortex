@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Runner;
 
 use DrevOps\VortexInstaller\Logger\LoggerInterface;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -55,13 +54,6 @@ class CommandRunner extends AbstractRunner {
     if ($exit_code < 0 || $exit_code > 255) {
       throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
     }
-
-    match ($exit_code) {
-      Command::SUCCESS => $this->exitCode = self::EXIT_SUCCESS,
-      Command::FAILURE => $this->exitCode = self::EXIT_FAILURE,
-      127 => $this->exitCode = self::EXIT_COMMAND_NOT_FOUND,
-      default => $this->exitCode = self::EXIT_INVALID,
-    };
 
     $this->exitCode = $exit_code;
     $this->output = $buffered_output->fetch();
