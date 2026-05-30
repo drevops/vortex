@@ -132,7 +132,7 @@ trait SutTrait {
     $dockerfile_path = $sut_root . DIRECTORY_SEPARATOR . '.docker' . DIRECTORY_SEPARATOR . 'cli.dockerfile';
     if (file_exists($dockerfile_path)) {
       $content = (string) file_get_contents($dockerfile_path);
-      $needle = 'COPY composer.json composer.* .env* auth* /app/';
+      $needle = 'COPY composer.json composer.* patches.lock.* .env* auth* /app/';
       $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .tooling-source /app/.tooling-source";
       file_put_contents($dockerfile_path, str_replace($needle, $replacement, $content));
     }
