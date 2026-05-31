@@ -54,7 +54,7 @@ documentation goes stale and must be regenerated.
 
 ```bash
 # From .vortex/ directory
-ahoy update-installer-video
+ahoy update-videos installer
 ```
 
 Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces

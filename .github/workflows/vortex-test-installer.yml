@@ -15,6 +15,10 @@ on:
       - release/**
       - project/**
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   vortex-test-installer:
     runs-on: ubuntu-latest
@@ -65,6 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
 
       - name: Generate video for installer (not used in the final artifact)
+        if: matrix.php-versions == '8.2'
         run: |
           sudo apt-get update
           sudo apt install expect
