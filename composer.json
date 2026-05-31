@@ -56,10 +56,10 @@
         "phpmd/phpmd": "^2.15",
         "phpspec/prophecy-phpunit": "^2.5",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.1.55",
+        "phpstan/phpstan": "^2.2.1",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.4.4",
+        "rector/rector": "^2.4.5",
         "vincentlanglet/twig-cs-fixer": "^3.14"
     },
     "conflict": {
