@@ -152,7 +152,7 @@ commands:
     aliases: [fetch-db2, db2-download, db2-fetch]
     cmd: |
       ahoy require-tooling
-      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FORCE=1;; esac
+      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB2_FRESH=1 VORTEX_DOWNLOAD_DB2_FORCE=1;; esac
       VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db
   #;> MIGRATION
   #;> !PROVISION_TYPE_PROFILE
