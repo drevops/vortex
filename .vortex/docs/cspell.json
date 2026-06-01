@@ -45,6 +45,7 @@
         "gherkinlint",
         "hadolint",
         "hotfixes",
+        "htpasswd",
         "initialise",
         "lagooncli",
         "lando",

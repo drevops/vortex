@@ -170,16 +170,34 @@ jobs:
         if: steps.gate.outputs.skipped != 'true'
         env:
           DIFFY_PROJECT_ID: ${{ vars.VR_DIFFY_PROJECT_ID }}
+          VR_SOURCE_HTTP_USER: ${{ secrets.VR_SOURCE_HTTP_USER }}
+          VR_SOURCE_HTTP_PASS: ${{ secrets.VR_SOURCE_HTTP_PASS }}
+          VR_TARGET_HTTP_USER: ${{ secrets.VR_TARGET_HTTP_USER }}
+          VR_TARGET_HTTP_PASS: ${{ secrets.VR_TARGET_HTTP_PASS }}
         run: |
           set -euo pipefail
           echo "Starting Diffy comparison: source=${SOURCE_ENV} target=${TARGET_URL} label=${LABEL}"
+
+          # HTTP basic auth credentials are passed conditionally. The Diffy CLI
+          # forwards user/pass options as-is to the API, and the SDK gates on
+          # PHP isset() - an empty string still triggers basic-auth mode with
+          # empty credentials, which then fails against the upstream server.
+          # Only pass the flags when both user and pass are non-empty.
+          auth_args=()
+          if [ -n "${VR_SOURCE_HTTP_USER}" ] && [ -n "${VR_SOURCE_HTTP_PASS}" ]; then
+            auth_args+=(--env1User="${VR_SOURCE_HTTP_USER}" --env1Pass="${VR_SOURCE_HTTP_PASS}")
+          fi
+          if [ -n "${VR_TARGET_HTTP_USER}" ] && [ -n "${VR_TARGET_HTTP_PASS}" ]; then
+            auth_args+=(--env2User="${VR_TARGET_HTTP_USER}" --env2Pass="${VR_TARGET_HTTP_PASS}")
+          fi
 
           diff_id="$(/tmp/diffy.phar project:compare \
             "${DIFFY_PROJECT_ID}" \
             "${SOURCE_ENV}" \
             custom \
             --env2Url="${TARGET_URL}" \
-            --name="${LABEL}")"
+            --name="${LABEL}" \
+            ${auth_args[@]+"${auth_args[@]}"})"
 
           if [ -z "${diff_id}" ]; then
             echo "::error::Diffy did not return a diff ID."
