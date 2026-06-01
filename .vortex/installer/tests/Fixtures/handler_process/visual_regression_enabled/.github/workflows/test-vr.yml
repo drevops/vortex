@@ -282,3 +282,4 @@ jobs:
             - **Source environment**: ${{ env.SOURCE_ENV }}
 
             [View full Diffy report](${{ needs.vr-compare.outputs.shared_url }})
+          hide_and_recreate: true

@@ -80,6 +80,16 @@ and produces partial, inconsistent fixtures. There is no scenario in which
 the direct composer call is correct - if `cd .vortex` is hard, fix the cd,
 do not reach past the abstraction.
 
+**HARD RULE — NEVER wrap `ahoy update-snapshots` in a helper script,
+heredoc, temp file, or any other indirection to work around a `cd`
+restriction or a "one simple bash command" constraint.** No
+`.artifacts/tmp/update-snapshots.sh`, no `bash -c "cd .vortex && ahoy ..."`,
+no inline wrappers of any kind. If your environment forbids chaining and
+`cd` does not persist between calls, use the ahoy pointer flag directly:
+`ahoy --file .vortex/.ahoy.yml update-snapshots`. The ahoyfile is the only
+acceptable indirection; everything else hides the abstraction and makes
+future debugging harder.
+
 **HARD RULE — Always commit before `ahoy update-snapshots`.** Snapshots are
 regenerated from the *committed* baseline. Any uncommitted changes to the
 template (root or `.vortex/`) will not be picked up and the snapshot diff
