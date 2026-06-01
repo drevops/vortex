@@ -13,7 +13,7 @@ set -eu
 
 # Notification channels.
 #
-# Can be a combination of comma-separated values: email,slack,newrelic,github,jira,webhook
+# Can be a combination of comma-separated values: email,slack,newrelic,github,jira,webhook,diffy
 VORTEX_NOTIFY_CHANNELS="${VORTEX_NOTIFY_CHANNELS:-email}"
 
 # Notification event type.
