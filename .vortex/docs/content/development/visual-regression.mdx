@@ -33,9 +33,21 @@ secrets and repository variables.
 | Name | Required | Purpose |
 |---|---|---|
 | `VR_DIFFY_API_KEY` | yes | Diffy API key |
+| `VR_SOURCE_HTTP_USER` | no | HTTP basic auth user for the Diffy source environment (set when protected by Acquia Shield, `htpasswd`, or similar) |
+| `VR_SOURCE_HTTP_PASS` | no | HTTP basic auth password for the Diffy source environment |
+| `VR_TARGET_HTTP_USER` | no | HTTP basic auth user for the deployed target environment (typically the PR environment) |
+| `VR_TARGET_HTTP_PASS` | no | HTTP basic auth password for the deployed target environment |
 
-Add this under *Settings > Secrets and variables > Actions > Repository
+Add these under *Settings > Secrets and variables > Actions > Repository
 secrets*.
+
+The `_HTTP_USER` / `_HTTP_PASS` pairs are optional. Leave them unset when
+the environment is publicly reachable. When set, the workflow forwards
+them to Diffy on every comparison so its workers can clear the basic-auth
+gate. Source-side credentials may alternatively be stored in the Diffy
+project settings - the CLI flags act as an override for cases where
+hosting is provisioned with rotating credentials and storing them in
+Diffy is impractical.
 
 ### Variables
 
