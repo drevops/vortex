@@ -20,7 +20,7 @@ Configure notification channels in your `.env` file:
 VORTEX_NOTIFY_CHANNELS=email,slack,github
 ```
 
-Available channels: `email`, `github`, `jira`, `newrelic`, `slack`, `webhook`
+Available channels: `diffy`, `email`, `github`, `jira`, `newrelic`, `slack`, `webhook`
 
 ## Global environment variables
 
@@ -278,3 +278,39 @@ Send HTTP requests to arbitrary webhook URLs.
 ```
 
 The `%message%` token expands to the full deployment message with all other tokens replaced.
+
+---
+
+## Diffy
+
+Dispatch a visual regression run against the just-deployed environment via the
+shipped GitHub Actions workflow.
+
+This channel does not call Diffy directly. It sends a GitHub
+`repository_dispatch` event to the consumer repository; the
+[`test-vr.yml`](../development/visual-regression.mdx) workflow then runs the
+actual Diffy comparison and posts the result back to the pull request.
+
+### Setup
+
+1. Enable visual regression during installation (or ship `test-vr.yml`
+   manually) - see [Visual regression](../development/visual-regression.mdx).
+2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to the
+   hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
+   `GITHUB_TOKEN`).
+3. Add `diffy` to `VORTEX_NOTIFY_CHANNELS`.
+
+### Environment variables
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_NOTIFY_DIFFY_TOKEN` | **Yes** | `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN` | Hosting | GitHub token with `repo` scope used to call `repository_dispatch` |
+| `VORTEX_NOTIFY_DIFFY_REPOSITORY` | **Yes** | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | Hosting | Repository in `owner/repo` format |
+| `VORTEX_NOTIFY_DIFFY_SOURCE_ENV` | No | `production` | `.env` | Diffy source environment used as the baseline (`production`, `staging`, `development`) |
+| `VORTEX_NOTIFY_DIFFY_EVENT_TYPE` | No | `vr_run` | `.env` | `repository_dispatch` event type the workflow listens for |
+| `VORTEX_NOTIFY_DIFFY_BRANCHES` | No | | `.env` | Restrict dispatch to specific branches (comma-separated). When empty, every deployment dispatches and the workflow gates on PR label |
+
+### Event behavior
+
+Diffy dispatch only runs for `post_deployment` events. `pre_deployment` is
+skipped because the target environment is not yet ready for comparison.
