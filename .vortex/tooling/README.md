@@ -1,14 +1,20 @@
 # Vortex Tooling
 
-Shell scripts that ship with [Vortex](https://github.com/drevops/vortex), the
-Drupal project template by [DrevOps](https://www.drevops.com). These scripts
-implement the host-side and in-container operations used by Vortex-based
-projects: database download/export, deployment, notifications, provisioning,
-doctor, project reset, and more.
+Helper scripts that ship with [Vortex](https://github.com/drevops/vortex), the
+Drupal project template by [DrevOps](https://www.drevops.com). They implement
+the host-side and in-container operations that a consumer project built from
+Vortex relies on.
 
-This package is distributed via Composer as `drevops/vortex-tooling`. Consumer
-projects install it as a regular dependency and invoke the shipped scripts at
-`vendor/drevops/vortex-tooling/src/<script-name>`.
+This package is distributed via Composer as `drevops/vortex-tooling`.
+
+## Installation
+
+```bash
+composer require drevops/vortex-tooling
+```
+
+A consumer project installs this package as a regular dependency and runs the
+shipped scripts from `vendor/drevops/vortex-tooling/src/<script-name>`.
 
 ## Read-only mirror
 
@@ -30,30 +36,35 @@ Each commit in this repository corresponds to a commit in the parent
 repository. The commit message body records the source commit SHA for
 provenance.
 
-## Installation
-
-```bash
-composer require drevops/vortex-tooling
-```
-
-After installation, scripts are available at
-`vendor/drevops/vortex-tooling/src/`.
-
-## Layout
-
-```text
-.
-├── src/         # Shipped shell scripts (no extension; executed directly)
-├── tests/       # BATS unit tests
-└── playground/  # Manual integration scripts (not part of the published package)
-```
-
 ## Customisation
 
-Customise shipped scripts via
-[`cweagans/composer-patches`](https://github.com/cweagans/composer-patches)
-declared in your project's `composer.json`. Do not fork or modify scripts
-in-place.
+If you need to change how a shipped script behaves - for example, to add an
+extra step, change a default value, or integrate with a service specific to
+your project - do not fork the scripts or edit them in place: they are
+installed read-only into `vendor/`, so those changes are lost on the next
+`composer update`.
+
+Instead, customise a script with a patch managed by
+[`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) and
+declared in your project's `composer.json`. The patch is re-applied
+automatically whenever the package is installed or updated in the consumer
+project, so your customisation survives dependency updates and stays
+version-controlled alongside the rest of your project.
+
+## Testing
+
+The scripts are covered at two levels:
+
+- **Unit tests** - [BATS](https://github.com/bats-core/bats-core) tests provide
+  full unit coverage of the scripts, with external commands mocked. They live
+  in
+  [`tests/`](https://github.com/drevops/vortex/tree/main/.vortex/tooling/tests)
+  in the source repository.
+- **Integration tests** - end-to-end coverage comes from the parent project
+  that uses these scripts,
+  [Vortex](https://github.com/drevops/vortex). Its
+  [functional tests](https://github.com/drevops/vortex/tree/main/.vortex/tests)
+  provision a real project and run the scripts to verify they work together.
 
 ## License
 

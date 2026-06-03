@@ -32,7 +32,7 @@ vortex/
 │   ├── installer/              # Template installer
 │   ├── tests/                  # Template tests (PHPUnit)
 │   └── tooling/                # 'drevops/vortex-tooling' Composer package
-│       ├── src/                # Shipped shell scripts
+│       ├── src/                # Shipped scripts
 │       ├── tests/              # BATS unit tests
 │       └── playground/         # Manual integration scripts
 └── [root files]                # The actual Drupal template
@@ -56,7 +56,64 @@ subsystem:
 - `.vortex/docs/CLAUDE.md` - Documentation system
 - `.vortex/installer/CLAUDE.md` - Installer, fixtures, tokens
 - `.vortex/tests/CLAUDE.md` - PHPUnit integration tests
-- `.vortex/tooling/CLAUDE.md` - Shell scripts, BATS tests, playground
+
+The `tooling/` subsystem has no CLAUDE.md of its own - the package is published
+to consumer projects, so any maintenance notes shipped with it would leak to
+those sites. Its guidance lives in the [Tooling package](#tooling-package)
+section below.
+
+## Tooling package
+
+The `tooling/` subsystem is published as the standalone `drevops/vortex-tooling`
+Composer package - a read-only mirror split from `.vortex/tooling/`. Consumer
+projects install it and run the shipped scripts from
+`vendor/drevops/vortex-tooling/src/`.
+
+`tests/` and `playground/` are stripped from the published package archive via
+`.gitattributes` `export-ignore`; only `src/` ships to consumers. The package
+carries no CLAUDE.md of its own - it would otherwise be published to consumer
+sites - so this section is the single source of maintenance guidance for it.
+
+### Tests
+
+- **Unit** - BATS tests in `tooling/tests/unit/` give full unit coverage of the
+  shipped scripts, with external commands mocked. Run with `ahoy test-bats`
+  from `.vortex/`.
+- **Integration** - the scripts are exercised end-to-end by the template's own
+  PHPUnit functional tests in `.vortex/tests/`, which provision a real project
+  and run the scripts together.
+- **Manual** - `tooling/playground/` holds scripts that send real notifications
+  to live services (Slack, JIRA, New Relic, etc.) for hands-on verification.
+  Not automated; see `tooling/playground/README.md`.
+
+### Script patterns
+
+```bash
+#!/usr/bin/env bash
+# Environment loading
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && rm "${t}"
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Variables with defaults
+VAR="${VAR:-default}"
+
+# Helpers
+info() { printf "[INFO] %s\n" "${1}"; }
+task() { printf "    > %s\n" "${1}"; }
+note() { printf "      %s\n" "${1}"; }
+
+# Main execution
+```
+
+### Publishing
+
+Version is injected at publish time - never hardcode `version` in the package's
+`composer.json`. The path repository in the template's root `composer.json`
+declares `"versions": {"drevops/vortex-tooling": "1.0.0"}` so the in-repo copy
+resolves during development. The installer strips that path-repo entry from
+consumer sites so they resolve from Packagist.
 
 ## Quick Commands
 
@@ -64,7 +121,8 @@ subsystem:
 cd .vortex
 ahoy install # Install all dependencies
 ahoy update-snapshots # Update fixtures
-ahoy lint-scripts # Lint shell scripts
+ahoy lint-scripts # Lint scripts
+ahoy test-bats # Run BATS unit tests
 ahoy update-docs # Regenerate docs from scripts
 ahoy lint-markdown # Lint markdown files
 ```
@@ -102,9 +160,10 @@ When updating template scripts:
 2. Run `ahoy lint-scripts`
 3. Run `ahoy update-docs`
 4. Update BATS tests in `.vortex/tooling/tests/unit/`
-5. **Commit the changes**
-6. Run `ahoy update-snapshots`
-7. Commit the regenerated fixtures (separate commit or amend per task scope)
+5. Run `ahoy test-bats`
+6. **Commit the changes**
+7. Run `ahoy update-snapshots`
+8. Commit the regenerated fixtures (separate commit or amend per task scope)
 
 When updating template files (settings, configs, etc.):
 
