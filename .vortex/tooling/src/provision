@@ -89,7 +89,6 @@ note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-warn() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "${1}" || printf "[WARN] %s\n" "${1}"; }
 # @formatter:on
 
 drush() { ./vendor/bin/drush -y "$@"; }
@@ -417,50 +416,21 @@ else
   echo
 fi
 
-# Run custom provision scripts from a directory.
-# The files must have a "provision-" prefix and a ".sh" extension.
-provision_run_scripts() {
-  dir="${1}"
-
-  [ ! -d "${dir}" ] && return 0
-
-  for file in "${dir}"/provision-*.sh; do
-    [ ! -f "${file}" ] && continue
-
-    task "Running custom post-install script '${file}'."
-    echo
-    "${file}"
-    echo
-    pass "Completed running of custom post-install script '${file}'."
-    echo
+# Run custom provision scripts.
+# The files should be located in VORTEX_PROVISION_SCRIPTS_DIR directory,
+# must have "provision-" prefix and ".sh" extension.
+if [ -d "${VORTEX_PROVISION_SCRIPTS_DIR}" ]; then
+  for file in "${VORTEX_PROVISION_SCRIPTS_DIR}"/provision-*.sh; do
+    if [ -f "${file}" ]; then
+      task "Running custom post-install script '${file}'."
+      echo
+      "${file}"
+      echo
+      pass "Completed running of custom post-install script '${file}'."
+      echo
+    fi
   done
-
   unset file
-}
-
-# Check whether a directory contains any custom provision scripts.
-provision_has_scripts() {
-  for file in "${1}"/provision-*.sh; do
-    [ -f "${file}" ] && return 0
-  done
-
-  return 1
-}
-
-# Run custom provision scripts from the configured directory.
-provision_run_scripts "${VORTEX_PROVISION_SCRIPTS_DIR}"
-
-# Run custom provision scripts from the legacy directory.
-#
-# @deprecated Support for the "./scripts/custom" location is deprecated and will
-# be removed in Vortex 1.40. Move custom provision scripts into the directory
-# referenced by VORTEX_PROVISION_SCRIPTS_DIR ("./scripts").
-VORTEX_PROVISION_SCRIPTS_DIR_LEGACY="./scripts/custom"
-if [ "${VORTEX_PROVISION_SCRIPTS_DIR}" != "${VORTEX_PROVISION_SCRIPTS_DIR_LEGACY}" ] && provision_has_scripts "${VORTEX_PROVISION_SCRIPTS_DIR_LEGACY}"; then
-  warn "The '${VORTEX_PROVISION_SCRIPTS_DIR_LEGACY}' directory is a deprecated location for custom provision scripts."
-  note "Move these scripts into '${VORTEX_PROVISION_SCRIPTS_DIR}'. Support for the legacy location will be removed in Vortex 1.40."
-  echo
-  provision_run_scripts "${VORTEX_PROVISION_SCRIPTS_DIR_LEGACY}"
 fi
 
 if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
