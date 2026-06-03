@@ -231,10 +231,14 @@ steps. This feature allows you to automate additional tasks specific to your
 project, such as conditionally enabling modules or running migrations in a
 specific order.
 
-To run custom scripts, create a new file in the `scripts/custom` directory
-with the `provision-` prefix and the `.sh` extension, and make it executable
-with `chmod +x scripts/custom/provision-10-example.sh`. The script will be
-automatically discovered and executed.
+To run custom scripts, create a new file in the `scripts` directory with the
+`provision-` prefix and the `.sh` extension, and make it executable with
+`chmod +x scripts/provision-10-example.sh`. The script will be automatically
+discovered and executed.
+
+The legacy `scripts/custom` directory is still scanned for backward
+compatibility but is deprecated. Move any such scripts into the `scripts`
+directory; support for the legacy location will be removed in **Vortex** 1.40.
 
 It is recommended to use a 2-digit suffix to control the order of execution:
 e.g., `provision-10-example.sh`, `provision-20-another-example.sh`.

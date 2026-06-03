@@ -21,7 +21,42 @@ Run `git tag --sort=-creatordate` to find the most recent tag (check the first f
 This is the `PREVIOUS_VERSION`. Use `git log --oneline PREVIOUS_VERSION..HEAD`
 to get the exact commit range for this release.
 
-## Step 3: Run release checklist operations
+## Step 3: Check pending deprecations
+
+The codebase marks time-limited backward-compatibility shims with a
+`@deprecated` tag that names the **Vortex** version in which the shim is to be
+removed (e.g. `@deprecated ... will be removed in Vortex 1.40.`). Before
+preparing a release, find any deprecation whose target version is at or below
+the version being released and confirm it is resolved.
+
+1. List every deprecation marker and its target version:
+
+   ```bash
+   grep -rn "@deprecated" --exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.artifacts .
+   ```
+
+2. For each marker, read the target removal version (the `Vortex X.Y` it names)
+   and compare it against the version being released:
+   - **Target version is greater than the release version** - still in its
+     grace period. Leave it in place and note it in the release checklist as a
+     known upcoming removal.
+   - **Target version is at or below the release version** - the removal is now
+     due. The deprecated code, its tests, and any related docs MUST be removed
+     before the release.
+
+3. If any deprecation is due, STOP and prompt the user before continuing:
+   - List each due deprecation with its file and line.
+   - Ask whether to resolve it now (remove the deprecated code path, its tests,
+     and any `@deprecated` notes or docs) or to defer the release.
+   - Do NOT silently proceed past a due deprecation.
+
+4. After resolving (or the user explicitly deferring) the due deprecations,
+   re-run the grep to confirm nothing at or below the release version remains.
+
+Record the outcome (resolved, deferred, or none found) in the release checklist
+section of the release notes.
+
+## Step 4: Run release checklist operations
 
 Work through each checklist item from the release process doc:
 
@@ -78,7 +113,7 @@ Work through each checklist item from the release process doc:
    - The command does NOT auto-commit; review the artifact diff under
      `.vortex/docs/static/img/` and stage manually.
 
-## Step 4: Generate release notes
+## Step 5: Generate release notes
 
 The release-prep flow uses a single staging directory per release: `.artifacts/release-<full-version>/` (e.g. `.artifacts/release-1.38.0/`). Everything for that release lives inside this folder so reviewers have one place to look.
 

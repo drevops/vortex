@@ -63,7 +63,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -96,7 +96,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -126,7 +126,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -171,7 +171,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -223,7 +223,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -255,7 +255,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -300,7 +300,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
@@ -346,7 +346,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/custom/provision-20-migration.sh
+  run ./scripts/provision-20-migration.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"

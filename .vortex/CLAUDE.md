@@ -98,7 +98,7 @@ template scripts, settings, configs, Dockerfiles, composer.json — all of it.
 
 When updating template scripts:
 
-1. Modify script in `.vortex/tooling/src/` (shipped scripts) or `scripts/custom/` (provision subscripts)
+1. Modify script in `.vortex/tooling/src/` (shipped scripts) or `scripts/` (provision subscripts)
 2. Run `ahoy lint-scripts`
 3. Run `ahoy update-docs`
 4. Update BATS tests in `.vortex/tooling/tests/unit/`

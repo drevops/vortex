@@ -52,7 +52,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -142,7 +142,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -168,7 +168,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -196,7 +196,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
 
@@ -278,7 +278,7 @@ assert_provision_info() {
     "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -304,7 +304,7 @@ assert_provision_info() {
     "-       Fresh database detected. Performing additional example operations."
     "Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -332,7 +332,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -423,7 +423,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -449,7 +449,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -477,7 +477,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -580,7 +580,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -606,7 +606,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -634,7 +634,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -725,7 +725,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -751,7 +751,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -779,7 +779,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -864,7 +864,7 @@ assert_provision_info() {
     "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -890,7 +890,7 @@ assert_provision_info() {
     "-       Fresh database detected. Performing additional example operations."
     "Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -918,7 +918,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1010,7 +1010,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1036,7 +1036,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1064,7 +1064,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
 
@@ -1152,13 +1152,13 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
     "  ==> Started example operations."
     "      Environment: prod"
     "      Skipping example operations in production environment."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1188,7 +1188,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
@@ -1235,7 +1235,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -1324,7 +1324,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1350,7 +1350,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1376,7 +1376,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -1467,7 +1467,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1493,7 +1493,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1519,7 +1519,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1582,7 +1582,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
@@ -1646,7 +1646,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1728,7 +1728,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1754,7 +1754,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1780,7 +1780,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1889,7 +1889,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1915,7 +1915,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1941,7 +1941,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
 
@@ -1988,7 +1988,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -2101,7 +2101,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install script.
-    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Running custom post-install script './scripts/provision-10-example.sh'."
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -2127,7 +2127,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2156,7 +2156,7 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/custom/provision-20-migration.sh
+  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1
@@ -2235,6 +2235,130 @@ assert_provision_info() {
   assert_failure
 
   run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+# @deprecated Exercises the deprecated "./scripts/custom" location. Remove this
+# test together with the legacy support in Vortex 1.40.
+@test "Provision: DB; no site; legacy scripts directory" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+
+  # Move the example script into the legacy "./scripts/custom" directory to
+  # assert that it is still discovered and that a deprecation warning is shown.
+  rm -f ./scripts/provision-20-migration.sh
+  mkdir -p ./scripts/custom
+  mv ./scripts/provision-10-example.sh ./scripts/custom/provision-10-example.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  mkdir "./.data"
+  touch "./.data/db.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:connect"
+    "Imported database from the dump file."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Deployment hooks.
+    "Running deployment hooks."
+    "@drush -y deploy:hook"
+    "Completed deployment hooks."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+
+    # Deprecation warning for the legacy custom scripts directory.
+    "The './scripts/custom' directory is a deprecated location for custom provision scripts."
+    "Move these scripts into './scripts'. Support for the legacy location will be removed in Vortex 1.40."
+
+    # Custom post-install script discovered in the legacy directory.
+    "Running custom post-install script './scripts/custom/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "    > Setting site name."
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "    > Installing contrib modules."
+    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
+    "    > Installing Redis module."
+    "@drush -y pm:install redis"
+    "    > Installing and configuring ClamAV."
+    "@drush -y pm:install clamav"
+    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "    > Installing Solr search modules."
+    "@drush -y pm:install search_api search_api_solr"
+    "    > Installing custom site modules."
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_search"
+    "@drush -y pm:install ys_demo"
+    "    > Running deployment hooks."
+    "@drush -y deploy:hook"
+    "  ==> Started example operations."
+    "      Environment: ci"
+    "      Running example operations in non-production environment."
+    "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./.vortex/tooling/src/provision
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  assert_provision_info 0 0 0 1 0 0 0
 
   popd >/dev/null || exit 1
 }
