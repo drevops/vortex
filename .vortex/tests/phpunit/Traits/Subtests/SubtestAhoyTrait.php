@@ -877,7 +877,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->assertFileExists('web/sites/default/settings.migration.php');
-    $this->assertFileExists('scripts/custom/provision-20-migration.sh');
+    $this->assertFileExists('scripts/provision-20-migration.sh');
     $this->assertFileExists('web/modules/custom/ys_migrate/ys_migrate.info.yml');
     $this->assertFileExists('web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml');
     $this->assertFileContainsString('docker-compose.yml', 'database2');

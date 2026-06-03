@@ -84,7 +84,7 @@ class Modules extends AbstractHandler {
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
         // Remove module from the provision example file.
-        File::replaceContentInFile($t . '/scripts/custom/provision-10-example.sh', Replacement::create('module', function (string $content) use ($module_name): string {
+        File::replaceContentInFile($t . '/scripts/provision-10-example.sh', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
           $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
             $indent = $matches[1];

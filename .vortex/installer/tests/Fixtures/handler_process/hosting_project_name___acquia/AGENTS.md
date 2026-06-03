@@ -7,5 +7,5 @@
 +- `docroot/modules/custom/` - Custom modules
 +- `docroot/themes/custom/` - Custom themes
  - `config/default/` - Drupal configuration
- - `scripts/custom/` - Project scripts
+ - `scripts/` - Project scripts
  - `patches/` - Module patches

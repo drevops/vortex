@@ -63,7 +63,7 @@ class Migration extends AbstractHandler {
     else {
       File::removeTokenAsync('MIGRATION');
       File::remove($t . '/' . $w . '/sites/default/settings.migration.php');
-      File::remove($t . '/scripts/custom/provision-20-migration.sh');
+      File::remove($t . '/scripts/provision-20-migration.sh');
       File::remove($t . '/' . $w . '/modules/custom/ys_migrate');
 
       $cj = JsonManipulator::fromFile($t . '/composer.json');

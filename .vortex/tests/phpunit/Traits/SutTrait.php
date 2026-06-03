@@ -434,7 +434,7 @@ trait SutTrait {
 
     // Script files.
     $this->assertFileExists('scripts/composer/ScriptHandler.php');
-    $this->assertFileExists('scripts/custom/.gitkeep');
+    $this->assertFileExists('scripts/provision-10-example.sh');
 
     // Vortex tooling is shipped via the 'drevops/vortex-tooling' Composer
     // package and bootstrapped by 'scripts/vortex-tooling.sh'.
