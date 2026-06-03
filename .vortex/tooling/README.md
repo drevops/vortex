@@ -50,6 +50,17 @@ the `provision-` prefix and the `.sh` extension. The `provision` script
 discovers and runs every matching file in filename order; use a two-digit
 number to sequence them (`provision-10-...`, `provision-20-...`).
 
+The layout looks like this:
+
+```text
+your-project/
+├── scripts/
+│   ├── provision-10-example.sh   # shipped example - copy or remove
+│   ├── provision-20-migration.sh # shipped example - copy or remove
+│   └── provision-30-custom.sh    # your own hook script
+└── vendor/drevops/vortex-tooling/src/provision   # runs each provision-*.sh in order
+```
+
 The template ships runnable examples you can copy or remove -
 [`scripts/provision-10-example.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-example.sh)
 and
