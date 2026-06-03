@@ -2271,20 +2271,41 @@ assert_provision_info() {
     # Site provisioning information.
     "Provisioning site from the database dump file."
     "Dump file path: $(pwd)/.data/db.sql"
+    "- Existing site was found."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
     "Existing site was not found."
     "Fresh site content will be imported from the database dump file."
     "@drush -y sql:drop"
     "@drush -y sql:connect"
+    "- Unable to import database from file."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
+    "- Site content was not changed."
     "Imported database from the dump file."
+    # Profile.
+    "- Provisioning site from the profile."
+    "- Existing site was found."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Fresh site content will be created from the profile."
 
     # Drupal environment information.
     "Current Drupal environment: ci"
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
 
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
     # Maintenance mode.
     "Enabling maintenance mode."
     "@drush -y maint:set 1"
     "Enabled maintenance mode."
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Importing configuration."
+    "- Importing config_split configuration."
 
     # Database updates.
     "Running database updates."
@@ -2310,8 +2331,14 @@ assert_provision_info() {
     "Sanitizing database."
     "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
     "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
     "@drush -y sql:query --file=../scripts/sanitize.sql"
     "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Deprecation warning for the legacy custom scripts directory.
     "The './scripts/custom' directory is a deprecated location for custom provision scripts."
@@ -2340,6 +2367,10 @@ assert_provision_info() {
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
+    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
+    "      Fresh database detected. Performing additional example operations."
+    "-      Existing database detected. Performing additional example operations."
+    "  ==> Finished example operations."
     "Completed running of custom post-install script './scripts/custom/provision-10-example.sh'."
 
     # Disabling maintenance mode.
