@@ -80,7 +80,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:26.5.0@sha256:b7fe267124a98cd4b51fac244ae9572b3a5f58de1d8d7ca9173b77fe071c8bed
+      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -200,7 +200,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:26.5.0@sha256:b7fe267124a98cd4b51fac244ae9572b3a5f58de1d8d7ca9173b77fe071c8bed
+      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -268,11 +268,11 @@ jobs:
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: .data
-          key: v26.4.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
           # Fallback to caching by default branch name only. Allows to use
           # cache from the branch build on the previous day.
           restore-keys: |
-            v26.4.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+            v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 
       - name: Download DB
         run: |
@@ -309,7 +309,7 @@ jobs:
         if: env.db_hash != hashFiles('.data')
         with:
           path: .data
-          key: v26.4.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
   #;> !PROVISION_TYPE_PROFILE
 
   build:
@@ -327,7 +327,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:26.5.0@sha256:b7fe267124a98cd4b51fac244ae9572b3a5f58de1d8d7ca9173b77fe071c8bed
+      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
       env:
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
         VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
@@ -380,7 +380,7 @@ jobs:
           date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
-        run: echo 'v26.4.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+        run: echo 'v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
       # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
@@ -392,9 +392,9 @@ jobs:
           path: .data
           fail-on-cache-miss: true
           # Use cached database from previous builds of this branch.
-          key: v26.4.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            v26.4.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+            v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Login to container registry
@@ -575,7 +575,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:26.5.0@sha256:b7fe267124a98cd4b51fac244ae9572b3a5f58de1d8d7ca9173b77fe071c8bed
+      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
       env:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
