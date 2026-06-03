@@ -36,15 +36,38 @@ Each commit in this repository corresponds to a commit in the parent
 repository. The commit message body records the source commit SHA for
 provenance.
 
+## Extending provisioning
+
+The `provision` script runs your own scripts after the core provisioning steps
+complete (database import or profile install, database updates, configuration
+import, cache rebuild, deployment hooks, and sanitisation). This is the
+recommended way to add project-specific provisioning logic - enabling modules,
+running migrations, seeding content, and so on - without touching the shipped
+scripts.
+
+Drop an executable script into your project's `scripts/` directory, named with
+the `provision-` prefix and the `.sh` extension. The `provision` script
+discovers and runs every matching file in filename order; use a two-digit
+number to sequence them (`provision-10-...`, `provision-20-...`).
+
+The template ships runnable examples you can copy or remove -
+[`scripts/provision-10-example.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-example.sh)
+and
+[`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh).
+See the
+[provisioning documentation](https://www.vortextemplate.com/docs/drupal/provision#running-custom-scripts)
+for the full reference.
+
 ## Customisation
 
-If you need to change how a shipped script behaves - for example, to add an
-extra step, change a default value, or integrate with a service specific to
-your project - do not fork the scripts or edit them in place: they are
-installed read-only into `vendor/`, so those changes are lost on the next
-`composer update`.
+Reach for this only when [extending provisioning](#extending-provisioning) is
+not enough - when you need to change how a shipped script *itself* behaves
+(alter a step it already runs, change a default, or fix something upstream that
+no post-provision hook can reach). It is the last resort.
 
-Instead, customise a script with a patch managed by
+The scripts are installed read-only into `vendor/`, so do not fork them or edit
+them in place: those changes are lost on the next `composer update`. Instead,
+apply a patch managed by
 [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) and
 declared in your project's `composer.json`. The patch is re-applied
 automatically whenever the package is installed or updated in the consumer
