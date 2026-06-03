@@ -2,10 +2,10 @@
 
 Helper scripts that ship with [Vortex](https://github.com/drevops/vortex), the
 Drupal project template by [DrevOps](https://www.drevops.com). They implement
-the host-side and in-container operations that a consumer project built from
-Vortex relies on.
+the host-side and in-container operations your project relies on.
 
-This package is distributed via Composer as `drevops/vortex-tooling`.
+This package is distributed via Composer as `drevops/vortex-tooling` and needs
+to be added to your Drupal consumer project site.
 
 ## Installation
 
@@ -13,8 +13,8 @@ This package is distributed via Composer as `drevops/vortex-tooling`.
 composer require drevops/vortex-tooling
 ```
 
-A consumer project installs this package as a regular dependency and runs the
-shipped scripts from `vendor/drevops/vortex-tooling/src/<script-name>`.
+Once installed, you run the shipped scripts from
+`vendor/drevops/vortex-tooling/src/<script-name>`.
 
 ## Read-only mirror
 
@@ -54,11 +54,17 @@ The layout looks like this:
 
 ```text
 your-project/
+├── .ahoy.yml
+├── composer.json
 ├── scripts/
 │   ├── provision-10-example.sh   # shipped example - copy or remove
 │   ├── provision-20-migration.sh # shipped example - copy or remove
 │   └── provision-30-custom.sh    # your own hook script
-└── vendor/drevops/vortex-tooling/src/provision   # runs each provision-*.sh in order
+├── vendor/
+│   └── drevops/vortex-tooling/src/provision   # runs each provision-*.sh in order
+├── web/                          # Drupal web root
+│   └── ...
+└── ...
 ```
 
 The template ships runnable examples you can copy or remove -
@@ -81,9 +87,9 @@ them in place: those changes are lost on the next `composer update`. Instead,
 apply a patch managed by
 [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) and
 declared in your project's `composer.json`. The patch is re-applied
-automatically whenever the package is installed or updated in the consumer
-project, so your customisation survives dependency updates and stays
-version-controlled alongside the rest of your project.
+automatically whenever the package is installed or updated in your project, so
+your customisation survives dependency updates and stays version-controlled
+alongside the rest of your project.
 
 ## Testing
 
