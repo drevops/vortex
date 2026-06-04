@@ -27,6 +27,10 @@ fi
 
 mkdir -p vendor-temp vendor/drevops
 
+# Always remove the throwaway project on exit - including when an intermediate
+# step fails under 'set -e' - so a re-run never starts from a dirty state.
+trap 'rm -rf vendor-temp' EXIT
+
 # Authenticate Composer with GitHub if a token is available, to avoid hitting
 # the anonymous API rate limit when downloading packages from GitHub.
 if [ -n "${PACKAGE_TOKEN:-}" ]; then
@@ -65,4 +69,3 @@ fi
 composer --working-dir=vendor-temp install --no-dev --no-interaction
 
 mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/
-rm -rf vendor-temp
