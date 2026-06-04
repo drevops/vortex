@@ -95,7 +95,26 @@ For CI environments, configure these secrets in your CI provider ([GitHub Action
 | `ACQUIA_KEY` | Your Acquia Cloud API key |
 | `ACQUIA_SECRET` | Your Acquia Cloud API secret |
 
-### 2. Configure Drush aliases (optional)
+### 2. Configure the hash salt
+
+Drupal's `hash_salt` secures one-time login links, password-reset URLs, and
+CSRF/form tokens, so every hosted environment needs a stable, high-entropy salt.
+
+Acquia Cloud supplies a hash salt through its platform settings file, which
+**Vortex** includes automatically (see [Acquia settings file](#acquia-settings-file)).
+Because that file loads after the settings that **Vortex** provides, the
+platform-supplied salt takes precedence over both the `DRUPAL_HASH_SALT` variable
+and the fallback derived from the database host.
+
+:::warning
+
+You normally do **not** need to set `DRUPAL_HASH_SALT` on Acquia - the platform
+supplies one per environment. Avoid defining a conflicting `DRUPAL_HASH_SALT`, as
+the platform-supplied salt overrides it.
+
+:::
+
+### 3. Configure Drush aliases (optional)
 
 To run Drush commands on remote Acquia environments, download your Drush aliases
 from the Acquia Cloud UI. See

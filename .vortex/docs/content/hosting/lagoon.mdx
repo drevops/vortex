@@ -71,6 +71,29 @@ For CI environments, configure these secrets in your CI provider ([GitHub Action
 |----------|-------------|
 | `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
 
+### 2. Set the hash salt
+
+Drupal's `hash_salt` secures one-time login links, password-reset URLs, and
+CSRF/form tokens, so every hosted environment needs a stable, high-entropy salt.
+Lagoon does not provide one, and the fallback that **Vortex** derives from the
+database host is suitable for local and CI use only.
+
+Set the following variable for every environment (dev, stage, and production) as
+a Lagoon environment variable or secret - use a different value per environment:
+
+| Variable | Description |
+|----------|-------------|
+| `DRUPAL_HASH_SALT` | A long, random, unique cryptographic salt for the environment |
+
+:::warning
+
+Set a unique, long, random `DRUPAL_HASH_SALT` for every Lagoon environment.
+Without it, the salt is derived from the database host and changes whenever the
+host changes, silently invalidating outstanding one-time login and
+password-reset links.
+
+:::
+
 ## Routine Operations
 
 ### Download database
