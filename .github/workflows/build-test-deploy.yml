@@ -94,7 +94,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -224,7 +224,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           # Do not keep SSH credentials after checkout to allow adding custom SSH keys.
           persist-credentials: false
@@ -354,7 +354,7 @@ jobs:
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -602,7 +602,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           # Fetch all history for git repository.
           fetch-depth: 0
