@@ -160,6 +160,30 @@ The following environment variables can be used to customize general settings:
 | `DRUPAL_MAINTENANCE_THEME`  | `DRUPAL_THEME`        | `claro`                        | Theme used during maintenance mode       |
 | `DRUPAL_CACHE_PAGE_MAX_AGE` |                       | `900`                          | Page cache expiration time (seconds)     |
 
+#### Hash salt
+
+The `DRUPAL_HASH_SALT` variable sets Drupal's `hash_salt`, which secures one-time
+login links, password-reset URLs, and CSRF/form tokens.
+
+When `DRUPAL_HASH_SALT` is not set, **Vortex** derives a fallback salt by hashing
+the database host name. This lets a project start quickly and is suitable for
+**local and CI use only**:
+
+- A database host is not a secret - it appears in logs, backups, `.env` files,
+  and `drush status` output - so the derived value only resists blind guessing.
+- The derived value changes if the database host ever changes (for example,
+  failover or migration), silently invalidating outstanding one-time login and
+  password-reset links.
+
+:::warning
+
+Set a unique, long, random `DRUPAL_HASH_SALT` for every hosted environment (dev,
+stage, and production) as a platform variable or secret. See the
+[Acquia](/docs/hosting/acquia) and [Lagoon](/docs/hosting/lagoon) hosting pages
+for platform-specific guidance.
+
+:::
+
 ### Environment type detection
 
 **Vortex** defines an _environment type_ to represent the context in which the
