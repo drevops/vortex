@@ -322,27 +322,15 @@ The [`scripts`](https://getcomposer.org/doc/04-schema.md#scripts) section
 defines custom scripts to be executed at specific points in Composer's workflow,
 enhancing the automation and maintenance of your Drupal project.
 
-- [`pre-install-cmd`](https://getcomposer.org/doc/articles/scripts.md#pre-install-cmd):
-  Executes scripts before the `composer install` command is run. In your
-  configuration, `DrupalProject\composer\ScriptHandler::checkComposerVersion` is
-  specified, which ensures that the Composer version being used is compatible
-  with your project setup. This is vital for maintaining consistency and
-  avoiding issues due to version mismatches.
-- [`pre-update-cmd`](https://getcomposer.org/doc/articles/scripts.md#pre-update-cmd):
-  Runs scripts before the `composer update` command is executed. It uses the
-  same script as `pre-install-cmd` to check the Composer version, ensuring that
-  updates to your project’s dependencies are compatible with your current
-  Composer setup.
 - [`post-install-cmd`](https://getcomposer.org/doc/articles/scripts.md#post-install-cmd):
   Invoked after the `composer install` command completes. The
   script `DrupalProject\composer\ScriptHandler::createRequiredFiles` is
-  executed, which typically handles tasks like setting up default files and
-  configurations necessary for the Drupal installation.
+  executed, which creates the required directories for the Drupal
+  installation.
 - [`post-update-cmd`](https://getcomposer.org/doc/articles/scripts.md#post-update-cmd):
   Executes scripts after the `composer update` command. It calls the
-  same `createRequiredFiles` method as in `post-install-cmd`, ensuring that
-  necessary files and configurations are updated or re-established following an
-  update of dependencies.
+  same `createRequiredFiles` method as in `post-install-cmd`, ensuring the
+  required directories are present following an update of dependencies.
 
 ## Dependency bumping
 
