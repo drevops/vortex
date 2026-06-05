@@ -1,4 +1,4 @@
-@@ -141,10 +141,6 @@
+@@ -145,10 +145,6 @@
          run: docker compose exec -T cli vendor/bin/phpcs
          continue-on-error: ${{ vars.VORTEX_CI_PHPCS_IGNORE_FAILURE == '1' }}
  

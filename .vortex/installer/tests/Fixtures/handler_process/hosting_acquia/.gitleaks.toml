@@ -1,0 +1,17 @@
+@@ -14,11 +14,11 @@
+ paths = [
+   '''(^|/)vendor/''',
+   '''(^|/)node_modules/''',
+-  '''(^|/)web/core/''',
+-  '''(^|/)web/modules/contrib/''',
+-  '''(^|/)web/themes/contrib/''',
+-  '''(^|/)web/libraries/''',
+-  '''(^|/)web/sites/default/files/''',
++  '''(^|/)docroot/core/''',
++  '''(^|/)docroot/modules/contrib/''',
++  '''(^|/)docroot/themes/contrib/''',
++  '''(^|/)docroot/libraries/''',
++  '''(^|/)docroot/sites/default/files/''',
+   '''(^|/)\.data/''',
+   '''(^|/)\.artifacts/''',
+   '''(^|/)\.git/''',
