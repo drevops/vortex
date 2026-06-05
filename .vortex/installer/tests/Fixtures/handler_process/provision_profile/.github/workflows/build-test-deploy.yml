@@ -132,7 +132,7 @@
 -    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
  
      permissions:
-       contents: read
+       contents: read # Check out the repository.
 @@ -306,14 +194,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
