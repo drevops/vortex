@@ -9,15 +9,15 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -74,11 +72,6 @@
-     "autoload": {
-         "classmap": [
-             "scripts/composer/ScriptHandler.php"
--        ]
--    },
+@@ -71,11 +69,6 @@
+     ],
+     "minimum-stability": "stable",
+     "prefer-stable": true,
 -    "autoload-dev": {
 -        "classmap": [
 -            "tests/phpunit/"
-         ]
-     },
+-        ]
+-    },
      "config": {
+         "allow-plugins": {
+             "composer/installers": true,
