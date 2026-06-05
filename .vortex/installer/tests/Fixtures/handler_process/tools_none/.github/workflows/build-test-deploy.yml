@@ -41,7 +41,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -375,7 +350,6 @@
+@@ -380,7 +355,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -49,12 +49,10 @@
  
        - name: Provision site
          run: |
-@@ -384,83 +358,6 @@
-             docker compose cp -L .data/db.sql cli:/app/.data/db.sql
-           fi
+@@ -391,83 +365,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
--        timeout-minutes: 30
--
+         timeout-minutes: 30
+ 
 -      - name: Test with Jest
 -        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: docker compose exec -T cli bash -c "yarn test"
@@ -130,6 +128,25 @@
 -        env:
 -          VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
 -        continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
-         timeout-minutes: 30
- 
+-        timeout-minutes: 30
+-
        - name: Process test logs and artifacts
+         if: always()
+         run: |
+@@ -484,16 +381,6 @@
+           path: .logs
+           include-hidden-files: true
+           if-no-files-found: error
+-
+-      - name: Publish test results to GitHub Checks
+-        if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
+-        uses: EnricoMi/publish-unit-test-result-action@__HASH__ # __VERSION__
+-        with:
+-          check_name: Test results (${{ matrix.instance }})
+-          comment_mode: "off"
+-          test_file_prefix: "-/app/"
+-          files: |
+-            .logs/test_results/**/*.xml
+ 
+       - name: Upload exported codebase as an artifact
+         uses: actions/upload-artifact@__HASH__ # __VERSION__

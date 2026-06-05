@@ -222,3 +222,16 @@ Coverage reports are automatically posted as PR comments. Each new report
 replaces the previous one — older comments are minimized to keep the PR
 timeline clean. To disable this, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP`
 to `1`.
+
+### Test results
+
+PHPUnit and Behat results are published to the **Checks** tab of each run, so a
+failed check links directly to the failing tests and their messages instead of
+requiring you to download artifacts or search through logs. Results are read
+from the JUnit reports the test tools already generate, so no extra setup is
+required.
+
+Tests run across parallel build instances, so a separate check is created for
+each instance (for example, `Test results (0)` and `Test results (1)`). To
+disable publishing, set `VORTEX_CI_TEST_RESULTS_SKIP` to `1` in **Settings →
+Secrets and variables → Actions → Variables**.

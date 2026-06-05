@@ -416,6 +416,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'gherkinlint',
         'gherkin-lint',
         'gherkin',
+        'publish-unit-test-result-action',
       ])),
     ];
     yield 'tools_groups_no_be_tests_circleci' => [
@@ -436,6 +437,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'gherkinlint',
         'gherkin-lint',
         'gherkin',
+        'publish-unit-test-result-action',
       ])),
     ];
     yield 'tools_groups_no_fe_lint_no_theme' => [

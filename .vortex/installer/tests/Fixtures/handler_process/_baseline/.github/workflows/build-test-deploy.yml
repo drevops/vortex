@@ -282,6 +282,11 @@ jobs:
     needs: database
     if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
+    permissions:
+      contents: read # Check out the repository.
+      checks: write # Publish test results to the Checks tab.
+      pull-requests: write # Comment on the pull request.
+
     strategy:
       # A matrix to run multiple jobs in parallel.
       matrix:
@@ -479,6 +484,16 @@ jobs:
           path: .logs
           include-hidden-files: true
           if-no-files-found: error
+
+      - name: Publish test results to GitHub Checks
+        if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
+        uses: EnricoMi/publish-unit-test-result-action@__HASH__ # __VERSION__
+        with:
+          check_name: Test results (${{ matrix.instance }})
+          comment_mode: "off"
+          test_file_prefix: "-/app/"
+          files: |
+            .logs/test_results/**/*.xml
 
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__

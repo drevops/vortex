@@ -131,9 +131,9 @@
 -    needs: database
 -    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
  
-     strategy:
-       # A matrix to run multiple jobs in parallel.
-@@ -301,14 +189,6 @@
+     permissions:
+       contents: read # Check out the repository.
+@@ -306,14 +194,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -148,7 +148,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -333,29 +213,6 @@
+@@ -338,29 +218,6 @@
        - name: Install Vortex tooling
          run: ./scripts/vortex-tooling.sh
  
@@ -178,7 +178,7 @@
        - name: Login to container registry
          run: ./vendor/drevops/vortex-tooling/src/login-container-registry
  
-@@ -500,7 +357,6 @@
+@@ -515,7 +372,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
