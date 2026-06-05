@@ -1,0 +1,39 @@
+# Gitleaks
+
+https://github.com/gitleaks/gitleaks
+
+> A tool for detecting and preventing hardcoded secrets like passwords, API keys, and tokens in code.
+
+:::note
+
+**Vortex** does not install Gitleaks locally. Please follow the [instructions](https://github.com/gitleaks/gitleaks#installing) to install it on your system.
+
+In CI, Gitleaks runs from its official Docker image as part of the lint job.
+
+:::
+
+## Usage
+
+```shell
+gitleaks dir .
+```
+
+Gitleaks reads its configuration from the `.gitleaks.toml` file at the repository root. The shipped allowlist is tuned for Drupal projects so that a clean install reports no findings while real secrets are still detected.
+
+## Ignoring
+
+To ignore a single line, add a `gitleaks:allow` comment to it:
+
+```php
+$settings['example'] = 'not-a-real-secret'; // gitleaks:allow
+```
+
+To ignore a path or a recurring known-safe value across the codebase, add it to the `.gitleaks.toml` file at the repository root. See the [configuration documentation](https://github.com/gitleaks/gitleaks#configuration).
+
+## Ignoring fail in continuous integration pipeline
+
+This tool runs in continuous integration pipeline by default and fails the build
+if there are any violations.
+
+Set `VORTEX_CI_GITLEAKS_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report violations, if any.
