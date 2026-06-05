@@ -82,11 +82,6 @@
     ],
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "autoload": {
-        "classmap": [
-            "scripts/composer/ScriptHandler.php"
-        ]
-    },
     "autoload-dev": {
         "classmap": [
             "tests/phpunit/"
@@ -177,13 +172,5 @@
             "drupal/core": "-p2"
         },
         "patches": {}
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
-        ],
-        "post-update-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
-        ]
     }
 }
