@@ -12,15 +12,17 @@ useDefault = true
 [[allowlists]]
 description = "Third-party, generated, and local-only paths that must not be scanned."
 paths = [
-  '''(^|/)vendor/''',
-  '''(^|/)node_modules/''',
-  '''(^|/)web/core/''',
-  '''(^|/)web/modules/contrib/''',
-  '''(^|/)web/themes/contrib/''',
-  '''(^|/)web/libraries/''',
-  '''(^|/)web/sites/default/files/''',
-  '''(^|/)\.data/''',
   '''(^|/)\.artifacts/''',
+  '''(^|/)\.data/''',
   '''(^|/)\.git/''',
+  #;< VORTEX_DEV
   '''(^|/)\.vortex/''',
+  #;> VORTEX_DEV
+  '''(^|/)node_modules/''',
+  '''(^|/)vendor/''',
+  '''(^|/)web/core/''',
+  '''(^|/)web/libraries/''',
+  '''(^|/)web/modules/contrib/''',
+  '''(^|/)web/sites/default/files/''',
+  '''(^|/)web/themes/contrib/''',
 ]
