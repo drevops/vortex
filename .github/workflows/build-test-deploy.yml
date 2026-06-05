@@ -319,6 +319,11 @@ jobs:
     if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
     strategy:
       # A matrix to run multiple jobs in parallel.
       matrix:
@@ -547,6 +552,18 @@ jobs:
           path: .logs
           include-hidden-files: true
           if-no-files-found: error
+
+      #;< TOOL_PHPUNIT_BEHAT
+      - name: Publish test results to GitHub Checks
+        if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
+        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2.23.0
+        with:
+          check_name: Test results (${{ matrix.instance }})
+          comment_mode: "off"
+          test_file_prefix: "-/app/"
+          files: |
+            .logs/test_results/**/*.xml
+      #;> TOOL_PHPUNIT_BEHAT
 
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
