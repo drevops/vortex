@@ -306,3 +306,171 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "Label gate inactive when VORTEX_DEPLOY_ALLOW_LABEL is unset" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_PR_LABELS="bug,enhancement"
+
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
+  mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_not_contains "Found flag to gate deployment"
+  assert_output_not_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
+@test "Deployment proceeds when PR carries the required label" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR_LABELS="deploy"
+
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
+  mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "Found flag to gate deployment on the 'deploy' label."
+  assert_output_contains "PR 123 carries the 'deploy' label."
+  assert_output_not_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
+@test "Deployment skipped when PR lacks the required label" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR_LABELS="bug,enhancement"
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "Found flag to gate deployment on the 'deploy' label."
+  assert_output_contains "PR 123 does not carry the 'deploy' label."
+  assert_output_contains "Skipping deployment webhook."
+
+  popd >/dev/null
+}
+
+@test "Label gate does not apply to non-PR deployments" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR=""
+  export VORTEX_DEPLOY_BRANCH="main"
+
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
+  mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_not_contains "Found flag to gate deployment"
+  assert_output_not_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
+@test "Deployment proceeds when required label is among several PR labels" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
+  export VORTEX_DEPLOY_PR="456"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR_LABELS="bug,deploy,enhancement"
+
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
+  mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "PR 456 carries the 'deploy' label."
+  assert_output_not_contains "Skipping deployment"
+
+  popd >/dev/null
+}
+
+@test "Skip list takes precedence over the label gate" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_ALLOW_SKIP="1"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_SKIP_PRS="123"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR_LABELS="deploy"
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "Found PR 123 in skip list."
+  assert_output_contains "Skipping deployment webhook."
+  assert_output_not_contains "Found flag to gate deployment"
+
+  popd >/dev/null
+}
+
+@test "Deployment skipped when PR has no labels and gate is enabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR_LABELS=""
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "PR 123 does not carry the 'deploy' label."
+  assert_output_contains "Skipping deployment webhook."
+
+  popd >/dev/null
+}
+
+@test "Label gate requires an exact match, not a partial one" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy"
+  export VORTEX_DEPLOY_PR_LABELS="deploy-preview,needs-deploy"
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "PR 123 does not carry the 'deploy' label."
+  assert_output_contains "Skipping deployment webhook."
+
+  popd >/dev/null
+}
+
+@test "Label gate matches a label that contains spaces" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEPLOY_TYPES="webhook"
+  export VORTEX_DEPLOY_WEBHOOK_URL="https://example.com"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_ALLOW_LABEL="deploy to env"
+  export VORTEX_DEPLOY_PR_LABELS="bug,deploy to env,enhancement"
+
+  mock_deploy_webhook=$(mock_command ".vortex/tooling/src/deploy-webhook")
+  mock_set_output "${mock_deploy_webhook}" "Webhook deployment completed" 0
+
+  run .vortex/tooling/src/deploy
+  assert_success
+  assert_output_contains "PR 123 carries the 'deploy to env' label."
+  assert_output_not_contains "Skipping deployment"
+
+  popd >/dev/null
+}
