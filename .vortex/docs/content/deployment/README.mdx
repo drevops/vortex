@@ -126,6 +126,38 @@ VORTEX_DEPLOY_SKIP_PRS=42,123
 VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
 ```
 
+## Gating deployments on a PR label
+
+Skipping is subtractive - everything deploys unless you exclude it. The label
+gate is the opposite: it makes a pull request deployment **opt-in**, so a PR
+reaches an environment only when it is explicitly labeled for it. This is
+useful for controlling the number and cost of per-PR environments, or for
+keeping work-in-progress pull requests out of environments.
+
+Set `$VORTEX_DEPLOY_ALLOW_LABEL` to the name of the label that authorizes
+deployment:
+
+```shell
+VORTEX_DEPLOY_ALLOW_LABEL=deploy
+```
+
+With this set, a pull request is deployed only if it carries the `deploy`
+label; pull requests without it are skipped. When the variable is empty or
+unset (the default), the gate is inactive and deployments behave as before.
+
+The gate applies only to pull request builds. Branch and tag deployments have
+no associated pull request label and are never gated.
+
+The pull request's labels are read from `$VORTEX_DEPLOY_PR_LABELS`, a
+comma-separated list that the CI provider populates from the pull request
+event. On GitHub Actions this is wired up automatically. On CircleCI the
+labels are not available natively, so populate `$VORTEX_DEPLOY_PR_LABELS`
+yourself (for example, from the GitHub API) to use the gate.
+
+The label gate and the skip lists can be combined. A skip-list match is
+evaluated first and always wins, so a pull request listed in
+`$VORTEX_DEPLOY_SKIP_PRS` is skipped even when it carries the gate label.
+
 ## See also
 
 | Topic | Description |

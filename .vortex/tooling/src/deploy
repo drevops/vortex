@@ -49,6 +49,21 @@ VORTEX_DEPLOY_PR="${VORTEX_DEPLOY_PR:-}"
 # Flag to allow skipping of a deployment using additional flags.
 VORTEX_DEPLOY_ALLOW_SKIP="${VORTEX_DEPLOY_ALLOW_SKIP:-}"
 
+# Label that authorizes a pull request deployment.
+#
+# When set to a non-empty label name, a PR deployment proceeds only if the
+# pull request carries that label; PRs without it are skipped. When empty (the
+# default), the gate is inactive and deployments behave as before. Only applies
+# to PR builds (VORTEX_DEPLOY_PR set); branch and tag deployments are unaffected.
+VORTEX_DEPLOY_ALLOW_LABEL="${VORTEX_DEPLOY_ALLOW_LABEL:-}"
+
+# Comma-separated list of labels present on the deployed pull request.
+#
+# Populated by the CI provider from the pull request event (for example, in
+# GitHub Actions from "github.event.pull_request.labels"). Consulted by the
+# VORTEX_DEPLOY_ALLOW_LABEL gate.
+VORTEX_DEPLOY_PR_LABELS="${VORTEX_DEPLOY_PR_LABELS:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -103,6 +118,22 @@ if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
       exit 0
     fi
   fi
+fi
+
+if [ -n "${VORTEX_DEPLOY_ALLOW_LABEL}" ] && [ -n "${VORTEX_DEPLOY_PR}" ]; then
+  # Gate a pull request deployment on the presence of a label.
+  #
+  # The PR's labels are provided as a comma-separated list in
+  # $VORTEX_DEPLOY_PR_LABELS, populated by the CI provider from the PR event.
+  note "Found flag to gate deployment on the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
+
+  if ! echo ",${VORTEX_DEPLOY_PR_LABELS}," | grep -qF ",${VORTEX_DEPLOY_ALLOW_LABEL},"; then
+    note "PR ${VORTEX_DEPLOY_PR} does not carry the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
+    note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+    exit 0
+  fi
+
+  note "PR ${VORTEX_DEPLOY_PR} carries the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*artifact*}" ]; then

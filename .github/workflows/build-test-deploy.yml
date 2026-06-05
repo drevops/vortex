@@ -671,6 +671,7 @@ jobs:
           VORTEX_DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}
           VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
           VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
+          VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
           VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
           VORTEX_DEPLOY_ARTIFACT_ROOT: ${{ github.workspace }}
           VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
@@ -681,6 +682,7 @@ jobs:
           VORTEX_DEPLOY_ALLOW_SKIP: ${{ vars.VORTEX_DEPLOY_ALLOW_SKIP }}
           VORTEX_DEPLOY_SKIP_PRS: ${{ vars.VORTEX_DEPLOY_SKIP_PRS }}
           VORTEX_DEPLOY_SKIP_BRANCHES: ${{ vars.VORTEX_DEPLOY_SKIP_BRANCHES }}
+          VORTEX_DEPLOY_ALLOW_LABEL: ${{ vars.VORTEX_DEPLOY_ALLOW_LABEL }}
           VORTEX_DEPLOY_ACTION: ${{ inputs.override_db && 'deploy_override_db' || '' }}
         timeout-minutes: 30
   #;> DEPLOYMENT
