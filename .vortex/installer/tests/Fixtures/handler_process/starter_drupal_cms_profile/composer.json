@@ -60,4 +60,4 @@
 +        }
      },
      "scripts": {
-         "pre-install-cmd": [
+         "post-install-cmd": [

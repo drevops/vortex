@@ -1,7 +1,7 @@
-@@ -5,7 +5,6 @@
-  * Contains \DrupalProject\composer\ScriptHandler.
+@@ -4,7 +4,6 @@
+  * @file
+  * Composer scripts to create the required files for a Drupal site.
   *
-  * Clone of https://github.com/drupal-composer/drupal-project/blob/10.x/scripts/composer/ScriptHandler.php
 - * phpcs:disable
   */
  
