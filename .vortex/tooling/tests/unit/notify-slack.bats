@@ -295,6 +295,24 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: slack, branch filter with unset branch skips gracefully" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Direct invocation with branch filtering on but VORTEX_NOTIFY_BRANCH unset
+  # must not trip 'set -u'. The empty branch is not in the allowlist, so the
+  # notification is skipped gracefully instead of aborting.
+  unset VORTEX_NOTIFY_BRANCH
+  export VORTEX_NOTIFY_SLACK_BRANCHES="main,develop"
+
+  run ./.vortex/tooling/src/notify-slack
+  assert_success
+
+  assert_output_contains "Skipping Slack notification for branch ''."
+  assert_output_not_contains "unbound variable"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: slack, shell injection protection" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

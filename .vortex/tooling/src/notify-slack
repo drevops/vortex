@@ -68,8 +68,8 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 }; done
 
 if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
-  if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
-    pass "Skipping Slack notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+  if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
+    pass "Skipping Slack notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
