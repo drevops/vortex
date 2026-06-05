@@ -93,8 +93,8 @@ if [ -z "${VORTEX_NOTIFY_NEWRELIC_ENABLED}" ]; then
 fi
 
 if [ -n "${VORTEX_NOTIFY_NEWRELIC_BRANCHES}" ]; then
-  if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
-    pass "Skipping New Relic notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+  if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
+    pass "Skipping New Relic notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi

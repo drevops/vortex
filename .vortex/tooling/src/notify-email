@@ -66,8 +66,8 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
-  if ! echo ",${VORTEX_NOTIFY_EMAIL_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH},"; then
-    pass "Skipping email notification for branch '${VORTEX_NOTIFY_BRANCH}'."
+  if ! echo ",${VORTEX_NOTIFY_EMAIL_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
+    pass "Skipping email notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
