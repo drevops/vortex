@@ -132,6 +132,10 @@ jobs:
           command: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
+          name: Scan for committed secrets with Gitleaks
+          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Build stack
           command: docker compose up --no-deps --detach cli
 
