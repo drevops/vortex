@@ -320,9 +320,9 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     permissions:
-      contents: read
-      checks: write
-      pull-requests: write
+      contents: read # Check out the repository.
+      checks: write # Publish test results to the Checks tab.
+      pull-requests: write # Comment on the pull request.
 
     strategy:
       # A matrix to run multiple jobs in parallel.
