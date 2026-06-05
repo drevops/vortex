@@ -66,6 +66,9 @@ VORTEX_CI_CODE_COVERAGE_THRESHOLD=90
 # Skip posting code coverage report as a PR comment.
 VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP=0
 
+# Skip posting the yarn.lock dependency changes summary as a PR comment.
+VORTEX_CI_DEPS_PR_COMMENT_SKIP=0
+
 # Ignore Behat test failures.
 VORTEX_CI_BEHAT_IGNORE_FAILURE=0
 
