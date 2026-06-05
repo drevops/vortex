@@ -26,7 +26,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -85,12 +75,10 @@
+@@ -80,12 +70,10 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

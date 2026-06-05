@@ -28,10 +28,10 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -76,21 +58,14 @@
-             "scripts/composer/ScriptHandler.php"
-         ]
-     },
+@@ -71,21 +53,14 @@
+     ],
+     "minimum-stability": "stable",
+     "prefer-stable": true,
 -    "autoload-dev": {
 -        "classmap": [
 -            "tests/phpunit/"

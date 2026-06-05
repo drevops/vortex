@@ -24,9 +24,9 @@
 -    "minimum-stability": "stable",
 +    "minimum-stability": "alpha",
      "prefer-stable": true,
-     "autoload": {
+     "autoload-dev": {
          "classmap": [
-@@ -92,7 +95,11 @@
+@@ -87,7 +90,11 @@
              "php-http/discovery": true,
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
@@ -39,7 +39,7 @@
          },
          "audit": {
              "abandoned": "report",
-@@ -165,7 +172,20 @@
+@@ -160,6 +167,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
@@ -58,6 +58,5 @@
 +                "vendor/drupal/cms/composer.json"
 +            ]
 +        }
-     },
-     "scripts": {
-         "post-install-cmd": [
+     }
+ }
