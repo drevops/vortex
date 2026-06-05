@@ -86,8 +86,8 @@ ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
 ## Critical Rules
 
 - **Never modify** shipped scripts at `vendor/drevops/vortex-tooling/src/` - use patches via `cweagans/composer-patches`, or add your own scripts under `scripts/`
-- **Never use** `ahoy drush php:eval` - use `ahoy drush php:script` instead
-- **Never pass inline code to commands** via stdin, heredocs, or `/dev/stdin` - always write code to a temporary file first, then pass the file path to the command (e.g. `ahoy drush php:script path/to/fix.php`)
+- **Never use** `ahoy drush php:eval` for ad-hoc commands - write the code to a file and run `ahoy drush php:script path/to/file.php` instead. This targets ad-hoc agent use; committed, vetted scripts may use `drush php:eval` for static, non-dynamic operations.
+- **When running ad-hoc code, never pass it inline** via stdin, heredocs, or `/dev/stdin` - write it to a temporary file first, then pass the file path to the command (e.g. `ahoy drush php:script path/to/fix.php`)
 - **Always export config** after admin UI changes: `ahoy drush cex`
 - **Never use compound Bash commands.** See the highest priority rule at the top.
 
