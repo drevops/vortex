@@ -486,8 +486,11 @@ assert_provision_info() {
   touch "./.data/db.sql"
 
   mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
-  echo "uuid: ${mocked_uuid}" >"./config/default/system.site.yml"
+  # Adversarial layout: a comment containing "uuid" and the "uuid" key placed
+  # after another key must not confuse the extraction in the provision script.
+  echo "# This file stores the site uuid and name." >"./config/default/system.site.yml"
   echo "name: 'SUT'" >>"./config/default/system.site.yml"
+  echo "uuid: ${mocked_uuid}" >>"./config/default/system.site.yml"
 
   create_global_command_wrapper "vendor/bin/drush"
 
