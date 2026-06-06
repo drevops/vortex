@@ -129,6 +129,14 @@ ahoy lint-markdown # Lint markdown files
 
 ## Cross-System Workflow
 
+**HARD RULE — NEVER run `ahoy update-snapshots` in the background.** Run it
+only as a blocking foreground command and watch it through to completion. It
+regenerates fixtures across ~130 scenarios and auto-commits as it runs, so a
+backgrounded run fires asynchronous commits, can be interrupted mid-run
+leaving the branch in a partial state, and hides failures. No
+`run_in_background`, no trailing `&`, no detaching - run it in the foreground,
+every time.
+
 **HARD RULE — Always use `ahoy update-snapshots` (run from `.vortex/`).
 NEVER invoke `composer update-snapshots` directly in `.vortex/tests/` or
 `.vortex/installer/`.** The ahoy target wraps both composer scripts together
