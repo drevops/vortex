@@ -1,4 +1,5 @@
 composer.lock
+yarn.lock
 .ahoy.yml
 .ahoy.local.yml
 .ahoy.local.example.yml

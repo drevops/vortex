@@ -225,11 +225,11 @@ to `1`.
 
 ### Dependency changes summary
 
-When a pull request changes the root `yarn.lock`, a summary of added, removed,
-and updated packages is posted as a PR comment, so dependency updates can be
-reviewed at a glance. The comment updates in place on each push and is removed
-when a push no longer changes the lock file. To disable it, set
-`VORTEX_CI_DEPS_PR_COMMENT_SKIP` to `1`.
+When a pull request changes the root `composer.lock` or `yarn.lock`, a summary
+of added, removed, and updated packages is posted as a PR comment, so
+dependency updates can be reviewed at a glance. The comment updates in place on
+each push and is removed when a push no longer changes the lock file. To
+disable it, set `VORTEX_CI_DEPS_PR_COMMENT_SKIP` to `1`.
 
 ### Test results
 
