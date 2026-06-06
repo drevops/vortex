@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  * Abstract base class for installer tests.
  *
  * Provides common test logic for all installer test scenarios.
- * Run with `UPDATE_SNAPSHOTS=1` to update test snapshots.
+ * Run `ahoy update-snapshots` from `.vortex/` to update test snapshots.
  */
 abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
 

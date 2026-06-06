@@ -16,12 +16,12 @@ ahoy install  # Install dependencies (run once)
 ## Commands
 
 ```bash
-cd .vortex/installer
+cd .vortex/tests
 
 composer install      # Install dependencies
 composer lint         # Run phpcs, phpstan, rector --dry-run
 composer lint-fix     # Run rector, phpcbf
-composer test         # Run tests (no coverage)
+composer test         # Run PHPUnit tests
 ```
 
 ## PHPUnit - Integration Testing Workflows
@@ -87,32 +87,14 @@ File::rmdir($path);
 
 Use `self::$tmp` for temporary files (auto-cleaned).
 
-## Shell Script Patterns
+## Shell script patterns
 
-### Standard Structure
+Shipped scripts follow a shared structure - see the Tooling package section in
+[`.vortex/CLAUDE.md`](../CLAUDE.md#tooling-package).
 
-```bash
-#!/usr/bin/env bash
-# Environment loading
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && rm "${t}"
-
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
-
-# Variables with defaults
-VAR="${VAR:-default}"
-
-# Helpers
-info() { printf "[INFO] %s\n" "${1}"; }
-task() { printf "    > %s\n" "${1}"; }
-note() { printf "      %s\n" "${1}"; }
-
-# Main execution
-```
-
-### Test Maintenance
+## Test maintenance
 
 When updating PHPUnit tests:
 
-1. Update test class
-2. Run `ahoy update-snapshots` from `.vortex/` (regenerates installer fixtures)
+1. Update the test class.
+2. Run `ahoy update-snapshots` from `.vortex/` (see Snapshots in `.vortex/CLAUDE.md`).
