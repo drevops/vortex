@@ -585,7 +585,18 @@ jobs:
           table="$(composer-diff --no-ansi --format=mdtable --strict -- .composer-lock-base.json composer.lock)"
           code=$?
           set -e
-          if [ "${code}" -eq 0 ] || [ -z "${table}" ]; then
+          # composer-diff --strict exit code is an additive bitmask: bit 1 = general
+          # error; bits 2/4/8/16 = package add/remove/upgrade/downgrade.
+          if [ -z "${table}" ]; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          if [ $((code & 1)) -ne 0 ]; then
+            echo "composer-diff failed with exit code ${code}" >&2
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          if [ $((code & (2 | 4 | 8 | 16))) -eq 0 ]; then
             echo "changed=false" >> "${GITHUB_OUTPUT}"
             exit 0
           fi
