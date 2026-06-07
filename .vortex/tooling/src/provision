@@ -322,7 +322,13 @@ fi
 # Set site UUID from configuration if config files are present.
 if [ "${site_has_config_files}" = "1" ]; then
   if [ -f "${config_path}/system.site.yml" ]; then
-    config_uuid="$(cat "${config_path}/system.site.yml" | grep uuid | tail -c +7 | head -c 36)"
+    config_uuid="$(awk '/^uuid:/ {print $2; exit}' "${config_path}/system.site.yml")"
+
+    if [ -z "${config_uuid}" ]; then
+      fail "Could not read site UUID from ${config_path}/system.site.yml."
+      exit 1
+    fi
+
     drush config-set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
     echo

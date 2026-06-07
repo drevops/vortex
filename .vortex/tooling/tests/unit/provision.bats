@@ -486,8 +486,11 @@ assert_provision_info() {
   touch "./.data/db.sql"
 
   mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
-  echo "uuid: ${mocked_uuid}" >"./config/default/system.site.yml"
+  # Adversarial layout: a comment containing "uuid" and the "uuid" key placed
+  # after another key must not confuse the extraction in the provision script.
+  echo "# This file stores the site uuid and name." >"./config/default/system.site.yml"
   echo "name: 'SUT'" >>"./config/default/system.site.yml"
+  echo "uuid: ${mocked_uuid}" >>"./config/default/system.site.yml"
 
   create_global_command_wrapper "vendor/bin/drush"
 
@@ -625,6 +628,71 @@ assert_provision_info() {
   run_steps "assert" "${mocks[@]}"
 
   assert_provision_info 0 0 0 1 0 1 0
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: DB; no site; configs; missing UUID" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/provision-20-migration.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  mkdir "./.data"
+  touch "./.data/db.sql"
+
+  # Config file present but with no top-level "uuid" key: the extraction must
+  # fail loudly instead of passing an empty value to drush.
+  echo "# This file stores the site name only." >"./config/default/system.site.yml"
+  echo "name: 'SUT'" >>"./config/default/system.site.yml"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:connect"
+    "Imported database from the dump file."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # UUID extraction failure - hard stop before any UUID is applied.
+    "Could not read site UUID from $(pwd)/config/default/system.site.yml."
+
+    # These should NOT appear (script exits at the UUID guard).
+    "- Updated site UUID from the configuration with"
+    "- Running database updates."
+    "- Importing configuration."
+    "- Finished site provisioning"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./.vortex/tooling/src/provision
+  assert_failure
+
+  run_steps "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
