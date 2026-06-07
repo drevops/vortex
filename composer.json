@@ -75,7 +75,7 @@
             "url": ".vortex/tooling",
             "options": {
                 "versions": {
-                    "drevops/vortex-tooling": "1.0.0"
+                    "drevops/vortex-tooling": "1.1.0"
                 }
             }
         }
