@@ -499,6 +499,46 @@ jobs:
           files: |
             .logs/test_results/**/*.xml
 
+      - name: Generate composer.lock changes summary
+        id: composer_diff
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && hashFiles('composer.lock') != '' && vars.VORTEX_CI_DEPS_PR_COMMENT_SKIP != '1' }}
+        continue-on-error: true
+        run: |
+          git fetch --no-tags --depth=1 origin "${GITHUB_BASE_REF}"
+          if ! git show "FETCH_HEAD:composer.lock" > .composer-lock-base.json 2>/dev/null; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          composer global require --no-interaction --no-plugins --no-progress "ion-bazan/composer-diff:^1.13"
+          PATH="$(composer global config bin-dir --absolute):${PATH}"
+          set +e
+          table="$(composer-diff --no-ansi --format=mdtable --strict -- .composer-lock-base.json composer.lock)"
+          code=$?
+          set -e
+          if [ "${code}" -eq 0 ] || [ -z "${table}" ]; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          printf '**Composer dependency changes**\n\n%s\n' "${table}" > .composer-lock-changes.md
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Post composer.lock changes as a PR comment
+        if: ${{ !cancelled() && steps.composer_diff.outputs.changed == 'true' }}
+        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          header: deps-composer-gha
+          path: .composer-lock-changes.md
+          hide_and_recreate: true
+
+      - name: Remove composer.lock changes PR comment when there are no changes
+        if: ${{ !cancelled() && steps.composer_diff.outputs.changed == 'false' }}
+        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          header: deps-composer-gha
+          delete: true
+
       - name: Post yarn.lock changes as a PR comment
         if: ${{ !cancelled() && github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && hashFiles('yarn.lock') != '' && vars.VORTEX_CI_DEPS_PR_COMMENT_SKIP != '1' }}
         uses: Simek/yarn-lock-changes@__HASH__ # __VERSION__

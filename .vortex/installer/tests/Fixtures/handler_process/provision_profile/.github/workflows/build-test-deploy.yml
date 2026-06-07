@@ -178,7 +178,7 @@
        - name: Login to container registry
          run: ./vendor/drevops/vortex-tooling/src/login-container-registry
  
-@@ -526,7 +383,6 @@
+@@ -566,7 +423,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]

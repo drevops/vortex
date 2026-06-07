@@ -103,5 +103,5 @@
 -          files: |
 -            .logs/test_results/**/*.xml
  
-       - name: Post yarn.lock changes as a PR comment
-         if: ${{ !cancelled() && github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && hashFiles('yarn.lock') != '' && vars.VORTEX_CI_DEPS_PR_COMMENT_SKIP != '1' }}
+       - name: Generate composer.lock changes summary
+         id: composer_diff
