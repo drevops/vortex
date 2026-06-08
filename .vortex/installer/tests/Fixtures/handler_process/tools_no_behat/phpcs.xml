@@ -1,4 +1,4 @@
-@@ -58,8 +58,4 @@
+@@ -59,8 +59,4 @@
          <exclude-pattern>*.test</exclude-pattern>
      </rule>
  
