@@ -23,7 +23,7 @@ jobs:
       # on the triggering PR, so we need to do it manually.
       - name: Set pending commit status
         run: |
-          gh api repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA}" \
             -f state=pending \
             -f context="Vortex - Test docs" \
             -f description="Running documentation tests..." \
@@ -126,7 +126,7 @@ jobs:
         run: |
           state=${{ job.status == 'success' && 'success' || 'failure' }}
           description=${{ job.status == 'success' && '"Documentation tests passed"' || '"Documentation tests failed"' }}
-          gh api repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA}" \
             -f state="${state}" \
             -f context="Vortex - Test docs" \
             -f description="${description}" \
