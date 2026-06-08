@@ -53,6 +53,9 @@ jobs:
 
   vr-compare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Read repository contents.
+      pull-requests: read # 'gh pr view' reads PR labels and head branch.
     outputs:
       diff_id: ${{ steps.compare.outputs.diff_id }}
       pr_number: ${{ steps.resolve_pr.outputs.pr_number }}
@@ -86,12 +89,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.resolve_pr.outputs.pr_number }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
 
           # Manual workflow_dispatch always proceeds - the operator
           # explicitly asked for a comparison.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
             echo "Manual dispatch, proceeding."
             echo "skipped=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -105,7 +110,7 @@ jobs:
           fi
 
           # PR resolved - fetch labels and head branch in one call.
-          pr_data="$(gh pr view "${PR_NUMBER}" --repo "${{ github.repository }}" --json labels,headRefName)"
+          pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)"
           head_ref="$(printf '%s' "${pr_data}" | jq -r '.headRefName')"
           labels_lower="$(printf '%s' "${pr_data}" | jq -r '.labels[].name' | tr '[:upper:]' '[:lower:]')"
 

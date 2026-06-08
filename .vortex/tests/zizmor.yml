@@ -1,0 +1,40 @@
+# Zizmor configuration for auditing the Vortex template's own GitHub Actions
+# workflows. Consumed by the 'vortex-test-actions' job in
+# '.github/workflows/vortex-test-common.yml' (a maintenance-only workflow that
+# is not shipped to scaffolded projects).
+#
+# Every entry below documents an intentional, accepted finding. Genuine issues
+# are fixed in the workflows themselves rather than ignored here.
+#
+# https://docs.zizmor.sh/configuration/
+rules:
+  dangerous-triggers:
+    # These triggers are required and do not execute attacker-supplied code:
+    # - assign-author: assigns the PR author via 'toshimaru/auto-author-assign';
+    #   needs a write token on fork PRs and never checks out PR code.
+    # - label-merge-conflict: labels PRs with merge-conflict status via
+    #   'eps1lon/actions-label-merge-conflict'; never checks out PR code.
+    # - vortex-test-docs: chained run after 'Vortex - Test installer'; the
+    #   'head_sha' interpolation has been moved into 'env:' to remove the
+    #   injection surface.
+    ignore:
+      - assign-author.yml
+      - label-merge-conflict.yml
+      - vortex-test-docs.yml
+  cache-poisoning:
+    # Low-confidence findings on trusted, maintenance-only workflows that run
+    # in the Vortex repository and are never shipped to consumer sites. The
+    # default 'actions/cache' and 'actions/setup-node' caching is keyed on lock
+    # files; the poisoning surface on these internal release/test jobs is
+    # accepted.
+    ignore:
+      - vortex-release.yml
+      - vortex-test-common.yml
+      - vortex-test-installer.yml
+  ref-version-mismatch:
+    # The actions are pinned by commit SHA, which is the security control. The
+    # trailing version comment is informational and managed by Renovate, which
+    # may lag the moving major tag; suppressed to avoid churn against Renovate.
+    ignore:
+      - build-test-deploy.yml
+      - test-vr.yml

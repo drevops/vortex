@@ -13,6 +13,10 @@ jobs:
     # Only run if installer workflow succeeded
     if: github.event.workflow_run.conclusion == 'success'
 
+    permissions:
+      contents: read # Checkout the repository at the triggering commit.
+      statuses: write # Post pending/final commit statuses via 'gh api repos/.../statuses/...'.
+
     steps:
       # Post pending status to the PR commit.
       # Workflows triggered by workflow_run don't automatically report status

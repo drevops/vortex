@@ -15,11 +15,6 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -28,6 +23,9 @@ jobs:
 
   vortex-release-installer:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # Checkout the repository; only builds and uploads the PHAR artifact.
 
     outputs:
       release-version: ${{ steps.version.outputs.value }}
@@ -59,8 +57,10 @@ jobs:
           if [ -n "${INPUTS_VERSION}" ]; then
             version="${INPUTS_VERSION}"
           else
-            TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
-            SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
+            TAG=""
+            SHA=""
+            if [ "${REF_TYPE}" = "tag" ]; then TAG="${REF_NAME}"; fi
+            if [ "${REF_TYPE}" = "branch" ]; then SHA="${REF_SHA}"; fi
             version="${TAG:-${SHA}}"
           fi
           echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
@@ -69,6 +69,9 @@ jobs:
         working-directory: .vortex/installer
         env:
           INPUTS_VERSION: ${{ inputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_SHA: ${{ github.sha }}
 
       - name: Build PHAR
         run: |
@@ -91,6 +94,11 @@ jobs:
 
   vortex-release-docs:
     needs: vortex-release-installer
+
+    permissions:
+      contents: read # Checkout the repository and build the documentation site.
+      pages: write # Deploy the built site via 'actions/deploy-pages'.
+      id-token: write # OIDC token required by 'actions/deploy-pages' to publish to GitHub Pages.
 
     environment:
       name: github-pages

@@ -21,6 +21,9 @@ concurrency:
   group: vortex-publish-tooling-${{ github.ref }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   vortex-publish-tooling:
     runs-on: ubuntu-latest

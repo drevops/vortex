@@ -70,6 +70,9 @@ defaults:
 env:
   DOCKER_CONFIG: /tmp/.docker
 
+permissions:
+  contents: read # Minimal default for all jobs; jobs that need more override below.
+
 jobs:
 
   lint:

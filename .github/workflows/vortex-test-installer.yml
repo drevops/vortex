@@ -23,6 +23,9 @@ jobs:
   vortex-test-installer:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
+
     env:
       GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.TEST_GITHUB_TOKEN }}"}}'
