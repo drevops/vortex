@@ -7,7 +7,7 @@
         "php": ">=8.4",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^2.0",
-        "drevops/vortex-tooling": "^1.0",
+        "drevops/vortex-tooling": "^1.1.0",
         "drupal/admin_toolbar": "^3.6.3",
         "drupal/clamav": "^2.1",
         "drupal/coffee": "^2.0.1",
@@ -56,7 +56,7 @@
         "phpmd/phpmd": "^2.15",
         "phpspec/prophecy-phpunit": "^2.5",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.2.1",
+        "phpstan/phpstan": "^2.2.2",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
         "rector/rector": "^2.4.5",
@@ -75,7 +75,7 @@
             "url": ".vortex/tooling",
             "options": {
                 "versions": {
-                    "drevops/vortex-tooling": "1.0.0"
+                    "drevops/vortex-tooling": "1.1.0"
                 }
             }
         }

@@ -111,7 +111,7 @@ note() { printf "      %s\n" "${1}"; }
 
 Version is injected at publish time - never hardcode `version` in the package's
 `composer.json`. The path repository in the template's root `composer.json`
-declares `"versions": {"drevops/vortex-tooling": "1.0.0"}` so the in-repo copy
+declares `"versions": {"drevops/vortex-tooling": "1.1.0"}` so the in-repo copy
 resolves during development. The installer strips that path-repo entry from
 consumer sites so they resolve from Packagist.
 
