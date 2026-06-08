@@ -56,8 +56,8 @@ jobs:
       - name: Set release version
         id: version
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            version="${{ inputs.version }}"
+          if [ -n "${INPUTS_VERSION}" ]; then
+            version="${INPUTS_VERSION}"
           else
             TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }}
             SHA=${{ github.ref_type == 'branch' && github.sha || '' }}
@@ -67,6 +67,8 @@ jobs:
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Release version: $version"
         working-directory: .vortex/installer
+        env:
+          INPUTS_VERSION: ${{ inputs.version }}
 
       - name: Build PHAR
         run: |
@@ -104,12 +106,15 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set version
         run: |
-          version="${{ needs.vortex-release-installer.outputs.release-version }}"
+          version="${NEEDS_VORTEX_RELEASE_INSTALLER_OUTPUTS_RELEASE_VERSION}"
           echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
           echo "Release version: $version"
+        env:
+          NEEDS_VORTEX_RELEASE_INSTALLER_OUTPUTS_RELEASE_VERSION: ${{ needs.vortex-release-installer.outputs.release-version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6

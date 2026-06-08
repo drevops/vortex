@@ -211,7 +211,7 @@ jobs:
         if: steps.gate.outputs.skipped != 'true'
         run: |
           set -euo pipefail
-          diff_id="${{ steps.compare.outputs.diff_id }}"
+          diff_id="${STEPS_COMPARE_OUTPUTS_DIFF_ID}"
           start=$(date +%s)
           attempt=0
 
@@ -234,13 +234,15 @@ jobs:
             echo "[poll #${attempt} | ${elapsed}s] Comparison in progress, sleeping ${DIFFY_POLL_INTERVAL}s..."
             sleep "${DIFFY_POLL_INTERVAL}"
           done
+        env:
+          STEPS_COMPARE_OUTPUTS_DIFF_ID: ${{ steps.compare.outputs.diff_id }}
 
       - name: Fetch comparison result
         id: result
         if: steps.gate.outputs.skipped != 'true'
         run: |
           set -euo pipefail
-          diff_id="${{ steps.compare.outputs.diff_id }}"
+          diff_id="${STEPS_COMPARE_OUTPUTS_DIFF_ID}"
 
           changes_percent="$(/tmp/diffy.phar diff:get-changes-percent "${diff_id}")"
           result_json="$(/tmp/diffy.phar diff:get-result "${diff_id}" --format=json)"
@@ -258,6 +260,8 @@ jobs:
 
           echo "Diff summary: ${pages_changed} of ${pages_total} pages changed (${changes_percent}% total)."
           echo "Report URL: ${shared_url}"
+        env:
+          STEPS_COMPARE_OUTPUTS_DIFF_ID: ${{ steps.compare.outputs.diff_id }}
 
   vr-report:
     runs-on: ubuntu-latest
