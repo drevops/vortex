@@ -1,4 +1,4 @@
-@@ -131,7 +131,6 @@
+@@ -136,7 +136,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -6,7 +6,7 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -141,34 +140,10 @@
+@@ -146,34 +145,10 @@
          run: docker compose exec -T cli composer normalize --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
  
@@ -41,7 +41,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -384,7 +359,6 @@
+@@ -391,7 +366,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -49,7 +49,7 @@
  
        - name: Provision site
          run: |
-@@ -395,83 +369,6 @@
+@@ -402,85 +376,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
  
@@ -121,19 +121,21 @@
 -      - name: Test with Behat
 -        run: |
 -          # shellcheck disable=SC2170
--          if [ ${{ strategy.job-total }} -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${{ strategy.job-index }}}"; fi
+-          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${STRATEGY_JOB_INDEX}}"; fi
 -          echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
 -          docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
 -            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
 -        env:
 -          VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
+-          STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
+-          STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
 -        continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
 -        timeout-minutes: 30
 -
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -488,16 +385,6 @@
+@@ -497,16 +392,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

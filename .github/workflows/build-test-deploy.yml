@@ -70,6 +70,9 @@ defaults:
 env:
   DOCKER_CONFIG: /tmp/.docker
 
+permissions:
+  contents: read # Minimal default for all jobs; jobs that need more override below.
+
 jobs:
 
   lint:
@@ -95,6 +98,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -364,6 +369,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -530,12 +537,14 @@ jobs:
       - name: Test with Behat
         run: |
           # shellcheck disable=SC2170
-          if [ ${{ strategy.job-total }} -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${{ strategy.job-index }}}"; fi
+          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${STRATEGY_JOB_INDEX}}"; fi
           echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
           docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
             docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
         env:
           VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
+          STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
+          STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
         continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
         timeout-minutes: 30
       #;> TOOL_BEHAT

@@ -53,6 +53,9 @@ jobs:
 
   vr-compare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Read repository contents.
+      pull-requests: read # 'gh pr view' reads PR labels and head branch.
     outputs:
       diff_id: ${{ steps.compare.outputs.diff_id }}
       pr_number: ${{ steps.resolve_pr.outputs.pr_number }}
@@ -86,12 +89,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.resolve_pr.outputs.pr_number }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
 
           # Manual workflow_dispatch always proceeds - the operator
           # explicitly asked for a comparison.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
             echo "Manual dispatch, proceeding."
             echo "skipped=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -105,7 +110,7 @@ jobs:
           fi
 
           # PR resolved - fetch labels and head branch in one call.
-          pr_data="$(gh pr view "${PR_NUMBER}" --repo "${{ github.repository }}" --json labels,headRefName)"
+          pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)"
           head_ref="$(printf '%s' "${pr_data}" | jq -r '.headRefName')"
           labels_lower="$(printf '%s' "${pr_data}" | jq -r '.labels[].name' | tr '[:upper:]' '[:lower:]')"
 
@@ -211,7 +216,7 @@ jobs:
         if: steps.gate.outputs.skipped != 'true'
         run: |
           set -euo pipefail
-          diff_id="${{ steps.compare.outputs.diff_id }}"
+          diff_id="${STEPS_COMPARE_OUTPUTS_DIFF_ID}"
           start=$(date +%s)
           attempt=0
 
@@ -234,13 +239,15 @@ jobs:
             echo "[poll #${attempt} | ${elapsed}s] Comparison in progress, sleeping ${DIFFY_POLL_INTERVAL}s..."
             sleep "${DIFFY_POLL_INTERVAL}"
           done
+        env:
+          STEPS_COMPARE_OUTPUTS_DIFF_ID: ${{ steps.compare.outputs.diff_id }}
 
       - name: Fetch comparison result
         id: result
         if: steps.gate.outputs.skipped != 'true'
         run: |
           set -euo pipefail
-          diff_id="${{ steps.compare.outputs.diff_id }}"
+          diff_id="${STEPS_COMPARE_OUTPUTS_DIFF_ID}"
 
           changes_percent="$(/tmp/diffy.phar diff:get-changes-percent "${diff_id}")"
           result_json="$(/tmp/diffy.phar diff:get-result "${diff_id}" --format=json)"
@@ -258,6 +265,8 @@ jobs:
 
           echo "Diff summary: ${pages_changed} of ${pages_total} pages changed (${changes_percent}% total)."
           echo "Report URL: ${shared_url}"
+        env:
+          STEPS_COMPARE_OUTPUTS_DIFF_ID: ${{ steps.compare.outputs.diff_id }}
 
   vr-report:
     runs-on: ubuntu-latest
