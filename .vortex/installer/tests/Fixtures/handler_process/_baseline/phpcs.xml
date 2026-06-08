@@ -7,6 +7,7 @@
     <file>web/sites/default/settings.php</file>
     <file>web/sites/default/includes</file>
     <file>tests</file>
+    <file>scripts</file>
 
     <rule ref="Drupal"/>
     <rule ref="DrupalPractice"/>

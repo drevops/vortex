@@ -19,6 +19,7 @@ parameters:
     - web/sites/default/settings.php
     - web/sites/default/includes
     - tests
+    - scripts
 
   excludePaths:
     - vendor/*

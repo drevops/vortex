@@ -6,7 +6,7 @@
      - web/sites/default/settings.php
      - web/sites/default/includes
      - tests
-@@ -35,7 +34,6 @@
+@@ -36,7 +35,6 @@
        message: '#.*no value type specified in iterable type array#'
        paths:
          - web/modules/custom/*
@@ -14,7 +14,7 @@
      - # Included settings files are not aware about global variables.
        message: '#Variable .* might not be defined.#'
        paths:
-@@ -47,6 +45,5 @@
+@@ -48,6 +46,5 @@
        message: '#.*no value type specified in iterable type array.#'
        paths:
          - web/modules/custom/*/tests/*
