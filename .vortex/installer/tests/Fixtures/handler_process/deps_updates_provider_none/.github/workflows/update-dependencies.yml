@@ -22,28 +22,40 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read # Default least-privilege baseline; jobs widen as needed.
+
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Renovate creates branches and pushes commits.
+      pull-requests: write # Renovate opens and updates dependency PRs.
 
     steps:
       - name: Check requirements
         id: check-requirements
         run: |
-          if [ -z "${{ secrets.RENOVATE_TOKEN }}" ]; then
+          if [ -z "${RENOVATE_TOKEN}" ]; then
             echo "Renovate token is not set. Skipping job."
             exit 0
           fi
 
-          if [ -z "${{ vars.RENOVATE_GIT_AUTHOR }}" ]; then
+          if [ -z "${VARS_RENOVATE_GIT_AUTHOR}" ]; then
             echo "Renovate git author is not set. Skipping job."
             exit 0
           fi
 
           echo "should_run=true" >> "$GITHUB_OUTPUT"
+        env:
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          VARS_RENOVATE_GIT_AUTHOR: ${{ vars.RENOVATE_GIT_AUTHOR }}
 
       - name: Checkout
         uses: actions/checkout@__HASH__ # __VERSION__
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@__HASH__ # __VERSION__
         with:

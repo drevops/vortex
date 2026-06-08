@@ -12,6 +12,8 @@ on:
 jobs:
   remove_lagoon_environment:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Remove environment after a PR is closed
         run: |
