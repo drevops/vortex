@@ -15,6 +15,7 @@ jobs:
 
     permissions:
       contents: read # Checkout the repository at the triggering commit.
+      actions: read # Download the installer artifact from the test-installer workflow run.
       statuses: write # Post pending/final commit statuses via 'gh api repos/.../statuses/...'.
 
     steps:

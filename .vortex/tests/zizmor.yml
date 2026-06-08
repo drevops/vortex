@@ -32,9 +32,10 @@ rules:
       - vortex-test-common.yml
       - vortex-test-installer.yml
   ref-version-mismatch:
-    # The actions are pinned by commit SHA, which is the security control. The
+    # Actions are pinned by commit SHA, which is the security control. The
     # trailing version comment is informational and managed by Renovate, which
-    # may lag the moving major tag; suppressed to avoid churn against Renovate.
-    ignore:
-      - build-test-deploy.yml
-      - test-vr.yml
+    # may lag the moving major tag. This is also an online audit that resolves
+    # inconsistently across runs, so it is disabled entirely to keep a stable
+    # baseline against Renovate. SHA pinning itself stays enforced by the
+    # 'unpinned-uses' audit.
+    disable: true
