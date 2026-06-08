@@ -81,6 +81,48 @@ same provider, you can use a single key for both operations.
 3. Add the private key as a secret named `VORTEX_DEPLOY_SSH_KEY` in your
    repository under **Settings → Secrets and variables → Actions**
 
+### Pin SSH host keys
+
+By default, the runner disables SSH strict host key checking
+(`VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"`) so that database downloads
+and deployments connect without prompting. This also removes protection against
+a man-in-the-middle that impersonates the hosting SSH endpoint to read or tamper
+with the database dump or the deployed code.
+
+To keep host key verification on, pin the hosting host keys with
+`VORTEX_SSH_KNOWN_HOSTS`. When set, **Vortex** writes its entries to the runner's
+`known_hosts` file and leaves strict checking enabled, so a mismatched host key
+aborts the connection. It takes precedence over
+`VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`.
+
+1. Get the host key for each SSH endpoint (database download and deployment).
+   Prefer the fingerprint published by your hosting provider, then confirm it
+   with `ssh-keyscan` (use `-p` for a non-standard port):
+
+   ```shell
+   ssh-keyscan -p 22 ssh.example.com
+   ```
+
+   Verify the returned key against the provider's published fingerprint before
+   trusting it - a key scanned over a compromised network offers no protection.
+2. Add the verified entries (newline-separated) as a `VORTEX_SSH_KNOWN_HOSTS`
+   repository variable under **Settings → Secrets and variables → Actions**.
+3. Map the variable into the workflow `env` block in
+   `.github/workflows/build-test-deploy.yml`, alongside the existing SSH
+   variables:
+
+   ```yaml
+   VORTEX_SSH_KNOWN_HOSTS: ${{ vars.VORTEX_SSH_KNOWN_HOSTS }}
+   ```
+
+:::note
+
+Host keys are public, so they are safe to store as a plain variable. If the
+provider rotates a host key, the connection fails until you refresh the pinned
+entry.
+
+:::
+
 ### 4. Configure secrets
 
 Add the following secrets in **Settings → Secrets and variables → Actions**:

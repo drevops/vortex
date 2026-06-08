@@ -6,7 +6,8 @@
 #   key file. Export the key file path.
 # - Start SSH agent if not running. Export SSH_AGENT_PID and SSH_AUTH_SOCK.
 # - Load SSH key to the SSH agent.
-# - Disable strict host key checking in CI.
+# - Pin host keys to 'known_hosts' when provided, or disable strict host key
+#   checking in CI as an opt-out.
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
@@ -29,6 +30,12 @@ VORTEX_SSH_REMOVE_ALL_KEYS="${VORTEX_SSH_REMOVE_ALL_KEYS:-0}"
 
 # Disable strict host key checking in SSH.
 VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING:-0}"
+
+# Pinned SSH host keys as 'known_hosts' entries (newline-separated). When set,
+# the entries are written to the SSH 'known_hosts' file and strict host key
+# checking is kept enabled. This is the secure alternative to disabling strict
+# checking and takes precedence over VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING.
+VORTEX_SSH_KNOWN_HOSTS="${VORTEX_SSH_KNOWN_HOSTS:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -112,7 +119,26 @@ else
   ssh-add -l
 fi
 
-if [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
+if [ -n "${VORTEX_SSH_KNOWN_HOSTS-}" ]; then
+  if [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
+    note "Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled."
+  fi
+
+  task "Pinning SSH host keys to known_hosts."
+  mkdir -p "${HOME}/.ssh/"
+
+  # Strip insecure directives that an earlier run with strict checking disabled
+  # may have left in the SSH config, so the pinned host keys are actually
+  # enforced rather than bypassed by a stale "UserKnownHostsFile /dev/null".
+  if [ -f "${HOME}/.ssh/config" ]; then
+    grep -v -E '^[[:space:]]*(StrictHostKeyChecking[[:space:]]+no|UserKnownHostsFile[[:space:]]+/dev/null)[[:space:]]*$' "${HOME}/.ssh/config" >"${HOME}/.ssh/config.tmp" || true
+    mv "${HOME}/.ssh/config.tmp" "${HOME}/.ssh/config"
+    chmod 600 "${HOME}/.ssh/config"
+  fi
+
+  printf '%b\n' "${VORTEX_SSH_KNOWN_HOSTS}" >>"${HOME}/.ssh/known_hosts"
+  chmod 600 "${HOME}/.ssh/known_hosts"
+elif [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
   task "Disabling strict host key checking."
   mkdir -p "${HOME}/.ssh/"
   echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"

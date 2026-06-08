@@ -218,6 +218,123 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "Loading SSH key to SSH Agent, Key exists, Pin host keys => success" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  # The script appends to "${HOME}/.ssh/known_hosts". Force HOME into the test
+  # sandbox before running it so it can never touch the real "~/.ssh/known_hosts".
+  export HOME="${BUILD_DIR}"
+  export VORTEX_SSH_PREFIX="TEST"
+  local file=${HOME}/.ssh/id_rsa
+
+  # Override the values that could be coming from the environment with defaults.
+  export VORTEX_SSH_REMOVE_ALL_KEYS="0"
+  export VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="0"
+  # Pin host keys instead of disabling strict host key checking.
+  export VORTEX_SSH_KNOWN_HOSTS="example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${file}"
+    "SSH agent already has ${file} key loaded."
+    "Pinning SSH host keys to known_hosts."
+    "- Disabling strict host key checking."
+  )
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/setup-ssh
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  run cat "${HOME}/.ssh/known_hosts"
+  assert_output_contains "example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
+
+  popd >/dev/null
+}
+
+@test "Loading SSH key to SSH Agent, Key exists, Pin host keys takes precedence over disable => success" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  # The script appends to "${HOME}/.ssh/known_hosts". Force HOME into the test
+  # sandbox before running it so it can never touch the real "~/.ssh/known_hosts".
+  export HOME="${BUILD_DIR}"
+  export VORTEX_SSH_PREFIX="TEST"
+  local file=${HOME}/.ssh/id_rsa
+
+  # Override the values that could be coming from the environment with defaults.
+  export VORTEX_SSH_REMOVE_ALL_KEYS="0"
+  # Both pinning and the disable flag are set; pinning must take precedence.
+  export VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="1"
+  export VORTEX_SSH_KNOWN_HOSTS="example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${file}"
+    "SSH agent already has ${file} key loaded."
+    "pinning takes precedence"
+    "Pinning SSH host keys to known_hosts."
+    "- Disabling strict host key checking."
+  )
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/setup-ssh
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "Loading SSH key to SSH Agent, Key exists, Pin host keys clears stale insecure config => success" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  # The script appends to "${HOME}/.ssh/known_hosts". Force HOME into the test
+  # sandbox before running it so it can never touch the real "~/.ssh/known_hosts".
+  export HOME="${BUILD_DIR}"
+  export VORTEX_SSH_PREFIX="TEST"
+  local file=${HOME}/.ssh/id_rsa
+
+  # Simulate a previous run that disabled strict host key checking, leaving an
+  # insecure config behind on a reused runner.
+  mkdir -p "${HOME}/.ssh"
+  printf '\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n' >"${HOME}/.ssh/config"
+
+  # Override the values that could be coming from the environment with defaults.
+  export VORTEX_SSH_REMOVE_ALL_KEYS="0"
+  export VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="0"
+  export VORTEX_SSH_KNOWN_HOSTS="example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${file}"
+    "SSH agent already has ${file} key loaded."
+    "Pinning SSH host keys to known_hosts."
+    "- Disabling strict host key checking."
+  )
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/setup-ssh
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  run cat "${HOME}/.ssh/known_hosts"
+  assert_output_contains "example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
+
+  run cat "${HOME}/.ssh/config"
+  assert_output_not_contains "StrictHostKeyChecking no"
+  assert_output_not_contains "UserKnownHostsFile /dev/null"
+
+  popd >/dev/null
+}
+
 @test "Loading SSH key to SSH Agent, Key exists, Remove existing keys => success" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
