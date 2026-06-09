@@ -47,52 +47,9 @@ environment variables provided by the platform.
 
 ## Onboarding
 
-Before you begin, ensure you have:
-
-- A Lagoon project created by your hosting provider
-- The Lagoon CLI installed and configured
-- SSH access to your Lagoon environments
-- Docker and Docker Compose installed locally
-
-### 1. Configure environment variables
-
-Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/main/.env)
-file:
-
-| Variable | Description |
-|----------|-------------|
-| `LAGOON_PROJECT` | Your Lagoon project name |
-| `VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST` | Lagoon SSH host (default: `ssh.lagoon.amazeeio.cloud`) |
-| `VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT` | Lagoon SSH port (default: `32222`) |
-
-For CI environments, configure these secrets in your CI provider ([GitHub Actions](/docs/continuous-integration/github-actions) or [CircleCI](/docs/continuous-integration/circleci)):
-
-| Variable | Description |
-|----------|-------------|
-| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
-
-### 2. Set the hash salt
-
-Drupal's `hash_salt` secures one-time login links, password-reset URLs, and
-CSRF/form tokens, so every hosted environment needs a stable, high-entropy salt.
-Lagoon does not provide one, and the fallback that **Vortex** derives from the
-database host is suitable for local and CI use only.
-
-Set the following variable for every environment (dev, stage, and production) as
-a Lagoon environment variable or secret - use a different value per environment:
-
-| Variable | Description |
-|----------|-------------|
-| `DRUPAL_HASH_SALT` | A long, random, unique cryptographic salt for the environment |
-
-:::warning
-
-Set a unique, long, random `DRUPAL_HASH_SALT` for every Lagoon environment.
-Without it, the salt is derived from the database host and changes whenever the
-host changes, silently invalidating outstanding one-time login and
-password-reset links.
-
-:::
+Lagoon onboarding is part of the project setup flow. See
+[Set up integrations](/docs/installation?hosting-provider=lagoon#4-set-up-hosting)
+in the Installation guide and select **Lagoon**.
 
 ## Routine Operations
 

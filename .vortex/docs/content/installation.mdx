@@ -3,130 +3,217 @@ sidebar_position: 3
 ---
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Installation
 
-The installation process consists of installing the **Vortex** template into
-your project's codebase, and then setting up the integrations with the required
-services and hosting providers.
-
-We automated the first part by providing an interactive installer. The second
-part is a manual process that requires you to follow the instructions provided
-for each service.
+These steps take you from an empty directory to a deployed site. The interactive
+installer scaffolds your codebase; the remaining steps connect it to your hosting
+platform and continuous integration provider. Follow them in order.
 
 ## Installing Vortex into a new project
 
-1. Create a new directory for your project and navigate to it.
+### 1. Install Vortex
 
-2. Run the following command to install the **Vortex** template.
+Create a new directory for your project, navigate into it, and run the installer:
 
-    ```shell title="Install using interactive prompts"
-    curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
-    ```
+```shell title="Install using interactive prompts"
+curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
+```
 
-    <AsciinemaPlayer
-      src="/img/installer.json"
-      poster="npt:0:1"
-      autoPlay={false}
-      loop={false}
-      preload={true}
-      controls={true}
-      theme="asciinema"
-      terminalLineHeight={1.0}
-    />
+<AsciinemaPlayer
+  src="/img/installer.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
 
-3. Run the following command to commit the initial project structure.
+:::tip Installing with an AI agent
 
-    ```shell title="Commit the initial project structure"
-    git add .
-    git commit -m "Initial commit"
-    ```
+The installer has built-in support for AI agents. Run it with `--agent-help` to
+get instructions for a non-interactive, programmatic installation:
 
-4. Create a new repository on GitHub and push the initial commit to it.
-
-5. Enable integrations with your preferred continuous integration provider.<br/>
-   See onboarding guides for [GitHub Actions](./continuous-integration/github-actions#onboarding) or
-[CircleCI](./continuous-integration/circleci#onboarding).
-
-6. Enable integrations with your preferred hosting platform.<br/>
-   See onboarding guides for [Acquia](./hosting/acquia#onboarding) or
-   [Lagoon](./hosting/lagoon#onboarding).
-
-### Installing with an AI agent
-
-The installer includes built-in support for AI agents. Run with `--agent-help`
-to get full instructions for programmatic installation:
-
-```shell title="Get AI agent instructions"
+```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
 ```
 
-## Installing Vortex into an existing project
+:::
 
-The installer cannot predict the state of your project, so it is recommended to
-initialize **Vortex** into a new directory and then merge the changes from
-your existing project into the new one.
+### 2. Commit the initial project structure
+
+```shell
+git add .
+git commit -m "Initial commit"
+```
+
+### 3. Create a GitHub repository and push
+
+Create a new repository on GitHub and push the initial commit to it. The next two
+steps connect this repository to your hosting and CI providers.
+
+### 4. Set up hosting
+
+Choose your hosting provider and add its configuration. For background and routine
+operations, see the [Hosting](/docs/hosting) section.
+
+<Tabs queryString="hosting-provider" groupId="hosting-provider">
+<TabItem value="acquia" label="Acquia" default>
+
+**Add to your [`.env`](https://github.com/drevops/vortex/blob/main/.env) file:**
+
+| Variable | Description |
+|----------|-------------|
+| `VORTEX_ACQUIA_APP_NAME` | Your Acquia application name (machine name) |
+| `DRUPAL_ACQUIA_SETTINGS_FILE` | Override the path to Acquia's settings `.inc` file (optional) |
+| `DRUPAL_TMP_PATH` | Override the temporary file path (optional) |
+| `DRUPAL_TMP_PATH_IS_SHARED` | Use Acquia's shared GFS mount for temporary files (optional) |
+
+**Add as secrets in your CI provider** (in [step 5](#5-set-up-continuous-integration)):
+
+| Variable | Description |
+|----------|-------------|
+| `VORTEX_ACQUIA_KEY` | Your Acquia Cloud API key |
+| `VORTEX_ACQUIA_SECRET` | Your Acquia Cloud API secret |
+
+**Hash salt:** Acquia supplies a per-environment `hash_salt` through its platform
+settings file, which **Vortex** includes automatically (see [Acquia settings file](/docs/hosting/acquia#acquia-settings-file)).
 
 :::warning
 
-Make sure to back up your project before proceeding with the following steps.
+You normally do **not** need to set `DRUPAL_HASH_SALT` on Acquia - the platform
+supplies one per environment, and a conflicting value would be overridden.
 
 :::
 
-:::tip
+**Drush aliases (optional):** to run Drush against remote environments, download
+your aliases from the Acquia Cloud UI (see [Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases)).
 
-Installing into existing project may update some of the Composer dependencies to
-newer versions, so it is always a good idea to run the **Vortex** installation
-on the codebase with the most recent versions of the dependencies.
+</TabItem>
+<TabItem value="lagoon" label="Lagoon">
+
+**Add to your [`.env`](https://github.com/drevops/vortex/blob/main/.env) file:**
+
+| Variable | Description |
+|----------|-------------|
+| `LAGOON_PROJECT` | Your Lagoon project name |
+| `VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST` | Lagoon SSH host (default: `ssh.lagoon.amazeeio.cloud`) |
+| `VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT` | Lagoon SSH port (default: `32222`) |
+
+**Add as a secret in your CI provider** (in [step 5](#5-set-up-continuous-integration)):
+
+| Variable | Description |
+|----------|-------------|
+| `LAGOON_SSH_KEY` | SSH private key for Lagoon authentication |
+
+**Hash salt:** Lagoon does not supply one, so set a unique `DRUPAL_HASH_SALT` for
+every environment (dev, stage, production) as a Lagoon environment variable.
+
+:::warning
+
+Set a unique, long, random `DRUPAL_HASH_SALT` for every Lagoon environment.
+Without it, the salt is derived from the database host and changes when the host
+changes, silently invalidating outstanding one-time login and password-reset links.
 
 :::
 
-1. Create a temporary directory and copy all the files, including hidden files,
-   from your existing project into it.
+</TabItem>
+</Tabs>
 
-2. Create a new branch in your existing project.
+### 5. Set up continuous integration
 
-3. Remove all files except for `.git` directory in your existing project directory.
+The workflow is identical for both providers - choose one. For workflow structure,
+jobs, and caching, see the [Continuous integration](/docs/continuous-integration) section.
 
-4. Run the following command to install the **Vortex** template.
+<Tabs queryString="ci-provider" groupId="ci-provider">
+<TabItem value="github-actions" label="GitHub Actions" default>
 
-    ```shell title="Install using interactive prompts"
-    curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
-    ```
+**Enable the workflow.** GitHub Actions is on by default; **Vortex** ships the
+workflow at [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml).
+Open the **Actions** tab to confirm it is detected.
 
-5. Commit the changes. At this point, you have a clean **Vortex** installation
-   relevant to your project.
+**Add SSH keys.** Generate a key pair, add the public key to your hosting
+provider, and add the private key(s) as secrets under **Settings → Secrets and
+variables → Actions**:
 
-6. Copy the files from the temporary directory back into the project directory,
-   overriding the files that were installed by **Vortex**. Git status will show
-   the changes between the **Vortex** files and your files.
+```shell
+ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.ssh/deployer_myproject_gha -N ""
+```
 
-7. Selectively choose which changes to keep and which to discard:
+- `VORTEX_DB_SSH_KEY` - key with read access, for database downloads.
+- `VORTEX_DEPLOY_SSH_KEY` - key with write access, for deployment (may be the same key).
 
-    - Potentially, you may want to remove the module and theme examples provided
-      by **Vortex**.
+**Add the hosting secrets** from [step 4](#4-set-up-hosting) in the same
+**Settings → Secrets and variables → Actions** screen.
 
-    - `composer.json` would need to be merged manually, preserving **all**
-      the entries from the **Vortex's** `composer.json`. These entries are
-      required for the features you select during the installation.
+**Pin host keys (optional).** Strict host-key checking is disabled by default. To
+enable it, add the verified host keys as a `VORTEX_SSH_KNOWN_HOSTS` repository
+variable and map it into the workflow `env` block.
 
-    - `composer.lock` would
-      need to be removed and fully regenerated by running `composer install`.
-      This could potentially update some other dependencies to newer versions,
-      so it is always a good idea to run the **Vortex** installation on the
-      codebase with the most recent versions of the dependencies.
+</TabItem>
+<TabItem value="circleci" label="CircleCI">
 
-8. Commit the changes to the new branch and push to remote.
+**Enable the project.** [Log in to CircleCI](https://app.circleci.com/) and add
+your repository; it detects the [`.circleci/`](https://github.com/drevops/vortex/blob/main/.circleci/)
+config and starts building on push.
 
-9. Enable integrations with your preferred continuous integration provider.<br/>
-See onboarding guides for [GitHub Actions](./continuous-integration/github-actions#onboarding) or
-[CircleCI](./continuous-integration/circleci#onboarding).
+**Add SSH keys.** Generate a key pair, add the public key to your hosting
+provider, and add the private key(s) under **Project Settings → SSH Keys**
+(copy each generated fingerprint):
 
-10. Enable integrations with your preferred hosting platform.<br/>
-See onboarding guides for [Acquia](./hosting/acquia#onboarding) or
-[Lagoon](./hosting/lagoon#onboarding).
+```shell
+ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f ~/.ssh/deployer_myproject_circleci -N ""
+```
+
+**Set the fingerprints** in [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
+`db_ssh_fingerprint` (database download) and `deploy_ssh_fingerprint` (deployment).
+
+**Add the hosting variables** from [step 4](#4-set-up-hosting) under **Project
+Settings → Environment Variables**.
+
+**Pin host keys (optional).** Add the verified host keys as a `VORTEX_SSH_KNOWN_HOSTS`
+environment variable (join multiple entries with `\n`).
+
+**Schedule trigger (optional).** If you use the self-hosted Renovate workflow, add
+an `update-dependencies` scheduled trigger under **Project Settings → Triggers**
+(config source `update-dependencies.yml`, branch `develop`).
+
+</TabItem>
+</Tabs>
+
+### 6. Run your first build
+
+Push to a branch or open a pull request. Your CI provider builds the codebase,
+runs the tests, and deploys according to your configuration.
+
+## Installing Vortex into an existing project
+
+The installer cannot predict the state of your project, so initialize **Vortex**
+into a new directory and merge your existing project into it.
+
+:::warning
+
+Back up your project before proceeding.
+
+:::
+
+1. Copy all files (including hidden files) from your existing project into a temporary directory.
+
+2. In your existing project, create a new branch and remove all files except the `.git` directory.
+
+3. Run the installer ([step 1](#1-install-vortex)) to produce a clean **Vortex** installation, then commit it.
+
+4. Copy your files back from the temporary directory, overriding the installed ones. Review the diff and selectively keep changes - merge `composer.json` by hand (preserving **all** of **Vortex's** entries) and regenerate `composer.lock` with `composer install`.
+
+5. Commit the result to the new branch and push to remote.
+
+Then complete [step 4](#4-set-up-hosting) through [step 6](#6-run-your-first-build) to connect hosting and CI.
 
 ## Updating Vortex
 
-Head to [Updating Vortex](./updating-vortex) for detailed
-instructions on how to update your project to the latest version of **Vortex**.
+Head to [Updating Vortex](./updating-vortex) for detailed instructions on how to
+update your project to the latest version of **Vortex**.

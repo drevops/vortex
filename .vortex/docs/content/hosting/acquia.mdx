@@ -70,56 +70,9 @@ priority:
 
 ## Onboarding
 
-Before you begin, ensure you have:
-
-- An Acquia Cloud subscription with at least one application created
-- Access to the Acquia Cloud API (API key and secret)
-- SSH access configured for your Acquia environments
-
-### 1. Configure environment variables
-
-Add the following variables to your [`.env`](https://github.com/drevops/vortex/blob/main/.env)
-file:
-
-| Variable | Description |
-|----------|-------------|
-| `VORTEX_ACQUIA_APP_NAME` | Your Acquia application name (machine name) |
-| `DRUPAL_ACQUIA_SETTINGS_FILE` | Override the path to Acquia's settings `.inc` file (optional) |
-| `DRUPAL_TMP_PATH` | Override the temporary file path (optional) |
-| `DRUPAL_TMP_PATH_IS_SHARED` | Use Acquia's shared GFS mount for temporary files (optional) |
-
-For CI environments, configure these secrets in your CI provider ([GitHub Actions](/docs/continuous-integration/github-actions) or [CircleCI](/docs/continuous-integration/circleci)):
-
-| Variable | Description |
-|----------|-------------|
-| `ACQUIA_KEY` | Your Acquia Cloud API key |
-| `ACQUIA_SECRET` | Your Acquia Cloud API secret |
-
-### 2. Configure the hash salt
-
-Drupal's `hash_salt` secures one-time login links, password-reset URLs, and
-CSRF/form tokens, so every hosted environment needs a stable, high-entropy salt.
-
-Acquia Cloud supplies a hash salt through its platform settings file, which
-**Vortex** includes automatically (see [Acquia settings file](#acquia-settings-file)).
-Because that file loads after the settings that **Vortex** provides, the
-platform-supplied salt takes precedence over both the `DRUPAL_HASH_SALT` variable
-and the fallback derived from the database host.
-
-:::warning
-
-You normally do **not** need to set `DRUPAL_HASH_SALT` on Acquia - the platform
-supplies one per environment. Avoid defining a conflicting `DRUPAL_HASH_SALT`, as
-the platform-supplied salt overrides it.
-
-:::
-
-### 3. Configure Drush aliases (optional)
-
-To run Drush commands on remote Acquia environments, download your Drush aliases
-from the Acquia Cloud UI. See
-[Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases)
-for detailed instructions.
+Acquia onboarding is part of the project setup flow. See
+[Set up integrations](/docs/installation?hosting-provider=acquia#4-set-up-hosting)
+in the Installation guide and select **Acquia**.
 
 ## Routine Operations
 
