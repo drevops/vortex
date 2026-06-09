@@ -17,6 +17,7 @@ jobs:
       contents: read # Checkout the repository at the triggering commit.
       actions: read # Download the installer artifact from the test-installer workflow run.
       statuses: write # Post pending/final commit statuses via 'gh api repos/.../statuses/...'.
+      pull-requests: write # Post the Netlify preview link comment on the originating PR.
 
     steps:
       # Post pending status to the PR commit.
@@ -90,20 +91,44 @@ jobs:
         run: yarn run build
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
+      # This workflow runs via 'workflow_run', where 'github.ref' is always the
+      # default branch, so the action's branch-based production detection cannot
+      # distinguish a PR build from a 'main' build. Drive the decision explicitly
+      # from the originating branch instead: 'main' publishes to production, every
+      # other branch publishes an isolated draft preview. The action's own comment
+      # and deployment features are disabled - they require a PR context this
+      # 'workflow_run' event does not carry; the next step posts the link instead.
       - name: Deploy to Netlify
+        id: netlify
         uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: '.vortex/docs/build'
-          production-branch: main
+          production-deploy: ${{ github.event.workflow_run.head_branch == 'main' }}
           deploy-message: "Deploy from GitHub Actions"
-          enable-pull-request-comment: true
-          enable-commit-comment: true
-          overwrites-pull-request-comment: true
+          enable-pull-request-comment: false
+          enable-commit-comment: false
+          enable-commit-status: false
+          enable-github-deployment: false
         env:
           NETLIFY_SITE_ID: ${{ secrets.DOCS_NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.DOCS_NETLIFY_AUTH_TOKEN }}
         timeout-minutes: 1
+
+      # Post the Netlify preview URL as a sticky comment on the originating PR.
+      # Runs only for PR builds (not 'main') that produced a preview URL; skipped
+      # on forks, where 'pull_requests' is empty.
+      - name: Post documentation preview link
+        if: github.event.workflow_run.head_branch != 'main' && github.event.workflow_run.pull_requests[0].number && steps.netlify.outputs.deploy-url
+        uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987 # v3
+        with:
+          number: ${{ github.event.workflow_run.pull_requests[0].number }}
+          header: docs-preview
+          message: |
+            📖 Documentation preview for this pull request has been deployed to Netlify:
+
+            ${{ steps.netlify.outputs.deploy-url }}
+
+            This preview is rebuilt on every commit and is not the production documentation site.
 
       - name: Upload coverage reports as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
