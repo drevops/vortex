@@ -44,6 +44,19 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 
 :::
 
+:::tip Choosing a Vortex version
+
+The command above installs the latest stable **Vortex** release. To target a
+specific major version instead, use its dedicated path:
+
+- `https://www.vortextemplate.com/v1/install` - the current `1.x` line.
+- `https://www.vortextemplate.com/v2/install` - the `2.x` line, currently in development.
+
+Once installed, `ahoy update-vortex` keeps your project on its major version - it
+never jumps across a major release. See [Updating Vortex](./updating-vortex).
+
+:::
+
 ### 2. Commit the initial project structure
 
 ```shell
