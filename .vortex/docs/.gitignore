@@ -8,6 +8,13 @@
 .docusaurus
 .cache-loader
 
+# Assembled docs versions - created by the CI publish step (or a local
+# `docusaurus docs:version` to preview the multi-version site) and never
+# committed; the build auto-detects `versioned_docs/` to switch to multi-version.
+/versioned_docs
+/versioned_sidebars
+/versions.json
+
 # Test outputs
 .logs
 

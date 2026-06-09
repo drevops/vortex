@@ -87,7 +87,7 @@ This allows for environment-specific configuration without cluttering the main
 `settings.php` file.<br/>
 Use the `$settings['environment']` variable to check the current _environment type_.
 
-import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.environment_indicator.php';
+import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.environment_indicator.php';
 
 <details>
   <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
@@ -108,7 +108,7 @@ file is organized into the following sections:
 - [Local overrides](#local-overrides)
 
 import CodeBlock from '@theme/CodeBlock';
-import SettingsExample from '!!raw-loader!./../../../../web/sites/default/settings.php';
+import SettingsExample from '!!raw-loader!@site/../../web/sites/default/settings.php';
 
 <details>
   <summary>Click here to see the contents of the `settings.php` file</summary>
@@ -309,7 +309,7 @@ in an environment where it would otherwise be enabled. This is useful for
 temporary access during debugging or when an environment does not require
 protection.
 
-import ShieldModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.shield.php';
+import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
 
 <details>
   <summary>Example of the `Shield` module `settings.shield.php` file</summary>
@@ -351,7 +351,7 @@ that do not match the standard environment types listed above.
 Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
 email rerouting in an environment where it would otherwise be enabled.
 
-import RerouteEmailModuleSettingsExample from '!!raw-loader!./../../../../web/sites/default/includes/modules/settings.reroute_email.php';
+import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';
 
 <details>
   <summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
@@ -369,7 +369,7 @@ copy `example.settings.local.php` and `example.services.local.yml`
 to `settings.local.php` and `services.local.yml`, respectively, to utilize this
 functionality.
 
-import LocalSettingsExample from '!!raw-loader!./../../../../web/sites/default/example.settings.local.php';
+import LocalSettingsExample from '!!raw-loader!@site/../../web/sites/default/example.settings.local.php';
 
 <details>
   <summary>Click here to see the contents of the `example.settings.local.php` file</summary>
@@ -378,7 +378,7 @@ import LocalSettingsExample from '!!raw-loader!./../../../../web/sites/default/e
 
 </details>
 
-import LocalServicesExample from '!!raw-loader!./../../../../web/sites/default/example.services.local.yml';
+import LocalServicesExample from '!!raw-loader!@site/../../web/sites/default/example.services.local.yml';
 
 <details>
   <summary>Click here to see the contents of the `example.services.local.yml` file</summary>
