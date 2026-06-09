@@ -29,7 +29,11 @@ set -eu
 VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-https://github.com/drevops/vortex.git#stable}"
 
 # The URL of the installer script.
-VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/install}"
+#
+# Pinned to the major-specific path so an existing project always updates
+# within its own major line. The bare '/install' tracks the active major and
+# would jump a project across a major boundary once the next major is released.
+VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/v1/install}"
 
 # Cache busting parameter for the installer URL.
 VORTEX_INSTALLER_URL_CACHE_BUST="${VORTEX_INSTALLER_URL_CACHE_BUST:-"$(date +%s)"}"
