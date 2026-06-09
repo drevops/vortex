@@ -508,13 +508,6 @@ jobs:
           files: |
             .logs/test_results/**/*.xml
 
-      - name: Post yarn.lock changes as a PR comment
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && hashFiles('yarn.lock') != '' && vars.VORTEX_CI_DEPS_PR_COMMENT_SKIP != '1' }}
-        uses: Simek/yarn-lock-changes@__HASH__ # __VERSION__
-        continue-on-error: true
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
