@@ -41,6 +41,11 @@ class Internal extends AbstractHandler {
     // Remove code required for Vortex maintenance.
     File::removeTokenAsync('VORTEX_DEV');
 
+    // The CircleCI deploy filter is a single-line regex, so the Vortex-only
+    // '*.x' branch deploy target cannot be wrapped in a line-based VORTEX_DEV
+    // fence. Strip the inline alternative here instead.
+    File::replaceContentAsync('|^[0-9]+\.x$', '');
+
     // Enable commented out code and process complex content transformations.
     File::replaceContentAsync(function (string $content, ContentFile $file) use ($t): string {
       // Remove all other comments.
