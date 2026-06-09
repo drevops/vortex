@@ -4,7 +4,19 @@
 // There are various equivalent ways to declare your Docusaurus config.
 // @see https://docusaurus.io/docs/api/docusaurus-config
 
+import fs from 'node:fs';
+
 import {themes as prismThemes} from 'prism-react-renderer';
+
+// Multi-version mode turns on automatically when a 'versioned_docs/' snapshot
+// is present: 'versioned_docs/version-1.x' is v1 (the default, served at the
+// bare '/docs') and the current 'content/' is v2 (served at '/docs/v2'). With
+// no snapshot - local development, per-branch preview builds, and the
+// 'docusaurus docs:version' run that creates the snapshot - the site builds
+// 'content/' as a single unversioned set, so the config never references a
+// version that does not exist yet. The publish jobs assemble the snapshot in
+// CI; it is never committed to a branch.
+const versioned = fs.existsSync('versioned_docs');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -46,6 +58,25 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/drevops/vortex/tree/main/.vortex/docs/',
+          // In versioned (aggregate) builds, v1 is the snapshot in
+          // 'versioned_docs/' served at the bare '/docs' (the default), and
+          // the current 'content/' is v2 at '/docs/v2'. To flip the default
+          // when 2.x is ready: set `lastVersion: 'current'`, give '1.x' a
+          // `path: 'v1'`, drop the v2 `path` so 'current' serves at the bare
+          // '/docs', and swap the '/docs/v1' redirect below for '/docs/v2'.
+          ...(versioned ? {
+            lastVersion: '1.x',
+            versions: {
+              '1.x': {
+                label: 'v1',
+              },
+              current: {
+                label: 'v2',
+                path: 'v2',
+                banner: 'unreleased',
+              },
+            },
+          } : {}),
         },
         blog: false,
         theme: {
@@ -125,6 +156,10 @@ const config = {
             position: 'right',
             title: 'Join us on Slack',
           },
+          ...(versioned ? [{
+            type: 'docsVersionDropdown',
+            position: 'right',
+          }] : []),
           {
             type: 'search',
             position: 'right',
@@ -198,6 +233,13 @@ const config = {
       '@docusaurus/plugin-client-redirects',
       {
         redirects: [
+          // In versioned builds, 'v1' is the default at the bare '/docs', so
+          // its explicit path redirects there. When the default flips to
+          // 'v2', change this to redirect '/docs/v2' instead.
+          ...(versioned ? [{
+            from: '/docs/v1',
+            to: '/docs',
+          }] : []),
           {
             from: ['/quickstart'],
             to: '/docs',
