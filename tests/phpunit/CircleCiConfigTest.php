@@ -130,7 +130,6 @@ class CircleCiConfigTest extends TestCase {
     yield ['3.x'];
     yield ['10.x'];
     // #;> VORTEX_DEV.
-
     // Negative branches.
     yield ['something', FALSE];
     yield ['premain', FALSE];
