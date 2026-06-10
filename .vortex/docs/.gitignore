@@ -28,5 +28,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Copied installer file.
+# Copied installer files (the bare active-major path and the per-major pins).
 static/install
+static/v1/install
+static/v2/install

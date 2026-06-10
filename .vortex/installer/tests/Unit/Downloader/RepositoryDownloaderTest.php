@@ -169,6 +169,60 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $this->assertEquals('develop', $version);
   }
 
+  public function testDownloadStableWithReleasePrefixSelectsMajor(): void {
+    $release_json = (string) json_encode([
+      ['tag_name' => '2.0.0', 'draft' => FALSE],
+      ['tag_name' => '1.40.0', 'draft' => FALSE],
+      ['tag_name' => '1.39.0', 'draft' => FALSE],
+    ]);
+
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
+      $response = $this->createMock(ResponseInterface::class);
+      $response->method('getStatusCode')->willReturn(200);
+      $body = $this->createMock(StreamInterface::class);
+      $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
+      $response->method('getBody')->willReturn($body);
+      return $response;
+    });
+
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_file_downloader = $this->createMockFileDownloader();
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination, '1.');
+    $this->assertEquals('1.40.0', $version);
+  }
+
+  public function testDownloadStableWithReleasePrefixFallsBackToBranch(): void {
+    $release_json = (string) json_encode([
+      ['tag_name' => '1.40.0', 'draft' => FALSE],
+    ]);
+
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
+      $response = $this->createMock(ResponseInterface::class);
+      $response->method('getStatusCode')->willReturn(200);
+      $body = $this->createMock(StreamInterface::class);
+      $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
+      $response->method('getBody')->willReturn($body);
+      return $response;
+    });
+
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_file_downloader = $this->createMockFileDownloader();
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination, '2.');
+    $this->assertEquals('2.x', $version);
+  }
+
   #[DataProvider('dataProviderDownloadWithNullDestination')]
   public function testDownloadWithNullDestination(string $repo, string $expectedMessage): void {
     $downloader = new RepositoryDownloader();

@@ -19,6 +19,10 @@ jobs:
       statuses: write # Post pending/final commit statuses via 'gh api repos/.../statuses/...'.
       pull-requests: write # Post the Netlify preview link comment on the originating PR.
 
+    env:
+      CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
+      OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
+
     steps:
       # Post pending status to the PR commit.
       # Workflows triggered by workflow_run don't automatically report status
@@ -88,23 +92,55 @@ jobs:
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       # On the main (development) deploy, assemble the multi-version site:
-      # snapshot main's docs as v1 (served at the bare '/docs') and pull the
-      # '2.x' docs in as v2 (at '/docs/v2'). Skipped on PR/branch
-      # builds, which stay single-version previews. Mirrors the same step in
-      # 'vortex-release.yml' (production / GitHub Pages).
+      # snapshot main's docs as the current major (served at the bare '/docs')
+      # and pull the other major's '{N}.x' branch docs in at '/docs/v{other}'.
+      # Driven by 'VORTEX_CURRENT_MAJOR'. Skipped on PR/branch builds, which stay
+      # single-version previews. Mirrors the same step in 'vortex-release.yml'
+      # (production / GitHub Pages).
       - name: Assemble versioned docs
         if: github.event.workflow_run.head_branch == 'main'
         run: |
-          yarn docusaurus docs:version 1.x
-          git -C "${{ github.workspace }}" fetch origin 2.x --depth=1 || { echo "Failed to fetch the 2.x branch."; exit 1; }
-          git -C "${{ github.workspace }}" rev-parse --verify origin/2.x || { echo "The 2.x branch does not exist."; exit 1; }
+          yarn docusaurus docs:version "${CURRENT_MAJOR}.x"
+          git -C "${{ github.workspace }}" fetch origin "${OTHER_MAJOR}.x" --depth=1 || { echo "Failed to fetch the ${OTHER_MAJOR}.x branch."; exit 1; }
+          git -C "${{ github.workspace }}" rev-parse --verify "origin/${OTHER_MAJOR}.x" || { echo "The ${OTHER_MAJOR}.x branch does not exist."; exit 1; }
           rm -rf content
-          git -C "${{ github.workspace }}" checkout origin/2.x -- .vortex/docs/content || { echo "Failed to check out content from 2.x."; exit 1; }
+          git -C "${{ github.workspace }}" checkout "origin/${OTHER_MAJOR}.x" -- .vortex/docs/content || { echo "Failed to check out content from ${OTHER_MAJOR}.x."; exit 1; }
         working-directory: '${{ github.workspace }}/.vortex/docs'
+
+      # On the main deploy, publish both installers to match the multi-version
+      # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
+      # the bare '/install' is a copy of the current major's pin (the
+      # 'VORTEX_CURRENT_MAJOR' repository variable, default 1). The downloaded
+      # installer above is the current major (built from 'main'); the other
+      # major is built from its '{N}.x' branch. Mirrors 'vortex-release.yml'.
+      - name: Checkout v${{ env.OTHER_MAJOR }} branch
+        if: github.event.workflow_run.head_branch == 'main'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ env.OTHER_MAJOR }}.x
+          path: vortex-v${{ env.OTHER_MAJOR }}
+          persist-credentials: false
+
+      - name: Build and publish v${{ env.OTHER_MAJOR }} installer
+        if: github.event.workflow_run.head_branch == 'main'
+        run: |
+          case "${CURRENT_MAJOR}" in
+            1|2) ;;
+            *) echo "Invalid VORTEX_CURRENT_MAJOR='${CURRENT_MAJOR}'. Expected 1 or 2."; exit 1 ;;
+          esac
+          composer --working-dir="vortex-v${OTHER_MAJOR}/.vortex/installer" install
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"${OTHER_MAJOR}.x-dev\"/g" "vortex-v${OTHER_MAJOR}/.vortex/installer/box.json"
+          composer --working-dir="vortex-v${OTHER_MAJOR}/.vortex/installer" build
+          mkdir -p .vortex/docs/static/v1 .vortex/docs/static/v2
+          cp .vortex/docs/static/install ".vortex/docs/static/v${CURRENT_MAJOR}/install"
+          cp "vortex-v${OTHER_MAJOR}/.vortex/installer/build/installer.phar" ".vortex/docs/static/v${OTHER_MAJOR}/install"
+          cp ".vortex/docs/static/v${CURRENT_MAJOR}/install" .vortex/docs/static/install
 
       - name: Build documentation site
         run: yarn run build
         working-directory: '${{ github.workspace }}/.vortex/docs'
+        env:
+          VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
 
       # This workflow runs via 'workflow_run', where 'github.ref' is always the
       # default branch, so the action's branch-based production detection cannot

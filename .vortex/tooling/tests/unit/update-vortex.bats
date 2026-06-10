@@ -18,9 +18,9 @@ load ../_helper.bash
 
   # Test default values when no environment variables are set.
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --no-interaction --uri=https://github.com/drevops/vortex.git\#stable # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -42,9 +42,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --no-interaction --uri=https://github.com/custom/repo.git\#main # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -117,9 +117,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --no-interaction --uri=file:///local/path/to/vortex # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -141,9 +141,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --no-interaction --uri=/local/path/to/vortex\#stable # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -165,9 +165,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --no-interaction --uri=git@github.com:drevops/vortex.git\#v1.2.3 # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -189,9 +189,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --no-interaction --uri=https://github.com/drevops/vortex.git\#stable # 1"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -213,9 +213,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --uri=https://github.com/drevops/vortex.git\#stable # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 
@@ -237,9 +237,9 @@ load ../_helper.bash
   export VORTEX_INSTALLER_URL_CACHE_BUST="1234567890"
 
   declare -a STEPS=(
-    "@curl -fsSL https://www.vortextemplate.com/install?1234567890 -o installer.php # 0"
+    "@curl -fsSL https://www.vortextemplate.com/v1/install?1234567890 -o installer.php # 0"
     "@php installer.php --uri=https://github.com/custom/repo.git\#main # 0"
-    "Using installer script from URL: https://www.vortextemplate.com/install"
+    "Using installer script from URL: https://www.vortextemplate.com/v1/install"
     "Downloading installer to installer.php"
   )
 

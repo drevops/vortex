@@ -496,4 +496,75 @@ class InstallCommandTest extends FunctionalTestCase {
     ];
   }
 
+  /**
+   * Test the cross-major compatibility gate.
+   */
+  #[DataProvider('dataProviderInstallCommandMajorGate')]
+  public function testInstallCommandMajorGate(?string $version, string $composer_json, bool $mock_download_fail, string $expected_message): void {
+    $executable_finder = $this->createMock(ExecutableFinder::class);
+    $executable_finder->method('find')->willReturnCallback(fn(string $command): string => '/usr/bin/' . $command);
+
+    $install_command = new InstallCommand();
+    $install_command->setExecutableFinder($executable_finder);
+
+    if ($mock_download_fail) {
+      $mock_downloader = $this->createMock(RepositoryDownloader::class);
+      $mock_downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
+      $install_command->setRepositoryDownloader($mock_downloader);
+    }
+
+    // Pre-populate the destination so it looks like an existing Vortex project:
+    // the README badge flags it as a Vortex project and the composer.json
+    // 'drevops/vortex-tooling' constraint carries the project's major.
+    $this->assertNotFalse(file_put_contents(self::$sut . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)'));
+    $this->assertNotFalse(file_put_contents(self::$sut . '/composer.json', $composer_json));
+
+    static::applicationInitFromCommand($install_command);
+
+    if ($version !== NULL) {
+      $this->applicationGet()->setVersion($version);
+    }
+
+    $this->applicationRun([
+      '--' . InstallCommand::OPTION_NO_INTERACTION => TRUE,
+      '--' . InstallCommand::OPTION_URI => File::dir(static::$root),
+      '--' . InstallCommand::OPTION_DESTINATION => self::$sut,
+    ], [], TRUE);
+
+    $this->assertApplicationAnyOutputContainsOrNot($expected_message);
+  }
+
+  /**
+   * Data provider for testInstallCommandMajorGate().
+   *
+   * @return \Iterator<string, array{(string | null), string, bool, string}>
+   *   Test data.
+   */
+  public static function dataProviderInstallCommandMajorGate(): \Iterator {
+    yield 'v1 installer refuses v2 project' => [
+      '1.40.0',
+      '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
+      FALSE,
+      'https://www.vortextemplate.com/v2/install',
+    ];
+    yield 'v1 installer accepts v1 project' => [
+      '1.40.0',
+      '{"require": {"drevops/vortex-tooling": "^1.1.0"}}',
+      TRUE,
+      'Failed to download Vortex.',
+    ];
+    yield 'unstamped installer skips gate' => [
+      NULL,
+      '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
+      TRUE,
+      'Failed to download Vortex.',
+    ];
+    yield 'undetectable project major skips gate' => [
+      '1.40.0',
+      '{"require": {"php": ">=8.3"}}',
+      TRUE,
+      'Failed to download Vortex.',
+    ];
+  }
+
 }

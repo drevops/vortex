@@ -25,6 +25,7 @@ use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use DrevOps\VortexInstaller\Utils\Tui;
+use DrevOps\VortexInstaller\Utils\Version;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -186,6 +187,8 @@ EOF
 
       $this->presenter->header($this->artifact, $this->getApplication()->getVersion());
 
+      $this->assertMajorCompatibility();
+
       // Only validate if using custom repository or custom reference.
       if (!$this->artifact->isDefault()) {
         Task::action(
@@ -218,7 +221,8 @@ EOF
       Task::action(
         label: 'Downloading Vortex',
         action: function (): string {
-          $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP));
+          $release_prefix = Version::releasePrefix($this->getApplication()->getVersion());
+          $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP), $release_prefix);
           $this->config->set(Config::VERSION, $version);
           return $version;
         },
@@ -386,6 +390,39 @@ EOF
     $runner->run('build', args: $args, output: $output);
 
     return $runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
+  }
+
+  /**
+   * Refuse to operate across major versions.
+   *
+   * Each installer build serves a single major line. Updating an existing
+   * project of a different major would cross a breaking boundary, so stop and
+   * point the user at the matching installer instead. Fresh installs and
+   * projects whose major cannot be determined are treated as compatible.
+   *
+   * @throws \RuntimeException
+   *   When the destination project's major differs from this installer's major.
+   */
+  protected function assertMajorCompatibility(): void {
+    if (!$this->config->isVortexProject()) {
+      return;
+    }
+
+    $installer_major = Version::major($this->getApplication()->getVersion());
+    if ($installer_major === NULL) {
+      return;
+    }
+
+    $project_major = Version::detectProjectMajor((string) $this->config->getDst());
+    if ($project_major === NULL || $project_major === $installer_major) {
+      return;
+    }
+
+    throw new \RuntimeException(sprintf(
+      'This installer targets Vortex %1$d.x, but the destination is a Vortex %2$d.x project. Update it with the %2$d.x installer instead: https://www.vortextemplate.com/v%2$d/install',
+      $installer_major,
+      $project_major,
+    ));
   }
 
   /**

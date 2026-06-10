@@ -46,9 +46,9 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
   ) {
   }
 
-  public function download(Artifact $artifact, ?string $dst = NULL): string {
+  public function download(Artifact $artifact, ?string $dst = NULL, ?string $release_prefix = NULL): string {
     if ($artifact->isRemote()) {
-      $version = $this->downloadFromRemote($artifact, $dst);
+      $version = $this->downloadFromRemote($artifact, $dst, $release_prefix);
     }
     else {
       $version = $this->downloadFromLocal($artifact, $dst);
@@ -97,7 +97,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
   }
 
-  protected function downloadFromRemote(Artifact $artifact, ?string $destination): string {
+  protected function downloadFromRemote(Artifact $artifact, ?string $destination, ?string $release_prefix = NULL): string {
     if ($destination === NULL) {
       throw new \InvalidArgumentException('Destination cannot be null for remote downloads.');
     }
@@ -108,7 +108,15 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
     $version = $artifact->getRef();
     if ($artifact->getRef() === RepositoryDownloader::REF_STABLE) {
-      $ref = $this->discoverLatestReleaseRemote($repo_url);
+      $ref = $this->discoverLatestReleaseRemote($repo_url, $release_prefix);
+
+      if ($ref === NULL && $release_prefix !== NULL) {
+        // No tagged release exists yet for this major (for example, an
+        // unreleased newer major). Fall back to the major development branch
+        // (for example "2.x") so the line is still installable.
+        $ref = rtrim($release_prefix, '.') . '.x';
+        $this->validateRemoteRefExists($repo_url, $ref);
+      }
 
       if ($ref === NULL) {
         throw new \RuntimeException(sprintf('Unable to discover the latest release for "%s".', $repo_url));
