@@ -1,4 +1,0 @@
-services:
-  plugin.manager.ys_deploy.deploy_step:
-    class: Drupal\ys_deploy\DeployStepManager
-    parent: default_plugin_manager

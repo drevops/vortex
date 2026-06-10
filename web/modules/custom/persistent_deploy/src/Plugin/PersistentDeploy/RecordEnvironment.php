@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ys_deploy\Plugin\DeployStep;
+namespace Drupal\persistent_deploy\Plugin\PersistentDeploy;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\ys_deploy\Attribute\DeployStep;
-use Drupal\ys_deploy\DeployStepBase;
+use Drupal\persistent_deploy\Attribute\PersistentDeploy;
+use Drupal\persistent_deploy\PersistentDeployBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,20 +16,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * A minimal, safe example deploy step that demonstrates the pattern: dependency
  * injection via create(), the inherited environment() helper, and an idempotent
- * run(). Remove it on a real project, and add your own steps as DeployStep
- * plugins in any enabled module's Plugin/DeployStep/ namespace.
+ * run(). Remove it on a real project, and add your own steps as PersistentDeploy
+ * plugins in any enabled module's Plugin/PersistentDeploy/ namespace.
  */
-#[DeployStep(
+#[PersistentDeploy(
   id: 'record_environment',
   label: new TranslatableMarkup('Record deployment environment'),
   weight: 0,
 )]
-final class RecordEnvironment extends DeployStepBase implements ContainerFactoryPluginInterface {
+final class RecordEnvironment extends PersistentDeployBase implements ContainerFactoryPluginInterface {
 
   /**
    * The state key the deployed environment is recorded under.
    */
-  public const STATE_KEY = 'ys_deploy.deployed_environment';
+  public const STATE_KEY = 'persistent_deploy.deployed_environment';
 
   /**
    * Constructs a RecordEnvironment object.

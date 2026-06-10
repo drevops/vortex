@@ -21,6 +21,7 @@ dependencies:
   - menu_ui
   - node
   - options
+  - persistent_deploy
   - rdf
   - responsive_image
   - shortcut
@@ -29,7 +30,9 @@ dependencies:
   - toolbar
   - views_ui
   - ys_base
-  - ys_deploy
+  #;< MIGRATION
+  - ys_migrate
+  #;> MIGRATION
 
 themes:
   - seven

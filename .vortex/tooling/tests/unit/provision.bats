@@ -52,7 +52,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -123,6 +122,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -140,35 +146,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -196,7 +173,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
 
@@ -263,6 +239,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -276,35 +259,6 @@ assert_provision_info() {
     "- Reset user 0 username and email."
     "- Updated user 1 email."
     "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "-       Fresh database detected. Performing additional example operations."
-    "Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -332,7 +286,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -404,6 +357,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -421,35 +381,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -477,7 +408,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -564,6 +494,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -581,35 +518,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -637,7 +545,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -702,7 +609,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -774,6 +680,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -791,35 +704,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -847,7 +731,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -917,6 +800,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -930,35 +820,6 @@ assert_provision_info() {
     "- Reset user 0 username and email."
     "- Updated user 1 email."
     "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "-       Fresh database detected. Performing additional example operations."
-    "Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -986,7 +847,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1059,6 +919,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -1076,35 +943,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1132,7 +970,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
 
@@ -1201,6 +1038,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -1218,15 +1062,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
-    "  ==> Started example operations."
-    "      Environment: prod"
-    "      Skipping example operations in production environment."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1256,7 +1091,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
@@ -1303,7 +1137,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -1373,6 +1206,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -1390,35 +1230,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1444,7 +1255,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -1516,6 +1326,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -1533,35 +1350,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1587,7 +1375,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1650,7 +1437,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
@@ -1714,7 +1500,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1777,6 +1562,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -1794,35 +1586,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1848,7 +1611,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1938,6 +1700,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -1955,35 +1724,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2009,7 +1749,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
 
@@ -2056,7 +1795,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -2150,6 +1888,13 @@ assert_provision_info() {
     "@drush -y cache:rebuild"
     "Cache was rebuilt."
 
+    # Site modules.
+    "Enabling site modules."
+    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_migrate"
+    "Enabled site modules."
+
     # Deployment hooks.
     "Running deployment hooks."
     "@drush -y deploy:hook"
@@ -2167,35 +1912,6 @@ assert_provision_info() {
     "Reset user 0 username and email."
     "- Updated user 1 email."
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-
-    # Custom post-install script.
-    "Running custom post-install script './scripts/provision-10-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
-    "    > Setting site name."
-    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    "    > Installing contrib modules."
-    "@drush -y pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
-    "    > Installing Redis module."
-    "@drush -y pm:install redis"
-    "    > Installing and configuring ClamAV."
-    "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
-    "    > Installing Solr search modules."
-    "@drush -y pm:install search_api search_api_solr"
-    "    > Installing custom site modules."
-    "@drush -y pm:install ys_base"
-    "@drush -y pm:install ys_search"
-    "@drush -y pm:install ys_demo"
-    "    > Running deployment hooks."
-    "@drush -y deploy:hook"
-    "  ==> Started example operations."
-    "      Environment: ci"
-    "      Running example operations in non-production environment."
-    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
-    "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
-    "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2224,7 +1940,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-20-migration.sh
 
   export CI=1
   export VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1

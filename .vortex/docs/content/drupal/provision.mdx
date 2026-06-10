@@ -224,61 +224,57 @@ environment to further customize the database sanitization:
 3. `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0`<br/>Replace username with email. Useful to also sanitize user names.<br/><br/>
 4. `VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE=./scripts/sanitize.sql`<br/>Path to a file with custom sanitization SQL queries.
 
-## Running custom scripts
+## Running custom logic on every deploy
 
-The `provision` script can execute custom scripts after all provisioning
-steps. This feature allows you to automate additional tasks specific to your
-project, such as conditionally enabling modules or running migrations in a
-specific order.
+Logic that must run on **every** deploy - conditionally enabling modules,
+running migrations, rebuilding derived data - is a `PersistentDeploy` plugin in
+a custom module, not a shell script. The `persistent_deploy` module discovers
+these plugins and runs them around `drush deploy:hook` in every environment,
+ordered by phase and then weight.
 
-To run custom scripts, create a new file in the `scripts` directory with the
-`provision-` prefix and the `.sh` extension, and make it executable with
-`chmod +x scripts/provision-10-example.sh`. The script will be automatically
-discovered and executed.
+Declare a plugin in any enabled module's `src/Plugin/PersistentDeploy/`
+namespace:
 
-It is recommended to use a 2-digit suffix to control the order of execution:
-e.g., `provision-10-example.sh`, `provision-20-another-example.sh`.
+```php
+namespace Drupal\my_module\Plugin\PersistentDeploy;
 
-### Conditional execution
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\persistent_deploy\Attribute\PersistentDeploy;
+use Drupal\persistent_deploy\PersistentDeployBase;
+use Drupal\persistent_deploy\PersistentDeployInterface;
 
-You may choose to only perform an action based on a specific environment (the
-value of `$settings['environment']` is populated by
-the [Drupal settings file](settings#environment-type-detection)):
+#[PersistentDeploy(
+  id: 'rebuild_search_index',
+  label: new TranslatableMarkup('Rebuild the search index'),
+  weight: 10,
+  phase: PersistentDeployInterface::PHASE_POST,
+)]
+final class RebuildSearchIndex extends PersistentDeployBase {
 
-```shell
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+  public function gate(): ?string {
+    return $this->isProduction() ? 'production environment' : NULL;
+  }
 
-if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
-  echo "> Running custom script for dev, stage, ci, or local environment."
-  # Place your commands here.
-else
-  echo "> Skipping custom script for ${environment} environment."
-fi
+  public function run(): void {
+    $this->drush('search-api:index');
+  }
+
+}
 ```
 
-You may also conditionally perform an action based on whether the database is
-freshly imported or not:
+- **`phase`** selects `PHASE_PRE` (before the `deploy:hook` body) or
+  `PHASE_POST` (after it). A pre-phase plugin that enables modules lets the body
+  run their run-once `hook_deploy_NAME()` in the same deploy.
+- **`weight`** orders plugins within a phase (lower runs first).
+- **`gate()`** returns `null` to run, or a short reason to skip that is logged
+  verbatim. The inherited `environment()` and `isProduction()` helpers cover
+  environment gating.
+- **`run()`** is the idempotent work. Use the inherited `drush()` helper to run
+  a long sub-command such as `migrate:import` in its own memory-bounded,
+  resumable subprocess.
 
-```shell
-if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
-  echo "> Fresh database detected."
-else
-  echo "> Existing database detected."
-fi
-```
-
-Expand below to see a provision scaffold script that you can use as a
-starting point for your custom scripts:
-
-import CodeBlock from '@theme/CodeBlock';
-import ProvisionScriptExample from '!!raw-loader!./provision-example.sh';
-
-<details>
-  <summary>Example of a custom provision script</summary>
-
-<CodeBlock language="bash">{ProvisionScriptExample}</CodeBlock>
-
-</details>
+**Vortex** ships two examples: the development and demo environment setup in
+`ys_base`, and the content migration in `ys_migrate`.
 
 :::tip Related Documentation
 For information about different types of Drupal hooks used during deployment and updates.

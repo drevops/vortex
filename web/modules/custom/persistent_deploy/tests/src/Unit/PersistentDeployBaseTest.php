@@ -2,41 +2,48 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\ys_deploy\Unit;
+namespace Drupal\Tests\persistent_deploy\Unit;
 
 use Drupal\Core\Site\Settings;
+use Drupal\persistent_deploy\PersistentDeployBase;
+use Drupal\persistent_deploy\PersistentDeployInterface;
 use Drupal\Tests\UnitTestCase;
-use Drupal\ys_deploy\DeployStepBase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests the DeployStepBase helpers.
+ * Tests the PersistentDeployBase helpers.
  *
- * @package Drupal\ys_deploy\Tests
+ * @package Drupal\persistent_deploy\Tests
  */
-#[Group('YsDeploy')]
-class DeployStepBaseTest extends UnitTestCase {
+#[Group('PersistentDeploy')]
+class PersistentDeployBaseTest extends UnitTestCase {
 
   /**
-   * Tests weight, label, and the default open gate.
+   * Tests weight, phase, label, and the default open gate.
    */
-  public function testWeightLabelAndDefaultGate(): void {
-    $step = $this->createStep(['weight' => 5, 'label' => 'My step']);
+  public function testWeightPhaseLabelAndDefaultGate(): void {
+    $step = $this->createStep([
+      'weight' => 5,
+      'label' => 'My step',
+      'phase' => PersistentDeployInterface::PHASE_PRE,
+    ]);
 
     $this->assertSame(5, $step->getWeight());
+    $this->assertSame(PersistentDeployInterface::PHASE_PRE, $step->getPhase());
     $this->assertSame('My step', $step->label());
     $this->assertNull($step->gate(), 'The default gate is open.');
   }
 
   /**
-   * Tests that the label falls back to the plugin ID.
+   * Tests that weight, phase, and label fall back to sensible defaults.
    */
-  public function testLabelFallsBackToPluginId(): void {
+  public function testDefaultsFallBack(): void {
     $step = $this->createStep([]);
 
-    $this->assertSame('test_step', $step->label());
     $this->assertSame(0, $step->getWeight());
+    $this->assertSame(PersistentDeployInterface::PHASE_POST, $step->getPhase());
+    $this->assertSame('test_step', $step->label());
   }
 
   /**
@@ -77,13 +84,13 @@ class DeployStepBaseTest extends UnitTestCase {
    * Creates a concrete deploy step with the given plugin definition.
    *
    * @param array $definition
-   *   The plugin definition (may contain 'weight' and 'label').
+   *   The plugin definition (may contain 'weight', 'phase' and 'label').
    *
-   * @return \Drupal\ys_deploy\DeployStepBase
+   * @return \Drupal\persistent_deploy\PersistentDeployBase
    *   A concrete deploy step instance.
    */
-  protected function createStep(array $definition): DeployStepBase {
-    return new class([], 'test_step', $definition) extends DeployStepBase {
+  protected function createStep(array $definition): PersistentDeployBase {
+    return new class([], 'test_step', $definition) extends PersistentDeployBase {
 
       /**
        * {@inheritdoc}
