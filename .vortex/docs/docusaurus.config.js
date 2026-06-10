@@ -18,6 +18,16 @@ import {themes as prismThemes} from 'prism-react-renderer';
 // CI; it is never committed to a branch.
 const versioned = fs.existsSync('versioned_docs');
 
+// The current major (the 'VORTEX_CURRENT_MAJOR' repository variable, default 1)
+// drives the whole site: its docs are a snapshot under 'versioned_docs/' served
+// as the default at the bare '/docs', and the live 'content/' (pulled from the
+// other major's '{N}.x' branch in CI) is served at '/docs/v{other}'. Bumping
+// that one variable promotes a new major - nothing else changes here.
+const currentMajor = process.env.VORTEX_CURRENT_MAJOR || '1';
+const otherMajor = currentMajor === '1' ? '2' : '1';
+const currentDocsVersion = `${currentMajor}.x`;
+const otherIsNewer = Number(otherMajor) > Number(currentMajor);
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Vortex - Drupal project template',
@@ -58,22 +68,20 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/drevops/vortex/tree/main/.vortex/docs/',
-          // In versioned (aggregate) builds, v1 is the snapshot in
-          // 'versioned_docs/' served at the bare '/docs' (the default), and
-          // the current 'content/' is v2 at '/docs/v2'. To flip the default
-          // when 2.x is ready: set `lastVersion: 'current'`, give '1.x' a
-          // `path: 'v1'`, drop the v2 `path` so 'current' serves at the bare
-          // '/docs', and swap the '/docs/v1' redirect below for '/docs/v2'.
+          // In versioned (aggregate) builds the current major is the snapshot
+          // in 'versioned_docs/' served at the bare '/docs' (the default), and
+          // the live 'content/' is the other major at '/docs/v{other}'. Both
+          // are derived from 'VORTEX_CURRENT_MAJOR' - no manual edits to flip.
           ...(versioned ? {
-            lastVersion: '1.x',
+            lastVersion: currentDocsVersion,
             versions: {
-              '1.x': {
-                label: 'v1',
+              [currentDocsVersion]: {
+                label: `v${currentMajor}`,
               },
               current: {
-                label: 'v2',
-                path: 'v2',
-                banner: 'unreleased',
+                label: `v${otherMajor}`,
+                path: `v${otherMajor}`,
+                banner: otherIsNewer ? 'unreleased' : 'unmaintained',
               },
             },
           } : {}),
@@ -233,11 +241,10 @@ const config = {
       '@docusaurus/plugin-client-redirects',
       {
         redirects: [
-          // In versioned builds, 'v1' is the default at the bare '/docs', so
-          // its explicit path redirects there. When the default flips to
-          // 'v2', change this to redirect '/docs/v2' instead.
+          // The current major is the default at the bare '/docs', so its
+          // explicit '/docs/v{current}' path redirects there.
           ...(versioned ? [{
-            from: '/docs/v1',
+            from: `/docs/v${currentMajor}`,
             to: '/docs',
           }] : []),
           {

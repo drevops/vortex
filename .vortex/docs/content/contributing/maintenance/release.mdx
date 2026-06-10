@@ -43,13 +43,15 @@ When creating a new release, determine the version based on the changes:
 
 ### Branch strategy
 
-- **`main`** - Current stable release branch (always the latest major version)
-- **`N.x`** - Development branch for the next major version, ahead of `main` (e.g., `2.x`)
-- **`N-1.x`** - Maintenance branch for the previous major version, behind `main` (e.g., `1.x` after `2.x` is released)
+- **`main`** - the current major version under active development (`1.x` today)
+- **`2.x`** - a development branch for an upcoming major version, ahead of `main` (future majors follow the same pattern: `3.x`, `4.x`, ...)
+- **`1.x`** - a maintenance branch for a superseded major version, behind `main` (for example `1.x` once `main` holds `2.x`)
 
-When a new major version is ready:
-1. The next major version development branch (`N.x`) is merged into `main`
-2. The previous major version code is preserved in its own maintenance branch (`N-1.x`)
+Promoting a new major version is a single action: set the `VORTEX_CURRENT_MAJOR` repository variable to its number. The documentation default and the installer's bare `/install` URL both follow it, while the per-major docs and `/v{N}/install` pins are always published.
+
+When `main` advances to a new major version:
+1. The upcoming major's branch (for example `2.x`) is merged into `main`
+2. The superseded major continues on its own branch (for example `1.x`) for maintenance
 
 :::note
 

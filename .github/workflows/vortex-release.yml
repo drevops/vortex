@@ -30,6 +30,13 @@ jobs:
     outputs:
       release-version: ${{ steps.version.outputs.value }}
 
+    # The current major (built from this ref) and the other major (built from
+    # its '{N}.x' branch) are both derived from 'VORTEX_CURRENT_MAJOR' (default
+    # 1), so a single variable bump promotes a new major with no workflow edits.
+    env:
+      CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
+      OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -85,37 +92,37 @@ jobs:
           ./build/installer.phar --no-interaction --no-cleanup --destination=test || exit 1
         working-directory: .vortex/installer
 
-      - name: Upload artifact
+      - name: Upload v${{ env.CURRENT_MAJOR }} installer artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: vortex-installer
+          name: vortex-installer-v${{ env.CURRENT_MAJOR }}
           path: .vortex/installer/build/installer.phar
           if-no-files-found: error
 
-      # Build the next-major (2.x) installer from the '2.x' branch so it can be
+      # Build the other major's installer from its '{N}.x' branch so it is
       # published alongside the current one. Checked out into a separate path so
       # the current installer build above is untouched. Mirrors how the docs job
-      # pulls the '2.x' branch content.
-      - name: Checkout 2.x branch
+      # pulls the other major's branch content.
+      - name: Checkout v${{ env.OTHER_MAJOR }} branch
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          ref: 2.x
-          path: vortex-next
+          ref: ${{ env.OTHER_MAJOR }}.x
+          path: vortex-v${{ env.OTHER_MAJOR }}
           persist-credentials: false
 
-      - name: Build 2.x installer
+      - name: Build v${{ env.OTHER_MAJOR }} installer
         run: |
           composer install
-          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"2.x-dev\"/g" box.json
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"${OTHER_MAJOR}.x-dev\"/g" box.json
           composer build
           ./build/installer.phar --version
-        working-directory: vortex-next/.vortex/installer
+        working-directory: vortex-v${{ env.OTHER_MAJOR }}/.vortex/installer
 
-      - name: Upload 2.x installer artifact
+      - name: Upload v${{ env.OTHER_MAJOR }} installer artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: vortex-installer-next
-          path: vortex-next/.vortex/installer/build/installer.phar
+          name: vortex-installer-v${{ env.OTHER_MAJOR }}
+          path: vortex-v${{ env.OTHER_MAJOR }}/.vortex/installer/build/installer.phar
           if-no-files-found: error
 
   vortex-release-docs:
@@ -134,6 +141,10 @@ jobs:
     defaults:
       run:
         working-directory: docs
+
+    env:
+      CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
+      OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
 
     steps:
       - name: Checkout code
@@ -160,38 +171,34 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Download current installer
+      - name: Download v1 installer
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          name: vortex-installer
-          path: installer-current
+          name: vortex-installer-v1
+          path: installer-v1
 
-      - name: Download 2.x installer
+      - name: Download v2 installer
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          name: vortex-installer-next
-          path: installer-next
+          name: vortex-installer-v2
+          path: installer-v2
 
-      # Publish both installers. 'installer-current' is built from the release
-      # ref - the active major (the v1 line today); 'installer-next' is built
-      # from the '2.x' branch (v2). '/v1/install' and '/v2/install' are the
-      # stable per-major pins; the bare '/install' tracks the active major via
-      # the 'VORTEX_INSTALLER_ACTIVE_MAJOR' repository variable (default 1).
-      # Promoting 2.x to active is a deliberate future change to that variable
-      # and to the build sources above, mirroring the docs 'lastVersion' flip.
+      # Publish both installers. '/v1/install' and '/v2/install' are the stable
+      # per-major pins, always built from each major's own source. The bare
+      # '/install' is a copy of the current major's pin, selected by the
+      # 'VORTEX_CURRENT_MAJOR' repository variable (default 1) - bumping that one
+      # variable is the only action needed to promote a new major.
       - name: Copy installers to docs
         run: |
-          case "${ACTIVE_MAJOR}" in
+          case "${CURRENT_MAJOR}" in
             1|2) ;;
-            *) echo "Invalid VORTEX_INSTALLER_ACTIVE_MAJOR='${ACTIVE_MAJOR}'. Expected 1 or 2."; exit 1 ;;
+            *) echo "Invalid VORTEX_CURRENT_MAJOR='${CURRENT_MAJOR}'. Expected 1 or 2."; exit 1 ;;
           esac
           mkdir -p ../.vortex/docs/static/v1 ../.vortex/docs/static/v2
-          cp ../installer-current/installer.phar "../.vortex/docs/static/v${ACTIVE_MAJOR}/install"
-          cp ../installer-next/installer.phar ../.vortex/docs/static/v2/install
-          cp "../.vortex/docs/static/v${ACTIVE_MAJOR}/install" ../.vortex/docs/static/install
+          cp ../installer-v1/installer.phar ../.vortex/docs/static/v1/install
+          cp ../installer-v2/installer.phar ../.vortex/docs/static/v2/install
+          cp "../.vortex/docs/static/v${CURRENT_MAJOR}/install" ../.vortex/docs/static/install
           php ../.vortex/docs/static/install --version
-        env:
-          ACTIVE_MAJOR: ${{ vars.VORTEX_INSTALLER_ACTIVE_MAJOR || '1' }}
 
       - name: Check docs up-to-date
         run: |
@@ -203,22 +210,25 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: .vortex/docs
 
-      # Assemble the multi-version site for production: snapshot the released
-      # docs as v1 (served at the bare '/docs') and pull the '2.x'
-      # docs in as v2 (at '/docs/v2'). Mirrors the same step in
-      # 'vortex-test-docs.yml' (development / Netlify).
+      # Assemble the multi-version site for production: snapshot this ref's docs
+      # as the current major (served at the bare '/docs') and pull the other
+      # major's '{N}.x' branch docs in at '/docs/v{other}'. All driven by
+      # 'VORTEX_CURRENT_MAJOR'. Mirrors the same step in 'vortex-test-docs.yml'
+      # (development / Netlify).
       - name: Assemble versioned docs
         run: |
-          yarn docusaurus docs:version 1.x
-          git -C "${{ github.workspace }}" fetch origin 2.x --depth=1 || { echo "Failed to fetch the 2.x branch."; exit 1; }
-          git -C "${{ github.workspace }}" rev-parse --verify origin/2.x || { echo "The 2.x branch does not exist."; exit 1; }
+          yarn docusaurus docs:version "${CURRENT_MAJOR}.x"
+          git -C "${{ github.workspace }}" fetch origin "${OTHER_MAJOR}.x" --depth=1 || { echo "Failed to fetch the ${OTHER_MAJOR}.x branch."; exit 1; }
+          git -C "${{ github.workspace }}" rev-parse --verify "origin/${OTHER_MAJOR}.x" || { echo "The ${OTHER_MAJOR}.x branch does not exist."; exit 1; }
           rm -rf content
-          git -C "${{ github.workspace }}" checkout origin/2.x -- .vortex/docs/content || { echo "Failed to check out content from 2.x."; exit 1; }
+          git -C "${{ github.workspace }}" checkout "origin/${OTHER_MAJOR}.x" -- .vortex/docs/content || { echo "Failed to check out content from ${OTHER_MAJOR}.x."; exit 1; }
         working-directory: .vortex/docs
 
       - name: Build documentation site
         run: yarn run build
         working-directory: .vortex/docs
+        env:
+          VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
 
       - name: Generate video for installer (not used in the final artifact)
         run: |

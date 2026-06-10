@@ -112,7 +112,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
       if ($ref === NULL && $release_prefix !== NULL) {
         // No tagged release exists yet for this major (for example, an
-        // unreleased next major). Fall back to the major development branch
+        // unreleased newer major). Fall back to the major development branch
         // (for example "2.x") so the line is still installable.
         $ref = rtrim($release_prefix, '.') . '.x';
         $this->validateRemoteRefExists($repo_url, $ref);
