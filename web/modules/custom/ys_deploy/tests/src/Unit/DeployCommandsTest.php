@@ -21,6 +21,17 @@ use PHPUnit\Framework\Attributes\Group;
 class DeployCommandsTest extends UnitTestCase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    // Reset the Settings singleton to an empty instance so environment state
+    // does not leak into other tests that share the same process.
+    new Settings([]);
+
+    parent::tearDown();
+  }
+
+  /**
    * Tests that steps run in the order they are declared.
    */
   public function testRunStepsExecutesInOrder(): void {
