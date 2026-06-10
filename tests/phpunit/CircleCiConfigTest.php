@@ -129,7 +129,7 @@ class CircleCiConfigTest extends TestCase {
     yield ['2.x'];
     yield ['3.x'];
     yield ['10.x'];
-    // phpcs:ignore #;> VORTEX_DEV
+    // #;> VORTEX_DEV.
 
     // Negative branches.
     yield ['something', FALSE];
