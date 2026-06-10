@@ -44,12 +44,12 @@ When creating a new release, determine the version based on the changes:
 ### Branch strategy
 
 - **`main`** - Current stable release branch (always the latest major version)
-- **`X.x`** - Development branch for the next major version, ahead of `main` (e.g., `2.x`)
-- **`X.x`** - Maintenance branch for an older major version, behind `main` (e.g., `1.x` after `2.x` is released)
+- **`N.x`** - Development branch for the next major version, ahead of `main` (e.g., `2.x`)
+- **`N-1.x`** - Maintenance branch for the previous major version, behind `main` (e.g., `1.x` after `2.x` is released)
 
 When a new major version is ready:
-1. The next major version development in `X.x` is merged into `main`
-2. The previous major version code is preserved in its own `X.x` branch for maintenance
+1. The next major version development branch (`N.x`) is merged into `main`
+2. The previous major version code is preserved in its own maintenance branch (`N-1.x`)
 
 :::note
 

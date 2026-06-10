@@ -17,6 +17,10 @@ interface RepositoryDownloaderInterface {
    * @param string|null $dst
    *   The destination directory. If NULL, a temporary directory will be used
    *   for local repositories.
+   * @param string|null $release_prefix
+   *   When the reference is "stable", restrict release discovery to tags
+   *   starting with this prefix (for example "1." for the 1.x line). If no
+   *   matching release exists, the "{major}.x" development branch is used.
    *
    * @return string
    *   The version/reference that was downloaded.
@@ -26,6 +30,6 @@ interface RepositoryDownloaderInterface {
    * @throws \InvalidArgumentException
    *   If the destination is null for remote downloads.
    */
-  public function download(Artifact $artifact, ?string $dst = NULL): string;
+  public function download(Artifact $artifact, ?string $dst = NULL, ?string $release_prefix = NULL): string;
 
 }

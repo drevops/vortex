@@ -181,6 +181,10 @@ jobs:
       # and to the build sources above, mirroring the docs 'lastVersion' flip.
       - name: Copy installers to docs
         run: |
+          case "${ACTIVE_MAJOR}" in
+            1|2) ;;
+            *) echo "Invalid VORTEX_INSTALLER_ACTIVE_MAJOR='${ACTIVE_MAJOR}'. Expected 1 or 2."; exit 1 ;;
+          esac
           mkdir -p ../.vortex/docs/static/v1 ../.vortex/docs/static/v2
           cp ../installer-current/installer.phar "../.vortex/docs/static/v${ACTIVE_MAJOR}/install"
           cp ../installer-next/installer.phar ../.vortex/docs/static/v2/install

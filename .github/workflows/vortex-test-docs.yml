@@ -121,6 +121,10 @@ jobs:
           composer --working-dir=vortex-next/.vortex/installer install
           sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"2.x-dev\"/g" vortex-next/.vortex/installer/box.json
           composer --working-dir=vortex-next/.vortex/installer build
+          case "${ACTIVE_MAJOR}" in
+            1|2) ;;
+            *) echo "Invalid VORTEX_INSTALLER_ACTIVE_MAJOR='${ACTIVE_MAJOR}'. Expected 1 or 2."; exit 1 ;;
+          esac
           mkdir -p .vortex/docs/static/v1 .vortex/docs/static/v2
           cp .vortex/docs/static/install ".vortex/docs/static/v${ACTIVE_MAJOR}/install"
           cp vortex-next/.vortex/installer/build/installer.phar .vortex/docs/static/v2/install
