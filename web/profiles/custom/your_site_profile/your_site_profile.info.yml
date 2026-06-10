@@ -29,6 +29,7 @@ dependencies:
   - toolbar
   - views_ui
   - ys_base
+  - ys_deploy
 
 themes:
   - seven

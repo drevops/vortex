@@ -504,6 +504,7 @@ trait SutTrait {
     // Stub code modules removed.
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_base');
     $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_demo');
+    $this->assertDirectoryDoesNotExist($webroot . '/modules/custom/ys_deploy');
     // Stub theme removed.
     $this->assertDirectoryDoesNotExist($webroot . '/themes/custom/your_site_theme');
 
@@ -531,6 +532,13 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Unit/CounterBlockTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Kernel/CounterBlockTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/FunctionalJavascript/CounterBlockTest.php');
+
+    // Site deploy module created.
+    $this->assertDirectoryExists($webroot . '/modules/custom/sw_deploy');
+    $this->assertFileExists($webroot . '/modules/custom/sw_deploy/sw_deploy.info.yml');
+    $this->assertFileExists($webroot . '/modules/custom/sw_deploy/src/Drush/Commands/DeployCommands.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_deploy/tests/src/Unit/DeployCommandsTest.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_deploy/tests/src/Kernel/DeployCommandsTest.php');
 
     // Drupal Scaffold files exist.
     $this->assertFileDoesNotExist($webroot . '/.editorconfig');

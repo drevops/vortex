@@ -1,0 +1,5 @@
+name: YOURSITE Deploy
+type: module
+description: Repeatable deploy hooks for YOURSITE site.
+core_version_requirement: ^11
+package: your_site
