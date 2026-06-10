@@ -62,10 +62,10 @@ cannot express "run on every deploy".
 
 A project has two deploy-time layers:
 
-- **Drupal-level "every deploy"** - the Drush command hooks in `ys_deploy`. They
-  run wherever `drush deploy:hook` runs (CI, local, and production hosting after
-  rollout). Add idempotent steps to `preDeploySteps()` or `postDeploySteps()` in
-  `DeployCommands`.
+- **Drupal-level "every deploy"** - the `DeployStep` plugins discovered by the
+  `ys_deploy` module. They run wherever `drush deploy:hook` runs (CI, local, and
+  production hosting after rollout). Add a step by declaring a `DeployStep`
+  plugin in any enabled module's `Plugin/DeployStep/` namespace.
 - **Vortex tooling-level** - the pre/post provision event scripts, for
   orchestration that happens outside `drush deploy` (for example, work before
   the database is imported).
