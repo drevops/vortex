@@ -177,6 +177,8 @@ final class DeployCommands extends DrushCommands {
    * @return string
    *   One of the ENVIRONMENT_* values (local, ci, dev, stage, prod) or an empty
    *   string when not set.
+   *
+   * @SuppressWarnings("PHPMD.StaticAccess")
    */
   protected function environment(): string {
     return (string) Settings::get('environment', '');
@@ -209,7 +211,7 @@ final class DeployCommands extends DrushCommands {
       fn(string $module): bool => !$this->moduleHandler->moduleExists($module),
     ));
 
-    if ($missing) {
+    if ($missing !== []) {
       $this->moduleInstaller->install($missing);
     }
   }

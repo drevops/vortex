@@ -14,3 +14,11 @@
     */
    #[CLI\Hook(type: HookManager::POST_COMMAND_HOOK, target: 'deploy:hook')]
    public function postDeploy(mixed $result, CommandData $command_data): void {
+@@ -178,7 +176,6 @@
+    *   One of the ENVIRONMENT_* values (local, ci, dev, stage, prod) or an empty
+    *   string when not set.
+    *
+-   * @SuppressWarnings("PHPMD.StaticAccess")
+    */
+   protected function environment(): string {
+     return (string) Settings::get('environment', '');
