@@ -122,7 +122,7 @@ jobs:
           sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"2.x-dev\"/g" vortex-next/.vortex/installer/box.json
           composer --working-dir=vortex-next/.vortex/installer build
           mkdir -p .vortex/docs/static/v1 .vortex/docs/static/v2
-          cp .vortex/docs/static/install .vortex/docs/static/v1/install
+          cp .vortex/docs/static/install ".vortex/docs/static/v${ACTIVE_MAJOR}/install"
           cp vortex-next/.vortex/installer/build/installer.phar .vortex/docs/static/v2/install
           cp ".vortex/docs/static/v${ACTIVE_MAJOR}/install" .vortex/docs/static/install
         env:

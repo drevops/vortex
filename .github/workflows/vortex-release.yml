@@ -172,13 +172,17 @@ jobs:
           name: vortex-installer-next
           path: installer-next
 
-      # Publish both installers. '/v1/install' and '/v2/install' are the stable
-      # per-major pins; the bare '/install' tracks the active major, selected by
+      # Publish both installers. 'installer-current' is built from the release
+      # ref - the active major (the v1 line today); 'installer-next' is built
+      # from the '2.x' branch (v2). '/v1/install' and '/v2/install' are the
+      # stable per-major pins; the bare '/install' tracks the active major via
       # the 'VORTEX_INSTALLER_ACTIVE_MAJOR' repository variable (default 1).
+      # Promoting 2.x to active is a deliberate future change to that variable
+      # and to the build sources above, mirroring the docs 'lastVersion' flip.
       - name: Copy installers to docs
         run: |
           mkdir -p ../.vortex/docs/static/v1 ../.vortex/docs/static/v2
-          cp ../installer-current/installer.phar ../.vortex/docs/static/v1/install
+          cp ../installer-current/installer.phar "../.vortex/docs/static/v${ACTIVE_MAJOR}/install"
           cp ../installer-next/installer.phar ../.vortex/docs/static/v2/install
           cp "../.vortex/docs/static/v${ACTIVE_MAJOR}/install" ../.vortex/docs/static/install
           php ../.vortex/docs/static/install --version
