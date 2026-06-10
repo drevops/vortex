@@ -1,4 +1,4 @@
-@@ -3,6 +3,32 @@
+@@ -3,10 +3,36 @@
  For information on how deployment works, see
  [Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
  
@@ -28,6 +28,11 @@
 +- Only Technical Lead and Deployer user should have access to Acquia repository.
 +- Technical Lead should regularly clean up `feature/*` and `bugfix/*` branches.
 +
- ## Project-specific configuration
+ ## Repeatable deploy hooks
  
- <!-- Add project-specific deployment configuration below -->
+ Logic that must run on **every** deploy lives in the `ys_deploy` module
+-(`web/modules/custom/ys_deploy`), not in run-once hooks. Drupal and Drush
++(`docroot/modules/custom/ys_deploy`), not in run-once hooks. Drupal and Drush
+ run-once hooks (`hook_update_N()`, `hook_post_update_NAME()`,
+ `hook_deploy_NAME()`) are recorded as completed and never run again, so they
+ cannot express "run on every deploy".

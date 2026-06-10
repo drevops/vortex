@@ -17,6 +17,6 @@
 +VORTEX_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> VORTEX_DEPLOY_ACTION=deploy_override_db ahoy deploy
 +```
 +
- ## Project-specific configuration
+ ## Repeatable deploy hooks
  
- <!-- Add project-specific deployment configuration below -->
+ Logic that must run on **every** deploy lives in the `ys_deploy` module

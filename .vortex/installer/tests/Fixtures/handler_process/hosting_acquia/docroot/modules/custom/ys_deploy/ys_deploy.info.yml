@@ -1,0 +1,5 @@
+name: star wars Deploy
+type: module
+description: Repeatable deploy hooks for star wars site.
+core_version_requirement: ^11
+package: star_wars
