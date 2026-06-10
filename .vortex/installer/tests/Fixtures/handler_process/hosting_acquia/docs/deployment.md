@@ -30,9 +30,9 @@
 +
  ## Repeatable deploy hooks
  
- Logic that must run on **every** deploy lives in the `ys_deploy` module
--(`web/modules/custom/ys_deploy`), not in run-once hooks. Drupal and Drush
-+(`docroot/modules/custom/ys_deploy`), not in run-once hooks. Drupal and Drush
+ Logic that must run on **every** deploy lives in the `sw_deploy` module
+-(`web/modules/custom/sw_deploy`), not in run-once hooks. Drupal and Drush
++(`docroot/modules/custom/sw_deploy`), not in run-once hooks. Drupal and Drush
  run-once hooks (`hook_update_N()`, `hook_post_update_NAME()`,
  `hook_deploy_NAME()`) are recorded as completed and never run again, so they
  cannot express "run on every deploy".

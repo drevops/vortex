@@ -1,9 +1,0 @@
-@@ -1,5 +1,5 @@
--name: star wars Deploy
-+name: New hope Deploy
- type: module
--description: Repeatable deploy hooks for star wars site.
-+description: Repeatable deploy hooks for New hope site.
- core_version_requirement: ^11
--package: star_wars
-+package: the_new_hope

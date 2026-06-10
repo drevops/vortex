@@ -1,0 +1,5 @@
+name: New hope Deploy
+type: module
+description: Repeatable deploy hooks for New hope site.
+core_version_requirement: ^11
+package: the_new_hope

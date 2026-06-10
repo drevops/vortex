@@ -19,4 +19,4 @@
 +
  ## Repeatable deploy hooks
  
- Logic that must run on **every** deploy lives in the `ys_deploy` module
+ Logic that must run on **every** deploy lives in the `sw_deploy` module

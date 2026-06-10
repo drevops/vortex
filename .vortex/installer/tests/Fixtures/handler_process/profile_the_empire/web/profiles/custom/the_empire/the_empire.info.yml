@@ -29,7 +29,7 @@ dependencies:
   - toolbar
   - views_ui
   - sw_base
-  - ys_deploy
+  - sw_deploy
 
 themes:
   - seven
