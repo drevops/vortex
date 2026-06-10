@@ -111,37 +111,42 @@ final class DeployCommands extends DrushCommands {
    * Returns the ordered pre-deploy steps for this project.
    *
    * Add project-specific, idempotent steps here. The array key is a
-   * human-readable label and the value is a callable invoked with no arguments.
-   * Steps run in array order.
+   * human-readable label and the value is a callable run with no arguments.
+   * Steps run in array order. For example:
+   * @code
+   * return [
+   *   'Enable a module' => fn() => $this->installModules(['my_module']),
+   * ];
+   * @endcode
    *
    * @return array<string, callable>
    *   Ordered map of label => callable.
    */
   protected function preDeploySteps(): array {
-    return [
-      // 'Enable a module before its deploy hooks run' =>
-      //   fn() => $this->installModules(['my_module']),
-    ];
+    return [];
   }
 
   /**
    * Returns the ordered post-deploy steps for this project.
    *
    * Add project-specific, idempotent steps here. The array key is a
-   * human-readable label and the value is a callable invoked with no arguments.
-   * Steps run in array order.
+   * human-readable label and the value is a callable run with no arguments.
+   * Steps run in array order. Replace or extend the default step with real
+   * repeatable work. For example:
+   * @code
+   * return [
+   *   'Rebuild the search index' => fn() => $this->reindexSearch(),
+   *   'Re-run a migration' => fn() => $this->runMigration('my_migration'),
+   * ];
+   * @endcode
    *
    * @return array<string, callable>
    *   Ordered map of label => callable.
    */
   protected function postDeploySteps(): array {
     return [
-      // Record the environment a deploy ran against. Replace or extend with
-      // real repeatable work, for example:
-      //   'Rebuild the search index' => fn() => $this->reindexSearch(),
-      //   'Re-run a config migration' => fn() => $this->runMigration('my_migration'),
       'Log deployment environment' => function (): void {
-        $message = sprintf('Deployed to the "%s" environment.', $this->environment());
+        $message = sprintf('Deployed to "%s".', $this->environment());
         $this->logger()?->notice($message);
       },
     ];
