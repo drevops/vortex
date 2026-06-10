@@ -102,6 +102,32 @@ jobs:
           git -C "${{ github.workspace }}" checkout origin/2.x -- .vortex/docs/content || { echo "Failed to check out content from 2.x."; exit 1; }
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
+      # On the main deploy, publish both installers to match the multi-version
+      # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
+      # the bare '/install' tracks the active major (the
+      # 'VORTEX_INSTALLER_ACTIVE_MAJOR' repository variable, default 1). The 2.x
+      # installer is built from the '2.x' branch. Mirrors 'vortex-release.yml'.
+      - name: Checkout 2.x branch
+        if: github.event.workflow_run.head_branch == 'main'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: 2.x
+          path: vortex-next
+          persist-credentials: false
+
+      - name: Build and publish 2.x installer
+        if: github.event.workflow_run.head_branch == 'main'
+        run: |
+          composer --working-dir=vortex-next/.vortex/installer install
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"2.x-dev\"/g" vortex-next/.vortex/installer/box.json
+          composer --working-dir=vortex-next/.vortex/installer build
+          mkdir -p .vortex/docs/static/v1 .vortex/docs/static/v2
+          cp .vortex/docs/static/install .vortex/docs/static/v1/install
+          cp vortex-next/.vortex/installer/build/installer.phar .vortex/docs/static/v2/install
+          cp ".vortex/docs/static/v${ACTIVE_MAJOR}/install" .vortex/docs/static/install
+        env:
+          ACTIVE_MAJOR: ${{ vars.VORTEX_INSTALLER_ACTIVE_MAJOR || '1' }}
+
       - name: Build documentation site
         run: yarn run build
         working-directory: '${{ github.workspace }}/.vortex/docs'

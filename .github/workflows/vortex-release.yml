@@ -92,6 +92,32 @@ jobs:
           path: .vortex/installer/build/installer.phar
           if-no-files-found: error
 
+      # Build the next-major (2.x) installer from the '2.x' branch so it can be
+      # published alongside the current one. Checked out into a separate path so
+      # the current installer build above is untouched. Mirrors how the docs job
+      # pulls the '2.x' branch content.
+      - name: Checkout 2.x branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: 2.x
+          path: vortex-next
+          persist-credentials: false
+
+      - name: Build 2.x installer
+        run: |
+          composer install
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"2.x-dev\"/g" box.json
+          composer build
+          ./build/installer.phar --version
+        working-directory: vortex-next/.vortex/installer
+
+      - name: Upload 2.x installer artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: vortex-installer-next
+          path: vortex-next/.vortex/installer/build/installer.phar
+          if-no-files-found: error
+
   vortex-release-docs:
     needs: vortex-release-installer
 
@@ -134,15 +160,30 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Download installer
+      - name: Download current installer
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: vortex-installer
+          path: installer-current
 
-      - name: Copy installer to docs
+      - name: Download 2.x installer
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: vortex-installer-next
+          path: installer-next
+
+      # Publish both installers. '/v1/install' and '/v2/install' are the stable
+      # per-major pins; the bare '/install' tracks the active major, selected by
+      # the 'VORTEX_INSTALLER_ACTIVE_MAJOR' repository variable (default 1).
+      - name: Copy installers to docs
         run: |
-          cp ../installer.phar ../.vortex/docs/static/install
+          mkdir -p ../.vortex/docs/static/v1 ../.vortex/docs/static/v2
+          cp ../installer-current/installer.phar ../.vortex/docs/static/v1/install
+          cp ../installer-next/installer.phar ../.vortex/docs/static/v2/install
+          cp "../.vortex/docs/static/v${ACTIVE_MAJOR}/install" ../.vortex/docs/static/install
           php ../.vortex/docs/static/install --version
+        env:
+          ACTIVE_MAJOR: ${{ vars.VORTEX_INSTALLER_ACTIVE_MAJOR || '1' }}
 
       - name: Check docs up-to-date
         run: |
