@@ -499,7 +499,7 @@ class InstallCommandTest extends FunctionalTestCase {
   /**
    * Test the cross-major compatibility gate.
    */
-  #[DataProvider('dataProviderMajorGate')]
+  #[DataProvider('dataProviderInstallCommandMajorGate')]
   public function testInstallCommandMajorGate(?string $version, string $composer_json, bool $mock_download_fail, string $expected_message): void {
     $executable_finder = $this->createMock(ExecutableFinder::class);
     $executable_finder->method('find')->willReturnCallback(fn(string $command): string => '/usr/bin/' . $command);
@@ -537,35 +537,33 @@ class InstallCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testInstallCommandMajorGate().
    *
-   * @return array<string, array{?string, string, bool, string}>
+   * @return \Iterator<string, array{(string | null), string, bool, string}>
    *   Test data.
    */
-  public static function dataProviderMajorGate(): array {
-    return [
-      'v1 installer refuses v2 project' => [
-        '1.40.0',
-        '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
-        FALSE,
-        'https://www.vortextemplate.com/v2/install',
-      ],
-      'v1 installer accepts v1 project' => [
-        '1.40.0',
-        '{"require": {"drevops/vortex-tooling": "^1.1.0"}}',
-        TRUE,
-        'Failed to download Vortex.',
-      ],
-      'unstamped installer skips gate' => [
-        NULL,
-        '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
-        TRUE,
-        'Failed to download Vortex.',
-      ],
-      'undetectable project major skips gate' => [
-        '1.40.0',
-        '{"require": {"php": ">=8.3"}}',
-        TRUE,
-        'Failed to download Vortex.',
-      ],
+  public static function dataProviderInstallCommandMajorGate(): \Iterator {
+    yield 'v1 installer refuses v2 project' => [
+      '1.40.0',
+      '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
+      FALSE,
+      'https://www.vortextemplate.com/v2/install',
+    ];
+    yield 'v1 installer accepts v1 project' => [
+      '1.40.0',
+      '{"require": {"drevops/vortex-tooling": "^1.1.0"}}',
+      TRUE,
+      'Failed to download Vortex.',
+    ];
+    yield 'unstamped installer skips gate' => [
+      NULL,
+      '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
+      TRUE,
+      'Failed to download Vortex.',
+    ];
+    yield 'undetectable project major skips gate' => [
+      '1.40.0',
+      '{"require": {"php": ">=8.3"}}',
+      TRUE,
+      'Failed to download Vortex.',
     ];
   }
 

@@ -20,23 +20,21 @@ class VersionTest extends UnitTestCase {
   /**
    * Data provider for testMajor().
    *
-   * @return array<string, array{?string, ?int}>
+   * @return \Iterator<string, array{(string | null), (int | null)}>
    *   Test data.
    */
-  public static function dataProviderMajor(): array {
-    return [
-      'null' => [NULL, NULL],
-      'empty' => ['', NULL],
-      'develop' => ['develop', NULL],
-      'unstamped token' => ['@vortex-installer-version@', NULL],
-      'semver 1.x' => ['1.40.0', 1],
-      'semver with v prefix' => ['v1.2.3', 1],
-      'semver 2.x' => ['2.0.0', 2],
-      'dev branch' => ['2.x-dev', 2],
-      'semver+calver' => ['1.0.0+2025.11.0', 1],
-      'legacy calver' => ['25.10.0', 25],
-      'leading whitespace' => ['  1.0.0', 1],
-    ];
+  public static function dataProviderMajor(): \Iterator {
+    yield 'null' => [NULL, NULL];
+    yield 'empty' => ['', NULL];
+    yield 'develop' => ['develop', NULL];
+    yield 'unstamped token' => ['@vortex-installer-version@', NULL];
+    yield 'semver 1.x' => ['1.40.0', 1];
+    yield 'semver with v prefix' => ['v1.2.3', 1];
+    yield 'semver 2.x' => ['2.0.0', 2];
+    yield 'dev branch' => ['2.x-dev', 2];
+    yield 'semver+calver' => ['1.0.0+2025.11.0', 1];
+    yield 'legacy calver' => ['25.10.0', 25];
+    yield 'leading whitespace' => ['  1.0.0', 1];
   }
 
   #[DataProvider('dataProviderReleasePrefix')]
@@ -47,17 +45,15 @@ class VersionTest extends UnitTestCase {
   /**
    * Data provider for testReleasePrefix().
    *
-   * @return array<string, array{?string, ?string}>
+   * @return \Iterator<string, array{(string | null), (string | null)}>
    *   Test data.
    */
-  public static function dataProviderReleasePrefix(): array {
-    return [
-      'null' => [NULL, NULL],
-      'develop' => ['develop', NULL],
-      'major 1' => ['1.40.0', '1.'],
-      'major 2 dev' => ['2.x-dev', '2.'],
-      'legacy calver' => ['25.10.0', '25.'],
-    ];
+  public static function dataProviderReleasePrefix(): \Iterator {
+    yield 'null' => [NULL, NULL];
+    yield 'develop' => ['develop', NULL];
+    yield 'major 1' => ['1.40.0', '1.'];
+    yield 'major 2 dev' => ['2.x-dev', '2.'];
+    yield 'legacy calver' => ['25.10.0', '25.'];
   }
 
   #[DataProvider('dataProviderMajorFromConstraint')]
@@ -68,20 +64,18 @@ class VersionTest extends UnitTestCase {
   /**
    * Data provider for testMajorFromConstraint().
    *
-   * @return array<string, array{?string, ?int}>
+   * @return \Iterator<string, array{(string | null), (int | null)}>
    *   Test data.
    */
-  public static function dataProviderMajorFromConstraint(): array {
-    return [
-      'null' => [NULL, NULL],
-      'empty' => ['', NULL],
-      'no digits' => ['dev-main', NULL],
-      'caret 1' => ['^1.1.0', 1],
-      'caret 2' => ['^2.0.0', 2],
-      'tilde 2' => ['~2.0', 2],
-      'dev branch' => ['2.x-dev', 2],
-      'range' => ['>=1.2 <3.0', 1],
-    ];
+  public static function dataProviderMajorFromConstraint(): \Iterator {
+    yield 'null' => [NULL, NULL];
+    yield 'empty' => ['', NULL];
+    yield 'no digits' => ['dev-main', NULL];
+    yield 'caret 1' => ['^1.1.0', 1];
+    yield 'caret 2' => ['^2.0.0', 2];
+    yield 'tilde 2' => ['~2.0', 2];
+    yield 'dev branch' => ['2.x-dev', 2];
+    yield 'range' => ['>=1.2 <3.0', 1];
   }
 
   #[DataProvider('dataProviderDetectProjectMajor')]
@@ -99,20 +93,18 @@ class VersionTest extends UnitTestCase {
   /**
    * Data provider for testDetectProjectMajor().
    *
-   * @return array<string, array{?string, ?int}>
+   * @return \Iterator<string, array{(string | null), (int | null)}>
    *   Test data.
    */
-  public static function dataProviderDetectProjectMajor(): array {
-    return [
-      'no composer.json' => [NULL, NULL],
-      'invalid json' => ['not json', NULL],
-      'empty object' => ['{}', NULL],
-      'no require' => ['{"name": "test/test"}', NULL],
-      'no tooling' => ['{"require": {"php": ">=8.3"}}', NULL],
-      'tooling v1' => ['{"require": {"drevops/vortex-tooling": "^1.1.0"}}', 1],
-      'tooling v2' => ['{"require": {"drevops/vortex-tooling": "^2.0.0"}}', 2],
-      'tooling non-string' => ['{"require": {"drevops/vortex-tooling": 1}}', NULL],
-    ];
+  public static function dataProviderDetectProjectMajor(): \Iterator {
+    yield 'no composer.json' => [NULL, NULL];
+    yield 'invalid json' => ['not json', NULL];
+    yield 'empty object' => ['{}', NULL];
+    yield 'no require' => ['{"name": "test/test"}', NULL];
+    yield 'no tooling' => ['{"require": {"php": ">=8.3"}}', NULL];
+    yield 'tooling v1' => ['{"require": {"drevops/vortex-tooling": "^1.1.0"}}', 1];
+    yield 'tooling v2' => ['{"require": {"drevops/vortex-tooling": "^2.0.0"}}', 2];
+    yield 'tooling non-string' => ['{"require": {"drevops/vortex-tooling": 1}}', NULL];
   }
 
 }
