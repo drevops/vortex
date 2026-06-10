@@ -89,17 +89,17 @@ jobs:
 
       # On the main (development) deploy, assemble the multi-version site:
       # snapshot main's docs as v1 (served at the bare '/docs') and pull the
-      # 'project/2.x' docs in as v2 (at '/docs/v2'). Skipped on PR/branch
+      # '2.x' docs in as v2 (at '/docs/v2'). Skipped on PR/branch
       # builds, which stay single-version previews. Mirrors the same step in
       # 'vortex-release.yml' (production / GitHub Pages).
       - name: Assemble versioned docs
         if: github.event.workflow_run.head_branch == 'main'
         run: |
           yarn docusaurus docs:version 1.x
-          git -C "${{ github.workspace }}" fetch origin project/2.x --depth=1 || { echo "Failed to fetch the project/2.x branch."; exit 1; }
-          git -C "${{ github.workspace }}" rev-parse --verify origin/project/2.x || { echo "The project/2.x branch does not exist."; exit 1; }
+          git -C "${{ github.workspace }}" fetch origin 2.x --depth=1 || { echo "Failed to fetch the 2.x branch."; exit 1; }
+          git -C "${{ github.workspace }}" rev-parse --verify origin/2.x || { echo "The 2.x branch does not exist."; exit 1; }
           rm -rf content
-          git -C "${{ github.workspace }}" checkout origin/project/2.x -- .vortex/docs/content || { echo "Failed to check out content from project/2.x."; exit 1; }
+          git -C "${{ github.workspace }}" checkout origin/2.x -- .vortex/docs/content || { echo "Failed to check out content from 2.x."; exit 1; }
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Build documentation site

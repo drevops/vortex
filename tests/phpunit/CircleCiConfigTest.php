@@ -124,6 +124,12 @@ class CircleCiConfigTest extends TestCase {
     yield ['project/0.1.x-description'];
     yield ['project/0.1.2.x-description'];
 
+    // #;< VORTEX_DEV
+    // Vortex version-development branches.
+    yield ['2.x'];
+    yield ['3.x'];
+    yield ['10.x'];
+    // #;> VORTEX_DEV.
     // Negative branches.
     yield ['something', FALSE];
     yield ['premain', FALSE];

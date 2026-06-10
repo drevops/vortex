@@ -18,6 +18,9 @@ on:
       - release/**
       - hotfix/**
       - project/**
+      #;< VORTEX_DEV
+      - '*.x'
+      #;> VORTEX_DEV
     # Pushes of tags will also trigger the workflow.
     tags:
       - '*'
@@ -37,6 +40,9 @@ on:
       - feature/**
       - bugfix/**
       - project/**
+      #;< VORTEX_DEV
+      - '*.x'
+      #;> VORTEX_DEV
 
   workflow_dispatch:
     inputs:
