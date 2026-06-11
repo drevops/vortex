@@ -30,7 +30,7 @@ final class RecordEnvironment extends PersistentDeployBase implements ContainerF
   /**
    * The state key the deployed environment is recorded under.
    */
-  public const STATE_KEY = 'persistent_deploy.deployed_environment';
+  public const string STATE_KEY = 'persistent_deploy.deployed_environment';
 
   /**
    * Constructs a RecordEnvironment object.

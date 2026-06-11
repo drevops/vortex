@@ -1,4 +1,4 @@
-@@ -45,10 +45,10 @@
+@@ -48,10 +48,10 @@
  
  return RectorConfig::configure()
    ->withPaths([
@@ -13,7 +13,7 @@
      __DIR__ . '/tests',
    ])
    ->withSkip([
-@@ -73,7 +73,7 @@
+@@ -79,7 +79,7 @@
      RenameVariableToMatchNewTypeRector::class,
      SimplifyEmptyCheckOnEmptyArrayRector::class,
      StringClassNameToClassConstantRector::class => [

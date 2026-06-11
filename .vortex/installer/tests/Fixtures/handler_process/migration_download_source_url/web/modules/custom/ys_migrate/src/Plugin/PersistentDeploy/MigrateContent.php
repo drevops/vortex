@@ -33,12 +33,12 @@ final class MigrateContent extends PersistentDeployBase implements ContainerFact
   /**
    * Migrations to run, in order.
    */
-  protected const MIGRATIONS = ['ys_migrate_categories'];
+  protected const array MIGRATIONS = ['ys_migrate_categories'];
 
   /**
    * Table probed in the source database to verify it is not corrupted.
    */
-  protected const PROBE_TABLE = 'categories';
+  protected const string PROBE_TABLE = 'categories';
 
   /**
    * Constructs a MigrateContent object.
