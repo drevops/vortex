@@ -17,6 +17,8 @@ use Drupal\persistent_deploy\PersistentDeployInterface;
  * `migrate:import` runs as a subprocess via the inherited drush() helper, so it
  * gets its own memory ceiling and is resumable from the migrate map tables on
  * re-run. Idempotent - re-importing only processes unprocessed rows.
+ *
+ * @codeCoverageIgnore
  */
 #[PersistentDeploy(
   id: 'ys_migrate_content',
