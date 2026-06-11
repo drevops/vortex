@@ -1,0 +1,11 @@
+services:
+  plugin.manager.persistent_deploy:
+    class: Drupal\persistent_deploy\PersistentDeployManager
+    parent: default_plugin_manager
+
+  logger.channel.persistent_deploy:
+    parent: logger.channel_base
+    arguments: ['persistent_deploy']
+
+  Drupal\persistent_deploy\PersistentDeployRunner:
+    arguments: ['@plugin.manager.persistent_deploy', '@logger.channel.persistent_deploy']

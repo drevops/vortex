@@ -21,6 +21,7 @@ dependencies:
   - menu_ui
   - node
   - options
+  - persistent_deploy
   - rdf
   - responsive_image
   - shortcut
@@ -29,7 +30,6 @@ dependencies:
   - toolbar
   - views_ui
   - sw_base
-  - sw_deploy
 
 themes:
   - seven

@@ -1,4 +1,4 @@
-@@ -3,10 +3,36 @@
+@@ -3,6 +3,32 @@
  For information on how deployment works, see
  [Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
  
@@ -30,9 +30,13 @@
 +
  ## Repeatable deploy hooks
  
- Logic that must run on **every** deploy lives in the `sw_deploy` module
--(`web/modules/custom/sw_deploy`), not in run-once hooks. Drupal and Drush
-+(`docroot/modules/custom/sw_deploy`), not in run-once hooks. Drupal and Drush
- run-once hooks (`hook_update_N()`, `hook_post_update_NAME()`,
- `hook_deploy_NAME()`) are recorded as completed and never run again, so they
- cannot express "run on every deploy".
+ Logic that must run on **every** deploy is a `PersistentDeploy` plugin, not a
+@@ -10,7 +36,7 @@
+ `hook_post_update_NAME()`, `hook_deploy_NAME()`) are recorded as completed and
+ never run again, so they cannot express "run on every deploy".
+ 
+-The `persistent_deploy` module (`web/modules/custom/persistent_deploy`) owns a
++The `persistent_deploy` module (`docroot/modules/custom/persistent_deploy`) owns a
+ single pair of Drush `pre-command` / `post-command` hooks on `deploy:hook` and,
+ on every deploy, discovers every `PersistentDeploy` plugin from every enabled
+ module, groups them by phase, orders each phase by weight, asks each plugin's
