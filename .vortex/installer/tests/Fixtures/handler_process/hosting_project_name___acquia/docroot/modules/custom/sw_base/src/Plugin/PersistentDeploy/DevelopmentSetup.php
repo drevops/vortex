@@ -20,6 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * `deploy:hook` body that follows: their run-once `hook_deploy_NAME()` fire in
  * the same deploy, with no second `deploy:hook` run. Idempotent - module
  * installs skip already-enabled modules - so it is safe on every deploy.
+ *
+ * @codeCoverageIgnore
  */
 #[PersistentDeploy(
   id: 'sw_base_development_setup',

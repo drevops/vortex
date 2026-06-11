@@ -1,4 +1,4 @@
-@@ -77,7 +77,6 @@
+@@ -79,7 +79,6 @@
        'admin_toolbar',
        'coffee',
        'config_split',

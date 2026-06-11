@@ -1,4 +1,4 @@
-@@ -75,7 +75,6 @@
+@@ -77,7 +77,6 @@
  
      $this->moduleInstaller->install([
        'admin_toolbar',

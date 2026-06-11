@@ -1,4 +1,4 @@
-@@ -81,7 +81,6 @@
+@@ -83,7 +83,6 @@
        'media',
        'environment_indicator',
        'pathauto',

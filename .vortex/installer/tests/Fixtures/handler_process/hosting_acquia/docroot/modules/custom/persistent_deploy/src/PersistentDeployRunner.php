@@ -9,11 +9,9 @@ use Psr\Log\LoggerInterface;
 /**
  * Runs persistent deploy step plugins.
  *
- * Shared by two triggers, so the same gate and logging behaviour applies
- * wherever steps run:
- * - the Drush command hooks on `deploy:hook` (one phase each), for every deploy;
- * - module installation (every phase), so a fresh provision that enables this
- *   module executes the steps without waiting for a separate `deploy:hook`.
+ * The Drush command hooks on `deploy:hook` call this with a single phase each
+ * (pre, then post), so the same gate and logging behaviour applies to every
+ * step on every deploy.
  */
 class PersistentDeployRunner {
 

@@ -1,4 +1,4 @@
-@@ -74,7 +74,6 @@
+@@ -76,7 +76,6 @@
      $this->configFactory->getEditable('system.site')->set('name', 'star wars')->save();
  
      $this->moduleInstaller->install([

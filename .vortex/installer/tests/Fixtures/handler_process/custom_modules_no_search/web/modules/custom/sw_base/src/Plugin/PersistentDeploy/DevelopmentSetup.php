@@ -1,4 +1,4 @@
-@@ -96,8 +96,6 @@
+@@ -98,8 +98,6 @@
  
      $this->moduleInstaller->install(['search_api', 'search_api_solr']);
  

@@ -16,8 +16,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * A minimal, safe example deploy step that demonstrates the pattern: dependency
  * injection via create(), the inherited environment() helper, and an idempotent
- * run(). Remove it on a real project, and add your own steps as PersistentDeploy
- * plugins in any enabled module's Plugin/PersistentDeploy/ namespace.
+ * run(). Remove it on a real project and add your own steps as a
+ * PersistentDeploy plugin in any enabled module's Plugin/PersistentDeploy/
+ * namespace.
  */
 #[PersistentDeploy(
   id: 'record_environment',

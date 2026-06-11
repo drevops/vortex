@@ -1,4 +1,4 @@
-@@ -69,7 +69,6 @@
+@@ -68,7 +68,6 @@
     * @param \Consolidation\AnnotatedCommand\CommandData $command_data
     *   The command data.
     *
@@ -6,7 +6,7 @@
     */
    #[CLI\Hook(type: HookManager::PRE_COMMAND_HOOK, target: 'deploy:hook')]
    public function runPreDeploySteps(CommandData $command_data): void {
-@@ -84,7 +83,6 @@
+@@ -83,7 +82,6 @@
     * @param \Consolidation\AnnotatedCommand\CommandData $command_data
     *   The command data.
     *

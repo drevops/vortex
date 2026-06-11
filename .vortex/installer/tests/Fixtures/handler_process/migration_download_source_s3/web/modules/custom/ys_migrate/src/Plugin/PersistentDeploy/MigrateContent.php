@@ -17,6 +17,8 @@ use Drupal\persistent_deploy\PersistentDeployInterface;
  * `migrate:import` runs as a subprocess via the inherited drush() helper, so it
  * gets its own memory ceiling and is resumable from the migrate map tables on
  * re-run. Idempotent - re-importing only processes unprocessed rows.
+ *
+ * @codeCoverageIgnore
  */
 #[PersistentDeploy(
   id: 'ys_migrate_content',
@@ -123,7 +125,11 @@ final class MigrateContent extends PersistentDeployBase {
     $dir = getenv('VORTEX_DB_DIR') ?: './.data';
 
     if (!str_starts_with($dir, '/')) {
-      $dir = dirname(\Drupal::root()) . '/' . preg_replace('#^\./#', '', $dir);
+      if (str_starts_with($dir, './')) {
+        $dir = substr($dir, 2);
+      }
+
+      $dir = dirname(\Drupal::root()) . '/' . $dir;
     }
 
     return $dir . '/' . (getenv('VORTEX_DOWNLOAD_DB2_FILE') ?: 'db2.sql');

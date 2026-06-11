@@ -1,4 +1,4 @@
-@@ -85,7 +85,6 @@
+@@ -87,7 +87,6 @@
        'reroute_email',
        'robotstxt',
        'shield',

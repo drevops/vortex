@@ -96,6 +96,8 @@ abstract class PersistentDeployBase extends PluginBase implements PersistentDepl
    *   The completed process.
    *
    * @SuppressWarnings("PHPMD.StaticAccess")
+   *
+   * @codeCoverageIgnore
    */
   protected function drush(string $command, array $args = [], array $options = []): SiteProcess {
     $process = Drush::drush(Drush::aliasManager()->getSelf(), $command, $args, $options + Drush::redispatchOptions());

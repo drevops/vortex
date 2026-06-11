@@ -1,4 +1,4 @@
-@@ -91,9 +91,6 @@
+@@ -93,9 +93,6 @@
  
      $this->moduleInstaller->install(['redis']);
  

@@ -1,4 +1,4 @@
-@@ -73,22 +73,6 @@
+@@ -75,22 +75,6 @@
    public function run(): void {
      $this->configFactory->getEditable('system.site')->set('name', 'star wars')->save();
  
