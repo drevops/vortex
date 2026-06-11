@@ -30,21 +30,21 @@ abstract class PersistentDeployBase extends PluginBase implements PersistentDepl
    * {@inheritdoc}
    */
   public function getWeight(): int {
-    return (int) ($this->pluginDefinition['weight'] ?? 0);
+    return is_array($this->pluginDefinition) ? (int) ($this->pluginDefinition['weight'] ?? 0) : 0;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPhase(): string {
-    return (string) ($this->pluginDefinition['phase'] ?? self::PHASE_POST);
+    return is_array($this->pluginDefinition) ? (string) ($this->pluginDefinition['phase'] ?? self::PHASE_POST) : self::PHASE_POST;
   }
 
   /**
    * {@inheritdoc}
    */
   public function label(): string {
-    return (string) ($this->pluginDefinition['label'] ?? $this->getPluginId());
+    return is_array($this->pluginDefinition) ? (string) ($this->pluginDefinition['label'] ?? $this->getPluginId()) : $this->getPluginId();
   }
 
   /**
