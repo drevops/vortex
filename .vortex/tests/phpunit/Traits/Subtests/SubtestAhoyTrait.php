@@ -946,10 +946,7 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         '* Provisioning site from the database dump file.',
-        '* Started migration operations.',
-        '* Importing migration source database.',
-        '* Imported migration source database.',
-        '* Finished migration operations.',
+        '* Running deploy step "Import migration content".',
       ],
       'Provision with migration should complete successfully',
     );
@@ -998,9 +995,8 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1.',
-        '! Importing migration source database.',
-        '! Starting migrations.',
+        '* Skipped deploy step "Import migration content": migrations skipped (DRUPAL_MIGRATION_SKIP)',
+        '! Running deploy step "Import migration content".',
       ],
       'Provision with DRUPAL_MIGRATION_SKIP=1 should skip all migration operations',
     );
@@ -1015,9 +1011,7 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Source database import is set to be skipped.',
-        '* Using existing migration source database.',
-        '! Importing migration source database.',
+        '* Running deploy step "Import migration content".',
       ],
       'Provision with DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0 should skip DB import but still run migrations',
     );
