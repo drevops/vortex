@@ -18,7 +18,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories created by the handler.
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileExists(static::$sut . '/scripts/provision-20-migration.sh');
+          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/PersistentDeploy/MigrateContent.php');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
 
           // Composer dependencies.
@@ -42,7 +42,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileExists(static::$sut . '/scripts/provision-20-migration.sh');
+          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/PersistentDeploy/MigrateContent.php');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
@@ -54,7 +54,6 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories removed by the handler.
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-20-migration.sh');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
 
           // Composer dependencies removed.
@@ -78,7 +77,6 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-20-migration.sh');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
@@ -92,7 +90,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileExists(static::$sut . '/scripts/provision-20-migration.sh');
+          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/PersistentDeploy/MigrateContent.php');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
@@ -106,7 +104,6 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-20-migration.sh');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
