@@ -27,7 +27,7 @@ If you already have a Vortex project and want to add migration support:
    `VORTEX_DOWNLOAD_DB2_URL` to `.env`.
 3. Create `web/sites/default/settings.migration.php` (see below).
 4. Add the include in `web/sites/default/settings.php`.
-5. Add `scripts/provision-20-migration.sh`.
+5. Ensure the `ys_migrate` module (with its `MigrateContent` plugin) is present.
 
 ## Environment variables
 
@@ -97,19 +97,24 @@ The `download-db2` command reuses the existing `download-db.sh` script with
 `VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so all existing download
 sources (URL, FTP, Acquia, Lagoon, S3) work for the migration database as well.
 
-## Provision script
+## Migration deploy step
 
-The `scripts/provision-20-migration.sh` script runs automatically
-during `ahoy provision` (custom provision scripts are executed alphabetically).
+The migration runs as a `MigrateContent` persistent deploy plugin in the
+`ys_migrate` module (`src/Plugin/PersistentDeploy/MigrateContent.php`). It runs
+on every `drush deploy:hook` in non-production environments - so it runs during
+`ahoy provision` and on every deploy. See [Deployment](../deployment) for how
+persistent deploy plugins work.
 
 It handles:
 
 - Importing the migration source database dump into the `database2` container
 - Corruption detection (probes for a known table to verify the database)
-- Running Drupal migrations via `drush migrate:import`
+- Running Drupal migrations via `drush migrate:import` (in a memory-bounded, resumable subprocess)
 - Optional rollback before import
 
 ### Configuration variables
+
+The plugin reads these environment variables (via `getenv()`):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -123,18 +128,17 @@ It handles:
 
 ### Adding migrations
 
-Add your project-specific migrations at the bottom of the script using the
-`run_migration` helper:
+Add your migration IDs to the plugin's `MIGRATIONS` constant:
 
-```bash
-run_migration ys_migrate_categories --limit=all
+```php
+protected const MIGRATIONS = ['ys_migrate_categories'];
 ```
 
 ### Corruption detection
 
-If `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` is `0`, the script probes the source database
+If `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` is `0`, the plugin probes the source database
 for the table specified in `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE`. If the table is
-missing (corrupted or empty database), the script automatically re-imports the
+missing (corrupted or empty database), the plugin automatically re-imports the
 dump file.
 
 ## Demo migration module
@@ -192,10 +196,10 @@ alongside the primary database before running provision.
    ahoy build
    ```
 
-4. Add your migrations to `scripts/provision-20-migration.sh`:
+4. Add your migration IDs to the `MigrateContent` plugin's `MIGRATIONS` constant:
 
-   ```bash
-   run_migration ys_migrate_categories --limit=all
+   ```php
+   protected const MIGRATIONS = ['ys_migrate_categories'];
    ```
 
 5. Re-provision to run migrations:

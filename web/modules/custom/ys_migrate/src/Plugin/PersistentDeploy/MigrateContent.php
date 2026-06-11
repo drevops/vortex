@@ -123,7 +123,11 @@ final class MigrateContent extends PersistentDeployBase {
     $dir = getenv('VORTEX_DB_DIR') ?: './.data';
 
     if (!str_starts_with($dir, '/')) {
-      $dir = dirname(\Drupal::root()) . '/' . preg_replace('#^\./#', '', $dir);
+      if (str_starts_with($dir, './')) {
+        $dir = substr($dir, 2);
+      }
+
+      $dir = dirname(\Drupal::root()) . '/' . $dir;
     }
 
     return $dir . '/' . (getenv('VORTEX_DOWNLOAD_DB2_FILE') ?: 'db2.sql');

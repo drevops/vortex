@@ -23,18 +23,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * whether to run, and runs the rest - on every single deploy. Pre-phase plugins
  * run before the `deploy:hook` body, post-phase plugins after it.
  *
- * The design deliberately inverts the naive "one Drush command hook per module"
- * approach, which does not scale: Drush discovers command hooks at bootstrap, so
- * a module could only contribute deploy logic by shipping its own DrushCommands
- * class AND being enabled before bootstrap. Here, persistent_deploy owns the
- * single command hook and DISCOVERS plugins; any enabled module contributes
- * steps just by declaring a PersistentDeploy plugin - no Drush wiring of its
- * own. That makes the mechanism reusable (and extractable to a standalone
- * contrib module).
+ * The design inverts the naive "one Drush command hook per module" approach,
+ * which does not scale: Drush discovers command hooks at bootstrap, so a module
+ * could only contribute deploy logic by shipping its own DrushCommands class AND
+ * being enabled before bootstrap. Here, persistent_deploy owns the single
+ * command hook and DISCOVERS plugins; any enabled module contributes steps just
+ * by declaring a PersistentDeploy plugin - no Drush wiring of its own. That
+ * makes the mechanism reusable (and extractable to a standalone contrib module).
  *
  * The hooks target `deploy:hook` because that is the Drush command the Vortex
- * provision flow runs in every environment; the higher-level `deploy` command is
- * never invoked directly.
+ * provision flow runs in every environment; the higher-level `deploy` command
+ * is never invoked directly.
  */
 final class PersistentDeployCommands extends DrushCommands {
 
