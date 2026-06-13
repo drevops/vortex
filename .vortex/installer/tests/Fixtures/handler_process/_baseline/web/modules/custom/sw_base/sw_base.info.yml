@@ -4,4 +4,4 @@ description: Base feature for star wars site.
 core_version_requirement: ^11
 package: star_wars
 dependencies:
-  - persistent_deploy:persistent_deploy
+  - deploy_steps:deploy_steps

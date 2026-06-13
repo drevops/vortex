@@ -1,4 +1,0 @@
-name: Persistent Deploy
-type: module
-description: 'Runs repeatable run-on-every-deploy logic as discoverable plugins.'
-core_version_requirement: ^11

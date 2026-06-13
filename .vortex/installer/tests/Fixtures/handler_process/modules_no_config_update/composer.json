@@ -5,4 +5,4 @@
 -        "drupal/config_update": "__VERSION__",
          "drupal/core-composer-scaffold": "__VERSION__",
          "drupal/core-recommended": "__VERSION__",
-         "drupal/drupal_helpers": "__VERSION__",
+         "drupal/deploy_steps": "__VERSION__",

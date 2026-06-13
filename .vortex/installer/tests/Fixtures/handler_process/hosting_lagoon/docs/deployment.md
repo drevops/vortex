@@ -19,4 +19,4 @@
 +
  ## Repeatable deploy hooks
  
- Logic that must run on **every** deploy is a `PersistentDeploy` plugin, not a
+ Logic that must run on **every** deploy is a `DeployStep` plugin, not a

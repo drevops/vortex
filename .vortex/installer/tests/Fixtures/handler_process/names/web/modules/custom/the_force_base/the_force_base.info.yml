@@ -4,4 +4,4 @@ description: Base feature for New hope site.
 core_version_requirement: ^11
 package: the_new_hope
 dependencies:
-  - persistent_deploy:persistent_deploy
+  - deploy_steps:deploy_steps
