@@ -1,4 +1,4 @@
-@@ -78,7 +78,6 @@
+@@ -63,7 +63,6 @@
      $this->moduleInstaller->install([
        'admin_toolbar',
        'coffee',
