@@ -877,7 +877,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->assertFileExists('web/sites/default/settings.migration.php');
-    $this->assertFileExists('web/modules/custom/ys_migrate/src/Plugin/PersistentDeploy/MigrateContent.php');
+    $this->assertFileExists('web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContent.php');
     $this->assertFileExists('web/modules/custom/ys_migrate/ys_migrate.info.yml');
     $this->assertFileExists('web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml');
     $this->assertFileContainsString('docker-compose.yml', 'database2');
@@ -995,7 +995,7 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Skipped deploy step "Import migration content": migrations skipped (DRUPAL_MIGRATION_SKIP)',
+        '* Skipped deploy step "Import migration content": DRUPAL_MIGRATION_SKIP is set',
         '! Running deploy step "Import migration content".',
       ],
       'Provision with DRUPAL_MIGRATION_SKIP=1 should skip all migration operations',

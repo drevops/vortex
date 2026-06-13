@@ -84,7 +84,7 @@ class Modules extends AbstractHandler {
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
         // Remove module from the development setup plugin install list.
-        File::replaceContentInFile($t . '/' . $w . '/modules/custom/ys_base/src/Plugin/PersistentDeploy/DevelopmentSetup.php', Replacement::create('module', function (string $content) use ($module_name): string {
+        File::replaceContentInFile($t . '/' . $w . '/modules/custom/ys_base/src/Plugin/DeployStep/DevelopmentSetup.php', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = "/^\s*'" . preg_quote($module_name, '/') . "',\r?\n/m";
           return preg_replace($pattern, '', $content, 1) ?? $content;
         }));

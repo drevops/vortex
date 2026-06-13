@@ -4,4 +4,4 @@ description: Base feature for YOURSITE site.
 core_version_requirement: ^11
 package: your_site
 dependencies:
-  - persistent_deploy:persistent_deploy
+  - deploy_steps:deploy_steps

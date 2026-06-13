@@ -99,11 +99,11 @@ sources (URL, FTP, Acquia, Lagoon, S3) work for the migration database as well.
 
 ## Migration deploy step
 
-The migration runs as a `MigrateContent` persistent deploy plugin in the
-`ys_migrate` module (`src/Plugin/PersistentDeploy/MigrateContent.php`). It runs
+The migration runs as a `MigrateContent` deploy step plugin in the
+`ys_migrate` module (`src/Plugin/DeployStep/MigrateContent.php`). It runs
 on every `drush deploy:hook` in non-production environments - so it runs during
 `ahoy provision` and on every deploy. See [Deployment](../deployment) for how
-persistent deploy plugins work.
+deploy step plugins work.
 
 It handles:
 

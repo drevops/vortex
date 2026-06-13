@@ -10,6 +10,7 @@ dependencies:
   - ckeditor5
   - config
   - content_moderation
+  - deploy_steps
   - field_layout
   - field_ui
   - help
@@ -21,7 +22,6 @@ dependencies:
   - menu_ui
   - node
   - options
-  - persistent_deploy
   - rdf
   - responsive_image
   - shortcut

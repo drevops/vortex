@@ -124,7 +124,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -241,7 +241,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -359,7 +359,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -496,7 +496,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -682,7 +682,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -802,7 +802,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -921,7 +921,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -1040,7 +1040,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -1208,7 +1208,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -1328,7 +1328,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -1564,7 +1564,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -1702,7 +1702,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."
@@ -1890,7 +1890,7 @@ assert_provision_info() {
 
     # Site modules.
     "Enabling site modules."
-    "@drush -y pm:install persistent_deploy"
+    "@drush -y pm:install deploy_steps"
     "@drush -y pm:install ys_base"
     "@drush -y pm:install ys_migrate"
     "Enabled site modules."

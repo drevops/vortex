@@ -227,32 +227,38 @@ environment to further customize the database sanitization:
 ## Running custom logic on every deploy
 
 Logic that must run on **every** deploy - conditionally enabling modules,
-running migrations, rebuilding derived data - is a `PersistentDeploy` plugin in
-a custom module, not a shell script. The `persistent_deploy` module discovers
+running migrations, rebuilding derived data - is a `DeployStep` plugin in
+a custom module, not a shell script. The
+[`deploy_steps`](https://www.drupal.org/project/deploy_steps) module discovers
 these plugins and runs them around `drush deploy:hook` in every environment,
 ordered by phase and then weight.
 
-Declare a plugin in any enabled module's `src/Plugin/PersistentDeploy/`
+Declare a plugin in any enabled module's `src/Plugin/DeployStep/`
 namespace:
 
 ```php
-namespace Drupal\my_module\Plugin\PersistentDeploy;
+namespace Drupal\my_module\Plugin\DeployStep;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\persistent_deploy\Attribute\PersistentDeploy;
-use Drupal\persistent_deploy\PersistentDeployBase;
-use Drupal\persistent_deploy\PersistentDeployInterface;
+use Drupal\deploy_steps\Attribute\DeployStep;
+use Drupal\deploy_steps\DeployStepBase;
+use Drupal\deploy_steps\DeployStepInterface;
+use Drupal\deploy_steps\DrushTrait;
+use Drupal\deploy_steps\EnvironmentTrait;
 
-#[PersistentDeploy(
+#[DeployStep(
   id: 'rebuild_search_index',
   label: new TranslatableMarkup('Rebuild the search index'),
   weight: 10,
-  phase: PersistentDeployInterface::PHASE_POST,
+  phase: DeployStepInterface::PHASE_POST,
 )]
-final class RebuildSearchIndex extends PersistentDeployBase {
+final class RebuildSearchIndex extends DeployStepBase {
 
-  public function gate(): ?string {
-    return $this->isProduction() ? 'production environment' : NULL;
+  use DrushTrait;
+  use EnvironmentTrait;
+
+  public function skip(): ?string {
+    return $this->environment() === 'prod' ? 'production environment' : NULL;
   }
 
   public function run(): void {
@@ -266,12 +272,12 @@ final class RebuildSearchIndex extends PersistentDeployBase {
   `PHASE_POST` (after it). A pre-phase plugin that enables modules lets the body
   run their run-once `hook_deploy_NAME()` in the same deploy.
 - **`weight`** orders plugins within a phase (lower runs first).
-- **`gate()`** returns `null` to run, or a short reason to skip that is logged
-  verbatim. The inherited `environment()` and `isProduction()` helpers cover
-  environment gating.
-- **`run()`** is the idempotent work. Use the inherited `drush()` helper to run
-  a long sub-command such as `migrate:import` in its own memory-bounded,
-  resumable subprocess.
+- **`skip()`** returns `null` to run, or a short reason to skip that is logged
+  verbatim. Compose `EnvironmentTrait` for the `environment()` helper to gate by
+  environment.
+- **`run()`** is the idempotent work. Compose `DrushTrait` for the `drush()`
+  helper to run a long sub-command such as `migrate:import` in its own
+  memory-bounded, resumable subprocess.
 
 **Vortex** ships two examples: the development and demo environment setup in
 `ys_base`, and the content migration in `ys_migrate`.

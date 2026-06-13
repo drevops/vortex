@@ -509,7 +509,7 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.deploy.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.info.yml');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.module');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/src/Plugin/PersistentDeploy/DevelopmentSetup.php');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/src/Plugin/DeployStep/DevelopmentSetup.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/SwBaseFunctionalTestBase.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php');
@@ -529,15 +529,6 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Unit/CounterBlockTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Kernel/CounterBlockTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/FunctionalJavascript/CounterBlockTest.php');
-
-    // Persistent deploy module is generic and is not renamed by the installer.
-    $this->assertDirectoryExists($webroot . '/modules/custom/persistent_deploy');
-    $this->assertFileExists($webroot . '/modules/custom/persistent_deploy/persistent_deploy.info.yml');
-    $this->assertFileExists($webroot . '/modules/custom/persistent_deploy/persistent_deploy.services.yml');
-    $this->assertFileExists($webroot . '/modules/custom/persistent_deploy/src/PersistentDeployManager.php');
-    $this->assertFileExists($webroot . '/modules/custom/persistent_deploy/src/PersistentDeployRunner.php');
-    $this->assertFileExists($webroot . '/modules/custom/persistent_deploy/src/Drush/Commands/PersistentDeployCommands.php');
-    $this->assertFileExists($webroot . '/modules/custom/persistent_deploy/src/Plugin/PersistentDeploy/RecordEnvironment.php');
 
     // Drupal Scaffold files exist.
     $this->assertFileDoesNotExist($webroot . '/.editorconfig');

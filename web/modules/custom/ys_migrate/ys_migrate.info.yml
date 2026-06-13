@@ -4,7 +4,7 @@ description: Migrations for YOURSITE site.
 core_version_requirement: ^11
 package: your_site
 dependencies:
+  - deploy_steps:deploy_steps
   - drupal:migrate
   - migrate_plus:migrate_plus
   - migrate_tools:migrate_tools
-  - persistent_deploy:persistent_deploy

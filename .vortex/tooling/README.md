@@ -39,13 +39,14 @@ provenance.
 ## Extending provisioning
 
 Logic that must run on every deploy - enabling modules, running migrations,
-seeding content - is a `PersistentDeploy` plugin discovered by the
-`persistent_deploy` module, not a shell script. The `provision` script runs
-`drush deploy:hook` after the core provisioning steps (database import or
-profile install, database updates, configuration import, cache rebuild), and the
-plugins run around it, grouped by phase and ordered by weight.
+seeding content - is a `DeployStep` plugin discovered by the
+[`deploy_steps`](https://www.drupal.org/project/deploy_steps) module, not a
+shell script. The `provision` script runs `drush deploy:hook` after the core
+provisioning steps (database import or profile install, database updates,
+configuration import, cache rebuild), and the plugins run around it, grouped by
+phase and ordered by weight.
 
-Add a plugin in any enabled module's `src/Plugin/PersistentDeploy/` namespace.
+Add a plugin in any enabled module's `src/Plugin/DeployStep/` namespace.
 See the [provisioning documentation](https://www.vortextemplate.com/docs/drupal/provision)
 and the [deployment documentation](https://www.vortextemplate.com/docs/deployment)
 for the full reference.

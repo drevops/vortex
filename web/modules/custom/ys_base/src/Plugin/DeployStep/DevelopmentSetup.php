@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ys_base\Plugin\PersistentDeploy;
+namespace Drupal\ys_base\Plugin\DeployStep;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\persistent_deploy\Attribute\PersistentDeploy;
-use Drupal\persistent_deploy\PersistentDeployBase;
-use Drupal\persistent_deploy\PersistentDeployInterface;
+use Drupal\deploy_steps\Attribute\DeployStep;
+use Drupal\deploy_steps\DeployStepBase;
+use Drupal\deploy_steps\DeployStepInterface;
+use Drupal\deploy_steps\EnvironmentTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,50 +22,36 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @codeCoverageIgnore
  */
-#[PersistentDeploy(
+#[DeployStep(
   id: 'ys_base_development_setup',
   label: new TranslatableMarkup('Development and demo environment setup'),
   weight: 0,
-  phase: PersistentDeployInterface::PHASE_PRE,
+  phase: DeployStepInterface::PHASE_PRE,
 )]
-final class DevelopmentSetup extends PersistentDeployBase implements ContainerFactoryPluginInterface {
+final class DevelopmentSetup extends DeployStepBase {
+
+  use EnvironmentTrait;
 
   /**
-   * Constructs a DevelopmentSetup object.
-   *
-   * @param array $configuration
-   *   The plugin configuration.
-   * @param string $plugin_id
-   *   The plugin ID.
-   * @param mixed $plugin_definition
-   *   The plugin definition.
-   * @param \Drupal\Core\Extension\ModuleInstallerInterface $moduleInstaller
-   *   The module installer.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   The configuration factory.
+   * The module installer.
    */
-  public function __construct(
-    array $configuration,
-    string $plugin_id,
-    mixed $plugin_definition,
-    protected readonly ModuleInstallerInterface $moduleInstaller,
-    protected readonly ConfigFactoryInterface $configFactory,
-  ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  protected ModuleInstallerInterface $moduleInstaller;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->moduleInstaller = $container->get('module_installer');
+
+    return $instance;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self($configuration, $plugin_id, $plugin_definition, $container->get('module_installer'), $container->get('config.factory'));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function gate(): ?string {
-    return $this->isProduction() ? 'production environment' : NULL;
+  public function skip(): ?string {
+    return $this->environment() === 'prod' ? 'production environment' : NULL;
   }
 
   /**
