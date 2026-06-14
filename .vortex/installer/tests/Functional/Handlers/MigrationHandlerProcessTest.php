@@ -18,7 +18,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories created by the handler.
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContent.php');
+          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContentDeployStep.php');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
 
           // Composer dependencies.
@@ -42,7 +42,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContent.php');
+          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContentDeployStep.php');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
@@ -90,7 +90,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
-          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContent.php');
+          $test->assertFileExists(static::$sut . '/web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContentDeployStep.php');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');

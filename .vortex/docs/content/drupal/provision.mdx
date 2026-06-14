@@ -279,6 +279,22 @@ final class RebuildSearchIndex extends DeployStepBase {
   helper to run a long sub-command such as `migrate:import` in its own
   memory-bounded, resumable subprocess.
 
+Expand below for a complete deploy step you can copy as a starting point. It
+mirrors the legacy `provision-10-example.sh`: it skips on production, enables
+custom modules before the `deploy:hook` body, and branches on whether the
+database was freshly imported (`VORTEX_PROVISION_OVERRIDE_DB`, which the
+provision script exports before `drush deploy:hook`).
+
+import CodeBlock from '@theme/CodeBlock';
+import ExampleDeployStep from '!!raw-loader!./ExampleDeployStep.php';
+
+<details>
+  <summary>Example of a custom deploy step</summary>
+
+<CodeBlock language="php">{ExampleDeployStep}</CodeBlock>
+
+</details>
+
 **Vortex** ships two examples: the development and demo environment setup in
 `ys_base`, and the content migration in `ys_migrate`.
 

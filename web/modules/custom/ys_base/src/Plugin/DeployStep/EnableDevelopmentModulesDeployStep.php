@@ -28,7 +28,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   weight: 0,
   phase: DeployStepInterface::PHASE_PRE,
 )]
-final class DevelopmentSetup extends DeployStepBase {
+final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
 
   use EnvironmentTrait;
 

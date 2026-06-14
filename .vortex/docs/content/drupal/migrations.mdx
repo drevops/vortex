@@ -27,7 +27,7 @@ If you already have a Vortex project and want to add migration support:
    `VORTEX_DOWNLOAD_DB2_URL` to `.env`.
 3. Create `web/sites/default/settings.migration.php` (see below).
 4. Add the include in `web/sites/default/settings.php`.
-5. Ensure the `ys_migrate` module (with its `MigrateContent` plugin) is present.
+5. Ensure the `ys_migrate` module (with its `MigrateContentDeployStep` plugin) is present.
 
 ## Environment variables
 
@@ -99,9 +99,9 @@ sources (URL, FTP, Acquia, Lagoon, S3) work for the migration database as well.
 
 ## Migration deploy step
 
-The migration runs as a `MigrateContent` deploy step plugin in the
-`ys_migrate` module (`src/Plugin/DeployStep/MigrateContent.php`). It runs
-on every `drush deploy:hook` in non-production environments - so it runs during
+The migration runs as the `MigrateContentDeployStep` plugin in the `ys_migrate`
+module (`src/Plugin/DeployStep/MigrateContentDeployStep.php`). It runs on every
+`drush deploy:hook` in non-production environments - so it runs during
 `ahoy provision` and on every deploy. See [Deployment](../deployment) for how
 deploy step plugins work.
 
@@ -196,11 +196,10 @@ alongside the primary database before running provision.
    ahoy build
    ```
 
-4. Add your migration IDs to the `MigrateContent` plugin's `MIGRATIONS` constant:
-
-   ```php
-   protected const MIGRATIONS = ['ys_migrate_categories'];
-   ```
+4. Define the migration in the `ys_migrate` module (a `migrations/*.yml` file or
+   `migrate_plus` config). The `MigrateContentDeployStep` plugin runs
+   `migrate:import --all`, so any migration the module provides is imported
+   automatically - no plugin change needed.
 
 5. Re-provision to run migrations:
 
