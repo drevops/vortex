@@ -253,7 +253,7 @@ assert_provision_info() {
     # plugins read it via getenv(), so the script must export it. In this
     # preserve scenario the DB is not overridden, so the value is "0" and must
     # NOT be reported as "UNEXPORTED".
-    "@drush -y deploy:hook # 0 #  # echo \"DEPLOY_HOOK_OVERRIDE_DB=[\${VORTEX_PROVISION_OVERRIDE_DB-UNEXPORTED}]\""
+    '@drush -y deploy:hook # 0 #  # echo "DEPLOY_HOOK_OVERRIDE_DB=[${VORTEX_PROVISION_OVERRIDE_DB-UNEXPORTED}]"'
     "Completed deployment hooks."
     "DEPLOY_HOOK_OVERRIDE_DB=[0]"
 
@@ -820,7 +820,7 @@ assert_provision_info() {
     # plugins read it via getenv(), so the script must export it. In this
     # preserve scenario the DB is not overridden, so the value is "0" and must
     # NOT be reported as "UNEXPORTED".
-    "@drush -y deploy:hook # 0 #  # echo \"DEPLOY_HOOK_OVERRIDE_DB=[\${VORTEX_PROVISION_OVERRIDE_DB-UNEXPORTED}]\""
+    '@drush -y deploy:hook # 0 #  # echo "DEPLOY_HOOK_OVERRIDE_DB=[${VORTEX_PROVISION_OVERRIDE_DB-UNEXPORTED}]"'
     "Completed deployment hooks."
     "DEPLOY_HOOK_OVERRIDE_DB=[0]"
 
