@@ -18,10 +18,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Imports migration content on non-production deploys.
  *
  * Models the deploy_steps `ImportMigrationsDeployStep` example - a thin
- * `migrate:import` shaped by DRUPAL_MIGRATION_* environment variables - and adds
- * a guard that loads the migration source database (db2.sql) into the `migrate`
- * connection when it is not already populated, so the import has a source on a
- * fresh environment. Runs in the POST phase, after the deploy hook body.
+ * `migrate:import` shaped by DRUPAL_MIGRATION_* variables - plus a guard that
+ * loads the migration source database (db2.sql) into the `migrate` connection
+ * when it is not already populated, so the import has a source on a fresh
+ * environment. Runs in the POST phase, after the deploy hook body.
  *
  * `migrate:import` builds a Drupal batch that Drush processes across restarting
  * subprocesses (via the DrushTrait::drush() helper), so a large import stays
