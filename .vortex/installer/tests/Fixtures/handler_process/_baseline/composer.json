@@ -92,7 +92,11 @@
         },
         "audit": {
             "abandoned": "report",
-            "block-insecure": true
+            "block-insecure": true,
+            "ignore": {
+                "GHSA-34xg-wgjx-8xph": "guzzlehttp/psr7: transitive via drupal/core-recommended (__VERSION__). Ignore until an upstream core/psr7 release moves off the affected __VERSION__/__VERSION__.",
+                "GHSA-hq7v-mx3g-29hw": "guzzlehttp/psr7: transitive via drupal/core-recommended (__VERSION__). Ignore until an upstream core/psr7 release moves off the affected __VERSION__/__VERSION__."
+            }
         },
         "bump-after-update": true,
         "discard-changes": true,
