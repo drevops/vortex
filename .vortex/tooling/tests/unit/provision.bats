@@ -2,7 +2,7 @@
 ##
 # Unit tests for provision.sh
 #
-#shellcheck disable=SC2030,SC2031,SC2034
+#shellcheck disable=SC2016,SC2030,SC2031,SC2034
 
 load ../_helper.bash
 
