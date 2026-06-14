@@ -35,7 +35,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   weight: 0,
   phase: DeployStepInterface::PHASE_POST,
 )]
-final class MigrateContent extends DeployStepBase {
+final class MigrateContentDeployStep extends DeployStepBase {
 
   use DrushTrait;
   use EnvTrait;

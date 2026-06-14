@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\sw_base\Plugin\DeployStep;
+namespace Drupal\the_force_base\Plugin\DeployStep;
 
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -23,12 +23,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @codeCoverageIgnore
  */
 #[DeployStep(
-  id: 'sw_base_development_setup',
+  id: 'the_force_base_development_setup',
   label: new TranslatableMarkup('Development and demo environment setup'),
   weight: 0,
   phase: DeployStepInterface::PHASE_PRE,
 )]
-final class DevelopmentSetup extends DeployStepBase {
+final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
 
   use EnvironmentTrait;
 
@@ -58,7 +58,7 @@ final class DevelopmentSetup extends DeployStepBase {
    * {@inheritdoc}
    */
   public function run(): void {
-    $this->configFactory->getEditable('system.site')->set('name', 'star wars')->save();
+    $this->configFactory->getEditable('system.site')->set('name', 'New hope')->save();
 
     $this->moduleInstaller->install([
       'admin_toolbar',
@@ -83,9 +83,9 @@ final class DevelopmentSetup extends DeployStepBase {
 
     $this->moduleInstaller->install(['search_api', 'search_api_solr']);
 
-    $this->moduleInstaller->install(['sw_search']);
+    $this->moduleInstaller->install(['the_force_search']);
 
-    $this->moduleInstaller->install(['sw_demo']);
+    $this->moduleInstaller->install(['the_force_demo']);
   }
 
 }
