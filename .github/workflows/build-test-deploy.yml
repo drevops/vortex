@@ -307,6 +307,9 @@ jobs:
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
           ./vendor/drevops/vortex-tooling/src/export-db db.sql
+          # In CI, /app is a named volume, so the in-container export must be
+          # copied back to the runner to become the cached dump.
+          docker compose cp -L cli:/app/.data/db.sql .data/db.sql
         timeout-minutes: 30
 
       # Save cache per default branch and the timestamp.
