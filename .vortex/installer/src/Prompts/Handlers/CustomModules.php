@@ -163,6 +163,19 @@ DOC;
       }
 
       static::removeDemoBehatFeatures($t);
+
+      // Demo modules pull in the `generated_content` and `testmode` dev/test
+      // modules; without the demo, drop their config-export exclusions and the
+      // matching settings-test expectations so a demo-less site ships clean.
+      File::remove([
+        $t . sprintf('/%s/sites/default/includes/modules/settings.generated_content.php', $w),
+        $t . sprintf('/%s/sites/default/includes/modules/settings.testmode.php', $w),
+      ]);
+      File::replaceContentInFile(
+        $t . '/tests/phpunit/Drupal/EnvironmentSettingsTest.php',
+        "\$settings['config_exclude_modules'] = ['generated_content', 'testmode'];",
+        "\$settings['config_exclude_modules'] = [];",
+      );
     }
 
     if (!in_array(self::SEARCH, $selected)) {
