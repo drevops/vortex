@@ -3,10 +3,10 @@
        ahoy cli vendor/bin/phpcs
        ahoy cli vendor/bin/phpstan
 -      ahoy cli vendor/bin/rector --dry-run
-       ahoy cli vendor/bin/phpmd . text phpmd.xml
  
    lint-fe:
-@@ -225,7 +224,6 @@
+     usage: Lint front-end code.
+@@ -224,7 +223,6 @@
    lint-be-fix:
      usage: Fix lint issues of back-end code.
      cmd: |

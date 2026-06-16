@@ -6,7 +6,7 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -214,8 +213,6 @@
+@@ -213,8 +212,6 @@
    lint-tests:
      usage: Lint tests code.
      cmd: |
@@ -15,7 +15,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -259,11 +256,6 @@
+@@ -258,11 +255,6 @@
    test-js:
      usage: Run Jest JavaScript unit tests.
      cmd: ahoy cli "yarn test"

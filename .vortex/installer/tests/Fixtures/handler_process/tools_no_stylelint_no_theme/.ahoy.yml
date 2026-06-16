@@ -32,7 +32,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -209,7 +190,6 @@
+@@ -208,7 +189,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
        ahoy cli "yarn run lint"
@@ -40,7 +40,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -233,7 +213,6 @@
+@@ -232,7 +212,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"

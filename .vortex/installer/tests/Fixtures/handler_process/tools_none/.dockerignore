@@ -1,4 +1,4 @@
-@@ -35,21 +35,14 @@
+@@ -35,20 +35,14 @@
  !.stylelintrc.js
  !.twig-cs-fixer.php
  !auth.json
@@ -12,7 +12,6 @@
  !patches
  !patches.lock.json
 -!phpcs.xml
--!phpmd.xml
 -!phpstan.neon
 -!phpunit.xml
  !postcss.config.js

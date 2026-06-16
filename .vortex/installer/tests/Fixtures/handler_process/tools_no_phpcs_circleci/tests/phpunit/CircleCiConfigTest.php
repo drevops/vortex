@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Tests for CircleCI configurations.
  *
- * @SuppressWarnings(\PHPMD)
- *
  */
 #[Group('ci')]
 class CircleCiConfigTest extends TestCase {

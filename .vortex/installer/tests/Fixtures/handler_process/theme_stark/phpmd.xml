@@ -1,8 +1,0 @@
-@@ -12,7 +12,6 @@
-     <exclude-pattern>*/web/libraries/*</exclude-pattern>
-     <exclude-pattern>*/web/profiles/contrib/*</exclude-pattern>
-     <exclude-pattern>*/web/modules/contrib/*</exclude-pattern>
--    <exclude-pattern>*/web/themes/contrib/*</exclude-pattern>
-     <exclude-pattern>*/web/sites/*</exclude-pattern>
-     <exclude-pattern>*/recipes/*</exclude-pattern>
-     <exclude-pattern>*/scripts/*</exclude-pattern>

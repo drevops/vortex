@@ -1,7 +1,7 @@
-@@ -52,10 +52,8 @@
+@@ -51,10 +51,8 @@
+         "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
-         "phpmd/phpmd": "__VERSION__",
 -        "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
          "phpstan/phpstan": "__VERSION__",
@@ -9,7 +9,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -71,11 +69,6 @@
+@@ -70,11 +68,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,

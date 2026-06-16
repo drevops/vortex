@@ -6,7 +6,7 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -146,34 +145,10 @@
+@@ -146,30 +145,10 @@
          run: docker compose exec -T cli composer normalize --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
  
@@ -21,10 +21,6 @@
 -      - name: Lint code with Rector
 -        run: docker compose exec -T cli vendor/bin/rector --dry-run
 -        continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
--
--      - name: Lint code with PHPMD
--        run: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml
--        continue-on-error: ${{ vars.VORTEX_CI_PHPMD_IGNORE_FAILURE == '1' }}
 -
        - name: Lint code with Twig CS Fixer
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
@@ -41,7 +37,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -391,7 +366,6 @@
+@@ -387,7 +366,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -49,7 +45,7 @@
  
        - name: Provision site
          run: |
-@@ -402,85 +376,6 @@
+@@ -398,85 +376,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
  
@@ -135,7 +131,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -497,16 +392,6 @@
+@@ -493,16 +392,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
