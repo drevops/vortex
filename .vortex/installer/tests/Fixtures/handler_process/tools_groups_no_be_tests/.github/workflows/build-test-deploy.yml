@@ -9,7 +9,7 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -407,80 +403,6 @@
+@@ -399,80 +395,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -90,7 +90,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -497,16 +419,6 @@
+@@ -489,16 +411,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
@@ -105,5 +105,5 @@
 -          files: |
 -            .logs/test_results/**/*.xml
  
-       - name: Upload exported codebase as an artifact
-         uses: actions/upload-artifact@__HASH__ # __VERSION__
+       - name: Setup tmate session
+         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}

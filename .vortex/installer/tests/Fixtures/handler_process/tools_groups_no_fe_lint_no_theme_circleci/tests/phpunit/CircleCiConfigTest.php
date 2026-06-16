@@ -48,7 +48,7 @@ class CircleCiConfigTest extends TestCase {
    */
   #[DataProvider('dataProviderDeployBranchRegex')]
   public function testDeployBranchRegex(string $branch, bool $expected = TRUE): void {
-    $pattern = $this->config['workflows']['commit']['jobs'][3]['deploy']['filters']['branches']['only'];
+    $pattern = $this->getCommitWorkflowJob('deploy')['filters']['branches']['only'];
     $result = preg_match($pattern, $branch);
     $this->assertEquals($expected, $result);
   }
@@ -222,7 +222,7 @@ class CircleCiConfigTest extends TestCase {
    */
   #[DataProvider('dataProviderDeployTagRegex')]
   public function testDeployTagRegex(string $branch, bool $expected = TRUE): void {
-    $pattern = $this->config['workflows']['commit']['jobs'][4]['deploy-tags']['filters']['tags']['only'];
+    $pattern = $this->getCommitWorkflowJob('deploy-tags')['filters']['tags']['only'];
     $result = preg_match($pattern, $branch);
     $this->assertEquals($expected, $result);
   }
@@ -256,6 +256,30 @@ class CircleCiConfigTest extends TestCase {
     yield ['2023-04-17.pre123', FALSE];
     yield ['2023-04-17.pre123post', FALSE];
     yield ['2023-04-17.123post', FALSE];
+  }
+
+  /**
+   * Get a commit workflow job configuration by its job name.
+   *
+   * Looks the job up by name rather than by position, so the assertions stay
+   * correct regardless of how many other jobs surround it in the workflow.
+   *
+   * @param string $name
+   *   The job name (the single key of a workflow job entry).
+   *
+   * @return mixed
+   *   The job configuration.
+   */
+  protected function getCommitWorkflowJob(string $name): mixed {
+    $jobs = $this->config['workflows']['commit']['jobs'];
+
+    foreach ($jobs as $job) {
+      if (is_array($job) && array_key_exists($name, $job)) {
+        return $job[$name];
+      }
+    }
+
+    throw new \RuntimeException(sprintf('Job "%s" not found in the commit workflow.', $name));
   }
 
 }

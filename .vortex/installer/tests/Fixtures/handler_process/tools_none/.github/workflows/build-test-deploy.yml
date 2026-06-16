@@ -41,7 +41,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -391,7 +366,6 @@
+@@ -383,7 +358,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -49,7 +49,7 @@
  
        - name: Provision site
          run: |
-@@ -402,85 +376,6 @@
+@@ -394,85 +368,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
  
@@ -135,7 +135,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -497,16 +392,6 @@
+@@ -489,16 +384,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
@@ -150,5 +150,5 @@
 -          files: |
 -            .logs/test_results/**/*.xml
  
-       - name: Upload exported codebase as an artifact
-         uses: actions/upload-artifact@__HASH__ # __VERSION__
+       - name: Setup tmate session
+         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}

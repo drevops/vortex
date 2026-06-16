@@ -1,4 +1,4 @@
-@@ -407,66 +407,6 @@
+@@ -399,66 +399,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -65,7 +65,7 @@
        - name: Test with Behat
          run: |
            # shellcheck disable=SC2170
-@@ -497,16 +437,6 @@
+@@ -489,16 +429,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
@@ -80,5 +80,5 @@
 -          files: |
 -            .logs/test_results/**/*.xml
  
-       - name: Upload exported codebase as an artifact
-         uses: actions/upload-artifact@__HASH__ # __VERSION__
+       - name: Setup tmate session
+         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}

@@ -8,3 +8,28 @@
  
        - name: Export DB
          run: |
+@@ -555,6 +558,24 @@
+ 
+       - name: Build stack
+         run: docker compose up --detach && docker builder prune --all --force
++
++      - name: Export built codebase
++        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
++        run: |
++          mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
++          docker compose cp -L cli:"/app/." "/tmp/workspace/code"
++          tar -C /tmp/workspace -cpf /tmp/artifacts/code.tar code
++          du -sh "/tmp/artifacts"
++
++      - name: Upload exported codebase as an artifact
++        uses: actions/upload-artifact@__HASH__ # __VERSION__
++        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
++        with:
++          name: code-artifact
++          path: "/tmp/artifacts/code.tar"
++          include-hidden-files: true
++          if-no-files-found: error
++          retention-days: 1
+ 
+   deploy:
+     runs-on: ubuntu-latest
