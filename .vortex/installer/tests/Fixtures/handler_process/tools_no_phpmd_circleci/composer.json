@@ -1,8 +1,0 @@
-@@ -51,7 +51,6 @@
-         "mikey179/vfsstream": "__VERSION__",
-         "palantirnet/drupal-rector": "__VERSION__",
-         "phpcompatibility/php-compatibility": "__VERSION__",
--        "phpmd/phpmd": "__VERSION__",
-         "phpspec/prophecy-phpunit": "__VERSION__",
-         "phpstan/extension-installer": "__VERSION__",
-         "phpstan/phpstan": "__VERSION__",

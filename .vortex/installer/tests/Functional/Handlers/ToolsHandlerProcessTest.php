@@ -127,28 +127,6 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'rector/rector',
       ])),
     ];
-    yield 'tools_no_phpmd' => [
-      static::cw(function ($test): void {
-          $tools = array_keys(Tools::getToolDefinitions('tools'));
-          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPMD]));
-          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
-      }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
-        'phpmd',
-        'phpmd/phpmd',
-      ])),
-    ];
-    yield 'tools_no_phpmd_circleci' => [
-      static::cw(function ($test): void {
-          $tools = array_keys(Tools::getToolDefinitions('tools'));
-          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPMD]));
-          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
-      }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
-        'phpmd',
-        'phpmd/phpmd',
-      ])),
-    ];
     yield 'tools_no_eslint' => [
       static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
@@ -295,7 +273,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     yield 'tools_groups_no_be_lint' => [
       static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR]));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPSTAN, Tools::RECTOR]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
@@ -304,8 +282,6 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'dealerdirect/phpcodesniffer-composer-installer',
         'drupal/coder',
         'squizlabs/php_codesniffer',
-        'phpmd',
-        'phpmd/phpmd',
         'phpstan',
         'phpstan/phpstan',
         'mglaman/phpstan-drupal',
@@ -316,7 +292,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     yield 'tools_groups_no_be_lint_circleci' => [
       static::cw(function ($test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
-          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::RECTOR]));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPSTAN, Tools::RECTOR]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
@@ -325,8 +301,6 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'dealerdirect/phpcodesniffer-composer-installer',
         'drupal/coder',
         'squizlabs/php_codesniffer',
-        'phpmd',
-        'phpmd/phpmd',
         'phpstan',
         'phpstan/phpstan',
         'mglaman/phpstan-drupal',

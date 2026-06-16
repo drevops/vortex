@@ -196,8 +196,6 @@ class Theme extends AbstractHandler {
 
     File::removeLineInFile($tmpDir . '/phpstan.neon', '- web/themes/custom');
 
-    File::removeLineInFile($tmpDir . '/phpmd.xml', '<exclude-pattern>*/web/themes/contrib/*</exclude-pattern>');
-
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Unit</directory>');
     File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');

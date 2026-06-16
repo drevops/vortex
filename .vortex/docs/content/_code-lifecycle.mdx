@@ -39,13 +39,13 @@
 │  │          ▼            │  │  Build Docker ──► Composer deps ──► NPM deps ──► Assets│   │
 │  │       Rector          │  │                          │                             │   │
 │  │          ▼            │  │                          ▼                             │   │
-│  │        PHPMD          │  │  Website setup                                         │   │
+│  │    Twig CS Fixer      │  │  Website setup                                         │   │
 │  │          ▼            │  │  Import cached DB ──► drush deploy ──► Custom scripts  │   │
-│  │    Twig CS Fixer      │  │                          │                             │   │
+│  │    Gherkin Lint       │  │                          │                             │   │
 │  │          ▼            │  │                          ▼                             │   │
-│  │    Gherkin Lint       │  │  Testing                                               │   │
-│  │          ▼            │  │  PHPUnit tests ──► Behat tests                         │   │
-│  │  ESLint / Stylelint   │  │                                                        │   │
+│  │  ESLint / Stylelint   │  │  Testing                                               │   │
+│  │                       │  │  PHPUnit tests ──► Behat tests                         │   │
+│  │                       │  │                                                        │   │
 │  │                       │  └────────────────────────────┬───────────────────────────┘   │
 │  └──────────┬────────────┘                               │                               │
 │             │                                            │                               │

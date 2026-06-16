@@ -18,16 +18,15 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_installed = static::getExpectedInstalled();
     yield 'tools - prompt - defaults' => [
       [Tools::id() => Key::ENTER],
-      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_defaults,
+      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_defaults,
     ];
     yield 'tools - discovery - all tools' => [
       [],
-      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPMD, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_installed,
+      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $dependencies = [
           'squizlabs/php_codesniffer' => '*',
-          'phpmd/phpmd' => '*',
           'phpstan/phpstan' => '*',
           'rector/rector' => '*',
           'phpunit/phpunit' => '*',
@@ -51,7 +50,6 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $dependencies = [
           'squizlabs/php_codesniffer' => '*',
-          'phpmd/phpmd' => '*',
           'phpstan/phpstan' => '*',
           'rector/rector' => '*',
           'phpunit/phpunit' => '*',
@@ -130,14 +128,6 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::dump(static::$sut . '/rector.php');
-      },
-    ];
-    yield 'tools - discovery - phpmd' => [
-      [],
-      [Tools::id() => [Tools::PHPMD]] + $expected_installed,
-      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        $test->stubVortexProject($config);
-        $test->stubComposerJsonDependencies(['phpmd/phpmd' => '*'], TRUE);
       },
     ];
     yield 'tools - discovery - phpunit' => [

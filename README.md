@@ -57,7 +57,7 @@ You need local, continuous integration, and hosting to behave identically and de
 
 **Vortex** is more than a code template. It ships three pieces that work together:
 
-- 📦 **Template** - the pre-configured Drupal project: containerized local environment (Docker Compose + Ahoy), GitHub Actions and CircleCI pipelines, Acquia and Lagoon hosting integrations, code quality tooling (PHPCS, PHPStan, PHPMD, Rector, Twig CS Fixer, ESLint), and a testing harness (PHPUnit, Behat with screenshot capture).
+- 📦 **Template** - the pre-configured Drupal project: containerized local environment (Docker Compose + Ahoy), GitHub Actions and CircleCI pipelines, Acquia and Lagoon hosting integrations, code quality tooling (PHPCS, PHPStan, Rector, Twig CS Fixer, ESLint), and a testing harness (PHPUnit, Behat with screenshot capture).
 - 📖 **Documentation** - centralized guidance at [vortextemplate.com](https://www.vortextemplate.com), a scaffold for your project-specific docs, and an onboarding checklist for new team members.
 - 🎛️ **Installer** - a standalone CLI that adds only the features you select, renames boilerplate to your project, and upgrades existing installations to newer **Vortex** versions.
 

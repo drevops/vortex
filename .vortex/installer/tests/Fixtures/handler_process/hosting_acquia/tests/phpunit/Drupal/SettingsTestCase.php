@@ -1,4 +1,4 @@
-@@ -194,7 +194,7 @@
+@@ -192,7 +192,7 @@
     * Require settings file.
     */
    protected function requireSettingsFile(array $pre_settings = [], array $pre_config = []): void {

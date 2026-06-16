@@ -50,7 +50,6 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 10 * 60);
     $this->cmd('docker compose exec -T cli vendor/bin/phpstan', txt: 'Lint code with PHPStan', tio: 10 * 60);
     $this->cmd('docker compose exec -T cli vendor/bin/rector', txt: 'Lint code with Rector', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml', txt: 'Lint code with PHPMD', tio: 10 * 60);
 
     $this->logSubstep('Linting front-end code');
     $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 10 * 60);
@@ -83,7 +82,6 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 10 * 60);
     $this->cmd('docker compose exec -T cli vendor/bin/phpstan', txt: 'Lint code with PHPStan', tio: 10 * 60);
     $this->cmd('docker compose exec -T cli vendor/bin/rector', txt: 'Lint code with Rector', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml', txt: 'Lint code with PHPMD', tio: 10 * 60);
 
     $this->logSubstep('Linting front-end code');
     $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 10 * 60);

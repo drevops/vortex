@@ -24,7 +24,6 @@
     "blacklist": [
         "box.json",
         "phpcs.xml",
-        "phpmd.xml",
         "phpstan.neon"
     ],
     "replacements": {

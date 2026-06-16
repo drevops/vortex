@@ -9,9 +9,9 @@
  !jest.config.js
  !package-lock.json
  !package.json
-@@ -47,7 +45,6 @@
+@@ -46,7 +44,6 @@
+ !patches.lock.json
  !phpcs.xml
- !phpmd.xml
  !phpstan.neon
 -!phpunit.xml
  !postcss.config.js

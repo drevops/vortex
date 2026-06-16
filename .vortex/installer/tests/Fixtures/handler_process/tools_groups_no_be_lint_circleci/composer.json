@@ -1,4 +1,4 @@
-@@ -37,27 +37,17 @@
+@@ -37,26 +37,17 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -16,7 +16,6 @@
          "mikey179/vfsstream": "__VERSION__",
 -        "palantirnet/drupal-rector": "__VERSION__",
 -        "phpcompatibility/php-compatibility": "__VERSION__",
--        "phpmd/phpmd": "__VERSION__",
          "phpspec/prophecy-phpunit": "__VERSION__",
 -        "phpstan/extension-installer": "__VERSION__",
 -        "phpstan/phpstan": "__VERSION__",
@@ -26,7 +25,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -80,12 +70,10 @@
+@@ -79,12 +70,10 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

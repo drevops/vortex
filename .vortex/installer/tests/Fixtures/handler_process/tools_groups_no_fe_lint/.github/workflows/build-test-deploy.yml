@@ -6,7 +6,7 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -170,10 +169,6 @@
+@@ -166,10 +165,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
  
@@ -17,7 +17,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -391,7 +386,6 @@
+@@ -387,7 +382,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -25,7 +25,7 @@
  
        - name: Provision site
          run: |
-@@ -401,11 +395,6 @@
+@@ -397,11 +391,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
