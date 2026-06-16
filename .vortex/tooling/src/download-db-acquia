@@ -255,13 +255,16 @@ else
     [ ! -d "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}" && mkdir -p "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}"
 
     task "Discovering backup URL."
-    # The Acquia API responds with a 302 redirect to the final S3 download URL.
-    # Capture the redirect URL without following it to avoid sending the
-    # Authorization header to S3 - the auth header is required only to query
-    # the Acquia API.
-    backup_url=$(curl -s -o /dev/null -w "%{redirect_url}" -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
+    # The Acquia API responds with a 200 and a JSON body containing the
+    # temporary, pre-signed S3 download URL under the "url" key. Fetch the
+    # body and extract that URL. The Authorization header is required only to
+    # query the Acquia API; the returned S3 URL is pre-signed and is fetched
+    # later without it.
+    backup_url_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
+    [ "${VORTEX_DEBUG-}" = "1" ] && note "Download action API response: ${backup_url_json}"
+    backup_url=$(echo "${backup_url_json}" | extract_json_value "url")
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup URL: ${backup_url}"
-    [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'." && exit 1
+    [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'. API response: ${backup_url_json}" && exit 1
 
     task "Downloading DB dump into file ${file_name_compressed}."
     curl --progress-bar -L "${backup_url}" -o "${file_name_compressed}"
