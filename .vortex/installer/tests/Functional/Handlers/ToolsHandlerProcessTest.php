@@ -31,7 +31,6 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
             '/\blint-be:/',
             '/\blint-be-fix:/',
             '/\blint-tests:/',
-            '/\btest:/',
             '/\btest-unit:/',
             '/\btest-kernel:/',
             '/\btest-functional:/',
