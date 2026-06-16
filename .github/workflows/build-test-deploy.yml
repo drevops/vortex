@@ -327,7 +327,7 @@ jobs:
           key: v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
   #;> !PROVISION_TYPE_PROFILE
 
-  build:
+  test:
     runs-on: ubuntu-latest
     #;< !PROVISION_TYPE_PROFILE
     needs: database
@@ -424,14 +424,6 @@ jobs:
 
       - name: Build stack
         run: docker compose up --detach && docker builder prune --all --force
-
-      - name: Export built codebase
-        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
-        run: |
-          mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
-          docker compose cp -L cli:"/app/." "/tmp/workspace/code"
-          tar -C /tmp/workspace -cpf /tmp/artifacts/code.tar code
-          du -sh "/tmp/artifacts"
 
       - name: Install development dependencies
         run: |
@@ -584,16 +576,6 @@ jobs:
             .logs/test_results/**/*.xml
       #;> TOOL_PHPUNIT_BEHAT
 
-      - name: Upload exported codebase as an artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
-        with:
-          name: code-artifact
-          path: "/tmp/artifacts/code.tar"
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 1
-
       - name: Setup tmate session
         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
         uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3
@@ -602,9 +584,78 @@ jobs:
           detached: true
 
   #;< DEPLOYMENT
+  # Build the deployable in parallel with the lint and test jobs. For artifact
+  # deployments, it exports the built codebase for the deploy job; for
+  # image-based hosting, a successful build validates that the production images
+  # are deployable.
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+
+    container:
+      # https://hub.docker.com/r/drevops/ci-runner
+      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
+      env:
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+        TZ: ${{ vars.TZ || 'UTC' }}
+        TERM: xterm-256color
+        # Disable strict host key checking for SSH connections.
+        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+
+    steps:
+      - name: Preserve $HOME set in the container
+        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Fix Git ownership permissions
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Process the codebase to run in CI
+        run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+
+      - name: Load environment variables from .env
+        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+
+      - name: Install Vortex tooling
+        run: ./scripts/vortex-tooling.sh
+
+      - name: Login to container registry
+        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+
+      - name: Build stack
+        run: docker compose up --detach && docker builder prune --all --force
+
+      #;< DEPLOY_TYPES_ARTIFACT
+      - name: Export built codebase
+        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        run: |
+          mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
+          docker compose cp -L cli:"/app/." "/tmp/workspace/code"
+          tar -C /tmp/workspace -cpf /tmp/artifacts/code.tar code
+          du -sh "/tmp/artifacts"
+
+      - name: Upload exported codebase as an artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        with:
+          name: code-artifact
+          path: "/tmp/artifacts/code.tar"
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+      #;> DEPLOY_TYPES_ARTIFACT
+
   deploy:
     runs-on: ubuntu-latest
-    needs: [build, lint]
+    needs: [test, lint, build]
     #;< !PROVISION_TYPE_PROFILE
     if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE

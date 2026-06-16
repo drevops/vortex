@@ -38,9 +38,9 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Downloads the latest DB version based on a caching strategy
 - Caches database dumps to speed up the follow-up runs
 
-### 3. Build
+### 3. Test
 
-- Runs after the `database` job
+- Runs after the `database` job, in parallel with the `build` job
 - Uses Docker Compose to set up the full environment
 - Validates Composer configuration
 - Assembles the codebase by installing dependencies
@@ -50,10 +50,17 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs BDD tests (distributed across all instances)
 - Collects and stores test results and artifacts
 
-### 4. Deployment
+### 4. Build
 
-- Runs after successful completion of both `build` and `lint` jobs
-- Uses the built codebase without development dependencies from the `build` step
+- Runs in parallel with the `lint` and `test` jobs (no dependencies)
+- Uses Docker Compose to build the production stack
+- For artifact-based hosting (e.g. Acquia), exports the built codebase for the deployment job
+- For image-based hosting (e.g. Lagoon), a successful build confirms that the production images are deployable
+
+### 5. Deployment
+
+- Runs after successful completion of the `lint`, `test`, and `build` jobs
+- Uses the built codebase without development dependencies from the `build` job
 - Adds required secrets and environment variables
 - Triggers a deployment using a router script
 
@@ -113,8 +120,8 @@ The continuous integration pipeline is triggered by:
 
 ## Test parallelism
 
-The build job runs across multiple parallel containers (2 by default) to speed
-up test execution. Since each container runs the full build and provision
+The test job runs across multiple parallel containers (2 by default) to speed
+up test execution. Since each container runs the full provision and test
 steps, the test workload is distributed to make the best use of each container.
 
 Code linting runs in a separate `lint` job and is not affected by test

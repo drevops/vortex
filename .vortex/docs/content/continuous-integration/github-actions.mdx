@@ -80,7 +80,7 @@ runs-on: ubuntu-latest-4-cores  # Options: ubuntu-latest, ubuntu-latest-4-cores,
 ### Change test parallelism
 
 To speed up test execution, you can increase the number of parallel runners in
-the build job matrix. See [Using a matrix for your jobs](https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs)
+the test job matrix. See [Using a matrix for your jobs](https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs)
 for more information:
 
 ```yaml
@@ -100,7 +100,7 @@ on how tests are distributed across containers.
 ### Manual deployment
 
 The workflow supports triggering deployments directly from the GitHub UI without
-running `lint`, `build`, or `test` jobs. Navigate to **Actions → Database, Build,
+running the `lint`, `test`, and `build` jobs. Navigate to **Actions → Database, Build,
 Test and Deploy → Run workflow** and provide:
 
 | Input           | Description                                                                      |

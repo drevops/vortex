@@ -27,7 +27,7 @@ in the Installation guide and select **CircleCI**.
 
 ### Update deployment branches
 
-All CI jobs (`database`, `lint`, `build`) run on every branch. The `deploy` job
+All CI jobs (`database`, `lint`, `test`, `build`) run on every branch. The `deploy` job
 only runs for specific branch patterns, controlled by a regex filter in the
 `workflows` section of `.circleci/config.yml`:
 
@@ -70,11 +70,11 @@ resource_class: large  # Options: small, medium, large, xlarge
 ### Change test parallelism
 
 To speed up test execution, you can increase the number of parallel runners in
-the `build` job. See [Running tests in parallel](https://circleci.com/docs/parallelism-faster-jobs/)
+the `test` job. See [Running tests in parallel](https://circleci.com/docs/parallelism-faster-jobs/)
 for more information:
 
 ```yaml
-build:
+test:
   parallelism: 4  # Run tests across 4 containers
 ```
 
