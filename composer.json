@@ -53,7 +53,6 @@
         "mikey179/vfsstream": "^1.6.12",
         "palantirnet/drupal-rector": "^0.21.2",
         "phpcompatibility/php-compatibility": "^10.0@alpha",
-        "phpmd/phpmd": "^2.15",
         "phpspec/prophecy-phpunit": "^2.5",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.2.2",

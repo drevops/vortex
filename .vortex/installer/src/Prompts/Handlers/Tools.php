@@ -16,8 +16,6 @@ class Tools extends AbstractHandler {
 
   const PHPCS = 'phpcs';
 
-  const PHPMD = 'phpmd';
-
   const PHPSTAN = 'phpstan';
 
   const RECTOR = 'rector';
@@ -66,7 +64,6 @@ class Tools extends AbstractHandler {
       self::ESLINT,
       self::JEST,
       self::PHPCS,
-      self::PHPMD,
       self::PHPSTAN,
       self::PHPUNIT,
       self::RECTOR,
@@ -303,20 +300,6 @@ class Tools extends AbstractHandler {
         ],
       ],
 
-      self::PHPMD => [
-        'title' => 'PHP Mess Detector',
-        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpmd/phpmd'),
-        'composer.json' => function (JsonManipulator $cj): void {
-          $cj->removeSubNode('require-dev', 'phpmd/phpmd');
-        },
-        'files' => ['phpmd.xml'],
-        'strings' => [
-          '/^.*phpmd.*\n?/m',
-          '/^.*@SuppressWarnings.*\n?/m',
-        ],
-        'ahoy' => ['ahoy cli vendor/bin/phpmd . text phpmd.xml'],
-      ],
-
       self::ESLINT => [
         'title' => 'ESLint',
         'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"eslint":') ||
@@ -464,7 +447,7 @@ class Tools extends AbstractHandler {
 
       // Tool groups with shared resources.
       'backend_linting' => [
-        'tools' => [self::PHPCS, self::PHPSTAN, self::RECTOR, self::PHPMD],
+        'tools' => [self::PHPCS, self::PHPSTAN, self::RECTOR],
         'ahoy' => [
           'ahoy lint-be-fix',
           'ahoy lint-be',

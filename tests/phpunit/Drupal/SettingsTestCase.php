@@ -131,8 +131,6 @@ abstract class SettingsTestCase extends TestCase {
    *
    * @param array $vars
    *   Array of environment variables.
-   *
-   * @SuppressWarnings("PHPMD.ElseExpression")
    */
   protected function setEnvVars(array $vars): void {
     // Unset the existing environment variable if not set in the test.
@@ -304,8 +302,6 @@ abstract class SettingsTestCase extends TestCase {
    *   Array to search in.
    * @param string $message
    *   Message to display on failure.
-   *
-   * @SuppressWarnings("PHPMD.ElseExpression")
    */
   protected function assertArraySubset(array $subset, array $haystack, string $message = ''): void {
     foreach ($subset as $key => $value) {

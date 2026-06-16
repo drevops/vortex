@@ -186,12 +186,6 @@ jobs:
           command: docker compose exec -T cli vendor/bin/rector --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_RECTOR
 
-      #;< TOOL_PHPMD
-      - run:
-          name: Lint code with PHPMD
-          command: docker compose exec -T cli vendor/bin/phpmd . text phpmd.xml || [ "${VORTEX_CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> TOOL_PHPMD
-
       - run:
           name: Lint code with Twig CS Fixer
           command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]

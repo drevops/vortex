@@ -360,7 +360,6 @@ YAML,
       ahoy cli vendor/bin/phpcs
 
       ahoy cli vendor/bin/rector --clear-cache --dry-run
-      ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
     usage: Lint front-end code.
@@ -382,7 +381,6 @@ YAML,
     cmd: |
       ahoy cli vendor/bin/phpcs
       ahoy cli vendor/bin/rector --clear-cache --dry-run
-      ahoy cli vendor/bin/phpmd . text phpmd.xml
 
   lint-fe:
     usage: Lint front-end code.
