@@ -180,7 +180,7 @@ jobs:
           paths:
             - /root/project/.data
 
-  build: &job_build
+  test: &job_test
     <<: *runner_config
     parallelism: 2
     steps:
@@ -224,14 +224,6 @@ jobs:
       - run:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
-
-      - run:
-          name: Export built codebase
-          command: |
-            echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
-            mkdir -p "/tmp/workspace/code"
-            docker compose cp -L cli:"/app/." "/tmp/workspace/code"
-            du -sh "/tmp/workspace/code"
 
       - run:
           name: Install development dependencies
@@ -347,11 +339,6 @@ jobs:
       - store_artifacts:
           path: *artifacts
 
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - code
-
   # DIDI-FI variant jobs
   vortex-dev-didi-database-fi:
     <<: *job-database
@@ -364,7 +351,7 @@ jobs:
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
 
   vortex-dev-didi-build-fi:
-    <<: *job_build
+    <<: *job_test
     environment:
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
@@ -382,7 +369,7 @@ jobs:
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
 
   vortex-dev-didi-build-ii:
-    <<: *job_build
+    <<: *job_test
     environment:
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii

@@ -100,6 +100,7 @@ class DeployTypes extends AbstractHandler {
       Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($types), $t . '/.env');
 
       if (!in_array(self::ARTIFACT, $types)) {
+        File::removeTokenAsync('DEPLOY_TYPES_ARTIFACT');
         File::remove($t . '/.gitignore.deployment');
         File::remove($t . '/.gitignore.artifact');
       }

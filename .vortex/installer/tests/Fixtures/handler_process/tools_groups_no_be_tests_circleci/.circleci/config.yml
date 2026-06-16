@@ -276,9 +276,10 @@ jobs:
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
 
-  # Build and test is a second step of the build. The testing is performed
-  # within the same job to save time on provisioning during the job.
-  build: &job_build
+  # Test the provisioned site. Runs in parallel with the lint and build jobs.
+  # Provisioning and testing happen within the same job to save time on
+  # re-provisioning.
+  test: &job_test
     <<: *runner_config
     parallelism: 2
     steps:
@@ -322,14 +323,6 @@ jobs:
           command: docker compose up --detach && docker builder prune --all --force
 
       - run:
-          name: Export built codebase
-          command: |
-            echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
-            mkdir -p "/tmp/workspace/code"
-            docker compose cp -L cli:"/app/." "/tmp/workspace/code"
-            du -sh "/tmp/workspace/code"
-
-      - run:
           name: Install development dependencies
           command: |
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
@@ -368,6 +361,31 @@ jobs:
 
       - store_artifacts:
           path: *artifacts
+
+  # Build the deployable in parallel with the lint and test jobs. For artifact
+  # deployments, it exports the built codebase for the deploy job; for
+  # image-based hosting, a successful build validates that the production images
+  # are deployable.
+  build:
+    <<: *runner_config
+    steps:
+      - checkout
+      - *step_process_codebase_for_ci
+      - *load_variables_from_dotenv
+
+      - run:
+          name: Install Vortex tooling
+          command: ./scripts/vortex-tooling.sh
+
+      - *step_setup_remote_docker
+
+      - run:
+          name: Login to container registry
+          command: ./vendor/drevops/vortex-tooling/src/login-container-registry
+
+      - run:
+          name: Build stack
+          command: docker compose up --detach && docker builder prune --all --force
 
       - persist_to_workspace:
           root: /tmp/workspace
@@ -456,16 +474,21 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build:
+      - test:
           requires:
             - database
           filters:
             tags:
               only: /.*/
+      - build:
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
-            - build
+            - test
             - lint
+            - build
           filters:
             branches:
               # Allowed branches:
@@ -483,8 +506,9 @@ workflows:
               ignore: /.*/
       - deploy-tags:
           requires:
-            - build
+            - test
             - lint
+            - build
           filters:
             branches:
               ignore: /.*/

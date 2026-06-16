@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests CircleCI post-build artifacts and test results.
  *
- * These tests verify that the build job properly generates and stores
+ * These tests verify that the test job properly generates and stores
  * artifacts and test results in CircleCI.
  */
 class PostBuildTest extends FunctionalTestCase {

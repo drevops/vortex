@@ -1,18 +1,7 @@
-@@ -260,6 +260,9 @@
-           VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
-           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
-         timeout-minutes: 30
-+        env:
-+          VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
-+          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
- 
-       - name: Export DB
-         run: |
-@@ -555,6 +558,24 @@
- 
+@@ -556,6 +556,24 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
-+
+ 
 +      - name: Export built codebase
 +        if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
 +        run: |
@@ -30,6 +19,7 @@
 +          include-hidden-files: true
 +          if-no-files-found: error
 +          retention-days: 1
- 
++
    deploy:
      runs-on: ubuntu-latest
+     needs: [test, lint, build]
