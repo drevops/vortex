@@ -1,12 +1,12 @@
-@@ -380,7 +380,6 @@
+@@ -286,7 +286,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 -          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
  
-       - name: Provision site
-         run: |
-@@ -390,11 +389,6 @@
+       # Execute commands after the database download finished: if a fresh DB
+       # dump was downloaded (cache miss), import it and export it back to
+@@ -325,11 +324,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30

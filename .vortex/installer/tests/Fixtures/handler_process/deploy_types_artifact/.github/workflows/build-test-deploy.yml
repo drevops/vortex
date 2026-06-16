@@ -1,4 +1,4 @@
-@@ -553,6 +553,24 @@
+@@ -488,6 +488,24 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
