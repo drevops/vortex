@@ -8,7 +8,7 @@
  
        - name: Export DB
          run: |
-@@ -555,6 +558,24 @@
+@@ -552,6 +555,24 @@
  
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force

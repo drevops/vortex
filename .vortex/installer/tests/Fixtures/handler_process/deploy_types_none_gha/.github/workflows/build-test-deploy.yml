@@ -1,11 +1,60 @@
-@@ -521,100 +521,3 @@
+@@ -503,149 +503,3 @@
          timeout-minutes: 120 # Cancel the action after 120 minutes, regardless of whether a connection has been established.
          with:
            detached: true
 -
+-  # Build the deployable in parallel with the lint and test jobs. For artifact
+-  # deployments, it exports the built codebase for the deploy job; for
+-  # image-based hosting, a successful build validates that the production images
+-  # are deployable.
+-  build:
+-    runs-on: ubuntu-latest
+-    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+-
+-    container:
+-      # https://hub.docker.com/r/drevops/ci-runner
+-      image: drevops/ci-runner:__VERSION__
+-      env:
+-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+-        TZ: ${{ vars.TZ || 'UTC' }}
+-        TERM: xterm-256color
+-        # Disable strict host key checking for SSH connections.
+-        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+-        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+-
+-    steps:
+-      - name: Preserve $HOME set in the container
+-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+-
+-      - name: Check out code
+-        uses: actions/checkout@__HASH__ # __VERSION__
+-        with:
+-          persist-credentials: false
+-
+-      - name: Fix Git ownership permissions
+-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+-
+-      - name: Process the codebase to run in CI
+-        run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
+-
+-      - name: Load environment variables from .env
+-        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+-
+-      - name: Install Vortex tooling
+-        run: ./scripts/vortex-tooling.sh
+-
+-      - name: Login to container registry
+-        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+-
+-      - name: Build stack
+-        run: docker compose up --detach && docker builder prune --all --force
+-
 -  deploy:
 -    runs-on: ubuntu-latest
--    needs: [build, lint]
+-    needs: [test, lint, build]
 -    if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
 -
 -    container:

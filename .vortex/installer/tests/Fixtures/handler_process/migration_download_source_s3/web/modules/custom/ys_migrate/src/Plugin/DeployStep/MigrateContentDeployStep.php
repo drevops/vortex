@@ -154,8 +154,6 @@ final class MigrateContentDeployStep extends DeployStepBase {
    *
    * @return bool
    *   TRUE when the probe table is queryable.
-   *
-   * @SuppressWarnings("PHPMD.StaticAccess")
    */
   protected function sourceDatabaseIntact(): bool {
     try {
