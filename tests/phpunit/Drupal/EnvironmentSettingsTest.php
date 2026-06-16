@@ -314,7 +314,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_SUT;
@@ -401,7 +408,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     // Verify settings overrides.
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = 'custom_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -453,7 +467,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
@@ -506,7 +527,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
@@ -562,7 +590,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
@@ -617,7 +652,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
@@ -669,7 +711,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
@@ -717,7 +766,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
@@ -765,7 +821,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_STAGE;
@@ -810,7 +873,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_PROD;
@@ -859,7 +929,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = 'custom_acquia_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -915,7 +992,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';
     $settings['config_vcs_directory'] = '/var/www/site-php/mysite/config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -971,7 +1055,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_test_branch';
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -1029,7 +1120,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_develop';
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -1087,7 +1185,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_master';
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -1143,7 +1248,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_production';
-    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;

@@ -29,8 +29,6 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertSutNotContains('_demo');
           $test->assertSutNotContains('counter_block');
-          $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/includes/modules/settings.generated_content.php');
-          $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/includes/modules/settings.testmode.php');
       }),
     ];
     yield 'custom_modules_no_search' => [
@@ -38,11 +36,7 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[CustomModules::id()] = [CustomModules::BASE, CustomModules::DEMO];
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      static::cw(function (AbstractHandlerProcessTestCase $test): void {
-          $test->assertSutNotContains('_search');
-          $test->assertFileExists(static::$sut . '/web/sites/default/includes/modules/settings.generated_content.php');
-          $test->assertFileExists(static::$sut . '/web/sites/default/includes/modules/settings.testmode.php');
-      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('_search')),
     ];
     yield 'custom_modules_none' => [
       static::cw(fn($test): array => $test->prompts[CustomModules::id()] = []),
@@ -50,8 +44,6 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('_base');
           $test->assertSutNotContains('_demo');
           $test->assertSutNotContains('_search');
-          $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/includes/modules/settings.generated_content.php');
-          $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/includes/modules/settings.testmode.php');
       }),
     ];
     yield 'custom_modules_search_without_solr' => [
