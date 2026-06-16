@@ -15,7 +15,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -175,117 +172,8 @@
+@@ -175,118 +172,8 @@
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -113,6 +113,7 @@
 -          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql
 -          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
 -          ./vendor/drevops/vortex-tooling/src/export-db db.sql
+-          docker compose cp -L cli:/app/.data/db.sql .data/db.sql
 -        timeout-minutes: 30
 -
 -      # Save cache per default branch and the timestamp.
@@ -133,7 +134,7 @@
  
      permissions:
        contents: read # Check out the repository.
-@@ -311,14 +199,6 @@
+@@ -312,14 +199,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -148,7 +149,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -345,29 +225,6 @@
+@@ -346,29 +225,6 @@
        - name: Install Vortex tooling
          run: ./scripts/vortex-tooling.sh
  
@@ -178,7 +179,7 @@
        - name: Login to container registry
          run: ./vendor/drevops/vortex-tooling/src/login-container-registry
  
-@@ -524,7 +381,6 @@
+@@ -525,7 +381,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
