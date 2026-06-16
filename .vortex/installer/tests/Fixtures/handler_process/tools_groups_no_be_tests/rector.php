@@ -1,12 +1,12 @@
-@@ -36,7 +36,6 @@
+@@ -38,7 +38,6 @@
  use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
  use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
  use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 -use Rector\PHPUnit\CodeQuality\Rector\Class_\YieldDataProviderRector;
+ use Rector\Privatization\Rector\ClassConst\PrivatizeFinalClassConstantRector;
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
- use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -82,8 +81,6 @@
+@@ -88,8 +87,6 @@
    // PHP version upgrade sets - modernizes syntax to PHP 8.4.
    // Includes all rules from PHP 5.3 through 8.4.
    ->withPhpSets(php84: TRUE)
@@ -15,7 +15,7 @@
    // Code quality improvement sets.
    ->withPreparedSets(
      codeQuality: TRUE,
-@@ -101,7 +98,6 @@
+@@ -107,7 +104,6 @@
    // Additional rules.
    ->withRules([
      DeclareStrictTypesRector::class,

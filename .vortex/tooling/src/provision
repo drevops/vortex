@@ -57,9 +57,6 @@ VORTEX_PROVISION_CONFIG_IMPORT_REPEAT="${VORTEX_PROVISION_CONFIG_IMPORT_REPEAT:-
 # the VORTEX_DB_FILE name.
 VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-}"
 
-# Directory with custom provision scripts.
-VORTEX_PROVISION_SCRIPTS_DIR="${VORTEX_PROVISION_SCRIPTS_DIR:-./scripts}"
-
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"
 
@@ -409,6 +406,25 @@ drush cache:rebuild
 pass "Cache was rebuilt."
 echo
 
+# Enable the deploy_steps runner and the always-on site modules before deploy
+# hooks, so their deploy step plugins and run-once deploy hooks run on this
+# provision. Site module names are project-specific (the installer renames
+# them), so resolve them by glob. Idempotent in every environment.
+task "Enabling site modules."
+drush pm:install deploy_steps
+for module_path in "${WEBROOT}"/modules/custom/*_base "${WEBROOT}"/modules/custom/*_migrate; do
+  if [ -d "${module_path}" ]; then
+    drush pm:install "$(basename "${module_path}")"
+  fi
+done
+pass "Enabled site modules."
+echo
+
+# Deploy step plugins run inside the `drush deploy:hook` child process below and
+# read deploy-time flags via getenv(); export the flags this script computes so
+# the child inherits them. The .env-sourced variables are already exported.
+export VORTEX_PROVISION_OVERRIDE_DB
+
 task "Running deployment hooks."
 drush deploy:hook
 pass "Completed deployment hooks."
@@ -420,23 +436,6 @@ if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
 else
   pass "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   echo
-fi
-
-# Run custom provision scripts.
-# The files should be located in VORTEX_PROVISION_SCRIPTS_DIR directory,
-# must have "provision-" prefix and ".sh" extension.
-if [ -d "${VORTEX_PROVISION_SCRIPTS_DIR}" ]; then
-  for file in "${VORTEX_PROVISION_SCRIPTS_DIR}"/provision-*.sh; do
-    if [ -f "${file}" ]; then
-      task "Running custom post-install script '${file}'."
-      echo
-      "${file}"
-      echo
-      pass "Completed running of custom post-install script '${file}'."
-      echo
-    fi
-  done
-  unset file
 fi
 
 if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then

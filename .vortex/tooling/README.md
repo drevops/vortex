@@ -38,41 +38,17 @@ provenance.
 
 ## Extending provisioning
 
-The `provision` script runs your own scripts after the core provisioning steps
-complete (database import or profile install, database updates, configuration
-import, cache rebuild, deployment hooks, and sanitisation). This is the
-recommended way to add project-specific provisioning logic - enabling modules,
-running migrations, seeding content, and so on - without touching the shipped
-scripts.
+Logic that must run on every deploy - enabling modules, running migrations,
+seeding content - is a `DeployStep` plugin discovered by the
+[`deploy_steps`](https://www.drupal.org/project/deploy_steps) module, not a
+shell script. The `provision` script runs `drush deploy:hook` after the core
+provisioning steps (database import or profile install, database updates,
+configuration import, cache rebuild), and the plugins run around it, grouped by
+phase and ordered by weight.
 
-Drop an executable script into your project's `scripts/` directory, named with
-the `provision-` prefix and the `.sh` extension. The `provision` script
-discovers and runs every matching file in filename order; use a two-digit
-number to sequence them (`provision-10-...`, `provision-20-...`).
-
-The layout looks like this:
-
-```text
-your-project/
-├── .ahoy.yml
-├── composer.json
-├── scripts/
-│   ├── provision-10-example.sh   # shipped example - copy or remove
-│   ├── provision-20-migration.sh # shipped example - copy or remove
-│   └── provision-30-custom.sh    # your own hook script
-├── vendor/
-│   └── drevops/vortex-tooling/src/provision   # runs each provision-*.sh in order
-├── web/                          # Drupal web root
-│   └── ...
-└── ...
-```
-
-The template ships runnable examples you can copy or remove -
-[`scripts/provision-10-example.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-example.sh)
-and
-[`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh).
-See the
-[provisioning documentation](https://www.vortextemplate.com/docs/drupal/provision#running-custom-scripts)
+Add a plugin in any enabled module's `src/Plugin/DeployStep/` namespace.
+See the [provisioning documentation](https://www.vortextemplate.com/docs/drupal/provision)
+and the [deployment documentation](https://www.vortextemplate.com/docs/deployment)
 for the full reference.
 
 ## Customisation

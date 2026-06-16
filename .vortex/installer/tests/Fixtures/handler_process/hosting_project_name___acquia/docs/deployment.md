@@ -28,6 +28,6 @@
 +- Only Technical Lead and Deployer user should have access to Acquia repository.
 +- Technical Lead should regularly clean up `feature/*` and `bugfix/*` branches.
 +
- ## Project-specific configuration
+ ## Repeatable deploy hooks
  
- <!-- Add project-specific deployment configuration below -->
+ Logic that must run on **every** deploy is a `DeployStep` plugin, not a
