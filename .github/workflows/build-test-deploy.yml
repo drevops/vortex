@@ -345,7 +345,7 @@ jobs:
         run: |
           if [ ! -f /tmp/download-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
           if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0; fi
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
           ./vendor/drevops/vortex-tooling/src/export-db db.sql
         timeout-minutes: 30
