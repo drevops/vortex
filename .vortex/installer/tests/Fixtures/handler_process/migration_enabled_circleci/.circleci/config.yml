@@ -257,6 +257,9 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/drevops/vortex-tooling/src/export-db db.sql
+            # In CI, /app is a named volume, so the in-container export must be
+            # copied back to the host to become the cached dump.
+            grep -q ^VORTEX_DB_IMAGE .env || docker compose cp -L cli:/app/.data/db.sql .data/db.sql
           no_output_timeout: 30m
 
       - save_cache:
