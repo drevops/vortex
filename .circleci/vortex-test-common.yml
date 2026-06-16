@@ -168,7 +168,7 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/drevops/vortex-tooling/src/export-db db.sql
-            grep -q ^VORTEX_DB_IMAGE .env || docker compose cp -L cli:/app/.data/db.sql .data/db.sql
+            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
       - save_cache:
