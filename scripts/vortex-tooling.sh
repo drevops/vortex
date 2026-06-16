@@ -71,6 +71,10 @@ fi
 if [ -n "${patches}" ] || [ -n "${patches_file}" ]; then
   composer --working-dir=vendor-temp require --no-update cweagans/composer-patches:^2
   composer --working-dir=vendor-temp config allow-plugins.cweagans/composer-patches true
+  # Inline 'extra.patches' paths (and paths inside a 'patches-file') are
+  # relative to the project root. Copy the project 'patches/' directory into
+  # the throwaway project so those paths resolve from inside 'vendor-temp/'.
+  [ -d patches ] && cp -R patches vendor-temp/
 fi
 
 composer --working-dir=vendor-temp install --no-dev --no-interaction
