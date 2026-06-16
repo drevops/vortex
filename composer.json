@@ -7,7 +7,7 @@
         "php": ">=8.4",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^2.0",
-        "drevops/vortex-tooling": "^1.1.0",
+        "drevops/vortex-tooling": "^1.2.0",
         "drupal/admin_toolbar": "^3.6.3",
         "drupal/clamav": "^2.1",
         "drupal/coffee": "^2.0.1",
@@ -42,7 +42,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/behat-format-progress-fail": "^1.4",
         "drevops/behat-screenshot": "^2.3.0",
-        "drevops/behat-steps": "^3.9.0",
+        "drevops/behat-steps": "^3.10.0",
         "drevops/phpcs-standard": "^0.7.0",
         "drupal/coder": "^9@alpha",
         "drupal/drupal-extension": "^6.0",
@@ -74,7 +74,7 @@
             "url": ".vortex/tooling",
             "options": {
                 "versions": {
-                    "drevops/vortex-tooling": "1.1.0"
+                    "drevops/vortex-tooling": "1.2.0"
                 }
             }
         }
