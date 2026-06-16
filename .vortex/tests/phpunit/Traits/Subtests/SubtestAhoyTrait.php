@@ -222,6 +222,11 @@ trait SubtestAhoyTrait {
     $this->syncToHost('config');
     $this->assertFilesWildcardExists('config/default/*.yml');
 
+    $this->logSubstep('Assert demo-only modules are excluded from the exported configuration');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', ['* generated_content', '* testmode'], 'Demo-only modules should be enabled after provisioning with demo content');
+    $this->assertFileNotContainsString('config/default/core.extension.yml', 'generated_content', 'Excluded module "generated_content" should not appear in the exported extension list');
+    $this->assertFileNotContainsString('config/default/core.extension.yml', 'testmode', 'Excluded module "testmode" should not appear in the exported extension list');
+
     $this->cmd('ahoy export-db db.sql', '* Exported database dump saved', 'Export database should complete successfully');
     $this->syncToHost('.data');
     $this->assertFileExists('.data/db.sql', 'Database dump file should exist after export');

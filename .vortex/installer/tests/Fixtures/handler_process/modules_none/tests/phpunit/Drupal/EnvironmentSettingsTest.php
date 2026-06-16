@@ -1,4 +1,4 @@
-@@ -70,18 +70,7 @@
+@@ -70,25 +70,12 @@
  
      $this->requireSettingsFile();
  
@@ -17,7 +17,14 @@
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $this->assertConfig($config);
  
-@@ -147,18 +136,7 @@
+     $settings['auto_create_htaccess'] = FALSE;
+     $settings['config_exclude_modules'] = [
+-      'generated_content',
+-      'testmode',
+     ];
+     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+     $settings['entity_update_batch_size'] = 50;
+@@ -150,18 +137,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -36,7 +43,16 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
  
-@@ -196,23 +174,9 @@
+@@ -168,8 +144,6 @@
+     // Verify settings overrides.
+     $settings['auto_create_htaccess'] = FALSE;
+     $settings['config_exclude_modules'] = [
+-      'generated_content',
+-      'testmode',
+     ];
+     $settings['config_sync_directory'] = 'custom_config';
+     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+@@ -202,29 +176,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -60,7 +76,13 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -248,23 +212,9 @@
+     $settings['config_exclude_modules'] = [
+-      'generated_content',
+-      'testmode',
+     ];
+     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+     $settings['entity_update_batch_size'] = 50;
+@@ -257,29 +215,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -84,7 +106,13 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -302,23 +252,9 @@
+     $settings['config_exclude_modules'] = [
+-      'generated_content',
+-      'testmode',
+     ];
+     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+     $settings['entity_update_batch_size'] = 50;
+@@ -314,29 +256,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -108,3 +136,9 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
+     $settings['config_exclude_modules'] = [
+-      'generated_content',
+-      'testmode',
+     ];
+     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+     $settings['entity_update_batch_size'] = 50;
