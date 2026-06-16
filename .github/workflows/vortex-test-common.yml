@@ -269,5 +269,9 @@ jobs:
       - name: Check GitHub Actions security with Zizmor
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
         with:
+          # Audit only the template's own workflows. The installer test fixtures
+          # carry generated workflow snapshots whose action SHAs are normalized
+          # to placeholders, which are not real pin targets.
+          inputs: .github/workflows/
           config: .vortex/tests/zizmor.yml
         continue-on-error: ${{ vars.VORTEX_CI_ZIZMOR_IGNORE_FAILURE == '1' }}
