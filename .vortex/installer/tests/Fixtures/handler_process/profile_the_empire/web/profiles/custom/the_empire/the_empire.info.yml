@@ -10,6 +10,7 @@ dependencies:
   - ckeditor5
   - config
   - content_moderation
+  - deploy_steps
   - field_layout
   - field_ui
   - help

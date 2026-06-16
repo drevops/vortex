@@ -877,7 +877,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->assertFileExists('web/sites/default/settings.migration.php');
-    $this->assertFileExists('scripts/provision-20-migration.sh');
+    $this->assertFileExists('web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContentDeployStep.php');
     $this->assertFileExists('web/modules/custom/ys_migrate/ys_migrate.info.yml');
     $this->assertFileExists('web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml');
     $this->assertFileContainsString('docker-compose.yml', 'database2');
@@ -946,10 +946,7 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         '* Provisioning site from the database dump file.',
-        '* Started migration operations.',
-        '* Importing migration source database.',
-        '* Imported migration source database.',
-        '* Finished migration operations.',
+        '* Running deploy step "Import migration content".',
       ],
       'Provision with migration should complete successfully',
     );
@@ -998,9 +995,8 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1.',
-        '! Importing migration source database.',
-        '! Starting migrations.',
+        '* Skipped deploy step "Import migration content": DRUPAL_MIGRATION_SKIP is set',
+        '! Running deploy step "Import migration content".',
       ],
       'Provision with DRUPAL_MIGRATION_SKIP=1 should skip all migration operations',
     );
@@ -1015,9 +1011,7 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Source database import is set to be skipped.',
-        '* Using existing migration source database.',
-        '! Importing migration source database.',
+        '* Running deploy step "Import migration content".',
       ],
       'Provision with DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0 should skip DB import but still run migrations',
     );

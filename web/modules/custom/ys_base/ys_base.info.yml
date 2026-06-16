@@ -3,3 +3,5 @@ type: module
 description: Base feature for YOURSITE site.
 core_version_requirement: ^11
 package: your_site
+dependencies:
+  - deploy_steps:deploy_steps

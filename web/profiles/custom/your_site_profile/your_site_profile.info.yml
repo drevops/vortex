@@ -10,6 +10,7 @@ dependencies:
   - ckeditor5
   - config
   - content_moderation
+  - deploy_steps
   - field_layout
   - field_ui
   - help
@@ -29,6 +30,9 @@ dependencies:
   - toolbar
   - views_ui
   - ys_base
+  #;< MIGRATION
+  - ys_migrate
+  #;> MIGRATION
 
 themes:
   - seven
