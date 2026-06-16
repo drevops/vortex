@@ -27,7 +27,7 @@ in the Installation guide and select **CircleCI**.
 
 ### Update deployment branches
 
-All CI jobs (`database`, `lint`, `test`, `build`) run on every branch. The `deploy` job
+All CI jobs (`lint`, `test`, `build`) run on every branch. The `deploy` job
 only runs for specific branch patterns, controlled by a regex filter in the
 `workflows` section of `.circleci/config.yml`:
 
