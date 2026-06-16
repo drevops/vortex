@@ -36,11 +36,23 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('config_update')),
     ];
+    yield 'modules_no_drupal_helpers' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('drupal_helpers');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/drupal_helpers')),
+    ];
     yield 'modules_no_environment_indicator' => [
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('environment_indicator');
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('environment_indicator')),
+    ];
+    yield 'modules_no_generated_content' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/generated_content')),
     ];
     yield 'modules_no_pathauto' => [
       static::cw(function ($test): void {
@@ -53,6 +65,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Modules::id()] = static::getModulesExcept('redirect');
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/redirect')),
+    ];
+    yield 'modules_no_reroute_email' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('reroute_email');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/reroute_email')),
     ];
     yield 'modules_no_robotstxt' => [
       static::cw(function ($test): void {
@@ -77,6 +95,18 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Modules::id()] = static::getModulesExcept('stage_file_proxy');
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('stage_file_proxy')),
+    ];
+    yield 'modules_no_testmode' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('testmode');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/testmode')),
+    ];
+    yield 'modules_no_xmlsitemap' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('xmlsitemap');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/xmlsitemap')),
     ];
     yield 'modules_no_seckit_shield_stage_file_proxy' => [
       static::cw(function ($test): void {

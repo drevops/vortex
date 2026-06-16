@@ -42,7 +42,9 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/coffee' => '^2.0.1',
           'drupal/config_split' => '^2.0.2',
           'drupal/config_update' => '^2@alpha',
+          'drupal/drupal_helpers' => '^2.0.1',
           'drupal/environment_indicator' => '^4.0.25',
+          'drupal/generated_content' => '^2.0.1',
           'drupal/pathauto' => '^1.14',
           'drupal/redirect' => '^1.12',
           'drupal/reroute_email' => '^2.3@RC',
@@ -50,6 +52,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/seckit' => '^2.0.3',
           'drupal/shield' => '^1.8',
           'drupal/stage_file_proxy' => '^3.1.6',
+          'drupal/testmode' => '^2.7.1',
           'drupal/xmlsitemap' => '^2.0',
         ]);
       },
