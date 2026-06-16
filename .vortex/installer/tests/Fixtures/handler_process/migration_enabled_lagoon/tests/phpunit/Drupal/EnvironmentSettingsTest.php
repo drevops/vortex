@@ -240,7 +240,7 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -298,7 +298,7 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -356,7 +356,7 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_master';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -412,7 +412,7 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_production';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
