@@ -49,7 +49,7 @@
    }
  
    /**
-@@ -338,6 +382,301 @@
+@@ -353,6 +397,319 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
@@ -87,7 +87,10 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = TRUE;
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = self::ENVIRONMENT_DEV;
@@ -135,7 +138,10 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = TRUE;
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = self::ENVIRONMENT_DEV;
@@ -183,7 +189,10 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = TRUE;
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = self::ENVIRONMENT_STAGE;
@@ -228,7 +237,10 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = TRUE;
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
 +    $settings['environment'] = self::ENVIRONMENT_PROD;
@@ -277,7 +289,10 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = TRUE;
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = 'custom_acquia_config';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -333,7 +348,10 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = TRUE;
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';
 +    $settings['config_vcs_directory'] = '/var/www/site-php/mysite/config';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';

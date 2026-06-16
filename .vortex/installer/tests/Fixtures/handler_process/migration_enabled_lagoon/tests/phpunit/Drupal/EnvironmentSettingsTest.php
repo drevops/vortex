@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -144,6 +324,13 @@
+@@ -147,6 +327,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,7 +199,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -340,6 +527,236 @@
+@@ -355,6 +542,248 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -240,7 +240,10 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -298,7 +301,10 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -356,7 +362,10 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_master';
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -412,7 +421,10 @@
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_production';
-+    $settings['config_exclude_modules'] = ['generated_content', 'testmode'];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
