@@ -776,3 +776,107 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "download-db-acquia: Backup URL discovery fails when response is missing the URL field" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Clean up any existing test files first to force full download workflow
+  rm -rf .data
+  mkdir -p .data
+
+  declare -a STEPS=(
+    # Assert initial message
+    "[INFO] Started database dump download from Acquia."
+
+    # Mock authentication token curl call with its message
+    "Retrieving authentication token."
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token", "expires_in":3600}'
+
+    # Mock application UUID curl call with its message
+    "Retrieving testapp application UUID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+
+    # Mock environment ID curl call with its message
+    "Retrieving prod environment ID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
+
+    # Mock backups curl call with its message
+    "Discovering latest backup ID for DB testdb."
+    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
+
+    # Mock backup URL curl call returning a JSON error body without a url key
+    "Discovering backup URL."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"message":"Resource not found"}'
+  )
+
+  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+
+  mocks="$(run_steps "setup")"
+  run .vortex/tooling/src/download-db-acquia
+  run_steps "assert" "${mocks}"
+
+  assert_failure
+
+  # Clean up
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "download-db-acquia: Backup URL discovery fails with malformed JSON response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Clean up any existing test files first to force full download workflow
+  rm -rf .data
+  mkdir -p .data
+
+  declare -a STEPS=(
+    # Assert initial message
+    "[INFO] Started database dump download from Acquia."
+
+    # Mock authentication token curl call with its message
+    "Retrieving authentication token."
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token", "expires_in":3600}'
+
+    # Mock application UUID curl call with its message
+    "Retrieving testapp application UUID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+
+    # Mock environment ID curl call with its message
+    "Retrieving prod environment ID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
+
+    # Mock backups curl call with its message
+    "Discovering latest backup ID for DB testdb."
+    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
+
+    # Mock backup URL curl call returning a non-JSON body
+    "Discovering backup URL."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # Internal Server Error'
+  )
+
+  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+
+  mocks="$(run_steps "setup")"
+  run .vortex/tooling/src/download-db-acquia
+  run_steps "assert" "${mocks}"
+
+  assert_failure
+
+  # Clean up
+  rm -rf .data
+
+  popd >/dev/null
+}
