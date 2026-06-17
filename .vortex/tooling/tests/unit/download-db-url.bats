@@ -125,3 +125,23 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "download-db-url: Fail when curl errors on an HTTP error" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # With -f, curl exits non-zero (22) on an HTTP 4xx/5xx; set -e must abort the
+  # script instead of leaving a corrupt dump and reporting success.
+  mock_curl=$(mock_command "curl")
+  mock_set_status "${mock_curl}" 22 1
+
+  export VORTEX_DOWNLOAD_DB_URL="http://example.com/missing.sql"
+  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
+
+  run .vortex/tooling/src/download-db-url
+  assert_failure
+  assert_output_contains "[INFO] Started database dump download from URL."
+  assert_output_not_contains "[ OK ] Finished database dump download from URL."
+
+  popd >/dev/null
+}
