@@ -27,7 +27,7 @@ download the latest database dump into the `.data` directory.
     # Download latest database dump (uses cache if downloaded today)
     ./vendor/drevops/vortex-tooling/src/download-db
     # Force a fresh download regardless of cache
-    VORTEX_DOWNLOAD_DB_FRESH=1 ./vendor/drevops/vortex-tooling/src/download-db
+    VORTEX_DOWNLOAD_DB_FRESH=1 VORTEX_DOWNLOAD_DB_FORCE=1 ./vendor/drevops/vortex-tooling/src/download-db
     ```
   </TabItem>
 </Tabs>
