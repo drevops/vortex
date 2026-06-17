@@ -67,9 +67,9 @@ web/themes/**/node_modules
 
 # Assets.
 web/themes/**/build
+.artifacts
 .data
 .logs
-.artifacts
 .phpunit.cache
 .twig-cs-fixer.cache
 
