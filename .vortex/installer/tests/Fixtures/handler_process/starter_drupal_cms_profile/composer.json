@@ -38,8 +38,8 @@
 +            "wikimedia/composer-merge-plugin": true
          },
          "audit": {
-             "ignore": {
-@@ -163,6 +170,19 @@
+             "abandoned": "report",
+@@ -159,6 +166,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
