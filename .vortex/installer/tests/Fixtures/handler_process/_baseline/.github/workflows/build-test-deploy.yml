@@ -302,7 +302,7 @@ jobs:
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
           ./vendor/drevops/vortex-tooling/src/export-db db.sql
-          docker compose cp -L cli:/app/.data/db.sql .data/db.sql
+          docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
         env:
           STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
