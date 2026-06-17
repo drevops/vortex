@@ -272,10 +272,10 @@ jobs:
           date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
-        run: echo 'v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+        run: echo 'v26.6.0-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
-      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+      # Bump the last segment of the version prefix below to force a cache reset.
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
@@ -283,9 +283,9 @@ jobs:
         with:
           path: .data
           # Use cached database from previous builds of this branch.
-          key: v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v26.6.0-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+            v26.6.0-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Login to container registry
@@ -361,7 +361,7 @@ jobs:
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.db_hash != hashFiles('.data') }}
         with:
           path: .data
-          key: v26.6.0-db11-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: v26.6.0-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Provision site

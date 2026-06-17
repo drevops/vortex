@@ -91,14 +91,19 @@ export command without the need for an intermediate database import step.
 ### Reset the cache
 
 If you need to force a fresh cache (e.g., to pull a new database dump before the
-daily cache refreshes), increment the version tag in the cache keys:
+daily cache refreshes), increment the last segment of the version tag in the
+cache keys:
 
 ```yaml
 # Before
-v25.11.0-db11
+v25.11.0
 # After
-v25.11.1-db11
+v25.11.1
 ```
+
+The version tag is the **Vortex** release version (CalVer). Bumping only its
+last segment keeps a project's own cache resets from colliding with the version
+shipped by a future **Vortex** update.
 
 ## Trigger conditions
 

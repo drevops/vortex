@@ -71,25 +71,18 @@ Work through each checklist item from the release process doc:
 5. **Theme dependencies** - Run `yarn upgrade` in `web/themes/custom/your_site_theme/`.
    Use yarn, NOT npm.
 6. **CI runner** - Check if `drevops/ci-runner` is at the latest version.
-7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>-db<DRUPAL_MAJOR>`.
-   Update both parts as follows in `.circleci/config.yml`,
+7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>` (CalVer).
+   Update it in `.circleci/config.yml`,
    `.circleci/vortex-test-common.yml`, and `.github/workflows/build-test-deploy.yml`:
-   - **`v<YY>.<M>.<minor>` prefix** - tracks the latest `uselagoon/*` container
+   - The `v<YY>.<M>.<minor>` prefix tracks the latest `uselagoon/*` container
      image tag (e.g. `v26.4.0` for `uselagoon/mysql-8.4:26.4.0`). Lagoon
      versions encode `YY.M.minor` (year, calendar month, minor), so this part
      effectively follows the current month's release. Bump it whenever the
      Lagoon containers were bumped during this release cycle.
-   - **`db<N>` suffix** - tracks the *Drupal core major version* (e.g. `db11`
-     for Drupal 11). It does NOT increment per release. Only change it when
-     the project moves between Drupal majors (e.g. `db10` → `db11`).
-   - Examples:
-     - Lagoon containers went `26.2.0` → `26.4.0`, still on Drupal 11:
-       `v26.2.0-db11` → `v26.4.0-db11`.
-     - Lagoon stayed at `26.4.0`, project moved to Drupal 12:
-       `v26.4.0-db11` → `v26.4.0-db12`.
-   - Do NOT increment the `db` suffix to "force a cache reset". That is the
-     job of changing the `v...` prefix. The `db<N>` suffix is a Drupal-major
-     marker, not a counter.
+   - Example: Lagoon containers went `26.2.0` → `26.4.0`:
+     `v26.2.0` → `v26.4.0`.
+   - To force a cache reset outside a Lagoon bump, bump the last segment
+     (e.g. `v26.4.0` → `v26.4.1`).
 8. **Documentation** - Run `cd .vortex && ahoy update-docs`. WARNING: this may
    revert cache version changes in CI configs - re-apply the cache version
    increment after running this command.
