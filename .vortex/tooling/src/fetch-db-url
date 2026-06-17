@@ -59,7 +59,7 @@ info "Started database dump download from URL."
 mkdir -p "${VORTEX_FETCH_DB_URL_DB_DIR}"
 
 note "Downloading database dump file."
-curl -Ls "${VORTEX_FETCH_DB_URL}" -o "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}"
+curl -fLs "${VORTEX_FETCH_DB_URL}" -o "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}"
 
 if [ "${VORTEX_FETCH_DB_URL%*.zip}" != "${VORTEX_FETCH_DB_URL}" ]; then
   note "Detecting zip file, preparing for extraction."

@@ -106,3 +106,42 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "fetch-db-url: Curl uses fail flag to error on HTTP errors" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_side_effect "${mock_curl}" "mkdir -p .data && touch .data/db.sql" 1
+
+  export VORTEX_FETCH_DB_URL="http://example.com/db.sql"
+  export VORTEX_FETCH_DB_URL_DB_DIR=".data"
+  export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
+
+  run .vortex/tooling/src/fetch-db-url
+  assert_success
+  # The -f flag makes curl exit non-zero on HTTP 4xx/5xx instead of writing
+  # the error body into the dump file and reporting success.
+  assert_contains "-fLs" "$(mock_get_call_args "${mock_curl}" 1)"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-url: Fail when curl errors on an HTTP error" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # With -f, curl exits non-zero (22) on an HTTP 4xx/5xx; set -e must abort the
+  # script instead of leaving a corrupt dump and reporting success.
+  mock_curl=$(mock_command "curl")
+  mock_set_status "${mock_curl}" 22 1
+
+  export VORTEX_FETCH_DB_URL="http://example.com/missing.sql"
+  export VORTEX_FETCH_DB_URL_DB_DIR=".data"
+  export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
+
+  run .vortex/tooling/src/fetch-db-url
+  assert_failure
+  assert_output_contains "[INFO] Started database dump download from URL."
+  assert_output_not_contains "[ OK ] Finished database dump download from URL."
+
+  popd >/dev/null
+}
