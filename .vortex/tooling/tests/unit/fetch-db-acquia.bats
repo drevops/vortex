@@ -54,13 +54,13 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Acquia."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -116,13 +116,13 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Acquia."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -179,13 +179,13 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Acquia."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -243,13 +243,13 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Acquia."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  # Don't set VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR and VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE to test defaults
-  unset VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  # Don't set VORTEX_FETCH_DB_ACQUIA_DB_DIR and VORTEX_FETCH_DB_ACQUIA_DB_FILE to test defaults
+  unset VORTEX_FETCH_DB_ACQUIA_DB_DIR VORTEX_FETCH_DB_ACQUIA_DB_FILE
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -272,14 +272,14 @@ load ../_helper.bash
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=invalid-key --data-urlencode client_secret=invalid-secret --data-urlencode grant_type=client_credentials # {"error":"invalid_client","error_description":"Client authentication failed"}'
 
     # Assert authentication failure message
-    "[FAIL] Authentication failed. Check VORTEX_DOWNLOAD_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_DOWNLOAD_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
+    "[FAIL] Authentication failed. Check VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="invalid-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="invalid-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="invalid-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="invalid-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -309,11 +309,11 @@ load ../_helper.bash
     "[FAIL] Application 'nonexistent-app' not found. Check application name and access permissions."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="nonexistent-app"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="nonexistent-app"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -347,11 +347,11 @@ load ../_helper.bash
     "[FAIL] Environment 'nonexistent-env' not found in application 'testapp'. Check environment name."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="nonexistent-env"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="nonexistent-env"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -389,11 +389,11 @@ load ../_helper.bash
     "[FAIL] Database 'nonexistent-db' not found in environment 'prod'. Check database name."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="nonexistent-db"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="nonexistent-db"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -431,11 +431,11 @@ load ../_helper.bash
     "[FAIL] No backups found for database 'testdb' in environment 'prod'. Try creating a backup first."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -454,7 +454,7 @@ load ../_helper.bash
   mkdir -p .data
 
   # Create .env.local with the fresh flag
-  echo "VORTEX_DOWNLOAD_DB_FRESH=1" >.env.local
+  echo "VORTEX_FETCH_DB_FRESH=1" >.env.local
 
   declare -a STEPS=(
     "[INFO] Started database dump download from Acquia."
@@ -506,14 +506,14 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Acquia."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_FRESH="1"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -553,14 +553,14 @@ load ../_helper.bash
     "[FAIL] Failed to create backup for database 'testdb'."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_FRESH="1"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -597,14 +597,14 @@ load ../_helper.bash
     "[FAIL] Unable to get notification URL for backup creation."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_FRESH="1"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -646,14 +646,14 @@ load ../_helper.bash
     "[FAIL] Backup creation failed."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_FRESH="1"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -702,16 +702,16 @@ load ../_helper.bash
     "[FAIL] Backup creation timed out after 15 seconds."
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_FRESH="1"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT="15"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
+  export VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT="15"
+  export VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -757,13 +757,13 @@ load ../_helper.bash
     "[FAIL] Unable to discover backup URL for backup ID 'backup-id-789'. API response: {\"url\":\"\"}"
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -809,13 +809,13 @@ load ../_helper.bash
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"message":"Resource not found"}'
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia
@@ -861,13 +861,13 @@ load ../_helper.bash
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # Internal Server Error'
   )
 
-  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-acquia

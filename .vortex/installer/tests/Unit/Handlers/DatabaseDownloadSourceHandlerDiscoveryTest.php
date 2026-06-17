@@ -21,21 +21,21 @@ class DatabaseDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscover
       [],
       [DatabaseDownloadSource::id() => DatabaseDownloadSource::FTP] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::FTP);
+        $test->stubDotenvValue('VORTEX_FETCH_DB_SOURCE', DatabaseDownloadSource::FTP);
       },
     ];
     yield 'database download source - discovery - s3' => [
       [],
       [DatabaseDownloadSource::id() => DatabaseDownloadSource::S3] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::S3);
+        $test->stubDotenvValue('VORTEX_FETCH_DB_SOURCE', DatabaseDownloadSource::S3);
       },
     ];
     yield 'database download source - discovery - invalid' => [
       [],
       $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', 'invalid_source');
+        $test->stubDotenvValue('VORTEX_FETCH_DB_SOURCE', 'invalid_source');
       },
     ];
   }

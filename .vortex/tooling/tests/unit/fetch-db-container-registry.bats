@@ -18,11 +18,11 @@ load ../_helper.bash
   # Mock the login script
   mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_success
@@ -47,11 +47,11 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/myapp'" 2
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_success
@@ -77,12 +77,12 @@ load ../_helper.bash
   # Mock the login script
   mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE_BASE="myorg/base"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="myorg/base"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_success
@@ -101,11 +101,11 @@ load ../_helper.bash
   # First call to image inspect succeeds (image found on host)
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_success
@@ -126,12 +126,12 @@ load ../_helper.bash
   # Mock the login script
   mock_set_side_effect "$(mock_command "./.vortex/tooling/src/login-container-registry")" "echo 'logged in'" 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  # Don't set VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY to test default
-  unset VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY VORTEX_CONTAINER_REGISTRY
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  # Don't set VORTEX_FETCH_DB_CONTAINER_REGISTRY to test default
+  unset VORTEX_FETCH_DB_CONTAINER_REGISTRY VORTEX_CONTAINER_REGISTRY
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_success
@@ -159,10 +159,10 @@ load ../_helper.bash
   export VORTEX_DB2_IMAGE="myorg/migration-db"
 
   # Set remaining required variables with index in the DB part.
-  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_success
@@ -173,54 +173,54 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER is missing" {
+@test "fetch-db-container-registry: Fail when VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER=""
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER=""
   # Also unset fallback variable
   unset VORTEX_CONTAINER_REGISTRY_USER
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
-  assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER."
+  assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER."
 
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS is missing" {
+@test "fetch-db-container-registry: Fail when VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS=""
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS=""
   # Also unset fallback variable
   unset VORTEX_CONTAINER_REGISTRY_PASS
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
-  assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS."
+  assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS."
 
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE is missing" {
+@test "fetch-db-container-registry: Fail when VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE=""
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE=""
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
 
   run .vortex/tooling/src/fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
-  assert_output_contains "[FAIL] Destination image name is not specified. Please provide VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>."
+  assert_output_contains "[FAIL] Destination image name is not specified. Please provide VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>."
 
   popd >/dev/null
 }

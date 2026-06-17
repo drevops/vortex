@@ -46,7 +46,7 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
         DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB_SOURCE', DatabaseDownloadSource::ACQUIA);
+        $test->stubDotenvValue('VORTEX_FETCH_DB_SOURCE', DatabaseDownloadSource::ACQUIA);
       },
     ];
     yield 'hosting provider - discovery - Lagoon' => [

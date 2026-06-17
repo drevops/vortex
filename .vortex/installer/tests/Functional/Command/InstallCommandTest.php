@@ -15,6 +15,8 @@ use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Schema\AgentHelp;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Tests\Helpers\TuiOutput;
+use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\OptionsResolver;
@@ -118,6 +120,10 @@ class InstallCommandTest extends FunctionalTestCase {
     $this->applicationGet()->add($build_command);
 
     $command_inputs['--' . InstallCommand::OPTION_DESTINATION] = self::$sut;
+
+    // Skip the demo database download as it is not needed for these tests and
+    // would otherwise attempt a real network download.
+    Env::put(Config::IS_DEMO_DB_DOWNLOAD_SKIP, '1');
 
     $this->applicationRun($command_inputs, [], $expect_failure);
 

@@ -208,7 +208,7 @@ trait SutTrait {
         //
         // The installer will load this environment variable, and it will
         // take precedence over the value in the .env file.
-        'VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
+        'VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       ],
       txt: 'Run the installer'
     );
@@ -262,7 +262,7 @@ trait SutTrait {
 
     $this->cmd(
       './vendor/drevops/vortex-tooling/src/fetch-db',
-      env: ['VORTEX_DOWNLOAD_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
+      env: ['VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database downloaded from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
 

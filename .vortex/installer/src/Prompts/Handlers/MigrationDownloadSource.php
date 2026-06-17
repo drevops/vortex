@@ -94,7 +94,7 @@ class MigrationDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return Env::getFromDotenv('VORTEX_DOWNLOAD_DB2_SOURCE', $this->dstDir);
+    return Env::getFromDotenv('VORTEX_FETCH_DB2_SOURCE', $this->dstDir);
   }
 
   /**
@@ -107,12 +107,12 @@ class MigrationDownloadSource extends AbstractHandler {
     if (!empty($this->response)) {
       $v = $this->getResponseAsString();
 
-      Env::writeValueDotenv('VORTEX_DOWNLOAD_DB2_SOURCE', $v, $t . '/.env');
+      Env::writeValueDotenv('VORTEX_FETCH_DB2_SOURCE', $v, $t . '/.env');
 
       // Lagoon identifies environments by branch name; the production branch
       // is `main`. The shared default (`prod`) is correct for Acquia only.
       if ($v === self::LAGOON) {
-        Env::writeValueDotenv('VORTEX_DOWNLOAD_DB2_ENVIRONMENT', 'main', $t . '/.env');
+        Env::writeValueDotenv('VORTEX_FETCH_DB2_ENVIRONMENT', 'main', $t . '/.env');
       }
     }
 

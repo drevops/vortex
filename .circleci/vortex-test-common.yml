@@ -19,7 +19,7 @@ aliases:
     working_directory: &working_directory ~/project
     environment:
       #;< !PROVISION_TYPE_PROFILE
-      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_FETCH_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       #;> !PROVISION_TYPE_PROFILE
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
@@ -148,7 +148,7 @@ jobs:
       # the download script skips itself, leaving no semaphore file behind.
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       #;< MIGRATION
@@ -184,7 +184,7 @@ jobs:
       - run:
           name: Export DB after download
           command: |
-            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
@@ -202,9 +202,9 @@ jobs:
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
             fi
             #;< MIGRATION
-            if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
+            if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
               docker compose exec -T cli mkdir -p .data
-              docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
+              docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
             fi
             #;> MIGRATION
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
@@ -325,8 +325,8 @@ jobs:
   vortex-dev-didi-database-fi:
     <<: *runner_config
     environment:
-      VORTEX_DOWNLOAD_DB_SOURCE: url
-      VORTEX_DOWNLOAD_DB_FORCE: 1
+      VORTEX_FETCH_DB_SOURCE: url
+      VORTEX_FETCH_DB_FORCE: 1
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
       VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
@@ -348,7 +348,7 @@ jobs:
 
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       - run:
@@ -362,7 +362,7 @@ jobs:
       - run:
           name: Export DB after download
           command: |
-            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
@@ -375,15 +375,15 @@ jobs:
     environment:
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-didi-database-fi
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
-      VORTEX_DOWNLOAD_DB_PROCEED: 0
+      VORTEX_FETCH_DB_PROCEED: 0
       DRUPAL_MIGRATION_SKIP: 1
 
   # DIDI-II variant jobs
   vortex-dev-database-ii:
     <<: *runner_config
     environment:
-      VORTEX_DOWNLOAD_DB_SOURCE: VORTEX_CONTAINER_REGISTRY
-      VORTEX_DOWNLOAD_DB_FORCE: 1
+      VORTEX_FETCH_DB_SOURCE: VORTEX_CONTAINER_REGISTRY
+      VORTEX_FETCH_DB_FORCE: 1
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
       VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
@@ -405,7 +405,7 @@ jobs:
 
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       - run:
@@ -419,7 +419,7 @@ jobs:
       - run:
           name: Export DB after download
           command: |
-            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
@@ -432,7 +432,7 @@ jobs:
     environment:
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x:vortex-dev-database-ii
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
-      VORTEX_DOWNLOAD_DB_PROCEED: 0
+      VORTEX_FETCH_DB_PROCEED: 0
       DRUPAL_MIGRATION_SKIP: 1
 
 ################################################################################

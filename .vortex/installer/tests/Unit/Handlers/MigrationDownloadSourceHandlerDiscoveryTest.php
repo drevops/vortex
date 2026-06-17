@@ -34,7 +34,7 @@ class MigrationDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscove
       ],
       [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::FTP] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB2_SOURCE', MigrationDownloadSource::FTP);
+        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', MigrationDownloadSource::FTP);
       },
     ];
     yield 'migration download source - discovery - s3' => [
@@ -43,7 +43,7 @@ class MigrationDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscove
       ],
       [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::S3] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB2_SOURCE', MigrationDownloadSource::S3);
+        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', MigrationDownloadSource::S3);
       },
     ];
     yield 'migration download source - discovery - invalid' => [
@@ -53,7 +53,7 @@ class MigrationDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscove
       ],
       [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_DOWNLOAD_DB2_SOURCE', 'invalid_source');
+        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', 'invalid_source');
       },
     ];
   }

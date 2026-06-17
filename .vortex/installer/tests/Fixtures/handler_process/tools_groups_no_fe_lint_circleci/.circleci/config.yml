@@ -22,7 +22,7 @@ aliases:
   - &runner_config
     working_directory: &working_directory ~/project
     environment:
-      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
+      VORTEX_FETCH_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
@@ -228,7 +228,7 @@ jobs:
       # the download script skips itself, leaving no semaphore file behind.
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       - run:
@@ -252,7 +252,7 @@ jobs:
       - run:
           name: Export DB after download
           command: |
-            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"

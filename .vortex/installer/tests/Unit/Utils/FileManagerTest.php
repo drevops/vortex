@@ -242,7 +242,7 @@ class FileManagerTest extends UnitTestCase {
     $data_dir = $dst . '/.data';
     mkdir($data_dir, 0777, TRUE);
     file_put_contents($data_dir . '/db.sql', 'existing');
-    file_put_contents($dst . '/.env', "VORTEX_DOWNLOAD_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
     $config = new Config('/tmp/root', $dst, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
@@ -257,7 +257,7 @@ class FileManagerTest extends UnitTestCase {
 
   public function testPrepareDemoDownloadsDatabase(): void {
     $dst = self::$sut;
-    file_put_contents($dst . '/.env', "VORTEX_DOWNLOAD_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
     $config = new Config('/tmp/root', $dst, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
@@ -284,7 +284,7 @@ class FileManagerTest extends UnitTestCase {
 
   public function testPrepareDemoCreatesDataDir(): void {
     $dst = self::$sut;
-    file_put_contents($dst . '/.env', "VORTEX_DOWNLOAD_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
     $config = new Config('/tmp/root', $dst, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
