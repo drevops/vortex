@@ -9,33 +9,33 @@
                    Push to remote branch ──► Open/Update Pull Request
                                             │
                                             ▼
-┌─ CI Pipeline ─────────────────────────────────────────────────────────────────────────────┐
-│                                                                                           │
-│  The Lint, Test and Build jobs run in parallel. Deployment runs after all three pass.     │
-│                                                                                           │
-│  Lint Job                                                                                 │
-│    Build CLI container ──► Composer validate / audit / normalize ──► Hadolint ──►         │
-│    DCLint ──► PHPCS ──► PHPStan ──► Rector ──► Twig CS Fixer ──►                          │
-│    Gherkin Lint ──► ESLint / Stylelint                                                    │
-│                                                                                           │
-│  Test Job                                                                                 │
-│    Restore the database cache. On the first build of the day (cache miss), one runner     │
-│    downloads the production database, exports a clean pre-provision dump and stores it    │
-│    in the cache for the rest of the day's builds (one runner only when parallel).         │
-│      ▼                                                                                    │
-│    Build Docker ──► Composer deps ──► NPM deps ──► Assets                                 │
-│      ▼                                                                                    │
-│    Import cached database ──► drush deploy ──► custom deploy steps                        │
-│      ▼                                                                                    │
-│    PHPUnit tests ──► Behat tests                                                          │
-│                                                                                           │
-│  Build Job                                                                                │
-│    Assemble and validate the deployable artifact                                          │
-│                                                                                           │
-│  Deployment Job (after Lint, Test and Build pass)                                         │
-│    Webhook URL ──► artifact package ──► Lagoon webhook ──► Docker container image         │
-│                                                                                           │
-└───────────────────────────────────────────────────────────────────────────────────────────┘
+┌─ CI Pipeline ──────────────────────────────────────────────────────────────────────────────┐
+│                                                                                            │
+│  The Lint, Test and Build jobs run in parallel. Deployment runs after all three pass.      │
+│                                                                                            │
+│  Lint Job                                                                                  │
+│    Build CLI container ──► Composer validate / audit / normalize ──► Hadolint ──►          │
+│    DCLint ──► PHPCS ──► PHPStan ──► Rector ──► Twig CS Fixer ──►                           │
+│    Gherkin Lint ──► ESLint / Stylelint                                                     │
+│                                                                                            │
+│  Test Job                                                                                  │
+│    Restore the database cache. On the first build of the day (cache miss), each runner     │
+│    downloads the production database and exports a clean pre-provision dump; only the      │
+│    primary runner stores it in the cache for the rest of the day's builds.                 │
+│      ▼                                                                                     │
+│    Build Docker ──► Composer deps ──► NPM deps ──► Assets                                  │
+│      ▼                                                                                     │
+│    Import cached database ──► drush deploy ──► custom deploy steps                         │
+│      ▼                                                                                     │
+│    PHPUnit tests ──► Behat tests                                                           │
+│                                                                                            │
+│  Build Job                                                                                 │
+│    Assemble and validate the deployable artifact                                           │
+│                                                                                            │
+│  Deployment Job (after Lint, Test and Build pass)                                          │
+│    Webhook URL ──► artifact package ──► Lagoon webhook ──► Docker container image          │
+│                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
                                             │
                                             ▼
                                      Hosting Platform
