@@ -77,6 +77,6 @@
  # Assets.
 -web/themes/**/build
 +docroot/themes/**/build
+ .artifacts
  .data
  .logs
- .artifacts
