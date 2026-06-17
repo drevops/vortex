@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
-use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
@@ -37,7 +36,7 @@ class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], 'antivirus' => [], 'cache' => [], 'search' => []]]));
       },
     ];
     yield 'migration - discovery - no database2 service' => [
@@ -45,7 +44,7 @@ class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Migration::id() => FALSE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database' => [], 'antivirus' => [], 'cache' => [], 'search' => []]]));
       },
     ];
     yield 'migration - discovery - no docker-compose' => [
@@ -59,7 +58,7 @@ class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [],
       $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], 'antivirus' => [], 'cache' => [], 'search' => []]]));
       },
     ];
   }
