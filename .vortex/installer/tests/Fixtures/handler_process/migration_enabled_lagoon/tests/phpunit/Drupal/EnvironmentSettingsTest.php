@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -144,6 +324,13 @@
+@@ -146,6 +326,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,7 +199,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -340,6 +527,236 @@
+@@ -350,6 +537,244 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -236,6 +236,8 @@
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
++    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
++    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
@@ -294,6 +296,8 @@
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
++    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
++    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
@@ -352,6 +356,8 @@
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
++    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
++    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
@@ -408,6 +414,8 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $config['system.performance']['css']['preprocess'] = TRUE;
 +    $config['system.performance']['js']['preprocess'] = TRUE;
++    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
++    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;

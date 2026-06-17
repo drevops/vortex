@@ -15,9 +15,9 @@
 -    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 900;
-     $this->assertConfig($config);
- 
-@@ -147,18 +136,7 @@
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+@@ -149,18 +138,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -34,9 +34,9 @@
 -    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 1800;
-     $this->assertConfig($config);
- 
-@@ -196,23 +174,9 @@
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+@@ -200,23 +178,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -57,10 +57,10 @@
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
- 
-     $settings['auto_create_htaccess'] = FALSE;
-@@ -248,23 +212,9 @@
+@@ -254,23 +218,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -81,10 +81,10 @@
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
- 
-     $settings['auto_create_htaccess'] = FALSE;
-@@ -302,23 +252,9 @@
+@@ -310,23 +260,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -105,6 +105,6 @@
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
- 
-     $settings['auto_create_htaccess'] = FALSE;
