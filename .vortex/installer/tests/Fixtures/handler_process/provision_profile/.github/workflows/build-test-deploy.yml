@@ -86,18 +86,18 @@
 -          echo "yes" | tee db_cache_fallback_yes
 -
 -      # Restore DB cache based on the cache strategy set by the cache keys below.
--      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+-      # Bump the last segment of the version prefix below to force a cache reset.
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
 -        uses: actions/cache/restore@__HASH__ # __VERSION__
 -        with:
 -          path: .data
--          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-${{ hashFiles('db_cache_timestamp') }}
 -          # Fallback to caching by default branch name only. Allows to use
 -          # cache from the branch build on the previous day.
 -          restore-keys: |
--            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
+-            __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback') }}-
 -
 -      - name: Download DB
 -        run: |
@@ -125,7 +125,7 @@
 -        if: env.db_hash != hashFiles('.data')
 -        with:
 -          path: .data
--          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -
    build:
      runs-on: ubuntu-latest
@@ -160,10 +160,10 @@
 -          date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 -
 -      - name: Show cache key for database caching
--        run: echo '__VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+-        run: echo '__VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 -
 -      # Restore DB cache based on the cache strategy set by the cache keys below.
--      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+-      # Bump the last segment of the version prefix below to force a cache reset.
 -      # Lookup cache based on the default branch and a timestamp. Allows
 -      # to use cache from the very first build on the day (sanitized database dump, for example).
 -      - name: Restore DB cache
@@ -172,9 +172,9 @@
 -          path: .data
 -          fail-on-cache-miss: true
 -          # Use cached database from previous builds of this branch.
--          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+-          key: __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -          restore-keys: |
--            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+-            __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 -
        - name: Login to container registry
          run: ./vendor/drevops/vortex-tooling/src/login-container-registry
