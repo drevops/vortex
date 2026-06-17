@@ -77,15 +77,22 @@ if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" != "container_registry" ]; then
   fi
 fi
 
-case "${VORTEX_DOWNLOAD_DB_SOURCE}" in
-  ftp) "$(dirname "${BASH_SOURCE[0]}")/download-db-ftp" ;;
-  url) "$(dirname "${BASH_SOURCE[0]}")/download-db-url" ;;
-  acquia) "$(dirname "${BASH_SOURCE[0]}")/download-db-acquia" ;;
-  lagoon) "$(dirname "${BASH_SOURCE[0]}")/download-db-lagoon" ;;
-  container_registry) "$(dirname "${BASH_SOURCE[0]}")/download-db-container-registry" ;;
-  s3) "$(dirname "${BASH_SOURCE[0]}")/download-db-s3" ;;
-  *) fail "Unsupported database download source ${VORTEX_DOWNLOAD_DB_SOURCE} provided." && exit 1 ;;
-esac
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "ftp" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-ftp"
+elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "url" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-url"
+elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "acquia" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-acquia"
+elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "lagoon" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-lagoon"
+elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "container_registry" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-container-registry"
+elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/download-db-s3"
+else
+  fail "Unsupported database download source ${VORTEX_DOWNLOAD_DB_SOURCE} provided."
+  exit 1
+fi
 
 ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" || true
 
