@@ -13,8 +13,8 @@
         "drupal/coffee": "^2.0.1",
         "drupal/config_split": "^2.0.2",
         "drupal/config_update": "^2@alpha",
-        "drupal/core-composer-scaffold": "~11.3.11",
-        "drupal/core-recommended": "~11.3.11",
+        "drupal/core-composer-scaffold": "~11.3.12",
+        "drupal/core-recommended": "~11.3.12",
         "drupal/drupal_helpers": "^2.0.1",
         "drupal/environment_indicator": "^4.0.25",
         "drupal/generated_content": "^2.0.1",
@@ -58,7 +58,7 @@
         "phpstan/phpstan": "^2.2.2",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.4.5",
+        "rector/rector": "^2.4.6",
         "vincentlanglet/twig-cs-fixer": "^3.14"
     },
     "conflict": {
@@ -100,10 +100,6 @@
             "tbachert/spi": true
         },
         "audit": {
-            "ignore": {
-                "GHSA-34xg-wgjx-8xph": "guzzlehttp/psr7: transitive via drupal/core-recommended (~2.8.0). Ignore until an upstream core/psr7 release moves off the affected 2.8.0/2.8.1.",
-                "GHSA-hq7v-mx3g-29hw": "guzzlehttp/psr7: transitive via drupal/core-recommended (~2.8.0). Ignore until an upstream core/psr7 release moves off the affected 2.8.0/2.8.1."
-            },
             "abandoned": "report",
             "block-insecure": true
         },
