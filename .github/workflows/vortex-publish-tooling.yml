@@ -2,12 +2,12 @@
 #
 # Publishes the contents of '.vortex/tooling/' from this monorepo to the
 # 'drevops/vortex-tooling' repository, mirroring the source branch name.
-# Runs only for 'main' and any branch whose name contains 'vortex-tooling'
-# so feature work that does not touch the tooling does not churn the
-# downstream repository. An empty commit is created when there are no file
-# changes so every source commit is reflected at the target. The published
-# commit subject matches the source commit subject; the body records
-# provenance.
+# Runs only for 'main', '2.x', and any branch whose name contains
+# 'vortex-tooling' so feature work that does not touch the tooling does not
+# churn the downstream repository. An empty commit is created when there are
+# no file changes so every source commit is reflected at the target. The
+# published commit subject matches the source commit subject; the body
+# records provenance.
 
 name: Vortex - Publish tooling
 
@@ -15,6 +15,7 @@ on:
   push:
     branches:
       - main
+      - '2.x'
       - '**vortex-tooling**'
 
 concurrency:
