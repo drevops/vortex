@@ -311,6 +311,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['address'] = 'webmaster@your-site-domain.example';
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -404,6 +408,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['address'] = 'webmaster@your-site-domain.example';
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['system.performance']['cache']['page']['max_age'] = 1800;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     // Verify settings overrides.
@@ -464,6 +472,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -524,6 +536,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -552,7 +568,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^example-site\.docker\.amazee\.io$',
-      '^nginx$',
+      '^webserver$',
     ];
     $this->assertSettings($settings);
   }
@@ -587,6 +603,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -649,6 +669,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -708,6 +732,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
@@ -763,6 +791,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
@@ -818,6 +850,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
@@ -870,6 +906,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = TRUE;
     $config['system.performance']['js']['preprocess'] = TRUE;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
@@ -926,6 +966,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
@@ -989,6 +1033,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
@@ -1051,6 +1099,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -1116,6 +1168,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -1181,6 +1237,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
@@ -1244,6 +1304,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = TRUE;
     $config['system.performance']['js']['preprocess'] = TRUE;
+    // phpcs:ignore #;< SERVICE_SEARCH
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
