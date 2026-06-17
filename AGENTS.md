@@ -40,7 +40,8 @@ ahoy info   # Show URLs and status
 ahoy login  # Get admin login URL
 
 # Build & Database
-ahoy fetch-db  # Download fresh database from remote
+ahoy fetch-db          # Download database from remote (cached for the day)
+ahoy fetch-db --fresh  # Force a fresh database download, bypassing the cache
 ahoy build        # Complete site rebuild
 ahoy provision    # Re-provision (import DB + apply config)
 ahoy import-db    # Import database from file without applying config
