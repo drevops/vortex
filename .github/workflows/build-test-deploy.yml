@@ -246,7 +246,7 @@ jobs:
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
-          known_hosts: unnecessary
+          known_hosts: ${{ vars.VORTEX_DOWNLOAD_DB_SSH_KNOWN_HOSTS || 'unnecessary' }}
         env:
           VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
 
@@ -667,7 +667,7 @@ jobs:
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
-          known_hosts: unnecessary
+          known_hosts: ${{ vars.VORTEX_DEPLOY_SSH_KNOWN_HOSTS || 'unnecessary' }}
         env:
           VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 
