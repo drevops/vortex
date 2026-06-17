@@ -69,6 +69,7 @@ web/themes/**/node_modules
 web/themes/**/build
 .data
 .logs
+.artifacts
 .phpunit.cache
 .twig-cs-fixer.cache
 
