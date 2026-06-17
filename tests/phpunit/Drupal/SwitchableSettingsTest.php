@@ -312,9 +312,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
   // phpcs:ignore #;< SERVICE_SEARCH
 
   /**
-   * Test Solr search server settings with defaults.
+   * Test Search API server settings with defaults.
    */
-  public function testSolrDefaults(): void {
+  public function testSearchApiDefaults(): void {
     $this->requireSettingsFile();
 
     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
@@ -324,9 +324,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   /**
-   * Test Solr search server settings with custom host and port.
+   * Test Search API server settings with custom host and port.
    */
-  public function testSolrCustom(): void {
+  public function testSearchApiCustom(): void {
     $this->setEnvVars([
       'SOLR_HOST' => 'custom_solr_host',
       'SOLR_PORT' => 9999,
