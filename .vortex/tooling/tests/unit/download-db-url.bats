@@ -106,3 +106,22 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "download-db-url: Curl uses fail flag to error on HTTP errors" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_side_effect "${mock_curl}" "mkdir -p .data && touch .data/db.sql" 1
+
+  export VORTEX_DOWNLOAD_DB_URL="http://example.com/db.sql"
+  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
+
+  run .vortex/tooling/src/download-db-url
+  assert_success
+  # The -f flag makes curl exit non-zero on HTTP 4xx/5xx instead of writing
+  # the error body into the dump file and reporting success.
+  assert_contains "-fLs" "$(mock_get_call_args "${mock_curl}" 1)"
+
+  popd >/dev/null
+}
