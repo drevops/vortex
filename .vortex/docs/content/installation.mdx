@@ -165,7 +165,11 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.s
 
 **Pin host keys (optional).** Strict host-key checking is disabled by default. To
 enable it, add the verified host keys as a `VORTEX_SSH_KNOWN_HOSTS` repository
-variable and map it into the workflow `env` block.
+variable and map it into the workflow `env` block. The steps that load the SSH
+keys skip their `known_hosts` file by default; set the
+`VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
+`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) repository variables to pin those
+host keys too.
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
