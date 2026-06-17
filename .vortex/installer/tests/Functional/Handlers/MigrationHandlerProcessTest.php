@@ -28,7 +28,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           // Token-controlled content preserved in files.
           $test->assertFileContainsString(static::$sut . '/.gitignore', 'settings.migration.php');
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'database2');
-          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'download-db2');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
           $test->assertFileContainsString(static::$sut . '/web/sites/default/settings.php', 'settings.migration.php');
           $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Download migration DB');
@@ -63,7 +63,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           // Token-controlled content removed from files.
           $test->assertFileNotContainsString(static::$sut . '/.gitignore', 'settings.migration.php');
           $test->assertFileNotContainsString(static::$sut . '/docker-compose.yml', 'database2');
-          $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'download-db2');
+          $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
           $test->assertFileNotContainsString(static::$sut . '/web/sites/default/settings.php', 'settings.migration.php');
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Download migration DB');

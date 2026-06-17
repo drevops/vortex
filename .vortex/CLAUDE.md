@@ -42,11 +42,22 @@ package](#tooling-package) section below.
 
 ## Tooling package
 
-`tooling/` is published as the standalone `drevops/vortex-tooling` Composer
-package - a read-only mirror split from `.vortex/tooling/`. Consumer projects
-install it and run the shipped scripts from `vendor/drevops/vortex-tooling/src/`.
-`tests/` and `playground/` are stripped from the published archive via
-`.gitattributes` `export-ignore`; only `src/` ships.
+This monorepo is the **source of truth** for the tooling: make every change to
+the shipped scripts here in `.vortex/tooling/`, never in the downstream repo.
+`.vortex/tooling/` is published automatically to the standalone
+`drevops/vortex-tooling` repository - a read-only mirror that is tagged and
+released from *its own* repo, not from here. Consumer projects install that
+Composer package and run the shipped scripts from
+`vendor/drevops/vortex-tooling/src/`. `tests/` and `playground/` are stripped
+from the published archive via `.gitattributes` `export-ignore`; only `src/`
+ships.
+
+Renaming or editing a tooling script is therefore a single-repo change made
+entirely here - the source script plus every in-repo caller, doc, and test.
+There is no second repo to edit and no release to wait on for local work: the
+root `composer.json` path repository resolves `drevops/vortex-tooling` to the
+in-tree copy (see Publishing below), and `vendor/drevops/vortex-tooling` is a
+symlink to `.vortex/tooling/`.
 
 **Tests**:
 

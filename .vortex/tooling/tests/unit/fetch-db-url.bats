@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for download-db-url.sh
+# Unit tests for fetch-db-url.sh
 #
 # shellcheck disable=SC2030,SC2031,SC2016
 
 load ../_helper.bash
 
-@test "download-db-url: Download non-zip file" {
+@test "fetch-db-url: Download non-zip file" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_curl=$(mock_command "curl")
@@ -16,7 +16,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/download-db-url
+  run .vortex/tooling/src/fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Downloading database dump file."
@@ -25,7 +25,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-url: Download zip file without password" {
+@test "fetch-db-url: Download zip file without password" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_curl=$(mock_command "curl")
@@ -40,7 +40,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD=""
 
-  run .vortex/tooling/src/download-db-url
+  run .vortex/tooling/src/fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Unzipping database dump file."
@@ -49,7 +49,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-url: Download zip file with password" {
+@test "fetch-db-url: Download zip file with password" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_curl=$(mock_command "curl")
@@ -64,7 +64,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
   export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD="secret123"
 
-  run .vortex/tooling/src/download-db-url
+  run .vortex/tooling/src/fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Unzipping password-protected database dump file."
@@ -73,14 +73,14 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-url: Fail when VORTEX_DOWNLOAD_DB_URL is missing" {
+@test "fetch-db-url: Fail when VORTEX_DOWNLOAD_DB_URL is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DOWNLOAD_DB_URL=""
   export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
   export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/download-db-url
+  run .vortex/tooling/src/fetch-db-url
   assert_failure
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_URL."
@@ -88,7 +88,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-url: Use default values for optional variables" {
+@test "fetch-db-url: Use default values for optional variables" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_curl=$(mock_command "curl")
@@ -98,7 +98,7 @@ load ../_helper.bash
   # Don't set VORTEX_DOWNLOAD_DB_URL_DB_DIR and VORTEX_DOWNLOAD_DB_URL_DB_FILE to test defaults
   unset VORTEX_DOWNLOAD_DB_URL_DB_DIR VORTEX_DOWNLOAD_DB_URL_DB_FILE VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD
 
-  run .vortex/tooling/src/download-db-url
+  run .vortex/tooling/src/fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump download from URL."
   assert_output_contains "Downloading database dump file."

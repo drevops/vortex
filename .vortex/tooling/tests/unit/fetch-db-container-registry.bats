@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for download-db-container-registry.sh
+# Unit tests for fetch-db-container-registry.sh
 #
 # shellcheck disable=SC2030,SC2031
 
 load ../_helper.bash
 
-@test "download-db-container-registry: Download image successfully when not found on host" {
+@test "fetch-db-container-registry: Download image successfully when not found on host" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -24,7 +24,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Not found myorg/myapp image on host."
@@ -34,7 +34,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Expand archived image when db.tar exists" {
+@test "fetch-db-container-registry: Expand archived image when db.tar exists" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Create mock archive file
@@ -53,7 +53,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Not found myorg/myapp image on host."
@@ -67,7 +67,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Use base image when archive not found and base image provided" {
+@test "fetch-db-container-registry: Use base image when archive not found and base image provided" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -84,7 +84,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Database container image was not found. Using base image myorg/base."
@@ -94,7 +94,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Skip download when image already exists on host" {
+@test "fetch-db-container-registry: Skip download when image already exists on host" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -107,7 +107,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Found myorg/myapp image on host."
@@ -116,7 +116,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Use default registry when not specified" {
+@test "fetch-db-container-registry: Use default registry when not specified" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -133,7 +133,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Downloading myorg/myapp image from the registry."
@@ -142,7 +142,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Resolve indexed variables with VORTEX_DB_INDEX" {
+@test "fetch-db-container-registry: Resolve indexed variables with VORTEX_DB_INDEX" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -164,7 +164,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_PASS="testpass"
   export VORTEX_DOWNLOAD_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "Downloading myorg/migration-db image from the registry."
@@ -173,7 +173,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER is missing" {
+@test "fetch-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
@@ -183,7 +183,7 @@ load ../_helper.bash
   unset VORTEX_CONTAINER_REGISTRY_USER
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER."
@@ -191,7 +191,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS is missing" {
+@test "fetch-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
@@ -201,7 +201,7 @@ load ../_helper.bash
   # Also unset fallback variable
   unset VORTEX_CONTAINER_REGISTRY_PASS
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS."
@@ -209,7 +209,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE is missing" {
+@test "fetch-db-container-registry: Fail when VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE=""
@@ -217,7 +217,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_PASS="testpass"
 
-  run .vortex/tooling/src/download-db-container-registry
+  run .vortex/tooling/src/fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image download."
   assert_output_contains "[FAIL] Destination image name is not specified. Please provide VORTEX_DOWNLOAD_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>."

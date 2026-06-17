@@ -87,11 +87,11 @@ which resolves to this connection.
 
 | Command | Description |
 |---------|-------------|
-| `ahoy download-db2` | Download the migration database dump |
-| `ahoy download-db2 --fresh` | Force a fresh download |
+| `ahoy fetch-db2` | Download the migration database dump |
+| `ahoy fetch-db2 --fresh` | Force a fresh download |
 | `ahoy db2` | Open the migration database in Sequel Ace |
 
-The `download-db2` command reuses the existing `download-db.sh` script with
+The `fetch-db2` command reuses the existing `fetch-db.sh` script with
 `VORTEX_DB_INDEX=2`, which makes all scripts resolve indexed variable names
 (e.g., `VORTEX_DOWNLOAD_DB2_SOURCE` instead of `VORTEX_DOWNLOAD_DB_SOURCE`,
 `VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so all existing download
@@ -187,7 +187,7 @@ alongside the primary database before running provision.
 2. Download the migration database:
 
    ```bash
-   ahoy download-db2
+   ahoy fetch-db2
    ```
 
 3. Build and provision:

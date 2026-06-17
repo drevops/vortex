@@ -259,7 +259,7 @@ function build_database_builder_job(string $name, array $env): string {
 
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       - run:
