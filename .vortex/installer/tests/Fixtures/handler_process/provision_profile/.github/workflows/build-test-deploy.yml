@@ -62,7 +62,7 @@
 -        uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
 -        with:
 -          key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
--          known_hosts: unnecessary
+-          known_hosts: ${{ vars.VORTEX_DOWNLOAD_DB_SSH_KNOWN_HOSTS || 'unnecessary' }}
 -        env:
 -          VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
 -
