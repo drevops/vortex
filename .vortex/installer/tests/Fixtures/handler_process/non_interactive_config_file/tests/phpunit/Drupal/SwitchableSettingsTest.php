@@ -75,6 +75,6 @@
 -  }
 -
 -  /**
-    * Test Shield config.
+    * Test Solr search server settings with defaults.
     */
-   #[DataProvider('dataProviderShield')]
+   public function testSolrDefaults(): void {

@@ -61,7 +61,7 @@
     * Test Config Split config.
     */
    #[DataProvider('dataProviderConfigSplit')]
-@@ -221,79 +165,6 @@
+@@ -221,108 +165,6 @@
          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
        ],
      ];
@@ -138,6 +138,35 @@
 -    unset($this->settings['bootstrap_container_definition']);
 -
 -    $this->assertSettingsContains($settings);
+-  }
+-
+-  /**
+-   * Test Solr search server settings with defaults.
+-   */
+-  public function testSolrDefaults(): void {
+-    $this->requireSettingsFile();
+-
+-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+-
+-    $this->assertConfigContains($config);
+-  }
+-
+-  /**
+-   * Test Solr search server settings with custom host and port.
+-   */
+-  public function testSolrCustom(): void {
+-    $this->setEnvVars([
+-      'SOLR_HOST' => 'custom_solr_host',
+-      'SOLR_PORT' => 9999,
+-    ]);
+-
+-    $this->requireSettingsFile();
+-
+-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'custom_solr_host';
+-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 9999;
+-
+-    $this->assertConfigContains($config);
    }
  
    /**
