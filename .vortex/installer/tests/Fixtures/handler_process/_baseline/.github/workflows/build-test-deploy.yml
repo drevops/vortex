@@ -261,20 +261,20 @@ jobs:
         run: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
       - name: Add SSH private key used to download database
-        if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
+        if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
         with:
-          key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
         env:
-          VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
+          VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
 
       # On the first build of the day (cache miss), download a fresh DB dump.
       # On subsequent builds, the restored cache already contains the dump and
       # the download script skips itself, leaving no semaphore file behind.
       - name: Download DB
         run: |
-          VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
         timeout-minutes: 30
 
@@ -297,7 +297,7 @@ jobs:
       # primary parallel runner pushes a refreshed database container image.
       - name: Export DB after download
         run: |
-          if [ ! -f /tmp/download-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
+          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
           if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"

@@ -146,7 +146,7 @@ final class MigrateContentDeployStep extends DeployStepBase {
       $dir = dirname($this->appRoot) . '/' . $dir;
     }
 
-    return $dir . '/' . ($this->env('VORTEX_DOWNLOAD_DB2_FILE') ?: 'db2.sql');
+    return $dir . '/' . ($this->env('VORTEX_FETCH_DB2_FILE') ?: 'db2.sql');
   }
 
   /**

@@ -13,9 +13,9 @@
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
 +          fi
-+          if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
++          if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
 +            docker compose exec -T cli mkdir -p .data
-+            docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
++            docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
