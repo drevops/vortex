@@ -880,3 +880,67 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "download-db-acquia: Redact token in debug output" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm -rf .data
+  mkdir -p .data
+
+  declare -a STEPS=(
+    "[INFO] Started database dump download from Acquia."
+
+    "Retrieving authentication token."
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token", "expires_in":3600}'
+
+    "Retrieving testapp application UUID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+
+    "Retrieving prod environment ID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
+
+    "Discovering latest backup ID for DB testdb."
+    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
+
+    "Discovering backup URL."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz"}'
+
+    "Downloading DB dump into file .data/testdb_backup_backup-id-789.sql.gz."
+    '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o .data/testdb_backup_backup-id-789.sql.gz # 0 #  # echo "CREATE TABLE test (id INT);" | gzip > .data/testdb_backup_backup-id-789.sql.gz'
+
+    "Expanding DB file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
+    "@gunzip -t .data/testdb_backup_backup-id-789.sql.gz # 0"
+    "@gunzip -c .data/testdb_backup_backup-id-789.sql.gz # 0 # CREATE TABLE test (id INT);"
+
+    'Renaming file ".data/testdb_backup_backup-id-789.sql" to ".data/db.sql".'
+    '@mv .data/testdb_backup_backup-id-789.sql .data/db.sql # 0 #  # echo "CREATE TABLE test (id INT);" > .data/db.sql'
+
+    "[ OK ] Finished database dump download from Acquia."
+  )
+
+  export VORTEX_DEBUG=1
+  export VORTEX_DOWNLOAD_DB_ACQUIA_KEY="test-key"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="prod"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
+
+  mocks="$(run_steps "setup")"
+  run .vortex/tooling/src/download-db-acquia
+  run_steps "assert" "${mocks}"
+
+  assert_success
+
+  # The access token and the raw token response must never appear verbatim in
+  # debug output; only the redacted placeholders should.
+  assert_output_contains "Token API response received (token redacted)."
+  assert_output_contains "Access token extracted (value redacted)."
+  assert_output_not_contains "Token API response: {"
+  assert_output_not_contains "Extracted token: test-token"
+
+  rm -rf .data
+
+  popd >/dev/null
+}
