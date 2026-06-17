@@ -216,6 +216,23 @@ git cherry-pick -x C
 
    Make the edits, then commit in the project's style (past-tense, ends with a period, code refs in single quotes), with a body line naming the source commit, e.g. `Forward-ported from main C.`
 
+**Fixture-heavy commits** - any commit that also touches `.vortex/installer/tests/Fixtures/` (most template changes do). `2.x` has already regenerated those fixtures for its own work, so the commit's fixture hunks conflict on a cherry-pick even when the source applies cleanly. Never hand-merge fixture hunks - apply the **source files only** and let Step 8 regenerate the fixtures:
+
+- For a clean (un-diverged) source file, take it straight from the source commit instead of cherry-picking the whole thing:
+
+  ```bash
+  git checkout C -- path/to/source/file
+  ```
+
+  This sidesteps the cherry-pick and its fixture conflicts entirely. Confirm with `git status` that only source paths are staged, then commit.
+- If a `git cherry-pick` is already in progress and halted on fixture conflicts, discard the fixture changes (keeping the applied source), then continue:
+
+  ```bash
+  git checkout HEAD -- .vortex/installer/tests/Fixtures
+  ```
+
+The port commit must carry **source only**; Step 8's `update-snapshots` rebuilds every cascaded fixture in one pass, so any fixture delta inside a port commit is wrong and will fight the regeneration.
+
 After each commit, sanity-check it landed as intended:
 
 ```bash
@@ -316,6 +333,7 @@ Decision values: `applied`, `skipped`, `deferred-revisit` (re-surface next run),
 - About to background `ahoy update-snapshots`: stop. Foreground only - backgrounding leaves a partial branch.
 - About to skip snapshot regeneration after touching template files: stop. CI will fail on stale fixtures.
 - About to squash several ported commits into one: stop. Keep 1:1 with the source for traceability.
+- About to bring a commit's `.vortex/installer/tests/Fixtures/` hunks into a port commit: stop. Apply source only; Step 8's `update-snapshots` regenerates fixtures.
 - About to re-surface a commit the ledger marks `skipped` or `applied`: stop. Read the ledger in Step 3 first.
 - About to stage anything under `.artifacts/`: stop. The ledger and analysis are local-only.
 - About to cherry-pick a merge commit: stop. Vortex squash-merges PRs, so candidates should be single non-merge commits; a merge commit in the list means something is off - investigate before applying.
