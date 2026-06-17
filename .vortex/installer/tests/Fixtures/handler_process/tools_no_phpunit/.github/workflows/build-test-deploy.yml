@@ -1,4 +1,4 @@
-@@ -396,66 +396,6 @@
+@@ -331,66 +331,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -65,7 +65,7 @@
        - name: Test with Behat
          run: |
            # shellcheck disable=SC2170
-@@ -486,16 +426,6 @@
+@@ -421,16 +361,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

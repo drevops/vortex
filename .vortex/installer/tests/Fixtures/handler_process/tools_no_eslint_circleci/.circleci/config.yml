@@ -18,9 +18,6 @@ aliases:
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
-  # Schedule to run nightly database build (to cache the database for the next day).
-  - &nightly_db_schedule "0 18 * * *"
-
   # Shared runner container configuration applied to each job.
   - &runner_config
     working_directory: &working_directory ~/project
@@ -180,101 +177,6 @@ jobs:
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
-  # Database handling is a first step of the build.
-  # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
-  #   should be downloaded for the current build. Usually, a daily database dump
-  #   is sufficient for development activities.
-  # - $VORTEX_CI_DB_CACHE_FALLBACK is used if the cache did not match $VORTEX_CI_DB_CACHE_TIMESTAMP.
-  #   This allows to rely on the cache from the previous days within the same branch.
-  database: &job-database
-    <<: *runner_config
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-
-      - add_ssh_keys:
-          fingerprints:
-            - *db_ssh_fingerprint
-
-      - checkout
-      - *step_process_codebase_for_ci
-      - *load_variables_from_dotenv
-
-      - run:
-          name: Install Vortex tooling
-          command: ./scripts/vortex-tooling.sh
-
-      - *step_setup_remote_docker
-
-      - run:
-          name: Create cache keys for database caching as files
-          command: |
-            echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee /tmp/db_cache_branch
-            echo "${VORTEX_CI_DB_CACHE_FALLBACK/no/${CIRCLE_BUILD_NUM}}" | tee /tmp/db_cache_fallback
-            date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee /tmp/db_cache_timestamp
-            echo "yes" | tee /tmp/db_cache_fallback_yes
-
-      - restore_cache:
-          keys:
-            # Restore DB cache based on the cache strategy set by the cache keys below.
-            # https://circleci.com/docs/2.0/caching/#restoring-cache
-            # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
-            # Lookup cache based on the default branch and a timestamp. Allows
-            # to use cache from the very first build on the day (sanitized database dump, for example).
-            - __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-            # Fallback to caching by default branch name only. Allows to use
-            # cache from the branch build on the previous day.
-            - __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback" }}-
-
-      - run:
-          name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
-          no_output_timeout: 30m
-
-      # Execute commands after database download script finished: if the
-      # DB dump was downloaded - build the site (to ensure that the DB dump
-      # is valid) and export the DB using selected method (to support
-      # "file-to-image" or "image-to-file" conversions).
-      # Note that configuration changes and the DB updates are not applied, so
-      # the database will be cached in the same state as downloaded.
-      - run:
-          name: Export DB after download
-          command: |
-            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
-            ./vendor/drevops/vortex-tooling/src/login-container-registry
-            docker compose up --detach && sleep 15
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
-            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
-            ./vendor/drevops/vortex-tooling/src/export-db db.sql
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
-          no_output_timeout: 30m
-
-      - save_cache:
-          # Save cache per default branch and the timestamp.
-          # The cache will not be saved if it already exists.
-          # Note that the cache fallback flag is enabled for this case in order
-          # to save cache even if the fallback is not used when restoring it.
-          key: __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-          paths:
-            - /root/project/.data
-
-  # Nightly database job. Same as above, but with additional variables set.
-  # Triggered by the "nightly-db" schedule configured in CircleCI UI.
-  database-nightly:
-    <<: *job-database
-    environment:
-      VORTEX_DOWNLOAD_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
-      VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
-      # Enforce fresh DB build (do not rely on fallback caches).
-      VORTEX_CI_DB_CACHE_FALLBACK: 'no'
-      # Always use fresh base image for the database (if database-in-image storage is used).
-      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:__VERSION__
-      # Deploy container image (if database-in-image storage is used).
-      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
-      # Do not build the Drupal front-end.
-      VORTEX_FRONTEND_BUILD_SKIP: 1
-
   # Test the provisioned site. Runs in parallel with the lint and build jobs.
   # Provisioning and testing happen within the same job to save time on
   # re-provisioning.
@@ -284,6 +186,10 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+
+      - add_ssh_keys:
+          fingerprints:
+            - *db_ssh_fingerprint
 
       - checkout
       - *step_process_codebase_for_ci
@@ -317,6 +223,14 @@ jobs:
           name: Login to container registry
           command: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
+      # On the first build of the day (cache miss), download a fresh DB dump.
+      # On subsequent builds, the restored cache already contains the dump and
+      # the download script skips itself, leaving no semaphore file behind.
+      - run:
+          name: Download DB
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
+          no_output_timeout: 30m
+
       - run:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
@@ -329,6 +243,25 @@ jobs:
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
+      # Execute commands after the database download finished: if a fresh DB
+      # dump was downloaded (cache miss), import it and export it back to
+      # produce a clean dump cached for the rest of the day's builds. This also
+      # validates the dump and supports "file-to-image" / "image-to-file"
+      # conversions. Configuration changes and DB updates are not applied, so
+      # the cached database stays in the same state as downloaded. Only the
+      # primary parallel runner pushes a refreshed database container image.
+      - run:
+          name: Export DB after download
+          command: |
+            [ ! -f /tmp/download-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0
+            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
+            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            ./vendor/drevops/vortex-tooling/src/export-db db.sql
+            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+          no_output_timeout: 30m
+
       - run:
           name: Provision site
           command: |
@@ -338,6 +271,27 @@ jobs:
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
           no_output_timeout: 30m
+
+      # Save the clean DB dump to cache from the primary parallel runner only.
+      # save_cache has no runtime condition, so drop the cached path on the
+      # non-primary runners to make their save a no-op and let only node 0 store
+      # the cache. The provision step above already consumed the dump.
+      - run:
+          name: Keep DB cache only on the primary parallel runner
+          command: |
+            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ]; then
+              echo "Removing .data on non-primary node ${CIRCLE_NODE_INDEX} so only node 0 saves the DB cache."
+              rm -rf .data
+            fi
+
+      - save_cache:
+          # Save cache per default branch and the timestamp.
+          # The cache will not be saved if it already exists.
+          # Note that the cache fallback flag is enabled for this case in order
+          # to save cache even if the fallback is not used when restoring it.
+          key: __VERSION__{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          paths:
+            - /root/project/.data
 
       - run:
           name: Test with Jest
@@ -515,17 +469,11 @@ workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
     jobs:
-      - database:
-          filters:
-            tags:
-              only: /.*/
       - lint:
           filters:
             tags:
               only: /.*/
       - test:
-          requires:
-            - database
           filters:
             tags:
               only: /.*/
@@ -566,15 +514,3 @@ workflows:
               # - __VERSION__, __VERSION__ (per https://semver.org/)
               # - 2023-04-17, 2023-04-17.123 (date-based)
               only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
-
-  # Nightly database workflow runs overnight to capture fresh database and cache it.
-  nightly-db:
-    triggers:
-      - schedule:
-          cron: *nightly_db_schedule
-          filters:
-            branches:
-              only:
-                - develop
-    jobs:
-      - database-nightly

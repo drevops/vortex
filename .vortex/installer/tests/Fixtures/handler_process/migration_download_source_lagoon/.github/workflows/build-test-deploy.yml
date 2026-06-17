@@ -1,14 +1,14 @@
-@@ -261,6 +261,9 @@
+@@ -278,6 +278,9 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
 +      - name: Download migration DB
 +        run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db
 +
-       - name: Export DB
-         run: |
-           if [ ! -f /tmp/download-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
-@@ -387,6 +390,10 @@
+       - name: Build stack
+         run: docker compose up --detach && docker builder prune --all --force
+ 
+@@ -322,6 +325,10 @@
            if [ -f .data/db.sql ]; then
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql

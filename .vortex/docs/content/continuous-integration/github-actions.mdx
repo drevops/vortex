@@ -57,16 +57,21 @@ pull requests, not on direct pushes.
 To add or remove branches, update the `push` and `pull_request` sections
 in the workflow file.
 
-### Update nightly database schedule
+### Configure database caching
 
-The nightly database job caches a fresh database dump for faster builds the next
-day. To change when this runs, update the `schedule.cron` value (
-[cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
+The `test` job downloads a fresh database dump on the first build of the day and
+caches it for the rest of that day's builds; later builds reuse the cached dump
+instead of downloading it again. The cache key includes a daily timestamp, so
+the cache refreshes automatically each day. To change the cache window, update
+the `VORTEX_CI_DB_CACHE_TIMESTAMP` value (a `date` format string) in the `test`
+job environment in `.github/workflows/build-test-deploy.yml`:
 
 ```yaml
-schedule:
-  - cron: '0 18 * * *'  # 6 PM UTC daily
+VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d  # New cache each day
 ```
+
+When the `test` job runs as a parallel matrix, only the first instance stores
+the cache.
 
 ### Change runner size
 
@@ -100,8 +105,8 @@ on how tests are distributed across containers.
 ### Manual deployment
 
 The workflow supports triggering deployments directly from the GitHub UI without
-running the `lint`, `test`, and `build` jobs. Navigate to **Actions → Database, Build,
-Test and Deploy → Run workflow** and provide:
+running the `lint`, `test`, and `build` jobs. Navigate to **Actions → Build, Test and
+Deploy → Run workflow** and provide:
 
 | Input           | Description                                                                      |
 |-----------------|----------------------------------------------------------------------------------|

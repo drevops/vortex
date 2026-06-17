@@ -33,14 +33,10 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs all code linters: PHPCS, PHPStan, Rector, Twig CS Fixer, Gherkin Lint, ESLint, Stylelint
 - Audits and normalizes Composer packages
 
-### 2. Database
+### 2. Test
 
-- Downloads the latest DB version based on a caching strategy
-- Caches database dumps to speed up the follow-up runs
-
-### 3. Test
-
-- Runs after the `database` job, in parallel with the `build` job
+- Runs in parallel with the `lint` and `build` jobs
+- Downloads the database on the first build of the day and caches it for the rest of the day's builds (only one runner stores the cache when running in parallel)
 - Uses Docker Compose to set up the full environment
 - Validates Composer configuration
 - Assembles the codebase by installing dependencies
@@ -50,14 +46,14 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs BDD tests (distributed across all instances)
 - Collects and stores test results and artifacts
 
-### 4. Build
+### 3. Build
 
 - Runs in parallel with the `lint` and `test` jobs (no dependencies)
 - Uses Docker Compose to build the production stack
 - For artifact-based hosting (e.g. Acquia), exports the built codebase for the deployment job
 - For image-based hosting (e.g. Lagoon), a successful build confirms that the production images are deployable
 
-### 5. Deployment
+### 4. Deployment
 
 - Runs after successful completion of the `lint`, `test`, and `build` jobs
 - Uses the built codebase without development dependencies from the `build` job
@@ -66,8 +62,8 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Caching strategy
 
-Database is downloaded overnight and cached so that the next continuous integration run on the same
-day uses the cached database dump.
+The database is downloaded on the first continuous integration run of the day and cached so that
+the remaining runs on the same day reuse the cached database dump.
 
 By default, the database is cached per-branch for 24 hours. If cache is not
 available, the fallback default branch is used.
@@ -79,7 +75,7 @@ continuous integration runs on large projects with a lot of data.
 
 In case of a project with a large database >1GB, the database import itself may
 take a long time, so it may be worth looking into either packaging the database
-dump into a container image (overnight) or using a sanitized database dump with
+dump into a container image or using a sanitized database dump with
 only the required data for the tests.
 
 **Vortex** supports both creating and using a database container image with embedded
@@ -94,8 +90,8 @@ export command without the need for an intermediate database import step.
 
 ### Reset the cache
 
-If you need to force a fresh cache (e.g., to pull the new database dump outside
-of the regular schedule), increment the version tag in the cache keys:
+If you need to force a fresh cache (e.g., to pull a new database dump before the
+daily cache refreshes), increment the version tag in the cache keys:
 
 ```yaml
 # Before
@@ -116,7 +112,6 @@ The continuous integration pipeline is triggered by:
   - `ci*`
 - **Pull requests** to these branches
 - **Tags** matching semantic version (`1.2.3`, `1.2.3-rc.1`) or date-based (`2023-04-17`) patterns
-- **Scheduled runs** for automatic database caching
 
 ## Test parallelism
 

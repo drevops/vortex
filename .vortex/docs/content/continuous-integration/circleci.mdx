@@ -27,7 +27,7 @@ in the Installation guide and select **CircleCI**.
 
 ### Update deployment branches
 
-All CI jobs (`database`, `lint`, `test`, `build`) run on every branch. The `deploy` job
+All CI jobs (`lint`, `test`, `build`) run on every branch. The `deploy` job
 only runs for specific branch patterns, controlled by a regex filter in the
 `workflows` section of `.circleci/config.yml`:
 
@@ -46,16 +46,20 @@ only runs for specific branch patterns, controlled by a regex filter in the
 To modify which branches trigger deployments, update the `only` filter regex
 in the `deploy` job.
 
-### Update nightly database schedule
+### Configure database caching
 
-The nightly database job caches a fresh database dump for faster builds the next
-day. To change when this runs, update the `nightly_db_schedule` YAML anchor
-in `.circleci/config.yml`
-([cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
+The `test` job downloads a fresh database dump on the first build of the day and
+caches it for the rest of that day's builds; later builds reuse the cached dump
+instead of downloading it again. The cache key includes a daily timestamp, so
+the cache refreshes automatically each day. To change the cache window, update
+the `VORTEX_CI_DB_CACHE_TIMESTAMP` value (a `date` format string) in the
+`runner_config` environment in `.circleci/config.yml`:
 
 ```yaml
-- &nightly_db_schedule "0 18 * * *"  # 6 PM UTC daily
+VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d  # New cache each day
 ```
+
+When the `test` job runs in parallel, only the first runner stores the cache.
 
 ### Change runner resource class
 

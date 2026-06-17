@@ -1,4 +1,4 @@
-@@ -260,6 +260,9 @@
+@@ -277,6 +277,9 @@
            VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
@@ -6,5 +6,5 @@
 +          VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
 +          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
  
-       - name: Export DB
-         run: |
+       - name: Build stack
+         run: docker compose up --detach && docker builder prune --all --force
