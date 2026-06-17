@@ -67,6 +67,7 @@ web/themes/**/node_modules
 
 # Assets.
 web/themes/**/build
+.artifacts
 .data
 .logs
 .phpunit.cache
