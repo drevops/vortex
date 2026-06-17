@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('drupal_settings')]
 class SwitchableSettingsTest extends SettingsTestCase {
 
-  // phpcs:ignore #;< SERVICE_CLAMAV
+  // phpcs:ignore #;< SERVICE_ANTIVIRUS
 
   /**
    * Test ClamAV configs in Daemon mode with defaults.
@@ -77,7 +77,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->assertConfigContains($config);
   }
 
-  // phpcs:ignore #;> SERVICE_CLAMAV
+  // phpcs:ignore #;> SERVICE_ANTIVIRUS
   // phpcs:ignore #;< MODULE_CONFIG_SPLIT
 
   /**
@@ -232,7 +232,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> MODULE_ENVIRONMENT_INDICATOR
-  // phpcs:ignore #;< SERVICE_REDIS
+  // phpcs:ignore #;< SERVICE_CACHE
 
   /**
    * Test Redis settings.
@@ -307,9 +307,9 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->assertSettingsContains($settings);
   }
 
-  // phpcs:ignore #;> SERVICE_REDIS
+  // phpcs:ignore #;> SERVICE_CACHE
 
-  // phpcs:ignore #;< SERVICE_SOLR
+  // phpcs:ignore #;< SERVICE_SEARCH
 
   /**
    * Test Solr search server settings with defaults.
@@ -340,7 +340,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->assertConfigContains($config);
   }
 
-  // phpcs:ignore #;> SERVICE_SOLR
+  // phpcs:ignore #;> SERVICE_SEARCH
 
   // phpcs:ignore #;< MODULE_SHIELD
 

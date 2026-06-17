@@ -114,24 +114,24 @@ class Services extends AbstractHandler {
     $w = $this->webroot;
 
     if (in_array(self::CLAMAV, $v)) {
-      File::removeTokenAsync('!SERVICE_CLAMAV');
+      File::removeTokenAsync('!SERVICE_ANTIVIRUS');
     }
     else {
-      File::removeTokenAsync('SERVICE_CLAMAV');
+      File::removeTokenAsync('SERVICE_ANTIVIRUS');
     }
 
     if (in_array(self::SOLR, $v)) {
-      File::removeTokenAsync('!SERVICE_SOLR');
+      File::removeTokenAsync('!SERVICE_SEARCH');
     }
     else {
-      File::removeTokenAsync('SERVICE_SOLR');
+      File::removeTokenAsync('SERVICE_SEARCH');
     }
 
     if (in_array(self::REDIS, $v)) {
-      File::removeTokenAsync('!SERVICE_REDIS');
+      File::removeTokenAsync('!SERVICE_CACHE');
     }
     else {
-      File::removeTokenAsync('SERVICE_REDIS');
+      File::removeTokenAsync('SERVICE_CACHE');
     }
 
     if (!in_array(self::CLAMAV, $v)) {
