@@ -75,6 +75,6 @@
 -  }
 -
 -  /**
-    * Test Solr search server settings with defaults.
+    * Test Search API server settings with defaults.
     */
-   public function testSolrDefaults(): void {
+   public function testSearchApiDefaults(): void {
