@@ -1,4 +1,4 @@
-@@ -202,7 +202,6 @@
+@@ -206,7 +206,6 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -6,7 +6,7 @@
      $config['environment_indicator.indicator']['bg_color'] = '#006600';
      $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
-@@ -257,7 +256,6 @@
+@@ -263,7 +262,6 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -14,7 +14,7 @@
      $config['environment_indicator.indicator']['bg_color'] = '#006600';
      $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
-@@ -314,7 +312,6 @@
+@@ -322,7 +320,6 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;

@@ -6,7 +6,7 @@
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-@@ -155,7 +154,6 @@
+@@ -157,7 +156,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_SUT;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
@@ -14,7 +14,7 @@
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-@@ -208,7 +206,6 @@
+@@ -212,7 +210,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
@@ -22,7 +22,7 @@
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-@@ -263,7 +260,6 @@
+@@ -269,7 +266,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
@@ -30,7 +30,7 @@
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-@@ -320,7 +316,6 @@
+@@ -328,7 +324,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_CI;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];

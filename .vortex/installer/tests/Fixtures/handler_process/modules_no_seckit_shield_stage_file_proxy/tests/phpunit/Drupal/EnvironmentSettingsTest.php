@@ -6,7 +6,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
-@@ -156,7 +155,6 @@
+@@ -158,7 +157,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -14,7 +14,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
-@@ -209,7 +207,6 @@
+@@ -213,7 +211,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -22,16 +22,16 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -217,8 +214,6 @@
+@@ -221,8 +218,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
- 
-     $settings['auto_create_htaccess'] = FALSE;
-@@ -264,7 +259,6 @@
+@@ -270,7 +265,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -39,16 +39,16 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -272,8 +266,6 @@
+@@ -278,8 +272,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
- 
-     $settings['auto_create_htaccess'] = FALSE;
-@@ -321,7 +313,6 @@
+@@ -329,7 +321,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -56,12 +56,12 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -329,8 +320,6 @@
+@@ -337,8 +328,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
- 
-     $settings['auto_create_htaccess'] = FALSE;

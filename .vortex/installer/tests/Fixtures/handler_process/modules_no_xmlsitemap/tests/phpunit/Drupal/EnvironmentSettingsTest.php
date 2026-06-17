@@ -6,7 +6,7 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
-@@ -157,7 +156,6 @@
+@@ -159,7 +158,6 @@
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = TRUE;
@@ -14,7 +14,7 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
-@@ -210,7 +208,6 @@
+@@ -214,7 +212,6 @@
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;
@@ -22,7 +22,7 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
-@@ -265,7 +262,6 @@
+@@ -271,7 +268,6 @@
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;
@@ -30,7 +30,7 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
-@@ -322,7 +318,6 @@
+@@ -330,7 +326,6 @@
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;

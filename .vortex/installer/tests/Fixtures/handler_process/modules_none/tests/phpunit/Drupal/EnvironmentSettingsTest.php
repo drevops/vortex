@@ -1,4 +1,4 @@
-@@ -70,25 +70,12 @@
+@@ -70,18 +70,7 @@
  
      $this->requireSettingsFile();
  
@@ -15,7 +15,9 @@
 -    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 900;
-     $this->assertConfig($config);
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+@@ -89,8 +78,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -24,7 +26,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -150,18 +137,7 @@
+@@ -152,18 +139,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -41,9 +43,9 @@
 -    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 1800;
-     $this->assertConfig($config);
- 
-@@ -168,8 +144,6 @@
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+@@ -172,8 +148,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -52,7 +54,7 @@
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -202,29 +176,13 @@
+@@ -206,23 +180,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -73,7 +75,10 @@
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
+@@ -229,8 +189,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -82,7 +87,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -257,29 +215,13 @@
+@@ -263,23 +221,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -103,7 +108,10 @@
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
+@@ -286,8 +230,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -112,7 +120,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -314,29 +256,13 @@
+@@ -322,23 +264,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -133,7 +141,10 @@
 -    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
+     $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
+@@ -345,8 +273,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
