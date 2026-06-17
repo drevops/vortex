@@ -26,7 +26,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Services::id() => [Services::SOLR]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['search' => []]]));
       },
     ];
     yield 'services - discovery - redis' => [
@@ -34,7 +34,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Services::id() => [Services::REDIS]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::REDIS => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['cache' => []]]));
       },
     ];
     yield 'services - discovery - clamav' => [
@@ -42,7 +42,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Services::id() => [Services::CLAMAV]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['antivirus' => []]]));
       },
     ];
     yield 'services - discovery - all' => [
@@ -52,7 +52,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       ] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['antivirus' => [], 'cache' => [], 'search' => []]]));
       },
     ];
     yield 'services - discovery - none' => [
@@ -79,7 +79,7 @@ YAML
       [],
       $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::REDIS => [], Services::CLAMAV => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['cache' => [], 'antivirus' => [], 'search' => []]]));
       },
     ];
   }

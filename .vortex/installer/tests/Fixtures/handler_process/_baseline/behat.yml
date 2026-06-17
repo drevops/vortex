@@ -28,12 +28,12 @@ default:
   extensions:
     Drupal\MinkExtension:
       browserkit_http: ~
-      base_url: http://nginx:8080
+      base_url: http://webserver:8080
       files_path: '%paths.base%/tests/behat/fixtures'
       browser_name: chrome
       javascript_session: selenium2
       selenium2:
-        wd_host: 'http://chrome:4444/wd/hub'
+        wd_host: 'http://browser:4444/wd/hub'
         capabilities:
           browser: chrome
           extra_capabilities:

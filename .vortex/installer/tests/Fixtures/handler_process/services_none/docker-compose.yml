@@ -7,60 +7,60 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -149,31 +147,6 @@
+@@ -151,31 +149,6 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
--  redis:
+-  cache:
 -    image: uselagoon/valkey-8:__VERSION__
 -
--  solr:
+-  search:
 -    build:
 -      context: .
 -      dockerfile: .docker/solr.dockerfile
 -    environment:
 -      <<: *default-environment
 -    volumes:
--      - solr:/var/solr
+-      - search:/var/solr
 -    ports:
--      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
+-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port search 8983`.
 -
--  clamav:
+-  antivirus:
 -    build:
 -      context: .
 -      dockerfile: .docker/clamav.dockerfile
 -    environment:
 -      <<: *default-environment
 -    ports:
--      - '3310' # Find port on host with `docker compose port clamav 3310`.
+-      - '3310' # Find port on host with `docker compose port antivirus 3310`.
 -    networks:
 -      - default
 -
-   # Chrome container, used for browser testing.
-   chrome:
+   # Browser container, used for browser testing.
+   browser:
      image: selenium/standalone-chromium:__VERSION__
-@@ -190,16 +163,9 @@
+@@ -192,16 +165,9 @@
    wait-for-dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
--      - clamav
+-      - antivirus
        - database
--      - redis
--      - solr
+-      - cache
+-      - search
      command:
--      - clamav:3310
+-      - antivirus:3310
        - database:3306
--      - redis:6379
--      - solr:8983
--      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+-      - cache:6379
+-      - search:8983
+-      - curl -s "http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -208,7 +174,6 @@
+@@ -210,7 +176,6 @@
  volumes:
    app: {}
    files: {}
--  solr: {}
+-  search: {}
  
  secrets:
    package_token:

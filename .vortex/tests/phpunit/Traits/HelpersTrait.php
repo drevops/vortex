@@ -145,7 +145,7 @@ trait HelpersTrait {
   }
 
   public function fetchWebpageContent(string $path): string {
-    $this->cmd('docker compose exec -T cli curl -L -s ' . escapeshellarg('http://nginx:8080' . $path), txt: 'Fetch webpage content');
+    $this->cmd('docker compose exec -T cli curl -L -s ' . escapeshellarg('http://webserver:8080' . $path), txt: 'Fetch webpage content');
 
     $content = $this->processGet()->getOutput();
 

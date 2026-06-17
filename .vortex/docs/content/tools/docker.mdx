@@ -201,9 +201,9 @@ Vortex:
   in the context of the project, such as `composer` or `drush`. This is also a
   container where cron jobs are run within a hosting environment (if that
   environment supports containerisation).
-- `nginx` - a container that runs a web server. This container is used to serve
-  the application and pass requests to the PHP container.
-- `php` - a container that runs a PHP engine. This container is used to run the
+- `webserver` - a container that runs a web server. This container is used to serve
+  the application and pass requests to the appserver container.
+- `appserver` - a container that runs a PHP engine. This container is used to run the
   application code and execute commands in the context of the application. It is
   different from the `cli` container in that it does not have certain
   development dependencies installed, has a smaller size and is optimized for
@@ -211,21 +211,21 @@ Vortex:
 - `database` - a container that runs a database server. This container is used to
   store the application data. It can be accessed from the host via a randomly
   assigned port - run `docker compose port database 3306` to get the port number.
-- `redis` - an optional container that runs a Redis server. This container is
+- `cache` - an optional container that runs a Redis server. This container is
   used to store the application cache.
-- `solr` - an optional container that runs Apache Solr 9 search server. This container
+- `search` - an optional container that runs Apache Solr 9 search server. This container
   is used to store the application search index and provide full-text search
   capabilities. It uses the `uselagoon/solr-drupal-9` image which includes
   pre-configured modules (`extraction`, `langid`, `ltr`, `analysis-extras`) and is
   optimized for Drupal workloads with the Search API Solr module. Configuration
   files are maintained locally in `.docker/config/solr/config-set/` allowing site
   owners to customize and version control their Solr schema. The container can be
-  accessed from the host via a randomly assigned port - run `docker compose port solr 8983`
+  accessed from the host via a randomly assigned port - run `docker compose port search 8983`
   to get the port number. The Solr admin interface is available at
   `http://localhost:<port>/solr/`.
-- `clamav` - an optional container that runs a ClamAV antivirus server. This
+- `antivirus` - an optional container that runs a ClamAV antivirus server. This
   container is used to scan uploaded files for viruses.
-- `chrome` - container that runs a Chrome browser. This container is
+- `browser` - container that runs a Chrome browser. This container is
   used to run Behat tests. It is based on the official Selenium image which has
   additional required tools, like virtual desktop, installed.
 - `wait-for-dependencies` - a container that runs a script to wait for applications

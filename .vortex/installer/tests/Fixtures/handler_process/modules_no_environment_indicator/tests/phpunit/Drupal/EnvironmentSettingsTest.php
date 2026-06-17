@@ -10,7 +10,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
-@@ -147,11 +142,6 @@
+@@ -149,11 +144,6 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -22,7 +22,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
-@@ -197,11 +187,6 @@
+@@ -201,11 +191,6 @@
  
      $config['automated_cron.settings']['interval'] = 0;
      $config['config_split.config_split.local']['status'] = TRUE;
@@ -34,7 +34,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
-@@ -249,11 +234,6 @@
+@@ -255,11 +240,6 @@
  
      $config['automated_cron.settings']['interval'] = 0;
      $config['config_split.config_split.local']['status'] = TRUE;
@@ -46,7 +46,7 @@
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
-@@ -303,11 +283,6 @@
+@@ -311,11 +291,6 @@
  
      $config['automated_cron.settings']['interval'] = 0;
      $config['config_split.config_split.ci']['status'] = TRUE;

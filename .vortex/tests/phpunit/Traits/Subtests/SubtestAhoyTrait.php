@@ -584,7 +584,7 @@ trait SubtestAhoyTrait {
     $this->syncToHost('.logs');
     $this->assertDirectoryExists('.logs/screenshots');
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://nginx:8080/');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://webserver:8080/');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Feature: Behat configuration');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: save screenshot with name');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Datetime:');
@@ -807,7 +807,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->cmd(
-      'ahoy cli "curl -s \"http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
+      'ahoy cli "curl -s \"http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
       'response',
       'Solr is running and responding to queries'
     );
@@ -830,7 +830,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that Redis Drupal integration is not working when disabled');
     $this->substepWarmCaches();
-    $this->cmd('docker compose exec -T redis redis-cli --scan', '! config', 'Redis should be empty after caches are warmed with integration disabled');
+    $this->cmd('docker compose exec -T cache redis-cli --scan', '! config', 'Redis should be empty after caches are warmed with integration disabled');
     $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'Warning', 'Redis should not be connected in Drupal');
 
     $this->fileRestore('.env');
@@ -846,7 +846,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that Redis Drupal integration is working when enabled');
     $this->substepWarmCaches();
-    $this->cmd('docker compose exec -T redis redis-cli --scan', 'config', 'Redis should have keys after caches are warmed with integration enabled');
+    $this->cmd('docker compose exec -T cache redis-cli --scan', 'config', 'Redis should have keys after caches are warmed with integration enabled');
     $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'OK', 'Redis should be connected in Drupal');
 
     $this->logSubstep('Cleanup after test');
@@ -860,7 +860,7 @@ trait SubtestAhoyTrait {
   protected function substepWarmCaches(): void {
     $this->logNote('Warming up caches');
     $this->cmd('ahoy drush cr');
-    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080 | grep -q 200');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://webserver:8080 | grep -q 200');
   }
 
   protected function assertWebpageContains(string $path, string $content, string $message = ''): void {

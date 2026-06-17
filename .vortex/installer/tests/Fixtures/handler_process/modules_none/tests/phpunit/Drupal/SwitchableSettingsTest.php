@@ -153,10 +153,10 @@
     * Test Redis settings.
     */
    public function testRedis(): void {
-@@ -294,639 +146,6 @@
-     unset($this->settings['bootstrap_container_definition']);
+@@ -323,639 +175,6 @@
+     $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 9999;
  
-     $this->assertSettingsContains($settings);
+     $this->assertConfigContains($config);
 -  }
 -
 -  /**

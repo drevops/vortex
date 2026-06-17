@@ -78,18 +78,18 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     ]);
     // phpcs:ignore #;> MODULES
 
-    // phpcs:ignore #;< SERVICE_REDIS
+    // phpcs:ignore #;< SERVICE_CACHE
     $this->moduleInstaller->install(['redis']);
-    // phpcs:ignore #;> SERVICE_REDIS
+    // phpcs:ignore #;> SERVICE_CACHE
 
-    // phpcs:ignore #;< SERVICE_CLAMAV
+    // phpcs:ignore #;< SERVICE_ANTIVIRUS
     $this->moduleInstaller->install(['clamav']);
     $this->configFactory->getEditable('clamav.settings')->set('mode_daemon_tcpip.hostname', 'clamav')->save();
-    // phpcs:ignore #;> SERVICE_CLAMAV
+    // phpcs:ignore #;> SERVICE_ANTIVIRUS
 
-    // phpcs:ignore #;< SERVICE_SOLR
+    // phpcs:ignore #;< SERVICE_SEARCH
     $this->moduleInstaller->install(['search_api', 'search_api_solr']);
-    // phpcs:ignore #;> SERVICE_SOLR
+    // phpcs:ignore #;> SERVICE_SEARCH
 
     // phpcs:ignore #;< CUSTOM_MODULE_SEARCH
     $this->moduleInstaller->install(['ys_search']);

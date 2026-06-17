@@ -75,6 +75,6 @@
 -  }
 -
 -  /**
-    * Test Shield config.
+    * Test Search API server settings with defaults.
     */
-   #[DataProvider('dataProviderShield')]
+   public function testSearchApiDefaults(): void {

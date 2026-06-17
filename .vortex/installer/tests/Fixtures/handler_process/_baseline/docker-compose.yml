@@ -104,7 +104,7 @@ services:
         condition: service_completed_successfully
     user: root
 
-  nginx:
+  webserver:
     build:
       context: .
       dockerfile: .docker/nginx-drupal.dockerfile
@@ -115,6 +115,8 @@ services:
         cli: "service:cli"
     environment:
       <<: *default-environment
+      # FastCGI upstream; the base image defaults to 'php', the service is 'appserver'.
+      NGINX_FASTCGI_PASS: appserver
     <<: [ *default-volumes, *default-user ]
     depends_on:
       - cli
@@ -123,7 +125,7 @@ services:
       - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
 
   # PHP FPM container. All web requests are going through this container.
-  php:
+  appserver:
     build:
       context: .
       dockerfile: .docker/php.dockerfile
@@ -149,33 +151,33 @@ services:
     ports:
       - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
 
-  redis:
+  cache:
     image: uselagoon/valkey-8:__VERSION__
 
-  solr:
+  search:
     build:
       context: .
       dockerfile: .docker/solr.dockerfile
     environment:
       <<: *default-environment
     volumes:
-      - solr:/var/solr
+      - search:/var/solr
     ports:
-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
+      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port search 8983`.
 
-  clamav:
+  antivirus:
     build:
       context: .
       dockerfile: .docker/clamav.dockerfile
     environment:
       <<: *default-environment
     ports:
-      - '3310' # Find port on host with `docker compose port clamav 3310`.
+      - '3310' # Find port on host with `docker compose port antivirus 3310`.
     networks:
       - default
 
-  # Chrome container, used for browser testing.
-  chrome:
+  # Browser container, used for browser testing.
+  browser:
     image: selenium/standalone-chromium:__VERSION__
     environment:
       <<: *default-environment
@@ -183,23 +185,23 @@ services:
     depends_on:
       - cli
     ports:
-      - '7900' # Find port on host with `docker compose port chrome 7900`.
+      - '7900' # Find port on host with `docker compose port browser 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
 
   # Helper container to wait for services to become available.
   wait-for-dependencies:
     image: drevops/docker-wait-for-dependencies:__VERSION__
     depends_on:
-      - clamav
+      - antivirus
       - database
-      - redis
-      - solr
+      - cache
+      - search
     command:
-      - clamav:3310
+      - antivirus:3310
       - database:3306
-      - redis:6379
-      - solr:8983
-      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+      - cache:6379
+      - search:8983
+      - curl -s "http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
 
 networks:           ### Use external networks locally. Automatically removed in CI.
   amazeeio-network: ### Automatically removed in CI.
@@ -208,7 +210,7 @@ networks:           ### Use external networks locally. Automatically removed in 
 volumes:
   app: {}
   files: {}
-  solr: {}
+  search: {}
 
 secrets:
   package_token:

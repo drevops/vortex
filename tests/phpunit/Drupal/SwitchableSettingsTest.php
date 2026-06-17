@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('drupal_settings')]
 class SwitchableSettingsTest extends SettingsTestCase {
 
-  // phpcs:ignore #;< SERVICE_CLAMAV
+  // phpcs:ignore #;< SERVICE_ANTIVIRUS
 
   /**
    * Test ClamAV configs in Daemon mode with defaults.
@@ -71,13 +71,13 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->requireSettingsFile();
 
     $config['clamav.settings']['scan_mode'] = 0;
-    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'clamav';
+    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'antivirus';
     $config['clamav.settings']['mode_daemon_tcpip']['port'] = 3310;
 
     $this->assertConfigContains($config);
   }
 
-  // phpcs:ignore #;> SERVICE_CLAMAV
+  // phpcs:ignore #;> SERVICE_ANTIVIRUS
   // phpcs:ignore #;< MODULE_CONFIG_SPLIT
 
   /**
@@ -232,7 +232,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> MODULE_ENVIRONMENT_INDICATOR
-  // phpcs:ignore #;< SERVICE_REDIS
+  // phpcs:ignore #;< SERVICE_CACHE
 
   /**
    * Test Redis settings.
@@ -307,7 +307,41 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->assertSettingsContains($settings);
   }
 
-  // phpcs:ignore #;> SERVICE_REDIS
+  // phpcs:ignore #;> SERVICE_CACHE
+
+  // phpcs:ignore #;< SERVICE_SEARCH
+
+  /**
+   * Test Search API server settings with defaults.
+   */
+  public function testSearchApiDefaults(): void {
+    $this->requireSettingsFile();
+
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
+
+    $this->assertConfigContains($config);
+  }
+
+  /**
+   * Test Search API server settings with custom host and port.
+   */
+  public function testSearchApiCustom(): void {
+    $this->setEnvVars([
+      'SOLR_HOST' => 'custom_solr_host',
+      'SOLR_PORT' => 9999,
+    ]);
+
+    $this->requireSettingsFile();
+
+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'custom_solr_host';
+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 9999;
+
+    $this->assertConfigContains($config);
+  }
+
+  // phpcs:ignore #;> SERVICE_SEARCH
+
   // phpcs:ignore #;< MODULE_SHIELD
 
   /**

@@ -1,4 +1,4 @@
-@@ -297,375 +297,6 @@
+@@ -326,375 +326,6 @@
    }
  
    /**
@@ -374,7 +374,7 @@
     * Test Reroute Email config.
     */
    #[DataProvider('dataProviderRerouteEmail')]
-@@ -801,131 +432,6 @@
+@@ -830,131 +461,6 @@
        [
          'reroute_email.settings' => ['enable' => FALSE],
        ],
