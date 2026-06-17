@@ -21,5 +21,5 @@ if (!empty($vortex_localdev_url)) {
   $settings['trusted_host_patterns'][] = '^' . $container_patterns . '$';
 
   // URL for internal container access (e.g., via drush, in tests etc.).
-  $settings['trusted_host_patterns'][] = '^nginx$';
+  $settings['trusted_host_patterns'][] = '^webserver$';
 }

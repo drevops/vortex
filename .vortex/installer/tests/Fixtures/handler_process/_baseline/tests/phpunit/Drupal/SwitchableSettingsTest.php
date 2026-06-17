@@ -69,7 +69,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     $this->requireSettingsFile();
 
     $config['clamav.settings']['scan_mode'] = 0;
-    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'clamav';
+    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'antivirus';
     $config['clamav.settings']['mode_daemon_tcpip']['port'] = 3310;
 
     $this->assertConfigContains($config);

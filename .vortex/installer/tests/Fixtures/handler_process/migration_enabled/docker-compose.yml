@@ -15,7 +15,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -149,6 +159,19 @@
+@@ -151,6 +161,19 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -32,20 +32,20 @@
 +    labels:
 +      lagoon.type: mariadb # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
 +
-   redis:
+   cache:
      image: uselagoon/valkey-8:__VERSION__
  
-@@ -192,11 +215,13 @@
+@@ -194,11 +217,13 @@
      depends_on:
-       - clamav
+       - antivirus
        - database
 +      - database2
-       - redis
-       - solr
+       - cache
+       - search
      command:
-       - clamav:3310
+       - antivirus:3310
        - database:3306
 +      - database2:3306
-       - redis:6379
-       - solr:8983
-       - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+       - cache:6379
+       - search:8983
+       - curl -s "http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response

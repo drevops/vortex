@@ -4,7 +4,7 @@
  
 -  flush-redis:
 -    usage: Flush Redis cache.
--    cmd: docker compose exec redis redis-cli flushall
+-    cmd: docker compose exec cache redis-cli flushall
 -
    # ----------------------------------------------------------------------------
    # Application commands.
