@@ -21,7 +21,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;< CI_PROVIDER_GHA)
 
-[![Database, Build, Test and Deploy](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml)
+[![Build, Test and Deploy](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml)
 
 [//]: # (#;> CI_PROVIDER_GHA)
 

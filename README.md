@@ -10,7 +10,7 @@
 
 <div align="center">
 
-[![Database, Build, Test and Deploy](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml)
+[![Build, Test and Deploy](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/build-test-deploy.yml)
 [![CircleCI](https://circleci.com/gh/drevops/vortex/tree/project%2F2.x.svg?style=shield)](https://circleci.com/gh/drevops/vortex/tree/project%2F2.x)
 [![Test](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/vortex-test-common.yml)
 [![Test docs](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml/badge.svg?branch=project%2F2.x)](https://github.com/drevops/vortex/actions/workflows/vortex-test-docs.yml)
