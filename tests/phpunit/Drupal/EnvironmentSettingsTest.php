@@ -311,14 +311,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['address'] = 'webmaster@your-site-domain.example';
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_SUT;
@@ -401,15 +404,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['address'] = 'webmaster@your-site-domain.example';
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['system.performance']['cache']['page']['max_age'] = 1800;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     // Verify settings overrides.
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = 'custom_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -458,14 +464,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
@@ -515,14 +524,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
@@ -540,7 +552,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^example-site\.docker\.amazee\.io$',
-      '^webserver$',
+      '^nginx$',
     ];
     $this->assertSettings($settings);
   }
@@ -575,14 +587,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
@@ -634,14 +649,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
@@ -690,14 +708,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
@@ -742,14 +763,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
@@ -794,14 +818,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_STAGE;
@@ -843,14 +870,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = TRUE;
     $config['system.performance']['js']['preprocess'] = TRUE;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_PROD;
@@ -896,14 +926,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = 'custom_acquia_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -956,14 +989,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = TRUE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';
     $settings['config_vcs_directory'] = '/var/www/site-php/mysite/config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -1015,15 +1051,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_test_branch';
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -1077,15 +1116,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_develop';
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -1139,15 +1181,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_master';
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -1199,15 +1244,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['system.performance']['css']['preprocess'] = TRUE;
     $config['system.performance']['js']['preprocess'] = TRUE;
-    // phpcs:ignore #;< SERVICE_SEARCH
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-    // phpcs:ignore #;> SERVICE_SEARCH
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_production';
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;

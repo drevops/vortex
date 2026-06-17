@@ -222,6 +222,11 @@ trait SubtestAhoyTrait {
     $this->syncToHost('config');
     $this->assertFilesWildcardExists('config/default/*.yml');
 
+    $this->logSubstep('Assert demo-only modules are excluded from the exported configuration');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', ['* generated_content', '* testmode'], 'Demo-only modules should be enabled after provisioning with demo content');
+    $this->assertFileNotContainsString('config/default/core.extension.yml', 'generated_content', 'Excluded module "generated_content" should not appear in the exported extension list');
+    $this->assertFileNotContainsString('config/default/core.extension.yml', 'testmode', 'Excluded module "testmode" should not appear in the exported extension list');
+
     $this->cmd('ahoy export-db db.sql', '* Exported database dump saved', 'Export database should complete successfully');
     $this->syncToHost('.data');
     $this->assertFileExists('.data/db.sql', 'Database dump file should exist after export');
@@ -584,7 +589,7 @@ trait SubtestAhoyTrait {
     $this->syncToHost('.logs');
     $this->assertDirectoryExists('.logs/screenshots');
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
-    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://webserver:8080/');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://nginx:8080/');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Feature: Behat configuration');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: save screenshot with name');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Datetime:');
@@ -807,7 +812,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->cmd(
-      'ahoy cli "curl -s \"http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
+      'ahoy cli "curl -s \"http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
       'response',
       'Solr is running and responding to queries'
     );
@@ -830,7 +835,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that Redis Drupal integration is not working when disabled');
     $this->substepWarmCaches();
-    $this->cmd('docker compose exec -T cache redis-cli --scan', '! config', 'Redis should be empty after caches are warmed with integration disabled');
+    $this->cmd('docker compose exec -T redis redis-cli --scan', '! config', 'Redis should be empty after caches are warmed with integration disabled');
     $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'Warning', 'Redis should not be connected in Drupal');
 
     $this->fileRestore('.env');
@@ -846,7 +851,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that Redis Drupal integration is working when enabled');
     $this->substepWarmCaches();
-    $this->cmd('docker compose exec -T cache redis-cli --scan', 'config', 'Redis should have keys after caches are warmed with integration enabled');
+    $this->cmd('docker compose exec -T redis redis-cli --scan', 'config', 'Redis should have keys after caches are warmed with integration enabled');
     $this->cmd('docker compose exec -T cli drush core:requirements --filter="title~=#(Redis)#i" --field=severity', 'OK', 'Redis should be connected in Drupal');
 
     $this->logSubstep('Cleanup after test');
@@ -860,7 +865,7 @@ trait SubtestAhoyTrait {
   protected function substepWarmCaches(): void {
     $this->logNote('Warming up caches');
     $this->cmd('ahoy drush cr');
-    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://webserver:8080 | grep -q 200');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080 | grep -q 200');
   }
 
   protected function assertWebpageContains(string $path, string $content, string $message = ''): void {
@@ -877,13 +882,13 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->assertFileExists('web/sites/default/settings.migration.php');
-    $this->assertFileExists('web/modules/custom/ys_migrate/src/Plugin/DeployStep/MigrateContentDeployStep.php');
+    $this->assertFileExists('scripts/provision-20-migration.sh');
     $this->assertFileExists('web/modules/custom/ys_migrate/ys_migrate.info.yml');
     $this->assertFileExists('web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml');
     $this->assertFileContainsString('docker-compose.yml', 'database2');
-    $this->assertFileContainsString('.env', 'VORTEX_FETCH_DB2_FILE');
-    $this->assertFileContainsString('.env', 'VORTEX_FETCH_DB2_SOURCE');
-    $this->assertFileContainsString('.ahoy.yml', 'fetch-db2');
+    $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_FILE');
+    $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
+    $this->assertFileContainsString('.ahoy.yml', 'download-db2');
     $this->assertFileContainsString('.ahoy.yml', 'reload-db2');
 
     $this->logStepFinish();
@@ -892,8 +897,8 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyMigrationDownloadDb(): void {
     $this->logStepStart();
 
-    $this->fileAddVar('.env', 'VORTEX_FETCH_DB2_URL', static::VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST);
-    $this->cmd('ahoy fetch-db2', txt: 'Download migration database');
+    $this->fileAddVar('.env', 'VORTEX_DOWNLOAD_DB2_URL', static::VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST);
+    $this->cmd('ahoy download-db2', txt: 'Download migration database');
     $this->assertFileExists('.data/db2.sql', 'Migration database file should exist after download');
 
     $this->logStepFinish();
@@ -946,7 +951,10 @@ trait SubtestAhoyTrait {
       'ahoy provision',
       [
         '* Provisioning site from the database dump file.',
-        '* Running deploy step "Import migration content".',
+        '* Started migration operations.',
+        '* Importing migration source database.',
+        '* Imported migration source database.',
+        '* Finished migration operations.',
       ],
       'Provision with migration should complete successfully',
     );
@@ -995,8 +1003,9 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Skipped deploy step "Import migration content": DRUPAL_MIGRATION_SKIP is set',
-        '! Running deploy step "Import migration content".',
+        '* Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1.',
+        '! Importing migration source database.',
+        '! Starting migrations.',
       ],
       'Provision with DRUPAL_MIGRATION_SKIP=1 should skip all migration operations',
     );
@@ -1011,7 +1020,9 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Running deploy step "Import migration content".',
+        '* Source database import is set to be skipped.',
+        '* Using existing migration source database.',
+        '! Importing migration source database.',
       ],
       'Provision with DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0 should skip DB import but still run migrations',
     );

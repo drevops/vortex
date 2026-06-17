@@ -83,10 +83,17 @@ class Modules extends AbstractHandler {
         // Remove module from settings file.
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
-        // Remove module from the development setup plugin install list.
-        File::replaceContentInFile($t . '/' . $w . '/modules/custom/ys_base/src/Plugin/DeployStep/EnableDevelopmentModulesDeployStep.php', Replacement::create('module', function (string $content) use ($module_name): string {
-          $pattern = "/^\s*'" . preg_quote($module_name, '/') . "',\r?\n/m";
-          return preg_replace($pattern, '', $content, 1) ?? $content;
+        // Remove module from the provision example file.
+        File::replaceContentInFile($t . '/scripts/provision-10-example.sh', Replacement::create('module', function (string $content) use ($module_name): string {
+          $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
+          $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
+            $indent = $matches[1];
+            $line = $matches[2];
+            $line = preg_replace('/\s+\b' . preg_quote($module_name, '/') . '\b/', '', $line);
+            $line = preg_replace('/\s{2,}/', ' ', $line) ?? $line;
+            return $indent . $line;
+          }, $content);
+          return $content ?? '';
         }));
 
         // Remove module from the Behat tests.
@@ -120,7 +127,9 @@ class Modules extends AbstractHandler {
       'coffee' => 'Coffee',
       'config_split' => 'Config split',
       'config_update' => 'Config update',
+      'drupal_helpers' => 'Drupal helpers',
       'environment_indicator' => 'Environment indicator',
+      'generated_content' => 'Generated content',
       'pathauto' => 'Pathauto',
       'redirect' => 'Redirect',
       'reroute_email' => 'Reroute email',
@@ -128,6 +137,7 @@ class Modules extends AbstractHandler {
       'seckit' => 'Seckit',
       'shield' => 'Shield',
       'stage_file_proxy' => 'Stage file proxy',
+      'testmode' => 'Testmode',
       'xmlsitemap' => 'XML Sitemap',
     ];
   }
