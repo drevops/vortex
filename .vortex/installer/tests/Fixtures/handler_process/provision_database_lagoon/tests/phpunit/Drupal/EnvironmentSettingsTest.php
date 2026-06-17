@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -350,6 +530,244 @@
+@@ -355,6 +535,248 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -222,13 +222,14 @@
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -282,13 +283,14 @@
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -342,13 +344,14 @@
 +    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
 +    $config['xmlsitemap_engines.settings']['submit'] = FALSE;
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
-+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_master';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
@@ -400,13 +403,14 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $config['system.performance']['css']['preprocess'] = TRUE;
 +    $config['system.performance']['js']['preprocess'] = TRUE;
-+    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-+    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_production';
-+    $settings['config_exclude_modules'] = [];
++    $settings['config_exclude_modules'] = [
++      'generated_content',
++      'testmode',
++    ];
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;

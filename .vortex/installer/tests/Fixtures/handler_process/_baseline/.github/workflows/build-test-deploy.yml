@@ -242,10 +242,10 @@ jobs:
           date "${VORTEX_CI_DB_CACHE_TIMESTAMP}" | tee db_cache_timestamp
 
       - name: Show cache key for database caching
-        run: echo '__VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
+        run: echo '__VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}'
 
       # Restore DB cache based on the cache strategy set by the cache keys below.
-      # Change 'v1' to 'v2', 'v3' etc., commit and push to force cache reset.
+      # Bump the last segment of the version prefix below to force a cache reset.
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
@@ -253,9 +253,9 @@ jobs:
         with:
           path: .data
           # Use cached database from previous builds of this branch.
-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
           restore-keys: |
-            __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
+            __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 
       - name: Login to container registry
         run: ./vendor/drevops/vortex-tooling/src/login-container-registry
@@ -265,7 +265,7 @@ jobs:
         uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
         with:
           key: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
-          known_hosts: unnecessary
+          known_hosts: ${{ vars.VORTEX_FETCH_DB_SSH_KNOWN_HOSTS || 'unnecessary' }}
         env:
           VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
 
@@ -315,7 +315,7 @@ jobs:
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.db_hash != hashFiles('.data') }}
         with:
           path: .data
-          key: __VERSION__${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
+          key: __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 
       - name: Provision site
         run: |
@@ -556,7 +556,7 @@ jobs:
         uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
         with:
           key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
-          known_hosts: unnecessary
+          known_hosts: ${{ vars.VORTEX_DEPLOY_SSH_KNOWN_HOSTS || 'unnecessary' }}
         env:
           VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 

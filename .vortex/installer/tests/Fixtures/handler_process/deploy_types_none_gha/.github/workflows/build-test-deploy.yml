@@ -120,7 +120,7 @@
 -        uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
 -        with:
 -          key: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
--          known_hosts: unnecessary
+-          known_hosts: ${{ vars.VORTEX_DEPLOY_SSH_KNOWN_HOSTS || 'unnecessary' }}
 -        env:
 -          VORTEX_DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DEPLOY_SSH_PRIVATE_KEY }}
 -

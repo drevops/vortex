@@ -83,12 +83,13 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
     $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      'generated_content',
+      'testmode',
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_SUT;
@@ -162,13 +163,14 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
     $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
     $config['system.performance']['cache']['page']['max_age'] = 1800;
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
     $this->assertConfig($config);
 
     // Verify settings overrides.
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      'generated_content',
+      'testmode',
+    ];
     $settings['config_sync_directory'] = 'custom_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
@@ -217,12 +219,13 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      'generated_content',
+      'testmode',
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
@@ -271,12 +274,13 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      'generated_content',
+      'testmode',
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
@@ -294,7 +298,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^example-site\.docker\.amazee\.io$',
-      '^webserver$',
+      '^nginx$',
     ];
     $this->assertSettings($settings);
   }
@@ -327,12 +331,13 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
-    $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-    $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
     $this->assertConfig($config);
 
     $settings['auto_create_htaccess'] = FALSE;
-    $settings['config_exclude_modules'] = [];
+    $settings['config_exclude_modules'] = [
+      'generated_content',
+      'testmode',
+    ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
