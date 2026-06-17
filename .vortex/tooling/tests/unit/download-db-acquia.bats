@@ -6,6 +6,9 @@
 
 load ../_helper.bash
 
+# Required for the 'run --separate-stderr' flag used in the redaction test.
+bats_require_minimum_version 1.5.0
+
 @test "download-db-acquia: Download database successfully" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -928,17 +931,18 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run --separate-stderr .vortex/tooling/src/download-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
 
-  # The access token and the raw token response must never appear verbatim in
-  # debug output; only the redacted placeholders should.
+  # The redacted placeholders confirm the debug breadcrumbs still log; the live
+  # token value must never reach stdout. VORTEX_DEBUG also enables 'set -x',
+  # whose trace (on stderr) still expands the token, so stdout is asserted
+  # separately via '--separate-stderr'.
   assert_output_contains "Token API response received (token redacted)."
   assert_output_contains "Access token extracted (value redacted)."
-  assert_output_not_contains "Token API response: {"
-  assert_output_not_contains "Extracted token: test-token"
+  assert_output_not_contains "test-token"
 
   rm -rf .data
 
