@@ -160,7 +160,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       if (is_array($config)) {
         // Extract URL from any service that has VORTEX_LOCALDEV_URL.
         $url = $config['services']['cli']['environment']['VORTEX_LOCALDEV_URL']
-          ?? $config['services']['nginx']['environment']['VORTEX_LOCALDEV_URL']
+          ?? $config['services']['webserver']['environment']['VORTEX_LOCALDEV_URL']
           ?? NULL;
 
         if ($url !== NULL) {

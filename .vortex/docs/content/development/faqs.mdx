@@ -100,7 +100,7 @@ Connection details:
     To disable, run `ahoy up`.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
-    1. Run `XDEBUG_ENABLE=true docker compose up -d cli php nginx`.
+    1. Run `XDEBUG_ENABLE=true docker compose up -d cli appserver webserver`.
     2. Enable listening for incoming debug connections in your IDE.
     3. If required, provide server URL to your IDE as it appears in the browser.
     4. Enable Xdebug flag in the request coming from your web browser (use one of
@@ -109,7 +109,7 @@ Connection details:
 
     Use the same commands to debug CLI scripts.
 
-    To disable, run `docker compose up -d cli php nginx`.
+    To disable, run `docker compose up -d cli appserver webserver`.
   </TabItem>
 </Tabs>
 
@@ -132,7 +132,7 @@ Connection details:
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
-    1. Enable debugging: `XDEBUG_ENABLE=true docker compose up -d cli php nginx`
+    1. Enable debugging: `XDEBUG_ENABLE=true docker compose up -d cli appserver webserver`
     2. Enter CLI container: `docker compose exec cli bash`
     3. Run Behat tests:
 
@@ -295,6 +295,6 @@ and enabled on your site.
 ## Behat tests with `@javascript` tag sometimes get stuck
 
 Behat tests with `@javascript` tag sometimes get stuck for about 10min then
-fail. The Chrome container randomly gets stuck for an unknown reason.
+fail. The browser container randomly gets stuck for an unknown reason.
 
-Restart the Chrome container: `docker compose restart chrome`
+Restart the browser container: `docker compose restart browser`

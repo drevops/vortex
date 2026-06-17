@@ -88,15 +88,15 @@ class Services extends AbstractHandler {
 
     $services = [];
 
-    if (isset($dc['services']['clamav'])) {
+    if (isset($dc['services']['antivirus'])) {
       $services[] = self::CLAMAV;
     }
 
-    if (isset($dc['services']['solr'])) {
+    if (isset($dc['services']['search'])) {
       $services[] = self::SOLR;
     }
 
-    if (isset($dc['services']['redis'])) {
+    if (isset($dc['services']['cache'])) {
       $services[] = self::REDIS;
     }
 
@@ -139,7 +139,7 @@ class Services extends AbstractHandler {
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/clamav.dockerfile');
       File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.clamav.php');
       File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/clamav.feature');
-      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'clamav:3310', '');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'antivirus:3310', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
@@ -156,7 +156,7 @@ class Services extends AbstractHandler {
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/redis');
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/redis.dockerfile');
       File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
-      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'redis:6379', '');
+      File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'docker-compose.yml', 'cache:6379', '');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
       File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }

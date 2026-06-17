@@ -41,9 +41,9 @@ commands:
       export VORTEX_HOST_DB2_PORT=$(docker compose port database2 3306 2>/dev/null | cut -d : -f 2)
       #;> MIGRATION
       #;< SERVICE_SOLR
-      export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
+      export VORTEX_HOST_SOLR_PORT=$(docker compose port search 8983 2>/dev/null | cut -d : -f 2)
       #;> SERVICE_SOLR
-      export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
+      export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port browser 7900 2>/dev/null | cut -d : -f 2)
       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
       ahoy cli ./vendor/drevops/vortex-tooling/src/info "$@"
 
@@ -126,7 +126,7 @@ commands:
   #;< SERVICE_REDIS
   flush-redis:
     usage: Flush Redis cache.
-    cmd: docker compose exec redis redis-cli flushall
+    cmd: docker compose exec cache redis-cli flushall
   #;> SERVICE_REDIS
 
   # ----------------------------------------------------------------------------
@@ -326,7 +326,7 @@ commands:
     aliases: [xdebug]
     cmd: |
       ahoy cli php -v | grep -q Xdebug && echo "Debug configuration is already enabled. Use 'ahoy up' to disable." || \
-      (XDEBUG_ENABLE=true ahoy up cli php nginx && sleep 1 && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable.")
+      (XDEBUG_ENABLE=true ahoy up cli appserver webserver && sleep 1 && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable.")
 
   deploy:
     usage: Run remote deployment procedures.

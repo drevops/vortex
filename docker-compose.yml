@@ -134,7 +134,7 @@ services:
       lagoon.persistent: &lagoon-persistent-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
     #;> HOSTING_LAGOON
 
-  nginx:
+  webserver:
     build:
       context: .
       dockerfile: .docker/nginx-drupal.dockerfile
@@ -145,6 +145,8 @@ services:
         cli: "service:cli"
     environment:
       <<: *default-environment
+      # FastCGI upstream; the base image defaults to 'php', the service is 'appserver'.
+      NGINX_FASTCGI_PASS: appserver
     <<: [ *default-volumes, *default-user ]
     depends_on:
       - cli
@@ -160,7 +162,7 @@ services:
     #;> HOSTING_LAGOON
 
   # PHP FPM container. All web requests are going through this container.
-  php:
+  appserver:
     build:
       context: .
       dockerfile: .docker/php.dockerfile
@@ -213,7 +215,7 @@ services:
   #;> MIGRATION
 
   #;< SERVICE_REDIS
-  redis:
+  cache:
     image: uselagoon/valkey-8:26.5.1
     #;< HOSTING_LAGOON
     labels:
@@ -222,16 +224,16 @@ services:
   #;> SERVICE_REDIS
 
   #;< SERVICE_SOLR
-  solr:
+  search:
     build:
       context: .
       dockerfile: .docker/solr.dockerfile
     environment:
       <<: *default-environment
     volumes:
-      - solr:/var/solr
+      - search:/var/solr
     ports:
-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
+      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port search 8983`.
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: solr # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
@@ -239,14 +241,14 @@ services:
   #;> SERVICE_SOLR
 
   #;< SERVICE_CLAMAV
-  clamav:
+  antivirus:
     build:
       context: .
       dockerfile: .docker/clamav.dockerfile
     environment:
       <<: *default-environment
     ports:
-      - '3310' # Find port on host with `docker compose port clamav 3310`.
+      - '3310' # Find port on host with `docker compose port antivirus 3310`.
     networks:
       - default
     #;< HOSTING_LAGOON
@@ -257,8 +259,8 @@ services:
     #;> HOSTING_LAGOON
   #;> SERVICE_CLAMAV
 
-  # Chrome container, used for browser testing.
-  chrome:
+  # Browser container, used for browser testing.
+  browser:
     image: selenium/standalone-chromium:148.0
     environment:
       <<: *default-environment
@@ -266,7 +268,7 @@ services:
     depends_on:
       - cli
     ports:
-      - '7900' # Find port on host with `docker compose port chrome 7900`.
+      - '7900' # Find port on host with `docker compose port browser 7900`.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
     #;< HOSTING_LAGOON
     labels:
@@ -278,32 +280,32 @@ services:
     image: drevops/docker-wait-for-dependencies:26.1.0
     depends_on:
       #;< SERVICE_CLAMAV
-      - clamav
+      - antivirus
       #;> SERVICE_CLAMAV
       - database
       #;< MIGRATION
       - database2
       #;> MIGRATION
       #;< SERVICE_REDIS
-      - redis
+      - cache
       #;> SERVICE_REDIS
       #;< SERVICE_SOLR
-      - solr
+      - search
       #;> SERVICE_SOLR
     command:
       #;< SERVICE_CLAMAV
-      - clamav:3310
+      - antivirus:3310
       #;> SERVICE_CLAMAV
       - database:3306
       #;< MIGRATION
       - database2:3306
       #;> MIGRATION
       #;< SERVICE_REDIS
-      - redis:6379
+      - cache:6379
       #;> SERVICE_REDIS
       #;< SERVICE_SOLR
-      - solr:8983
-      - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+      - search:8983
+      - curl -s "http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
       #;> SERVICE_SOLR
     #;< HOSTING_LAGOON
     labels:
@@ -318,7 +320,7 @@ volumes:
   app: {}
   files: {}
   #;< SERVICE_SOLR
-  solr: {}
+  search: {}
   #;> SERVICE_SOLR
 
 secrets:

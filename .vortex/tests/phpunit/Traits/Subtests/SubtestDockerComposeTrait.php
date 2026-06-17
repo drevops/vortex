@@ -254,8 +254,8 @@ trait SubtestDockerComposeTrait {
     $this->logSubstep('Assert default timezone values.');
     $this->assertFileContainsString('.env', 'TZ=UTC', '.env contains a default value.');
     $this->cmd('docker compose exec -T cli date', 'UTC', 'Date is in default timezone inside CLI container by default');
-    $this->cmd('docker compose exec -T php date', 'UTC', 'Date is in default timezone inside PHP container by default');
-    $this->cmd('docker compose exec -T nginx date', 'UTC', 'Date is in default timezone inside Nginx container by default');
+    $this->cmd('docker compose exec -T appserver date', 'UTC', 'Date is in default timezone inside appserver container by default');
+    $this->cmd('docker compose exec -T webserver date', 'UTC', 'Date is in default timezone inside webserver container by default');
     $this->cmd('docker compose exec -T database date', 'UTC', 'Date is in default timezone inside Database container by default');
 
     $this->logSubstep('Add variable to the .env file and apply the change to container.');
@@ -264,8 +264,8 @@ trait SubtestDockerComposeTrait {
 
     $this->logSubstep('Assert custom timezone values.');
     $this->cmd('docker compose exec -T cli date', 'AWST', 'Date is in custom timezone inside CLI container');
-    $this->cmd('docker compose exec -T php date', 'AWST', 'Date is in custom timezone inside PHP container');
-    $this->cmd('docker compose exec -T nginx date', 'AWST', 'Date is in custom timezone inside Nginx container');
+    $this->cmd('docker compose exec -T appserver date', 'AWST', 'Date is in custom timezone inside appserver container');
+    $this->cmd('docker compose exec -T webserver date', 'AWST', 'Date is in custom timezone inside webserver container');
     $this->cmd('docker compose exec -T database date', 'AWST', 'Date is in custom timezone inside Database container');
 
     $this->logSubstep('Restore file, apply changes and assert that original behaviour has been restored.');
@@ -326,7 +326,7 @@ trait SubtestDockerComposeTrait {
     $this->logStepStart();
 
     $this->cmd(
-      'docker compose exec -T cli bash -c "curl -s \"http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
+      'docker compose exec -T cli bash -c "curl -s \"http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json\""',
       'response',
       'Solr is running and responding to queries'
     );

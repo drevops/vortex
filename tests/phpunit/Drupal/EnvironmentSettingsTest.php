@@ -524,7 +524,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^example-site\.docker\.amazee\.io$',
-      '^nginx$',
+      '^webserver$',
     ];
     $this->assertSettings($settings);
   }

@@ -40,7 +40,7 @@ backend_config:
   connector: standard
   connector_config:
     scheme: http
-    host: solr
+    host: search
     port: 8983
     path: /
     core: drupal
