@@ -113,7 +113,7 @@ final class MigrateContentDeployStep extends DeployStepBase {
       $dump = $this->dumpPath();
 
       if (!file_exists($dump)) {
-        throw new \RuntimeException(sprintf('Migration source database file not found: %s. Run "ahoy download-db2".', $dump));
+        throw new \RuntimeException(sprintf('Migration source database file not found: %s. Run "ahoy fetch-db2".', $dump));
       }
 
       $this->drush('sql:drop', [], ['database' => 'migrate']);

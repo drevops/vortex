@@ -233,12 +233,12 @@ jobs:
       # the download script skips itself, leaving no semaphore file behind.
       - run:
           name: Download DB
-          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
+          command: VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       - run:
           name: Download migration DB
-          command: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db
+          command: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       - run:

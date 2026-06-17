@@ -8,6 +8,6 @@
 +  3. Update `$VORTEX_DOWNLOAD_DB_SSH_FILE` environment variable in `.env.local` file
 +     with the path to the SSH key.
 +
- - `ahoy download-db`
+ - `ahoy fetch-db`
  
  - `pygmy up`

@@ -2,7 +2,7 @@
 ##
 # Install 'drevops/vortex-tooling' into 'vendor/drevops/'.
 #
-# Host-side recipes (ahoy download-db, ahoy deploy, ahoy doctor, etc.) need
+# Host-side recipes (ahoy fetch-db, ahoy deploy, ahoy doctor, etc.) need
 # the shipped Vortex shell scripts before the project's full 'composer install'
 # has run. This script installs only that single package via a throwaway
 # Composer project in 'vendor-temp/', so the project's main vendor/ and
