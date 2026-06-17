@@ -79,4 +79,4 @@
 +docroot/themes/**/build
  .data
  .logs
- .phpunit.cache
+ .artifacts
