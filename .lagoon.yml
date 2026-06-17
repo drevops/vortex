@@ -53,7 +53,7 @@ tasks:
         command: |
           if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
-            export VORTEX_DOWNLOAD_DB_SSH_FILE=false
+            export VORTEX_FETCH_DB_SSH_FILE=false
             export VORTEX_DB_DIR=/tmp/data
             rm -Rf $VORTEX_DB_DIR || true
             ./vendor/drevops/vortex-tooling/src/fetch-db
@@ -65,7 +65,7 @@ tasks:
     - run:
         name: Download migration database
         command: |
-          export VORTEX_DOWNLOAD_DB_SSH_FILE=false
+          export VORTEX_FETCH_DB_SSH_FILE=false
           export VORTEX_DB_DIR=/tmp/data
           VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
         service: cli

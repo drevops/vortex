@@ -137,7 +137,7 @@ class FileManager {
     // Reload variables from destination's .env.
     Env::putFromDotenv($this->config->getDst() . '/.env');
 
-    $url = Env::get('VORTEX_DOWNLOAD_DB_URL');
+    $url = Env::get('VORTEX_FETCH_DB_URL');
     if (empty($url)) {
       return 'No database download URL provided. Skipping demo database download.';
     }

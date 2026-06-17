@@ -33,14 +33,14 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Lagoon."
   )
 
-  export VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="testproject"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
-  export VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_LAGOON_PROJECT="testproject"
+  export VORTEX_FETCH_DB_ENVIRONMENT="main"
+  export VORTEX_FETCH_DB_LAGOON_DB_DIR=".data"
+  export VORTEX_FETCH_DB_LAGOON_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
-  export VORTEX_DOWNLOAD_DB_SSH_FILE=false
+  export VORTEX_FETCH_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
 
@@ -86,14 +86,14 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Lagoon."
   )
 
-  export VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="testproject"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
-  export VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_LAGOON_PROJECT="testproject"
+  export VORTEX_FETCH_DB_ENVIRONMENT="main"
+  export VORTEX_FETCH_DB_LAGOON_DB_DIR=".data"
+  export VORTEX_FETCH_DB_LAGOON_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
-  export VORTEX_DOWNLOAD_DB_SSH_FILE=false
+  export VORTEX_FETCH_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-lagoon
@@ -138,15 +138,15 @@ load ../_helper.bash
     "[ OK ] Finished database dump download from Lagoon."
   )
 
-  export VORTEX_DOWNLOAD_DB_LAGOON_PROJECT="testproject"
-  export VORTEX_DOWNLOAD_DB_ENVIRONMENT="main"
-  export VORTEX_DOWNLOAD_DB_FRESH="1"
-  export VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_LAGOON_PROJECT="testproject"
+  export VORTEX_FETCH_DB_ENVIRONMENT="main"
+  export VORTEX_FETCH_DB_FRESH="1"
+  export VORTEX_FETCH_DB_LAGOON_DB_DIR=".data"
+  export VORTEX_FETCH_DB_LAGOON_DB_FILE="db.sql"
 
   fixture_ssh_key_prepare
   export VORTEX_SSH_PREFIX="TEST"
-  export VORTEX_DOWNLOAD_DB_SSH_FILE=false
+  export VORTEX_FETCH_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-lagoon

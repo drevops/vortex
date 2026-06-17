@@ -12,9 +12,9 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_side_effect "${mock_curl}" "mkdir -p .data && touch .data/db.sql" 1
 
-  export VORTEX_DOWNLOAD_DB_URL="http://example.com/db.sql"
-  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_URL="http://example.com/db.sql"
+  export VORTEX_FETCH_DB_URL_DB_DIR=".data"
+  export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
 
   run .vortex/tooling/src/fetch-db-url
   assert_success
@@ -35,10 +35,10 @@ load ../_helper.bash
   mock_find=$(mock_command "find")
   mock_set_side_effect "${mock_find}" 'echo "$1/subdir/backup.sql"' 1
 
-  export VORTEX_DOWNLOAD_DB_URL="http://example.com/db.zip"
-  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD=""
+  export VORTEX_FETCH_DB_URL="http://example.com/db.zip"
+  export VORTEX_FETCH_DB_URL_DB_DIR=".data"
+  export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_UNZIP_PASSWORD=""
 
   run .vortex/tooling/src/fetch-db-url
   assert_success
@@ -59,10 +59,10 @@ load ../_helper.bash
   mock_find=$(mock_command "find")
   mock_set_side_effect "${mock_find}" 'echo "$1/protected/secure_backup.sql"' 1
 
-  export VORTEX_DOWNLOAD_DB_URL="http://example.com/protected.zip"
-  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD="secret123"
+  export VORTEX_FETCH_DB_URL="http://example.com/protected.zip"
+  export VORTEX_FETCH_DB_URL_DB_DIR=".data"
+  export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_UNZIP_PASSWORD="secret123"
 
   run .vortex/tooling/src/fetch-db-url
   assert_success
@@ -73,17 +73,17 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-url: Fail when VORTEX_DOWNLOAD_DB_URL is missing" {
+@test "fetch-db-url: Fail when VORTEX_FETCH_DB_URL is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export VORTEX_DOWNLOAD_DB_URL=""
-  export VORTEX_DOWNLOAD_DB_URL_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_URL_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_URL=""
+  export VORTEX_FETCH_DB_URL_DB_DIR=".data"
+  export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
 
   run .vortex/tooling/src/fetch-db-url
   assert_failure
   assert_output_contains "[INFO] Started database dump download from URL."
-  assert_output_contains "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_URL."
+  assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_URL."
 
   popd >/dev/null
 }
@@ -94,9 +94,9 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_side_effect "${mock_curl}" "mkdir -p ./.data && touch ./.data/db.sql" 1
 
-  export VORTEX_DOWNLOAD_DB_URL="http://example.com/test.sql"
-  # Don't set VORTEX_DOWNLOAD_DB_URL_DB_DIR and VORTEX_DOWNLOAD_DB_URL_DB_FILE to test defaults
-  unset VORTEX_DOWNLOAD_DB_URL_DB_DIR VORTEX_DOWNLOAD_DB_URL_DB_FILE VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD
+  export VORTEX_FETCH_DB_URL="http://example.com/test.sql"
+  # Don't set VORTEX_FETCH_DB_URL_DB_DIR and VORTEX_FETCH_DB_URL_DB_FILE to test defaults
+  unset VORTEX_FETCH_DB_URL_DB_DIR VORTEX_FETCH_DB_URL_DB_FILE VORTEX_FETCH_DB_UNZIP_PASSWORD
 
   run .vortex/tooling/src/fetch-db-url
   assert_success

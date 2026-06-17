@@ -293,20 +293,20 @@ jobs:
 
       #;< !PROVISION_TYPE_PROFILE
       - name: Add SSH private key used to download database
-        if: ${{ env.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY != '' }}
+        if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
-          key: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
         env:
-          VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_DOWNLOAD_DB_SSH_PRIVATE_KEY }}
+          VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
 
       # On the first build of the day (cache miss), download a fresh DB dump.
       # On subsequent builds, the restored cache already contains the dump and
       # the download script skips itself, leaving no semaphore file behind.
       - name: Download DB
         run: |
-          VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
         timeout-minutes: 30
         #;< DB_DOWNLOAD_SOURCE_ACQUIA
@@ -343,7 +343,7 @@ jobs:
       # primary parallel runner pushes a refreshed database container image.
       - name: Export DB after download
         run: |
-          if [ ! -f /tmp/download-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
+          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
           if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
@@ -371,9 +371,9 @@ jobs:
             docker compose cp -L .data/db.sql cli:/app/.data/db.sql
           fi
           #;< MIGRATION
-          if [ -f ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" ]; then
+          if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
             docker compose exec -T cli mkdir -p .data
-            docker compose cp -L ".data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
+            docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
           fi
           #;> MIGRATION
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision

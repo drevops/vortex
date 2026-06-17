@@ -28,12 +28,12 @@ load ../_helper.bash
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
-  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_S3_DB_DIR=".data"
+  export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -71,12 +71,12 @@ load ../_helper.bash
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
-  # Don't set VORTEX_DOWNLOAD_DB_S3_DB_DIR and VORTEX_DOWNLOAD_DB_S3_DB_FILE to test defaults.
-  unset VORTEX_DOWNLOAD_DB_S3_DB_DIR VORTEX_DOWNLOAD_DB_S3_DB_FILE
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
+  # Don't set VORTEX_FETCH_DB_S3_DB_DIR and VORTEX_FETCH_DB_S3_DB_FILE to test defaults.
+  unset VORTEX_FETCH_DB_S3_DB_DIR VORTEX_FETCH_DB_S3_DB_FILE
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -107,19 +107,19 @@ load ../_helper.bash
   )
 
   # Clear VORTEX_* variables so shortcut fallback kicks in.
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY=""
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY=""
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET=""
-  export VORTEX_DOWNLOAD_DB_S3_REGION=""
-  # Set shortcut variables instead of VORTEX_DOWNLOAD_DB_S3_* variables.
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY=""
+  export VORTEX_FETCH_DB_S3_SECRET_KEY=""
+  export VORTEX_FETCH_DB_S3_BUCKET=""
+  export VORTEX_FETCH_DB_S3_REGION=""
+  # Set shortcut variables instead of VORTEX_FETCH_DB_S3_* variables.
   export S3_ACCESS_KEY="shortcut-access-key"
   export S3_SECRET_KEY="shortcut-secret-key"
   export S3_BUCKET="shortcut-bucket"
   export S3_REGION="us-east-1"
   # Clear prefix shortcut to prevent environment leakage.
   unset S3_PREFIX
-  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_S3_DB_DIR=".data"
+  export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -152,13 +152,13 @@ load ../_helper.bash
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
-  export VORTEX_DOWNLOAD_DB_S3_PREFIX="backups/daily/"
-  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_S3_PREFIX="backups/daily/"
+  export VORTEX_FETCH_DB_S3_DB_DIR=".data"
+  export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -191,14 +191,14 @@ load ../_helper.bash
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
   # Prefix without trailing slash should be normalized.
-  export VORTEX_DOWNLOAD_DB_S3_PREFIX="backups/daily"
-  export VORTEX_DOWNLOAD_DB_S3_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_S3_PREFIX="backups/daily"
+  export VORTEX_FETCH_DB_S3_DB_DIR=".data"
+  export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -211,21 +211,21 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY is missing" {
+@test "fetch-db-s3: Fail when VORTEX_FETCH_DB_S3_ACCESS_KEY is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
-    "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY."
+    "[FAIL] Missing required value for VORTEX_FETCH_DB_S3_ACCESS_KEY."
     "- [ OK ] Finished database dump download from S3."
   )
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY=""
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY=""
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -236,21 +236,21 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_SECRET_KEY is missing" {
+@test "fetch-db-s3: Fail when VORTEX_FETCH_DB_S3_SECRET_KEY is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
-    "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_S3_SECRET_KEY."
+    "[FAIL] Missing required value for VORTEX_FETCH_DB_S3_SECRET_KEY."
     "- [ OK ] Finished database dump download from S3."
   )
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY=""
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY=""
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -261,21 +261,21 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_BUCKET is missing" {
+@test "fetch-db-s3: Fail when VORTEX_FETCH_DB_S3_BUCKET is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
-    "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_S3_BUCKET."
+    "[FAIL] Missing required value for VORTEX_FETCH_DB_S3_BUCKET."
     "- [ OK ] Finished database dump download from S3."
   )
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET=""
-  export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET=""
+  export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3
@@ -286,21 +286,21 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_REGION is missing" {
+@test "fetch-db-s3: Fail when VORTEX_FETCH_DB_S3_REGION is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
-    "[FAIL] Missing required value for VORTEX_DOWNLOAD_DB_S3_REGION."
+    "[FAIL] Missing required value for VORTEX_FETCH_DB_S3_REGION."
     "- [ OK ] Finished database dump download from S3."
   )
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
 
-  export VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY="testaccesskey"
-  export VORTEX_DOWNLOAD_DB_S3_SECRET_KEY="testsecretkey"
-  export VORTEX_DOWNLOAD_DB_S3_BUCKET="test-bucket"
-  export VORTEX_DOWNLOAD_DB_S3_REGION=""
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_FETCH_DB_S3_REGION=""
 
   mocks="$(run_steps "setup")"
   run .vortex/tooling/src/fetch-db-s3

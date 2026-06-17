@@ -27,11 +27,11 @@ EOF
   mock_touch=$(mock_command "touch")
   mock_set_output "${mock_touch}" "" 1
 
-  export VORTEX_DOWNLOAD_DB_SOURCE="url"
-  export VORTEX_DOWNLOAD_DB_PROCEED="1"
-  export VORTEX_DOWNLOAD_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_SEMAPHORE=".data/.db-downloaded"
+  export VORTEX_FETCH_DB_SOURCE="url"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_SEMAPHORE=".data/.db-downloaded"
 
   run .vortex/tooling/src/fetch-db
   assert_success
@@ -47,10 +47,10 @@ EOF
 @test "fetch-db: Skip when disabled and use default source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  # Test skipping when VORTEX_DOWNLOAD_DB_PROCEED is not 1
-  export VORTEX_DOWNLOAD_DB_PROCEED="0"
-  export VORTEX_DOWNLOAD_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
+  # Test skipping when VORTEX_FETCH_DB_PROCEED is not 1
+  export VORTEX_FETCH_DB_PROCEED="0"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
 
   run .vortex/tooling/src/fetch-db
   assert_success
@@ -69,9 +69,9 @@ EOF
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 1024 -rw-r--r-- 1 user user 1048576 Jan 01 12:00 db.sql" 1
 
-  # Unset VORTEX_DOWNLOAD_DB_SOURCE to test default
-  unset VORTEX_DOWNLOAD_DB_SOURCE
-  export VORTEX_DOWNLOAD_DB_PROCEED="1"
+  # Unset VORTEX_FETCH_DB_SOURCE to test default
+  unset VORTEX_FETCH_DB_SOURCE
+  export VORTEX_FETCH_DB_PROCEED="1"
 
   run .vortex/tooling/src/fetch-db
   assert_success
@@ -102,11 +102,11 @@ EOF
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
 
-  export VORTEX_DOWNLOAD_DB_SOURCE="container_registry"
-  export VORTEX_DOWNLOAD_DB_PROCEED="1"
-  export VORTEX_DOWNLOAD_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
-  export VORTEX_DOWNLOAD_DB_FORCE=""
+  export VORTEX_FETCH_DB_SOURCE="container_registry"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FORCE=""
 
   run .vortex/tooling/src/fetch-db
   assert_success
@@ -138,10 +138,10 @@ EOF
 
   # Set database index to pick up long-form indexed variables.
   export VORTEX_DB_INDEX="2"
-  export VORTEX_DOWNLOAD_DB2_SOURCE="url"
-  export VORTEX_DOWNLOAD_DB2_PROCEED="1"
-  export VORTEX_DOWNLOAD_DB2_DIR=".data"
-  export VORTEX_DOWNLOAD_DB2_FILE="db2.sql"
+  export VORTEX_FETCH_DB2_SOURCE="url"
+  export VORTEX_FETCH_DB2_PROCEED="1"
+  export VORTEX_FETCH_DB2_DIR=".data"
+  export VORTEX_FETCH_DB2_FILE="db2.sql"
 
   run .vortex/tooling/src/fetch-db
   assert_success
@@ -169,8 +169,8 @@ EOF
 
   # Set database index to pick up shorthand indexed variables.
   export VORTEX_DB_INDEX="2"
-  export VORTEX_DOWNLOAD_DB2_SOURCE="url"
-  export VORTEX_DOWNLOAD_DB2_PROCEED="1"
+  export VORTEX_FETCH_DB2_SOURCE="url"
+  export VORTEX_FETCH_DB2_PROCEED="1"
   # Use shorthand forms for DIR and FILE.
   export VORTEX_DB2_DIR=".data"
   export VORTEX_DB2_FILE="db2.sql"
@@ -195,20 +195,20 @@ EOF
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 1024 -rw-r--r-- 1 user user 1048576 Jan 01 12:00 db.sql" 2
 
-  export VORTEX_DOWNLOAD_DB_SOURCE="url"
-  export VORTEX_DOWNLOAD_DB_PROCEED="1"
-  export VORTEX_DOWNLOAD_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_SOURCE="url"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
 
   # Test using existing file when force is not set
-  export VORTEX_DOWNLOAD_DB_FORCE=""
+  export VORTEX_FETCH_DB_FORCE=""
   run .vortex/tooling/src/fetch-db
   assert_success
   assert_output_contains "Started database download."
   assert_output_contains "Found existing database dump file(s)."
   assert_output_contains "Using existing database dump file(s)."
   assert_output_contains "Download will not proceed."
-  assert_output_contains "Remove existing database file or set VORTEX_DOWNLOAD_DB_FORCE value to 1 to force download."
+  assert_output_contains "Remove existing database file or set VORTEX_FETCH_DB_FORCE value to 1 to force download."
 
   # Test forcing download when existing file found
   mkdir -p .vortex/tooling/src
@@ -219,7 +219,7 @@ echo "Finished database dump download from URL."
 EOF
   chmod +x .vortex/tooling/src/fetch-db-url
 
-  export VORTEX_DOWNLOAD_DB_FORCE="1"
+  export VORTEX_FETCH_DB_FORCE="1"
   run .vortex/tooling/src/fetch-db
   assert_success
   assert_output_contains "Started database download."
