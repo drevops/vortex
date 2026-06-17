@@ -93,10 +93,8 @@ note "S3 bucket:   ${VORTEX_DOWNLOAD_DB_S3_BUCKET}"
 note "S3 region:   ${VORTEX_DOWNLOAD_DB_S3_REGION}"
 [ -n "${VORTEX_DOWNLOAD_DB_S3_PREFIX}" ] && note "S3 prefix:   ${VORTEX_DOWNLOAD_DB_S3_PREFIX}"
 
-# shellcheck disable=SC2059
-hash_sha256() { printf "${1}" | openssl dgst -sha256 | sed 's/^.* //'; }
-# shellcheck disable=SC2059
-hmac_sha256() { printf "${2}" | openssl dgst -sha256 -mac HMAC -macopt "${1}" | sed 's/^.* //'; }
+hash_sha256() { printf '%b' "${1}" | openssl dgst -sha256 | sed 's/^.* //'; }
+hmac_sha256() { printf '%s' "${2}" | openssl dgst -sha256 -mac HMAC -macopt "${1}" | sed 's/^.* //'; }
 
 payload_hash="$(printf "" | openssl dgst -sha256 | sed 's/^.* //')"
 
@@ -113,7 +111,6 @@ ${signed_headers}
 ${payload_hash}"
 
 # Create the signature.
-# shellcheck disable=SC2059
 create_signature() {
   string_to_sign="${auth_type}\n${date_long}\n${date_short}/${VORTEX_DOWNLOAD_DB_S3_REGION}/${service}/aws4_request\n$(hash_sha256 "${request}")"
   date_key=$(hmac_sha256 key:"AWS4${VORTEX_DOWNLOAD_DB_S3_SECRET_KEY}" "${date_short}")
@@ -121,7 +118,7 @@ create_signature() {
   service_key=$(hmac_sha256 hexkey:"${region_key}" "${service}")
   signing_key=$(hmac_sha256 hexkey:"${service_key}" "aws4_request")
 
-  printf "${string_to_sign}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"${signing_key}" | sed 's/(stdin)= //' | sed 's/SHA2-256//'
+  printf '%b' "${string_to_sign}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"${signing_key}" | sed 's/(stdin)= //' | sed 's/SHA2-256//'
 }
 
 signature="$(create_signature)"
