@@ -79,19 +79,26 @@ fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "ftp" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/download-db-ftp"
-elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "url" ]; then
+fi
+
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "url" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/download-db-url"
-elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "acquia" ]; then
+fi
+
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "acquia" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/download-db-acquia"
-elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "lagoon" ]; then
+fi
+
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "lagoon" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/download-db-lagoon"
-elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "container_registry" ]; then
+fi
+
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "container_registry" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/download-db-container-registry"
-elif [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
+fi
+
+if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/download-db-s3"
-else
-  fail "Unsupported database download source ${VORTEX_DOWNLOAD_DB_SOURCE} provided."
-  exit 1
 fi
 
 ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" || true

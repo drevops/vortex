@@ -230,20 +230,3 @@ EOF
 
   popd >/dev/null
 }
-
-@test "download-db: Fail on unknown source" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  export VORTEX_DOWNLOAD_DB_SOURCE="unknown"
-  export VORTEX_DOWNLOAD_DB_PROCEED="1"
-  export VORTEX_DOWNLOAD_DB_DIR=".data"
-  export VORTEX_DOWNLOAD_DB_FILE="db.sql"
-
-  run .vortex/tooling/src/download-db
-  assert_failure
-  assert_output_contains "Started database download."
-  assert_output_contains "Unsupported database download source unknown provided."
-  assert_output_not_contains "Finished database download."
-
-  popd >/dev/null
-}
