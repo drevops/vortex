@@ -2,7 +2,7 @@
 #
 # This configuration file uses a custom "container" executor to run the
 # Docker stack to speed up the build process.
-name: Database, Build, Test and Deploy
+name: Build, Test and Deploy
 
 on:
   push:
