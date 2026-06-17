@@ -72,7 +72,7 @@
 -      # the download script skips itself, leaving no semaphore file behind.
 -      - name: Download DB
 -        run: |
--          VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
+-          VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
 -          echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
 -        timeout-minutes: 30
 -

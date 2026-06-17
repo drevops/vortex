@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for download-db-s3.sh
+# Unit tests for fetch-db-s3.sh
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 
 load ../_helper.bash
 
-@test "download-db-s3: Download database file successfully" {
+@test "fetch-db-s3: Download database file successfully" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   rm -rf .data
@@ -36,7 +36,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -49,7 +49,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Use default values for optional variables" {
+@test "fetch-db-s3: Use default values for optional variables" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   rm -rf .data
@@ -79,7 +79,7 @@ load ../_helper.bash
   unset VORTEX_DOWNLOAD_DB_S3_DB_DIR VORTEX_DOWNLOAD_DB_S3_DB_FILE
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -89,7 +89,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Use shortcut variables" {
+@test "fetch-db-s3: Use shortcut variables" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   rm -rf .data
@@ -122,7 +122,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -132,7 +132,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Use custom prefix" {
+@test "fetch-db-s3: Use custom prefix" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   rm -rf .data
@@ -161,7 +161,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -171,7 +171,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Normalize prefix without trailing slash" {
+@test "fetch-db-s3: Normalize prefix without trailing slash" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   rm -rf .data
@@ -201,7 +201,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -211,7 +211,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY is missing" {
+@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -228,7 +228,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -236,7 +236,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_SECRET_KEY is missing" {
+@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_SECRET_KEY is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -253,7 +253,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -261,7 +261,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_BUCKET is missing" {
+@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_BUCKET is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -278,7 +278,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION="ap-southeast-2"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -286,7 +286,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_REGION is missing" {
+@test "fetch-db-s3: Fail when VORTEX_DOWNLOAD_DB_S3_REGION is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -303,7 +303,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_S3_REGION=""
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-s3
+  run .vortex/tooling/src/fetch-db-s3
   run_steps "assert" "${mocks}"
 
   assert_failure

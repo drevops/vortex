@@ -78,27 +78,27 @@ if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" != "container_registry" ]; then
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "ftp" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/download-db-ftp"
+  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-ftp"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "url" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/download-db-url"
+  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-url"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "acquia" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/download-db-acquia"
+  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-acquia"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "lagoon" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/download-db-lagoon"
+  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-lagoon"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "container_registry" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/download-db-container-registry"
+  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-container-registry"
 fi
 
 if [ "${VORTEX_DOWNLOAD_DB_SOURCE}" = "s3" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/download-db-s3"
+  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-s3"
 fi
 
 ls -Alh "${VORTEX_DOWNLOAD_DB_DIR}" || true

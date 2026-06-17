@@ -883,7 +883,7 @@ trait SubtestAhoyTrait {
     $this->assertFileContainsString('docker-compose.yml', 'database2');
     $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_FILE');
     $this->assertFileContainsString('.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
-    $this->assertFileContainsString('.ahoy.yml', 'download-db2');
+    $this->assertFileContainsString('.ahoy.yml', 'fetch-db2');
     $this->assertFileContainsString('.ahoy.yml', 'reload-db2');
 
     $this->logStepFinish();
@@ -893,7 +893,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->fileAddVar('.env', 'VORTEX_DOWNLOAD_DB2_URL', static::VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST);
-    $this->cmd('ahoy download-db2', txt: 'Download migration database');
+    $this->cmd('ahoy fetch-db2', txt: 'Download migration database');
     $this->assertFileExists('.data/db2.sql', 'Migration database file should exist after download');
 
     $this->logStepFinish();

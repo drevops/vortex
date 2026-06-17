@@ -2,7 +2,7 @@
 ##
 # Manual test script for S3 database download.
 #
-# Downloads a database dump file from an S3 bucket using download-db-s3.sh.
+# Downloads a database dump file from an S3 bucket using fetch-db-s3.sh.
 #
 # Usage:
 #   export S3_ACCESS_KEY="your-access-key"
@@ -68,7 +68,7 @@ export VORTEX_DOWNLOAD_DB_S3_BUCKET="${S3_BUCKET}"
 export VORTEX_DOWNLOAD_DB_S3_REGION="${S3_REGION}"
 export VORTEX_DOWNLOAD_DB_S3_PREFIX="${S3_PREFIX}"
 
-./vendor/drevops/vortex-tooling/src/download-db-s3
+./vendor/drevops/vortex-tooling/src/fetch-db-s3
 
 echo ""
 echo "Download complete!"

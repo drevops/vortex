@@ -80,7 +80,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;< !PROVISION_TYPE_PROFILE)
 
-- `ahoy download-db`
+- `ahoy fetch-db`
 
 [//]: # (#;> !PROVISION_TYPE_PROFILE)
 

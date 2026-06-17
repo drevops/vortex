@@ -306,7 +306,7 @@ jobs:
       # the download script skips itself, leaving no semaphore file behind.
       - name: Download DB
         run: |
-          VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/download-db
+          VORTEX_DOWNLOAD_DB_SEMAPHORE=/tmp/download-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
         timeout-minutes: 30
         #;< DB_DOWNLOAD_SOURCE_ACQUIA
@@ -317,7 +317,7 @@ jobs:
 
       #;< MIGRATION
       - name: Download migration DB
-        run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db
+        run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
       #;> MIGRATION
       #;> !PROVISION_TYPE_PROFILE
 

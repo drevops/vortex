@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 #
-# Unit tests for download-db-lagoon.sh
+# Unit tests for fetch-db-lagoon.sh
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 
 load ../_helper.bash
 
-@test "download-db-lagoon: Download database successfully" {
+@test "fetch-db-lagoon: Download database successfully" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first to force full download workflow
@@ -44,7 +44,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/download-db-lagoon
+  run .vortex/tooling/src/fetch-db-lagoon
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -59,7 +59,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-lagoon: Use existing dump when available" {
+@test "fetch-db-lagoon: Use existing dump when available" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first
@@ -96,7 +96,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-lagoon
+  run .vortex/tooling/src/fetch-db-lagoon
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -111,7 +111,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-lagoon: Refresh existing dump when requested" {
+@test "fetch-db-lagoon: Refresh existing dump when requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first
@@ -149,7 +149,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_SSH_FILE=false
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-lagoon
+  run .vortex/tooling/src/fetch-db-lagoon
   run_steps "assert" "${mocks}"
 
   assert_success

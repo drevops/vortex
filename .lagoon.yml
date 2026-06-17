@@ -56,7 +56,7 @@ tasks:
             export VORTEX_DOWNLOAD_DB_SSH_FILE=false
             export VORTEX_DB_DIR=/tmp/data
             rm -Rf $VORTEX_DB_DIR || true
-            ./vendor/drevops/vortex-tooling/src/download-db
+            ./vendor/drevops/vortex-tooling/src/fetch-db
           fi
         service: cli
     #;> !PROVISION_TYPE_PROFILE
@@ -67,7 +67,7 @@ tasks:
         command: |
           export VORTEX_DOWNLOAD_DB_SSH_FILE=false
           export VORTEX_DB_DIR=/tmp/data
-          VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db
+          VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
         service: cli
     #;> MIGRATION
 

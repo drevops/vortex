@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 #
-# Unit tests for download-db-acquia.sh
+# Unit tests for fetch-db-acquia.sh
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 
 load ../_helper.bash
 
-@test "download-db-acquia: Download database successfully" {
+@test "fetch-db-acquia: Download database successfully" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first to force full download workflow
@@ -63,7 +63,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -78,7 +78,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Use cached uncompressed file when available" {
+@test "fetch-db-acquia: Use cached uncompressed file when available" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Create existing uncompressed file
@@ -125,7 +125,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -136,7 +136,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Use cached compressed file when available" {
+@test "fetch-db-acquia: Use cached compressed file when available" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Create existing compressed file
@@ -188,7 +188,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -199,7 +199,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Use default values for optional variables" {
+@test "fetch-db-acquia: Use default values for optional variables" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -252,7 +252,7 @@ load ../_helper.bash
   unset VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -260,7 +260,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Authentication failure with error response" {
+@test "fetch-db-acquia: Authentication failure with error response" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -282,7 +282,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -290,7 +290,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Application not found" {
+@test "fetch-db-acquia: Application not found" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -316,7 +316,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -324,7 +324,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Environment not found" {
+@test "fetch-db-acquia: Environment not found" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -354,7 +354,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -362,7 +362,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Database not found" {
+@test "fetch-db-acquia: Database not found" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -396,7 +396,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="nonexistent-db"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -404,7 +404,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: No backups found for database" {
+@test "fetch-db-acquia: No backups found for database" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -438,7 +438,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -446,7 +446,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Create fresh backup when requested" {
+@test "fetch-db-acquia: Create fresh backup when requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files
@@ -516,7 +516,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -527,7 +527,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Fresh backup creation fails with API error" {
+@test "fetch-db-acquia: Fresh backup creation fails with API error" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -563,7 +563,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -571,7 +571,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Fresh backup creation fails - missing notification URL" {
+@test "fetch-db-acquia: Fresh backup creation fails - missing notification URL" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -607,7 +607,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -615,7 +615,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Fresh backup fails during creation" {
+@test "fetch-db-acquia: Fresh backup fails during creation" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -656,7 +656,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -664,7 +664,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Fresh backup times out" {
+@test "fetch-db-acquia: Fresh backup times out" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -714,7 +714,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -722,7 +722,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Backup URL discovery fails when response has no URL" {
+@test "fetch-db-acquia: Backup URL discovery fails when response has no URL" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first to force full download workflow
@@ -766,7 +766,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -777,7 +777,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Backup URL discovery fails when response is missing the URL field" {
+@test "fetch-db-acquia: Backup URL discovery fails when response is missing the URL field" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first to force full download workflow
@@ -818,7 +818,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -829,7 +829,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "download-db-acquia: Backup URL discovery fails with malformed JSON response" {
+@test "fetch-db-acquia: Backup URL discovery fails with malformed JSON response" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Clean up any existing test files first to force full download workflow
@@ -870,7 +870,7 @@ load ../_helper.bash
   export VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/download-db-acquia
+  run .vortex/tooling/src/fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
