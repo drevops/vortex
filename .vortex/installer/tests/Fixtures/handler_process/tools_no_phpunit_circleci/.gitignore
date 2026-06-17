@@ -1,5 +1,5 @@
-@@ -55,7 +55,6 @@
- web/themes/**/build
+@@ -56,7 +56,6 @@
+ .artifacts
  .data
  .logs
 -.phpunit.cache
