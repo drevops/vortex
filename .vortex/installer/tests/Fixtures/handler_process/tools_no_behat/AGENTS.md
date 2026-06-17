@@ -1,4 +1,4 @@
-@@ -62,9 +62,6 @@
+@@ -63,9 +63,6 @@
  # Jest testing
  ahoy test-js  # Run Jest JavaScript unit tests
  
