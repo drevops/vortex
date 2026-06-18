@@ -70,6 +70,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
@@ -103,6 +104,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
@@ -140,6 +142,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
@@ -184,6 +187,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for PR deployments."
@@ -222,6 +226,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for PR deployments."
@@ -264,6 +269,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for PR deployments."
@@ -305,6 +311,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Destroying environment: project test_project, branch: test-branch."
@@ -339,6 +346,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
@@ -374,6 +382,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for branch deployments."
@@ -413,6 +422,7 @@ load ../_helper.bash
   # shellcheck disable=SC2034
   declare -a STEPS=(
     "Started LAGOON deployment."
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "Discovering existing environments for PR deployments."
