@@ -27,7 +27,7 @@
   <div{{ attributes.addClass(classes) }}>
     {{ content }}
     <div class="back-to-top">
-      {{ include('lightsaber:button', { label: 'Back to top'|t, url: '#main-content', modifier: 'secondary' }, with_context = false) }}
+      {{ include('lightsaber:button', {label: 'Back to top'|t, url: '#main-content', modifier: 'secondary'}, with_context: false) }}
     </div>
   </div>
 {% endif %}
