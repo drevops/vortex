@@ -349,84 +349,70 @@ Composer Patches v2.x automatically generates a `patches.lock.json` file that co
 
 ## Security auditing
 
-Composer 2.9.0 introduced automatic security auditing that checks your dependencies for known security vulnerabilities and abandoned packages. This feature helps you maintain a secure codebase by alerting you to potential issues during package installation and updates.
+Composer 2.10.0 introduced a unified `config.policy` setting that controls both security auditing (reporting known security vulnerabilities and abandoned packages) and version blocking (refusing to install or update affected packages). **Vortex** uses it to keep vulnerabilities visible without blocking day-to-day dependency work.
 
 ### Configuration options
 
-Configure audit behavior in your `composer.json` under the `config` section:
+Configure the policy in your `composer.json` under the `config` section:
 
 ```json
 {
     "config": {
-        "audit": {
-            "abandoned": "report",
-            "block-insecure": true,
-            "ignore": {
-                "CVE-2024-1234": "The affected component is not in use in our application.",
-                "GHSA-xxxx-yyyy-zzzz": "Mitigated by additional security measures."
+        "policy": {
+            "advisories": {
+                "block": false,
+                "audit": "fail"
+            },
+            "abandoned": {
+                "audit": "report"
             }
         }
     }
 }
 ```
 
-**Available Options:**
+**Vortex** defaults:
 
-- **`block-insecure`**: Controls whether packages with security vulnerabilities block installation
-  - `true` (**Vortex** default): Blocks installation/update of vulnerable packages unless ignored
-  - `false`: Shows warnings but allows installation to proceed
-- **`abandoned`**: Controls how abandoned packages are handled
-  - `report` (**Vortex** default): Shows abandoned packages as warnings but doesn't fail
-  - `fail`: Audit command fails with non-zero exit code
-  - `ignore`: Skips abandoned packages in audit reports
-- **`ignore`**: Ignores specific security advisories by CVE or GHSA identifier (empty by default)
+- **`advisories.block`** (`false`): security advisories do not block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency.
+- **`advisories.audit`** (`fail`): the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
+- **`abandoned.audit`** (`report`): abandoned packages are reported as warnings but do not fail the audit.
 
-### When to Use `block-insecure: false`
+Each section accepts `block` (refuse affected versions during `composer update`/`require`/`remove`), `audit` (`ignore`, `report`, or `fail` for the `composer audit` command), and `ignore`/`ignore-id`/`ignore-severity` for assessed exceptions.
 
-**Vortex** sets `block-insecure` to `true` by default to enforce security best practices. However, you may want to set it to `false` when:
+:::note Composer 2.10+
 
-- You need flexibility to evaluate vulnerabilities on your timeline
-- No secure version is immediately available
-- The vulnerability doesn't affect your specific use case
-- You're in active development and need uninterrupted workflow
-
-Keep it `true` (Vortex default) when:
-
-- Working on production sites with strict security requirements
-- Your deployment process can handle blocked installations
-- You want to enforce immediate action on security vulnerabilities
-- Your team has resources to quickly address security issues
-
-:::warning Vortex Security-First Philosophy
-
-**Vortex** adopts a security-first approach by setting `block-insecure: true` as the default. This prioritizes safety in automated deployments by preventing vulnerable packages from being installed without explicit review.
-
-If you need to override this setting for backwards compatibility, you can modify the `audit.block-insecure` configuration in your project's `composer.json` file. However, we strongly recommend addressing vulnerabilities by updating packages or using the `ignore` configuration for assessed exceptions, rather than routinely disabling security blocking.
-
-This approach ensures security issues are explicitly acknowledged and reviewed before being accepted into your codebase.
+`config.policy` requires Composer 2.10 or newer, which ships in the **Vortex** container images. On older Composer versions, use the legacy `config.audit` keys (`block-insecure`, `abandoned`) instead - they continue to work as a fallback.
 
 :::
 
+### Why advisories do not block installation
+
+Coupling installation to advisory publication makes builds non-deterministic: a newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples the two by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`, so installs and updates remain reproducible while vulnerabilities are still surfaced by `composer audit` and the CI lint job.
+
+If your project requires installation to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
+
 ### Ignoring specific advisories
 
-When you've assessed a vulnerability and determined it doesn't affect your project, you can ignore it:
+When you've assessed an advisory and determined it doesn't affect your project, add it to the `ignore` list with a reason:
 
 ```json
 {
     "config": {
-        "audit": {
-            "ignore": {
-                "CVE-2024-1234": "Component is not used in our implementation.",
-                "GHSA-xxxx-yyyy-zzzz": "Patched via custom security fix."
+        "policy": {
+            "advisories": {
+                "ignore": {
+                    "CVE-2024-1234": "Component is not used in our implementation.",
+                    "GHSA-xxxx-yyyy-zzzz": "Patched via custom security fix."
+                }
             }
         }
     }
 }
 ```
 
-:::tip Document Your Decisions
+:::tip Document your decisions
 
-Always include reasons when ignoring advisories into your Git commit messages. This helps your team understand why a vulnerability was deemed acceptable and makes it easier to review these decisions in the future.
+Record the reason for each ignored advisory in your Git commit message. This helps your team understand why a vulnerability was deemed acceptable and makes the decision easy to review later.
 
 :::
 
@@ -465,10 +451,6 @@ Check your dependencies for security issues manually:
 
 ### CI/CD integration
 
-**Vortex** automatically runs `composer audit` as part of the CI/CD pipeline to
-check for security vulnerabilities during builds.
+**Vortex** runs `composer audit` as part of the CI lint job. Because `advisories.audit` is `fail`, the audit reports vulnerabilities and the lint job fails when any are found - even though installs and updates are not blocked.
 
-By default, audit failures will cause the CI build to fail. You can control this
-behavior using a repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`
-set to `1`. When this variable is set to `1`, the audit step will run but won't
-fail the build if vulnerabilities are found.
+By default that failure gates the build. Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to make the audit step run and report without failing the build - useful as a one-off bypass while a known advisory is being addressed.
