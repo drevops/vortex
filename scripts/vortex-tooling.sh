@@ -81,4 +81,13 @@ fi
 
 composer --working-dir=vendor-temp install --no-dev --no-interaction
 
+#;< VORTEX_DEV
+# The 2.x tooling marks itself as "Vortex 2.x tooling" in its composer.json
+# description. Fail the bootstrap if a non-2.x tooling was resolved.
+if ! grep -q 'Vortex 2.x tooling' vendor-temp/vendor/drevops/vortex-tooling/composer.json; then
+  echo "ERROR: resolved drevops/vortex-tooling is not the 2.x tooling (composer.json description marker not found)." >&2
+  exit 1
+fi
+#;> VORTEX_DEV
+
 mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/

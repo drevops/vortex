@@ -1,6 +1,6 @@
 {
     "name": "drevops/vortex-tooling",
-    "description": "Shell scripts for Vortex-based Drupal projects (deploy, notify, provision, download/export DB, etc.).",
+    "description": "Vortex 2.x tooling: shell scripts for Drupal projects (deploy, notify, provision, database operations, etc.).",
     "license": "GPL-3.0-or-later",
     "type": "library",
     "authors": [
