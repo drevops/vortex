@@ -70,7 +70,7 @@ note "Source DB import:        ${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}"
 echo
 
 if [ "${DRUPAL_MIGRATION_SKIP}" = "1" ]; then
-  info "Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
+  info "Skipped migrations. DRUPAL_MIGRATION_SKIP is set to 1."
   exit 0
 fi
 
@@ -84,7 +84,7 @@ run_migration() {
     exit 1
   }
 
-  task "Running migration: ${migration_name}"
+  task "Running migration: ${migration_name}."
   local opts=()
 
   opts+=("--feedback=${DRUPAL_MIGRATION_FEEDBACK}")
@@ -151,7 +151,7 @@ pass "Enabled migration modules."
 info "Starting migrations."
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
-  note "Skipping rollback of all migrations."
+  note "Skipped rollback of all migrations."
 else
   task "Rolling back all migrations."
   drush migrate:rollback --all || true
