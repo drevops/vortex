@@ -90,10 +90,15 @@ note() { printf "      %s\n" "${1}"; }
 ```
 
 **Publishing**: the version is injected at publish time - never hardcode
-`version` in the package `composer.json`. The path repository in the template's
-root `composer.json` declares `"versions": {"drevops/vortex-tooling": "1.2.0"}`
-so the in-repo copy resolves during development; the installer strips that entry
-from consumer sites so they resolve from Packagist.
+`version` in the package `composer.json`. While `2.0` is unreleased, the
+template's root `composer.json` requires
+`"drevops/vortex-tooling": "^2.0@alpha"` and the path repository pins
+`"versions": {"drevops/vortex-tooling": "2.0.0-alpha1"}` so the in-repo copy
+resolves during development. The installer strips that path repository from
+consumer sites; until a `2.0` pre-release is published to Packagist, scaffolded
+sites cannot resolve the tooling - acceptable during 2.x pre-release
+development. Once a `2.0` release is published, switch the constraint to a plain
+`^2.0`.
 
 ## Quick Commands
 
