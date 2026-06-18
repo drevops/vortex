@@ -262,7 +262,7 @@ Provided that your stack is already running:
 
 1. **Update the affected package**: try a newer version that resolves the advisory: `composer update vendor/package-name`.
 2. **Review the advisory**: run `composer audit` for details and assess whether it affects your project.
-3. **Record an assessed exception**: if no fixed version is available yet, or the vulnerability doesn't affect your use case, add the advisory to the `config.policy.advisories.ignore` list in your `composer.json` with a documented reason.
+3. **Record an assessed exception**: if no fixed version is available yet, or the vulnerability doesn't affect your use case, add the advisory to the `config.policy.advisories.ignore-id` list in your `composer.json` with a documented reason.
 4. **Bypass CI for a known issue**: set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
 
 ➡️ See [Composer > Security auditing](composer.mdx#security-auditing) for the full `config.policy` reference and guidance on choosing the right settings for your project.

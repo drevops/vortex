@@ -371,11 +371,11 @@ Configure the policy in your `composer.json` under the `config` section:
 }
 ```
 
-**Vortex** defaults:
+**Vortex** sets the following values:
 
-- **`advisories.block`** (`false`): security advisories do not block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency.
-- **`advisories.audit`** (`fail`): the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
-- **`abandoned.audit`** (`report`): abandoned packages are reported as warnings but do not fail the audit.
+- **`advisories.block`** to `false`: security advisories do not block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency. (Composer's own default is `true`.)
+- **`advisories.audit`** to `fail`: the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
+- **`abandoned.audit`** to `report`: abandoned packages are reported as warnings but do not fail the audit. (Composer's own default is `fail`.)
 
 Each section accepts `block` (refuse affected versions during `composer update`/`require`/`remove`), `audit` (`ignore`, `report`, or `fail` for the `composer audit` command), and `ignore`/`ignore-id`/`ignore-severity` for assessed exceptions.
 
@@ -393,14 +393,14 @@ If your project requires installation to hard-stop on advisories - for example, 
 
 ### Ignoring specific advisories
 
-When you've assessed an advisory and determined it doesn't affect your project, add it to the `ignore` list with a reason:
+When you've assessed an advisory and determined it doesn't affect your project, add it to the `ignore-id` list with a reason:
 
 ```json
 {
     "config": {
         "policy": {
             "advisories": {
-                "ignore": {
+                "ignore-id": {
                     "CVE-2024-1234": "Component is not used in our implementation.",
                     "GHSA-xxxx-yyyy-zzzz": "Patched via custom security fix."
                 }
