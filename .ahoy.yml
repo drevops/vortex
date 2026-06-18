@@ -267,9 +267,7 @@ commands:
   #;< DRUPAL_THEME
   lint-sdc:
     usage: Validate Single Directory Components (requires a provisioned site).
-    cmd: |
-      ahoy cli "vendor/bin/drush -y pm:install sdc_devel"
-      ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
+    cmd: ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
   #;> DRUPAL_THEME
 
   lint-fix:

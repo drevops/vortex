@@ -109,6 +109,9 @@ your_site_theme/
 │       └── _header.scss           # Header component styles
 ├── js/                            # JavaScript source files
 │   └── your_site_theme.js         # Main theme JavaScript
+├── templates/                     # Twig template overrides
+│   └── layout/
+│       └── region--footer-bottom.html.twig  # Renders the button component
 ├── tests/                         # Theme tests
 │   └── src/
 │       ├── Unit/                  # Unit tests
@@ -130,10 +133,12 @@ compatibility.
 ## Single Directory Components
 
 The theme ships a sample [Single Directory Component](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
-(SDC) in `components/button` and renders it out of the box from
-`your_site_theme.theme` as a usage example.
+(SDC) in `components/button` and uses it from
+`templates/layout/region--footer-bottom.html.twig` to render a "back to top"
+link, demonstrating real component usage from a template.
 
-Components are validated with [SDC Devel](../tools/sdc-devel.mdx):
+Components are validated with [SDC Devel](https://www.drupal.org/project/sdc_devel),
+which is enabled during provisioning in non-production environments:
 
 ```shell
 ahoy lint-sdc

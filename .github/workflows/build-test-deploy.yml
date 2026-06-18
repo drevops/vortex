@@ -539,7 +539,6 @@ jobs:
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: |
           [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
-          docker compose exec -T cli vendor/bin/drush -y pm:install sdc_devel
           docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
         continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
