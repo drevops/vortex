@@ -46,6 +46,7 @@
         "drevops/phpcs-standard": "^0.7.0",
         "drupal/coder": "^9@alpha",
         "drupal/drupal-extension": "^6.0",
+        "drupal/sdc_devel": "^1.0",
         "ergebnis/composer-normalize": "^2.52.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "lullabot/php-webdriver": "^2.0.7",
