@@ -4,6 +4,8 @@ status: stable
 description: A call-to-action rendered as a link when a URL is provided, or as a button element otherwise.
 props:
   type: object
+  required:
+    - label
   properties:
     label:
       type: string
