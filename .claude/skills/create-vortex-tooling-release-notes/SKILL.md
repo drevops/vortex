@@ -132,15 +132,15 @@ Write the file to `.artifacts/release-notes-tooling-<NEW_VERSION>.md` (for examp
 
 ### Breaking changes
 
-- **[#NNN] Original subject. @author (#NNN)**<br>Paragraph: what used to work, the new behaviour, and the exact migration step consumers must take.
+- **[#NNN](https://github.com/drevops/vortex/issues/NNN) Original subject. @author (https://github.com/drevops/vortex/pull/NNN)**<br>Paragraph: what used to work, the new behaviour, and the exact migration step consumers must take.
 
 ### Highlights
 
-- **[#NNN] Original subject. @author (#NNN)**<br>Paragraph: why this matters to someone running the scripts - the capability it unlocks or the pain it removes.
+- **[#NNN](https://github.com/drevops/vortex/issues/NNN) Original subject. @author (https://github.com/drevops/vortex/pull/NNN)**<br>Paragraph: why this matters to someone running the scripts - the capability it unlocks or the pain it removes.
 
 ### All changes
 
-- **[#NNN] Original subject. @author (#NNN)**<br>Paragraph (1-3 sentences) explaining what the change does and why it is valuable.
+- **[#NNN](https://github.com/drevops/vortex/issues/NNN) Original subject. @author (https://github.com/drevops/vortex/pull/NNN)**<br>Paragraph (1-3 sentences) explaining what the change does and why it is valuable.
 
 **Full Changelog**: https://github.com/drevops/vortex-tooling/compare/PREVIOUS_VERSION...NEW_VERSION
 ```
@@ -157,7 +157,7 @@ Write the file to `.artifacts/release-notes-tooling-<NEW_VERSION>.md` (for examp
 
 - **No hand-wrapping.** Every bullet, including its paragraph, is a **single line** in the file regardless of length. GitHub renders the markdown - let the browser wrap. (This is the opposite of how this SKILL file itself is written; the deliverable is renderer-bound, the skill is source.) Tables and code fences keep their structure.
 - Format exactly: wrap the original subject in `**...**`, immediately follow it with `<br>`, then the paragraph on the same line - no blank line between them, no indentation.
-- Keep the `[#NNN]` prefix, the `@author` handle, and the trailing `(#NNN)` exactly as derived. Keep the subject's punctuation and capitalisation. If a commit has no pull request reference (a direct push), omit the `(#NNN)` and enrich from the commit and its diff.
+- **Render every issue and pull-request reference as a full `drevops/vortex` URL**, never a bare `#NNN` - the notes are published to the `drevops/vortex-tooling` mirror, where a bare `#NNN` mis-links to that repository's own numbering. Transform the commit subject so the leading `[#NNN]` issue reference becomes the markdown link `[#NNN](https://github.com/drevops/vortex/issues/NNN)`, and the trailing `(#NNN)` pull-request reference becomes the bare URL `(https://github.com/drevops/vortex/pull/NNN)`. When a commit has no `[#NNN]` issue prefix, start with the subject text; when it has no `(#NNN)` pull-request reference (a direct push), omit the trailing reference and enrich from the commit and its diff. Keep the `@author` handle (a global GitHub mention resolves correctly anywhere) and the subject's punctuation and capitalisation.
 - Paragraphs are 1-3 sentences of plain prose. For fixes: name what was broken, the user-visible symptom, and the corrected behaviour. For features: name what you can now do that you could not before, and the environment variable or flag that controls it with its default. Never invent details the source does not support.
 - Entries authored by dependency bots (`@renovate[bot]`, `@dependabot[bot]`) or whose subject begins with `Update dependency`, `Update all dependencies`, or `Bump ` stay as bare list items with no bold and no paragraph. These are rare here, since the package only requires PHP.
 - Do not insert blank lines between consecutive list items.
@@ -175,6 +175,7 @@ Before displaying the output, verify:
 - `### Breaking changes` appears only if there is at least one breaking entry.
 - `### All changes` lists every commit from Step 2, verbatim, newest first.
 - Every non-bot entry is `**subject**<br>paragraph` on a single line, no blank line, no indentation.
+- Every reference is a full `https://github.com/drevops/vortex/...` URL - the leading issue as `[#NNN](.../issues/NNN)`, the trailing pull request as `(.../pull/NNN)`. No bare `#NNN` remains.
 - Pull request and issue lookups used `--repo drevops/vortex`.
 - The `**Full Changelog**` URL targets `drevops/vortex-tooling`.
 - No invented details beyond the commit subject, linked issue, pull request body, or diff.
