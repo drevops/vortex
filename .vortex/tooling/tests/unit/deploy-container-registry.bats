@@ -133,21 +133,21 @@ setup_robo_fixture() {
 
   run ./.vortex/tooling/src/deploy-container-registry
   assert_failure
-  assert_output_contains 'invalid key/value pair "service1" provided.'
+  assert_output_contains 'Invalid key/value pair "service1" provided.'
 
   # Using a space delimiter.
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
   run .vortex/tooling/src/deploy-container-registry
   assert_failure
-  assert_output_contains 'invalid key/value pair "service1=image1 service2=image2" provided.'
+  assert_output_contains 'Invalid key/value pair "service1=image1 service2=image2" provided.'
 
   # No comma delimiter
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
   run .vortex/tooling/src/deploy-container-registry
   assert_failure
-  assert_output_contains 'invalid key/value pair "service1=image1=service2=image2" provided.'
+  assert_output_contains 'Invalid key/value pair "service1=image1=service2=image2" provided.'
 
   popd >/dev/null
 }

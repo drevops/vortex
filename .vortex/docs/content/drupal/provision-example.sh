@@ -48,7 +48,7 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
     note "Existing database detected. Performing additional example operations."
   fi
 else
-  note "Skipping example operations in production environment."
+  note "Skipped example operations in production environment."
 fi
 
 info "Finished example operations."

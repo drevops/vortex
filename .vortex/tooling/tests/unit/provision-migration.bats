@@ -48,13 +48,13 @@ load ../_helper.bash
     "Verifying migration source database."
     "Enabling migration modules."
     "Starting migrations."
-    "Skipping rollback of all migrations."
+    "Skipped rollback of all migrations."
     "Running migration: ys_migrate_categories"
     "Finished migrations."
     "Finished migration operations."
 
     # Not expected.
-    "- Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
+    "- Skipped migrations. DRUPAL_MIGRATION_SKIP is set to 1."
     "- Using existing migration source database."
     "- Migration source database is corrupted."
     "- Rolling back all migrations."
@@ -85,7 +85,7 @@ load ../_helper.bash
 
     "Started migration operations."
     "Migration skip:          1"
-    "Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
+    "Skipped migrations. DRUPAL_MIGRATION_SKIP is set to 1."
 
     "- Importing migration source database."
     "- Starting migrations."
@@ -117,7 +117,7 @@ load ../_helper.bash
     "Started migration operations."
     "Environment: prod"
     "Migration skip:          1"
-    "Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1."
+    "Skipped migrations. DRUPAL_MIGRATION_SKIP is set to 1."
 
     "- Importing migration source database."
     "- Starting migrations."
@@ -341,7 +341,7 @@ load ../_helper.bash
     "Running migration: ys_migrate_categories"
     "Finished migration operations."
 
-    "- Skipping rollback of all migrations."
+    "- Skipped rollback of all migrations."
   )
 
   mocks="$(run_steps "setup")"

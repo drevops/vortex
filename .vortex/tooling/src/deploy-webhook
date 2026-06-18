@@ -32,11 +32,11 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 #shellcheck disable=SC2043
 for cmd in curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
-info "Started WEBHOOK deployment."
+info "Started webhook deployment."
 
 # Check all required values.
 [ -z "${VORTEX_DEPLOY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_URL." && exit 1
@@ -50,4 +50,4 @@ else
   exit 1
 fi
 
-pass "Finished WEBHOOK deployment."
+pass "Finished webhook deployment."

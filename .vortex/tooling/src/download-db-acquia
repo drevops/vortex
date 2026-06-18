@@ -84,7 +84,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 for cmd in php curl gunzip; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -214,7 +214,7 @@ if [ "$VORTEX_DOWNLOAD_DB_FRESH" = "1" ]; then
   note "Fresh backup will be downloaded."
 fi
 
-task "Discovering latest backup ID for DB ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
+task "Discovering latest backup ID for database ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
 backups_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}/backups?sort=created")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Backups API response: ${backups_json}"
 
@@ -233,7 +233,7 @@ fi
 # Acquia response has all backups sorted chronologically by created date.
 backup_id=$(echo "${backups_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup ID: ${backup_id}"
-[ -z "${backup_id}" ] && fail "Unable to discover backup ID for DB '${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}'. API response: ${backups_json}" && exit 1
+[ -z "${backup_id}" ] && fail "Unable to discover backup ID for database '${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}'. API response: ${backups_json}" && exit 1
 
 # Insert backup id as a suffix.
 file_extension="${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE##*.}"
@@ -246,13 +246,13 @@ file_name_compressed="${file_name}.gz"
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Compressed file name: ${file_name_compressed}"
 
 if [ -f "${file_name_discovered}" ]; then
-  note "Found existing cached DB file \"${file_name_discovered}\" for DB \"${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}\"."
+  note "Found existing cached database file \"${file_name_discovered}\" for database \"${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}\"."
 else
   # If the gzipped version exists, then we don't need to re-download it.
   if [ ! -f "${file_name_compressed}" ]; then
-    note "Using the latest backup ID ${backup_id} for DB ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
+    note "Using the latest backup ID ${backup_id} for database ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
 
-    [ ! -d "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}" && mkdir -p "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}"
+    [ ! -d "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}." && mkdir -p "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}"
 
     task "Discovering backup URL."
     # The Acquia API responds with a 200 and a JSON body containing the
@@ -266,7 +266,7 @@ else
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup URL: ${backup_url}"
     [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'. API response: ${backup_url_json}" && exit 1
 
-    task "Downloading DB dump into file ${file_name_compressed}."
+    task "Downloading database dump into file ${file_name_compressed}."
     curl --progress-bar -L "${backup_url}" -o "${file_name_compressed}"
     download_result=$?
 
@@ -280,13 +280,13 @@ else
       exit 1
     fi
 
-    [ "${VORTEX_DEBUG-}" = "1" ] && note "Download completed successfully"
+    [ "${VORTEX_DEBUG-}" = "1" ] && note "Download completed successfully."
   else
-    pass "Found existing cached gzipped DB file ${file_name_compressed} for DB ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
+    pass "Found existing cached gzipped database file ${file_name_compressed} for database ${VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME}."
   fi
 
-  task "Expanding DB file ${file_name_compressed} into ${file_name}."
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Starting decompression of ${file_name_compressed}"
+  task "Expanding database file ${file_name_compressed} into ${file_name}."
+  [ "${VORTEX_DEBUG-}" = "1" ] && note "Starting decompression of ${file_name_compressed}."
 
   # Test the gzip file first to ensure it's valid. Leave the file in place
   # on failure so it can be inspected.
@@ -302,13 +302,13 @@ else
   # Check decompression result and file validity. Leave both files in place
   # on failure so they can be inspected.
   if [ "${decompress_result}" != 0 ] || [ ! -f "${file_name}" ] || [ ! -s "${file_name}" ]; then
-    fail "Unable to process DB dump file \"${file_name}\". Decompression exit code: ${decompress_result}"
+    fail "Unable to process database dump file \"${file_name}\". Decompression exit code: ${decompress_result}"
     exit 1
   fi
 
   rm "${file_name_compressed}"
 
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully"
+  [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully."
 fi
 
 task "Renaming file \"${file_name}\" to \"${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}\"."
@@ -317,6 +317,6 @@ task "Renaming file \"${file_name}\" to \"${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${
 mv "${file_name}" "${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}"
 mv_result=$?
 [ "${mv_result}" -ne 0 ] && fail "Unable to rename file from '${file_name}' to '${VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR}/${VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE}'. mv exit code: ${mv_result}" && exit 1
-[ "${VORTEX_DEBUG-}" = "1" ] && note "File rename completed successfully"
+[ "${VORTEX_DEBUG-}" = "1" ] && note "File rename completed successfully."
 
 pass "Finished database dump download from Acquia."

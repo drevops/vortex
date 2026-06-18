@@ -82,7 +82,7 @@ load ../_helper.bash
 
   assert_output_contains "Started dispatching notifications."
   assert_output_contains "Started email notification."
-  assert_output_contains "Skipping email notification for pre_deployment event."
+  assert_output_contains "Skipped email notification for pre_deployment event."
   assert_output_not_contains "Notification email(s) sent"
   assert_output_contains "Finished dispatching notifications."
 
@@ -106,7 +106,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping email notification for branch 'feature/test'."
+  assert_output_contains "Skipped email notification for branch 'feature/test'."
   assert_output_not_contains "Started email notification."
   assert_output_contains "Finished dispatching notifications."
 
@@ -125,7 +125,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/notify-email
   assert_success
 
-  assert_output_contains "Skipping email notification for branch ''."
+  assert_output_contains "Skipped email notification for branch ''."
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1

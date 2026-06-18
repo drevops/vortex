@@ -22,7 +22,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started Diffy notification."
-  assert_output_contains "Skipping Diffy notification for pre_deployment event."
+  assert_output_contains "Skipped Diffy notification for pre_deployment event."
 
   popd >/dev/null || exit 1
 }
@@ -69,7 +69,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/notify
   assert_success
 
-  assert_output_contains "Skipping Diffy notification for branch 'feature/random'"
+  assert_output_contains "Skipped Diffy notification for branch 'feature/random'"
 
   popd >/dev/null || exit 1
 }

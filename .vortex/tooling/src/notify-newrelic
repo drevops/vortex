@@ -94,21 +94,21 @@ fi
 
 if [ -n "${VORTEX_NOTIFY_NEWRELIC_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipping New Relic notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped New Relic notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
 
 for cmd in curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
-[ -z "${VORTEX_NOTIFY_NEWRELIC_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_PROJECT" && exit 1
-[ -z "${VORTEX_NOTIFY_NEWRELIC_USER_KEY}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER_KEY" && exit 1
-[ -z "${VORTEX_NOTIFY_NEWRELIC_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_LABEL" && exit 1
-[ -z "${VORTEX_NOTIFY_NEWRELIC_APP_NAME}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_APP_NAME" && exit 1
-[ -z "${VORTEX_NOTIFY_NEWRELIC_USER}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER" && exit 1
+[ -z "${VORTEX_NOTIFY_NEWRELIC_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_PROJECT." && exit 1
+[ -z "${VORTEX_NOTIFY_NEWRELIC_USER_KEY}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER_KEY." && exit 1
+[ -z "${VORTEX_NOTIFY_NEWRELIC_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_LABEL." && exit 1
+[ -z "${VORTEX_NOTIFY_NEWRELIC_APP_NAME}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_APP_NAME." && exit 1
+[ -z "${VORTEX_NOTIFY_NEWRELIC_USER}" ] && fail "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER." && exit 1
 
 info "Started New Relic notification."
 
@@ -127,7 +127,7 @@ fi
 
 # Skip if this is a pre-deployment event (New Relic only for post-deployment).
 if [ "${VORTEX_NOTIFY_NEWRELIC_EVENT}" = "pre_deployment" ]; then
-  pass "Skipping New Relic notification for pre_deployment event."
+  pass "Skipped New Relic notification for pre_deployment event."
   exit 0
 fi
 
@@ -151,7 +151,7 @@ if [ -z "${VORTEX_NOTIFY_NEWRELIC_CHANGELOG}" ]; then
   VORTEX_NOTIFY_NEWRELIC_CHANGELOG="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}"
 fi
 
-task "Discovering APP id by name if it was not provided."
+task "Discovering application ID by name if it was not provided."
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${VORTEX_NOTIFY_NEWRELIC_APP_NAME}" ]; then
   VORTEX_NOTIFY_NEWRELIC_APPID="$(curl -s -X GET "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications.json" \
     -H "Api-Key: ${VORTEX_NOTIFY_NEWRELIC_USER_KEY}" \
@@ -191,7 +191,7 @@ if ! curl -X POST "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications/${VORTEX_NOTI
     \"user\": \"${VORTEX_NOTIFY_NEWRELIC_USER}\"
   }
 }" | grep -q '201'; then
-  fail "Failed to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}"
+  fail "Failed to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
   exit 1
 fi
 

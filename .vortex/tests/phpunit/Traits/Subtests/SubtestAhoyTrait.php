@@ -1003,7 +1003,7 @@ trait SubtestAhoyTrait {
     $this->cmd(
       'ahoy provision',
       [
-        '* Skipping migrations. DRUPAL_MIGRATION_SKIP is set to 1.',
+        '* Skipped migrations. DRUPAL_MIGRATION_SKIP is set to 1.',
         '! Importing migration source database.',
         '! Starting migrations.',
       ],
