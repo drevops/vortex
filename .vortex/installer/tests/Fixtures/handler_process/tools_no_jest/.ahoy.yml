@@ -1,4 +1,4 @@
-@@ -255,10 +255,6 @@
+@@ -261,10 +261,6 @@
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
  

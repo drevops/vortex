@@ -9,9 +9,9 @@
 -        "drevops/phpcs-standard": "__VERSION__",
 -        "drupal/coder": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
+         "drupal/sdc_devel": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
-         "lullabot/mink-selenium2-driver": "__VERSION__",
-@@ -50,7 +47,6 @@
+@@ -51,7 +48,6 @@
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -19,7 +19,7 @@
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
          "phpstan/phpstan": "__VERSION__",
-@@ -79,7 +75,6 @@
+@@ -80,7 +76,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

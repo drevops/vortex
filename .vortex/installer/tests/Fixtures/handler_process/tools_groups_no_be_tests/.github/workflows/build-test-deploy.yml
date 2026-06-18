@@ -9,7 +9,7 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -404,80 +400,6 @@
+@@ -404,66 +400,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -73,6 +73,13 @@
 -        env:
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
+       - name: Validate Single Directory Components
+         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         run: |
+@@ -472,20 +408,6 @@
+           docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+         continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
+ 
 -      - name: Test with Behat
 -        run: |
 -          # shellcheck disable=SC2170
@@ -90,7 +97,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -494,16 +416,6 @@
+@@ -502,16 +424,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

@@ -17,7 +17,7 @@
      },
      "require-dev": {
          "behat/behat": "__VERSION__",
-@@ -68,7 +71,7 @@
+@@ -69,7 +72,7 @@
              "url": "https://packages.drupal.org/8"
          }
      ],
@@ -26,7 +26,7 @@
      "prefer-stable": true,
      "autoload-dev": {
          "classmap": [
-@@ -86,7 +89,11 @@
+@@ -87,7 +90,11 @@
              "php-http/discovery": true,
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
@@ -37,9 +37,9 @@
 +            "drupal/core-vendor-hardening": true,
 +            "wikimedia/composer-merge-plugin": true
          },
-         "bump-after-update": true,
-         "discard-changes": true,
-@@ -164,6 +171,19 @@
+         "audit": {
+             "abandoned": "report",
+@@ -160,6 +167,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },

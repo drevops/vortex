@@ -12,10 +12,10 @@
      cmd: |
 -      ahoy cli vendor/bin/gherkinlint lint tests/behat/features
 -
-   lint-fix:
-     usage: Fix lint issues of back-end and front-end code.
+   lint-sdc:
+     usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -258,11 +255,6 @@
+@@ -264,11 +261,6 @@
    test-js:
      usage: Run Jest JavaScript unit tests.
      cmd: ahoy cli "yarn test"

@@ -40,7 +40,20 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -232,7 +212,6 @@
+@@ -215,12 +195,6 @@
+     cmd: |
+       ahoy cli vendor/bin/gherkinlint lint tests/behat/features
+ 
+-  lint-sdc:
+-    usage: Validate Single Directory Components (requires a provisioned site).
+-    cmd: |
+-      ahoy cli "vendor/bin/drush -y pm:install sdc_devel"
+-      ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
+-
+   lint-fix:
+     usage: Fix lint issues of back-end and front-end code.
+     cmd: |
+@@ -238,7 +212,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "yarn run lint-fix"
