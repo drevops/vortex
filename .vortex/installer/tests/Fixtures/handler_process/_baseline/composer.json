@@ -88,14 +88,19 @@
             "pyrech/composer-changelogs": true,
             "tbachert/spi": true
         },
-        "audit": {
-            "abandoned": "report",
-            "block-insecure": true
-        },
         "bump-after-update": true,
         "discard-changes": true,
         "platform": {
             "php": "__VERSION__"
+        },
+        "policy": {
+            "advisories": {
+                "block": false,
+                "audit": "fail"
+            },
+            "abandoned": {
+                "audit": "report"
+            }
         },
         "sort-packages": true
     },
