@@ -44,6 +44,14 @@ setup() {
   # Setup command mocking.
   setup_mock
 
+  # Isolate the SSH agent from tests. Scripts under test call `ssh-add`, which
+  # reaches the agent via the inherited SSH_AUTH_SOCK - a socket the HOME
+  # override does not sandbox. Stub `ssh-add` (the only agent-mutating command)
+  # so a test can never read, pollute or, with VORTEX_SSH_REMOVE_ALL_KEYS=1,
+  # wipe the real agent of the developer running the suite. Tests that assert
+  # specific `ssh-add` calls override this with their own mock via run_steps.
+  mock_command "ssh-add" >/dev/null
+
   ##
   ## Phase 2: Pre-flight checks.
   ##
