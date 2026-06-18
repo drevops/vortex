@@ -227,23 +227,20 @@ specifies key configurations for Composer's behavior in the project.
   This setting specifies which Composer plugins are allowed to run. It's a
   security measure to prevent the execution of untrusted code from third-party
   plugins. Each plugin needs to be explicitly allowed to ensure it can execute.
-- [`audit`](https://getcomposer.org/doc/06-config.md#audit): Introduced in
-  Composer 2.9.0, this setting controls automatic security auditing of
-  dependencies during `composer install` and `composer update`. **Vortex**
-  enforces security best practices with the following configuration:
-  - `block-insecure` (default: `true`): Blocks installation of packages with
-    known security vulnerabilities unless explicitly ignored. This ensures
-    security issues are addressed before deployment.
-  - `abandoned` (default: `report`): Shows warnings for abandoned packages
-    without failing the build. Allows visibility into package maintenance status
-    while not blocking installations.
-  - `ignore` (default: `{}`): Empty object ready for adding assessed and
-    documented vulnerability exceptions. Use this to explicitly allow specific
-    CVE/GHSA advisories that have been reviewed and accepted.
+- [`policy`](https://getcomposer.org/doc/06-config.md#policy): Introduced in
+  Composer 2.10.0, this unified setting controls security auditing and version
+  blocking of dependencies. **Vortex** configures it to keep vulnerabilities
+  visible without blocking installs:
+  - `advisories.block` (set to `false`): security advisories do not block
+    `composer install`, `composer update`, or `composer require`, keeping builds
+    reproducible when new advisories are published upstream.
+  - `advisories.audit` (set to `fail`): `composer audit` still fails on
+    advisories, so they remain visible locally and in CI.
+  - `abandoned.audit` (set to `report`): abandoned packages are reported as
+    warnings without failing the audit.
   - See
     [Composer Security Auditing](../development/composer#security-auditing)
-    for comprehensive guidance on configuration options, ignoring specific
-    advisories, running audits, and best practices.
+    for the full reference, ignoring advisories, and best practices.
 - [`bump-after-update`](https://getcomposer.org/doc/06-config.md#bump-after-update):
   Automatically updates version constraints in `composer.json` to match currently
   installed package versions after running `composer update`. **Vortex** sets this
