@@ -49,6 +49,22 @@ project settings - the CLI flags act as an override for cases where
 hosting is provisioned with rotating credentials and storing them in
 Diffy is impractical.
 
+:::warning WAF / CDN access
+
+Diffy captures screenshots from a single static IP (`138.201.56.149`,
+IPv6 `2a01:4f8:172:1189::2`). When the source or target environment sits
+behind a WAF or CDN - Cloudflare, AWS CloudFront, Akamai, Incapsula, or
+similar - that layer can block or challenge Diffy's requests. Diffy then
+captures the block or challenge page instead of the real site, producing
+false visual differences.
+
+Allowlist Diffy's static IP in the protection layer so its requests reach
+the site. In Cloudflare, add an IP Access Rule for that address with the
+*Allow* action. For per-provider steps and the current IP, see Diffy's
+[bypass protection guidance](https://docs.diffy.website/features/bypass-protection-cloudfront-akamai-incapsula).
+
+:::
+
 ### Variables
 
 | Name | Default | Purpose |
