@@ -74,7 +74,7 @@ extract_json_value() {
 # Pre-flight checks.
 #shellcheck disable=SC2043
 for cmd in curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -96,7 +96,7 @@ token=$(echo "${token_json}" | extract_json_value "access_token")
 task "Retrieving ${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
-[ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
+[ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID." && exit 1
 
 task "Retrieving source environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_COPY_DB_ACQUIA_SRC}")
@@ -108,7 +108,7 @@ envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorizatio
 dst_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ -z "${dst_env_id}" ] && fail "Unable to retrieve destination environment ID." && exit 1
 
-task "Copying DB from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
+task "Copying database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
 task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"source\":\"${src_env_id}\", \"name\":\"${VORTEX_TASK_COPY_DB_ACQUIA_NAME}\"}" "https://cloud.acquia.com/api/environments/${dst_env_id}/databases")
 notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
 
@@ -131,11 +131,11 @@ done
 echo
 
 if [ "${task_completed}" = "0" ]; then
-  fail "Unable to copy DB from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
+  fail "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
   exit 1
 fi
 
-note "Copied DB from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
+note "Copied database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
 
 self_elapsed_time=$((SECONDS))
 note "Run duration: $((self_elapsed_time / 60)) min $((self_elapsed_time % 60)) sec."

@@ -87,7 +87,7 @@ if ! command -v lagoon >/dev/null || [ -n "${VORTEX_TASK_CUSTOM_LAGOON_CLI_FORCE
 fi
 
 for cmd in curl lagoon; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -97,7 +97,7 @@ lagoon config add --force -l "${VORTEX_TASK_CUSTOM_LAGOON_INSTANCE}" -g "${VORTE
 
 lagoon() { command lagoon --force --skip-update-check -i "${VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE}" -l "${VORTEX_TASK_CUSTOM_LAGOON_INSTANCE}" -p "${VORTEX_TASK_CUSTOM_LAGOON_PROJECT}" "$@"; }
 
-task "Creating ${VORTEX_TASK_CUSTOM_LAGOON_NAME} task: project ${VORTEX_TASK_CUSTOM_LAGOON_PROJECT}, branch: ${VORTEX_TASK_CUSTOM_LAGOON_BRANCH}."
+task "Creating ${VORTEX_TASK_CUSTOM_LAGOON_NAME} task: project: ${VORTEX_TASK_CUSTOM_LAGOON_PROJECT}, branch: ${VORTEX_TASK_CUSTOM_LAGOON_BRANCH}."
 lagoon run custom -e "${VORTEX_TASK_CUSTOM_LAGOON_BRANCH}" -N "${VORTEX_TASK_CUSTOM_LAGOON_NAME}" -c "${VORTEX_TASK_CUSTOM_LAGOON_COMMAND}"
 
 pass "Finished Lagoon task ${VORTEX_TASK_CUSTOM_LAGOON_NAME}."

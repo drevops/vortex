@@ -17,7 +17,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Found flag to skip all deployments."
-  assert_output_contains "Skipping deployment"
+  assert_output_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -93,7 +93,7 @@ load ../_helper.bash
     "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
     "@sha256sum -c # 1"
     "SHA256 checksum verification failed for git-artifact binary."
-    "- Finished ARTIFACT deployment."
+    "- Finished artifact deployment."
   )
   mocks="$(run_steps "setup")"
 
@@ -142,7 +142,7 @@ load ../_helper.bash
     "Copying git repo files meta file to the deploy code repo."
     "Copying deployment .gitignore as it may not exist in deploy code source files."
     "Running artifact builder."
-    "Finished ARTIFACT deployment."
+    "Finished artifact deployment."
   )
   mocks="$(run_steps "setup")"
 

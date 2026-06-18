@@ -44,7 +44,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 #shellcheck disable=SC2043
 for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -68,7 +68,7 @@ images=()
 IFS=',' read -r -a values <<<"${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
-  [ "${#parts[@]}" -ne 2 ] && fail "invalid key/value pair \"${value}\" provided." && exit 1
+  [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided." && exit 1
   services+=("${parts[0]}")
   images+=("${parts[1]}")
 done

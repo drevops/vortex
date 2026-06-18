@@ -1224,7 +1224,7 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
     "  ==> Started example operations."
     "      Environment: prod"
-    "      Skipping example operations in production environment."
+    "      Skipped example operations in production environment."
     "  ==> Finished example operations."
     "Completed running of custom post-install script './scripts/provision-10-example.sh'."
 

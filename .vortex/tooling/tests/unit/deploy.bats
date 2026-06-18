@@ -27,7 +27,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip all deployments."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -62,7 +62,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found flag to skip a deployment."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -79,7 +79,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found PR 123 in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -96,7 +96,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found PR 456 in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -117,7 +117,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found PR 999 in skip list."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -134,7 +134,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found branch feature/test in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -151,7 +151,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_contains "Found branch hotfix/urgent in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -172,7 +172,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found branch develop in skip list."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -193,7 +193,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_not_contains "Found flag to skip a deployment."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -209,7 +209,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found branch feature/my-feature in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -227,7 +227,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found PR 123 in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
   assert_output_not_contains "Found branch"
 
   popd >/dev/null
@@ -244,7 +244,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/deploy
   assert_output_contains "Started deployment."
-  assert_output_contains "Started ARTIFACT deployment."
+  assert_output_contains "Started artifact deployment."
 
   popd >/dev/null
 }
@@ -260,7 +260,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found PR 123 in skip list."
-  assert_output_contains "Skipping deployment webhook,artifact,container_registry."
+  assert_output_contains "Skipped deployment webhook,artifact,container_registry."
 
   popd >/dev/null
 }
@@ -281,7 +281,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found PR"
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -302,7 +302,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to skip a deployment."
   assert_output_not_contains "Found branch"
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -321,7 +321,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_not_contains "Found flag to gate deployment"
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -342,7 +342,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to gate deployment on the 'deploy' label."
   assert_output_contains "PR 123 carries the 'deploy' label."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -359,7 +359,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Found flag to gate deployment on the 'deploy' label."
   assert_output_contains "PR 123 does not carry the 'deploy' label."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -379,7 +379,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_not_contains "Found flag to gate deployment"
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -399,7 +399,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "PR 456 carries the 'deploy' label."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }
@@ -417,7 +417,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found PR 123 in skip list."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
   assert_output_not_contains "Found flag to gate deployment"
 
   popd >/dev/null
@@ -434,7 +434,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "PR 123 does not carry the 'deploy' label."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -450,7 +450,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "PR 123 does not carry the 'deploy' label."
-  assert_output_contains "Skipping deployment webhook."
+  assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
 }
@@ -470,7 +470,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "PR 123 carries the 'deploy to env' label."
-  assert_output_not_contains "Skipping deployment"
+  assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
 }

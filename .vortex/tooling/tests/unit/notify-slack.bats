@@ -288,7 +288,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping Slack notification for branch 'feature/test'."
+  assert_output_contains "Skipped Slack notification for branch 'feature/test'."
   assert_output_not_contains "Started Slack notification."
   assert_output_contains "Finished dispatching notifications."
 
@@ -307,7 +307,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/notify-slack
   assert_success
 
-  assert_output_contains "Skipping Slack notification for branch ''."
+  assert_output_contains "Skipped Slack notification for branch ''."
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1

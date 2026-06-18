@@ -74,7 +74,7 @@ warn() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 for cmd in docker pygmy ahoy; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -84,7 +84,7 @@ for cmd in docker pygmy ahoy; do command -v "${cmd}" >/dev/null || {
 main() {
   [ "${1:-}" = "info" ] && system_info && exit
 
-  info "Checking project requirements"
+  info "Checking project requirements."
 
   if [ "${VORTEX_DOCTOR_CHECK_TOOLS}" = "1" ]; then
     [ "$(command_exists docker)" = "1" ] && fail "Please install Docker (https://www.docker.com/get-started)." && exit 1
@@ -131,7 +131,7 @@ main() {
         exit 1
       fi
     done
-    pass "All containers are running"
+    pass "All containers are running."
   fi
 
   if [ "${VORTEX_DOCTOR_CHECK_SSH}" = "1" ]; then
@@ -165,7 +165,7 @@ main() {
     # Check that the key is injected into pygmy ssh-agent container.
     if ! pygmy status 2>&1 | grep -q "${VORTEX_SSH_FILE}"; then
       warn "SSH key is not added to pygmy."
-      note "The SSH key will not be available in CLI container. Run 'pygmy restart' and then 'ahoy up'"
+      note "The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'."
     else
       ssh_key_added_to_pygmy=1
     fi
@@ -184,9 +184,9 @@ main() {
     # Check that ssh key is available in the container, but only if the above checks passed.
     if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ]; then
       if ! docker compose exec -T cli bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
-        fail "SSH key was not added into container. Run 'pygmy restart'."
+        fail "SSH key was not added to the container. Run 'pygmy restart'."
       else
-        pass "SSH key is available within CLI container."
+        pass "SSH key is available within the CLI container."
       fi
     fi
   fi

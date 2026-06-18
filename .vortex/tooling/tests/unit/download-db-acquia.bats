@@ -33,7 +33,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     # Mock backup URL curl call with its message
@@ -41,11 +41,11 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz"}'
 
     # Mock file download curl call with its message and side effect to create zipped archive
-    "Downloading DB dump into file .data/testdb_backup_backup-id-789.sql.gz."
+    "Downloading database dump into file .data/testdb_backup_backup-id-789.sql.gz."
     '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o .data/testdb_backup_backup-id-789.sql.gz # 0 #  # echo "CREATE TABLE test (id INT);" | gzip > .data/testdb_backup_backup-id-789.sql.gz'
 
     # Mock gunzip operations with their message
-    "Expanding DB file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
+    "Expanding database file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
     "@gunzip -t .data/testdb_backup_backup-id-789.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-789.sql.gz # 0 # CREATE TABLE test (id INT);"
 
@@ -105,11 +105,11 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-123","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     # Assert cached file found message
-    'Found existing cached DB file ".data/testdb_backup_backup-id-123.sql" for DB "testdb".'
+    'Found existing cached database file ".data/testdb_backup_backup-id-123.sql" for database "testdb".'
 
     # Mock mv operation with its message and side effect to create final file
     'Renaming file ".data/testdb_backup_backup-id-123.sql" to ".data/db.sql".'
@@ -163,14 +163,14 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-456"}]}}'
 
     # Assert cached compressed file found message
-    "[ OK ] Found existing cached gzipped DB file .data/testdb_backup_backup-id-456.sql.gz for DB testdb."
+    "[ OK ] Found existing cached gzipped database file .data/testdb_backup_backup-id-456.sql.gz for database testdb."
 
     # Mock gunzip operations with their message
-    "Expanding DB file .data/testdb_backup_backup-id-456.sql.gz into .data/testdb_backup_backup-id-456.sql."
+    "Expanding database file .data/testdb_backup_backup-id-456.sql.gz into .data/testdb_backup_backup-id-456.sql."
     "@gunzip -t .data/testdb_backup_backup-id-456.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-456.sql.gz # 0 # decompressed database content"
 
@@ -222,7 +222,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789"}]}}'
 
     # Mock backup URL curl call with its message
@@ -230,11 +230,11 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz"}'
 
     # Mock file download curl call with its message and side effect to create zipped archive
-    "Downloading DB dump into file ./.data/testdb_backup_backup-id-789.sql.gz."
+    "Downloading database dump into file ./.data/testdb_backup_backup-id-789.sql.gz."
     '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o ./.data/testdb_backup_backup-id-789.sql.gz # 0 #  # mkdir -p ./.data && echo "database content" | gzip > ./.data/testdb_backup_backup-id-789.sql.gz'
 
     # Mock gunzip operations with their message
-    "Expanding DB file ./.data/testdb_backup_backup-id-789.sql.gz into ./.data/testdb_backup_backup-id-789.sql."
+    "Expanding database file ./.data/testdb_backup_backup-id-789.sql.gz into ./.data/testdb_backup_backup-id-789.sql."
     "@gunzip -t ./.data/testdb_backup_backup-id-789.sql.gz # 0"
     "@gunzip -c ./.data/testdb_backup_backup-id-789.sql.gz # 0 # database content"
 
@@ -385,7 +385,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message and error response
-    "Discovering latest backup ID for DB nonexistent-db."
+    "Discovering latest backup ID for database nonexistent-db."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/nonexistent-db/backups?sort=created # {"error":"Database not found","message":"The specified database does not exist"}'
 
     # Assert database not found failure message
@@ -427,7 +427,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message and empty response
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[]}}'
 
     # Assert no backups found failure message
@@ -489,17 +489,17 @@ bats_require_minimum_version 1.5.0
     "       Fresh backup will be downloaded."
 
     # Continue with normal download flow
-    "[TASK] Discovering latest backup ID for DB testdb."
+    "[TASK] Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-new-123","completed":"2024-01-02T00:00:00+00:00"}]}}'
 
     # Rest of download steps...
     "[TASK] Discovering backup URL."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-new-123/actions/download # {"url":"https://backup.example.com/db-fresh.sql.gz"}'
 
-    "[TASK] Downloading DB dump into file .data/testdb_backup_backup-id-new-123.sql.gz."
+    "[TASK] Downloading database dump into file .data/testdb_backup_backup-id-new-123.sql.gz."
     '@curl --progress-bar -L https://backup.example.com/db-fresh.sql.gz -o .data/testdb_backup_backup-id-new-123.sql.gz # 0 #  # echo "CREATE TABLE fresh (id INT);" | gzip > .data/testdb_backup_backup-id-new-123.sql.gz'
 
-    "[TASK] Expanding DB file .data/testdb_backup_backup-id-new-123.sql.gz into .data/testdb_backup_backup-id-new-123.sql."
+    "[TASK] Expanding database file .data/testdb_backup_backup-id-new-123.sql.gz into .data/testdb_backup_backup-id-new-123.sql."
     "@gunzip -t .data/testdb_backup_backup-id-new-123.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-new-123.sql.gz # 0 # CREATE TABLE fresh (id INT);"
 
@@ -749,7 +749,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     # Mock backup URL curl call returning a JSON body without a usable URL
@@ -804,7 +804,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     # Mock backup URL curl call returning a JSON error body without a url key
@@ -856,7 +856,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
     # Mock backups curl call with its message
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     # Mock backup URL curl call returning a non-JSON body
@@ -902,16 +902,16 @@ bats_require_minimum_version 1.5.0
     "Retrieving prod environment ID."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
 
-    "Discovering latest backup ID for DB testdb."
+    "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     "Discovering backup URL."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz"}'
 
-    "Downloading DB dump into file .data/testdb_backup_backup-id-789.sql.gz."
+    "Downloading database dump into file .data/testdb_backup_backup-id-789.sql.gz."
     '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o .data/testdb_backup_backup-id-789.sql.gz # 0 #  # echo "CREATE TABLE test (id INT);" | gzip > .data/testdb_backup_backup-id-789.sql.gz'
 
-    "Expanding DB file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
+    "Expanding database file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
     "@gunzip -t .data/testdb_backup_backup-id-789.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-789.sql.gz # 0 # CREATE TABLE test (id INT);"
 

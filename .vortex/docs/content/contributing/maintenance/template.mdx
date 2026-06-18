@@ -60,7 +60,7 @@ in [this issue](https://github.com/drevops/vortex/issues/1192).
     ```
 7. SHOULD include variable values checks with errors and early exist, i.e.:
     ```shell
-    [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF" && exit 1
+    [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF." && exit 1
     ```
 8. SHOULD include binaries checks if the script relies on them, i.e.:
     ```shell
@@ -68,11 +68,11 @@ in [this issue](https://github.com/drevops/vortex/issues/1192).
     ```
 9. MUST contain an `info` message about the start of the script body, e.g.:
     ```shell
-    info "Started GitHub notification for operation ${VORTEX_NOTIFY_EVENT}"
+    info "Started GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 10. MUST contain an `pass` message about the finish of the script body, e.g.:
     ```shell
-    pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}"
+    pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 11. MUST use uppercase global variables
 12. MUST use lowercase local variables.

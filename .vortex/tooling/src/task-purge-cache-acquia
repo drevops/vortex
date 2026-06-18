@@ -52,7 +52,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 # Pre-flight checks.
 for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -91,7 +91,7 @@ token=$(echo "${token_json}" | extract_json_value "access_token")
 task "Retrieving ${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
-[ -z "${app_uuid}" ] && fail "Unable to retrieve an environment UUID." && exit 1
+[ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID." && exit 1
 
 task "Retrieving environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}")
