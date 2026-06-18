@@ -14,17 +14,6 @@ use Drupal\Core\Site\Settings;
  */
 function light_saber_preprocess_html(array &$variables): void {
   _light_saber_preprocess_admin_toolbar($variables);
-
-  // Render a Single Directory Component out of the box as a usage example.
-  $variables['page_bottom']['sample_component'] = [
-    '#type' => 'component',
-    '#component' => 'light_saber:button',
-    '#props' => [
-      'label' => t('Back to top'),
-      'url' => '#main-content',
-      'modifier' => 'secondary',
-    ],
-  ];
 }
 
 /**

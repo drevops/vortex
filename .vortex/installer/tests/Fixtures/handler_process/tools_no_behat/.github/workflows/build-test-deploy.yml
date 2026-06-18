@@ -9,8 +9,8 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -471,20 +467,6 @@
-           docker compose exec -T cli vendor/bin/drush -y pm:install sdc_devel
+@@ -470,20 +466,6 @@
+           [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
            docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
 -

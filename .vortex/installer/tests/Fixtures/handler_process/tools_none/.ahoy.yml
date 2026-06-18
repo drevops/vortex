@@ -27,8 +27,8 @@
 -
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
-     cmd: |
-@@ -224,51 +209,13 @@
+     cmd: ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
+@@ -222,51 +207,13 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
