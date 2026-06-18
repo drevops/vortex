@@ -256,24 +256,16 @@ Provided that your stack is already running:
 
 ➡️ See [Composer > Patching](composer.mdx#patching)
 
-## What should I do when Composer blocks package installation due to security vulnerabilities?
+## What should I do when `composer audit` reports a security vulnerability?
 
-Starting with Composer 2.9.0, Composer can automatically block the installation
-or update of packages with known security vulnerabilities. If you encounter this
-issue, you have several options:
+**Vortex** does not block installation on security advisories by default, so `composer install` and `composer update` keep working. Advisories are surfaced by `composer audit`, which runs locally and in the CI lint job. When one appears:
 
-1. **Update the affected packages**: Try updating to newer versions that don't
-   have known vulnerabilities: `composer update vendor/package-name`
-2. **Review the vulnerability**: Run `composer audit` to see details about the
-   security issues and determine if they affect your project.
-3. **Adjust security settings**: If you need to proceed with installation despite
-   warnings (for example, if no secure version is available or the vulnerability
-   doesn't affect your use case), you can configure the `audit.block-insecure`
-   setting in your `composer.json`.
+1. **Update the affected package**: try a newer version that resolves the advisory: `composer update vendor/package-name`.
+2. **Review the advisory**: run `composer audit` for details and assess whether it affects your project.
+3. **Record an assessed exception**: if no fixed version is available yet, or the vulnerability doesn't affect your use case, add the advisory to the `config.policy.advisories.ignore-id` list in your `composer.json` with a documented reason.
+4. **Bypass CI for a known issue**: set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
 
-➡️ See [Composer > Security auditing](composer.mdx#security-auditing) for detailed
-information about the `audit` configuration option and guidance on choosing the
-right security settings for your project.
+➡️ See [Composer > Security auditing](composer.mdx#security-auditing) for the full `config.policy` reference and guidance on choosing the right settings for your project.
 
 ## How to set a custom maintenance theme?
 

@@ -37,9 +37,9 @@
 +            "drupal/core-vendor-hardening": true,
 +            "wikimedia/composer-merge-plugin": true
          },
-         "audit": {
-             "abandoned": "report",
-@@ -159,6 +166,19 @@
+         "bump-after-update": true,
+         "discard-changes": true,
+@@ -164,6 +171,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
