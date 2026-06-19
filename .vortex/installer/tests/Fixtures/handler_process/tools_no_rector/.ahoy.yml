@@ -6,7 +6,7 @@
  
    lint-fe:
      usage: Lint front-end code.
-@@ -224,7 +223,6 @@
+@@ -228,7 +227,6 @@
    lint-be-fix:
      usage: Fix lint issues of back-end code.
      cmd: |

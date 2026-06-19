@@ -78,6 +78,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('robotstxt')),
     ];
+    yield 'modules_no_sdc_devel' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('sdc_devel');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/sdc_devel')),
+    ];
     yield 'modules_no_seckit' => [
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('seckit');

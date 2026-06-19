@@ -44,6 +44,7 @@
         "drevops/phpcs-standard": "__VERSION__",
         "drupal/coder": "__VERSION__",
         "drupal/drupal-extension": "__VERSION__",
+        "drupal/sdc_devel": "__VERSION__",
         "ergebnis/composer-normalize": "__VERSION__",
         "lullabot/mink-selenium2-driver": "__VERSION__",
         "lullabot/php-webdriver": "__VERSION__",

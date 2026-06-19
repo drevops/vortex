@@ -392,6 +392,13 @@ jobs:
             fi
 
       - run:
+          name: Validate Single Directory Components
+          command: |
+            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
+            docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" || [ "${VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Process test logs and artifacts
           command: |
             mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"

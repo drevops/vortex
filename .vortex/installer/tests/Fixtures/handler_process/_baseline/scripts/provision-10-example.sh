@@ -57,6 +57,10 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   drush pm:install search_api search_api_solr
   pass "Installed Solr search modules."
 
+  task "Installing Single Directory Component development tools."
+  drush pm:install sdc_devel || true
+  pass "Installed Single Directory Component development tools."
+
   # Enable custom site module and run its deployment hooks.
   #
   # Note that deployment hooks for already enabled modules have run in the

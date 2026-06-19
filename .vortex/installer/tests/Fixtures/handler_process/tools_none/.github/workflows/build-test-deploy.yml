@@ -45,7 +45,7 @@
  
        - name: Provision site
          run: |
-@@ -399,85 +377,6 @@
+@@ -399,71 +377,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
          timeout-minutes: 30
  
@@ -114,6 +114,13 @@
 -        env:
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
+       - name: Validate Single Directory Components
+         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         run: |
+@@ -471,20 +384,6 @@
+           docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+         continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
+ 
 -      - name: Test with Behat
 -        run: |
 -          # shellcheck disable=SC2170
@@ -131,7 +138,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -494,16 +393,6 @@
+@@ -501,16 +400,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

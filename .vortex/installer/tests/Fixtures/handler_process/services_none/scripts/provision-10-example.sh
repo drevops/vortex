@@ -15,10 +15,10 @@
 -  drush pm:install search_api search_api_solr
 -  pass "Installed Solr search modules."
 -
-   # Enable custom site module and run its deployment hooks.
-   #
-   # Note that deployment hooks for already enabled modules have run in the
-@@ -63,8 +50,6 @@
+   task "Installing Single Directory Component development tools."
+   drush pm:install sdc_devel || true
+   pass "Installed Single Directory Component development tools."
+@@ -67,8 +54,6 @@
    # parent "provision.sh" script.
    task "Installing custom site modules."
    drush pm:install sw_base
