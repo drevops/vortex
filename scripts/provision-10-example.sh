@@ -65,11 +65,11 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   pass "Installed Solr search modules."
   #;> SERVICE_SOLR
 
-  #;< DRUPAL_THEME
+  #;< MODULE_SDC_DEVEL
   task "Installing Single Directory Component development tools."
   drush pm:install sdc_devel || true
   pass "Installed Single Directory Component development tools."
-  #;> DRUPAL_THEME
+  #;> MODULE_SDC_DEVEL
 
   # Enable custom site module and run its deployment hooks.
   #

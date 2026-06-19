@@ -265,9 +265,11 @@ commands:
       ahoy cli vendor/bin/gherkinlint lint tests/behat/features
 
   #;< DRUPAL_THEME
+  #;< MODULE_SDC_DEVEL
   lint-sdc:
     usage: Validate Single Directory Components (requires a provisioned site).
     cmd: ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
+  #;> MODULE_SDC_DEVEL
   #;> DRUPAL_THEME
 
   lint-fix:
