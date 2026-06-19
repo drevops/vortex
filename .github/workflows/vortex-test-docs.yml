@@ -39,7 +39,7 @@ jobs:
           GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
 
       - name: Checkout code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
           ref: ${{ github.event.workflow_run.head_sha }}
@@ -115,7 +115,7 @@ jobs:
       # major is built from its '{N}.x' branch. Mirrors 'vortex-release.yml'.
       - name: Checkout v${{ env.OTHER_MAJOR }} branch
         if: github.event.workflow_run.head_branch == 'main'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ env.OTHER_MAJOR }}.x
           path: vortex-v${{ env.OTHER_MAJOR }}
