@@ -461,6 +461,17 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
       #;> TOOL_PHPUNIT
 
+      #;< DRUPAL_THEME
+      #;< MODULE_SDC_DEVEL
+      - name: Validate Single Directory Components
+        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        run: |
+          [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
+          docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+        continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
+      #;> MODULE_SDC_DEVEL
+      #;> DRUPAL_THEME
+
       #;< TOOL_BEHAT
       - name: Test with Behat
         run: |

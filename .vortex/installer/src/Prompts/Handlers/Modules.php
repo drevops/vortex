@@ -127,6 +127,7 @@ class Modules extends AbstractHandler {
       'redirect' => 'Redirect',
       'reroute_email' => 'Reroute email',
       'robotstxt' => 'Robots.txt',
+      'sdc_devel' => 'SDC Devel',
       'seckit' => 'Seckit',
       'shield' => 'Shield',
       'stage_file_proxy' => 'Stage file proxy',
@@ -161,8 +162,16 @@ class Modules extends AbstractHandler {
       return NULL;
     }
 
+    $packages = array_keys($require);
+
+    // Dev-only modules are declared in require-dev.
+    $require_dev = $cj->getProperty('require-dev');
+    if (is_array($require_dev)) {
+      $packages = array_merge($packages, array_keys($require_dev));
+    }
+
     $modules = [];
-    foreach (array_keys($require) as $package) {
+    foreach ($packages as $package) {
       // Only include drupal/* packages, excluding core packages.
       if (str_starts_with((string) $package, 'drupal/') && !str_starts_with((string) $package, 'drupal/core-')) {
         // Extract module name (remove drupal/ prefix).

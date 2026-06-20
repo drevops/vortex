@@ -55,6 +55,8 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/testmode' => '^2.7.1',
           'drupal/xmlsitemap' => '^2.0',
         ]);
+        // sdc_devel is a dev-only module declared in require-dev.
+        $test->stubComposerJsonDependencies(['drupal/sdc_devel' => '^1.0'], TRUE);
       },
     ];
     yield 'modules - discovery - none' => [
