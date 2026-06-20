@@ -1,7 +1,10 @@
 # Zizmor configuration for auditing the Vortex template's own GitHub Actions
 # workflows. Consumed by the 'vortex-test-actions' job in
 # '.github/workflows/vortex-test-common.yml' (a maintenance-only workflow that
-# is not shipped to scaffolded projects).
+# is not shipped to scaffolded projects). That job scopes the audit to
+# '.github/workflows/', so the installer test fixtures are out of scope and
+# their placeholder action refs must not be silenced by basename entries here -
+# a basename like 'build-test-deploy.yml' would also match the real workflow.
 #
 # Every entry below documents an intentional, accepted finding. Genuine issues
 # are fixed in the workflows themselves rather than ignored here.

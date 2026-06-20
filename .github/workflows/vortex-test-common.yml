@@ -269,5 +269,9 @@ jobs:
       - name: Check GitHub Actions security with Zizmor
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
         with:
+          # Audit only the real workflows. The default '.' also descends into the
+          # installer test fixtures, whose normalized '__HASH__' action refs are
+          # placeholders rather than real pins and raise false 'unpinned-uses'.
+          inputs: .github/workflows/
           config: .vortex/tests/zizmor.yml
         continue-on-error: ${{ vars.VORTEX_CI_ZIZMOR_IGNORE_FAILURE == '1' }}
