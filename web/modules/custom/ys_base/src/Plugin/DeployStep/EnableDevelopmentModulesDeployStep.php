@@ -95,6 +95,10 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     $this->moduleInstaller->install(['sdc_devel']);
     // phpcs:ignore #;> MODULE_SDC_DEVEL
 
+    // phpcs:ignore #;< MODULE_DEVEL
+    $this->moduleInstaller->install(['devel']);
+    // phpcs:ignore #;> MODULE_DEVEL
+
     // phpcs:ignore #;< CUSTOM_MODULE_SEARCH
     $this->moduleInstaller->install(['ys_search']);
     // phpcs:ignore #;> CUSTOM_MODULE_SEARCH
