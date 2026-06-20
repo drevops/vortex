@@ -42,6 +42,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/coffee' => '^2.0.1',
           'drupal/config_split' => '^2.0.2',
           'drupal/config_update' => '^2@alpha',
+          'drupal/devel' => '^5.5',
           'drupal/drupal_helpers' => '^2.0.1',
           'drupal/environment_indicator' => '^4.0.25',
           'drupal/generated_content' => '^2.0.1',
