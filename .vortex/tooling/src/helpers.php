@@ -33,30 +33,6 @@ load_dotenv(['.env', '.env.local']);
 // @codeCoverageIgnoreEnd
 
 /**
- * Check if current script has an override and execute it if found.
- *
- * Call this at the start of your script to allow it to be overridden.
- *
- * @param string $path
- *   Path to the script file relative to the custom directory
- *   specified in VORTEX_TOOLING_CUSTOM_DIR.
- */
-function execute_override(string $path): void {
-  $dir = getenv('VORTEX_TOOLING_CUSTOM_DIR');
-  if ($dir) {
-    if (!is_dir($dir)) {
-      fail('Custom directory specified in VORTEX_TOOLING_CUSTOM_DIR does not exist: %s', $dir);
-    }
-
-    $full_path = $dir . DIRECTORY_SEPARATOR . $path;
-    if (file_exists($full_path) && is_executable($full_path)) {
-      passthru(sprintf('"%s"', $full_path), $exit_code);
-      quit($exit_code);
-    }
-  }
-}
-
-/**
  * Load environment variables from .env and .env.local files.
  *
  * @param array<int,string> $env_files

@@ -79,7 +79,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexTooling;
 
 require_once __DIR__ . '/helpers.php';
-execute_override(basename(__FILE__));
 
 // Variables via getenv_default()/getenv_required() (with fallback chains).
 $var = getenv_default('VAR', 'default');
@@ -88,8 +87,10 @@ $var = getenv_default('VAR', 'default');
 // pass(), fail(), request_get()/request_post(), command_must_exist(), etc.
 ```
 
-Shared helpers live in `src/helpers.php`; project-level overrides hook in via
-`execute_override()`. The `scripts/` provision subscripts remain Bash.
+Shared helpers live in `src/helpers.php`. Consumer projects that need to alter a
+shipped script do so with a `cweagans/composer-patches` patch (see the tooling
+`README.md`), never by overriding it at runtime. The `scripts/` provision
+subscripts remain Bash.
 
 **Publishing**: the version is injected at publish time - never hardcode
 `version` in the package `composer.json`. While `2.0` is unreleased, the
