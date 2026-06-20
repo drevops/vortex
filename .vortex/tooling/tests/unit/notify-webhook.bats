@@ -29,9 +29,9 @@ load ../_helper.bash
 
   assert_output_contains "Started dispatching notifications."
 
-  assert_output_contains "Started Webhook notification."
+  assert_output_contains "Started webhook notification."
 
-  assert_output_contains "Finished Webhook notification."
+  assert_output_contains "Finished webhook notification."
 
   assert_output_contains "Finished dispatching notifications."
 
@@ -80,8 +80,8 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Started Webhook notification."
-  assert_output_contains "Skipping Webhook notification for pre_deployment event."
+  assert_output_contains "Started webhook notification."
+  assert_output_contains "Skipped webhook notification for pre_deployment event."
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
@@ -105,8 +105,8 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping Webhook notification for branch 'feature/test'."
-  assert_output_not_contains "Started Webhook notification."
+  assert_output_contains "Skipped webhook notification for branch 'feature/test'."
+  assert_output_not_contains "Started webhook notification."
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
@@ -124,7 +124,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/notify-webhook
   assert_success
 
-  assert_output_contains "Skipping Webhook notification for branch ''."
+  assert_output_contains "Skipped webhook notification for branch ''."
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1

@@ -69,7 +69,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 for cmd in curl php; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -77,7 +77,7 @@ info "Started Diffy notification."
 
 # Skip on pre_deployment - the target environment is not yet ready.
 if [ "${VORTEX_NOTIFY_DIFFY_EVENT}" = "pre_deployment" ]; then
-  pass "Skipping Diffy notification for pre_deployment event."
+  pass "Skipped Diffy notification for pre_deployment event."
   exit 0
 fi
 
@@ -85,17 +85,17 @@ fi
 # deployment is dispatched and the workflow gates on PR + label.
 if [ -n "${VORTEX_NOTIFY_DIFFY_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_DIFFY_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_DIFFY_BRANCH},"; then
-    pass "Skipping Diffy notification for branch '${VORTEX_NOTIFY_DIFFY_BRANCH}' (not in branch allowlist)."
+    pass "Skipped Diffy notification for branch '${VORTEX_NOTIFY_DIFFY_BRANCH}' (not in branch allowlist)."
     exit 0
   fi
 fi
 
 # Validate required values.
-[ -z "${VORTEX_NOTIFY_DIFFY_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN" && exit 1
-[ -z "${VORTEX_NOTIFY_DIFFY_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_REPOSITORY" && exit 1
-[ -z "${VORTEX_NOTIFY_DIFFY_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_BRANCH" && exit 1
-[ -z "${VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL" && exit 1
-[ -z "${VORTEX_NOTIFY_DIFFY_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_LABEL" && exit 1
+[ -z "${VORTEX_NOTIFY_DIFFY_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN." && exit 1
+[ -z "${VORTEX_NOTIFY_DIFFY_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_REPOSITORY." && exit 1
+[ -z "${VORTEX_NOTIFY_DIFFY_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_BRANCH." && exit 1
+[ -z "${VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_DIFFY_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_DIFFY_LABEL." && exit 1
 
 # Sanitize repository (extract owner/repo, hide host if any).
 repository_sanitized=$(echo "${VORTEX_NOTIFY_DIFFY_REPOSITORY}" | sed -E 's|^https?://[^/]+/||; s|\.git$||')

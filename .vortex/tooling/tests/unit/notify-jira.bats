@@ -75,7 +75,7 @@ load ../_helper.bash
 
   assert_output_contains "Started dispatching notifications."
   assert_output_contains "Started JIRA notification."
-  assert_output_contains "Skipping JIRA notification for pre_deployment event."
+  assert_output_contains "Skipped JIRA notification for pre_deployment event."
   assert_output_not_contains "Extracting issue"
   assert_output_contains "Finished dispatching notifications."
 
@@ -99,7 +99,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping JIRA notification for branch 'feature/proj-1234-test'."
+  assert_output_contains "Skipped JIRA notification for branch 'feature/proj-1234-test'."
   assert_output_not_contains "Started JIRA notification."
   assert_output_contains "Finished dispatching notifications."
 
@@ -118,7 +118,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/notify-jira
   assert_success
 
-  assert_output_contains "Skipping JIRA notification for branch ''."
+  assert_output_contains "Skipped JIRA notification for branch ''."
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1

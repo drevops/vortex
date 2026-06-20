@@ -98,12 +98,12 @@ is_lagoon_env_limit_exceeded() {
 # Track exit status to return at the end.
 exit_code=0
 
-info "Started LAGOON deployment."
+info "Started Lagoon deployment."
 
 # Lagoon does not support tag deployments. Exit successfully with a message.
 if [ "${VORTEX_DEPLOY_MODE}" = "tag" ]; then
-  note "Lagoon does not support tag deployments. Skipping."
-  pass "Finished LAGOON deployment."
+  note "Lagoon does not support tag deployments. Skipped."
+  pass "Finished Lagoon deployment."
   exit 0
 fi
 
@@ -130,7 +130,7 @@ if ! command -v lagoon >/dev/null || [ -n "${VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORC
 fi
 
 for cmd in lagoon curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -143,7 +143,7 @@ lagoon() { command lagoon --force --skip-update-check --ssh-key "${VORTEX_DEPLOY
 # ACTION: 'destroy'
 # Explicitly specifying "destroy" action as a failsafe.
 if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "destroy" ]; then
-  task "Destroying environment: project ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
+  task "Destroying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
   lagoon delete environment --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" || true
 
 # ACTION: 'deploy' OR 'deploy_override_db'
@@ -171,17 +171,17 @@ else
     if [ "${is_redeploy:-}" = "1" ]; then
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
-      task "Setting a DB overwrite flag to 0."
+      task "Setting a database overwrite flag to 0."
       lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
 
       # Override DB during re-deployment.
       if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
-        task "Adding a DB import override flag for the current deployment."
+        task "Adding a database import override flag for the current deployment."
         # To update variable value, we need to remove it and add again.
         lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global || true
       fi
 
-      task "Redeploying environment: project ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
+      task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       deploy_output=$(lagoon deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}" 2>&1) || exit_code=$?
       exit_code=${exit_code:-0}
       if is_lagoon_env_limit_exceeded "${deploy_output}"; then
@@ -193,7 +193,7 @@ else
         task "Waiting for deployment to be queued."
         sleep 10
 
-        task "Removing a DB import override flag for the current deployment."
+        task "Removing a database import override flag for the current deployment."
         # Note that a variable will be read by Lagoon during queuing of the build.
         lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
       fi
@@ -201,7 +201,7 @@ else
     # Deployment of the fresh environment.
     else
       # If PR deployments are not configured in Lagoon - it will filter it out and will not deploy.
-      task "Deploying environment: project ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
+      task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       deploy_output=$(lagoon deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}" 2>&1) || exit_code=$?
       exit_code=${exit_code:-0}
       if is_lagoon_env_limit_exceeded "${deploy_output}"; then
@@ -231,17 +231,17 @@ else
     if [ "${is_redeploy:-}" = "1" ]; then
       # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       # @see https://github.com/uselagoon/lagoon/issues/1922
-      task "Setting a DB overwrite flag to 0."
+      task "Setting a database overwrite flag to 0."
       lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
 
       # Override DB during re-deployment.
       if [ "${VORTEX_DEPLOY_LAGOON_ACTION:-}" = "deploy_override_db" ]; then
-        task "Adding a DB import override flag for the current deployment."
+        task "Adding a database import override flag for the current deployment."
         # To update variable value, we need to remove it and add again.
         lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global || true
       fi
 
-      task "Redeploying environment: project ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
+      task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       deploy_output=$(lagoon deploy latest --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" 2>&1) || exit_code=$?
       exit_code=${exit_code:-0}
       if is_lagoon_env_limit_exceeded "${deploy_output}"; then
@@ -253,7 +253,7 @@ else
         task "Waiting for deployment to be queued."
         sleep 10
 
-        task "Removing a DB import override flag for the current deployment."
+        task "Removing a database import override flag for the current deployment."
         # Note that a variable will be read by Lagoon during queuing of the build.
         lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
       fi
@@ -261,7 +261,7 @@ else
     # Deployment of the fresh environment.
     else
       # If current branch deployments does not match a regex in Lagoon - it will filter it out and will not deploy.
-      task "Deploying environment: project ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
+      task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       deploy_output=$(lagoon deploy branch --branch "${VORTEX_DEPLOY_LAGOON_BRANCH}" 2>&1) || exit_code=$?
       exit_code=${exit_code:-0}
       if is_lagoon_env_limit_exceeded "${deploy_output}"; then
@@ -273,9 +273,9 @@ else
 fi
 
 if [ "${exit_code}" = "0" ]; then
-  pass "Finished LAGOON deployment."
+  pass "Finished Lagoon deployment."
 else
-  fail "LAGOON deployment completed with errors."
+  fail "Lagoon deployment completed with errors."
 fi
 
 exit "${exit_code}"

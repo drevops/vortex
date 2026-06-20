@@ -80,7 +80,7 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
   note "Found flag to skip all deployments."
-  pass "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+  pass "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
   exit 0
 fi
 
@@ -98,7 +98,7 @@ if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     # VORTEX_DEPLOY_SKIP_PRS=123,456,789
     if echo ",${VORTEX_DEPLOY_SKIP_PRS}," | grep -q ",${VORTEX_DEPLOY_PR},"; then
       note "Found PR ${VORTEX_DEPLOY_PR} in skip list."
-      note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+      note "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
       exit 0
     fi
   fi
@@ -114,7 +114,7 @@ if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
     # VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental
     if echo ",${VORTEX_DEPLOY_SKIP_BRANCHES}," | grep -qF ",${VORTEX_DEPLOY_BRANCH},"; then
       note "Found branch ${VORTEX_DEPLOY_BRANCH} in skip list."
-      note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+      note "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
       exit 0
     fi
   fi
@@ -129,7 +129,7 @@ if [ -n "${VORTEX_DEPLOY_ALLOW_LABEL}" ] && [ -n "${VORTEX_DEPLOY_PR}" ]; then
 
   if ! echo ",${VORTEX_DEPLOY_PR_LABELS}," | grep -qF ",${VORTEX_DEPLOY_ALLOW_LABEL},"; then
     note "PR ${VORTEX_DEPLOY_PR} does not carry the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
-    note "Skipping deployment ${VORTEX_DEPLOY_TYPES}."
+    note "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
     exit 0
   fi
 

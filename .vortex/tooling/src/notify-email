@@ -67,7 +67,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_EMAIL_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipping email notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped email notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
@@ -92,7 +92,7 @@ fi
 
 # Skip if this is a pre-deployment event (email only for post-deployment).
 if [ "${VORTEX_NOTIFY_EMAIL_EVENT}" = "pre_deployment" ]; then
-  pass "Skipping email notification for pre_deployment event."
+  pass "Skipped email notification for pre_deployment event."
   exit 0
 fi
 

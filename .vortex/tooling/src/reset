@@ -21,7 +21,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 #shellcheck disable=SC2043
 for cmd in git; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -42,7 +42,7 @@ rm -rf \
 find . -type d -name node_modules | xargs rm -Rf
 
 if [ "${is_hard_reset}" = "1" ]; then
-  task "Changing permissions and remove all other untracked files."
+  task "Changing permissions and removing all other untracked files."
 
   git ls-files --others -i --exclude-from=.gitignore -z | while IFS= read -r -d '' file; do
     chmod 777 "${file}" >/dev/null || true

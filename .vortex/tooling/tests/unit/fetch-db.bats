@@ -55,7 +55,7 @@ EOF
   run .vortex/tooling/src/fetch-db
   assert_success
   assert_output_contains "Started database download."
-  assert_output_contains "Skipping database download as VORTEX_FETCH_DB_PROCEED is not set to 1."
+  assert_output_contains "Skipped database download as VORTEX_FETCH_DB_PROCEED is not set to 1."
 
   # Test default source (should default to url/curl)
   mkdir -p .vortex/tooling/src

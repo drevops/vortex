@@ -40,10 +40,10 @@ class DeploymentTest extends FunctionalTestCase {
 
     $this->logSubstep('Run webhook deployment');
     $this->cmd('ahoy deploy', [
-      '* Started WEBHOOK deployment.',
+      '* Started webhook deployment.',
       '* Webhook call completed.',
       '! [FAIL] Unable to complete webhook deployment.',
-      '* Finished WEBHOOK deployment.',
+      '* Finished webhook deployment.',
     ], txt: 'Webhook deployment should complete successfully', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -67,9 +67,9 @@ class DeploymentTest extends FunctionalTestCase {
 
     $this->logSubstep('Subtest 1: Run deployment without skip flag set');
     $this->cmd('ahoy deploy', [
-      '* Started WEBHOOK deployment.',
-      '* Finished WEBHOOK deployment.',
-      '! Skipping deployment webhook.',
+      '* Started webhook deployment.',
+      '* Finished webhook deployment.',
+      '! Skipped deployment webhook.',
     ], txt: 'Deployment should proceed without skip flag', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -79,9 +79,9 @@ class DeploymentTest extends FunctionalTestCase {
     $this->logSubstep('Subtest 2: Run deployment with ALLOW_SKIP but no skip lists');
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
-      '* Started WEBHOOK deployment.',
-      '* Finished WEBHOOK deployment.',
-      '! Skipping deployment webhook.',
+      '* Started webhook deployment.',
+      '* Finished webhook deployment.',
+      '! Skipped deployment webhook.',
     ], txt: 'Deployment should proceed with ALLOW_SKIP but no specific skip', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -93,8 +93,8 @@ class DeploymentTest extends FunctionalTestCase {
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
       '* Found PR 123 in skip list.',
-      '* Skipping deployment webhook.',
-      '! Started WEBHOOK deployment.',
+      '* Skipped deployment webhook.',
+      '! Started webhook deployment.',
     ], txt: 'Deployment should be skipped for single PR', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -108,8 +108,8 @@ class DeploymentTest extends FunctionalTestCase {
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
       '* Found PR 123 in skip list.',
-      '* Skipping deployment webhook.',
-      '! Started WEBHOOK deployment.',
+      '* Skipped deployment webhook.',
+      '! Started webhook deployment.',
     ], txt: 'Deployment should be skipped for PR 123 in list', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -122,10 +122,10 @@ class DeploymentTest extends FunctionalTestCase {
     $this->logSubstep('Subtest 5: Allow deployment for PR not in skip list');
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
-      '* Started WEBHOOK deployment.',
-      '* Finished WEBHOOK deployment.',
+      '* Started webhook deployment.',
+      '* Finished webhook deployment.',
       '! Found PR 999 in skip list.',
-      '! Skipping deployment webhook.',
+      '! Skipped deployment webhook.',
     ], txt: 'Deployment should proceed for PR 999 not in skip list', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -139,8 +139,8 @@ class DeploymentTest extends FunctionalTestCase {
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
       '* Found branch feature/test in skip list.',
-      '* Skipping deployment webhook.',
-      '! Started WEBHOOK deployment.',
+      '* Skipped deployment webhook.',
+      '! Started webhook deployment.',
     ], txt: 'Deployment should be skipped for single branch', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -154,8 +154,8 @@ class DeploymentTest extends FunctionalTestCase {
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
       '* Found branch feature/test in skip list.',
-      '* Skipping deployment webhook.',
-      '! Started WEBHOOK deployment.',
+      '* Skipped deployment webhook.',
+      '! Started webhook deployment.',
     ], txt: 'Deployment should be skipped for branch in list', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -168,10 +168,10 @@ class DeploymentTest extends FunctionalTestCase {
     $this->logSubstep('Subtest 8: Allow deployment for branch not in skip list');
     $this->cmd('ahoy deploy', [
       '* Found flag to skip a deployment.',
-      '* Started WEBHOOK deployment.',
-      '* Finished WEBHOOK deployment.',
+      '* Started webhook deployment.',
+      '* Finished webhook deployment.',
       '! Found branch develop in skip list.',
-      '! Skipping deployment webhook.',
+      '! Skipped deployment webhook.',
     ], txt: 'Deployment should proceed for branch not in skip list', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -183,10 +183,10 @@ class DeploymentTest extends FunctionalTestCase {
 
     $this->logSubstep('Subtest 9: Run deployment without ALLOW_SKIP despite skip lists');
     $this->cmd('ahoy deploy', [
-      '* Started WEBHOOK deployment.',
-      '* Finished WEBHOOK deployment.',
+      '* Started webhook deployment.',
+      '* Finished webhook deployment.',
       '! Found flag to skip a deployment.',
-      '! Skipping deployment webhook.',
+      '! Skipped deployment webhook.',
     ], txt: 'Deployment should proceed when ALLOW_SKIP is not set', env: [
       'VORTEX_DEPLOY_TYPES' => 'webhook',
       'VORTEX_DEPLOY_WEBHOOK_URL' => 'https://www.example.com',
@@ -238,12 +238,12 @@ class DeploymentTest extends FunctionalTestCase {
 
     $this->logSubstep('Run artifact deployment');
     $this->cmd('ahoy deploy', [
-      '* Started ARTIFACT deployment.',
+      '* Started artifact deployment.',
       '* Installing artifact builder.',
       '* Copying git repo files meta file to the deploy code repo.',
       '* Copying deployment .gitignore as it may not exist in deploy code source files.',
       '* Running artifact builder.',
-      '* Finished ARTIFACT deployment.',
+      '* Finished artifact deployment.',
     ], txt: 'Artifact deployment should complete successfully', env: [
       'VORTEX_DEPLOY_TYPES' => 'artifact',
       'VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE' => $remote_dir . '/.git',

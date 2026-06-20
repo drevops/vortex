@@ -22,7 +22,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping dispatching notifications."
+  assert_output_contains "Skipped dispatching notifications."
   assert_output_not_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
@@ -92,7 +92,7 @@ load ../_helper.bash
 
   # Email: should skip pre_deployment
   assert_output_contains "Started email notification."
-  assert_output_contains "Skipping email notification for pre_deployment event."
+  assert_output_contains "Skipped email notification for pre_deployment event."
 
   # Slack: should execute for pre_deployment
   assert_output_contains "Started Slack notification."
@@ -101,7 +101,7 @@ load ../_helper.bash
 
   # NewRelic: should skip pre_deployment
   assert_output_contains "Started New Relic notification."
-  assert_output_contains "Skipping New Relic notification for pre_deployment event."
+  assert_output_contains "Skipped New Relic notification for pre_deployment event."
 
   # GitHub: should execute for pre_deployment
   assert_output_contains "Started GitHub notification for pre_deployment event."
@@ -109,12 +109,12 @@ load ../_helper.bash
   assert_output_contains "Finished GitHub notification for pre_deployment event."
 
   # Webhook: should skip pre_deployment
-  assert_output_contains "Started Webhook notification."
-  assert_output_contains "Skipping Webhook notification for pre_deployment event."
+  assert_output_contains "Started webhook notification."
+  assert_output_contains "Skipped webhook notification for pre_deployment event."
 
   # JIRA: should skip pre_deployment
   assert_output_contains "Started JIRA notification."
-  assert_output_contains "Skipping JIRA notification for pre_deployment event."
+  assert_output_contains "Skipped JIRA notification for pre_deployment event."
 
   assert_output_contains "Finished dispatching notifications."
 

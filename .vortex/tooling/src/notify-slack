@@ -63,22 +63,22 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
 if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipping Slack notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped Slack notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_SLACK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_PROJECT" && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LABEL" && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL" && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LOGIN_URL" && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_WEBHOOK}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_WEBHOOK" && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_PROJECT." && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LABEL." && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LOGIN_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_WEBHOOK}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_WEBHOOK." && exit 1
 
 info "Started Slack notification."
 
@@ -182,7 +182,7 @@ response=$(curl -s -o /dev/null -w "%{http_code}" \
   "${VORTEX_NOTIFY_SLACK_WEBHOOK}")
 
 if [ "${response}" != "200" ]; then
-  fail "Unable to send notification to Slack. HTTP status: ${response}"
+  fail "Unable to send notification to Slack. HTTP status: ${response}."
   exit 1
 fi
 
