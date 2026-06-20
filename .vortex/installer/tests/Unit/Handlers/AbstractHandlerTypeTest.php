@@ -16,6 +16,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
@@ -109,6 +110,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'preserve_docs_project' => [PreserveDocsProject::id(), PromptType::Confirm];
     yield 'ai_code_instructions' => [AiCodeInstructions::id(), PromptType::Confirm];
     yield 'visual_regression' => [VisualRegression::id(), PromptType::Confirm];
+    yield 'frontend_build' => [FrontendBuild::id(), PromptType::Confirm];
     // Suggest handlers.
     yield 'timezone' => [Timezone::id(), PromptType::Suggest];
   }
