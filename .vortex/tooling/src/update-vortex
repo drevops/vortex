@@ -28,7 +28,7 @@ execute_override(basename(__FILE__));
 $installer_template_repo = getenv_default('VORTEX_INSTALLER_TEMPLATE_REPO', 'https://github.com/drevops/vortex.git#stable');
 
 // The URL of the installer script.
-$installer_url = getenv_default('VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/install');
+$installer_url = getenv_default('VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/v1/install');
 
 // Cache busting parameter for the installer URL.
 $installer_url_cache_bust = getenv_default('VORTEX_INSTALLER_URL_CACHE_BUST', (string) time());

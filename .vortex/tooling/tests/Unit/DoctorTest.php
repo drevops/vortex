@@ -154,7 +154,7 @@ class DoctorTest extends UnitTestCase {
   public static function dataProviderDoctor(): array {
     $container_cmd = fn(string $s): array => ['cmd' => sprintf("docker compose ps --status=running --services 2>/dev/null | grep -q '%s'", $s), 'result_code' => 0];
     $container_fail = fn(string $s): array => ['cmd' => sprintf("docker compose ps --status=running --services 2>/dev/null | grep -q '%s'", $s), 'result_code' => 1];
-    $containers_running = fn(): array => [$container_cmd('cli'), $container_cmd('php'), $container_cmd('nginx'), $container_cmd('database')];
+    $containers_running = fn(): array => [$container_cmd('cli'), $container_cmd('appserver'), $container_cmd('webserver'), $container_cmd('database')];
 
     $pygmy_status_cmd = ['cmd' => 'pygmy status 2>/dev/null | tr -d "\\000" > /tmp/vortex_pygmy_status.txt', 'result_code' => 0];
     $pygmy_service_ok = fn(string $s): array => ['cmd' => 'grep -q "' . $s . ': Running" /tmp/vortex_pygmy_status.txt', 'result_code' => 0];

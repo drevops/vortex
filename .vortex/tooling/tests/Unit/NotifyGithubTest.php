@@ -34,7 +34,7 @@ class NotifyGithubTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_GITHUB_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
 
-    $this->runScriptEarlyPass('src/notify-github', "Skipping GitHub notification for branch 'feature/x'.");
+    $this->runScriptEarlyPass('src/notify-github', "Skipped GitHub notification for branch 'feature/x'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {

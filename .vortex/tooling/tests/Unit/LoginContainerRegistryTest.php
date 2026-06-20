@@ -46,7 +46,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
 
     $output = $this->runScript('src/login-container-registry');
 
-    $this->assertStringContainsString('Skipping login to the container registry', $output);
+    $this->assertStringContainsString('Skipped login to the container registry', $output);
   }
 
   public function testMissingUserOnly(): void {
@@ -54,7 +54,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
 
     $output = $this->runScript('src/login-container-registry');
 
-    $this->assertStringContainsString('Skipping login to the container registry', $output);
+    $this->assertStringContainsString('Skipped login to the container registry', $output);
   }
 
   public function testMissingPasswordOnly(): void {
@@ -62,7 +62,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
 
     $output = $this->runScript('src/login-container-registry');
 
-    $this->assertStringContainsString('Skipping login to the container registry', $output);
+    $this->assertStringContainsString('Skipped login to the container registry', $output);
   }
 
   public function testEmptyRegistryName(): void {

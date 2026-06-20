@@ -92,7 +92,7 @@ class ResetTest extends UnitTestCase {
         ],
         [
           '* [INFO] Started reset.',
-          '* [TASK] Changing permissions and remove all other untracked files.',
+          '* [TASK] Changing permissions and removing all other untracked files.',
           '* [TASK] Resetting repository files.',
           '* [TASK] Removing all untracked files.',
           '* [TASK] Removing empty directories.',

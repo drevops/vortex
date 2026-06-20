@@ -79,7 +79,7 @@ command_must_exist('rsync');
 info('Started database dump download from Lagoon.');
 
 // Setup SSH.
-putenv('VORTEX_SSH_PREFIX=DOWNLOAD_DB');
+putenv('VORTEX_SSH_PREFIX=FETCH_DB');
 passthru_or_fail(__DIR__ . '/setup-ssh', 'Failed to setup SSH.');
 
 $ssh_opts = [

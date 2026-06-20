@@ -78,13 +78,28 @@ $deploy_allow_skip_branches = array_map('trim', explode(',', $deploy_allow_skip_
 $deploy_allow_skip_prs = getenv_default('VORTEX_DEPLOY_SKIP_PRS', '');
 $deploy_allow_skip_prs = array_map('trim', explode(',', $deploy_allow_skip_prs));
 
+// Label that authorizes a pull request deployment.
+//
+// When set to a non-empty label name, a PR deployment proceeds only if the
+// pull request carries that label; PRs without it are skipped. When empty (the
+// default), the gate is inactive. Only applies to PR builds (VORTEX_DEPLOY_PR
+// set); branch and tag deployments are unaffected.
+$deploy_allow_label = getenv_default('VORTEX_DEPLOY_ALLOW_LABEL', '');
+
+// Comma-separated list of labels present on the deployed pull request.
+//
+// Populated by the CI provider from the pull request event (for example, in
+// GitHub Actions from "github.event.pull_request.labels"). Consulted by the
+// VORTEX_DEPLOY_ALLOW_LABEL gate.
+$deploy_pr_labels = getenv_default('VORTEX_DEPLOY_PR_LABELS', '');
+
 // -----------------------------------------------------------------------------
 
 info('Started deployment.');
 
 if (!empty($deploy_skip)) {
   note('Found flag to skip all deployments.');
-  pass(sprintf('Skipping deployment %s.', implode(',', $deploy_types)));
+  pass(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
   quit(0);
 }
 
@@ -98,15 +113,33 @@ if (!empty($deploy_allow_skip)) {
 
   if (!empty($deploy_pr) && !empty($deploy_allow_skip_prs) && in_array($deploy_pr, $deploy_allow_skip_prs, TRUE)) {
     note(sprintf('Found PR %s in skip list.', $deploy_pr));
-    note(sprintf('Skipping deployment %s.', implode(',', $deploy_types)));
+    note(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
     quit(0);
   }
 
   if (!empty($deploy_branch) && !empty($deploy_allow_skip_branches) && in_array($deploy_branch, $deploy_allow_skip_branches, TRUE)) {
     note(sprintf('Found branch %s in skip list.', $deploy_branch));
-    note(sprintf('Skipping deployment %s.', implode(',', $deploy_types)));
+    note(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
     quit(0);
   }
+}
+
+if (!empty($deploy_allow_label) && !empty($deploy_pr)) {
+  // Gate a pull request deployment on the presence of a label.
+  //
+  // The PR's labels are provided as a comma-separated list in
+  // $VORTEX_DEPLOY_PR_LABELS, populated by the CI provider from the PR event.
+  note(sprintf("Found flag to gate deployment on the '%s' label.", $deploy_allow_label));
+
+  $deploy_pr_labels = array_map('trim', explode(',', $deploy_pr_labels));
+
+  if (!in_array($deploy_allow_label, $deploy_pr_labels, TRUE)) {
+    note(sprintf("PR %s does not carry the '%s' label.", $deploy_pr, $deploy_allow_label));
+    note(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
+    quit(0);
+  }
+
+  note(sprintf("PR %s carries the '%s' label.", $deploy_pr, $deploy_allow_label));
 }
 
 // Route to deployment scripts based on type.

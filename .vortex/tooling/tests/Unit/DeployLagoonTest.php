@@ -80,9 +80,9 @@ class DeployLagoonTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-lagoon');
 
-    $this->assertStringContainsString('Started LAGOON deployment.', $output);
+    $this->assertStringContainsString('Started Lagoon deployment.', $output);
     $this->assertStringContainsString('Destroying environment: project test-project, branch: develop.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testBranchFreshDeployment(): void {
@@ -118,10 +118,10 @@ class DeployLagoonTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-lagoon');
 
-    $this->assertStringContainsString('Started LAGOON deployment.', $output);
+    $this->assertStringContainsString('Started Lagoon deployment.', $output);
     $this->assertStringContainsString('Discovering existing environments for branch deployments.', $output);
     $this->assertStringContainsString('Deploying environment: project test-project, branch: develop.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testBranchRedeployment(): void {
@@ -164,9 +164,9 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for branch "develop".', $output);
-    $this->assertStringContainsString('Setting a DB overwrite flag to 0.', $output);
+    $this->assertStringContainsString('Setting a database overwrite flag to 0.', $output);
     $this->assertStringContainsString('Redeploying environment: project test-project, branch: develop.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testBranchRedeploymentWithDbOverride(): void {
@@ -221,10 +221,10 @@ class DeployLagoonTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-lagoon');
 
-    $this->assertStringContainsString('Adding a DB import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Adding a database import override flag for the current deployment.', $output);
     $this->assertStringContainsString('Waiting for deployment to be queued.', $output);
-    $this->assertStringContainsString('Removing a DB import override flag for the current deployment.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Removing a database import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testPrFreshDeployment(): void {
@@ -265,10 +265,10 @@ class DeployLagoonTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-lagoon');
 
-    $this->assertStringContainsString('Started LAGOON deployment.', $output);
+    $this->assertStringContainsString('Started Lagoon deployment.', $output);
     $this->assertStringContainsString('Discovering existing environments for pullrequest deployments.', $output);
     $this->assertStringContainsString('Deploying environment: project test-project, PR: 123.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testPrRedeployment(): void {
@@ -316,9 +316,9 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for PR "123".', $output);
-    $this->assertStringContainsString('Setting a DB overwrite flag to 0.', $output);
+    $this->assertStringContainsString('Setting a database overwrite flag to 0.', $output);
     $this->assertStringContainsString('Redeploying environment: project test-project, PR: 123.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testEnvironmentLimitExceeded(): void {
@@ -358,7 +358,7 @@ class DeployLagoonTest extends UnitTestCase {
 
     $this->assertStringContainsString('Lagoon environment limit exceeded.', $output);
     $this->assertStringContainsString('Ignoring environment limit exceeded error as per configuration.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testSshSetupFailure(): void {
@@ -467,7 +467,7 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/deploy-lagoon');
 
     $this->assertStringContainsString('Deploying environment: project test-project, branch: develop.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testEnvironmentLimitExceededWithFailFlag(): void {
@@ -575,11 +575,11 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for PR "123".', $output);
-    $this->assertStringContainsString('Adding a DB import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Adding a database import override flag for the current deployment.', $output);
     $this->assertStringContainsString('Redeploying environment: project test-project, PR: 123.', $output);
     $this->assertStringContainsString('Waiting for deployment to be queued.', $output);
-    $this->assertStringContainsString('Removing a DB import override flag for the current deployment.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Removing a database import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   public function testLagoonCliDownloadFailure(): void {
@@ -665,7 +665,7 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/deploy-lagoon');
 
     $this->assertStringContainsString('Installing Lagoon CLI.', $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
 
     // Verify directory was created.
     $this->assertDirectoryExists($cli_path);
@@ -726,7 +726,7 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Installing Lagoon CLI.', $output);
     $this->assertStringContainsString('Downloading Lagoon CLI from ' . $download_url . '.', $output);
     $this->assertStringContainsString(sprintf('Installing Lagoon CLI to %s.', $lagoon_bin), $output);
-    $this->assertStringContainsString('Finished LAGOON deployment.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
   protected function getSetupSshPath(): string {

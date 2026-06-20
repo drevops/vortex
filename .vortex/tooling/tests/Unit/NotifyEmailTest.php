@@ -116,14 +116,14 @@ class NotifyEmailTest extends UnitTestCase {
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-email', 'Skipping email notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/notify-email', 'Skipped email notification for pre_deployment event');
   }
 
   public function testNotificationSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-email', "Skipping email notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/notify-email', "Skipped email notification for branch 'develop'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {

@@ -70,7 +70,7 @@ $git_artifact_sha256 = getenv_default('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA25
 
 // -----------------------------------------------------------------------------
 
-info('Started ARTIFACT deployment.');
+info('Started artifact deployment.');
 
 command_must_exist('curl');
 
@@ -109,6 +109,16 @@ if ($actual_sha256 !== $git_artifact_sha256) {
 }
 chmod($git_artifact_bin, 0755);
 
+// Expand a leading '~' to the home directory before resolving, so paths
+// passed as single-quoted literals from YAML anchors still resolve.
+$home = getenv('HOME') ?: '';
+if (str_starts_with($deploy_artifact_root, '~')) {
+  $deploy_artifact_root = $home . substr($deploy_artifact_root, 1);
+}
+if (str_starts_with($deploy_artifact_src, '~')) {
+  $deploy_artifact_src = $home . substr($deploy_artifact_src, 1);
+}
+
 $deploy_artifact_root = realpath($deploy_artifact_root);
 $deploy_artifact_src = realpath($deploy_artifact_src);
 
@@ -139,4 +149,4 @@ $git_artifact_args = [
 ];
 passthru_or_fail(implode(' ', $git_artifact_args));
 
-pass('Finished ARTIFACT deployment.');
+pass('Finished artifact deployment.');

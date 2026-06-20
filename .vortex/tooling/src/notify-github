@@ -34,7 +34,7 @@ if ($notify_github_branches !== '') {
   $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
   $branch_list = array_map(trim(...), explode(',', $notify_github_branches));
   if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipping GitHub notification for branch '%s'.", $current_branch));
+    pass(sprintf("Skipped GitHub notification for branch '%s'.", $current_branch));
     quit();
   }
 }

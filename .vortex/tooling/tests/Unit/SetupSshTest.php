@@ -43,7 +43,7 @@ class SetupSshTest extends UnitTestCase {
 
     $output = $this->runScript('src/setup-ssh', 0);
 
-    $this->assertStringContainsString('SSH key is set to false meaning that it is not required. Skipping setup.', $output);
+    $this->assertStringContainsString('SSH key is set to false meaning that it is not required. Skipped setup.', $output);
   }
 
   public function testBasicSetupWithDefaultFile(): void {
@@ -205,6 +205,63 @@ class SetupSshTest extends UnitTestCase {
     $config_content = File::read($config_file);
     $this->assertStringContainsString('StrictHostKeyChecking no', $config_content);
     $this->assertStringContainsString('UserKnownHostsFile /dev/null', $config_content);
+  }
+
+  public function testPinKnownHosts(): void {
+    $this->envSet('VORTEX_SSH_KNOWN_HOSTS', 'example.com ssh-rsa AAAAfakekey\nexample.org ssh-rsa AAAAotherkey');
+    // Pinning takes precedence even when disabling strict checking is also set.
+    $this->envSet('VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING', '1');
+
+    $ssh_dir = self::$tmp . '/.ssh';
+    File::mkdir($ssh_dir, 0700);
+    $key_file = $ssh_dir . '/id_rsa';
+    File::dump($key_file, "fake ssh key\n");
+    chmod($key_file, 0600);
+
+    $socket_file = self::$tmp . '/agent.sock';
+    File::dump($socket_file);
+    $this->envSet('SSH_AUTH_SOCK', $socket_file);
+
+    $this->mockShellExec('id_rsa');
+
+    $output = $this->runScript('src/setup-ssh');
+
+    $this->assertStringContainsString('pinning takes precedence', $output);
+    $this->assertStringContainsString('Pinning SSH host keys to known_hosts.', $output);
+
+    $known_hosts_file = $ssh_dir . '/known_hosts';
+    $this->assertFileExists($known_hosts_file);
+    $known_hosts_content = File::read($known_hosts_file);
+    $this->assertStringContainsString('example.com ssh-rsa AAAAfakekey', $known_hosts_content);
+    $this->assertStringContainsString('example.org ssh-rsa AAAAotherkey', $known_hosts_content);
+  }
+
+  public function testPinKnownHostsStripsInsecureConfig(): void {
+    $this->envSet('VORTEX_SSH_KNOWN_HOSTS', 'example.com ssh-rsa AAAAfakekey');
+
+    $ssh_dir = self::$tmp . '/.ssh';
+    File::mkdir($ssh_dir, 0700);
+    $key_file = $ssh_dir . '/id_rsa';
+    File::dump($key_file, "fake ssh key\n");
+    chmod($key_file, 0600);
+
+    // Pre-existing insecure config left by an earlier disable-strict run.
+    $config_file = $ssh_dir . '/config';
+    File::dump($config_file, "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n");
+
+    $socket_file = self::$tmp . '/agent.sock';
+    File::dump($socket_file);
+    $this->envSet('SSH_AUTH_SOCK', $socket_file);
+
+    $this->mockShellExec('id_rsa');
+
+    $output = $this->runScript('src/setup-ssh');
+
+    $this->assertStringContainsString('Pinning SSH host keys to known_hosts.', $output);
+
+    $config_content = File::read($config_file);
+    $this->assertStringNotContainsString('StrictHostKeyChecking no', $config_content);
+    $this->assertStringNotContainsString('UserKnownHostsFile /dev/null', $config_content);
   }
 
   public function testFingerprintBasedKeyMd5(): void {

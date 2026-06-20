@@ -224,22 +224,19 @@ else {
     note(sprintf('Using the latest backup ID %s for DB %s.', $backup_id, $db_name));
 
     task('Discovering backup URL.');
-    // The Acquia API responds with a 302 redirect to the final S3 download
-    // URL. Capture the redirect URL without following it to avoid sending the
-    // Authorization header to S3 - the auth header is required only to query
-    // the Acquia API.
-    $backup_url_response = request(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), ['method' => 'GET', 'headers' => dl_acquia_api_headers($token), 'follow_redirects' => FALSE]);
+    // The Acquia API responds with a 200 and a JSON body containing the
+    // temporary, pre-signed S3 download URL under the "url" key. Fetch the
+    // body and extract that URL. The Authorization header is required only to
+    // query the Acquia API; the returned S3 URL is pre-signed and is fetched
+    // later without it.
+    $backup_url_response = request_get(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), dl_acquia_api_headers($token));
 
     if (!$backup_url_response['ok']) {
-      fail(sprintf(
-        'Unable to discover backup URL for backup ID \'%s\' (status: %s, error: %s).',
-        $backup_id,
-        (string) ($backup_url_response['status'] ?? 'unknown'),
-        (string) ($backup_url_response['error'] ?? 'none')
-      ));
+      fail(sprintf('Unable to discover backup URL for backup ID \'%s\' (status: %s).', $backup_id, (string) $backup_url_response['status']));
     }
 
-    $backup_url = (string) ($backup_url_response['info']['redirect_url'] ?? '');
+    $backup_url_data = json_decode((string) $backup_url_response['body'], TRUE);
+    $backup_url = is_array($backup_url_data) ? (string) ($backup_url_data['url'] ?? '') : '';
 
     if ($backup_url === '') {
       fail(sprintf('Unable to discover backup URL for backup ID \'%s\'.', $backup_id));

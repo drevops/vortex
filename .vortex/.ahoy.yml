@@ -116,7 +116,7 @@ commands:
   test-tooling:
     cmd: |
       [ ! -d ./tooling/vendor ] && composer --working-dir tooling install
-      composer --working-dir tooling test
+      composer --working-dir tooling test -- "$@"
 
   test-common:
     cmd: ./tests/test.common.sh

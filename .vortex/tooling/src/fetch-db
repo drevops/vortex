@@ -47,7 +47,7 @@ $semaphore = getenv_default('VORTEX_FETCH_DB_SEMAPHORE', '');
 info('Started database%s download.', $db_index !== '' ? ' ' . $db_index : '');
 
 if ($proceed !== '1') {
-  pass('Skipping database download as VORTEX_FETCH_DB_PROCEED is not set to 1.');
+  pass('Skipped database download as VORTEX_FETCH_DB_PROCEED is not set to 1.');
   quit(0);
 }
 

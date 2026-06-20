@@ -26,9 +26,9 @@ class DeployWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-webhook');
 
-    $this->assertStringContainsString('Started WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
-    $this->assertStringContainsString('Finished WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Finished webhook deployment.', $output);
   }
 
   public function testSuccessfulWebhookCallPost(): void {
@@ -38,9 +38,9 @@ class DeployWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-webhook');
 
-    $this->assertStringContainsString('Started WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
-    $this->assertStringContainsString('Finished WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Finished webhook deployment.', $output);
   }
 
   public function testSuccessfulWebhookCallPut(): void {
@@ -50,9 +50,9 @@ class DeployWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-webhook');
 
-    $this->assertStringContainsString('Started WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
-    $this->assertStringContainsString('Finished WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Finished webhook deployment.', $output);
   }
 
   public function testCustomExpectedStatusCode(): void {
@@ -62,9 +62,9 @@ class DeployWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-webhook');
 
-    $this->assertStringContainsString('Started WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
-    $this->assertStringContainsString('Finished WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Finished webhook deployment.', $output);
   }
 
   public function testMissingRequiredUrl(): void {
@@ -95,9 +95,9 @@ class DeployWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-webhook');
 
-    $this->assertStringContainsString('Started WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
-    $this->assertStringContainsString('Finished WEBHOOK deployment.', $output);
+    $this->assertStringContainsString('Finished webhook deployment.', $output);
   }
 
 }

@@ -34,7 +34,7 @@ if ($notify_jira_branches !== '') {
   $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
   $branch_list = array_map(trim(...), explode(',', $notify_jira_branches));
   if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipping JIRA notification for branch '%s'.", $current_branch));
+    pass(sprintf("Skipped JIRA notification for branch '%s'.", $current_branch));
     quit();
   }
 }
@@ -144,14 +144,14 @@ info('Started JIRA notification.');
 
 // Skip if this is a pre-deployment event (JIRA only processes post-deployment).
 if ($notify_event === 'pre_deployment') {
-  pass('Skipping JIRA notification for pre_deployment event.');
+  pass('Skipped JIRA notification for pre_deployment event.');
   quit();
 }
 
 task('Extracting issue');
 
 if (!preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_branch, $matches)) {
-  pass('Branch %s does not contain issue number. Skipping JIRA notification.', $notify_branch);
+  pass('Branch %s does not contain issue number. Skipped JIRA notification.', $notify_branch);
   quit();
 }
 $jira_issue = $matches[2];

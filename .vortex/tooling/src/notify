@@ -56,7 +56,7 @@ $skip = getenv('VORTEX_NOTIFY_SKIP');
 info('Started dispatching notifications.');
 
 if ($skip) {
-  pass('Skipping dispatching notifications.');
+  pass('Skipped dispatching notifications.');
   quit(0);
 }
 

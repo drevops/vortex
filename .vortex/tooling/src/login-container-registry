@@ -44,5 +44,5 @@ elseif (!empty($user) && !empty($pass)) {
   passthru_or_fail($cmd);
 }
 else {
-  note('Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');
+  note('Skipped login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');
 }

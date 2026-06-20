@@ -81,12 +81,12 @@ $lagooncli_version = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION', 'V
 
 // -----------------------------------------------------------------------------
 
-info('Started LAGOON deployment.');
+info('Started Lagoon deployment.');
 
 // Lagoon does not support tag deployments. Exit successfully with a message.
 if ($deploy_mode === 'tag') {
-  note('Lagoon does not support tag deployments. Skipping.');
-  pass('Finished LAGOON deployment.');
+  note('Lagoon does not support tag deployments. Skipped.');
+  pass('Finished Lagoon deployment.');
   quit(0);
 }
 
@@ -220,7 +220,7 @@ function lagoon_handle_environment_limit_exceeded(string $output): int {
   // phpcs:ignore Drupal.NamingConventions.ValidGlobal.GlobalUnderScore
   global $deploy_lagoon_fail_when_env_limit_exceeded;
 
-  if (stripos($output, 'exceed') !== FALSE && stripos($output, 'environment limit') !== FALSE) {
+  if (stripos($output, 'exceed') !== FALSE) {
     note('Lagoon environment limit exceeded.');
     if (!$deploy_lagoon_fail_when_env_limit_exceeded) {
       note('Ignoring environment limit exceeded error as per configuration.');
@@ -250,11 +250,11 @@ else {
       // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       // @see https://github.com/uselagoon/lagoon/issues/1922
       // @todo Review and remove this workaround as the issue is fixed.
-      task('Setting a DB overwrite flag to 0.');
+      task('Setting a database overwrite flag to 0.');
       lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Adding a DB import override flag for the current deployment.');
+        task('Adding a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_pr_full)));
       }
 
@@ -266,7 +266,7 @@ else {
       if ($deploy_action === 'deploy_override_db') {
         task('Waiting for deployment to be queued.');
         sleep(10);
-        task('Removing a DB import override flag for the current deployment.');
+        task('Removing a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
       }
     }
@@ -289,11 +289,11 @@ else {
       // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       // @see https://github.com/uselagoon/lagoon/issues/1922
       // @todo Review and remove this workaround as the issue is fixed.
-      task('Setting a DB overwrite flag to 0.');
+      task('Setting a database overwrite flag to 0.');
       lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Adding a DB import override flag for the current deployment.');
+        task('Adding a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_branch)));
       }
 
@@ -305,7 +305,7 @@ else {
       if ($deploy_action === 'deploy_override_db') {
         task('Waiting for deployment to be queued.');
         sleep(10);
-        task('Removing a DB import override flag for the current deployment.');
+        task('Removing a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
       }
     }
@@ -320,10 +320,10 @@ else {
 }
 
 if ($exit_code === 0) {
-  pass('Finished LAGOON deployment.');
+  pass('Finished Lagoon deployment.');
 }
 else {
-  fail('LAGOON deployment completed with errors.');
+  fail('Lagoon deployment completed with errors.');
 }
 
 quit($exit_code);

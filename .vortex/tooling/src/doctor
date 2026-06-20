@@ -141,7 +141,7 @@ if ($check_pygmy === '1') {
 }
 
 if ($check_containers === '1') {
-  $container_services = ['cli', 'php', 'nginx', 'database'];
+  $container_services = ['cli', 'appserver', 'webserver', 'database'];
   foreach ($container_services as $service) {
     passthru(sprintf('docker compose ps --status=running --services 2>/dev/null | grep -q %s', escapeshellarg($service)), $exit_code);
     if ($exit_code !== 0) {

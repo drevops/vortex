@@ -42,10 +42,10 @@ class NotifyWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-webhook');
 
-    $this->assertStringContainsString('Started Webhook notification', $output);
+    $this->assertStringContainsString('Started webhook notification', $output);
     $this->assertStringContainsString('Project            : test-project', $output);
     $this->assertStringContainsString('Deployment         : main', $output);
-    $this->assertStringContainsString('Finished Webhook notification', $output);
+    $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
   public function testSuccessfulNotificationWithCustomPayload(): void {
@@ -59,19 +59,19 @@ class NotifyWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-webhook');
 
-    $this->assertStringContainsString('Finished Webhook notification', $output);
+    $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_WEBHOOK_EVENT', 'pre_deployment');
-    $this->runScriptEarlyPass('src/notify-webhook', 'Skipping Webhook notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/notify-webhook', 'Skipped webhook notification for pre_deployment event');
   }
 
   public function testNotificationSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_WEBHOOK_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-webhook', "Skipping Webhook notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/notify-webhook', "Skipped webhook notification for branch 'develop'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -86,7 +86,7 @@ class NotifyWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-webhook');
 
-    $this->assertStringContainsString('Finished Webhook notification', $output);
+    $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
   #[DataProvider('dataProviderMissingRequiredVariables')]
@@ -209,7 +209,7 @@ class NotifyWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-webhook');
 
-    $this->assertStringContainsString('Finished Webhook notification', $output);
+    $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
   public function testWebhookUrlSanitization(): void {
@@ -239,7 +239,7 @@ class NotifyWebhookTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-webhook');
 
-    $this->assertStringContainsString('Finished Webhook notification', $output);
+    $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
 }

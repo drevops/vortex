@@ -167,7 +167,7 @@ class NotifySlackTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_SLACK_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-slack', "Skipping Slack notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/notify-slack', "Skipped Slack notification for branch 'develop'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {

@@ -91,11 +91,11 @@ class DeployArtifactTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-artifact');
 
-    $this->assertStringContainsString('Started ARTIFACT deployment.', $output);
+    $this->assertStringContainsString('Started artifact deployment.', $output);
     $this->assertStringContainsString('Installing artifact builder.', $output);
     $this->assertStringContainsString('Copying git repo files meta file to the deploy code repo.', $output);
     $this->assertStringContainsString('Running artifact builder.', $output);
-    $this->assertStringContainsString('Finished ARTIFACT deployment.', $output);
+    $this->assertStringContainsString('Finished artifact deployment.', $output);
   }
 
   public function testConfigureGitUser(): void {
@@ -375,7 +375,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     $output = $this->runScript('src/deploy-artifact');
 
-    $this->assertStringContainsString('Finished ARTIFACT deployment.', $output);
+    $this->assertStringContainsString('Finished artifact deployment.', $output);
   }
 
   protected function getSetupSshPath(): string {

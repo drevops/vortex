@@ -156,10 +156,10 @@ class FetchDbAcquiaTest extends UnitTestCase {
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
         'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
       ],
-      // Backup download URL: API responds with 302 redirect to S3.
+      // Backup download URL: 200 response with the URL in the JSON body.
       [
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups/12345/actions/download',
-        'response' => ['status' => 302, 'info' => ['redirect_url' => 'https://acquia-backup.s3.amazonaws.com/backup.sql.gz']],
+        'response' => ['body' => json_encode(['url' => 'https://acquia-backup.s3.amazonaws.com/backup.sql.gz'])],
       ],
       // Download request fails.
       [
@@ -250,10 +250,10 @@ class FetchDbAcquiaTest extends UnitTestCase {
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
         'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
       ],
-      // Backup download URL returns no redirect (empty redirect_url).
+      // Backup download URL: API responds with 200 but no URL in the body.
       [
         'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups/12345/actions/download',
-        'response' => ['info' => ['redirect_url' => '']],
+        'response' => ['body' => json_encode([])],
       ],
     ]);
 

@@ -27,7 +27,7 @@ if ($notify_webhook_branches !== '') {
   $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
   $branch_list = array_map(trim(...), explode(',', $notify_webhook_branches));
   if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipping Webhook notification for branch '%s'.", $current_branch));
+    pass(sprintf("Skipped webhook notification for branch '%s'.", $current_branch));
     quit();
   }
 }
@@ -81,10 +81,10 @@ $webhook_payload = getenv_default('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"channel": 
 
 // -----------------------------------------------------------------------------
 
-info('Started Webhook notification.');
+info('Started webhook notification.');
 
 if ($notify_event === 'pre_deployment') {
-  pass('Skipping Webhook notification for pre_deployment event.');
+  pass('Skipped webhook notification for pre_deployment event.');
   quit();
 }
 
@@ -126,4 +126,4 @@ if ($response['status'] !== (int) $webhook_expected_status) {
 
 pass('Webhook notification sent successfully with status %s.', $response['status']);
 
-info('Finished Webhook notification.');
+pass('Finished webhook notification.');

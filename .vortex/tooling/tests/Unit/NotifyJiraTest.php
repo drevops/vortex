@@ -201,14 +201,14 @@ class NotifyJiraTest extends UnitTestCase {
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_JIRA_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-jira', 'Skipping JIRA notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/notify-jira', 'Skipped JIRA notification for pre_deployment event');
   }
 
   public function testNotificationSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_JIRA_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
 
-    $this->runScriptEarlyPass('src/notify-jira', "Skipping JIRA notification for branch 'feature/x'.");
+    $this->runScriptEarlyPass('src/notify-jira', "Skipped JIRA notification for branch 'feature/x'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -794,7 +794,7 @@ class NotifyJiraTest extends UnitTestCase {
     $output = $this->runScript('src/notify-jira');
 
     $this->assertStringContainsString('Finished JIRA notification', $output);
-    $this->assertStringNotContainsString('Skipping JIRA notification', $output);
+    $this->assertStringNotContainsString('Skipped JIRA notification', $output);
   }
 
   #[DataProvider('dataProviderIssueFormats')]

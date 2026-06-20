@@ -41,7 +41,7 @@ class NotifyNewrelicTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-newrelic', "Skipping New Relic notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/notify-newrelic', "Skipped New Relic notification for branch 'develop'.");
   }
 
   public function testEnabledGateTakesPrecedenceOverBranchFilter(): void {
@@ -169,7 +169,7 @@ class NotifyNewrelicTest extends UnitTestCase {
 
     $output = $this->runScript('src/notify-newrelic');
 
-    $this->assertStringContainsString('Discovering APP id by name', $output);
+    $this->assertStringContainsString('Discovering application ID by name', $output);
     $this->assertStringContainsString('App ID (resolved): 87654321', $output);
     $this->assertStringContainsString('Finished New Relic notification', $output);
   }
@@ -191,7 +191,7 @@ class NotifyNewrelicTest extends UnitTestCase {
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_NEWRELIC_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-newrelic', 'Skipping New Relic notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/notify-newrelic', 'Skipped New Relic notification for pre_deployment event');
   }
 
   public function testSuccessfulNotificationWithCustomDescription(): void {

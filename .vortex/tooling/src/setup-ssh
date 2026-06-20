@@ -9,7 +9,7 @@
  *   existing key file. Export the key file path.
  * - Start SSH agent if not running. Export SSH_AGENT_PID and SSH_AUTH_SOCK.
  * - Load SSH key to the SSH agent.
- * - Disable strict host key checking in CI.
+ * - Pin SSH host keys to known_hosts, or disable strict host key checking.
  */
 
 declare(strict_types=1);
@@ -42,6 +42,14 @@ $remove_all_keys = getenv_default('VORTEX_SSH_REMOVE_ALL_KEYS', FALSE);
 // Set to '1' to disable strict checking (for CI environments), '0' otherwise.
 $disable_strict_checking = getenv_default('VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING', FALSE);
 
+// Newline-separated SSH host keys to pin as 'known_hosts' entries.
+//
+// When set, the entries are written to the SSH 'known_hosts' file and strict
+// host key checking is kept enabled. This is the secure alternative to
+// disabling strict checking and takes precedence over
+// VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING.
+$known_hosts = getenv_default('VORTEX_SSH_KNOWN_HOSTS', NULL);
+
 // -----------------------------------------------------------------------------
 
 info('Started SSH setup.');
@@ -56,7 +64,7 @@ $file_path = getenv_default($file_var, getenv('HOME') . '/.ssh/id_rsa');
 
 // Special case - SSH key may not be required if set to 'false'.
 if ($file_path === 'false') {
-  pass('SSH key is set to false meaning that it is not required. Skipping setup.');
+  pass('SSH key is set to false meaning that it is not required. Skipped setup.');
   putenv(sprintf('%s=%s', $file_var, $file_path));
   quit(0);
 }
@@ -146,11 +154,41 @@ else {
   passthru('ssh-add -l');
 }
 
-// Disable strict host key checking if requested.
-if (!empty($disable_strict_checking)) {
+// Pin host keys (preferred) or disable strict host key checking if requested.
+$ssh_dir = getenv('HOME') . '/.ssh';
+
+if (!empty($known_hosts)) {
+  if (!empty($disable_strict_checking)) {
+    note('Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled.');
+  }
+
+  task('Pinning SSH host keys to known_hosts.');
+
+  // @codeCoverageIgnoreStart
+  if (!is_dir($ssh_dir)) {
+    mkdir($ssh_dir, 0700, TRUE);
+  }
+  // @codeCoverageIgnoreEnd
+
+  // Strip insecure directives that an earlier run with strict checking disabled
+  // may have left in the SSH config, so the pinned host keys are enforced
+  // rather than bypassed by a stale "UserKnownHostsFile /dev/null".
+  $config_file = $ssh_dir . '/config';
+  if (file_exists($config_file)) {
+    $lines = file($config_file, FILE_IGNORE_NEW_LINES) ?: [];
+    $lines = array_filter($lines, fn(string $line): bool => !preg_match('/^\s*(StrictHostKeyChecking\s+no|UserKnownHostsFile\s+\/dev\/null)\s*$/', $line));
+    $kept = implode("\n", $lines);
+    file_put_contents($config_file, $kept === '' ? '' : $kept . "\n");
+    chmod($config_file, 0600);
+  }
+
+  $known_hosts_file = $ssh_dir . '/known_hosts';
+  file_put_contents($known_hosts_file, stripcslashes($known_hosts) . "\n", FILE_APPEND);
+  chmod($known_hosts_file, 0600);
+}
+elseif (!empty($disable_strict_checking)) {
   task('Disabling strict host key checking.');
 
-  $ssh_dir = getenv('HOME') . '/.ssh';
   // @codeCoverageIgnoreStart
   if (!is_dir($ssh_dir)) {
     mkdir($ssh_dir, 0700, TRUE);

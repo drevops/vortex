@@ -31,7 +31,7 @@ $deploy_webhook_expected_status = getenv_default('VORTEX_DEPLOY_WEBHOOK_RESPONSE
 
 // -----------------------------------------------------------------------------
 
-info('Started WEBHOOK deployment.');
+info('Started webhook deployment.');
 
 $response = request($deploy_webhook_url, ['method' => $deploy_webhook_method]);
 
@@ -44,4 +44,4 @@ if ((string) $response['status'] !== $deploy_webhook_expected_status) {
 }
 
 note('Webhook call completed.');
-pass('Finished WEBHOOK deployment.');
+pass('Finished webhook deployment.');

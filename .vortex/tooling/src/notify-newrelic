@@ -102,7 +102,7 @@ if ($notify_newrelic_branches !== '') {
   $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
   $branch_list = array_map(trim(...), explode(',', $notify_newrelic_branches));
   if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipping New Relic notification for branch '%s'.", $current_branch));
+    pass(sprintf("Skipped New Relic notification for branch '%s'.", $current_branch));
     quit();
   }
 }
@@ -111,7 +111,7 @@ info('Started New Relic notification.');
 
 // Skip if this is a pre-deployment event (New Relic only for post-deployment).
 if ($notify_event === 'pre_deployment') {
-  pass('Skipping New Relic notification for pre_deployment event.');
+  pass('Skipped New Relic notification for pre_deployment event.');
   quit();
 }
 
@@ -134,7 +134,7 @@ if (!$newrelic_revision) {
 }
 
 if (!$newrelic_appid && $newrelic_app_name) {
-  task('Discovering APP id by name as it was not provided.');
+  task('Discovering application ID by name if it was not provided.');
 
   $url = sprintf('%s/applications.json?filter[name]=%s&exclude_links=true', $newrelic_endpoint, urlencode($newrelic_app_name));
   $response = request_get($url, [

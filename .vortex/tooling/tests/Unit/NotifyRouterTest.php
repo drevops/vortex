@@ -32,7 +32,7 @@ class NotifyRouterTest extends UnitTestCase {
   public function testSkipWhenNotifySkipIsSet(): void {
     $this->envSet('VORTEX_NOTIFY_SKIP', '1');
 
-    $this->runScriptEarlyPass('src/notify', 'Skipping dispatching notifications');
+    $this->runScriptEarlyPass('src/notify', 'Skipped dispatching notifications');
   }
 
   public function testSkipWhenNoChannelsSpecified(): void {

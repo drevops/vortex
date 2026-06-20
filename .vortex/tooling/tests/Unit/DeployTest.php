@@ -54,7 +54,7 @@ class DeployTest extends UnitTestCase {
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Found flag to skip all deployments.', $output);
-    $this->assertStringContainsString('[ OK ] Skipping deployment webhook,artifact.', $output);
+    $this->assertStringContainsString('[ OK ] Skipped deployment webhook,artifact.', $output);
   }
 
   public function testSkipSpecificPr(): void {
@@ -74,7 +74,7 @@ class DeployTest extends UnitTestCase {
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Found flag to skip a deployment.', $output);
     $this->assertStringContainsString('Found PR 123 in skip list.', $output);
-    $this->assertStringContainsString('Skipping deployment webhook.', $output);
+    $this->assertStringContainsString('Skipped deployment webhook.', $output);
   }
 
   public function testSkipSpecificBranch(): void {
@@ -94,7 +94,50 @@ class DeployTest extends UnitTestCase {
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Found flag to skip a deployment.', $output);
     $this->assertStringContainsString('Found branch feature/test in skip list.', $output);
-    $this->assertStringContainsString('Skipping deployment webhook.', $output);
+    $this->assertStringContainsString('Skipped deployment webhook.', $output);
+  }
+
+  public function testGateLabelNotPresent(): void {
+    $this->envSetMultiple([
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_PR' => '123',
+      'VORTEX_DEPLOY_ALLOW_LABEL' => 'deploy',
+      'VORTEX_DEPLOY_PR_LABELS' => 'bug,enhancement',
+    ]);
+
+    $this->mockQuit(0);
+
+    $this->expectException(QuitSuccessException::class);
+
+    $output = $this->runScript('src/deploy');
+
+    $this->assertStringContainsString("Found flag to gate deployment on the 'deploy' label.", $output);
+    $this->assertStringContainsString("PR 123 does not carry the 'deploy' label.", $output);
+    $this->assertStringContainsString('Skipped deployment webhook.', $output);
+  }
+
+  public function testGateLabelPresent(): void {
+    $this->envSetMultiple([
+      'VORTEX_DEPLOY_TYPES' => 'webhook',
+      'VORTEX_DEPLOY_PR' => '123',
+      'VORTEX_DEPLOY_ALLOW_LABEL' => 'deploy',
+      'VORTEX_DEPLOY_PR_LABELS' => 'bug,deploy,enhancement',
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getDeployWebhookPath(),
+      'output' => 'Webhook deployed successfully',
+      'result_code' => 0,
+    ]);
+
+    $this->mockQuit(0);
+
+    $this->expectException(QuitSuccessException::class);
+
+    $output = $this->runScript('src/deploy');
+
+    $this->assertStringContainsString("PR 123 carries the 'deploy' label.", $output);
+    $this->assertStringContainsString('[ OK ] Finished deployment.', $output);
   }
 
   public function testDeployArtifactOnly(): void {

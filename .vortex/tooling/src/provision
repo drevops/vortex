@@ -68,9 +68,6 @@ $provision_config_import_repeat = getenv_default('VORTEX_PROVISION_CONFIG_IMPORT
 // directory using the VORTEX_PROVISION_DB_FILE name.
 $provision_db = getenv_default('VORTEX_PROVISION_DB', '');
 
-// Directory with custom provision scripts.
-$provision_scripts_dir = getenv_default('VORTEX_PROVISION_SCRIPTS_DIR', './scripts/custom');
-
 // Name of the webroot directory with Drupal codebase.
 $webroot = getenv_default('WEBROOT', 'web');
 
@@ -247,39 +244,6 @@ function sanitize_db(string $sanitize_email, string $sanitize_password, bool $re
   }
 
   echo PHP_EOL;
-}
-
-/**
- * Run custom provision scripts.
- *
- * @param string $scripts_dir
- *   Directory containing custom provision scripts.
- */
-function run_custom_scripts(string $scripts_dir): void {
-  if (!is_dir($scripts_dir)) {
-    return;
-  }
-
-  $files = glob($scripts_dir . '/provision-*.sh');
-  if ($files === FALSE || empty($files)) {
-    return;
-  }
-
-  foreach ($files as $file) {
-    if (is_file($file)) {
-      task('Running custom post-install script \'%s\'.', $file);
-      echo PHP_EOL;
-      passthru($file, $script_exit_code);
-      echo PHP_EOL;
-      if ($script_exit_code === 0) {
-        pass('Completed running of custom post-install script \'%s\'.', $file);
-      }
-      else {
-        fail('Custom post-install script \'%s\' failed with exit code %d.', $file, $script_exit_code);
-      }
-      echo PHP_EOL;
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -491,11 +455,14 @@ if ($site_has_config_files) {
   $system_site_yml = $config_path . '/system.site.yml';
   if (file_exists($system_site_yml)) {
     $system_site_content = file_get_contents($system_site_yml);
-    if ($system_site_content !== FALSE && preg_match('/uuid:\s*([a-f0-9-]{36})/', $system_site_content, $matches)) {
+    if ($system_site_content !== FALSE && preg_match('/^uuid:\s*(\S+)/m', $system_site_content, $matches)) {
       $config_uuid = $matches[1];
       drush(sprintf('config-set system.site uuid %s', escapeshellarg($config_uuid)));
       pass('Updated site UUID from the configuration with %s.', $config_uuid);
       echo PHP_EOL;
+    }
+    else {
+      fail('Could not read site UUID from %s.', $system_site_yml);
     }
   }
 }
@@ -579,6 +546,19 @@ drush('cache:rebuild');
 pass('Cache was rebuilt.');
 echo PHP_EOL;
 
+// Enable the deploy_steps runner and the always-on site modules before deploy
+// hooks, so their deploy step plugins and run-once deploy hooks run on this
+// provision. Site module names are project-specific (the installer renames
+// them), so resolve them by glob. Idempotent in every environment.
+task('Enabling site modules.');
+drush('pm:install deploy_steps');
+$module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
+foreach ($module_paths as $module_path) {
+  drush('pm:install ' . escapeshellarg(basename((string) $module_path)));
+}
+pass('Enabled site modules.');
+echo PHP_EOL;
+
 task('Running deployment hooks.');
 drush('deploy:hook');
 pass('Completed deployment hooks.');
@@ -598,9 +578,6 @@ else {
   pass('Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1.');
   echo PHP_EOL;
 }
-
-// Run custom provision scripts.
-run_custom_scripts($provision_scripts_dir);
 
 if ($provision_use_maintenance_mode === '1') {
   task('Disabling maintenance mode.');

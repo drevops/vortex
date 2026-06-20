@@ -419,6 +419,12 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
+      'result_code' => 0,
+    ]);
+
     // Drush deploy:hook.
     $this->mockPassthru([
       'cmd' => $this->drushCmd('deploy:hook'),
@@ -504,6 +510,12 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
+      'result_code' => 0,
+    ]);
+
     // Drush deploy:hook.
     $this->mockPassthru([
       'cmd' => $this->drushCmd('deploy:hook'),
@@ -581,6 +593,12 @@ class ProvisionTest extends UnitTestCase {
     // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
       'result_code' => 0,
     ]);
 
@@ -814,6 +832,12 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
+      'result_code' => 0,
+    ]);
+
     // Drush deploy:hook.
     $this->mockPassthru([
       'cmd' => $this->drushCmd('deploy:hook'),
@@ -911,6 +935,12 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
+      'result_code' => 0,
+    ]);
+
     // Drush deploy:hook.
     $this->mockPassthru([
       'cmd' => $this->drushCmd('deploy:hook'),
@@ -961,168 +991,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertStringContainsString('Updated username with user email.', $output);
     $this->assertStringContainsString('Applied custom sanitization commands from file.', $output);
     $this->assertStringContainsString('Updated user 1 email.', $output);
-  }
-
-  public function testPostOperationsWithCustomScripts(): void {
-    $this->createDbDumpFile();
-
-    $scripts_dir = self::$tmp . '/custom-scripts';
-    mkdir($scripts_dir, 0755, TRUE);
-    file_put_contents($scripts_dir . '/provision-10-test.sh', '#!/bin/bash');
-
-    $this->envSetMultiple([
-      'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '0',
-      'VORTEX_PROVISION_SCRIPTS_DIR' => $scripts_dir,
-    ]);
-
-    $this->mockDrushStartupSequence(TRUE);
-
-    // Drush php:eval (environment).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
-      'output' => 'production',
-      'result_code' => 0,
-    ]);
-
-    // Drush updatedb.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('updatedb --no-cache-clear'),
-      'result_code' => 0,
-    ]);
-
-    // Drush cache:rebuild (after database updates).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('cache:rebuild'),
-      'result_code' => 0,
-    ]);
-
-    // Drush cache:rebuild (post-provision).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('cache:rebuild'),
-      'result_code' => 0,
-    ]);
-
-    // Drush deploy:hook.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('deploy:hook'),
-      'result_code' => 0,
-    ]);
-
-    // Custom script execution.
-    $this->mockPassthru([
-      'cmd' => $scripts_dir . '/provision-10-test.sh',
-      'result_code' => 0,
-    ]);
-
-    $this->mockQuit(0);
-    $this->expectException(QuitSuccessException::class);
-
-    $output = $this->runScript('src/provision');
-
-    $this->assertStringContainsString('Running custom post-install script', $output);
-    $this->assertStringContainsString('Completed running of custom post-install script', $output);
-  }
-
-  public function testPostOperationsWithCustomScriptFails(): void {
-    $this->createDbDumpFile();
-
-    $scripts_dir = self::$tmp . '/custom-scripts';
-    mkdir($scripts_dir, 0755, TRUE);
-    file_put_contents($scripts_dir . '/provision-10-test.sh', '#!/bin/bash');
-
-    $this->envSetMultiple([
-      'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '0',
-      'VORTEX_PROVISION_SCRIPTS_DIR' => $scripts_dir,
-    ]);
-
-    $this->mockDrushStartupSequence(TRUE);
-
-    // Drush php:eval (environment).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
-      'output' => 'production',
-      'result_code' => 0,
-    ]);
-
-    // Drush updatedb.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('updatedb --no-cache-clear'),
-      'result_code' => 0,
-    ]);
-
-    // Drush cache:rebuild (after database updates).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('cache:rebuild'),
-      'result_code' => 0,
-    ]);
-
-    // Drush cache:rebuild (post-provision).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('cache:rebuild'),
-      'result_code' => 0,
-    ]);
-
-    // Drush deploy:hook.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('deploy:hook'),
-      'result_code' => 0,
-    ]);
-
-    // Custom script fails.
-    $this->mockPassthru([
-      'cmd' => $scripts_dir . '/provision-10-test.sh',
-      'result_code' => 1,
-    ]);
-
-    $this->runScriptError('src/provision', 'Custom post-install script');
-  }
-
-  public function testPostOperationsWithCustomScriptsEmptyDir(): void {
-    $this->createDbDumpFile();
-
-    $scripts_dir = self::$tmp . '/custom-scripts-empty';
-    mkdir($scripts_dir, 0755, TRUE);
-    // Dir exists but no provision-*.sh files.
-    $this->envSetMultiple([
-      'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '0',
-      'VORTEX_PROVISION_SCRIPTS_DIR' => $scripts_dir,
-    ]);
-
-    $this->mockDrushStartupSequence(TRUE);
-
-    // Drush php:eval (environment).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
-      'output' => 'production',
-      'result_code' => 0,
-    ]);
-
-    // Drush updatedb.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('updatedb --no-cache-clear'),
-      'result_code' => 0,
-    ]);
-
-    // Drush cache:rebuild (after database updates).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('cache:rebuild'),
-      'result_code' => 0,
-    ]);
-
-    // Drush cache:rebuild (post-provision).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('cache:rebuild'),
-      'result_code' => 0,
-    ]);
-
-    // Drush deploy:hook.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('deploy:hook'),
-      'result_code' => 0,
-    ]);
-
-    // No custom script mocks - dir is empty.
-    $this->runScriptEarlyPass('src/provision', 'Finished site provisioning');
   }
 
   public function testPostOperationsWithVerifyConfig(): void {
@@ -1208,6 +1076,12 @@ class ProvisionTest extends UnitTestCase {
     // Drush cache:rebuild (post-provision).
     $this->mockPassthru([
       'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
       'result_code' => 0,
     ]);
 

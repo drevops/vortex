@@ -27,7 +27,7 @@ if ($notify_email_branches !== '') {
   $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
   $branch_list = array_map(trim(...), explode(',', $notify_email_branches));
   if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipping email notification for branch '%s'.", $current_branch));
+    pass(sprintf("Skipped email notification for branch '%s'.", $current_branch));
     quit();
   }
 }
@@ -131,7 +131,7 @@ info('Started email notification.');
 
 // Skip if this is a pre-deployment event (email only for post-deployment).
 if ($notify_event === 'pre_deployment') {
-  pass('Skipping email notification for pre_deployment event.');
+  pass('Skipped email notification for pre_deployment event.');
   quit();
 }
 

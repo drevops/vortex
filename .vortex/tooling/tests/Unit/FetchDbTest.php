@@ -42,7 +42,7 @@ class FetchDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('VORTEX_FETCH_DB_PROCEED', '0');
         },
-        'expected' => 'Skipping database download',
+        'expected' => 'Skipped database download',
       ],
       'existing dump skips download' => [
         'before' => function (self $test): void {

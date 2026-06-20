@@ -45,6 +45,9 @@ $dest = $db_dir . '/' . $db_file;
 note('Downloading database dump file.');
 $response = request($url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => 300]);
 if (!$response['ok']) {
+  // Remove the partial file so an HTTP error body is not left on disk as a
+  // bogus dump, matching the host-side 'curl -f' behaviour.
+  @unlink($dest);
   fail('Failed to download database dump from URL.');
 }
 
