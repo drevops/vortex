@@ -71,6 +71,12 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   pass "Installed Single Directory Component development tools."
   #;> MODULE_SDC_DEVEL
 
+  #;< MODULE_DEVEL
+  task "Installing Devel module."
+  drush pm:install devel || true
+  pass "Installed Devel module."
+  #;> MODULE_DEVEL
+
   # Enable custom site module and run its deployment hooks.
   #
   # Note that deployment hooks for already enabled modules have run in the

@@ -127,6 +127,7 @@ class Modules extends AbstractHandler {
       'coffee' => 'Coffee',
       'config_split' => 'Config split',
       'config_update' => 'Config update',
+      'devel' => 'Devel',
       'drupal_helpers' => 'Drupal helpers',
       'environment_indicator' => 'Environment indicator',
       'generated_content' => 'Generated content',

@@ -1,4 +1,4 @@
-@@ -8,28 +8,12 @@
+@@ -8,29 +8,12 @@
          "composer/installers": "__VERSION__",
          "cweagans/composer-patches": "__VERSION__",
          "drevops/vortex-tooling": "__VERSION__",
@@ -9,6 +9,7 @@
 -        "drupal/config_update": "__VERSION__",
          "drupal/core-composer-scaffold": "__VERSION__",
          "drupal/core-recommended": "__VERSION__",
+-        "drupal/devel": "__VERSION__",
 -        "drupal/drupal_helpers": "__VERSION__",
 -        "drupal/environment_indicator": "__VERSION__",
 -        "drupal/generated_content": "__VERSION__",
@@ -27,7 +28,7 @@
          "drush/drush": "__VERSION__",
          "oomphinc/composer-installers-extender": "__VERSION__",
          "webflo/drupal-finder": "__VERSION__"
-@@ -44,7 +28,6 @@
+@@ -45,7 +28,6 @@
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
