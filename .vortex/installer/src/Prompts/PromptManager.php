@@ -17,6 +17,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
+use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
@@ -68,7 +69,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 34;
+  const TOTAL_RESPONSES = 35;
 
   /**
    * Array of responses.
@@ -164,6 +165,11 @@ class PromptManager {
             fn(array $r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
             fn(array $r, $pr, $n): mixed => $this->prompt(ThemeCustom::class, $r),
             ThemeCustom::id()
+          )
+        ->addIf(
+            fn(array $r): bool => $this->handlers[FrontendBuild::id()]->shouldRun($r),
+            fn(array $r, $pr, $n): mixed => $this->prompt(FrontendBuild::class, $r),
+            FrontendBuild::id()
           )
 
       ->intro('Code repository')
@@ -330,6 +336,7 @@ class PromptManager {
       HostingProjectName::id(),
       CustomModules::id(),
       ModulePrefix::id(),
+      FrontendBuild::id(),
       ThemeCustom::id(),
       Theme::id(),
       OrgMachineName::id(),
@@ -456,6 +463,9 @@ class PromptManager {
     $values['Module prefix'] = $responses[ModulePrefix::id()];
     $values['Custom modules'] = Converter::toList($responses[CustomModules::id()], ', ');
     $values['Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
+    if (isset($responses[FrontendBuild::id()])) {
+      $values['Build front-end in container'] = Converter::bool($responses[FrontendBuild::id()]);
+    }
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;
     $values['Code provider'] = $responses[CodeProvider::id()];
