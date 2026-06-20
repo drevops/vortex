@@ -226,7 +226,7 @@ function sanitize_db(string $sanitize_email, string $sanitize_password, bool $re
   if (!empty($additional_file) && file_exists($additional_file)) {
     // The file path is relative to the project root, but drush expects it to be
     // relative to the Drupal root.
-    $relative_file = str_replace('./', '../', $additional_file);
+    $relative_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
     drush('sql:query --file=' . escapeshellarg($relative_file));
     pass('Applied custom sanitization commands from file.');
   }

@@ -66,6 +66,9 @@ passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escap
 
 task(sprintf('Committing exported container image with name %s.', $new_image));
 $iid = trim((string) shell_exec(sprintf('docker commit %s %s', escapeshellarg($cid), escapeshellarg($new_image))));
+if ($iid === '') {
+  fail('Failed to commit container image %s.', $new_image);
+}
 $iid = str_starts_with($iid, 'sha256:') ? substr($iid, 7) : $iid;
 note(sprintf('Committed exported container image with id %s.', $iid));
 
