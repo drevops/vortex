@@ -319,6 +319,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -417,6 +420,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     // Verify settings overrides.
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -480,6 +486,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -544,6 +553,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -611,6 +623,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -677,6 +692,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -740,6 +758,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = TRUE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -799,6 +820,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = TRUE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -858,6 +882,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = TRUE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -914,6 +941,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = TRUE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -974,6 +1004,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = TRUE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -1041,6 +1074,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = TRUE;
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -1108,6 +1144,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_test_branch';
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -1177,6 +1216,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_develop';
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -1246,6 +1288,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_master';
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
@@ -1313,6 +1358,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_production';
     $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
