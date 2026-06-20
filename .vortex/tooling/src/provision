@@ -156,7 +156,7 @@ echo
 
 if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ]; then
   for cmd in diff mktemp; do command -v "${cmd}" >/dev/null || {
-    fail "Command ${cmd} is not available"
+    fail "Command ${cmd} is not available."
     exit 1
   }; done
 fi

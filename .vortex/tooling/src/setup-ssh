@@ -68,7 +68,7 @@ else
 fi
 
 if [ "${file}" = false ]; then
-  pass "SSH key is set to false meaning that it is not required. Skipping setup."
+  pass "SSH key is set to false meaning that it is not required. Skipped setup."
   export "${file_var}=${file}"
   [ "${BASH_SOURCE[0]}" != "$0" ] && return 0 || exit 0
 fi

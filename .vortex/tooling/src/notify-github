@@ -57,22 +57,22 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
 if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_GITHUB_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipping GitHub notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped GitHub notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN" && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY" && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_BRANCH" && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_EVENT" && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE" && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN." && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY." && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_BRANCH." && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_EVENT." && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE." && exit 1
 
 info "Started GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
 
@@ -118,7 +118,7 @@ if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
 
   note "Marked deployment as started."
 else
-  [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL" && exit 1
+  [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL." && exit 1
 
   # Returns all deployment for this ref sorted from the latest to the oldest.
   payload="$(curl \

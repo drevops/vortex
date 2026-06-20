@@ -43,7 +43,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy-webhook
   assert_success
   assert_output_contains "Webhook call completed."
-  assert_output_contains "Finished WEBHOOK deployment."
+  assert_output_contains "Finished webhook deployment."
 
   popd >/dev/null
 }

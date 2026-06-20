@@ -46,7 +46,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 #shellcheck disable=SC2043
 for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -58,5 +58,5 @@ elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CO
   task "Logging in to registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
   echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_LOGIN_CONTAINER_REGISTRY}"
 else
-  note "Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
+  note "Skipped login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
 fi

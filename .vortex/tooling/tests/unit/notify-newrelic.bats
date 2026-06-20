@@ -24,7 +24,7 @@ load ../_helper.bash
   assert_output_contains "Started dispatching notifications."
   assert_output_contains "New Relic is not enabled."
   assert_output_not_contains "Started New Relic notification."
-  assert_output_not_contains "Discovering APP id"
+  assert_output_not_contains "Discovering application ID"
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
@@ -55,7 +55,7 @@ load ../_helper.bash
   assert_output_contains "Started dispatching notifications."
 
   assert_output_contains "Started New Relic notification."
-  assert_output_contains "Discovering APP id by name if it was not provided."
+  assert_output_contains "Discovering application ID by name if it was not provided."
   assert_output_contains "Checking if the application ID is valid."
   assert_output_contains "Creating a deployment notification for application testproject-main with ID 9876543210."
 
@@ -95,8 +95,8 @@ load ../_helper.bash
 
   assert_output_contains "Started dispatching notifications."
   assert_output_contains "Started New Relic notification."
-  assert_output_contains "Skipping New Relic notification for pre_deployment event."
-  assert_output_not_contains "Discovering APP id"
+  assert_output_contains "Skipped New Relic notification for pre_deployment event."
+  assert_output_not_contains "Discovering application ID"
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1
@@ -119,7 +119,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipping New Relic notification for branch 'feature/test'."
+  assert_output_contains "Skipped New Relic notification for branch 'feature/test'."
   assert_output_not_contains "Started New Relic notification."
   assert_output_contains "Finished dispatching notifications."
 
@@ -139,7 +139,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/notify-newrelic
   assert_success
 
-  assert_output_contains "Skipping New Relic notification for branch ''."
+  assert_output_contains "Skipped New Relic notification for branch ''."
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1
@@ -169,7 +169,7 @@ load ../_helper.bash
 
   assert_output_contains "Started dispatching notifications."
   assert_output_contains "Started New Relic notification."
-  assert_output_not_contains "Skipping New Relic notification for branch"
+  assert_output_not_contains "Skipped New Relic notification for branch"
   assert_output_contains "Finished dispatching notifications."
 
   popd >/dev/null || exit 1

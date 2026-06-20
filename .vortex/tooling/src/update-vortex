@@ -57,7 +57,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 # Pre-flight checks.
 for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
@@ -72,7 +72,7 @@ done
 if [ -n "${VORTEX_INSTALLER_PATH}" ]; then
   note "Using installer script from local path: ${VORTEX_INSTALLER_PATH}"
   if [ ! -f "${VORTEX_INSTALLER_PATH}" ]; then
-    fail "Installer script not found at ${VORTEX_INSTALLER_PATH}"
+    fail "Installer script not found at ${VORTEX_INSTALLER_PATH}."
     exit 1
   fi
 else
@@ -80,7 +80,7 @@ else
   VORTEX_INSTALLER_PATH="installer.php"
   note "Downloading installer to ${VORTEX_INSTALLER_PATH}"
   if ! curl -fsSL "${VORTEX_INSTALLER_URL}?${VORTEX_INSTALLER_URL_CACHE_BUST}" -o "${VORTEX_INSTALLER_PATH}"; then
-    fail "Failed to download installer from ${VORTEX_INSTALLER_URL}"
+    fail "Failed to download installer from ${VORTEX_INSTALLER_URL}."
     exit 1
   fi
 fi

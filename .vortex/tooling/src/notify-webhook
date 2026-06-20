@@ -60,30 +60,30 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available"
+  fail "Command ${cmd} is not available."
   exit 1
 }; done
 
 if [ -n "${VORTEX_NOTIFY_WEBHOOK_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_WEBHOOK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipping Webhook notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped webhook notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
     exit 0
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_WEBHOOK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_PROJECT" && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LABEL" && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL" && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LOGIN_URL" && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_URL" && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_METHOD}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_METHOD" && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_HEADERS}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_HEADERS" && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_PROJECT." && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LABEL." && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LOGIN_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_METHOD}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_METHOD." && exit 1
+[ -z "${VORTEX_NOTIFY_WEBHOOK_HEADERS}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_HEADERS." && exit 1
 
-info "Started Webhook notification."
+info "Started webhook notification."
 
 # Skip if this is a pre-deployment event (webhook only for post-deployment).
 if [ "${VORTEX_NOTIFY_WEBHOOK_EVENT}" = "pre_deployment" ]; then
-  pass "Skipping Webhook notification for pre_deployment event."
+  pass "Skipped webhook notification for pre_deployment event."
   exit 0
 fi
 
@@ -136,4 +136,4 @@ if ! curl -L -s -o /dev/null -w '%{http_code}' \
   exit 1
 fi
 
-pass "Finished Webhook notification."
+pass "Finished webhook notification."
