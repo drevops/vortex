@@ -16,6 +16,7 @@
         "drupal/core-composer-scaffold": "~11.3.12",
         "drupal/core-recommended": "~11.3.12",
         "drupal/deploy_steps": "^1.0.0-alpha1",
+        "drupal/devel": "^5.5",
         "drupal/drupal_helpers": "^2.0.1",
         "drupal/environment_indicator": "^4.0.25",
         "drupal/generated_content": "^2.0.1",

@@ -36,6 +36,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('config_update')),
     ];
+    yield 'modules_no_devel' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('devel');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/devel')),
+    ];
     yield 'modules_no_drupal_helpers' => [
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('drupal_helpers');
