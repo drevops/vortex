@@ -17,6 +17,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
+use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
@@ -138,6 +139,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       ModulePrefix::id() => 'mypr',
       CustomModules::id() => [CustomModules::BASE, CustomModules::SEARCH, CustomModules::DEMO],
       Theme::id() => 'myproject',
+      FrontendBuild::id() => TRUE,
       CodeProvider::id() => CodeProvider::GITHUB,
       VersionScheme::id() => VersionScheme::CALVER,
       Timezone::id() => 'UTC',
@@ -218,6 +220,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       CustomModules::id() => static::TUI_DEFAULT,
       Theme::id() => static::TUI_DEFAULT,
       ThemeCustom::id() => static::TUI_DEFAULT,
+      FrontendBuild::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
       VersionScheme::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
