@@ -94,6 +94,11 @@ the build system without learning a new process.
 
 ```text
 your_site_theme/
+├── components/                    # Single Directory Components (SDC)
+│   └── button/                    # Sample button component
+│       ├── button.component.yml   # Component schema (props and slots)
+│       ├── button.twig            # Component template
+│       └── button.css             # Component styles
 ├── scss/                          # Sass source files
 │   ├── _variables.scss            # Theme variables
 │   ├── _mixins.scss               # Sass mixins
@@ -104,6 +109,9 @@ your_site_theme/
 │       └── _header.scss           # Header component styles
 ├── js/                            # JavaScript source files
 │   └── your_site_theme.js         # Main theme JavaScript
+├── templates/                     # Twig template overrides
+│   └── layout/
+│       └── region--footer-bottom.html.twig  # Renders the button component
 ├── tests/                         # Theme tests
 │   └── src/
 │       ├── Unit/                  # Unit tests
@@ -121,6 +129,23 @@ your_site_theme/
 The theme defines asset libraries in `your_site_theme.libraries.yml` for
 organized CSS and JavaScript loading with proper dependencies and browser
 compatibility.
+
+## Single Directory Components
+
+The theme ships a sample [Single Directory Component](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
+(SDC) in `components/button` and uses it from
+`templates/layout/region--footer-bottom.html.twig` to render a "back to top"
+link, demonstrating real component usage from a template.
+
+Components are validated with [SDC Devel](https://www.drupal.org/project/sdc_devel),
+which is enabled during provisioning in non-production environments:
+
+```shell
+ahoy lint-sdc
+```
+
+This command requires a provisioned site and also runs in continuous
+integration pipeline.
 
 ## Tests scaffold
 
