@@ -110,16 +110,13 @@ commands:
   test:
     name: Test Vortex project.
     cmd: |
-      ahoy test-common
+      ahoy test-tooling
       ahoy test-docs
 
   test-tooling:
     cmd: |
       [ ! -d ./tooling/vendor ] && composer --working-dir tooling install
       composer --working-dir tooling test -- "$@"
-
-  test-common:
-    cmd: ./tests/test.common.sh
 
   test-docs:
     cmd: |
