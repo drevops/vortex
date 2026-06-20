@@ -777,4 +777,24 @@ trait MockTrait {
     $this->assertMockConsumed('shell_exec');
   }
 
+  /**
+   * Mock command_path()'s exec() lookup to report every command as present.
+   *
+   * The command_path() helper runs 'command -v <cmd>' via exec() and treats a
+   * zero exit code with a non-empty first output line as "present". Mocking
+   * exec() here keeps command_must_exist() checks independent of the host
+   * environment (the CI runner has no pygmy/ahoy, for example).
+   *
+   * @param string $namespace
+   *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
+   */
+  protected function mockCommandExists(string $namespace = 'DrevOps\\VortexTooling'): void {
+    $this->registerMock('exec', $namespace, function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
+      $output = ['/usr/local/bin/' . preg_replace('/[^a-z0-9]/i', '', $command)];
+      $result_code = 0;
+
+      return $output[0];
+    });
+  }
+
 }

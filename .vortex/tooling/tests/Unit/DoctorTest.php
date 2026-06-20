@@ -20,6 +20,10 @@ class DoctorTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    // Report the required tools (docker, pygmy, ahoy) as present so the
+    // command preflight does not depend on the host having them installed.
+    $this->mockCommandExists();
+
     // Disable all checks by default; tests enable specific ones.
     $this->envSetMultiple([
       'VORTEX_DOCTOR_CHECK_TOOLS' => '0',
