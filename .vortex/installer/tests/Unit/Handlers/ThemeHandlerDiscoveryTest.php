@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
@@ -17,18 +18,25 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
 
+    // Core themes have no front-end build, so FrontendBuild is skipped and
+    // resolves to null.
+    $expected_defaults_core = $expected_defaults;
+    $expected_defaults_core[FrontendBuild::id()] = NULL;
+    $expected_installed_core = $expected_installed;
+    $expected_installed_core[FrontendBuild::id()] = NULL;
+
     $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
     yield 'theme - prompt - olivero' => [
       [Theme::id() => Key::DOWN . Key::ENTER],
-      [Theme::id() => Theme::OLIVERO] + $expected_defaults,
+      [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,
     ];
     yield 'theme - prompt - claro' => [
       [Theme::id() => Key::DOWN . Key::DOWN . Key::ENTER],
-      [Theme::id() => Theme::CLARO] + $expected_defaults,
+      [Theme::id() => Theme::CLARO] + $expected_defaults_core,
     ];
     yield 'theme - prompt - stark' => [
       [Theme::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER],
-      [Theme::id() => Theme::STARK] + $expected_defaults,
+      [Theme::id() => Theme::STARK] + $expected_defaults_core,
     ];
     yield 'theme - prompt - custom' => [
       [Theme::id() => Key::ENTER . $clear_keys . 'mytheme'],
@@ -44,7 +52,7 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'theme - discovery - olivero' => [
       [],
-      [Theme::id() => Theme::OLIVERO] + $expected_installed,
+      [Theme::id() => Theme::OLIVERO] + $expected_installed_core,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', Theme::OLIVERO);
@@ -52,7 +60,7 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'theme - discovery - claro' => [
       [],
-      [Theme::id() => Theme::CLARO] + $expected_installed,
+      [Theme::id() => Theme::CLARO] + $expected_installed_core,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', Theme::CLARO);
@@ -60,7 +68,7 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'theme - discovery - stark' => [
       [],
-      [Theme::id() => Theme::STARK] + $expected_installed,
+      [Theme::id() => Theme::STARK] + $expected_installed_core,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', Theme::STARK);

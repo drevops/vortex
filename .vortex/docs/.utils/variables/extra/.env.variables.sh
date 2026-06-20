@@ -15,9 +15,6 @@ VORTEX_DB_IMAGE=
 # image was provided - it will be used as a "clean slate" for the database.
 VORTEX_DB_IMAGE_BASE=
 
-# Skip building of the frontend.
-VORTEX_FRONTEND_BUILD_SKIP=
-
 # Password replacement used for sanitized database.
 VORTEX_PROVISION_SANITIZE_DB_PASSWORD="<RANDOM STRING>"
 
