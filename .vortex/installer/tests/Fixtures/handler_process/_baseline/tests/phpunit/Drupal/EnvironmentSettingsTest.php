@@ -87,6 +87,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      'devel',
       'generated_content',
       'testmode',
     ];
@@ -168,6 +169,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     // Verify settings overrides.
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      'devel',
       'generated_content',
       'testmode',
     ];
@@ -223,6 +225,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      'devel',
       'generated_content',
       'testmode',
     ];
@@ -278,6 +281,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      'devel',
       'generated_content',
       'testmode',
     ];
@@ -335,6 +339,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $settings['auto_create_htaccess'] = FALSE;
     $settings['config_exclude_modules'] = [
+      'devel',
       'generated_content',
       'testmode',
     ];
