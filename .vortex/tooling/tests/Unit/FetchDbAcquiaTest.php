@@ -9,53 +9,53 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 #[Group('scripts')]
 #[RunTestsInSeparateProcesses]
-class DownloadDbAcquiaTest extends UnitTestCase {
+class FetchDbAcquiaTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_KEY', 'test-key');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_SECRET', 'test-secret');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME', 'myapp');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ENVIRONMENT', 'prod');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME', 'mydb');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_DB_FILE', 'db.sql');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '1');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_BACKUP_MAX_WAIT', '3');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_KEY', 'test-key');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_SECRET', 'test-secret');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'myapp');
+    $this->envSet('VORTEX_FETCH_DB_ENVIRONMENT', 'prod');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_NAME', 'mydb');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_DIR', self::$tmp . '/data');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_FILE', 'db.sql');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '1');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT', '3');
   }
 
   public function testMissingKey(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_KEY', '');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_KEY', '');
     $this->envUnset('VORTEX_ACQUIA_KEY');
 
-    $this->runScriptError('src/download-db-acquia', 'Missing required value for VORTEX_DOWNLOAD_DB_ACQUIA_KEY');
+    $this->runScriptError('src/fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_KEY');
   }
 
   public function testMissingSecret(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_SECRET', '');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_SECRET', '');
     $this->envUnset('VORTEX_ACQUIA_SECRET');
 
-    $this->runScriptError('src/download-db-acquia', 'Missing required value for VORTEX_DOWNLOAD_DB_ACQUIA_SECRET');
+    $this->runScriptError('src/fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_SECRET');
   }
 
   public function testMissingAppName(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME', '');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', '');
     $this->envUnset('VORTEX_ACQUIA_APP_NAME');
 
-    $this->runScriptError('src/download-db-acquia', 'Missing required value for VORTEX_DOWNLOAD_DB_ACQUIA_APP_NAME');
+    $this->runScriptError('src/fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_APP_NAME');
   }
 
   public function testMissingEnvironment(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_ENVIRONMENT', '');
+    $this->envSet('VORTEX_FETCH_DB_ENVIRONMENT', '');
 
-    $this->runScriptError('src/download-db-acquia', 'Missing required value for VORTEX_DOWNLOAD_DB_ENVIRONMENT');
+    $this->runScriptError('src/fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ENVIRONMENT');
   }
 
   public function testMissingDbName(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME', '');
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_NAME', '');
 
-    $this->runScriptError('src/download-db-acquia', 'Missing required value for VORTEX_DOWNLOAD_DB_ACQUIA_DB_NAME');
+    $this->runScriptError('src/fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_DB_NAME');
   }
 
   public function testCachedDecompressedFile(): void {
@@ -88,7 +88,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-acquia');
+    $output = $this->runScript('src/fetch-db-acquia');
 
     $this->assertStringContainsString('Found existing cached DB file', $output);
     $this->assertStringContainsString('Finished database dump download from Acquia.', $output);
@@ -123,7 +123,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-acquia');
+    $output = $this->runScript('src/fetch-db-acquia');
 
     $this->assertStringContainsString('Found existing cached gzipped DB file', $output);
     $this->assertStringContainsString('Expanding DB file', $output);
@@ -169,7 +169,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'Unable to download database mydb');
+    $this->runScriptError('src/fetch-db-acquia', 'Unable to download database mydb');
   }
 
   public function testInvalidGzip(): void {
@@ -199,7 +199,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'Downloaded file is not a valid gzip archive');
+    $this->runScriptError('src/fetch-db-acquia', 'Downloaded file is not a valid gzip archive');
 
     // Invalid file is left in place for inspection.
     $this->assertFileExists($invalid_gz);
@@ -227,7 +227,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'No backups found for database');
+    $this->runScriptError('src/fetch-db-acquia', 'No backups found for database');
   }
 
   public function testBackupUrlEmpty(): void {
@@ -257,12 +257,12 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'Unable to discover backup URL');
+    $this->runScriptError('src/fetch-db-acquia', 'Unable to discover backup URL');
   }
 
   public function testFreshBackup(): void {
     $this->mockSleep();
-    $this->envSet('VORTEX_DOWNLOAD_DB_FRESH', '1');
+    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
 
     $db_dir = self::$tmp . '/data';
     mkdir($db_dir, 0755, TRUE);
@@ -304,7 +304,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-acquia');
+    $output = $this->runScript('src/fetch-db-acquia');
 
     $this->assertStringContainsString('Creating new database backup for mydb.', $output);
     $this->assertStringContainsString('Backup completed successfully.', $output);
@@ -316,7 +316,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
 
   public function testFreshBackupTimeout(): void {
     $this->mockSleep();
-    $this->envSet('VORTEX_DOWNLOAD_DB_FRESH', '1');
+    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
 
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
@@ -353,12 +353,12 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'Backup creation timed out');
+    $this->runScriptError('src/fetch-db-acquia', 'Backup creation timed out');
   }
 
   public function testFreshBackupFailed(): void {
     $this->mockSleep();
-    $this->envSet('VORTEX_DOWNLOAD_DB_FRESH', '1');
+    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
 
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
@@ -387,7 +387,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'Backup creation failed');
+    $this->runScriptError('src/fetch-db-acquia', 'Backup creation failed');
   }
 
   public function testTokenError(): void {
@@ -398,13 +398,13 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-acquia', 'Unable to retrieve a token');
+    $this->runScriptError('src/fetch-db-acquia', 'Unable to retrieve a token');
   }
 
   public function testDirectoryCreation(): void {
     // Don't pre-create directory - it should be auto-created.
     $db_dir = self::$tmp . '/new-data-dir';
-    $this->envSet('VORTEX_DOWNLOAD_DB_ACQUIA_DB_DIR', $db_dir);
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_DIR', $db_dir);
 
     // Pre-create the decompressed file (need directory first).
     mkdir($db_dir, 0755, TRUE);
@@ -429,7 +429,7 @@ class DownloadDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-acquia');
+    $output = $this->runScript('src/fetch-db-acquia');
 
     $this->assertTrue(is_dir($db_dir));
     $this->assertStringContainsString('Finished database dump download from Acquia.', $output);

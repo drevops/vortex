@@ -9,18 +9,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('scripts')]
-class DownloadDbFtpTest extends UnitTestCase {
+class FetchDbFtpTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_USER', 'testuser');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_PASS', 'testpass');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_HOST', 'ftp.example.com');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_PORT', '21');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_FILE', 'backups/db.sql');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FTP_DB_FILE', 'db.sql');
+    $this->envSet('VORTEX_FETCH_DB_FTP_USER', 'testuser');
+    $this->envSet('VORTEX_FETCH_DB_FTP_PASS', 'testpass');
+    $this->envSet('VORTEX_FETCH_DB_FTP_HOST', 'ftp.example.com');
+    $this->envSet('VORTEX_FETCH_DB_FTP_PORT', '21');
+    $this->envSet('VORTEX_FETCH_DB_FTP_FILE', 'backups/db.sql');
+    $this->envSet('VORTEX_FETCH_DB_FTP_DB_DIR', self::$tmp . '/data');
+    $this->envSet('VORTEX_FETCH_DB_FTP_DB_FILE', 'db.sql');
   }
 
   #[DataProvider('dataProviderSuccess')]
@@ -33,7 +33,7 @@ class DownloadDbFtpTest extends UnitTestCase {
       ['url' => 'ftp://ftp.example.com:21/backups/db.sql', 'method' => 'GET', 'response' => []],
     ]);
 
-    $output = $this->runScript('src/download-db-ftp');
+    $output = $this->runScript('src/fetch-db-ftp');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -69,40 +69,40 @@ class DownloadDbFtpTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/download-db-ftp', $expected);
+    $this->runScriptError('src/fetch-db-ftp', $expected);
   }
 
   public static function dataProviderError(): array {
     return [
       'missing user' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_FTP_USER', '');
+          $test->envSet('VORTEX_FETCH_DB_FTP_USER', '');
         },
-        'expected' => 'Missing required value for VORTEX_DOWNLOAD_DB_FTP_USER',
+        'expected' => 'Missing required value for VORTEX_FETCH_DB_FTP_USER',
       ],
       'missing pass' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_FTP_PASS', '');
+          $test->envSet('VORTEX_FETCH_DB_FTP_PASS', '');
         },
-        'expected' => 'Missing required value for VORTEX_DOWNLOAD_DB_FTP_PASS',
+        'expected' => 'Missing required value for VORTEX_FETCH_DB_FTP_PASS',
       ],
       'missing host' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_FTP_HOST', '');
+          $test->envSet('VORTEX_FETCH_DB_FTP_HOST', '');
         },
-        'expected' => 'Missing required value for VORTEX_DOWNLOAD_DB_FTP_HOST',
+        'expected' => 'Missing required value for VORTEX_FETCH_DB_FTP_HOST',
       ],
       'missing port' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_FTP_PORT', '');
+          $test->envSet('VORTEX_FETCH_DB_FTP_PORT', '');
         },
-        'expected' => 'Missing required value for VORTEX_DOWNLOAD_DB_FTP_PORT',
+        'expected' => 'Missing required value for VORTEX_FETCH_DB_FTP_PORT',
       ],
       'missing file' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_FTP_FILE', '');
+          $test->envSet('VORTEX_FETCH_DB_FTP_FILE', '');
         },
-        'expected' => 'Missing required value for VORTEX_DOWNLOAD_DB_FTP_FILE',
+        'expected' => 'Missing required value for VORTEX_FETCH_DB_FTP_FILE',
       ],
       'request fails' => [
         'before' => function (self $test): void {

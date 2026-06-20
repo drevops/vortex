@@ -9,22 +9,22 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('scripts')]
-class DownloadDbUrlTest extends UnitTestCase {
+class FetchDbUrlTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_URL', 'https://example.com/db.sql');
-    $this->envSet('VORTEX_DOWNLOAD_DB_URL_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_DOWNLOAD_DB_URL_DB_FILE', 'db.sql');
-    $this->envSet('VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD', '');
+    $this->envSet('VORTEX_FETCH_DB_URL', 'https://example.com/db.sql');
+    $this->envSet('VORTEX_FETCH_DB_URL_DB_DIR', self::$tmp . '/data');
+    $this->envSet('VORTEX_FETCH_DB_URL_DB_FILE', 'db.sql');
+    $this->envSet('VORTEX_FETCH_DB_UNZIP_PASSWORD', '');
   }
 
   #[DataProvider('dataProviderSuccess')]
   public function testSuccess(\Closure $before, array $expected, ?\Closure $after = NULL): void {
     $before($this);
 
-    $output = $this->runScript('src/download-db-url');
+    $output = $this->runScript('src/fetch-db-url');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -62,7 +62,7 @@ class DownloadDbUrlTest extends UnitTestCase {
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
           File::mkdir($db_dir);
-          $test->envSet('VORTEX_DOWNLOAD_DB_URL', 'https://example.com/db.zip');
+          $test->envSet('VORTEX_FETCH_DB_URL', 'https://example.com/db.zip');
 
           $mock = $test->getFunctionMock('DrevOps\\VortexTooling', 'getmypid');
           $mock->expects($test->any())->willReturn(12345);
@@ -90,8 +90,8 @@ class DownloadDbUrlTest extends UnitTestCase {
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
           File::mkdir($db_dir);
-          $test->envSet('VORTEX_DOWNLOAD_DB_URL', 'https://example.com/db.zip');
-          $test->envSet('VORTEX_DOWNLOAD_DB_UNZIP_PASSWORD', 'secret');
+          $test->envSet('VORTEX_FETCH_DB_URL', 'https://example.com/db.zip');
+          $test->envSet('VORTEX_FETCH_DB_UNZIP_PASSWORD', 'secret');
 
           $mock = $test->getFunctionMock('DrevOps\\VortexTooling', 'getmypid');
           $mock->expects($test->any())->willReturn(12345);
@@ -122,16 +122,16 @@ class DownloadDbUrlTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/download-db-url', $expected);
+    $this->runScriptError('src/fetch-db-url', $expected);
   }
 
   public static function dataProviderError(): array {
     return [
       'missing url' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_URL', '');
+          $test->envSet('VORTEX_FETCH_DB_URL', '');
         },
-        'expected' => 'Missing required value for VORTEX_DOWNLOAD_DB_URL',
+        'expected' => 'Missing required value for VORTEX_FETCH_DB_URL',
       ],
       'request fails' => [
         'before' => function (self $test): void {
@@ -146,7 +146,7 @@ class DownloadDbUrlTest extends UnitTestCase {
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
           File::mkdir($db_dir);
-          $test->envSet('VORTEX_DOWNLOAD_DB_URL', 'https://example.com/db.zip');
+          $test->envSet('VORTEX_FETCH_DB_URL', 'https://example.com/db.zip');
 
           $mock = $test->getFunctionMock('DrevOps\\VortexTooling', 'getmypid');
           $mock->expects($test->any())->willReturn(12345);
@@ -168,7 +168,7 @@ class DownloadDbUrlTest extends UnitTestCase {
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
           File::mkdir($db_dir);
-          $test->envSet('VORTEX_DOWNLOAD_DB_URL', 'https://example.com/db.zip');
+          $test->envSet('VORTEX_FETCH_DB_URL', 'https://example.com/db.zip');
 
           $mock = $test->getFunctionMock('DrevOps\\VortexTooling', 'getmypid');
           $mock->expects($test->any())->willReturn(12345);

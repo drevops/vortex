@@ -7,7 +7,7 @@ namespace DrevOps\VortexTooling\Tests\Unit;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('scripts')]
-class DownloadDbLagoonTest extends UnitTestCase {
+class FetchDbLagoonTest extends UnitTestCase {
 
   /**
    * Path to the src directory.
@@ -19,21 +19,21 @@ class DownloadDbLagoonTest extends UnitTestCase {
 
     self::$srcDir = (string) realpath(__DIR__ . '/../../src');
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_LAGOON_PROJECT', 'myproject');
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_PROJECT', 'myproject');
     $this->envSet('LAGOON_PROJECT', 'myproject');
-    $this->envSet('VORTEX_DOWNLOAD_DB_ENVIRONMENT', 'main');
-    $this->envSet('VORTEX_DOWNLOAD_DB_SSH_FILE', '/home/user/.ssh/id_rsa');
-    $this->envSet('VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud');
-    $this->envSet('VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT', '32222');
-    $this->envSet('VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_DOWNLOAD_DB_LAGOON_DB_FILE', 'db.sql');
+    $this->envSet('VORTEX_FETCH_DB_ENVIRONMENT', 'main');
+    $this->envSet('VORTEX_FETCH_DB_SSH_FILE', '/home/user/.ssh/id_rsa');
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud');
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_SSH_PORT', '32222');
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_DB_DIR', self::$tmp . '/data');
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_DB_FILE', 'db.sql');
   }
 
   public function testMissingProject(): void {
-    $this->envUnset('VORTEX_DOWNLOAD_DB_LAGOON_PROJECT');
+    $this->envUnset('VORTEX_FETCH_DB_LAGOON_PROJECT');
     $this->envUnset('LAGOON_PROJECT');
 
-    $this->runScriptError('src/download-db-lagoon', 'Missing required value for VORTEX_DOWNLOAD_DB_LAGOON_PROJECT, LAGOON_PROJECT');
+    $this->runScriptError('src/fetch-db-lagoon', 'Missing required value for VORTEX_FETCH_DB_LAGOON_PROJECT, LAGOON_PROJECT');
   }
 
   public function testSuccess(): void {
@@ -96,7 +96,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-lagoon');
+    $output = $this->runScript('src/fetch-db-lagoon');
 
     $this->assertStringContainsString('Started database dump download from Lagoon.', $output);
     $this->assertStringContainsString('Discovering or creating a database dump on Lagoon.', $output);
@@ -108,7 +108,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
     $db_dir = self::$tmp . '/data';
     mkdir($db_dir, 0755, TRUE);
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_FRESH', '1');
+    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
 
     $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
     $date_mock->expects($this->any())->willReturn('20240101');
@@ -163,7 +163,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-lagoon');
+    $output = $this->runScript('src/fetch-db-lagoon');
 
     $this->assertStringContainsString('Database dump refresh requested.', $output);
     $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
@@ -226,7 +226,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-lagoon', 'Failed to download database dump from Lagoon');
+    $this->runScriptError('src/fetch-db-lagoon', 'Failed to download database dump from Lagoon');
   }
 
   public function testSetupSshFails(): void {
@@ -240,13 +240,13 @@ class DownloadDbLagoonTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/download-db-lagoon', 'Failed to setup SSH');
+    $this->runScriptError('src/fetch-db-lagoon', 'Failed to setup SSH');
   }
 
   public function testDirectoryCreation(): void {
     // Don't pre-create directory.
     $db_dir = self::$tmp . '/new-dir';
-    $this->envSet('VORTEX_DOWNLOAD_DB_LAGOON_DB_DIR', $db_dir);
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_DB_DIR', $db_dir);
 
     $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
     $date_mock->expects($this->any())->willReturn('20240101');
@@ -301,7 +301,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-lagoon');
+    $output = $this->runScript('src/fetch-db-lagoon');
 
     $this->assertStringContainsString('Creating directory for database dumps.', $output);
     $this->assertTrue(is_dir($db_dir));
@@ -311,7 +311,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
   public function testSshFileFalseDisablesIdentity(): void {
     $db_dir = self::$tmp . '/data';
     mkdir($db_dir, 0755, TRUE);
-    $this->envSet('VORTEX_DOWNLOAD_DB_SSH_FILE', 'false');
+    $this->envSet('VORTEX_FETCH_DB_SSH_FILE', 'false');
 
     $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
     $date_mock->expects($this->any())->willReturn('20240101');
@@ -366,7 +366,7 @@ class DownloadDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-lagoon');
+    $output = $this->runScript('src/fetch-db-lagoon');
 
     $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
   }

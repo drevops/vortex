@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('scripts')]
-class DownloadDbTest extends UnitTestCase {
+class FetchDbTest extends UnitTestCase {
 
   /**
    * Path to the src directory.
@@ -21,26 +21,26 @@ class DownloadDbTest extends UnitTestCase {
 
     self::$srcDir = (string) realpath(__DIR__ . '/../../src');
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_SOURCE', 'url');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FORCE', '');
-    $this->envSet('VORTEX_DOWNLOAD_DB_PROCEED', '1');
-    $this->envSet('VORTEX_DOWNLOAD_DB_FILE', 'db.sql');
-    $this->envSet('VORTEX_DOWNLOAD_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_DOWNLOAD_DB_SEMAPHORE', '');
+    $this->envSet('VORTEX_FETCH_DB_SOURCE', 'url');
+    $this->envSet('VORTEX_FETCH_DB_FORCE', '');
+    $this->envSet('VORTEX_FETCH_DB_PROCEED', '1');
+    $this->envSet('VORTEX_FETCH_DB_FILE', 'db.sql');
+    $this->envSet('VORTEX_FETCH_DB_DIR', self::$tmp . '/data');
+    $this->envSet('VORTEX_FETCH_DB_SEMAPHORE', '');
   }
 
   #[DataProvider('dataProviderEarlyPass')]
   public function testEarlyPass(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptEarlyPass('src/download-db', $expected);
+    $this->runScriptEarlyPass('src/fetch-db', $expected);
   }
 
   public static function dataProviderEarlyPass(): array {
     return [
       'proceed not set' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_PROCEED', '0');
+          $test->envSet('VORTEX_FETCH_DB_PROCEED', '0');
         },
         'expected' => 'Skipping database download',
       ],
@@ -63,7 +63,7 @@ class DownloadDbTest extends UnitTestCase {
   public function testSuccess(\Closure $before, array $expected, ?\Closure $after = NULL): void {
     $before($this);
 
-    $output = $this->runScript('src/download-db');
+    $output = $this->runScript('src/fetch-db');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -80,7 +80,7 @@ class DownloadDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
           $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/download-db-url', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/fetch-db-url', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -90,9 +90,9 @@ class DownloadDbTest extends UnitTestCase {
       'ftp source' => [
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
-          $test->envSet('VORTEX_DOWNLOAD_DB_SOURCE', 'ftp');
+          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'ftp');
           $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/download-db-ftp', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/fetch-db-ftp', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -104,10 +104,10 @@ class DownloadDbTest extends UnitTestCase {
           $db_dir = self::$tmp . '/data';
           File::mkdir($db_dir);
           File::dump($db_dir . '/db.sql', 'fake-dump');
-          $test->envSet('VORTEX_DOWNLOAD_DB_FORCE', '1');
+          $test->envSet('VORTEX_FETCH_DB_FORCE', '1');
           $test->mockPassthruMultiple([
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true', 'result_code' => 0],
-            ['cmd' => self::$srcDir . '/download-db-url', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/fetch-db-url', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -117,9 +117,9 @@ class DownloadDbTest extends UnitTestCase {
       'semaphore created' => [
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
-          $test->envSet('VORTEX_DOWNLOAD_DB_SEMAPHORE', self::$tmp . '/sem');
+          $test->envSet('VORTEX_FETCH_DB_SEMAPHORE', self::$tmp . '/sem');
           $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/download-db-url', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/fetch-db-url', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -135,21 +135,21 @@ class DownloadDbTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/download-db', $expected);
+    $this->runScriptError('src/fetch-db', $expected);
   }
 
   public static function dataProviderError(): array {
     return [
       'invalid source' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_DOWNLOAD_DB_SOURCE', 'invalid');
+          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'invalid');
         },
         'expected' => 'Invalid database download source',
       ],
       'source script fails' => [
         'before' => function (self $test): void {
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/download-db-url',
+            'cmd' => self::$srcDir . '/fetch-db-url',
             'result_code' => 1,
           ]);
         },

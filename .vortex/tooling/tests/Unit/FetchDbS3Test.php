@@ -9,45 +9,45 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 #[Group('scripts')]
 #[RunTestsInSeparateProcesses]
-class DownloadDbS3Test extends UnitTestCase {
+class FetchDbS3Test extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
 
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY', 'AKIAIOSFODNN7EXAMPLE');
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_SECRET_KEY', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_BUCKET', 'mybucket');
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_REGION', 'us-east-1');
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_DB_FILE', 'db.sql');
+    $this->envSet('VORTEX_FETCH_DB_S3_ACCESS_KEY', 'AKIAIOSFODNN7EXAMPLE');
+    $this->envSet('VORTEX_FETCH_DB_S3_SECRET_KEY', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
+    $this->envSet('VORTEX_FETCH_DB_S3_BUCKET', 'mybucket');
+    $this->envSet('VORTEX_FETCH_DB_S3_REGION', 'us-east-1');
+    $this->envSet('VORTEX_FETCH_DB_S3_DB_DIR', self::$tmp . '/data');
+    $this->envSet('VORTEX_FETCH_DB_S3_DB_FILE', 'db.sql');
   }
 
   public function testMissingAccessKey(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY', '');
+    $this->envSet('VORTEX_FETCH_DB_S3_ACCESS_KEY', '');
     $this->envUnset('S3_ACCESS_KEY');
 
-    $this->runScriptError('src/download-db-s3', 'Missing required value for VORTEX_DOWNLOAD_DB_S3_ACCESS_KEY');
+    $this->runScriptError('src/fetch-db-s3', 'Missing required value for VORTEX_FETCH_DB_S3_ACCESS_KEY');
   }
 
   public function testMissingSecretKey(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_SECRET_KEY', '');
+    $this->envSet('VORTEX_FETCH_DB_S3_SECRET_KEY', '');
     $this->envUnset('S3_SECRET_KEY');
 
-    $this->runScriptError('src/download-db-s3', 'Missing required value for VORTEX_DOWNLOAD_DB_S3_SECRET_KEY');
+    $this->runScriptError('src/fetch-db-s3', 'Missing required value for VORTEX_FETCH_DB_S3_SECRET_KEY');
   }
 
   public function testMissingBucket(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_BUCKET', '');
+    $this->envSet('VORTEX_FETCH_DB_S3_BUCKET', '');
     $this->envUnset('S3_BUCKET');
 
-    $this->runScriptError('src/download-db-s3', 'Missing required value for VORTEX_DOWNLOAD_DB_S3_BUCKET');
+    $this->runScriptError('src/fetch-db-s3', 'Missing required value for VORTEX_FETCH_DB_S3_BUCKET');
   }
 
   public function testMissingRegion(): void {
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_REGION', '');
+    $this->envSet('VORTEX_FETCH_DB_S3_REGION', '');
     $this->envUnset('S3_REGION');
 
-    $this->runScriptError('src/download-db-s3', 'Missing required value for VORTEX_DOWNLOAD_DB_S3_REGION');
+    $this->runScriptError('src/fetch-db-s3', 'Missing required value for VORTEX_FETCH_DB_S3_REGION');
   }
 
   public function testSuccess(): void {
@@ -69,7 +69,7 @@ class DownloadDbS3Test extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-s3');
+    $output = $this->runScript('src/fetch-db-s3');
 
     $this->assertStringContainsString('Started database dump download from S3.', $output);
     $this->assertStringContainsString('Finished database dump download from S3.', $output);
@@ -78,7 +78,7 @@ class DownloadDbS3Test extends UnitTestCase {
 
   public function testSuccessWithPrefix(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->envSet('VORTEX_DOWNLOAD_DB_S3_PREFIX', 'backups/daily');
+    $this->envSet('VORTEX_FETCH_DB_S3_PREFIX', 'backups/daily');
 
     $gmdate_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'gmdate');
     $gmdate_mock->expects($this->any())->willReturnCallback(function ($format): string {
@@ -96,7 +96,7 @@ class DownloadDbS3Test extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-s3');
+    $output = $this->runScript('src/fetch-db-s3');
 
     $this->assertStringContainsString('S3 prefix:', $output);
     $this->assertStringContainsString('Finished database dump download from S3.', $output);
@@ -121,7 +121,7 @@ class DownloadDbS3Test extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/download-db-s3', 'Failed to download database dump from S3');
+    $this->runScriptError('src/fetch-db-s3', 'Failed to download database dump from S3');
   }
 
   public function testDirectoryCreation(): void {
@@ -141,7 +141,7 @@ class DownloadDbS3Test extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/download-db-s3');
+    $output = $this->runScript('src/fetch-db-s3');
 
     $this->assertTrue(is_dir(self::$tmp . '/data'));
     $this->assertStringContainsString('Finished database dump download from S3.', $output);
