@@ -8,7 +8,7 @@
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
 @@ -165,30 +163,6 @@
-         bash ./vendor/drevops/vortex-tooling/src/reset "$@"
+         ./vendor/drevops/vortex-tooling/src/reset "$@"
        fi
  
 -  fei:
