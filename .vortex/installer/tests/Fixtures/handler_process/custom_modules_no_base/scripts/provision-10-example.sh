@@ -1,4 +1,4 @@
-@@ -66,7 +66,6 @@
+@@ -70,7 +70,6 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."

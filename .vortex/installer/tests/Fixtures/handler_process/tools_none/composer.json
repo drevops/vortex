@@ -1,4 +1,4 @@
-@@ -35,29 +35,12 @@
+@@ -36,29 +36,12 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -28,7 +28,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -71,21 +54,14 @@
+@@ -72,21 +55,14 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,

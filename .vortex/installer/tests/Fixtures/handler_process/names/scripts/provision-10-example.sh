@@ -7,7 +7,7 @@
    pass "Set site name."
  
    task "Installing contrib modules."
-@@ -66,11 +66,11 @@
+@@ -70,11 +70,11 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."
