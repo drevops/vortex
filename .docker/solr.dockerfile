@@ -9,6 +9,11 @@ FROM uselagoon/solr-9-drupal:26.6.0
 
 # Solr jump-start config needs to be manually copied from the search_api_solr
 # Drupal module to .docker/config/solr/config-set.
+#
+# solr.luceneMatchVersion in solrcore.properties must match the Lucene version
+# bundled in this image (see the lucene-core-*.jar filename inside it), which is
+# newer than the value shipped in the module's jump-start config-set. Re-check it
+# whenever this image tag is bumped.
 COPY .docker/config/solr/config-set /solr-conf/conf/
 
 USER root

@@ -70,6 +70,7 @@ Follow the steps below to release a new version of the Vortex:
 renovate --schedule= --force-cli=true drevops/vortex
 ```
 2. Update container images to the latest versions and check that `@see` links are working.
+   - After bumping the `uselagoon/solr-9-drupal` image, update `solr.luceneMatchVersion` in `.docker/config/solr/config-set/solrcore.properties` to match the Lucene version bundled in that image (shown by the `lucene-core-*.jar` filename inside the image). The value in `search_api_solr`'s jump-start config-set lags the image, so it must not be copied verbatim.
 3. Update PHP version in `composer.json` for `config.platform`.
 4. Update PHP version in `phpcs.xml` for `testVersion`.
 5. Update PHP version in `phpstan.neon` for `phpVersion`. Run `php -r "echo PHP_VERSION_ID . PHP_EOL;"` in the container to get the current PHP version.
