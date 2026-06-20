@@ -1,167 +1,189 @@
-#!/usr/bin/env bash
-##
-# Notification dispatch to GitHub.
-#
-# Provides dispatching "deployments" notifications to GitHub.
-# @see https://docs.github.com/en/rest/deployments/deployments
-#
-# GitHub deployments can only be created if all checks pass. Thus, the
-# deployment notification dispatch will fail if CI hasn't completed and
-# reported successful checks.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Notification dispatch to GitHub.
+ *
+ * Provides dispatching "deployments" notifications to GitHub.
+ * @see https://docs.github.com/en/rest/deployments/deployments
+ *
+ * GitHub deployments can only be created if all checks pass. Thus, the
+ * deployment notification dispatch will fail if CI hasn't completed and
+ * reported successful checks.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# GitHub notification personal access token.
-VORTEX_NOTIFY_GITHUB_TOKEN="${VORTEX_NOTIFY_GITHUB_TOKEN:-${GITHUB_TOKEN-}}"
+namespace DrevOps\VortexTooling;
 
-# GitHub notification repository in owner/repo format.
-VORTEX_NOTIFY_GITHUB_REPOSITORY="${VORTEX_NOTIFY_GITHUB_REPOSITORY:-}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# GitHub notification git branch name.
-# This will be used as the 'ref' parameter in GitHub's Deployment API.
-VORTEX_NOTIFY_GITHUB_BRANCH="${VORTEX_NOTIFY_GITHUB_BRANCH:-${VORTEX_NOTIFY_BRANCH:-}}"
+// -----------------------------------------------------------------------------
+// Branch filter gate.
+//
+// Comma-separated list of branch names. When set, GitHub notifications are
+// only sent for deployments on the listed branches. When empty, no filtering
+// is applied. Checked before required variable validation so channels not
+// configured for the current branch can short-circuit cleanly.
+// -----------------------------------------------------------------------------
 
-# GitHub notification event type. Can be 'pre_deployment' or 'post_deployment'.
-VORTEX_NOTIFY_GITHUB_EVENT="${VORTEX_NOTIFY_GITHUB_EVENT:-${VORTEX_NOTIFY_EVENT:-}}"
-
-# GitHub notification deployment environment URL.
-VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
-
-# GitHub notification environment type.
-# Used as the 'environment' parameter in GitHub's Deployment API.
-# Defaults to VORTEX_NOTIFY_LABEL (e.g. "PR-123" or branch name) for unique
-# per-PR/branch environments. This prevents cross-PR deployment interference
-# where deploying one PR would mark another PR's deployment as inactive.
-VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE:-${VORTEX_NOTIFY_LABEL:-PR}}"
-
-# GitHub notification branch filter.
-#
-# Comma-separated list of branch names. When set, GitHub notifications
-# are only sent for deployments on the listed branches. When empty, no
-# filtering is applied.
-VORTEX_NOTIFY_GITHUB_BRANCHES="${VORTEX_NOTIFY_GITHUB_BRANCHES:-}"
-
-# ------------------------------------------------------------------------------
-
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
-
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
-
-if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
-  if ! echo ",${VORTEX_NOTIFY_GITHUB_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped GitHub notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
-    exit 0
-  fi
-fi
-
-[ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_BRANCH." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_EVENT." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE." && exit 1
-
-info "Started GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
-
-#
-# Function to extract last value from JSON object passed via STDIN.
-#
-extract_json_first_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+$notify_github_branches = getenv_default('VORTEX_NOTIFY_GITHUB_BRANCHES', '');
+if ($notify_github_branches !== '') {
+  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
+  $branch_list = array_map(trim(...), explode(',', $notify_github_branches));
+  if (!in_array($current_branch, $branch_list, TRUE)) {
+    pass(sprintf("Skipping GitHub notification for branch '%s'.", $current_branch));
+    quit();
+  }
 }
 
-#
-# Function to extract keyed value from JSON object passed via STDIN.
-#
-extract_json_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+// -----------------------------------------------------------------------------
+
+// GitHub notification personal access token.
+$github_token = getenv_required('VORTEX_NOTIFY_GITHUB_TOKEN', 'GITHUB_TOKEN');
+
+// GitHub notification repository in owner/repo format.
+$github_repository = getenv_required('VORTEX_NOTIFY_GITHUB_REPOSITORY');
+
+// GitHub notification git branch name.
+//
+// This will be used as the 'ref' parameter in GitHub's Deployment API.
+$notify_branch = getenv_required('VORTEX_NOTIFY_GITHUB_BRANCH', 'VORTEX_NOTIFY_BRANCH');
+
+// GitHub notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_required('VORTEX_NOTIFY_GITHUB_EVENT', 'VORTEX_NOTIFY_EVENT');
+
+// GitHub notification environment type.
+//
+// Defaults to VORTEX_NOTIFY_LABEL (e.g. "PR-123" or branch name) for unique
+// per-PR/branch environments. This prevents cross-PR deployment interference
+// where deploying one PR would mark another PR's deployment as inactive.
+$github_env_type = getenv_default('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE', 'VORTEX_NOTIFY_LABEL', 'PR');
+
+// -----------------------------------------------------------------------------
+
+info('Started GitHub notification for %s event.', $notify_event);
+
+/**
+ * Validate deployment ID.
+ *
+ * @param mixed $deployment_id
+ *   Deployment ID to validate.
+ *
+ * @return bool
+ *   TRUE if valid, FALSE otherwise.
+ */
+function deployment_id_is_valid(mixed $deployment_id): bool {
+  if (empty($deployment_id)) {
+    return FALSE;
+  }
+
+  $id_str = (string) $deployment_id;
+  $length = strlen($id_str);
+
+  // Check length (9-11 digits) and numeric format.
+  return $length >= 9 && $length <= 11 && ctype_digit($id_str);
 }
 
-if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
-  info "GitHub pre-deployment notification summary:"
-  note "Repository      : ${VORTEX_NOTIFY_GITHUB_REPOSITORY}"
-  note "Branch (ref)    : ${VORTEX_NOTIFY_GITHUB_BRANCH}"
-  note "Environment Type: ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}"
-  note "Event           : ${VORTEX_NOTIFY_GITHUB_EVENT}"
+if ($notify_event === 'pre_deployment') {
+  note('GitHub pre-deployment notification summary:');
+  note('Repository      : ' . $github_repository);
+  note('Branch (ref)    : ' . $notify_branch);
+  note('Environment Type: ' . $github_env_type);
+  note('Event           : ' . $notify_event);
 
-  payload="$(curl \
-    -X POST \
-    -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    -s \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments" \
-    -d "{\"ref\":\"${VORTEX_NOTIFY_GITHUB_BRANCH}\", \"environment\": \"${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}\", \"auto_merge\": false, \"required_contexts\": []}")"
+  task('Creating deployment');
 
-  deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
+  $payload_data = [
+    'ref' => $notify_branch,
+    'environment' => $github_env_type,
+    'auto_merge' => FALSE,
+    'required_contexts' => [],
+  ];
 
-  # Check deployment ID.
-  if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
-    fail "Failed to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
-    fail "Wait for GitHub checks to finish and try again."
-    exit 1
-  fi
+  $url = sprintf('https://api.github.com/repos/%s/deployments', $github_repository);
+  $response = request_post($url, json_encode($payload_data), [
+    'Authorization: token ' . $github_token,
+    'Accept: application/vnd.github.v3+json',
+  ]);
 
-  note "Marked deployment as started."
-else
-  [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL." && exit 1
+  $deployment_id = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    $deployment_id = $payload['id'] ?? NULL;
+  }
 
-  # Returns all deployment for this ref sorted from the latest to the oldest.
-  payload="$(curl \
-    -X GET \
-    -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    -s \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments?ref=${VORTEX_NOTIFY_GITHUB_BRANCH}")"
+  // Check deployment ID.
+  if (!deployment_id_is_valid($deployment_id)) {
+    fail('Failed to get a deployment ID for a %s event. Payload: %s. Wait for GitHub checks to finish and try again.', $notify_event, $response['body'] ?: 'empty');
+  }
 
-  deployment_id="$(echo "${payload}" | extract_json_first_value "id" || true)"
+  pass('Created deployment with ID %s.', $deployment_id);
+}
+else {
+  $env_url = getenv_required('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-  # Check deployment ID.
-  if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
-    fail "Failed to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
-    fail "Check that a pre_deployment notification was dispatched."
-    exit 1
-  fi
+  task('Finding latest deployment for ref %s', $notify_branch);
 
-  info "GitHub post-deployment notification summary:"
-  note "Repository         : ${VORTEX_NOTIFY_GITHUB_REPOSITORY}"
-  note "Branch (ref)       : ${VORTEX_NOTIFY_GITHUB_BRANCH}"
-  note "Environment Type   : ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}"
-  note "Environment URL    : ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}"
-  note "Deployment ID      : ${deployment_id}"
-  note "Event              : ${VORTEX_NOTIFY_GITHUB_EVENT}"
+  $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $github_repository, urlencode($notify_branch));
+  $response = request_get($url, [
+    'Authorization: token ' . $github_token,
+    'Accept: application/vnd.github.v3+json',
+  ]);
 
-  # Post status update.
-  payload="$(curl \
-    -X POST \
-    -H "Accept: application/vnd.github.v3+json" \
-    -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
-    "https://api.github.com/repos/${VORTEX_NOTIFY_GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" \
-    -s \
-    -d "{\"state\":\"success\", \"environment_url\": \"${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}\"}")"
+  // Get first (latest) deployment ID.
+  $deployment_id = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    if (is_array($payload) && !empty($payload)) {
+      $first = reset($payload);
+      $deployment_id = $first['id'] ?? NULL;
+    }
+  }
 
-  status="$(echo "${payload}" | extract_json_value "state")"
+  // Check deployment ID.
+  if (!deployment_id_is_valid($deployment_id)) {
+    fail('Failed to find a previous deployment for ref %s. Payload: %s', $notify_branch, $response['body'] ?: 'empty');
+  }
 
-  if [ "${status}" != "success" ]; then
-    fail "Previous deployment was found, but was unable to update the deployment status. Payload: ${payload}"
-    exit 1
-  fi
+  pass('Found deployment with ID %s.', $deployment_id);
 
-  note "Marked deployment as finished."
-fi
+  note('GitHub post-deployment notification summary:');
+  note('Repository         : ' . $github_repository);
+  note('Branch (ref)       : ' . $notify_branch);
+  note('Environment Type   : ' . $github_env_type);
+  note('Environment URL    : ' . $env_url);
+  note('Deployment ID      : ' . $deployment_id);
+  note('Event              : ' . $notify_event);
 
-pass "Finished GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
+  task('Marking deployment as finished');
+
+  $status_data = [
+    'state' => 'success',
+    'environment_url' => $env_url,
+  ];
+
+  $url = sprintf('https://api.github.com/repos/%s/deployments/%s/statuses', $github_repository, $deployment_id);
+  $response = request_post($url, json_encode($status_data), [
+    'Accept: application/vnd.github.v3+json',
+    'Authorization: token ' . $github_token,
+  ]);
+
+  $status = NULL;
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    $status = $payload['state'] ?? NULL;
+  }
+
+  if ($status !== 'success') {
+    fail('Previous deployment was found, but was unable to update the deployment status. Payload: %s', $response['body'] ?: 'empty');
+  }
+
+  pass('Marked deployment as finished.');
+}
+
+info('Finished GitHub notification for %s event.', $notify_event);

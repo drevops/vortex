@@ -1,148 +1,166 @@
-#!/usr/bin/env bash
-##
-# Setup SSH in the environment.
-#
-# - If key fingerprint provided in MD5 or SHA256 format, search for the existing
-#   key file. Export the key file path.
-# - Start SSH agent if not running. Export SSH_AGENT_PID and SSH_AUTH_SOCK.
-# - Load SSH key to the SSH agent.
-# - Pin host keys to 'known_hosts' when provided, or disable strict host key
-#   checking in CI as an opt-out.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091,SC2009
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Setup SSH in the environment.
+ *
+ * - If key fingerprint provided in MD5 or SHA256 format, search for the
+ *   existing key file. Export the key file path.
+ * - Start SSH agent if not running. Export SSH_AGENT_PID and SSH_AUTH_SOCK.
+ * - Load SSH key to the SSH agent.
+ * - Disable strict host key checking in CI.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Prefix used to load SSH key from prefixes environment variables:
-# - VORTEX_${VORTEX_SSH_PREFIX}_SSH_FINGERPRINT - the variable name with the
-#   SSH key fingerprint value.
-# - VORTEX_${VORTEX_SSH_PREFIX}_SSH_FILE - the variable name with the SSH
-#   key file path.
-VORTEX_SSH_PREFIX="${VORTEX_SSH_PREFIX?Missing the required VORTEX_SSH_PREFIX environment variable.}"
+namespace DrevOps\VortexTooling;
 
-# Remove all SSH keys from the SSH agent before loading the new one.
-VORTEX_SSH_REMOVE_ALL_KEYS="${VORTEX_SSH_REMOVE_ALL_KEYS:-0}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# Disable strict host key checking in SSH.
-VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING:-0}"
+// -----------------------------------------------------------------------------
 
-# Pinned SSH host keys as 'known_hosts' entries (newline-separated). When set,
-# the entries are written to the SSH 'known_hosts' file and strict host key
-# checking is kept enabled. This is the secure alternative to disabling strict
-# checking and takes precedence over VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING.
-VORTEX_SSH_KNOWN_HOSTS="${VORTEX_SSH_KNOWN_HOSTS:-}"
+// Prefix used to load SSH key from prefixed environment variables.
+//
+// This prefix is used to construct dynamic variable names:
+// - VORTEX_{PREFIX}_SSH_FINGERPRINT
+// - VORTEX_{PREFIX}_SSH_FILE
+//
+// Example: If VORTEX_SSH_PREFIX=DEPLOY, then:
+// - VORTEX_DEPLOY_SSH_FINGERPRINT
+// - VORTEX_DEPLOY_SSH_FILE.
+$ssh_prefix = getenv_required('VORTEX_SSH_PREFIX');
 
-# ------------------------------------------------------------------------------
+// Whether to remove all keys from the SSH agent before loading.
+//
+// Set to '1' to remove all keys, '0' to keep existing keys.
+$remove_all_keys = getenv_default('VORTEX_SSH_REMOVE_ALL_KEYS', FALSE);
 
-# @formatter:off
-debg() { if [ "${VORTEX_DEBUG-}" = "1" ]; then printf "[DEBG] %s\n" "$1"; fi; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Whether to disable strict host key checking.
+//
+// Set to '1' to disable strict checking (for CI environments), '0' otherwise.
+$disable_strict_checking = getenv_default('VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING', FALSE);
 
-info "Started SSH setup."
+// -----------------------------------------------------------------------------
 
-fingerprint_var="VORTEX_${VORTEX_SSH_PREFIX}_SSH_FINGERPRINT"
-if [ -n "${!fingerprint_var-}" ]; then
-  fingerprint="${!fingerprint_var}"
-  debg "Found fingerprint variable ${fingerprint_var} with value ${fingerprint}."
-else
-  debg "Did not find fingerprint variable ${fingerprint_var}."
-fi
+info('Started SSH setup.');
 
-file_var="VORTEX_${VORTEX_SSH_PREFIX}_SSH_FILE"
-if [ -n "${!file_var-}" ]; then
-  file="${!file_var}"
-  debg "Found variable ${file_var} with value ${file}."
-else
-  file="${HOME}/.ssh/id_rsa"
-  debg "Did not find a variable ${file_var}. Using default value ${file}."
-fi
+// Get fingerprint from dynamic variable.
+$fingerprint_var = sprintf('VORTEX_%s_SSH_FINGERPRINT', $ssh_prefix);
+$fingerprint = getenv_default($fingerprint_var, NULL);
 
-if [ "${file}" = false ]; then
-  pass "SSH key is set to false meaning that it is not required. Skipped setup."
-  export "${file_var}=${file}"
-  [ "${BASH_SOURCE[0]}" != "$0" ] && return 0 || exit 0
-fi
+// Get file path from dynamic variable.
+$file_var = sprintf('VORTEX_%s_SSH_FILE', $ssh_prefix);
+$file_path = getenv_default($file_var, getenv('HOME') . '/.ssh/id_rsa');
 
-if [ -n "${fingerprint-}" ]; then
-  note "Using fingerprint-based deploy key because fingerprint was provided."
+// Special case - SSH key may not be required if set to 'false'.
+if ($file_path === 'false') {
+  pass('SSH key is set to false meaning that it is not required. Skipping setup.');
+  putenv(sprintf('%s=%s', $file_var, $file_path));
+  quit(0);
+}
 
-  if [ "${fingerprint#SHA256:}" != "${fingerprint}" ]; then
-    task "Searching for MD5 hash as fingerprint starts with SHA256."
-    for existing_file in "${HOME}"/.ssh/id_rsa*; do
-      fingerprint_sha256=$(ssh-keygen -l -E sha256 -f "${existing_file}" | awk '{print $2}')
-      if [ "${fingerprint_sha256}" = "${fingerprint}" ]; then
-        pass "Found matching existing key file ${existing_file}."
-        fingerprint=$(ssh-keygen -l -E md5 -f "${existing_file}" | awk '{print $2}')
-        fingerprint="${fingerprint#MD5:}"
-        break
-      fi
-    done
-  fi
+// Handle fingerprint-based key search.
+if (!empty($fingerprint)) {
+  note('Using fingerprint-based deploy key because fingerprint was provided.');
 
-  # Cleanup the fingerprint and create a file name.
-  file="${fingerprint//:/}"
-  file="${HOME}/.ssh/id_rsa_${file//\"/}"
-fi
+  // Convert SHA256 fingerprint to MD5 if needed.
+  if (str_starts_with($fingerprint, 'SHA256:')) {
+    task('Searching for MD5 hash as fingerprint starts with SHA256.');
+    $ssh_dir = getenv('HOME') . '/.ssh';
+    $id_rsa_files = glob($ssh_dir . '/id_rsa*');
 
-if [ ! -f "${file}" ]; then
-  fail "SSH key file ${file} does not exist."
-  exit 1
-fi
+    foreach ($id_rsa_files as $existing_file) {
+      $output = shell_exec(sprintf('ssh-keygen -l -E sha256 -f %s 2>/dev/null', escapeshellarg($existing_file)));
+      if ($output !== NULL && !empty($output)) {
+        $parts = preg_split('/\s+/', trim($output));
+        $fingerprint_sha256 = $parts[1] ?? '';
 
-note "Using SSH key file ${file}."
-export "${file_var}=${file}"
+        if ($fingerprint_sha256 === $fingerprint) {
+          pass(sprintf('Found matching existing key file %s.', $existing_file));
+          $output = shell_exec(sprintf('ssh-keygen -l -E md5 -f %s', escapeshellarg($existing_file)));
+          $parts = preg_split('/\s+/', trim($output));
+          $fingerprint = $parts[1] ?? '';
+          $fingerprint = str_replace('MD5:', '', $fingerprint);
+          break;
+        }
+      }
+    }
+  }
 
-if [ "$(ps ax | grep -c "[s]sh-agent")" -eq 0 ]; then
-  task "Starting SSH agent."
-  eval "$(ssh-agent)"
-fi
+  // Cleanup the fingerprint and create a file name.
+  $file_path = str_replace(':', '', $fingerprint);
+  $file_path = str_replace('"', '', $file_path);
+  $file_path = getenv('HOME') . '/.ssh/id_rsa_' . $file_path;
+}
 
-if ssh-add -l | grep -q "${file}"; then
-  note "SSH agent already has ${file} key loaded."
-else
-  task "SSH agent does not have a required key loaded. Trying to load."
-  if [ "${VORTEX_SSH_REMOVE_ALL_KEYS-}" = "1" ]; then
-    task "Removing all keys from the SSH agent."
-    ssh-add -D
-  fi
-  ssh-add "${file}"
-  ssh-add -l
-fi
+// Check if SSH key file exists.
+if (!file_exists($file_path)) {
+  fail(sprintf('SSH key file %s does not exist.', $file_path));
+}
 
-if [ -n "${VORTEX_SSH_KNOWN_HOSTS-}" ]; then
-  if [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
-    note "Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled."
-  fi
+note(sprintf('Using SSH key file %s.', $file_path));
+putenv(sprintf('%s=%s', $file_var, $file_path));
 
-  task "Pinning SSH host keys to known_hosts."
-  mkdir -p "${HOME}/.ssh/"
+// Start SSH agent if not running.
+// Check if SSH agent is available by verifying the socket exists
+// and is accessible.
+$ssh_auth_sock = getenv('SSH_AUTH_SOCK');
+$agent_running = !empty($ssh_auth_sock) && file_exists($ssh_auth_sock);
 
-  # Strip insecure directives that an earlier run with strict checking disabled
-  # may have left in the SSH config, so the pinned host keys are actually
-  # enforced rather than bypassed by a stale "UserKnownHostsFile /dev/null".
-  if [ -f "${HOME}/.ssh/config" ]; then
-    grep -v -E '^[[:space:]]*(StrictHostKeyChecking[[:space:]]+no|UserKnownHostsFile[[:space:]]+/dev/null)[[:space:]]*$' "${HOME}/.ssh/config" >"${HOME}/.ssh/config.tmp" || true
-    mv "${HOME}/.ssh/config.tmp" "${HOME}/.ssh/config"
-    chmod 600 "${HOME}/.ssh/config"
-  fi
+if (!$agent_running) {
+  task('Starting SSH agent.');
+  $output = shell_exec('ssh-agent');
+  if ($output !== NULL) {
+    // Parse ssh-agent output to extract environment variables.
+    if (preg_match('/SSH_AUTH_SOCK=([^;]+);/', $output, $matches)) {
+      putenv('SSH_AUTH_SOCK=' . $matches[1]);
+    }
+    if (preg_match('/SSH_AGENT_PID=(\d+);/', $output, $matches)) {
+      putenv('SSH_AGENT_PID=' . $matches[1]);
+    }
+  }
+}
 
-  printf '%b\n' "${VORTEX_SSH_KNOWN_HOSTS}" >>"${HOME}/.ssh/known_hosts"
-  chmod 600 "${HOME}/.ssh/known_hosts"
-elif [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
-  task "Disabling strict host key checking."
-  mkdir -p "${HOME}/.ssh/"
-  echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
-  chmod 600 "${HOME}/.ssh/config"
-fi
+// Check if key is already loaded.
+$output = (string) shell_exec('ssh-add -l 2>/dev/null');
+$key_loaded = str_contains($output, basename($file_path));
 
-pass "Finished SSH setup."
+if ($key_loaded) {
+  note(sprintf('SSH agent already has %s key loaded.', $file_path));
+}
+else {
+  task('SSH agent does not have a required key loaded. Trying to load.');
+
+  if (!empty($remove_all_keys)) {
+    task('Removing all keys from the SSH agent.');
+    passthru('ssh-add -D');
+  }
+
+  passthru(sprintf('ssh-add %s', escapeshellarg($file_path)), $add_exit_code);
+  if ($add_exit_code !== 0) {
+    fail('Failed to add SSH key to agent.');
+  }
+
+  passthru('ssh-add -l');
+}
+
+// Disable strict host key checking if requested.
+if (!empty($disable_strict_checking)) {
+  task('Disabling strict host key checking.');
+
+  $ssh_dir = getenv('HOME') . '/.ssh';
+  // @codeCoverageIgnoreStart
+  if (!is_dir($ssh_dir)) {
+    mkdir($ssh_dir, 0700, TRUE);
+  }
+  // @codeCoverageIgnoreEnd
+
+  $config_file = $ssh_dir . '/config';
+  $config_content = "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n";
+  file_put_contents($config_file, $config_content, FILE_APPEND);
+  chmod($config_file, 0600);
+}
+
+pass('Finished SSH setup.');

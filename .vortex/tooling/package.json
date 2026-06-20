@@ -1,9 +1,0 @@
-{
-    "name": "vortex-tooling-tests",
-    "version": "1.0.0",
-    "description": "Packages used for testing the drevops/vortex-tooling shell scripts.",
-    "license": "GPL-3.0-or-later",
-    "devDependencies": {
-        "bats-helpers": "npm:@drevops/bats-helpers@^1.5.1"
-    }
-}

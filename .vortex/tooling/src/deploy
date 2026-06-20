@@ -1,154 +1,138 @@
-#!/usr/bin/env bash
-##
-# Deploy code to a remote location.
-#
-# Deployment may include pushing code, pushing created container image,
-# notifying remote hosting service via webhook call etc.
-#
-# Multiple deployments can be configured by providing a comma-separated list of
-# deployment types in $VORTEX_DEPLOY_TYPES variable.
-#
-# Deployments can be skipped by setting the $VORTEX_DEPLOY_SKIP variable to "1".
-#
-# This is a router script to call relevant scripts based on type.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Deploy code to a remote location.
+ *
+ * Deployment may include pushing code, pushing created container image,
+ * notifying remote hosting service via webhook call etc.
+ *
+ * Multiple deployments can be configured by providing a comma-separated list of
+ * deployment types in $VORTEX_DEPLOY_TYPES variable.
+ *
+ * Deployments can be skipped by setting the $VORTEX_DEPLOY_SKIP variable
+ * to "1".
+ *
+ * This is a router script to call relevant scripts based on type.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# The types of deployment.
-#
-# Can be a combination of comma-separated values (to support multiple
-# deployments): code, container_registry, webhook, lagoon.
-VORTEX_DEPLOY_TYPES="${VORTEX_DEPLOY_TYPES:-}"
+namespace DrevOps\VortexTooling;
 
-# Deployment mode.
-#
-# Values can be one of: branch, tag.
-VORTEX_DEPLOY_MODE="${VORTEX_DEPLOY_MODE:-branch}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# Deployment action.
-#
-# Values can be one of: deploy, deploy_override_db, destroy.
-# - deploy: Deploy code and preserve database in the environment.
-# - deploy_override_db: Deploy code and override database in the environment.
-# - destroy: Destroy the environment (if the provider supports it).
-VORTEX_DEPLOY_ACTION="${VORTEX_DEPLOY_ACTION:-}"
+// -----------------------------------------------------------------------------
 
-# Deployment branch name.
-VORTEX_DEPLOY_BRANCH="${VORTEX_DEPLOY_BRANCH:-}"
+// The types of deployment.
+//
+// Can be a combination of comma-separated values (to support multiple
+// deployments): code, container_registry, webhook, lagoon.
+$deploy_types = getenv_default('VORTEX_DEPLOY_TYPES', '');
+$deploy_types = !empty($deploy_types) ? array_map('trim', explode(',', $deploy_types)) : [];
 
-# Deployment pull request number without "pr-" prefix.
-VORTEX_DEPLOY_PR="${VORTEX_DEPLOY_PR:-}"
+// Deployment mode.
+//
+// Values can be one of: branch, tag.
+$deploy_mode = getenv_default('VORTEX_DEPLOY_MODE', 'branch');
 
-# Flag to allow skipping of a deployment using additional flags.
-VORTEX_DEPLOY_ALLOW_SKIP="${VORTEX_DEPLOY_ALLOW_SKIP:-}"
+// Deployment action.
+//
+// Values can be one of: deploy, deploy_override_db, destroy.
+// - deploy: Deploy code and preserve database in the environment.
+// - deploy_override_db: Deploy code and override database in the environment.
+// - destroy: Destroy the environment (if the provider supports it).
+$deploy_action = getenv_default('VORTEX_DEPLOY_ACTION', '');
 
-# Label that authorizes a pull request deployment.
-#
-# When set to a non-empty label name, a PR deployment proceeds only if the
-# pull request carries that label; PRs without it are skipped. When empty (the
-# default), the gate is inactive and deployments behave as before. Only applies
-# to PR builds (VORTEX_DEPLOY_PR set); branch and tag deployments are unaffected.
-VORTEX_DEPLOY_ALLOW_LABEL="${VORTEX_DEPLOY_ALLOW_LABEL:-}"
+// Deployment branch name.
+$deploy_branch = getenv_default('VORTEX_DEPLOY_BRANCH', NULL);
 
-# Comma-separated list of labels present on the deployed pull request.
-#
-# Populated by the CI provider from the pull request event (for example, in
-# GitHub Actions from "github.event.pull_request.labels"). Consulted by the
-# VORTEX_DEPLOY_ALLOW_LABEL gate.
-VORTEX_DEPLOY_PR_LABELS="${VORTEX_DEPLOY_PR_LABELS:-}"
+// Deployment pull request number without "pr-" prefix.
+$deploy_pr = getenv_default('VORTEX_DEPLOY_PR', NULL);
 
-# ------------------------------------------------------------------------------
+// Flag to skip all deployments.
+$deploy_skip = getenv_default('VORTEX_DEPLOY_SKIP', FALSE);
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Flag to allow skipping of a deployment using additional flags.
+$deploy_allow_skip = getenv_default('VORTEX_DEPLOY_ALLOW_SKIP', FALSE);
 
-info "Started deployment."
+// Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_BRANCHES`
+// variable with branch names as a single value or comma-separated list.
+//
+// Branch names must match exactly as they appear in the repository.
+//
+// Examples:
+// VORTEX_DEPLOY_SKIP_BRANCHES=feature/test
+// VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental.
+$deploy_allow_skip_branches = getenv_default('VORTEX_DEPLOY_SKIP_BRANCHES', '');
+$deploy_allow_skip_branches = array_map('trim', explode(',', $deploy_allow_skip_branches));
 
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+// Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_PRS` variable
+// with PR numbers as a single value or comma-separated list.
+//
+// Examples:
+// VORTEX_DEPLOY_SKIP_PRS=123
+// VORTEX_DEPLOY_SKIP_PRS=123,456,789.
+$deploy_allow_skip_prs = getenv_default('VORTEX_DEPLOY_SKIP_PRS', '');
+$deploy_allow_skip_prs = array_map('trim', explode(',', $deploy_allow_skip_prs));
 
-if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
-  note "Found flag to skip all deployments."
-  pass "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
-  exit 0
-fi
+// -----------------------------------------------------------------------------
 
-[ -z "${VORTEX_DEPLOY_TYPES}" ] && fail "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon." && exit 1
+info('Started deployment.');
 
-if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
-  note "Found flag to skip a deployment."
+if (!empty($deploy_skip)) {
+  note('Found flag to skip all deployments.');
+  pass(sprintf('Skipping deployment %s.', implode(',', $deploy_types)));
+  quit(0);
+}
 
-  if [ -n "${VORTEX_DEPLOY_PR}" ] && [ -n "${VORTEX_DEPLOY_SKIP_PRS:-}" ]; then
-    # Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_PRS` variable
-    # with PR numbers as a single value or comma-separated list.
-    #
-    # Examples:
-    # VORTEX_DEPLOY_SKIP_PRS=123
-    # VORTEX_DEPLOY_SKIP_PRS=123,456,789
-    if echo ",${VORTEX_DEPLOY_SKIP_PRS}," | grep -q ",${VORTEX_DEPLOY_PR},"; then
-      note "Found PR ${VORTEX_DEPLOY_PR} in skip list."
-      note "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
-      exit 0
-    fi
-  fi
+if (empty($deploy_types)) {
+  fail('Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon.');
+}
 
-  if [ -n "${VORTEX_DEPLOY_BRANCH:-}" ] && [ -n "${VORTEX_DEPLOY_SKIP_BRANCHES:-}" ]; then
-    # Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_BRANCHES`
-    # variable with branch names as a single value or comma-separated list.
-    #
-    # Branch names must match exactly as they appear in the repository.
-    #
-    # Examples:
-    # VORTEX_DEPLOY_SKIP_BRANCHES=feature/test
-    # VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental
-    if echo ",${VORTEX_DEPLOY_SKIP_BRANCHES}," | grep -qF ",${VORTEX_DEPLOY_BRANCH},"; then
-      note "Found branch ${VORTEX_DEPLOY_BRANCH} in skip list."
-      note "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
-      exit 0
-    fi
-  fi
-fi
+// Check for conditional skip flags.
+if (!empty($deploy_allow_skip)) {
+  note('Found flag to skip a deployment.');
 
-if [ -n "${VORTEX_DEPLOY_ALLOW_LABEL}" ] && [ -n "${VORTEX_DEPLOY_PR}" ]; then
-  # Gate a pull request deployment on the presence of a label.
-  #
-  # The PR's labels are provided as a comma-separated list in
-  # $VORTEX_DEPLOY_PR_LABELS, populated by the CI provider from the PR event.
-  note "Found flag to gate deployment on the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
+  if (!empty($deploy_pr) && !empty($deploy_allow_skip_prs) && in_array($deploy_pr, $deploy_allow_skip_prs, TRUE)) {
+    note(sprintf('Found PR %s in skip list.', $deploy_pr));
+    note(sprintf('Skipping deployment %s.', implode(',', $deploy_types)));
+    quit(0);
+  }
 
-  if ! echo ",${VORTEX_DEPLOY_PR_LABELS}," | grep -qF ",${VORTEX_DEPLOY_ALLOW_LABEL},"; then
-    note "PR ${VORTEX_DEPLOY_PR} does not carry the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
-    note "Skipped deployment ${VORTEX_DEPLOY_TYPES}."
-    exit 0
-  fi
+  if (!empty($deploy_branch) && !empty($deploy_allow_skip_branches) && in_array($deploy_branch, $deploy_allow_skip_branches, TRUE)) {
+    note(sprintf('Found branch %s in skip list.', $deploy_branch));
+    note(sprintf('Skipping deployment %s.', implode(',', $deploy_types)));
+    quit(0);
+  }
+}
 
-  note "PR ${VORTEX_DEPLOY_PR} carries the '${VORTEX_DEPLOY_ALLOW_LABEL}' label."
-fi
+// Route to deployment scripts based on type.
+if (in_array('artifact', $deploy_types, TRUE)) {
+  if ($deploy_mode === 'tag') {
+    putenv('VORTEX_DEPLOY_ARTIFACT_DST_BRANCH=deployment/[tags:-]');
+  }
 
-if [ -z "${VORTEX_DEPLOY_TYPES##*artifact*}" ]; then
-  [ "${VORTEX_DEPLOY_MODE}" = "tag" ] && export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
-  "${SCRIPT_DIR}/deploy-artifact"
-fi
+  passthru(__DIR__ . '/deploy-artifact', $exit_code);
+  $exit_code && quit($exit_code);
+}
 
-if [ -z "${VORTEX_DEPLOY_TYPES##*webhook*}" ]; then
-  "${SCRIPT_DIR}/deploy-webhook"
-fi
+if (in_array('webhook', $deploy_types, TRUE)) {
+  passthru(__DIR__ . '/deploy-webhook', $exit_code);
+  $exit_code && quit($exit_code);
+}
 
-if [ -z "${VORTEX_DEPLOY_TYPES##*container_registry*}" ]; then
-  "${SCRIPT_DIR}/deploy-container-registry"
-fi
+if (in_array('container_registry', $deploy_types, TRUE)) {
+  passthru(__DIR__ . '/deploy-container-registry', $exit_code);
+  $exit_code && quit($exit_code);
+}
 
-if [ -z "${VORTEX_DEPLOY_TYPES##*lagoon*}" ]; then
-  "${SCRIPT_DIR}/deploy-lagoon"
-fi
+if (in_array('lagoon', $deploy_types, TRUE)) {
+  passthru(__DIR__ . '/deploy-lagoon', $exit_code);
+  $exit_code && quit($exit_code);
+}
+
+pass('Finished deployment.');
+quit(0);

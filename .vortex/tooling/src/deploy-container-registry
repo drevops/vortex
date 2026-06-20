@@ -1,104 +1,106 @@
-#!/usr/bin/env bash
-##
-# Deploy via pushing container images to the container registry.
-#
-# Push multiple container images by tagging services provided in the
-# $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Deploy via pushing container images to the container registry.
+ *
+ * Push multiple container images by tagging services provided in the
+ * $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Comma-separated map of container services and images to use for deployment in
-# format "service1=org/image1,service2=org/image2".
-VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP:-}"
+namespace DrevOps\VortexTooling;
 
-# The tag of the container image.
-VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG:-latest}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# Container registry name.
-#
-# Provide port, if required as `<server_name>:<port>`.
-VORTEX_DEPLOY_CONTAINER_REGISTRY="${VORTEX_DEPLOY_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
+// -----------------------------------------------------------------------------
 
-# The username to login into the container registry.
-VORTEX_DEPLOY_CONTAINER_REGISTRY_USER="${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
+// Container registry URL.
+//
+// Falls back to VORTEX_CONTAINER_REGISTRY, then defaults to docker.io.
+// Examples: docker.io, gcr.io, ghcr.io.
+$deploy_container_registry = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
 
-# The password to login into the container registry.
-VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
+// Container registry username.
+//
+// Falls back to VORTEX_CONTAINER_REGISTRY_USER.
+$deploy_container_registry_user = getenv_required('VORTEX_DEPLOY_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER');
 
-# ------------------------------------------------------------------------------
+// Container registry password.
+//
+// Falls back to VORTEX_CONTAINER_REGISTRY_PASS.
+$deploy_container_registry_pass = getenv_required('VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS');
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Service to image mapping.
+//
+// Format: service1=org/image1,service2=org/image2:tag
+// Example: web=myorg/myapp,db=myorg/mydb:latest.
+$deploy_container_registry_map = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', '');
 
-#shellcheck disable=SC2043
-for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Image tag to use if not specified in the mapping.
+$deploy_container_registry_image_tag = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG', 'latest');
 
-info "Started container registry deployment."
+// -----------------------------------------------------------------------------
 
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY." && exit 1
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_USER." && exit 1
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS." && exit 1
+info('Started container registry deployment.');
 
-# Only deploy if the map was provided, but do not fail if it has not as this
-# may be called as a part of another task.
-# @todo: Handle this better - empty $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP should use defaults.
-if [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ]; then
-  note "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
-  exit 0
-fi
+$deploy_container_registry_map = string_map_to_array($deploy_container_registry_map);
 
-services=()
-images=()
-# Parse and validate map.
-IFS=',' read -r -a values <<<"${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}"
-for value in "${values[@]}"; do
-  IFS='=' read -r -a parts <<<"${value}"
-  [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided." && exit 1
-  services+=("${parts[0]}")
-  images+=("${parts[1]}")
-done
+// Only deploy if the map was provided, but do not fail if it has not as this
+// may be called as a part of another task.
+if (empty($deploy_container_registry_map)) {
+  note('Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue.');
+  quit(0);
+}
 
-export VORTEX_CONTAINER_REGISTRY="${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
-export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}"
-export VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}"
-"$(dirname "${BASH_SOURCE[0]}")/login-container-registry"
+// Export variables and call login script.
+putenv('VORTEX_CONTAINER_REGISTRY=' . $deploy_container_registry);
+putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $deploy_container_registry_user);
+putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $deploy_container_registry_pass);
 
-for key in "${!services[@]}"; do
-  service="${services[${key}]}"
-  image="${images[${key}]}"
+passthru(__DIR__ . '/login-container-registry', $login_exit_code);
+if ($login_exit_code !== 0) {
+  quit($login_exit_code);
+}
 
-  task "Processing service ${service}."
-  # Check if the service is running.
-  cid=$(docker compose ps -q "${service}")
+foreach ($deploy_container_registry_map as $service => $image) {
+  task(sprintf('Processing service %s.', $service));
 
-  [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
-  note "Found \"${service}\" service container with id \"${cid}\"."
+  // Check if the service is running.
+  $cid = shell_exec(sprintf('docker compose ps -q %s', escapeshellarg($service)));
+  $cid = $cid !== NULL ? trim($cid) : '';
 
-  [ -n "${image##*:*}" ] && image="${image}:${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG}"
-  new_image="${VORTEX_DEPLOY_CONTAINER_REGISTRY}/${image}"
+  if (empty($cid)) {
+    fail(sprintf('Service "%s" is not running.', $service));
+  }
 
-  task "Committing container image with name \"${new_image}\"."
-  iid=$(docker commit "${cid}" "${new_image}")
-  iid="${iid#sha256:}"
-  note "Committed container image with id \"${iid}\"."
+  note(sprintf('Found "%s" service container with id "%s".', $service, $cid));
 
-  task "Pushing container image to the registry."
-  docker push "${new_image}"
-done
+  // Add tag if not present.
+  if (!str_contains($image, ':')) {
+    $image .= ':' . $deploy_container_registry_image_tag;
+  }
 
-pass "Finished container registry deployment."
+  $fully_qualified_image_reference = $deploy_container_registry . '/' . $image;
+
+  task(sprintf('Committing container image with name "%s".', $fully_qualified_image_reference));
+  $iid = shell_exec(sprintf('docker commit %s %s', escapeshellarg($cid), escapeshellarg($fully_qualified_image_reference)));
+  $iid = str_replace('sha256:', '', trim((string) $iid));
+
+  if (empty($iid)) {
+    fail('Failed to commit container image.');
+  }
+
+  note(sprintf('Committed container image with id "%s".', $iid));
+
+  task('Pushing container image to the registry.');
+  passthru(sprintf('docker push %s', escapeshellarg($fully_qualified_image_reference)), $push_exit_code);
+  if ($push_exit_code !== 0) {
+    quit($push_exit_code);
+  }
+}
+
+pass('Finished container registry deployment.');

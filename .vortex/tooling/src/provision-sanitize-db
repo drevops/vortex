@@ -1,69 +1,68 @@
-#!/usr/bin/env bash
-##
-# Sanitize database during provision.
-#
-# shellcheck disable=SC1090,SC1091,SC2086
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Sanitize database during provision.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Database sanitized account email replacement.
-VORTEX_PROVISION_SANITIZE_DB_EMAIL="${VORTEX_PROVISION_SANITIZE_DB_EMAIL:-user+%uid@localhost}"
+namespace DrevOps\VortexTooling;
 
-# Database sanitized account password replacement.
-VORTEX_PROVISION_SANITIZE_DB_PASSWORD="${VORTEX_PROVISION_SANITIZE_DB_PASSWORD:-${RANDOM}${RANDOM}${RANDOM}${RANDOM}}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# Replace username with mail.
-VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL="${VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL:-0}"
+// -----------------------------------------------------------------------------
 
-# Path to file with custom sanitization SQL queries.
-#
-# To skip custom sanitization, remove the file defined in
-# VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE variable from the codebase.
-VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE="${VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE:-./scripts/sanitize.sql}"
+// Database sanitized account email replacement.
+$sanitize_email = getenv_default('VORTEX_PROVISION_SANITIZE_DB_EMAIL', 'user+%uid@localhost');
 
-# ------------------------------------------------------------------------------
+// Database sanitized account password replacement.
+$sanitize_password = getenv_default('VORTEX_PROVISION_SANITIZE_DB_PASSWORD', (string) mt_rand());
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Replace username with mail.
+$replace_username = getenv_default('VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL', '0');
 
-info "Sanitizing database."
+// Path to file with custom sanitization SQL queries.
+$additional_file = getenv_default('VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE', './scripts/sanitize.sql');
 
-drush() { ./vendor/bin/drush -y "$@"; }
+// Admin email for user 1.
+$admin_email = getenv_default('DRUPAL_ADMIN_EMAIL', '');
 
-# Always sanitize password and email using standard methods.
-drush sql:sanitize --sanitize-password="${VORTEX_PROVISION_SANITIZE_DB_PASSWORD}" --sanitize-email="${VORTEX_PROVISION_SANITIZE_DB_EMAIL}"
-pass "Sanitized database using drush sql:sanitize."
+// -----------------------------------------------------------------------------
 
-if [ "${VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL:-}" = "1" ]; then
-  drush sql:query "UPDATE \`users_field_data\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';"
-  pass "Updated username with user email."
-fi
+info('Sanitizing database.');
 
-# Sanitize using additional SQL commands provided in file.
-if [ -f "${VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE:-}" ]; then
-  # The file path is relative to the project root, but drush expects it to be
-  # relative to the Drupal root.
-  drush sql:query --file="${VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE/.\//../}"
-  pass "Applied custom sanitization commands from file."
-fi
+// Always sanitize password and email using standard methods.
+drush(sprintf("sql:sanitize --sanitize-password='%s' --sanitize-email='%s'", $sanitize_password, $sanitize_email));
+pass('Sanitized database using drush sql:sanitize.');
 
-# User mail and name for use 0 could have been sanitized - resetting it.
-drush sql:query "UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
-drush sql:query "UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
-pass "Reset user 0 username and email."
+if ($replace_username === '1') {
+  drush("sql:query \"UPDATE \\`users_field_data\\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
+  pass('Updated username with user email.');
+}
 
-# User email could have been sanitized - setting it back to a pre-defined email.
-if [ -n "${DRUPAL_ADMIN_EMAIL:-}" ]; then
-  drush sql:query "UPDATE \`users_field_data\` SET mail = '${DRUPAL_ADMIN_EMAIL:-}' WHERE uid = '1';"
-  pass "Updated user 1 email."
-fi
+// Sanitize using additional SQL commands provided in file.
+if ($additional_file !== '' && file_exists($additional_file)) {
+  // The file path is relative to the project root, but drush expects it to be
+  // relative to the Drupal root.
+  $drush_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
+  drush('sql:query --file=' . escapeshellarg($drush_file));
+  pass('Applied custom sanitization commands from file.');
+}
 
-echo
+// User mail and name for user 0 could have been sanitized - resetting it.
+drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
+drush("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"");
+pass('Reset user 0 username and email.');
+
+// User email could have been sanitized - setting it back to a pre-defined email.
+if ($admin_email !== '') {
+  drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", $admin_email));
+  pass('Updated user 1 email.');
+}
+
+echo PHP_EOL;

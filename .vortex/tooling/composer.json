@@ -1,7 +1,7 @@
 {
     "name": "drevops/vortex-tooling",
-    "description": "Vortex 2.x tooling: shell scripts for Drupal projects (deploy, notify, provision, database operations, etc.).",
-    "license": "GPL-3.0-or-later",
+    "description": "Vortex 2.x tooling: scripts for Drupal projects (deploy, notify, provision, database operations, etc.).",
+    "license": "GPL-2.0-or-later",
     "type": "library",
     "authors": [
         {
@@ -19,8 +19,55 @@
     "require": {
         "php": ">=8.2"
     },
+    "require-dev": {
+        "alexskrypnyk/file": "^0.15",
+        "alexskrypnyk/phpunit-helpers": "^0.14.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
+        "drevops/phpcs-standard": "^0.5",
+        "drupal/coder": "^9@alpha",
+        "ergebnis/composer-normalize": "^2.50.0",
+        "php-mock/php-mock-phpunit": "^2.15",
+        "phpstan/phpstan": "^2.1.39",
+        "phpunit/phpunit": "^12.5.14",
+        "rector/rector": "^2.3.7",
+        "squizlabs/php_codesniffer": "^4.0.1"
+    },
+    "minimum-stability": "alpha",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\VortexTooling\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\VortexTooling\\Tests\\": "tests/"
+        }
+    },
     "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "bump-after-update": true,
+        "discard-changes": true,
         "process-timeout": 0,
         "sort-packages": true
+    },
+    "scripts": {
+        "check-no-exit": "php check-no-exit.php",
+        "lint": [
+            "phpcs",
+            "phpstan --memory-limit=2G",
+            "rector --dry-run",
+            "@check-no-exit"
+        ],
+        "lint-fix": [
+            "rector",
+            "phpcbf"
+        ],
+        "reset": "rm -Rf vendor",
+        "test": "phpunit --no-coverage",
+        "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit"
     }
 }

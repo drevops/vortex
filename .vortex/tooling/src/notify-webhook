@@ -1,139 +1,129 @@
-#!/usr/bin/env bash
-##
-# Notification dispatch to any webhook.
-#
-# shellcheck disable=SC1090,SC1091,SC2016
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Notification dispatch to any webhook.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Webhook notification project name.
-VORTEX_NOTIFY_WEBHOOK_PROJECT="${VORTEX_NOTIFY_WEBHOOK_PROJECT:-${VORTEX_NOTIFY_PROJECT:-}}"
+namespace DrevOps\VortexTooling;
 
-# Webhook notification deployment label (branch name, PR number, or custom identifier).
-VORTEX_NOTIFY_WEBHOOK_LABEL="${VORTEX_NOTIFY_WEBHOOK_LABEL:-${VORTEX_NOTIFY_LABEL:-}}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# Webhook notification environment URL.
-VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL="${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL:-${VORTEX_NOTIFY_ENVIRONMENT_URL:-}}"
+// -----------------------------------------------------------------------------
+// Branch filter gate.
+//
+// Comma-separated list of branch names. When set, Webhook notifications are
+// only sent for deployments on the listed branches. When empty, no filtering
+// is applied. Checked before required variable validation so channels not
+// configured for the current branch can short-circuit cleanly.
+// -----------------------------------------------------------------------------
 
-# Webhook notification login URL.
-VORTEX_NOTIFY_WEBHOOK_LOGIN_URL="${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL:-${VORTEX_NOTIFY_LOGIN_URL:-}}"
+$notify_webhook_branches = getenv_default('VORTEX_NOTIFY_WEBHOOK_BRANCHES', '');
+if ($notify_webhook_branches !== '') {
+  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
+  $branch_list = array_map(trim(...), explode(',', $notify_webhook_branches));
+  if (!in_array($current_branch, $branch_list, TRUE)) {
+    pass(sprintf("Skipping Webhook notification for branch '%s'.", $current_branch));
+    quit();
+  }
+}
 
-# Webhook notification event type. Can be 'pre_deployment' or 'post_deployment'.
-VORTEX_NOTIFY_WEBHOOK_EVENT="${VORTEX_NOTIFY_WEBHOOK_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
+// -----------------------------------------------------------------------------
 
-# Webhook notification endpoint URL.
-VORTEX_NOTIFY_WEBHOOK_URL="${VORTEX_NOTIFY_WEBHOOK_URL:-}"
+// Webhook notification project name.
+$notify_project = getenv_required('VORTEX_NOTIFY_WEBHOOK_PROJECT', 'VORTEX_NOTIFY_PROJECT');
 
-# Webhook notification HTTP method like POST, GET, PUT.
-VORTEX_NOTIFY_WEBHOOK_METHOD="${VORTEX_NOTIFY_WEBHOOK_METHOD:-POST}"
+// Webhook notification deployment label (branch name, PR number, or custom).
+$notify_label = getenv_required('VORTEX_NOTIFY_WEBHOOK_LABEL', 'VORTEX_NOTIFY_LABEL');
 
-# Webhook notification pipe-separated headers.
-# Separate multiple headers with a pipe `|`.
-# Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
-VORTEX_NOTIFY_WEBHOOK_HEADERS="${VORTEX_NOTIFY_WEBHOOK_HEADERS:-Content-type: application/json}"
+// Webhook notification environment URL.
+$notify_env_url = getenv_required('VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-# Webhook notification JSON payload.
-# Available tokens: %message%, %project%, %label%, %timestamp%, %environment_url%, %login_url%
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-}"
+// Webhook notification login URL.
+$notify_login_url = getenv_default('VORTEX_NOTIFY_WEBHOOK_LOGIN_URL', 'VORTEX_NOTIFY_LOGIN_URL', $notify_env_url . '/user/login');
 
-# Webhook notification expected HTTP status.
-VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS="${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS:-200}"
+// Webhook notification event type.
+//
+// Can be 'pre_deployment' or 'post_deployment'.
+$notify_event = getenv_default('VORTEX_NOTIFY_WEBHOOK_EVENT', 'VORTEX_NOTIFY_EVENT', 'post_deployment');
 
-# Webhook notification branch filter.
-#
-# Comma-separated list of branch names. When set, webhook notifications
-# are only sent for deployments on the listed branches. When empty, no
-# filtering is applied.
-VORTEX_NOTIFY_WEBHOOK_BRANCHES="${VORTEX_NOTIFY_WEBHOOK_BRANCHES:-}"
+// Webhook notification endpoint URL.
+$webhook_url = getenv_required('VORTEX_NOTIFY_WEBHOOK_URL');
 
-# ------------------------------------------------------------------------------
+// Webhook notification HTTP method like POST, GET, PUT.
+$webhook_method = getenv_default('VORTEX_NOTIFY_WEBHOOK_METHOD', 'POST');
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Webhook notification expected HTTP status.
+$webhook_expected_status = getenv_default('VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS', '200');
 
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Webhook notification pipe-separated headers.
+//
+// Separate multiple headers with a pipe `|`.
+// Example: `Content-type: application/json|Authorization: Bearer API_KEY`.
+$webhook_headers = getenv_default('VORTEX_NOTIFY_WEBHOOK_HEADERS', 'Content-type: application/json');
 
-if [ -n "${VORTEX_NOTIFY_WEBHOOK_BRANCHES}" ]; then
-  if ! echo ",${VORTEX_NOTIFY_WEBHOOK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped webhook notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
-    exit 0
-  fi
-fi
+// Webhook notification message template.
+$webhook_message = getenv_default('VORTEX_NOTIFY_WEBHOOK_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%");
 
-[ -z "${VORTEX_NOTIFY_WEBHOOK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_PROJECT." && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LABEL." && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_LOGIN_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_METHOD}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_METHOD." && exit 1
-[ -z "${VORTEX_NOTIFY_WEBHOOK_HEADERS}" ] && fail "Missing required value for VORTEX_NOTIFY_WEBHOOK_HEADERS." && exit 1
+// Webhook notification JSON payload.
+//
+// Available tokens:
+// - %project% - Project name
+// - %label% - Deployment label
+// - %timestamp% - Deployment timestamp
+// - %environment_url% - Environment URL
+// - %login_url% - Login URL.
+$webhook_payload = getenv_default('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"channel": "Channel 1", "message": "%message%", "project": "%project%", "label": "%label%", "timestamp": "%timestamp%", "environment_url": "%environment_url%", "login_url": "%login_url%"}');
 
-info "Started webhook notification."
+// -----------------------------------------------------------------------------
 
-# Skip if this is a pre-deployment event (webhook only for post-deployment).
-if [ "${VORTEX_NOTIFY_WEBHOOK_EVENT}" = "pre_deployment" ]; then
-  pass "Skipped webhook notification for pre_deployment event."
-  exit 0
-fi
+info('Started Webhook notification.');
 
-# Set default payload template if not provided.
-if [ -z "${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" ]; then
-  VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Channel 1", "message": "%message%", "project": "%project%", "label": "%label%", "timestamp": "%timestamp%", "environment_url": "%environment_url%", "login_url": "%login_url%"}'
-fi
+if ($notify_event === 'pre_deployment') {
+  pass('Skipping Webhook notification for pre_deployment event.');
+  quit();
+}
 
-# Build and replace tokens (%variable_name%) for webhook payload.
-timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
-message='## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%'
+$webhook_payload = replace_tokens($webhook_payload, [
+  'message' => $webhook_message,
+  'timestamp' => date('d/m/Y H:i:s T'),
+  'label' => $notify_label,
+  'project' => $notify_project,
+  'environment_url' => $notify_env_url,
+  'login_url' => $notify_login_url,
+]);
 
-# JSON-escape each replacement value before substituting into JSON template.
-# shellcheck disable=SC2016
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${message}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%message%", $escaped, getenv("TEMPLATE"));')
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${timestamp}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%timestamp%", $escaped, getenv("TEMPLATE"));')
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_LABEL}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%label%", $escaped, getenv("TEMPLATE"));')
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_PROJECT}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%project%", $escaped, getenv("TEMPLATE"));')
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%environment_url%", $escaped, getenv("TEMPLATE"));')
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%login_url%", $escaped, getenv("TEMPLATE"));')
+// Sanitize webhook URL (extract domain, hide path that may contain secrets).
+$webhook_domain = preg_replace('|(https?://[^/]+).*|', '$1', $webhook_url);
 
-# Sanitize webhook URL (extract domain, hide path that may contain secrets).
-webhook_domain=$(echo "${VORTEX_NOTIFY_WEBHOOK_URL}" | sed -E 's|(https?://[^/]+).*|\1|')
+note('Webhook notification summary:');
+note('Project            : ' . $notify_project);
+note('Deployment         : ' . $notify_label);
+note('Environment URL    : ' . $notify_env_url);
+note('Login URL          : ' . $notify_login_url);
+note('Webhook URL        : %s/***', $webhook_domain);
+note('Method             : ' . $webhook_method);
+note('Headers            : ' . $webhook_headers);
+note('Expected Status    : ' . $webhook_expected_status);
+note('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
 
-info "Webhook notification summary:"
-note "Project            : ${VORTEX_NOTIFY_WEBHOOK_PROJECT}"
-note "Deployment         : ${VORTEX_NOTIFY_WEBHOOK_LABEL}"
-note "Environment URL    : ${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}"
-note "Login URL          : ${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}"
-note "Webhook URL        : ${webhook_domain}/***"
-note "Method             : ${VORTEX_NOTIFY_WEBHOOK_METHOD}"
-note "Headers            : ${VORTEX_NOTIFY_WEBHOOK_HEADERS}"
-note "Expected Status    : ${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS}"
-note "Payload (first 200): ${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:0:200}..."
+task('Sending webhook notification to %s', $webhook_domain);
 
-# Build headers.
-headers=()
-IFS=\| read -ra webhook_headers <<<"${VORTEX_NOTIFY_WEBHOOK_HEADERS}"
-for item in "${webhook_headers[@]}"; do
-  headers+=('-H' "${item}")
-done
+// Send webhook notification.
+$response = request($webhook_url, [
+  'method' => $webhook_method,
+  'headers' => array_map(trim(...), explode('|', $webhook_headers)),
+  'body' => $webhook_payload,
+]);
 
-# Make curl request.
-if ! curl -L -s -o /dev/null -w '%{http_code}' \
-  -X "${VORTEX_NOTIFY_WEBHOOK_METHOD}" \
-  "${headers[@]}" \
-  -d "${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" \
-  "${VORTEX_NOTIFY_WEBHOOK_URL}" | grep -q "${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS}"; then
-  fail "Unable to send notification to webhook ${VORTEX_NOTIFY_WEBHOOK_URL}."
-  exit 1
-fi
+if ($response['status'] !== (int) $webhook_expected_status) {
+  fail('Webhook notification failed. Expected status %s but got %s.', $webhook_expected_status, $response['status']);
+}
 
-pass "Finished webhook notification."
+pass('Webhook notification sent successfully with status %s.', $response['status']);
+
+info('Finished Webhook notification.');

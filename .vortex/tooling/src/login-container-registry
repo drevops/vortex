@@ -1,62 +1,48 @@
-#!/usr/bin/env bash
-##
-# Login to the container registry.
-#
-# Supported registries:
-# - docker.io
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# @todo Add support for more registries.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Login to the container registry.
+ *
+ * Supported registries:
+ * - docker.io.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Container registry name.
-#
-# Provide port, if required as `<server_name>:<port>`.
-VORTEX_LOGIN_CONTAINER_REGISTRY="${VORTEX_LOGIN_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
+namespace DrevOps\VortexTooling;
 
-# The username to login into the container registry.
-#
-# If not provided, the script will skip the login step.
-VORTEX_LOGIN_CONTAINER_REGISTRY_USER="${VORTEX_LOGIN_CONTAINER_REGISTRY_USER:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# The password to login into the container registry.
-#
-# If not provided, the script will skip the login step.
-VORTEX_LOGIN_CONTAINER_REGISTRY_PASS="${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
+// -----------------------------------------------------------------------------
 
-# Path to Docker configuration directory.
-VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG="${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG:-${DOCKER_CONFIG:-${HOME}/.docker}}"
+// Container registry URL.
+//
+// Examples: docker.io, gcr.io, ghcr.io.
+$registry = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
 
-# ------------------------------------------------------------------------------
+// Container registry username.
+$user = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER', NULL);
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Container registry password.
+$pass = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS', NULL);
 
-#shellcheck disable=SC2043
-for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Docker configuration directory.
+$docker_config = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG', 'DOCKER_CONFIG', getenv('HOME') . '/.docker');
 
-[ -z "$(echo "${VORTEX_LOGIN_CONTAINER_REGISTRY}" | xargs)" ] && fail "VORTEX_LOGIN_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY should not be empty." && exit 1
+// -----------------------------------------------------------------------------
 
-if [ -f "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json" ] && grep -q "${VORTEX_LOGIN_CONTAINER_REGISTRY}" "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json"; then
-  note "Already logged in to the registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
-elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" ]; then
-  task "Logging in to registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
-  echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_LOGIN_CONTAINER_REGISTRY}"
-else
-  note "Skipped login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
-fi
+$config_file = $docker_config . '/config.json';
+if (file_exists($config_file) && str_contains(file_get_contents($config_file), $registry)) {
+  note('Already logged in to the registry "' . $registry . '".');
+}
+elseif (!empty($user) && !empty($pass)) {
+  task('Logging in to registry "' . $registry . '".');
+  $cmd = sprintf('echo %s | docker login --username %s --password-stdin %s', escapeshellarg($pass), escapeshellarg($user), escapeshellarg($registry));
+  passthru_or_fail($cmd);
+}
+else {
+  note('Skipping login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');
+}

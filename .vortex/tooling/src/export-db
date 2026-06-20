@@ -1,54 +1,52 @@
-#!/usr/bin/env bash
-##
-# Export database.
-#
-# This is a router script to call relevant scripts based on type.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Export database.
+ *
+ * This is a router script to call relevant scripts based on type.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Name of the database container image to use. Uncomment to use an image with
-# a DB data loaded into it.
-# @see https://github.com/drevops/mariadb-drupal-data to seed your DB image.
-VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE:-${VORTEX_DB_IMAGE:-}}"
+namespace DrevOps\VortexTooling;
 
-# ------------------------------------------------------------------------------
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// -----------------------------------------------------------------------------
 
-#shellcheck disable=SC2043
-for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Name of the database container image to use.
+$db_image = getenv_default('VORTEX_EXPORT_DB_IMAGE', 'VORTEX_DB_IMAGE', '');
 
-info "Started database export."
+// Whether to deploy the container image to registry after export.
+$registry_deploy = getenv_default('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED', '0');
 
-if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
-  # Export database as a file.
-  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file "$@"
-else
-  # Export database as a container image.
-  VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/export-db-image" "$@"
+// -----------------------------------------------------------------------------
 
-  # Deploy container image.
-  # @todo Move deployment into a separate script.
-  if [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
-    VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_EXPORT_DB_IMAGE} \
-      "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry"
-  fi
-fi
+command_must_exist('docker');
 
-pass "Finished database export."
+info('Started database export.');
+
+if ($db_image === '') {
+  // Export database as a file.
+  // Script runs inside the container - use path relative to project root.
+  $script_rel = ltrim(str_replace((string) getcwd(), '', __DIR__), '/');
+  passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
+}
+else {
+  // Export database as a container image.
+  putenv('VORTEX_EXPORT_DB_IMAGE=' . $db_image);
+  passthru_or_fail(__DIR__ . '/export-db-image ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as image.');
+
+  // Deploy container image.
+  if ($registry_deploy === '1') {
+    putenv('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=' . $db_image);
+    passthru_or_fail(__DIR__ . '/deploy-container-registry', 'Failed to deploy container image to registry.');
+  }
+}
+
+pass('Finished database export.');
