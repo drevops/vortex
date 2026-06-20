@@ -12,8 +12,8 @@ vortex/
 │   ├── installer/              # Template installer
 │   ├── tests/                  # Template tests (PHPUnit)
 │   └── tooling/                # 'drevops/vortex-tooling' Composer package
-│       ├── src/                # Shipped scripts
-│       ├── tests/              # BATS unit tests
+│       ├── src/                # Shipped PHP scripts
+│       ├── tests/              # PHPUnit unit tests
 │       └── playground/         # Manual integration scripts
 └── [root files]                # The actual Drupal template
 ```
@@ -28,7 +28,7 @@ test harness.
 | `docs/`      | Docusaurus, Jest         | vortextemplate.com            |
 | `installer/` | Symfony Console, PHPUnit | Template customization        |
 | `tests/`     | PHPUnit                  | Template integration testing  |
-| `tooling/`   | Bash, BATS               | 'drevops/vortex-tooling' pkg  |
+| `tooling/`   | PHP, PHPUnit             | 'drevops/vortex-tooling' pkg  |
 
 Each subsystem has its own CLAUDE.md - read it when working there:
 
@@ -61,33 +61,35 @@ symlink to `.vortex/tooling/`.
 
 **Tests**:
 
-- **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts with
-  external commands mocked. Run with `ahoy test-bats` from `.vortex/`.
+- **Unit** - PHPUnit tests in `tooling/tests/` cover the shipped scripts with
+  external commands mocked. Run with `ahoy test-tooling` from `.vortex/`.
 - **Integration** - the scripts are exercised end-to-end by the template's
   PHPUnit functional tests in `.vortex/tests/`.
-- **Manual** - `tooling/playground/` holds scripts that hit live services
-  (Slack, JIRA, New Relic). Not automated; see `tooling/playground/README.md`.
+- **Manual** - `tooling/playground/` holds PHP scripts that hit live services
+  (Slack, JIRA, New Relic). Not automated.
 
-**Script pattern** (shipped tooling scripts and `scripts/` provision subscripts):
+**Tooling script pattern** (shipped PHP scripts):
 
-```bash
-#!/usr/bin/env bash
-# Environment loading
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && rm "${t}"
+```php
+#!/usr/bin/env php
+<?php
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Variables with defaults
-VAR="${VAR:-default}"
+namespace DrevOps\VortexTooling;
 
-# Helpers
-info() { printf "[INFO] %s\n" "${1}"; }
-task() { printf "    > %s\n" "${1}"; }
-note() { printf "      %s\n" "${1}"; }
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
 
-# Main execution
+// Variables via getenv_default()/getenv_required() (with fallback chains).
+$var = getenv_default('VAR', 'default');
+
+// Output and utilities come from the shared helpers: info(), task(), note(),
+// pass(), fail(), request_get()/request_post(), command_must_exist(), etc.
 ```
+
+Shared helpers live in `src/helpers.php`; project-level overrides hook in via
+`execute_override()`. The `scripts/` provision subscripts remain Bash.
 
 **Publishing**: the version is injected at publish time - never hardcode
 `version` in the package `composer.json`. While `2.0` is unreleased, the
@@ -106,8 +108,9 @@ development. Once a `2.0` release is published, switch the constraint to a plain
 cd .vortex
 ahoy install          # Install all dependencies
 ahoy update-snapshots # Update fixtures (see Snapshots below)
-ahoy lint-scripts     # Lint scripts
-ahoy test-bats        # Run BATS unit tests
+ahoy lint-scripts     # Lint Bash scripts
+ahoy lint-tooling     # Lint the PHP tooling package
+ahoy test-tooling     # Run PHPUnit tests for the tooling package
 ahoy update-docs      # Regenerate docs variables from scripts
 ahoy lint-markdown    # Lint markdown files
 ```
@@ -135,11 +138,11 @@ both bypass part of the workflow and produce partial, inconsistent fixtures.
 
 When updating template scripts:
 
-1. Modify the script in `.vortex/tooling/src/` (shipped) or `scripts/` (provision subscripts).
-2. Run `ahoy lint-scripts`.
+1. Modify the script in `.vortex/tooling/src/` (shipped PHP) or `scripts/` (Bash provision subscripts).
+2. Run `ahoy lint-tooling` (PHP tooling) or `ahoy lint-scripts` (Bash scripts).
 3. Run `ahoy update-docs`.
-4. Update BATS tests in `.vortex/tooling/tests/unit/`.
-5. Run `ahoy test-bats`.
+4. Update PHPUnit tests in `.vortex/tooling/tests/`.
+5. Run `ahoy test-tooling`.
 6. **Commit.**
 7. Run `ahoy update-snapshots` and commit the regenerated fixtures.
 

@@ -50,18 +50,9 @@ done < <(
     "${ROOT_DIR}"/.circleci \
     "${ROOT_DIR}"/hooks/library \
     "${ROOT_DIR}"/.vortex/docs \
-    "${ROOT_DIR}"/.vortex/tooling/tests \
-    "${ROOT_DIR}"/.vortex/tooling/playground \
     -type f \
     \( -name "*.sh" -or -name "*.bash" -or -name "*.bats" \) \
     -not -path "*vendor*" -not -path "*node_modules*" -not -path "*fixtures*" \
-    -print0
-
-  # Tooling scripts in '.vortex/tooling/src/' are extensionless executables;
-  # include them unconditionally.
-  find \
-    "${ROOT_DIR}"/.vortex/tooling/src \
-    -type f \
     -print0
 )
 

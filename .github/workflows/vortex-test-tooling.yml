@@ -1,0 +1,103 @@
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+name: Vortex - Test tooling
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+      - project/**
+      - '*.x'
+  pull_request:
+    branches:
+      - main
+      - feature/**
+      - bugfix/**
+      - release/**
+      - project/**
+      - '*.x'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vortex-test-tooling:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
+
+    strategy:
+      matrix:
+        php-versions: ['8.3', '8.4', '8.5']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: pcov
+          ini-values: pcov.directory=.
+
+      - name: Set default branch name
+        run: git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
+
+      - name: Install dependencies
+        run: composer install
+        working-directory: .vortex/tooling
+
+      - name: Validate Composer configuration is normalized
+        run: composer normalize --dry-run
+        working-directory: .vortex/tooling
+
+      - name: Check coding standards
+        run: composer lint
+        working-directory: .vortex/tooling
+
+      - name: Run tests
+        run: composer test-coverage
+        working-directory: .vortex/tooling
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+
+      - name: Run playground scripts
+        run: |
+          echo "Running playground scripts for manual verification..."
+          cd playground
+          for script in *.php; do
+            if [ -f "$script" ]; then
+              echo ""
+              echo "========================================"
+              echo "Running: $script"
+              echo "========================================"
+              if [[ "$script" == *"request"* ]]; then
+                # Network-dependent scripts, allow failure.
+                ./"$script" || echo "$script failed (network required)"
+              else
+                # All other scripts should succeed.
+                ./"$script"
+              fi
+              echo ""
+            fi
+          done
+        working-directory: .vortex/tooling
+
+      - name: Upload coverage reports as an artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ${{ github.job }}-code-coverage-report-${{ matrix.php-versions }}
+          path: .vortex/tooling/.logs
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        continue-on-error: true
+        with:
+          files: .vortex/tooling/.logs/cobertura.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
