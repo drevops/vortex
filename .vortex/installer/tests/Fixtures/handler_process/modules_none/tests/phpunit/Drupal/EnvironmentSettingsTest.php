@@ -17,16 +17,17 @@
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-@@ -89,8 +78,6 @@
+@@ -89,9 +78,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
+-      'devel',
 -      'generated_content',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -152,18 +139,7 @@
+@@ -153,18 +139,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -45,16 +46,17 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-@@ -172,8 +148,6 @@
+@@ -173,9 +148,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
+-      'devel',
 -      'generated_content',
 -      'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -206,23 +180,9 @@
+@@ -208,23 +180,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -78,16 +80,17 @@
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
-@@ -229,8 +189,6 @@
+@@ -231,9 +189,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
+-      'devel',
 -      'generated_content',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -263,23 +221,9 @@
+@@ -266,23 +221,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -111,16 +114,17 @@
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
-@@ -286,8 +230,6 @@
+@@ -289,9 +230,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
+-      'devel',
 -      'generated_content',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -322,23 +264,9 @@
+@@ -326,23 +264,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -144,10 +148,11 @@
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
-@@ -345,8 +273,6 @@
+@@ -349,9 +273,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
+-      'devel',
 -      'generated_content',
 -      'testmode',
      ];

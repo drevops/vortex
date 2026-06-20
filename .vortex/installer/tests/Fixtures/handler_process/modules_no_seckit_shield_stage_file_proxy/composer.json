@@ -1,4 +1,4 @@
-@@ -26,9 +26,6 @@
+@@ -27,9 +27,6 @@
          "drupal/robotstxt": "__VERSION__",
          "drupal/search_api": "__VERSION__",
          "drupal/search_api_solr": "__VERSION__",

@@ -6,11 +6,10 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -163,15 +162,6 @@
-       - name: Lint code with Gherkin Lint
+@@ -164,15 +163,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
--
+ 
 -      - name: Lint module code with NodeJS linters
 -        run: docker compose exec -T cli bash -c "yarn run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
@@ -19,6 +18,21 @@
 -        if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
 -        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
- 
+-
    test:
      runs-on: ubuntu-latest
+     if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+@@ -390,13 +380,6 @@
+           fi
+         env:
+           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
+-
+-      - name: Validate Single Directory Components
+-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        run: |
+-          [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
+-          docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+-        continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
+ 
+       - name: Test with Behat
+         run: |

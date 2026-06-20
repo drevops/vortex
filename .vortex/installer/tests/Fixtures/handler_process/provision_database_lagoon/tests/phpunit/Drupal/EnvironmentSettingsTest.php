@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -365,6 +545,256 @@
+@@ -370,6 +550,260 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -229,6 +229,7 @@
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -292,6 +293,7 @@
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -355,6 +357,7 @@
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_master';
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -416,6 +419,7 @@
 +    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_production';
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
