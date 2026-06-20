@@ -16,6 +16,7 @@
         "drupal/core-composer-scaffold": "__VERSION__",
         "drupal/core-recommended": "__VERSION__",
         "drupal/deploy_steps": "__VERSION__",
+        "drupal/devel": "__VERSION__",
         "drupal/drupal_helpers": "__VERSION__",
         "drupal/environment_indicator": "__VERSION__",
         "drupal/generated_content": "__VERSION__",
@@ -45,6 +46,7 @@
         "drevops/phpcs-standard": "__VERSION__",
         "drupal/coder": "__VERSION__",
         "drupal/drupal-extension": "__VERSION__",
+        "drupal/sdc_devel": "__VERSION__",
         "ergebnis/composer-normalize": "__VERSION__",
         "lullabot/mink-selenium2-driver": "__VERSION__",
         "lullabot/php-webdriver": "__VERSION__",
@@ -89,14 +91,19 @@
             "pyrech/composer-changelogs": true,
             "tbachert/spi": true
         },
-        "audit": {
-            "abandoned": "report",
-            "block-insecure": true
-        },
         "bump-after-update": true,
         "discard-changes": true,
         "platform": {
             "php": "__VERSION__"
+        },
+        "policy": {
+            "advisories": {
+                "block": false,
+                "audit": "fail"
+            },
+            "abandoned": {
+                "audit": "report"
+            }
         },
         "sort-packages": true
     },

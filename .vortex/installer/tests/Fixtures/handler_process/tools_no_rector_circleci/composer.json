@@ -1,4 +1,4 @@
-@@ -50,7 +50,6 @@
+@@ -52,7 +52,6 @@
          "lullabot/php-webdriver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
@@ -6,7 +6,7 @@
          "phpcompatibility/php-compatibility": "__VERSION__",
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
-@@ -57,7 +56,6 @@
+@@ -59,7 +58,6 @@
          "phpstan/phpstan": "__VERSION__",
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",

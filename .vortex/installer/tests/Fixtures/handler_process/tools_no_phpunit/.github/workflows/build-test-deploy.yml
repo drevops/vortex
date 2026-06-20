@@ -62,10 +62,10 @@
 -        env:
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
-       - name: Test with Behat
+       - name: Validate Single Directory Components
+         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-           # shellcheck disable=SC2170
-@@ -421,16 +361,6 @@
+@@ -428,16 +368,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

@@ -49,7 +49,7 @@
    }
  
    /**
-@@ -363,6 +407,331 @@
+@@ -368,6 +412,337 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
@@ -90,6 +90,7 @@
 +
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -143,6 +144,7 @@
 +
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -196,6 +198,7 @@
 +
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -246,6 +249,7 @@
 +
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -300,6 +304,7 @@
 +
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];
@@ -361,6 +366,7 @@
 +
 +    $settings['auto_create_htaccess'] = TRUE;
 +    $settings['config_exclude_modules'] = [
++      'devel',
 +      'generated_content',
 +      'testmode',
 +    ];

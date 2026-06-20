@@ -1,6 +1,6 @@
-@@ -83,8 +83,6 @@
+@@ -87,8 +87,6 @@
  
-     $this->moduleInstaller->install(['search_api', 'search_api_solr']);
+     $this->moduleInstaller->install(['devel']);
  
 -    $this->moduleInstaller->install(['sw_search']);
 -
