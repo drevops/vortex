@@ -1,0 +1,126 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Notification dispatch to Diffy for visual regression testing.
+ *
+ * Triggers the 'test-vr.yml' GitHub Actions workflow via the GitHub
+ * 'repository_dispatch' API. The workflow then runs the actual Diffy
+ * comparison and posts the result back to the PR (when applicable).
+ *
+ * This script does NOT call the Diffy API directly. It only dispatches a
+ * GitHub Actions workflow with a payload that the workflow consumes.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+execute_override(basename(__FILE__));
+
+// -----------------------------------------------------------------------------
+
+// Diffy notification GitHub token. Needs 'repo' scope to call the
+// 'repository_dispatch' API endpoint.
+$diffy_token = getenv_default('VORTEX_NOTIFY_DIFFY_TOKEN', 'VORTEX_NOTIFY_GITHUB_TOKEN', 'GITHUB_TOKEN', '');
+
+// Diffy notification GitHub repository in owner/repo format.
+$diffy_repository = getenv_default('VORTEX_NOTIFY_DIFFY_REPOSITORY', 'VORTEX_NOTIFY_GITHUB_REPOSITORY', '');
+
+// Diffy notification git branch name.
+$diffy_branch = getenv_default('VORTEX_NOTIFY_DIFFY_BRANCH', 'VORTEX_NOTIFY_BRANCH', '');
+
+// Diffy notification target environment URL to compare against the source.
+$diffy_environment_url = getenv_default('VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL', '');
+
+// Diffy notification deployment label, used as the diff name in the Diffy UI.
+$diffy_label = getenv_default('VORTEX_NOTIFY_DIFFY_LABEL', 'VORTEX_NOTIFY_LABEL', '');
+
+// Diffy notification event type. Can be 'pre_deployment' or 'post_deployment'.
+$diffy_event = getenv_default('VORTEX_NOTIFY_DIFFY_EVENT', 'VORTEX_NOTIFY_EVENT', '');
+
+// Diffy notification source environment name (the Diffy baseline). Diffy
+// resolves the URL from its own project configuration.
+$diffy_source_env = getenv_default('VORTEX_NOTIFY_DIFFY_SOURCE_ENV', 'production');
+
+// GitHub 'repository_dispatch' event type the test-vr.yml workflow listens for.
+$diffy_event_type = getenv_default('VORTEX_NOTIFY_DIFFY_EVENT_TYPE', 'vr_run');
+
+// Diffy notification branch filter (comma-separated). When empty, every
+// deployment is dispatched and the workflow gates on PR + label.
+$diffy_branches = getenv_default('VORTEX_NOTIFY_DIFFY_BRANCHES', '');
+
+// -----------------------------------------------------------------------------
+
+info('Started Diffy notification.');
+
+// Skip on pre_deployment - the target environment is not yet ready.
+if ($diffy_event === 'pre_deployment') {
+  pass('Skipped Diffy notification for pre_deployment event.');
+  quit();
+}
+
+// Apply the branch filter when configured.
+if ($diffy_branches !== '') {
+  $branch_list = array_map(trim(...), explode(',', $diffy_branches));
+  if (!in_array($diffy_branch, $branch_list, TRUE)) {
+    pass(sprintf("Skipped Diffy notification for branch '%s' (not in branch allowlist).", $diffy_branch));
+    quit();
+  }
+}
+
+// Validate required values.
+if ($diffy_token === '') {
+  fail('Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN.');
+}
+if ($diffy_repository === '') {
+  fail('Missing required value for VORTEX_NOTIFY_DIFFY_REPOSITORY.');
+}
+if ($diffy_branch === '') {
+  fail('Missing required value for VORTEX_NOTIFY_DIFFY_BRANCH.');
+}
+if ($diffy_environment_url === '') {
+  fail('Missing required value for VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL.');
+}
+if ($diffy_label === '') {
+  fail('Missing required value for VORTEX_NOTIFY_DIFFY_LABEL.');
+}
+
+// Sanitize the repository (extract owner/repo, hide host if any).
+$repository_sanitized = (string) preg_replace(['#^https?://[^/]+/#', '#\.git$#'], '', $diffy_repository);
+
+info('Diffy notification summary:');
+note('Repository       : ' . $repository_sanitized);
+note('Branch           : ' . $diffy_branch);
+note('Label            : ' . $diffy_label);
+note('Environment URL  : ' . $diffy_environment_url);
+note('Source env       : ' . $diffy_source_env);
+note('Dispatch event   : ' . $diffy_event_type);
+note('Event            : ' . $diffy_event);
+
+// Build the dispatch payload. The workflow parses the PR (if any) from the
+// target URL's 'pr-<n>' segment, so no PR number is included.
+$payload = [
+  'event_type' => $diffy_event_type,
+  'client_payload' => [
+    'branch' => $diffy_branch,
+    'target_url' => $diffy_environment_url,
+    'label' => $diffy_label,
+    'source_env' => $diffy_source_env,
+  ],
+];
+
+$url = sprintf('https://api.github.com/repos/%s/dispatches', $repository_sanitized);
+$response = request_post($url, json_encode($payload), [
+  'Accept: application/vnd.github.v3+json',
+  'Authorization: token ' . $diffy_token,
+  'Content-Type: application/json',
+]);
+
+if ($response['status'] !== 204) {
+  fail('GitHub repository_dispatch failed with HTTP %s.', $response['status']);
+}
+
+pass('Finished Diffy notification.');

@@ -19,7 +19,7 @@ execute_override(basename(__FILE__));
 
 // Notification channels.
 //
-// Comma-separated values: email,slack,newrelic,github,jira,webhook.
+// Comma-separated values: email,slack,newrelic,github,jira,webhook,diffy.
 $channels = (string) getenv('VORTEX_NOTIFY_CHANNELS') ?: 'email';
 
 // Notification event type.
