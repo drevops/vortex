@@ -34,7 +34,6 @@
         "drupal/testmode": "^2.7.1",
         "drupal/xmlsitemap": "^2.0",
         "drush/drush": "^13.7.3",
-        "oomphinc/composer-installers-extender": "^2.0.1",
         "webflo/drupal-finder": "^1.3.1"
     },
     "require-dev": {
@@ -95,7 +94,6 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "drupal/core-composer-scaffold": true,
             "ergebnis/composer-normalize": true,
-            "oomphinc/composer-installers-extender": true,
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "pyrech/composer-changelogs": true,
@@ -171,9 +169,6 @@
                 "type:drupal-custom-theme"
             ]
         },
-        "installer-types": [
-            "drupal-library"
-        ],
         "patchLevel": {
             "drupal/core": "-p2"
         },

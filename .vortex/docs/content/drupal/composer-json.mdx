@@ -107,11 +107,6 @@ specifies the essential packages and libraries your project needs.
 - [`drush/drush`](https://github.com/drush-ops/drush): A command-line shell and
   scripting interface for Drupal, providing a wide range of utilities to manage
   and interact with your Drupal sites.
-- [`oomphinc/composer-installers-extender`](https://github.com/oomphinc/composer-installers-extender):
-  Allows any package to be installed to a directory other than the
-  default `vendor` directory within a project on a package-by-package basis.
-  This plugin extends the `composer/installers` plugin to allow any arbitrary
-  package type to be handled by their custom installer.
 - [`webflo/drupal-finder`](https://github.com/webflo/drupal-finder): Locates
   Drupal installations in a directory structure.
 
@@ -295,9 +290,6 @@ needs and structure of your Drupal project.
 - [`installer-paths`](https://getcomposer.org/doc/faqs/how-do-i-install-a-package-to-a-custom-path-for-my-framework.md):
   Defines custom installation paths for various types of packages like Drupal
   modules, themes, and libraries.
-- `installer-types`: Specifies additional installer types, such as `bower-asset`
-  and `npm-asset`, that are handled by
-  the `oomphinc/composer-installers-extender` plugin.
 - `patchLevel`: Defines the patch level for specific packages, in this
   case, `drupal/core`. The `-p` option followed by a number (e.g., `-p1`, `-p2`)
   in patch commands specifies the number of leading directories to strip from
