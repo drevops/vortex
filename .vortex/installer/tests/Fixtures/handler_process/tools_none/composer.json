@@ -1,4 +1,4 @@
-@@ -37,29 +37,12 @@
+@@ -36,29 +36,12 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -28,7 +28,7 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "conflict": {
-@@ -73,21 +56,14 @@
+@@ -72,20 +55,13 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
@@ -44,7 +44,6 @@
 -            "dealerdirect/phpcodesniffer-composer-installer": true,
              "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
-             "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,
 -            "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,

@@ -27,9 +27,9 @@
 -        "drupal/testmode": "__VERSION__",
 -        "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__",
-         "oomphinc/composer-installers-extender": "__VERSION__",
          "webflo/drupal-finder": "__VERSION__"
-@@ -46,7 +29,6 @@
+     },
+@@ -45,7 +28,6 @@
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",

@@ -35,11 +35,10 @@
         "drupal/testmode": "^2.7.1",
         "drupal/xmlsitemap": "^2.0",
         "drush/drush": "^13.7.3",
-        "oomphinc/composer-installers-extender": "^2.0.1",
         "webflo/drupal-finder": "^1.3.1"
     },
     "require-dev": {
-        "behat/behat": "^3.31.0",
+        "behat/behat": "^3.32.0",
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/behat-format-progress-fail": "^1.4",
@@ -48,7 +47,7 @@
         "drevops/phpcs-standard": "^0.7.0",
         "drupal/coder": "^9@alpha",
         "drupal/drupal-extension": "^6.0",
-        "drupal/sdc_devel": "^1.0",
+        "drupal/sdc_devel": "^1.0.2",
         "ergebnis/composer-normalize": "^2.52.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "lullabot/php-webdriver": "^2.0.7",
@@ -61,7 +60,7 @@
         "phpstan/phpstan": "^2.2.2",
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
-        "rector/rector": "^2.4.6",
+        "rector/rector": "^2.5.0",
         "vincentlanglet/twig-cs-fixer": "^3.14"
     },
     "conflict": {
@@ -96,7 +95,6 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "drupal/core-composer-scaffold": true,
             "ergebnis/composer-normalize": true,
-            "oomphinc/composer-installers-extender": true,
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "pyrech/composer-changelogs": true,
@@ -172,9 +170,6 @@
                 "type:drupal-custom-theme"
             ]
         },
-        "installer-types": [
-            "drupal-library"
-        ],
         "patchLevel": {
             "drupal/core": "-p2"
         },
