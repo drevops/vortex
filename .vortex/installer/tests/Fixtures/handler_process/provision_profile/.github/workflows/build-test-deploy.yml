@@ -29,7 +29,7 @@
  
      steps:
        - name: Preserve $HOME set in the container
-@@ -235,49 +225,9 @@
+@@ -235,81 +225,12 @@
        - name: Install Vortex tooling
          run: ./scripts/vortex-tooling.sh
  
@@ -79,10 +79,6 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
-@@ -288,35 +238,6 @@
-             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
- 
 -      # Execute commands after the database download finished: if a fresh DB
 -      # dump was downloaded (cache miss), import it and export it back to
 -      # produce a clean dump cached for the rest of the day's builds. This also
@@ -112,9 +108,9 @@
 -          path: .data
 -          key: __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
 -
-       - name: Provision site
+       - name: Install development dependencies
          run: |
-           if [ -f .data/db.sql ]; then
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
 @@ -498,7 +419,6 @@
    deploy:
      runs-on: ubuntu-latest
