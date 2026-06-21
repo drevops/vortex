@@ -33,7 +33,7 @@ passthru('find . -type d -name node_modules | xargs rm -Rf');
 
 if ($is_hard_reset) {
   task('Changing permissions and removing all other untracked files.');
-  passthru('git ls-files --others -i --exclude-from=.gitignore -z | while IFS= read -r -d "" file; do chmod 777 "$file" 2>/dev/null; rm -rf "$file" 2>/dev/null; done');
+  passthru('git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _');
 
   task('Resetting repository files.');
   passthru_or_fail('git reset --hard');
