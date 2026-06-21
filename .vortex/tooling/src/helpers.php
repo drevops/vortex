@@ -348,6 +348,11 @@ function drush(string $command, ?int &$exit_code = NULL): string {
   passthru('./vendor/bin/drush -y ' . $command, $exit_code);
   $output = ob_get_clean();
 
+  // Stream the captured output so callers that ignore the return value still
+  // surface Drush's messages, while callers that inspect the return still get
+  // the string.
+  echo $output;
+
   if (!$exit_code_provided && $exit_code !== 0) {
     fail('Drush command failed: %s', $command);
   }
