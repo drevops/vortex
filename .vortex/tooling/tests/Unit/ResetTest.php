@@ -57,7 +57,7 @@ class ResetTest extends UnitTestCase {
   public static function dataProviderReset(): array {
     $rm_web = 'rm -rf "./vendor" "./web/core" "./web/profiles/contrib" "./web/modules/contrib" "./web/themes/contrib" "./web/themes/custom/*/build" "./web/themes/custom/*/scss/_components.scss"';
     $rm_docroot = 'rm -rf "./vendor" "./docroot/core" "./docroot/profiles/contrib" "./docroot/modules/contrib" "./docroot/themes/contrib" "./docroot/themes/custom/*/build" "./docroot/themes/custom/*/scss/_components.scss"';
-    $rm_node = 'find . -type d -name node_modules | xargs rm -Rf';
+    $rm_node = 'find . -type d -name node_modules -prune -exec rm -Rf -- {} +';
     $git_chmod = 'git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _';
     $git_reset = 'git reset --hard';
     $git_clean = 'git clean -f -d';

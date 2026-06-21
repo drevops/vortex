@@ -61,14 +61,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com|Jane Doe, to2@example.com|John Doe');
 
     $this->mockMail([
-      'to' => '"Jane Doe" <to1@example.com>',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => '"John Doe" <to2@example.com>',
+      'to' => '"Jane Doe" <to1@example.com>, "John Doe" <to2@example.com>',
       'subject' => 'test-project deployment notification of main',
       'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
@@ -239,21 +232,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com, to2@example.com, to3@example.com');
 
     $this->mockMail([
-      'to' => 'to1@example.com',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => 'to2@example.com',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => 'to3@example.com',
+      'to' => 'to1@example.com, to2@example.com, to3@example.com',
       'subject' => 'test-project deployment notification of main',
       'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
@@ -268,21 +247,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com, to2@example.com|Jane Doe, to3@example.com');
 
     $this->mockMail([
-      'to' => 'to1@example.com',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => '"Jane Doe" <to2@example.com>',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => 'to3@example.com',
+      'to' => 'to1@example.com, "Jane Doe" <to2@example.com>, to3@example.com',
       'subject' => 'test-project deployment notification of main',
       'message' => $this->defaultMessageMatcher(),
       'result' => TRUE,
@@ -405,20 +370,10 @@ class NotifyEmailTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com, to2@example.com');
     $this->envSet('VORTEX_NOTIFY_EMAIL_CC', 'cc@example.com');
 
+    // A single message is sent to both TO recipients with the CC header present
+    // exactly once, so the CC recipient is not copied once per TO recipient.
     $this->mockMail([
-      'to' => 'to1@example.com',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'headers' => [
-        'Cc: cc@example.com',
-        'Content-Type: text/plain; charset=UTF-8',
-        'From: noreply@example.com',
-      ],
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => 'to2@example.com',
+      'to' => 'to1@example.com, to2@example.com',
       'subject' => 'test-project deployment notification of main',
       'message' => $this->defaultMessageMatcher(),
       'headers' => [
@@ -463,18 +418,7 @@ class NotifyEmailTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', '  to1@example.com  ,  to2@example.com | Jane Doe  ');
 
     $this->mockMail([
-      'to' => 'to1@example.com',
-      'subject' => 'test-project deployment notification of main',
-      'message' => $this->defaultMessageMatcher(),
-      'headers' => [
-        'Content-Type: text/plain; charset=UTF-8',
-        'From: noreply@example.com',
-      ],
-      'result' => TRUE,
-    ]);
-
-    $this->mockMail([
-      'to' => '"Jane Doe" <to2@example.com>',
+      'to' => 'to1@example.com, "Jane Doe" <to2@example.com>',
       'subject' => 'test-project deployment notification of main',
       'message' => $this->defaultMessageMatcher(),
       'headers' => [

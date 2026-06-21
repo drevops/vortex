@@ -29,12 +29,20 @@ $env_local_file = __DIR__ . '/.env.local';
 echo "Checking for .env files:\n";
 if (file_exists($env_file)) {
   echo "  ✓ .env file found\n";
-  echo "    Content preview:\n";
+  echo "    Content preview (values masked):\n";
   $file_lines = file($env_file, FILE_IGNORE_NEW_LINES);
   if ($file_lines !== FALSE) {
     $lines = array_slice($file_lines, 0, 5);
     foreach ($lines as $line) {
-      echo "      " . $line . "\n";
+      $trimmed = trim($line);
+      // Skip blank lines and comments; never print raw values as they may
+      // contain secrets.
+      if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+        continue;
+      }
+      $key = strstr($trimmed, '=', TRUE);
+      $key = $key === FALSE ? $trimmed : $key;
+      echo "      " . $key . "=***\n";
     }
   }
 }
@@ -45,12 +53,20 @@ else {
 
 if (file_exists($env_local_file)) {
   echo "  ✓ .env.local file found\n";
-  echo "    Content preview:\n";
+  echo "    Content preview (values masked):\n";
   $file_lines = file($env_local_file, FILE_IGNORE_NEW_LINES);
   if ($file_lines !== FALSE) {
     $lines = array_slice($file_lines, 0, 5);
     foreach ($lines as $line) {
-      echo "      " . $line . "\n";
+      $trimmed = trim($line);
+      // Skip blank lines and comments; never print raw values as they may
+      // contain secrets.
+      if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+        continue;
+      }
+      $key = strstr($trimmed, '=', TRUE);
+      $key = $key === FALSE ? $trimmed : $key;
+      echo "      " . $key . "=***\n";
     }
   }
 }

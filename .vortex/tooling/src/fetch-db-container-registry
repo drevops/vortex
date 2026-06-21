@@ -36,7 +36,8 @@ $registry_pass = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB'
 // Directory with database dump file.
 $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_CONTAINER_REGISTRY_DB_DIR', 'VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
-// The base container image used as a fallback when the archive does not exist.
+// The base container image used as a fallback when the archive does not exist,
+// in a form of `<org>/<repository>` (without a registry prefix).
 $image_base = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB' . $db_index . '_IMAGE_BASE', 'VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB_IMAGE_BASE', ''])));
 
 // -----------------------------------------------------------------------------

@@ -62,7 +62,7 @@ jobs:
         run: composer test-coverage
         working-directory: .vortex/tooling
         env:
-          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Run playground scripts
         run: |

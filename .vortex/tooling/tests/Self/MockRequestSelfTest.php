@@ -18,6 +18,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(UnitTestCase::class)]
 class MockRequestSelfTest extends UnitTestCase {
 
+  protected function setUp(): void {
+    parent::setUp();
+
+    // Load helpers so the request_*() functions are defined before any test
+    // method runs, independent of test execution order. The mocks for the
+    // underlying curl functions are registered per test before request_*() is
+    // invoked, so loading the definitions here does not bypass them.
+    require_once __DIR__ . '/../../src/helpers.php';
+  }
+
   public function testMockRequestGetSuccess(): void {
     $this->mockRequestGet(
       'https://example.com/api',
@@ -25,9 +35,6 @@ class MockRequestSelfTest extends UnitTestCase {
       10,
       ['status' => 200, 'body' => 'success response']
     );
-
-    // Load helpers.php AFTER setting up mocks.
-    require_once __DIR__ . '/../../src/helpers.php';
 
     $result = \DrevOps\VortexTooling\request_get('https://example.com/api');
 

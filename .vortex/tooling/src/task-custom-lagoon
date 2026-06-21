@@ -87,15 +87,9 @@ if (!command_path('lagoon') || $lagooncli_force_install !== '') {
   }
 
   note(sprintf('Downloading Lagoon CLI from %s.', $download_url));
-  $response = request_get($download_url, [], 60);
-  if (!$response['ok'] || $response['body'] === FALSE) {
+  $response = request($download_url, ['method' => 'GET', 'save_to' => $lagoon_binary_path, 'timeout' => 60]);
+  if (!$response['ok']) {
     fail('Failed to download Lagoon CLI from %s: %s', $download_url, $response['error'] ?? 'Unknown error');
-  }
-
-  if (file_put_contents($lagoon_binary_path, $response['body']) === FALSE) {
-    // @codeCoverageIgnoreStart
-    fail('Failed to write Lagoon CLI to %s.', $lagoon_binary_path);
-    // @codeCoverageIgnoreEnd
   }
 
   note(sprintf('Installing Lagoon CLI to %s.', $lagoon_binary_path));

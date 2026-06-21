@@ -600,11 +600,10 @@ class DeployLagoonTest extends UnitTestCase {
       $arch
     );
 
-    $this->mockRequestGet(
+    $this->mockRequest(
       $download_url,
-      [],
-      60,
-      ['status' => 404, 'ok' => FALSE, 'body' => FALSE, 'error' => 'Not Found']
+      ['method' => 'GET'],
+      ['status' => 404, 'ok' => FALSE, 'body' => '', 'error' => 'Not Found']
     );
 
     $this->runScriptError('src/deploy-lagoon', 'Failed to download Lagoon CLI from');
@@ -637,11 +636,10 @@ class DeployLagoonTest extends UnitTestCase {
       $arch
     );
 
-    $this->mockRequestGet(
+    $this->mockRequest(
       $download_url,
-      [],
-      60,
-      ['status' => 200, 'ok' => TRUE, 'body' => 'fake binary content']
+      ['method' => 'GET'],
+      ['status' => 200, 'ok' => TRUE, 'body' => '']
     );
 
     $this->mockPassthru([
@@ -696,11 +694,10 @@ class DeployLagoonTest extends UnitTestCase {
       $arch
     );
 
-    $this->mockRequestGet(
+    $this->mockRequest(
       $download_url,
-      [],
-      60,
-      ['status' => 200, 'ok' => TRUE, 'body' => 'fake binary content']
+      ['method' => 'GET'],
+      ['status' => 200, 'ok' => TRUE, 'body' => '']
     );
 
     $this->mockPassthru([

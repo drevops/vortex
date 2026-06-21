@@ -58,7 +58,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -102,7 +102,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -142,7 +142,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -193,7 +193,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -237,7 +237,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -271,7 +271,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -304,7 +304,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -327,7 +327,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -364,7 +364,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -390,7 +390,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -462,7 +462,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -548,7 +548,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -630,7 +630,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -657,7 +657,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -730,7 +730,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -762,7 +762,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -809,7 +809,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -853,12 +853,6 @@ class ProvisionTest extends UnitTestCase {
     // Drush sql:query (reset user 0 mail and name).
     $this->mockPassthru([
       'cmd' => $this->drushCmd("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\""),
-      'result_code' => 0,
-    ]);
-
-    // Drush sql:query (reset user 0 name).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\""),
       'result_code' => 0,
     ]);
 
@@ -912,7 +906,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -971,12 +965,6 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Drush sql:query (reset user 0 name).
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\""),
-      'result_code' => 0,
-    ]);
-
     // Drush sql:query (update user 1 email).
     $this->mockPassthru([
       'cmd' => $this->drushCmd("sql:query \"UPDATE \\`users_field_data\\` SET mail = 'admin@test.com' WHERE uid = '1';\""),
@@ -1025,7 +1013,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);
@@ -1127,7 +1115,7 @@ class ProvisionTest extends UnitTestCase {
 
     // Drush php:eval (environment).
     $this->mockPassthru([
-      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""),
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
       'output' => 'production',
       'result_code' => 0,
     ]);

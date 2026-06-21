@@ -66,7 +66,7 @@ $deploy_allow_skip = getenv_default('VORTEX_DEPLOY_ALLOW_SKIP', FALSE);
 // VORTEX_DEPLOY_SKIP_BRANCHES=feature/test
 // VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental.
 $deploy_allow_skip_branches = getenv_default('VORTEX_DEPLOY_SKIP_BRANCHES', '');
-$deploy_allow_skip_branches = array_map('trim', explode(',', $deploy_allow_skip_branches));
+$deploy_allow_skip_branches = array_filter(array_map('trim', explode(',', $deploy_allow_skip_branches)));
 
 // Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_PRS` variable
 // with PR numbers as a single value or comma-separated list.
@@ -75,7 +75,7 @@ $deploy_allow_skip_branches = array_map('trim', explode(',', $deploy_allow_skip_
 // VORTEX_DEPLOY_SKIP_PRS=123
 // VORTEX_DEPLOY_SKIP_PRS=123,456,789.
 $deploy_allow_skip_prs = getenv_default('VORTEX_DEPLOY_SKIP_PRS', '');
-$deploy_allow_skip_prs = array_map('trim', explode(',', $deploy_allow_skip_prs));
+$deploy_allow_skip_prs = array_filter(array_map('trim', explode(',', $deploy_allow_skip_prs)));
 
 // Label that authorizes a pull request deployment.
 //

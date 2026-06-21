@@ -137,6 +137,61 @@ class NotifyJiraTest extends UnitTestCase {
     $this->assertStringContainsString('Transitioned issue to In Review', $output);
   }
 
+  public function testTransitionApplicationFailure(): void {
+    $this->envSet('VORTEX_NOTIFY_JIRA_TRANSITION', 'In Review');
+
+    // Mock authentication.
+    $this->mockRequestGet(
+      'https://jira.example.com/rest/api/3/myself',
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 200, 'body' => '{"accountId": "123456789012345678901234"}']
+    );
+
+    // Mock comment creation.
+    $this->mockRequestPost(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/comment',
+      $this->callback(fn(): true => TRUE),
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 201, 'body' => '{"id": "10001"}']
+    );
+
+    // Mock transition discovery.
+    $this->mockRequestGet(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/transitions',
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      [
+        'status' => 200,
+        'body' => '{"transitions": [{"id": "41", "name": "In Review"}]}',
+      ]
+    );
+
+    // Mock transition application returning a non-204 status.
+    $this->mockRequestPost(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/transitions',
+      $this->callback(fn(): true => TRUE),
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 400, 'body' => 'Bad Request']
+    );
+
+    $this->runScriptError('src/notify-jira', 'Unable to transition issue to In Review. HTTP status: 400');
+  }
+
   public function testSuccessfulNotificationWithAssignee(): void {
     $this->envSet('VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL', 'assignee@example.com');
 
@@ -196,6 +251,63 @@ class NotifyJiraTest extends UnitTestCase {
     $this->assertStringContainsString('Assigning issue to assignee@example.com', $output);
     $this->assertStringContainsString('Discovering assignee user ID for assignee@example.com', $output);
     $this->assertStringContainsString('Assigned issue to assignee@example.com', $output);
+  }
+
+  public function testAssigneeApplicationFailure(): void {
+    $this->envSet('VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL', 'assignee@example.com');
+
+    // Mock authentication.
+    $this->mockRequestGet(
+      'https://jira.example.com/rest/api/3/myself',
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 200, 'body' => '{"accountId": "123456789012345678901234"}']
+    );
+
+    // Mock comment creation.
+    $this->mockRequestPost(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/comment',
+      $this->callback(fn(): true => TRUE),
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 201, 'body' => '{"id": "10001"}']
+    );
+
+    // Mock assignee discovery.
+    $this->mockRequestGet(
+      'https://jira.example.com/rest/api/3/user/assignable/search?query=assignee%40example.com&issueKey=TEST-123',
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      [
+        'status' => 200,
+        'body' => '[{"accountId": "987654321098765432109876", "emailAddress": "assignee@example.com"}]',
+      ]
+    );
+
+    // Mock assignee application (PUT) returning a non-204 status.
+    $this->mockRequest(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/assignee',
+      [
+        'method' => 'PUT',
+        'body' => '{"accountId":"987654321098765432109876"}',
+        'headers' => [
+          'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+          'Content-Type: application/json',
+        ],
+      ],
+      ['status' => 400, 'body' => 'Bad Request']
+    );
+
+    $this->runScriptError('src/notify-jira', 'Unable to assign issue to assignee@example.com. HTTP status: 400');
   }
 
   public function testPreDeploymentEventSkipped(): void {

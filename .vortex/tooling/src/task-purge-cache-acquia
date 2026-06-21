@@ -84,7 +84,7 @@ function purge_acquia_api_get_app_uuid(string $token, string $app_name): string 
 }
 
 function purge_acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
-  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, $env_name);
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, rawurlencode($env_name));
   $response = request_get($url, purge_acquia_api_headers($token));
 
   if (!$response['ok']) {
@@ -174,6 +174,11 @@ if (count($domain_list) > 0) {
     task(sprintf('Purging cache for %s environment domain %s.', $target_env, $domain));
 
     $purge_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/domains/actions/clear-varnish', $env_id), json_encode(['domains' => [$domain]]), array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
+
+    if (!$purge_response['ok']) {
+      note(sprintf('Warning: Failed to purge cache for %s environment domain %s: %s', $target_env, $domain, $purge_response['error'] ?? 'HTTP ' . $purge_response['status']));
+      continue;
+    }
 
     $purge_data = json_decode((string) $purge_response['body'], TRUE);
     $notification_url = $purge_data['_links']['notification']['href'] ?? '';

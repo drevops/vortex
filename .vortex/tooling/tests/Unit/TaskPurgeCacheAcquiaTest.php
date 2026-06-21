@@ -217,6 +217,37 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
     $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
   }
 
+  public function testDomainPurgeFailedResponse(): void {
+    $this->mockSleep();
+
+    file_put_contents(self::$tmp . '/domains.txt', '$target_env.example.com' . "\n");
+
+    $this->mockRequestMultiple([
+      [
+        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
+        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
+      ],
+      [
+        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
+        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
+      ],
+      [
+        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev',
+        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-dev']]]])],
+      ],
+      // Purge request fails with an API error.
+      [
+        'url' => 'https://cloud.acquia.com/api/environments/env-id-dev/domains/actions/clear-varnish',
+        'response' => ['ok' => FALSE, 'status' => 500, 'error' => 'Internal Server Error', 'body' => ''],
+      ],
+    ]);
+
+    $output = $this->runScript('src/task-purge-cache-acquia');
+
+    $this->assertStringContainsString('Failed to purge cache for dev environment domain dev.example.com: Internal Server Error', $output);
+    $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
+  }
+
   public function testNoDomains(): void {
     $this->mockSleep();
 

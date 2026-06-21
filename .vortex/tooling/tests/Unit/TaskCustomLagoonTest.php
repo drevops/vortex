@@ -66,7 +66,7 @@ class TaskCustomLagoonTest extends UnitTestCase {
     $lagoon_bin = $cli_path . '/lagoon';
 
     // Mock download of Lagoon CLI.
-    $this->mockRequestGet($download_url, [], 60, ['body' => 'lagoon-binary-content']);
+    $this->mockRequest($download_url, ['method' => 'GET'], ['ok' => TRUE, 'status' => 200, 'body' => '']);
 
     $this->mockPassthruMultiple([
       // setup-ssh.
@@ -133,7 +133,7 @@ class TaskCustomLagoonTest extends UnitTestCase {
 
     $lagoon_bin = $cli_path . '/lagoon';
 
-    $this->mockRequestGet($download_url, [], 60, ['body' => 'lagoon-binary-content']);
+    $this->mockRequest($download_url, ['method' => 'GET'], ['ok' => TRUE, 'status' => 200, 'body' => '']);
 
     $this->mockPassthruMultiple([
       [

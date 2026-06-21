@@ -46,7 +46,7 @@ class CheckNoExitSelfTest extends UnitTestCase {
     // Run script from test directory.
     $output = [];
     $exit_code = 0;
-    exec(sprintf('cd %s && php %s 2>&1', $this->testDir, $this->scriptPath), $output, $exit_code);
+    exec(sprintf('cd %s && php %s 2>&1', escapeshellarg($this->testDir), escapeshellarg($this->scriptPath)), $output, $exit_code);
 
     $this->assertEquals(1, $exit_code, 'Script should exit with code 1 when exit() is found');
     $this->assertStringContainsString('Use quit() instead of exit()', implode("\n", $output));
@@ -64,7 +64,7 @@ class CheckNoExitSelfTest extends UnitTestCase {
     // Run script from test directory.
     $output = [];
     $exit_code = 0;
-    exec(sprintf('cd %s && php %s 2>&1', $this->testDir, $this->scriptPath), $output, $exit_code);
+    exec(sprintf('cd %s && php %s 2>&1', escapeshellarg($this->testDir), escapeshellarg($this->scriptPath)), $output, $exit_code);
 
     $this->assertEquals(0, $exit_code, 'Script should exit with code 0 when no exit() is found');
   }
@@ -81,7 +81,7 @@ class CheckNoExitSelfTest extends UnitTestCase {
     // Run script from test directory.
     $output = [];
     $exit_code = 0;
-    exec(sprintf('cd %s && php %s 2>&1', $this->testDir, $this->scriptPath), $output, $exit_code);
+    exec(sprintf('cd %s && php %s 2>&1', escapeshellarg($this->testDir), escapeshellarg($this->scriptPath)), $output, $exit_code);
 
     $output_str = implode("\n", $output);
 
@@ -102,7 +102,7 @@ class CheckNoExitSelfTest extends UnitTestCase {
     // Run script from test directory.
     $output = [];
     $exit_code = 0;
-    exec(sprintf('cd %s && php %s 2>&1', $this->testDir, $this->scriptPath), $output, $exit_code);
+    exec(sprintf('cd %s && php %s 2>&1', escapeshellarg($this->testDir), escapeshellarg($this->scriptPath)), $output, $exit_code);
 
     $this->assertEquals(0, $exit_code, 'Script should ignore exit() in comments');
   }
@@ -119,7 +119,7 @@ class CheckNoExitSelfTest extends UnitTestCase {
     // Run script from test directory.
     $output = [];
     $exit_code = 0;
-    exec(sprintf('cd %s && php %s 2>&1', $this->testDir, $this->scriptPath), $output, $exit_code);
+    exec(sprintf('cd %s && php %s 2>&1', escapeshellarg($this->testDir), escapeshellarg($this->scriptPath)), $output, $exit_code);
 
     $output_str = implode("\n", $output);
     $this->assertStringContainsString('line-test.php:5', $output_str);
@@ -132,7 +132,7 @@ class CheckNoExitSelfTest extends UnitTestCase {
     // Run script with no PHP files.
     $output = [];
     $exit_code = 0;
-    exec(sprintf('cd %s && php %s 2>&1', $this->testDir, $this->scriptPath), $output, $exit_code);
+    exec(sprintf('cd %s && php %s 2>&1', escapeshellarg($this->testDir), escapeshellarg($this->scriptPath)), $output, $exit_code);
 
     $this->assertEquals(0, $exit_code);
   }

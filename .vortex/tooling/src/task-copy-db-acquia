@@ -87,7 +87,7 @@ function acquia_api_get_app_uuid(string $token, string $app_name): string {
 }
 
 function acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
-  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, $env_name);
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, rawurlencode($env_name));
   $response = request_get($url, acquia_api_headers($token));
 
   if (!$response['ok']) {
@@ -107,11 +107,17 @@ function acquia_api_get_env_id(string $token, string $app_uuid, string $env_name
 }
 
 function acquia_api_poll_notification(string $key, string $secret, string $notification_url, int $retries, int $interval): bool {
+  $token = acquia_api_get_token($key, $secret);
+
   for ($i = 1; $i <= $retries; $i++) {
     sleep($interval);
 
-    $token = acquia_api_get_token($key, $secret);
     $response = request_get($notification_url, acquia_api_headers($token));
+
+    if (!$response['ok'] && ($response['status'] ?? 0) === 401) {
+      $token = acquia_api_get_token($key, $secret);
+      $response = request_get($notification_url, acquia_api_headers($token));
+    }
 
     if ($response['ok']) {
       $data = json_decode((string) $response['body'], TRUE);

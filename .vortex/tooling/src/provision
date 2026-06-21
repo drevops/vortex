@@ -232,7 +232,6 @@ function sanitize_db(string $sanitize_email, string $sanitize_password, bool $re
 
   // User mail and name for user 0 could have been sanitized - resetting it.
   drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
-  drush("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"");
   pass('Reset user 0 username and email.');
 
   // User email could have been sanitized - setting it back to a
@@ -268,7 +267,7 @@ if (empty($provision_db)) {
 
 // Get drush and Drupal versions.
 $drush_version_output = drush('--version', $drush_version_exit_code);
-$drush_version = trim(preg_replace('/.*?(\d+\.\d+\.\d+).*/', '$1', $drush_version_output) ?? 'Unknown');
+$drush_version = preg_match('/(\d+\.\d+\.\d+)/', $drush_version_output, $matches) ? $matches[1] : 'Unknown';
 
 $drupal_version = trim(drush('status --field=drupal-version 2>/dev/null', $drupal_version_exit_code)) ?: 'Unknown';
 
@@ -427,7 +426,7 @@ else {
 
 echo PHP_EOL;
 
-$environment = trim(drush("php:eval \"print \\Drupal\\core\\Site\\Settings::get('environment');\""));
+$environment = trim(drush("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""));
 info('Current Drupal environment: %s', $environment);
 echo PHP_EOL;
 

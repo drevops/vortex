@@ -539,6 +539,11 @@ trait MockTrait {
     $this->mocks['request']['curl_errno'] = $this->getFunctionMock($namespace, 'curl_errno');
     $this->mocks['request']['curl_errno']->expects($this->any())
       ->willReturnCallback(function (): int {
+        // @codeCoverageIgnoreStart
+        if (($this->mockIndices['request'] ?? 0) === 0) {
+          throw new \RuntimeException('curl_errno() called before curl_exec() consumed a mocked request response.');
+        }
+        // @codeCoverageIgnoreEnd
         // Use the previous index since curl_exec already incremented it.
         /** @var array{url: string, method?: string, response: array{error: string|null}} $mock */
         $mock = $this->mockResponses['request'][$this->mockIndices['request'] - 1];
@@ -551,6 +556,11 @@ trait MockTrait {
     $this->mocks['request']['curl_error'] = $this->getFunctionMock($namespace, 'curl_error');
     $this->mocks['request']['curl_error']->expects($this->any())
       ->willReturnCallback(function (): string {
+        // @codeCoverageIgnoreStart
+        if (($this->mockIndices['request'] ?? 0) === 0) {
+          throw new \RuntimeException('curl_error() called before curl_exec() consumed a mocked request response.');
+        }
+        // @codeCoverageIgnoreEnd
         // Use the previous index since curl_exec already incremented it.
         /** @var array{url: string, method?: string, response: array{error: string|null}} $mock */
         $mock = $this->mockResponses['request'][$this->mockIndices['request'] - 1];
@@ -563,6 +573,11 @@ trait MockTrait {
     $this->mocks['request']['curl_getinfo'] = $this->getFunctionMock($namespace, 'curl_getinfo');
     $this->mocks['request']['curl_getinfo']->expects($this->any())
       ->willReturnCallback(function (): array {
+        // @codeCoverageIgnoreStart
+        if (($this->mockIndices['request'] ?? 0) === 0) {
+          throw new \RuntimeException('curl_getinfo() called before curl_exec() consumed a mocked request response.');
+        }
+        // @codeCoverageIgnoreEnd
         // Use the previous index since curl_exec already incremented it.
         /** @var array{url: string, method?: string, response: array{info: array<string, mixed>, status: int}} $mock */
         $mock = $this->mockResponses['request'][$this->mockIndices['request'] - 1];
@@ -790,7 +805,16 @@ trait MockTrait {
    */
   protected function mockCommandExists(string $namespace = 'DrevOps\\VortexTooling'): void {
     $this->registerMock('exec', $namespace, function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
-      $output = ['/usr/local/bin/' . preg_replace('/[^a-z0-9]/i', '', $command)];
+      // Only the command_path() lookup is expected here. Failing fast on any
+      // other exec() call surfaces accidental real command execution instead of
+      // silently reporting it as a success.
+      if (!preg_match('/^command -v (.+) 2>\/dev\/null$/', $command, $matches)) {
+        // @codeCoverageIgnoreStart
+        throw new \RuntimeException(sprintf('Unexpected exec() command in mockCommandExists(): "%s".', $command));
+        // @codeCoverageIgnoreEnd
+      }
+
+      $output = ['/usr/local/bin/' . preg_replace('/[^a-z0-9]/i', '', $matches[1])];
       $result_code = 0;
 
       return $output[0];

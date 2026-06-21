@@ -24,12 +24,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
     $output = $this->runScript('src/provision-sanitize-db');
 
     $this->assertStringContainsString('Sanitizing database.', $output);
@@ -58,12 +52,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
     // Reset user 0 mail and name.
     $this->mockPassthru([
       'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
       'result_code' => 0,
     ]);
 
@@ -99,12 +87,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
     $output = $this->runScript('src/provision-sanitize-db');
 
     $this->assertStringContainsString('Applied custom sanitization commands from file.', $output);
@@ -125,12 +107,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
     // Reset user 0 mail and name.
     $this->mockPassthru([
       'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
       'result_code' => 0,
     ]);
 
@@ -163,12 +139,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
     $output = $this->runScript('src/provision-sanitize-db');
 
     $this->assertStringContainsString('Sanitized database using drush sql:sanitize.', $output);
@@ -189,12 +159,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
     // Reset user 0 mail and name.
     $this->mockPassthru([
       'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
       'result_code' => 0,
     ]);
 
@@ -249,12 +213,6 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
     // Reset user 0 mail and name.
     $this->mockPassthru([
       'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"",
-      'result_code' => 0,
-    ]);
-
-    // Reset user 0 name.
-    $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"",
       'result_code' => 0,
     ]);
 

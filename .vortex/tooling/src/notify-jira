@@ -246,10 +246,15 @@ if (!empty($jira_transition)) {
 
   $payload_data = ['transition' => ['id' => $transition_id]];
   $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
-  request_post($url, json_encode($payload_data), [
+  $response = request_post($url, json_encode($payload_data), [
     'Authorization: Basic ' . $token,
     'Content-Type: application/json',
   ]);
+
+  // JIRA returns HTTP 204 on a successful transition.
+  if ($response['status'] !== 204) {
+    fail('Unable to transition issue to %s. HTTP status: %s', $jira_transition, $response['status']);
+  }
 
   pass('Transitioned issue to %s ', $jira_transition);
 }
@@ -283,7 +288,7 @@ if (!empty($jira_assignee_email)) {
 
   $payload_data = ['accountId' => $assignee_account_id];
   $url = sprintf('%s/rest/api/3/issue/%s/assignee', $jira_endpoint, $jira_issue);
-  request($url, [
+  $response = request($url, [
     'method' => 'PUT',
     'body' => json_encode($payload_data),
     'headers' => [
@@ -291,6 +296,11 @@ if (!empty($jira_assignee_email)) {
       'Content-Type: application/json',
     ],
   ]);
+
+  // JIRA returns HTTP 204 on a successful assignee update.
+  if ($response['status'] !== 204) {
+    fail('Unable to assign issue to %s. HTTP status: %s', $jira_assignee_email, $response['status']);
+  }
 
   pass('Assigned issue to ' . $jira_assignee_email);
 }

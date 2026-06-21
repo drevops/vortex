@@ -87,10 +87,6 @@ else {
 
 task(sprintf('Exporting database image archive to file %s.', $archive));
 
-if (!is_dir(dirname($archive))) {
-  mkdir(dirname($archive), 0755, TRUE);
-}
-
 passthru_or_fail(sprintf('docker save -o %s %s', escapeshellarg($archive), escapeshellarg($new_image)), 'Unable to save database image archive file %s.', $archive);
 
 // Check that file was saved and output saved dump file name.

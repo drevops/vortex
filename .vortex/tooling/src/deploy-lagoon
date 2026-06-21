@@ -123,15 +123,9 @@ if (!command_path('lagoon') || !empty($lagooncli_force_install)) {
   }
 
   note(sprintf('Downloading Lagoon CLI from %s.', $download_url));
-  $response = request_get($download_url, [], 60);
-  if (!$response['ok'] || $response['body'] === FALSE) {
+  $response = request($download_url, ['method' => 'GET', 'save_to' => $lagoon_binary_path, 'timeout' => 60]);
+  if (!$response['ok']) {
     fail('Failed to download Lagoon CLI from %s: %s', $download_url, $response['error'] ?? 'Unknown error');
-  }
-
-  if (file_put_contents($lagoon_binary_path, $response['body']) === FALSE) {
-    // @codeCoverageIgnoreStart
-    fail('Failed to write Lagoon CLI to %s.', $lagoon_binary_path);
-    // @codeCoverageIgnoreEnd
   }
 
   note(sprintf('Installing Lagoon CLI to %s.', $lagoon_binary_path));
@@ -260,7 +254,7 @@ else {
 
       task(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr));
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      $deploy_output = lagoon_run_cli($deploy_cmd);
+      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
       if ($deploy_action === 'deploy_override_db') {
@@ -299,7 +293,7 @@ else {
 
       task(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch));
       $deploy_cmd = sprintf('deploy latest --environment %s', escapeshellarg($deploy_branch));
-      $deploy_output = lagoon_run_cli($deploy_cmd);
+      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
       if ($deploy_action === 'deploy_override_db') {
@@ -313,7 +307,7 @@ else {
     else {
       task(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch));
       $deploy_cmd = sprintf('deploy branch --branch %s', escapeshellarg($deploy_branch));
-      $deploy_output = lagoon_run_cli($deploy_cmd);
+      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
     }
   }

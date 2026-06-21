@@ -92,7 +92,7 @@ class TaskCopyDbAcquiaTest extends UnitTestCase {
         'url' => 'https://cloud.acquia.com/api/environments/env-dst-id/databases',
         'response' => ['body' => json_encode(['_links' => ['notification' => ['href' => 'https://cloud.acquia.com/api/notifications/123']]])],
       ],
-      // Polling: token refresh.
+      // Polling: token fetched once before the loop.
       [
         'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
         'response' => ['body' => json_encode(['access_token' => 'test-token-2'])],
@@ -142,12 +142,15 @@ class TaskCopyDbAcquiaTest extends UnitTestCase {
       ],
     ];
 
-    // 3 polling iterations, each with token refresh + notification check.
+    // Token fetched once before the polling loop.
+    $requests[] = [
+      'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
+      'response' => ['body' => json_encode(['access_token' => 'poll-token'])],
+    ];
+
+    // 3 polling iterations - only notification requests (no token refresh
+    // since no 401).
     for ($i = 0; $i < 3; $i++) {
-      $requests[] = [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'poll-token-' . $i])],
-      ];
       $requests[] = [
         'url' => 'https://cloud.acquia.com/api/notifications/123',
         'response' => ['body' => json_encode(['status' => 'in_progress'])],

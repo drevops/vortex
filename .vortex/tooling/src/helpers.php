@@ -555,6 +555,17 @@ function request(string $url, array $options = []): array {
   // @codeCoverageIgnoreEnd
   $ch = curl_init($url);
 
+  // @codeCoverageIgnoreStart
+  if ($ch === FALSE) {
+    return [
+      'ok' => FALSE,
+      'status' => 0,
+      'body' => '',
+      'error' => sprintf('Failed to initialize curl for URL: %s', $url),
+      'info' => [],
+    ];
+  }
+  // @codeCoverageIgnoreEnd
   $upload_fh = NULL;
   $save_fh = NULL;
 

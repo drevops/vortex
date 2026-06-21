@@ -20,7 +20,7 @@ require_once __DIR__ . '/helpers.php';
 $sanitize_email = getenv_default('VORTEX_PROVISION_SANITIZE_DB_EMAIL', 'user+%uid@localhost');
 
 // Database sanitized account password replacement.
-$sanitize_password = getenv_default('VORTEX_PROVISION_SANITIZE_DB_PASSWORD', (string) mt_rand());
+$sanitize_password = getenv_default('VORTEX_PROVISION_SANITIZE_DB_PASSWORD', (string) random_int(100000000, 999999999));
 
 // Replace username with mail.
 $replace_username = getenv_default('VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL', '0');
@@ -36,7 +36,7 @@ $admin_email = getenv_default('DRUPAL_ADMIN_EMAIL', '');
 info('Sanitizing database.');
 
 // Always sanitize password and email using standard methods.
-drush(sprintf("sql:sanitize --sanitize-password='%s' --sanitize-email='%s'", $sanitize_password, $sanitize_email));
+drush(sprintf('sql:sanitize --sanitize-password=%s --sanitize-email=%s', escapeshellarg($sanitize_password), escapeshellarg($sanitize_email)));
 pass('Sanitized database using drush sql:sanitize.');
 
 if ($replace_username === '1') {
@@ -55,7 +55,6 @@ if ($additional_file !== '' && file_exists($additional_file)) {
 
 // User mail and name for user 0 could have been sanitized - resetting it.
 drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
-drush("sql:query \"UPDATE \\`users_field_data\\` SET name = '' WHERE uid = '0';\"");
 pass('Reset user 0 username and email.');
 
 // User email could have been sanitized - setting it back to a pre-defined email.
