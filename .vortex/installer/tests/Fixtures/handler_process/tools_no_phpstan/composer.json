@@ -1,4 +1,4 @@
-@@ -49,13 +49,10 @@
+@@ -48,13 +48,10 @@
          "ergebnis/composer-normalize": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
          "lullabot/php-webdriver": "__VERSION__",
@@ -12,9 +12,9 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
-@@ -86,7 +83,6 @@
+@@ -84,7 +81,6 @@
+             "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
-             "oomphinc/composer-installers-extender": true,
              "php-http/discovery": true,
 -            "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
