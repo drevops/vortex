@@ -139,7 +139,7 @@ trait SutTrait {
 
     $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
     if (file_exists($dockerignore_path)) {
-      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/node_modules\n");
+      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/vendor\n");
     }
 
     $this->reinstallToolingToVendor();

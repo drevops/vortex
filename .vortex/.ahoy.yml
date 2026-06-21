@@ -10,8 +10,8 @@ commands:
       composer --working-dir tests install
       [ -d ./tests/node_modules ] && rm -rf ./tests/node_modules
       yarn --cwd=tests install --frozen-lockfile
-      [ -d ./tooling/node_modules ] && rm -rf ./tooling/node_modules
-      yarn --cwd=tooling install --frozen-lockfile
+      [ -d ./tooling/vendor ] && rm -rf ./tooling/vendor
+      composer --working-dir tooling install
       [ -d ./installer/vendor ] && rm -rf ./installer/vendor
       composer --working-dir installer install
       [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
@@ -46,6 +46,7 @@ commands:
     cmd: |
       ahoy lint-installer
       ahoy lint-tests
+      ahoy lint-tooling
       ahoy lint-scripts
       ahoy lint-dockerfiles
       ahoy lint-docs
@@ -57,6 +58,7 @@ commands:
     cmd: |
       ahoy lint-installer-fix
       ahoy lint-tests-fix
+      ahoy lint-tooling-fix
       ahoy lint-docs-fix
       ahoy lint-markdown-fix
       ahoy lint-ci-fix
@@ -78,6 +80,12 @@ commands:
 
   lint-tests-fix:
     cmd: composer --working-dir tests lint-fix
+
+  lint-tooling:
+    cmd: composer --working-dir tooling lint
+
+  lint-tooling-fix:
+    cmd: composer --working-dir tooling lint-fix
 
   lint-scripts:
     cmd: ./tests/lint.scripts.sh
@@ -102,16 +110,13 @@ commands:
   test:
     name: Test Vortex project.
     cmd: |
-      ahoy test-common
+      ahoy test-tooling
       ahoy test-docs
 
-  test-bats:
+  test-tooling:
     cmd: |
-      [ ! -d tooling/node_modules ] && yarn --cwd=tooling install --frozen-lockfile
-      tooling/node_modules/.bin/bats --no-tempdir-cleanup --tap "$@"
-
-  test-common:
-    cmd: ./tests/test.common.sh
+      [ ! -d ./tooling/vendor ] && composer --working-dir tooling install
+      composer --working-dir tooling test -- "$@"
 
   test-docs:
     cmd: |

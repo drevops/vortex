@@ -162,7 +162,7 @@ commands:
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down || true
       if [ -f ./vendor/drevops/vortex-tooling/src/reset ]; then
-        bash ./vendor/drevops/vortex-tooling/src/reset "$@"
+        ./vendor/drevops/vortex-tooling/src/reset "$@"
       fi
 
   fei:

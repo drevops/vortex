@@ -40,7 +40,6 @@ composer install
 For parallel execution, tests can be run across multiple CI nodes using the
 convenience script wrappers:
 
-- [`test.common.sh]`(test.common.sh) - Common tests for all environments
 - [`lint.scripts.sh`](lint.scripts.sh) - Linting for shell scripts
 - [`lint.dockerfiles.sh`](lint.dockerfiles.sh) - Linting for Dockerfiles
 

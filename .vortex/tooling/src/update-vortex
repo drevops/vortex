@@ -1,92 +1,81 @@
-#!/usr/bin/env bash
-##
-# Update Vortex from the template repository.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Update Vortex from the template repository.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Vortex remote or local template repo URI, optionally including reference.
-#
-# Examples:
-# https://github.com/drevops/vortex.git          # Will auto-discover the latest stable tag from remote repo.
-# https://github.com/drevops/vortex.git#stable   # Will auto-discover the latest stable tag from remote repo.
-# https://github.com/drevops/vortex.git#1.2.3    # Will use specific release from remote repo.
-# https://github.com/drevops/vortex.git#abcd123  # Will use specific commit from remote repo.
-# file:///local/path/to/vortex.git               # Will auto-discover the latest stable tag from local repo.
-# file:///local/path/to/vortex.git#stable        # Will auto-discover the latest stable tag from local repo.
-# file:///local/path/to/vortex.git#1.2.3         # Will use specific release from local repo.
-# file:///local/path/to/vortex.git#abcd123       # Will use specific commit from local repo.
-# /local/path/to/vortex.git                      # Will auto-discover the latest stable tag from local repo.
-# /local/path/to/vortex.git#stable               # Will auto-discover the latest stable tag from local repo.
-# /local/path/to/vortex.git#1.2.3                # Will use specific release from local repo.
-# /local/path/to/vortex.git#abcd123              # Will use specific commit from local repo.
-VORTEX_INSTALLER_TEMPLATE_REPO="${VORTEX_INSTALLER_TEMPLATE_REPO:-https://github.com/drevops/vortex.git#stable}"
+namespace DrevOps\VortexTooling;
 
-# The URL of the installer script.
-#
-# Pinned to the major-specific path so an existing project always updates
-# within its own major line. The bare '/install' tracks the active major and
-# would jump a project across a major boundary once the next major is released.
-VORTEX_INSTALLER_URL="${VORTEX_INSTALLER_URL:-https://www.vortextemplate.com/v1/install}"
+require_once __DIR__ . '/helpers.php';
 
-# Cache busting parameter for the installer URL.
-VORTEX_INSTALLER_URL_CACHE_BUST="${VORTEX_INSTALLER_URL_CACHE_BUST:-"$(date +%s)"}"
+// -----------------------------------------------------------------------------
 
-# The path to the installer script.
-# If set, this will override the VORTEX_INSTALLER_URL.
-VORTEX_INSTALLER_PATH="${VORTEX_INSTALLER_PATH:-}"
+// Vortex remote or local template repo URI, optionally including reference.
+//
+// Examples:
+// https://github.com/drevops/vortex.git          # Latest stable tag from remote.
+// https://github.com/drevops/vortex.git#stable   # Latest stable tag from remote.
+// https://github.com/drevops/vortex.git#1.2.3    # Specific release from remote.
+// file:///local/path/to/vortex.git               # Latest stable tag from local.
+// /local/path/to/vortex.git#1.2.3                # Specific release from local.
+$installer_template_repo = getenv_default('VORTEX_INSTALLER_TEMPLATE_REPO', 'https://github.com/drevops/vortex.git#stable');
 
-# Run installer in interactive mode.
-VORTEX_INSTALLER_INTERACTIVE="${VORTEX_INSTALLER_INTERACTIVE:-0}"
+// The URL of the installer script.
+$installer_url = getenv_default('VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/v1/install');
 
-# ------------------------------------------------------------------------------
+// Cache busting parameter for the installer URL.
+$installer_url_cache_bust = getenv_default('VORTEX_INSTALLER_URL_CACHE_BUST', (string) time());
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// The path to the installer script.
+//
+// If set, this will override the VORTEX_INSTALLER_URL.
+$installer_path = getenv_default('VORTEX_INSTALLER_PATH', '');
 
-# Pre-flight checks.
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Run installer in interactive mode.
+$installer_interactive = getenv_default('VORTEX_INSTALLER_INTERACTIVE', '0');
 
-for arg in "$@"; do
-  if [ "${arg}" = "--interactive" ]; then
-    VORTEX_INSTALLER_INTERACTIVE=1
-  else
-    VORTEX_INSTALLER_TEMPLATE_REPO="${arg}"
-  fi
-done
+// -----------------------------------------------------------------------------
 
-if [ -n "${VORTEX_INSTALLER_PATH}" ]; then
-  note "Using installer script from local path: ${VORTEX_INSTALLER_PATH}"
-  if [ ! -f "${VORTEX_INSTALLER_PATH}" ]; then
-    fail "Installer script not found at ${VORTEX_INSTALLER_PATH}."
-    exit 1
-  fi
-else
-  note "Using installer script from URL: ${VORTEX_INSTALLER_URL}"
-  VORTEX_INSTALLER_PATH="installer.php"
-  note "Downloading installer to ${VORTEX_INSTALLER_PATH}"
-  if ! curl -fsSL "${VORTEX_INSTALLER_URL}?${VORTEX_INSTALLER_URL_CACHE_BUST}" -o "${VORTEX_INSTALLER_PATH}"; then
-    fail "Failed to download installer from ${VORTEX_INSTALLER_URL}."
-    exit 1
-  fi
-fi
+command_must_exist('php');
 
-if [ "${VORTEX_INSTALLER_INTERACTIVE}" = "0" ]; then
-  php "${VORTEX_INSTALLER_PATH}" --no-interaction --uri="${VORTEX_INSTALLER_TEMPLATE_REPO}"
-else
-  php "${VORTEX_INSTALLER_PATH}" --uri="${VORTEX_INSTALLER_TEMPLATE_REPO}"
-fi
+// Parse arguments.
+foreach (array_slice($GLOBALS['argv'] ?? [], 1) as $arg) {
+  if ($arg === '--interactive') {
+    $installer_interactive = '1';
+  }
+  else {
+    $installer_template_repo = $arg;
+  }
+}
+
+if ($installer_path !== '') {
+  note('Using installer script from local path: %s', $installer_path);
+  if (!file_exists($installer_path)) {
+    fail('Installer script not found at %s', $installer_path);
+  }
+}
+else {
+  note('Using installer script from URL: %s', $installer_url);
+  $installer_path = 'installer.php';
+  note('Downloading installer to %s', $installer_path);
+  $separator = str_contains($installer_url, '?') ? '&' : '?';
+  $response = request($installer_url . $separator . $installer_url_cache_bust, ['method' => 'GET', 'save_to' => $installer_path, 'timeout' => 30]);
+  if (!$response['ok']) {
+    fail('Failed to download installer from %s', $installer_url);
+  }
+}
+
+if ($installer_interactive === '0') {
+  passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+}
+else {
+  passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+}
+
+quit($exit_code);

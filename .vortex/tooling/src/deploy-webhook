@@ -1,53 +1,46 @@
-#!/usr/bin/env bash
-##
-# Deploy by calling a webhook.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Deploy by calling a webhook.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# The URL of the webhook to call.
-VORTEX_DEPLOY_WEBHOOK_URL="${VORTEX_DEPLOY_WEBHOOK_URL:-}"
+namespace DrevOps\VortexTooling;
 
-# Webhook call method.
-VORTEX_DEPLOY_WEBHOOK_METHOD="${VORTEX_DEPLOY_WEBHOOK_METHOD:-GET}"
+require_once __DIR__ . '/helpers.php';
 
-# The status code of the expected response.
-VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS="${VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS:-200}"
+// -----------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
+// Webhook URL to call for deployment.
+$deploy_webhook_url = getenv_required('VORTEX_DEPLOY_WEBHOOK_URL');
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// HTTP method to use for the webhook request.
+//
+// Can be 'GET', 'POST', 'PUT', 'DELETE', etc.
+$deploy_webhook_method = getenv_default('VORTEX_DEPLOY_WEBHOOK_METHOD', 'GET');
 
-#shellcheck disable=SC2043
-for cmd in curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Expected HTTP response status code.
+//
+// The deployment is considered successful only if the response status matches
+// this value.
+$deploy_webhook_expected_status = getenv_default('VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS', '200');
 
-info "Started webhook deployment."
+// -----------------------------------------------------------------------------
 
-# Check all required values.
-[ -z "${VORTEX_DEPLOY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_URL." && exit 1
-[ -z "${VORTEX_DEPLOY_WEBHOOK_METHOD}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_METHOD." && exit 1
-[ -z "${VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS." && exit 1
+info('Started webhook deployment.');
 
-if curl --request "${VORTEX_DEPLOY_WEBHOOK_METHOD}" --location --silent --output /dev/null --write-out "%{http_code}" "${VORTEX_DEPLOY_WEBHOOK_URL}" | grep --quiet "${VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS}"; then
-  note "Webhook call completed."
-else
-  fail "Unable to complete webhook deployment."
-  exit 1
-fi
+$response = request($deploy_webhook_url, ['method' => $deploy_webhook_method]);
 
-pass "Finished webhook deployment."
+if (!$response['ok']) {
+  fail('Unable to complete webhook deployment.');
+}
+
+if ((string) $response['status'] !== $deploy_webhook_expected_status) {
+  fail('Unable to complete webhook deployment.');
+}
+
+note('Webhook call completed.');
+pass('Finished webhook deployment.');

@@ -1,92 +1,100 @@
-#!/usr/bin/env bash
-##
-# Export database as a container image.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Export database as a container image.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Container image archive file name.
-VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE="${VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE:-${1}}"
+namespace DrevOps\VortexTooling;
 
-# Container image to store in a form of `<org>/<repository>`.
-VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE:-}"
+require_once __DIR__ . '/helpers.php';
 
-# Container registry name.
-VORTEX_EXPORT_DB_CONTAINER_REGISTRY="${VORTEX_EXPORT_DB_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
+// -----------------------------------------------------------------------------
 
-# The service name to capture.
-VORTEX_EXPORT_DB_SERVICE_NAME="${VORTEX_EXPORT_DB_SERVICE_NAME:-database}"
+// Container image archive file name.
+$archive_file_env = getenv('VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE');
+$archive_file = ($archive_file_env !== FALSE && $archive_file_env !== '') ? $archive_file_env : ($GLOBALS['argv'][1] ?? '');
 
-# Directory with database image archive file.
-VORTEX_EXPORT_DB_IMAGE_DIR="${VORTEX_EXPORT_DB_IMAGE_DIR:-${VORTEX_DB_DIR}}"
+// Container image to store in a form of `<org>/<repository>`.
+$image = getenv_required('VORTEX_EXPORT_DB_IMAGE');
 
-# ------------------------------------------------------------------------------
+// Container registry name.
+$registry = getenv_default('VORTEX_EXPORT_DB_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// The service name to capture.
+$service_name = getenv_default('VORTEX_EXPORT_DB_SERVICE_NAME', 'database');
 
-#shellcheck disable=SC2043
-for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Directory with database image archive file.
+$image_dir = getenv_default('VORTEX_EXPORT_DB_IMAGE_DIR', 'VORTEX_DB_DIR', './.data');
 
-info "Started database data container image export."
+// -----------------------------------------------------------------------------
 
-[ -z "${VORTEX_EXPORT_DB_IMAGE}" ] && fail "Destination image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB_IMAGE in a format <org>/<repository>." && exit 1
+command_must_exist('docker');
 
-cid="$(docker compose ps -q "${VORTEX_EXPORT_DB_SERVICE_NAME}")"
-note "Found ${VORTEX_EXPORT_DB_SERVICE_NAME} service container with id ${cid}."
+info('Started database data container image export.');
 
-new_image="${VORTEX_EXPORT_DB_CONTAINER_REGISTRY}/${VORTEX_EXPORT_DB_IMAGE}"
+$service_escaped = escapeshellarg($service_name);
 
-task "Locking and unlocking tables before upgrade."
-docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
-sleep 5
-docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
+$cid = trim((string) shell_exec(sprintf('docker compose ps -q %s', $service_escaped)));
 
-task "Running forced service upgrade."
-docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
+if ($cid === '') {
+  fail('Unable to find container for service %s. Check that the service is running with `docker compose ps`.', $service_name);
+}
 
-task "Locking tables after upgrade."
-docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
+note(sprintf('Found %s service container with id %s.', $service_name, $cid));
 
-task "Committing exported container image with name ${new_image}."
-iid=$(docker commit "${cid}" "${new_image}")
-iid="${iid#sha256:}"
-note "Committed exported container image with id ${iid}."
+$new_image = $registry . '/' . $image;
 
-# Create directory to store database dump.
-mkdir -p "${VORTEX_EXPORT_DB_IMAGE_DIR}"
+task('Locking and unlocking tables before upgrade.');
+passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables for service %s.', $service_name);
 
-# Create dump file name with a timestamp or use the file name provided
-# as a first argument. Also, make sure that the extension is correct.
-archive_file=$([ "${VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE}" ] && echo "${VORTEX_EXPORT_DB_IMAGE_DIR}/${VORTEX_EXPORT_DB_IMAGE_ARCHIVE_FILE//.sql/.tar}" || echo "${VORTEX_EXPORT_DB_IMAGE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).tar")
+sleep(5);
 
-task "Exporting database image archive to file ${archive_file}."
+passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('UNLOCK TABLES;')), 'Failed to unlock tables for service %s.', $service_name);
 
-[ -f "${archive_file}" ] && rm -f "${archive_file}"
-mkdir -p "$(dirname "${archive_file}")"
-docker save -o "${archive_file}" "${new_image}"
+task('Running forced service upgrade.');
+passthru_or_fail(sprintf('docker compose exec -T %s sh -c %s', $service_escaped, escapeshellarg('mariadb-upgrade --force || mariadb-upgrade --force')), 'Failed to run service upgrade for %s.', $service_name);
 
-# Check that file was saved and output saved dump file name.
-if [ -f "${archive_file}" ] && [ -s "${archive_file}" ]; then
-  note "Exported database image saved to archive file ${archive_file}."
-else
-  # LCOV_EXCL_START
-  fail "Unable to save database image archive file ${archive_file}." && exit 1
-  # LCOV_EXCL_STOP
-fi
+task('Locking tables after upgrade.');
+passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables after upgrade for service %s.', $service_name);
 
-pass "Finished database data container image export."
+task(sprintf('Committing exported container image with name %s.', $new_image));
+$iid = trim((string) shell_exec(sprintf('docker commit %s %s', escapeshellarg($cid), escapeshellarg($new_image))));
+if ($iid === '') {
+  fail('Failed to commit container image %s.', $new_image);
+}
+$iid = str_starts_with($iid, 'sha256:') ? substr($iid, 7) : $iid;
+note(sprintf('Committed exported container image with id %s.', $iid));
+
+// Create directory to store database dump.
+if (!is_dir($image_dir)) {
+  mkdir($image_dir, 0755, TRUE);
+}
+
+// Create dump file name with a timestamp or use the file name provided
+// as a first argument. Also, make sure that the extension is correct.
+if ($archive_file !== '') {
+  $archive = $image_dir . '/' . str_replace('.sql', '.tar', $archive_file);
+}
+else {
+  $archive = $image_dir . '/export_db_' . date('Ymd_His') . '.tar';
+}
+
+task(sprintf('Exporting database image archive to file %s.', $archive));
+
+passthru_or_fail(sprintf('docker save -o %s %s', escapeshellarg($archive), escapeshellarg($new_image)), 'Unable to save database image archive file %s.', $archive);
+
+// Check that file was saved and output saved dump file name.
+if (file_exists($archive) && filesize($archive) > 0) {
+  note(sprintf('Exported database image saved to archive file %s.', $archive));
+}
+else {
+  fail(sprintf('Unable to save database image archive file %s.', $archive));
+}
+
+pass('Finished database data container image export.');

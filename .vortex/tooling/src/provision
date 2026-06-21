@@ -1,449 +1,590 @@
-#!/usr/bin/env bash
-##
-# Provision site by importing it from the database dump or installing from
-# profile and running additional steps.
-#
-# This script has excessive verbose output to make it easy to debug site
-# provisions and deployments.
-#
-# shellcheck disable=SC1091,SC2086,SC2002,SC2235,SC1090,SC2012,SC2015,SC2091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Provision site by importing from database dump or installing from profile.
+ *
+ * This script has verbose output to make it easy to debug site provisions
+ * and deployments.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Flag to skip site provisioning.
-VORTEX_PROVISION_SKIP="${VORTEX_PROVISION_SKIP:-}"
+namespace DrevOps\VortexTooling;
 
-# Provision type: database or profile.
-VORTEX_PROVISION_TYPE="${VORTEX_PROVISION_TYPE:-database}"
+require_once __DIR__ . '/helpers.php';
 
-# Fallback to profile installation if the database dump is not available.
-VORTEX_PROVISION_FALLBACK_TO_PROFILE="${VORTEX_PROVISION_FALLBACK_TO_PROFILE:-0}"
+// -----------------------------------------------------------------------------
 
-# Flag to always overwrite existing database. Usually set to 0 in deployed
-# environments.
-VORTEX_PROVISION_OVERRIDE_DB="${VORTEX_PROVISION_OVERRIDE_DB:-0}"
+// Flag to skip site provisioning.
+$provision_skip = getenv_default('VORTEX_PROVISION_SKIP', '');
 
-# Skip database sanitization.
-VORTEX_PROVISION_SANITIZE_DB_SKIP="${VORTEX_PROVISION_SANITIZE_DB_SKIP:-0}"
+// Provision type: database or profile.
+$provision_type = getenv_default('VORTEX_PROVISION_TYPE', 'database');
 
-# Put the site into a maintenance mode during site provisioning phase.
-VORTEX_PROVISION_USE_MAINTENANCE_MODE="${VORTEX_PROVISION_USE_MAINTENANCE_MODE:-1}"
+// Fallback to profile installation if the database dump is not available.
+$provision_fallback_to_profile = getenv_default('VORTEX_PROVISION_FALLBACK_TO_PROFILE', '0');
 
-# Flag to skip running of operations after site provision is complete.
-# Useful to only import the database from file (or install from profile) and not
-# perform any additional operations. For example, when need to capture database
-# state before any updates ran (for example, DB caching in CI).
-VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-0}"
+// Flag to always overwrite existing database.
+// Usually set to 0 in deployed environments.
+$provision_override_db = getenv_default('VORTEX_PROVISION_OVERRIDE_DB', '0');
 
-# Verify that configuration was not changed by database updates.
-# If enabled and config files are present, the provision will fail if
-# database update hooks modify active configuration, preventing
-# drush config:import from silently overwriting those changes.
-VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE="${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE:-0}"
+// Skip database sanitization.
+$provision_sanitize_db_skip = getenv_default('VORTEX_PROVISION_SANITIZE_DB_SKIP', '0');
 
-# Skip cache rebuild after database updates.
-VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP="${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP:-0}"
+// Put the site into maintenance mode during site provisioning phase.
+$provision_use_maintenance_mode = getenv_default('VORTEX_PROVISION_USE_MAINTENANCE_MODE', '1');
 
-# Repeat configuration import after the initial import.
-# Useful when update hooks introduce new configuration that affects subsequent
-# configuration imports (e.g., new config_split settings).
-VORTEX_PROVISION_CONFIG_IMPORT_REPEAT="${VORTEX_PROVISION_CONFIG_IMPORT_REPEAT:-0}"
+// Flag to skip running of operations after site provision is complete.
+//
+// Useful to only import the database from file (or install from profile) and
+// not perform any additional operations. For example, when need to capture
+// database state before any updates ran (for example, DB caching in CI).
+$provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIONS_SKIP', '0');
 
-# Provision database dump file.
-# If not set, it will be auto-discovered from the VORTEX_DB_DIR directory using
-# the VORTEX_DB_FILE name.
-VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-}"
+// Verify that configuration was not changed by database updates.
+//
+// If enabled and config files are present, the provision will fail if
+// database update hooks modify active configuration, preventing
+// drush config:import from silently overwriting those changes.
+$provision_verify_config = getenv_default('VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE', '0');
 
-# Name of the webroot directory with Drupal codebase.
-WEBROOT="${WEBROOT:-web}"
+// Skip cache rebuild after database updates.
+$provision_cache_rebuild_after_db_update_skip = getenv_default('VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP', '0');
 
-# Drupal site name.
-DRUPAL_SITE_NAME="${DRUPAL_SITE_NAME:-${VORTEX_PROJECT:-Example site}}"
+// Repeat configuration import after the initial import.
+//
+// Useful when update hooks introduce new configuration that affects
+// subsequent configuration imports (e.g., new config_split settings).
+$provision_config_import_repeat = getenv_default('VORTEX_PROVISION_CONFIG_IMPORT_REPEAT', '0');
 
-# Drupal site email.
-DRUPAL_SITE_EMAIL="${DRUPAL_SITE_EMAIL:-webmaster@example.com}"
+// Provision database dump file.
+//
+// If not set, it will be auto-discovered from the VORTEX_PROVISION_DB_DIR
+// directory using the VORTEX_PROVISION_DB_FILE name.
+$provision_db = getenv_default('VORTEX_PROVISION_DB', '');
 
-# Profile machine name.
-DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
+// Name of the webroot directory with Drupal codebase.
+$webroot = getenv_default('WEBROOT', 'web');
 
-# Directory with database dump file.
-VORTEX_PROVISION_DB_DIR="${VORTEX_PROVISION_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
+// Drupal site name.
+$drupal_site_name = getenv_default('DRUPAL_SITE_NAME', 'VORTEX_PROJECT', 'Example site');
 
-# Database dump file name.
-VORTEX_PROVISION_DB_FILE="${VORTEX_PROVISION_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+// Drupal site email.
+$drupal_site_email = getenv_default('DRUPAL_SITE_EMAIL', 'webmaster@example.com');
 
-# Name of the pre-built database container image.
-VORTEX_PROVISION_DB_IMAGE="${VORTEX_PROVISION_DB_IMAGE:-${VORTEX_DB_IMAGE:-}}"
+// Profile machine name.
+$drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');
 
-# ------------------------------------------------------------------------------
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_PROVISION_DB_DIR', 'VORTEX_DB_DIR', './.data');
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Database dump file name.
+$db_file = getenv_default('VORTEX_PROVISION_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
 
-drush() { ./vendor/bin/drush -y "$@"; }
-yesno() { [ "${1}" = "1" ] && echo "Yes" || echo "No"; }
+// Name of the pre-built database container image.
+$db_image = getenv_default('VORTEX_PROVISION_DB_IMAGE', 'VORTEX_DB_IMAGE', '');
 
-# ------------------------------------------------------------------------------
+// Drupal admin email.
+$drupal_admin_email = getenv_default('DRUPAL_ADMIN_EMAIL', '');
 
-info "Started site provisioning."
+// Database sanitized account email replacement.
+$sanitize_db_email = getenv_default('VORTEX_PROVISION_SANITIZE_DB_EMAIL', 'user+%uid@localhost');
 
-start_time=$(date +%s)
+// Database sanitized account password replacement.
+$sanitize_db_password = getenv_default('VORTEX_PROVISION_SANITIZE_DB_PASSWORD', (string) random_int(100000000, 999999999));
 
-if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
-  pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
-  info "Finished site provisioning."
-  exit 0
-fi
+// Replace username with mail.
+$sanitize_db_replace_username_with_email = getenv_default('VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL', '0');
 
-# Convert DB dir starting with './' to a full path.
-[ "${VORTEX_PROVISION_DB_DIR#./}" != "${VORTEX_PROVISION_DB_DIR}" ] && VORTEX_PROVISION_DB_DIR="$(pwd)${VORTEX_PROVISION_DB_DIR#.}"
+// Path to file with custom sanitization SQL queries.
+//
+// To skip custom sanitization, remove the file defined in
+// VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE variable from the codebase.
+$sanitize_db_additional_file = getenv_default('VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE', './scripts/sanitize.sql');
 
-if [ -z "${VORTEX_PROVISION_DB}" ]; then
-  VORTEX_PROVISION_DB="${VORTEX_PROVISION_DB:-"${VORTEX_PROVISION_DB_DIR}/${VORTEX_PROVISION_DB_FILE}"}"
-fi
+// -----------------------------------------------------------------------------
 
-drush_version="$(drush --version | cut -d' ' -f4)"
-drupal_version="$(drush status --field=drupal-version 2>/dev/null || echo "Unknown")"
-site_is_installed="$(drush status --fields=bootstrap 2>/dev/null | grep -q "Successful" && echo "1" || echo "0")"
-
-# Discover the configuration directory path from the Drupal settings.
-config_path="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
-[ -z "${config_path}" ] && fail "Config directory was not found in the Drupal settings." && exit 1
-[ ! -d "${config_path}" ] && fail "Config directory \"${config_path:-<empty>}\" does not exist." && exit 1
-site_has_config_files="$(test "$(ls -1 ${config_path}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
-
-# Normalize the provision type.
-[ "${VORTEX_PROVISION_TYPE}" = "profile" ] || VORTEX_PROVISION_TYPE=database
-
-################################################################################
-# Print provisioning information.
-################################################################################
-echo
-note "Drupal core version            : ${drupal_version}"
-note "Drush version                  : ${drush_version}"
-echo
-note "Web root path                  : $(pwd)/${WEBROOT}"
-note "Public files path              : ${DRUPAL_PUBLIC_FILES-<empty>}"
-note "Private files path             : ${DRUPAL_PRIVATE_FILES-<empty>}"
-note "Temporary files path           : ${DRUPAL_TEMPORARY_FILES-<empty>}"
-note "Config files path              : ${config_path}"
-note "DB dump file path              : ${VORTEX_PROVISION_DB} ($([ -f "${VORTEX_PROVISION_DB}" ] && echo "present" || echo "absent"))"
-if [ -n "${VORTEX_PROVISION_DB_IMAGE:-}" ]; then
-  note "DB dump container image        : ${VORTEX_PROVISION_DB_IMAGE-}"
-fi
-echo
-note "Profile                        : ${DRUPAL_PROFILE}"
-note "Configuration files present    : $(yesno "${site_has_config_files}")"
-note "Existing site found            : $(yesno "${site_is_installed}")"
-echo
-note "Provision type                 : ${VORTEX_PROVISION_TYPE}"
-note "Fallback to profile            : $(yesno "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}")"
-note "Overwrite existing DB          : $(yesno "${VORTEX_PROVISION_OVERRIDE_DB}")"
-note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_SKIP}")"
-note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
-note "Verify config after update     : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}")"
-note "Use maintenance mode           : $(yesno "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}")"
-echo
-################################################################################
-
-if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ]; then
-  for cmd in diff mktemp; do command -v "${cmd}" >/dev/null || {
-    fail "Command ${cmd} is not available."
-    exit 1
-  }; done
-fi
-
-#
-# Provision site by importing the database from the dump file.
-#
-provision_from_db() {
-  if [ ! -f "${VORTEX_PROVISION_DB}" ]; then
-    if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
-      info "Database dump file is not available. Falling back to profile installation."
-      provision_from_profile 1 "${site_has_config_files}"
-      return
-    fi
-
-    echo
-    fail "Unable to import database from file."
-    note "Dump file ${VORTEX_PROVISION_DB} does not exist."
-    note "Site content was not changed."
-
-    exit 1
-  fi
-
-  drush sql:drop
-
-  $(drush sql:connect) <"${VORTEX_PROVISION_DB}"
-
-  pass "Imported database from the dump file."
+/**
+ * Format yes/no output.
+ */
+function yesno(string $value): string {
+  return $value === '1' ? 'Yes' : 'No';
 }
 
-#
-# Provision site from the profile.
-#
-provision_from_profile() {
-  local is_fallback="${1:-0}"
-  local has_config="${2:-0}"
-  local opts=()
+/**
+ * Provision site from database dump file.
+ *
+ * @param string $provision_db
+ *   Path to the database dump file.
+ */
+function provision_from_db(string $provision_db): void {
+  if (!file_exists($provision_db)) {
+    echo PHP_EOL;
+    fail_no_exit('Unable to import database from file.');
+    note('Dump file %s does not exist.', $provision_db);
+    note('Site content was not changed.');
+    quit(1);
+  }
 
-  opts+=(
-    "${DRUPAL_PROFILE}"
-    --site-name="${DRUPAL_SITE_NAME}"
-    --site-mail="${DRUPAL_SITE_EMAIL}"
-    --account-name=admin
-    install_configure_form.enable_update_status_module=NULL
-    install_configure_form.enable_update_status_emails=NULL
-  )
+  drush('sql:drop');
 
-  [ -n "${DRUPAL_ADMIN_EMAIL:-}" ] && opts+=(--account-mail="${DRUPAL_ADMIN_EMAIL:-}")
+  $sql_connect = trim(drush('sql:connect'));
+  passthru($sql_connect . ' <' . escapeshellarg($provision_db), $import_exit_code);
 
-  [ "${is_fallback}" != "1" ] && [ "${has_config}" = "1" ] && opts+=(--existing-config)
+  if ($import_exit_code !== 0) {
+    fail('Failed to import database from dump file.');
+  }
 
-  # Database may exist in non-bootstrappable state - truncate it.
-  drush sql:drop || true
-
-  drush site:install "${opts[@]}"
-
-  # On fallback, enable Shield to protect the site and skip post-provision
-  # operations since the site was installed from profile without configuration.
-  if [ "${is_fallback}" = "1" ]; then
-    drush pm:install shield
-    export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
-  fi
-
-  pass "Installed a site from the profile."
+  pass('Imported database from the dump file.');
 }
 
-# Provision site from DB dump or profile.
-#
-# The code block below has explicit if-else conditions and verbose output to
-# ensure that this significant operation is executed correctly and has
-# sufficient output for debugging.
-if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
-  info "Provisioning site from the database dump file."
-  note "Dump file path: ${VORTEX_PROVISION_DB}"
+/**
+ * Provision site from profile.
+ *
+ * @param string $profile
+ *   The profile machine name.
+ * @param string $site_name
+ *   The site name.
+ * @param string $site_email
+ *   The site email.
+ * @param string $admin_email
+ *   The admin email (optional).
+ * @param bool $has_config_files
+ *   Whether config files exist.
+ * @param bool $is_fallback
+ *   Whether this is a fallback installation (no --existing-config).
+ */
+function provision_from_profile(string $profile, string $site_name, string $site_email, string $admin_email, bool $has_config_files, bool $is_fallback = FALSE): void {
+  $opts = [
+    escapeshellarg($profile),
+    '--site-name=' . escapeshellarg($site_name),
+    '--site-mail=' . escapeshellarg($site_email),
+    '--account-name=admin',
+    'install_configure_form.enable_update_status_module=NULL',
+    'install_configure_form.enable_update_status_emails=NULL',
+  ];
 
-  if [ "${site_is_installed}" = "1" ]; then
-    note "Existing site was found."
+  if (!empty($admin_email)) {
+    $opts[] = '--account-mail=' . escapeshellarg($admin_email);
+  }
 
-    if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
-      note "Database is baked into the container image."
-      note "Site content will be preserved."
-      # Container image restarts with a fresh database. Let the downstream
-      # scripts know that the database is fresh.
-      export VORTEX_PROVISION_OVERRIDE_DB=1
-    elif [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
-      note "Existing site content will be removed and fresh content will be imported from the database dump file."
-      provision_from_db
-    else
-      note "Site content will be preserved."
-      note "Sanitization will be skipped for an existing database."
-      export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
-    fi
-  else
-    note "Existing site was not found."
+  if (!$is_fallback && $has_config_files) {
+    $opts[] = '--existing-config';
+  }
 
-    if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
-      note "Database is baked into the container image."
-      if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
-        info "Database in the container image is not available. Falling back to profile installation."
-        provision_from_profile 1 "${site_has_config_files}"
-        export VORTEX_PROVISION_OVERRIDE_DB=1
-      else
-        note "Looks like the database in the container image is corrupted."
-        note "Site content was not changed."
-        exit 1
-      fi
-    else
-      note "Fresh site content will be imported from the database dump file."
-      provision_from_db
-      # Let the downstream scripts know that the database is fresh.
-      export VORTEX_PROVISION_OVERRIDE_DB=1
-    fi
-  fi
-else
-  info "Provisioning site from the profile."
-  note "Profile: ${DRUPAL_PROFILE}."
+  // Database may exist in non-bootstrappable state - truncate it.
+  drush('sql:drop', $drop_exit_code);
 
-  if [ "${site_is_installed}" = "1" ]; then
-    note "Existing site was found."
+  drush('site:install ' . implode(' ', $opts));
 
-    if [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
-      note "Existing site content will be removed and new content will be created from the profile."
-      provision_from_profile 0 "${site_has_config_files}"
-      # Let the downstream scripts know that the database is fresh.
-      export VORTEX_PROVISION_OVERRIDE_DB=1
-    else
-      note "Site content will be preserved."
-      note "Sanitization will be skipped for an existing database."
-      export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
-    fi
-  else
-    note "Existing site was not found."
-    note "Fresh site content will be created from the profile."
-    provision_from_profile 0 "${site_has_config_files}"
-    export VORTEX_PROVISION_OVERRIDE_DB=1
-  fi
-fi
+  // On fallback, enable Shield to protect the site and skip post-provision
+  // operations since the site was installed from profile without configuration.
+  if ($is_fallback) {
+    drush('pm:install shield');
+    putenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP=1');
+  }
 
-echo
+  pass('Installed a site from the profile.');
+}
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
-info "Current Drupal environment: ${environment}"
-echo
+/**
+ * Sanitize the database.
+ *
+ * @param string $sanitize_email
+ *   Email pattern for sanitization.
+ * @param string $sanitize_password
+ *   Password for sanitization.
+ * @param bool $replace_username_with_email
+ *   Whether to replace username with email.
+ * @param string $additional_file
+ *   Path to additional sanitization SQL file.
+ * @param string $admin_email
+ *   Admin email to restore after sanitization.
+ */
+function sanitize_db(string $sanitize_email, string $sanitize_password, bool $replace_username_with_email, string $additional_file, string $admin_email): void {
+  info('Sanitizing database.');
 
-if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
-  info "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
-  echo
-  duration=$(($(date +%s) - start_time))
-  info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
-  exit 0
-fi
+  // Always sanitize password and email using standard methods.
+  drush(sprintf(
+    'sql:sanitize --sanitize-password=%s --sanitize-email=%s',
+    escapeshellarg($sanitize_password),
+    escapeshellarg($sanitize_email)
+  ));
+  pass('Sanitized database using drush sql:sanitize.');
 
-if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
-  task "Enabling maintenance mode."
-  drush maint:set 1
-  pass "Enabled maintenance mode."
-  echo
-fi
+  if ($replace_username_with_email) {
+    drush("sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
+    pass('Updated username with user email.');
+  }
 
-# Set site UUID from configuration if config files are present.
-if [ "${site_has_config_files}" = "1" ]; then
-  if [ -f "${config_path}/system.site.yml" ]; then
-    config_uuid="$(awk '/^uuid:/ {print $2; exit}' "${config_path}/system.site.yml")"
+  // Sanitize using additional SQL commands provided in file.
+  if (!empty($additional_file) && file_exists($additional_file)) {
+    // The file path is relative to the project root, but drush expects it to be
+    // relative to the Drupal root.
+    $relative_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
+    drush('sql:query --file=' . escapeshellarg($relative_file));
+    pass('Applied custom sanitization commands from file.');
+  }
 
-    if [ -z "${config_uuid}" ]; then
-      fail "Could not read site UUID from ${config_path}/system.site.yml."
-      exit 1
-    fi
+  // User mail and name for user 0 could have been sanitized - resetting it.
+  drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
+  pass('Reset user 0 username and email.');
 
-    drush config-set system.site uuid "${config_uuid}"
-    pass "Updated site UUID from the configuration with ${config_uuid}."
-    echo
-  fi
-fi
+  // User email could have been sanitized - setting it back to a
+  // pre-defined email.
+  if (!empty($admin_email)) {
+    drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
+    pass('Updated user 1 email.');
+  }
 
-task "Running database updates."
+  echo PHP_EOL;
+}
 
-if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ] && [ "${site_has_config_files}" = "1" ]; then
-  config_before=$(mktemp -d)
-  drush config:export --destination="${config_before}"
+// -----------------------------------------------------------------------------
 
-  drush updatedb --no-cache-clear
+info('Started site provisioning.');
 
-  config_after=$(mktemp -d)
-  drush config:export --destination="${config_after}"
+$start_time = time();
 
-  config_diff=$(diff -rq "${config_before}" "${config_after}" || true)
+if ($provision_skip === '1') {
+  pass('Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.');
+  info('Finished site provisioning.');
+  quit(0);
+}
 
-  if [ -n "${config_diff}" ]; then
-    fail "Configuration was changed by database updates."
-    note "The following configuration files were changed:"
-    echo "${config_diff}"
-    note "Configuration before updates: ${config_before}"
-    note "Configuration after updates:  ${config_after}"
-    note "Review the update hooks and manually export updated configuration."
-    exit 1
-  fi
+// Convert DB dir starting with './' to a full path.
+if (str_starts_with($db_dir, './')) {
+  $db_dir = getcwd() . substr($db_dir, 1);
+}
 
-  rm -rf "${config_before}" "${config_after}"
+if (empty($provision_db)) {
+  $provision_db = $db_dir . '/' . $db_file;
+}
 
-  pass "Verified that database updates did not change configuration."
-else
-  drush updatedb --no-cache-clear
-fi
+// Get drush and Drupal versions.
+$drush_version_output = drush('--version', $drush_version_exit_code);
+$drush_version = preg_match('/(\d+\.\d+\.\d+)/', $drush_version_output, $matches) ? $matches[1] : 'Unknown';
 
-pass "Completed running database updates."
-echo
+$drupal_version = trim(drush('status --field=drupal-version 2>/dev/null', $drupal_version_exit_code)) ?: 'Unknown';
 
-if [ "${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP}" != "1" ]; then
-  task "Clearing cache after database updates."
-  drush cache:rebuild
-  pass "Cache was cleared."
-  echo
-else
-  pass "Skipped cache rebuild after database updates."
-  echo
-fi
+// Check if site is installed.
+$bootstrap_output = drush('status --fields=bootstrap 2>/dev/null', $bootstrap_exit_code);
+$site_is_installed = str_contains($bootstrap_output, 'Successful');
 
-# Import configuration if config files are present.
-if [ "${site_has_config_files}" = "1" ]; then
-  task "Importing configuration."
-  drush config:import
-  pass "Completed configuration import."
-  echo
+// Discover the configuration directory path from the Drupal settings.
+$config_path = trim(drush("php:eval \"print realpath(\\Drupal\\Core\\Site\\Settings::get('config_sync_directory'));\""));
+if (empty($config_path)) {
+  fail('Config directory was not found in the Drupal settings.');
+}
+if (!is_dir($config_path)) {
+  fail('Config directory "%s" does not exist.', $config_path);
+}
 
-  if [ "${VORTEX_PROVISION_CONFIG_IMPORT_REPEAT}" = "1" ]; then
-    task "Repeating configuration import."
-    drush config:import
-    pass "Completed repeated configuration import."
-    echo
-  fi
+// Check if config files exist.
+$config_files = glob($config_path . '/*.yml');
+$site_has_config_files = !empty($config_files) && count($config_files) > 0;
 
-  # Import config_split configuration if the module is installed.
-  # Drush deploy does not import config_split configuration on the first run.
-  # @see https://github.com/drush-ops/drush/issues/2449
-  # @see https://www.drupal.org/project/drupal/issues/3241439
-  if drush pm:list --status=enabled | grep -q config_split; then
-    task "Importing config_split configuration."
-    drush config:import
-    pass "Completed config_split configuration import."
-    echo
-  fi
-fi
+// Normalize the provision type.
+if ($provision_type !== 'profile') {
+  $provision_type = 'database';
+}
 
-task "Rebuilding cache."
-drush cache:rebuild
-pass "Cache was rebuilt."
-echo
+// Print provisioning information.
+echo PHP_EOL;
+note('Drupal core version            : %s', $drupal_version);
+note('Drush version                  : %s', $drush_version);
+echo PHP_EOL;
+note('Web root path                  : %s/%s', getcwd(), $webroot);
+note('Public files path              : %s', getenv('DRUPAL_PUBLIC_FILES') ?: '<empty>');
+note('Private files path             : %s', getenv('DRUPAL_PRIVATE_FILES') ?: '<empty>');
+note('Temporary files path           : %s', getenv('DRUPAL_TEMPORARY_FILES') ?: '<empty>');
+note('Config files path              : %s', $config_path);
+note('DB dump file path              : %s (%s)', $provision_db, file_exists($provision_db) ? 'present' : 'absent');
+if (!empty($db_image)) {
+  note('DB dump container image        : %s', $db_image);
+}
+echo PHP_EOL;
+note('Profile                        : %s', $drupal_profile);
+note('Configuration files present    : %s', yesno($site_has_config_files ? '1' : '0'));
+note('Existing site found            : %s', yesno($site_is_installed ? '1' : '0'));
+echo PHP_EOL;
+note('Provision type                 : %s', $provision_type);
+note('Fallback to profile            : %s', yesno($provision_fallback_to_profile));
+note('Overwrite existing DB          : %s', yesno($provision_override_db));
+note('Skip DB sanitization           : %s', yesno($provision_sanitize_db_skip));
+note('Skip post-provision operations : %s', yesno($provision_post_operations_skip));
+note('Verify config after update     : %s', yesno($provision_verify_config));
+note('Use maintenance mode           : %s', yesno($provision_use_maintenance_mode));
+echo PHP_EOL;
 
-# Enable the deploy_steps runner and the always-on site modules before deploy
-# hooks, so their deploy step plugins and run-once deploy hooks run on this
-# provision. Site module names are project-specific (the installer renames
-# them), so resolve them by glob. Idempotent in every environment.
-task "Enabling site modules."
-drush pm:install deploy_steps
-for module_path in "${WEBROOT}"/modules/custom/*_base "${WEBROOT}"/modules/custom/*_migrate; do
-  if [ -d "${module_path}" ]; then
-    drush pm:install "$(basename "${module_path}")"
-  fi
-done
-pass "Enabled site modules."
-echo
+if ($provision_verify_config === '1') {
+  command_must_exist('diff');
+}
 
-# Deploy step plugins run inside the `drush deploy:hook` child process below and
-# read deploy-time flags via getenv(); export the flags this script computes so
-# the child inherits them. The .env-sourced variables are already exported.
-export VORTEX_PROVISION_OVERRIDE_DB
+// Provision site from DB dump or profile.
+//
+// The code block below has explicit if-else conditions and verbose output to
+// ensure that this significant operation is executed correctly and has
+// sufficient output for debugging.
+if ($provision_type === 'database') {
+  info('Provisioning site from the database dump file.');
+  note('Dump file path: %s', $provision_db);
 
-task "Running deployment hooks."
-drush deploy:hook
-pass "Completed deployment hooks."
-echo
+  if ($site_is_installed) {
+    note('Existing site was found.');
 
-# Sanitize database.
-if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/provision-sanitize-db"
-else
-  pass "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
-  echo
-fi
+    if (!empty($db_image)) {
+      note('Database is baked into the container image.');
+      note('Site content will be preserved.');
+      // Container image restarts with a fresh database. Let the downstream
+      // scripts know that the database is fresh.
+      $provision_override_db = '1';
+      putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
+    }
+    elseif ($provision_override_db === '1') {
+      note('Existing site content will be removed and fresh content will be imported from the database dump file.');
+      if (!file_exists($provision_db) && $provision_fallback_to_profile === '1') {
+        info('Database dump file is not available. Falling back to profile installation.');
+        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
+      }
+      else {
+        provision_from_db($provision_db);
+      }
+    }
+    else {
+      note('Site content will be preserved.');
+      note('Sanitization will be skipped for an existing database.');
+      $provision_sanitize_db_skip = '1';
+      putenv('VORTEX_PROVISION_SANITIZE_DB_SKIP=1');
+    }
+  }
+  else {
+    note('Existing site was not found.');
 
-if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
-  task "Disabling maintenance mode."
-  drush maint:set 0
-  pass "Disabled maintenance mode."
-  echo
-fi
+    if (!empty($db_image)) {
+      note('Database is baked into the container image.');
+      if ($provision_fallback_to_profile === '1') {
+        info('Database in the container image is not available. Falling back to profile installation.');
+        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
+        $provision_override_db = '1';
+        putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
+      }
+      else {
+        note('Looks like the database in the container image is corrupted.');
+        note('Site content was not changed.');
+        quit(1);
+      }
+    }
+    else {
+      note('Fresh site content will be imported from the database dump file.');
+      if (!file_exists($provision_db) && $provision_fallback_to_profile === '1') {
+        info('Database dump file is not available. Falling back to profile installation.');
+        provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
+      }
+      else {
+        provision_from_db($provision_db);
+      }
+      // Let the downstream scripts know that the database is fresh.
+      $provision_override_db = '1';
+      putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
+    }
+  }
+}
+else {
+  info('Provisioning site from the profile.');
+  note('Profile: %s.', $drupal_profile);
 
-duration=$(($(date +%s) - start_time))
-info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
+  if ($site_is_installed) {
+    note('Existing site was found.');
+
+    if ($provision_override_db === '1') {
+      note('Existing site content will be removed and new content will be created from the profile.');
+      provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
+      // Let the downstream scripts know that the database is fresh.
+      $provision_override_db = '1';
+      putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
+    }
+    else {
+      note('Site content will be preserved.');
+      note('Sanitization will be skipped for an existing database.');
+      $provision_sanitize_db_skip = '1';
+      putenv('VORTEX_PROVISION_SANITIZE_DB_SKIP=1');
+    }
+  }
+  else {
+    note('Existing site was not found.');
+    note('Fresh site content will be created from the profile.');
+    provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
+    $provision_override_db = '1';
+    putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
+  }
+}
+
+echo PHP_EOL;
+
+$environment = trim(drush("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""));
+info('Current Drupal environment: %s', $environment);
+echo PHP_EOL;
+
+// Re-read in case provision_from_profile() changed it via putenv().
+$provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIONS_SKIP', $provision_post_operations_skip);
+
+if ($provision_post_operations_skip === '1') {
+  info('Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1.');
+  echo PHP_EOL;
+  $duration = time() - $start_time;
+  info('Finished site provisioning (%dm %ds).', (int) floor($duration / 60), $duration % 60);
+  quit(0);
+}
+
+if ($provision_use_maintenance_mode === '1') {
+  task('Enabling maintenance mode.');
+  drush('maint:set 1');
+  pass('Enabled maintenance mode.');
+  echo PHP_EOL;
+}
+
+// Set site UUID from configuration if config files are present.
+if ($site_has_config_files) {
+  $system_site_yml = $config_path . '/system.site.yml';
+  if (file_exists($system_site_yml)) {
+    $system_site_content = file_get_contents($system_site_yml);
+    if ($system_site_content !== FALSE && preg_match('/^uuid:\s*(\S+)/m', $system_site_content, $matches)) {
+      $config_uuid = $matches[1];
+      drush(sprintf('config-set system.site uuid %s', escapeshellarg($config_uuid)));
+      pass('Updated site UUID from the configuration with %s.', $config_uuid);
+      echo PHP_EOL;
+    }
+    else {
+      fail('Could not read site UUID from %s.', $system_site_yml);
+    }
+  }
+}
+
+task('Running database updates.');
+
+if ($provision_verify_config === '1' && $site_has_config_files) {
+  $config_before = sys_get_temp_dir() . '/config_before_' . uniqid();
+  mkdir($config_before, 0755, TRUE);
+  drush('config:export --destination=' . escapeshellarg($config_before));
+
+  drush('updatedb --no-cache-clear');
+
+  $config_after = sys_get_temp_dir() . '/config_after_' . uniqid();
+  mkdir($config_after, 0755, TRUE);
+  drush('config:export --destination=' . escapeshellarg($config_after));
+
+  $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
+
+  if (!empty(trim($config_diff))) {
+    fail_no_exit('Configuration was changed by database updates.');
+    note('The following configuration files were changed:');
+    echo $config_diff . PHP_EOL;
+    note('Configuration before updates: %s', $config_before);
+    note('Configuration after updates:  %s', $config_after);
+    note('Review the update hooks and manually export updated configuration.');
+    quit(1);
+  }
+
+  shell_exec('rm -rf ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after));
+
+  pass('Verified that database updates did not change configuration.');
+}
+else {
+  drush('updatedb --no-cache-clear');
+}
+
+pass('Completed running database updates.');
+echo PHP_EOL;
+
+if ($provision_cache_rebuild_after_db_update_skip !== '1') {
+  task('Clearing cache after database updates.');
+  drush('cache:rebuild');
+  pass('Cache was cleared.');
+  echo PHP_EOL;
+}
+else {
+  pass('Skipped cache rebuild after database updates.');
+  echo PHP_EOL;
+}
+
+// Import configuration if config files are present.
+if ($site_has_config_files) {
+  task('Importing configuration.');
+  drush('config:import');
+  pass('Completed configuration import.');
+  echo PHP_EOL;
+
+  if ($provision_config_import_repeat === '1') {
+    task('Repeating configuration import.');
+    drush('config:import');
+    pass('Completed repeated configuration import.');
+    echo PHP_EOL;
+  }
+
+  // Import config_split configuration if the module is installed.
+  // Drush deploy does not import config_split configuration on the first run.
+  // @see https://github.com/drush-ops/drush/issues/2449
+  // @see https://www.drupal.org/project/drupal/issues/3241439
+  $pm_list_output = drush('pm:list --status=enabled', $pm_list_exit_code);
+  if (str_contains($pm_list_output, 'config_split')) {
+    task('Importing config_split configuration.');
+    drush('config:import');
+    pass('Completed config_split configuration import.');
+    echo PHP_EOL;
+  }
+}
+
+task('Rebuilding cache.');
+drush('cache:rebuild');
+pass('Cache was rebuilt.');
+echo PHP_EOL;
+
+// Enable the deploy_steps runner and the always-on site modules before deploy
+// hooks, so their deploy step plugins and run-once deploy hooks run on this
+// provision. Site module names are project-specific (the installer renames
+// them), so resolve them by glob. Idempotent in every environment.
+task('Enabling site modules.');
+drush('pm:install deploy_steps');
+$module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
+foreach ($module_paths as $module_path) {
+  drush('pm:install ' . escapeshellarg(basename((string) $module_path)));
+}
+pass('Enabled site modules.');
+echo PHP_EOL;
+
+task('Running deployment hooks.');
+drush('deploy:hook');
+pass('Completed deployment hooks.');
+echo PHP_EOL;
+
+// Sanitize database.
+if ($provision_sanitize_db_skip !== '1') {
+  sanitize_db(
+    $sanitize_db_email,
+    $sanitize_db_password,
+    $sanitize_db_replace_username_with_email === '1',
+    $sanitize_db_additional_file,
+    $drupal_admin_email
+  );
+}
+else {
+  pass('Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1.');
+  echo PHP_EOL;
+}
+
+if ($provision_use_maintenance_mode === '1') {
+  task('Disabling maintenance mode.');
+  drush('maint:set 0');
+  pass('Disabled maintenance mode.');
+  echo PHP_EOL;
+}
+
+$duration = time() - $start_time;
+info('Finished site provisioning (%dm %ds).', (int) floor($duration / 60), $duration % 60);
+
+quit(0);

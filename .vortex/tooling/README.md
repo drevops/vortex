@@ -71,9 +71,8 @@ alongside the rest of your project.
 
 The scripts are covered at two levels:
 
-- **Unit tests** - [BATS](https://github.com/bats-core/bats-core) tests provide
-  full unit coverage of the scripts, with external commands mocked. They live
-  in
+- **Unit tests** - [PHPUnit](https://phpunit.de/) tests provide full unit
+  coverage of the scripts, with external commands mocked. They live in
   [`tests/`](https://github.com/drevops/vortex/tree/main/.vortex/tooling/tests)
   in the source repository.
 - **Integration tests** - end-to-end coverage comes from the parent project
@@ -84,4 +83,4 @@ The scripts are covered at two levels:
 
 ## License
 
-[GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html)
+[GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html)

@@ -1,322 +1,307 @@
-#!/usr/bin/env bash
-##
-# Download DB dump from the latest Acquia Cloud backup.
-#
-# This script will discover the latest available backup in the specified
-# Acquia Cloud environment using Acquia Cloud API 2.0, download and decompress
-# it into specified directory.
-#
-# It does not rely on 'drush ac-api-*' commands, which makes it capable of
-# running on hosts without configured Drush and Drush aliases.
-#
-# It requires to have Cloud API token Key and Secret provided.
-# To create your Cloud API token Acquia UI, go to
-# Acquia Cloud UI -> Account -> API tokens -> Create Token
-#
-# @see https://docs.acquia.com/acquia-cloud/develop/api/auth/#cloud-generate-api-token
-# @see https://cloudapi-docs.acquia.com/#/Environments/getEnvironmentsDatabaseDownloadBackup
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Download DB dump from the latest Acquia Cloud backup.
+ *
+ * This script will discover the latest available backup in the specified
+ * Acquia Cloud environment using Acquia Cloud API 2.0, download and decompress
+ * it into specified directory.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
-# use the indexed variant.
-_db_index="${VORTEX_DB_INDEX:-}"
+namespace DrevOps\VortexTooling;
 
-# Acquia Cloud API key.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_KEY"
-VORTEX_FETCH_DB_ACQUIA_KEY="${!_v:-${VORTEX_ACQUIA_KEY:-}}"
+require_once __DIR__ . '/helpers.php';
 
-# Acquia Cloud API secret.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_SECRET"
-VORTEX_FETCH_DB_ACQUIA_SECRET="${!_v:-${VORTEX_ACQUIA_SECRET:-}}"
+// -----------------------------------------------------------------------------
 
-# Application name. Used to discover UUID.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_APP_NAME"
-VORTEX_FETCH_DB_ACQUIA_APP_NAME="${!_v:-${VORTEX_ACQUIA_APP_NAME:-}}"
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
 
-# Source environment name used to download the database dump from.
-_v="VORTEX_FETCH_DB${_db_index}_ENVIRONMENT"
-VORTEX_FETCH_DB_ENVIRONMENT="${!_v:-}"
+// Acquia Cloud API key.
+$acquia_key = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_KEY', 'VORTEX_FETCH_DB_ACQUIA_KEY', 'VORTEX_ACQUIA_KEY'])));
 
-# Database name within source environment used to download the database dump.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_DB_NAME"
-VORTEX_FETCH_DB_ACQUIA_DB_NAME="${!_v:-}"
+// Acquia Cloud API secret.
+$acquia_secret = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_SECRET', 'VORTEX_FETCH_DB_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET'])));
 
-# Directory where DB dumps are stored.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_DB_DIR"
-_vs="VORTEX_FETCH_DB${_db_index}_DIR"
-_vss="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_ACQUIA_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
+// Application name. Used to discover UUID.
+$app_name = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_APP_NAME', 'VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME'])));
 
-# Database dump file name.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_DB_FILE"
-_vs="VORTEX_FETCH_DB${_db_index}_FILE"
-_vss="VORTEX_DB${_db_index}_FILE"
-VORTEX_FETCH_DB_ACQUIA_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
+// Source environment name used to download the database dump from.
+$environment = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ENVIRONMENT', 'VORTEX_FETCH_DB_ENVIRONMENT'])));
 
-# Flag to download a fresh copy of the database by triggering a new backup.
-_v="VORTEX_FETCH_DB${_db_index}_FRESH"
-VORTEX_FETCH_DB_FRESH="${!_v:-}"
+// Database name within source environment.
+$db_name = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_DB_NAME', 'VORTEX_FETCH_DB_ACQUIA_DB_NAME'])));
 
-# Interval in seconds to wait between backup status checks.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_BACKUP_WAIT_INTERVAL"
-VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL="${!_v:-10}"
+// Directory where DB dumps are stored.
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_DB_DIR', 'VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_ACQUIA_DB_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
-# Maximum time in seconds to wait for backup completion.
-_v="VORTEX_FETCH_DB${_db_index}_ACQUIA_BACKUP_MAX_WAIT"
-VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT="${!_v:-600}"
+// Database dump file name.
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_DB_FILE', 'VORTEX_FETCH_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_FETCH_DB_ACQUIA_DB_FILE', 'VORTEX_FETCH_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
-#-------------------------------------------------------------------------------
+// Flag to download a fresh copy by triggering a new backup.
+$fresh = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_FRESH', 'VORTEX_FETCH_DB_FRESH', ''])));
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Interval in seconds to wait between backup status checks.
+$backup_wait_interval = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_BACKUP_WAIT_INTERVAL', 'VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '10'])));
 
-for cmd in php curl gunzip; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Maximum time in seconds to wait for backup completion.
+$backup_max_wait = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_BACKUP_MAX_WAIT', 'VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT', '600'])));
 
-info "Started database dump download from Acquia."
+// -----------------------------------------------------------------------------
 
-#
-# Extract last value from JSON object passed via STDIN.
-#
-extract_json_last_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+// Inlined Acquia API helpers.
+function dl_acquia_api_get_token(string $key, string $secret): string {
+  $response = request_post('https://accounts.acquia.com/api/auth/oauth/token', http_build_query(['client_id' => $key, 'client_secret' => $secret, 'grant_type' => 'client_credentials']), ['Content-Type: application/x-www-form-urlencoded']);
+
+  if (!$response['ok']) {
+    fail('Unable to retrieve a token.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $token = $data['access_token'] ?? '';
+  if ($token === '') {
+    fail('Unable to retrieve a token.');
+  }
+
+  return $token;
 }
 
-#
-# Extract keyed value from JSON object passed via STDIN.
-#
-extract_json_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+function dl_acquia_api_headers(string $token): array {
+  return [
+    'Accept: application/json, version=2',
+    'Authorization: Bearer ' . $token,
+  ];
 }
 
-# Check that all required variables are present.
-[ -z "${VORTEX_FETCH_DB_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
-[ -z "${VORTEX_FETCH_DB_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
-[ -z "${VORTEX_FETCH_DB_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
-[ -z "${VORTEX_FETCH_DB_ENVIRONMENT}" ] && fail "Missing value for VORTEX_FETCH_DB_ENVIRONMENT." && exit 1
-[ -z "${VORTEX_FETCH_DB_ACQUIA_DB_NAME}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_DB_NAME." && exit 1
+function dl_acquia_api_get_app_uuid(string $token, string $app_name): string {
+  $url = 'https://cloud.acquia.com/api/applications?filter=name%3D' . rawurlencode($app_name);
+  $response = request_get($url, dl_acquia_api_headers($token));
 
-mkdir -p "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}"
+  if (!$response['ok']) {
+    fail('Unable to retrieve an application UUID.');
+  }
 
-task "Retrieving authentication token."
-token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_FETCH_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_FETCH_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $uuid = $last['uuid'] ?? '';
 
-# Check for HTTP errors in response
-if echo "${token_json}" | grep -q '"error"'; then
-  fail "Authentication failed. Check VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
-  exit 1
-fi
+  if ($uuid === '') {
+    fail(sprintf('Unable to retrieve an application UUID for \'%s\'.', $app_name));
+  }
 
-token="$(echo "${token_json}" | extract_json_value "access_token")"
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
-[ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}" && exit 1
+  return $uuid;
+}
 
-task "Retrieving ${VORTEX_FETCH_DB_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_FETCH_DB_ACQUIA_APP_NAME/ /%20}")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Application API response: ${app_uuid_json}"
+function dl_acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, $env_name);
+  $response = request_get($url, dl_acquia_api_headers($token));
 
-# Check for empty items array (application not found)
-if echo "${app_uuid_json}" | grep -q '"items":\[\]'; then
-  fail "Application '${VORTEX_FETCH_DB_ACQUIA_APP_NAME}' not found. Check application name and access permissions."
-  exit 1
-fi
+  if (!$response['ok']) {
+    fail(sprintf('Unable to retrieve environment ID for \'%s\'.', $env_name));
+  }
 
-app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted app UUID: ${app_uuid}"
-[ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for '${VORTEX_FETCH_DB_ACQUIA_APP_NAME}'. API response: ${app_uuid_json}" && exit 1
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $env_id = $last['id'] ?? '';
 
-task "Retrieving ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
-envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_FETCH_DB_ENVIRONMENT}")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Environments API response: ${envs_json}"
+  if ($env_id === '') {
+    fail(sprintf('Unable to retrieve an environment ID for \'%s\'.', $env_name));
+  }
 
-# Check for empty items array (environment not found)
-if echo "${envs_json}" | grep -q '"items":\[\]'; then
-  fail "Environment '${VORTEX_FETCH_DB_ENVIRONMENT}' not found in application '${VORTEX_FETCH_DB_ACQUIA_APP_NAME}'. Check environment name."
-  exit 1
-fi
+  return (string) $env_id;
+}
 
-env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted environment ID: ${env_id}"
-[ -z "${env_id}" ] && fail "Unable to retrieve an environment ID for '${VORTEX_FETCH_DB_ENVIRONMENT}'. API response: ${envs_json}" && exit 1
+// -----------------------------------------------------------------------------
 
-# If fresh backup requested, create a new backup and wait for it to complete.
-if [ "$VORTEX_FETCH_DB_FRESH" = "1" ]; then
-  task "Creating new database backup for ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
+info('Started database dump download from Acquia.');
 
-  # Trigger backup creation
-  create_backup_json=$(curl -s -L -X POST -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_FETCH_DB_ACQUIA_DB_NAME}/backups")
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Create backup API response: ${create_backup_json}"
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
 
-  # Check for errors
-  if echo "${create_backup_json}" | grep -q '"error"'; then
-    fail "Failed to create backup for database '${VORTEX_FETCH_DB_ACQUIA_DB_NAME}'. API response: ${create_backup_json}"
-    exit 1
-  fi
+task('Retrieving authentication token.');
+$token = dl_acquia_api_get_token($acquia_key, $acquia_secret);
 
-  # Extract notification URL for status checking
-  notification_url=$(echo "${create_backup_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Notification URL: ${notification_url}"
+task(sprintf('Retrieving %s application UUID.', $app_name));
+$app_uuid = dl_acquia_api_get_app_uuid($token, $app_name);
 
-  if [ -z "${notification_url}" ]; then
-    fail "Unable to get notification URL for backup creation. API response: ${create_backup_json}"
-    exit 1
-  fi
+task(sprintf('Retrieving %s environment ID.', $environment));
+$env_id = dl_acquia_api_get_env_id($token, $app_uuid, $environment);
 
-  task "Waiting for backup to complete."
-  max_wait="${VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT}"
-  wait_interval="${VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL}"
-  elapsed=0
+// If fresh backup requested, create a new backup and wait for completion.
+if ($fresh === '1') {
+  task(sprintf('Creating new database backup for %s.', $db_name));
 
-  while [ ${elapsed} -lt "${max_wait}" ]; do
-    sleep "${wait_interval}"
-    elapsed=$((elapsed + wait_interval))
+  $create_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups', $env_id, $db_name), NULL, dl_acquia_api_headers($token));
 
-    # Check backup status
-    status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
-    [ "${VORTEX_DEBUG-}" = "1" ] && note "Status check (${elapsed}s): ${status_json}"
+  if (!$create_response['ok']) {
+    fail('Failed to create database backup for %s.', $db_name);
+  }
 
-    status=$(echo "${status_json}" | extract_json_value "status")
+  $create_data = json_decode((string) $create_response['body'], TRUE);
+  $notification_url = $create_data['_links']['notification']['href'] ?? '';
 
-    if [ "${status}" = "completed" ]; then
-      pass "Backup completed successfully."
-      break
-    elif [ "${status}" = "failed" ]; then
-      fail "Backup creation failed. API response: ${status_json}"
-      exit 1
-    fi
+  if ($notification_url === '') {
+    fail('Unable to get notification URL for backup creation.');
+  }
 
-    note "Backup in progress (${elapsed}s elapsed)..."
-  done
+  task('Waiting for backup to complete.');
+  $elapsed = 0;
+  $backup_completed = FALSE;
 
-  if [ ${elapsed} -ge "${max_wait}" ]; then
-    fail "Backup creation timed out after ${max_wait} seconds."
-    exit 1
-  fi
+  while ($elapsed < $backup_max_wait) {
+    sleep($backup_wait_interval);
+    $elapsed += $backup_wait_interval;
 
-  note "Fresh backup will be downloaded."
-fi
+    $status_response = request_get($notification_url, dl_acquia_api_headers($token));
+    if ($status_response['ok']) {
+      $status_data = json_decode((string) $status_response['body'], TRUE);
+      $status = $status_data['status'] ?? '';
 
-task "Discovering latest backup ID for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
-backups_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_FETCH_DB_ACQUIA_DB_NAME}/backups?sort=created")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Backups API response: ${backups_json}"
+      if ($status === 'completed') {
+        pass('Backup completed successfully.');
+        $backup_completed = TRUE;
+        break;
+      }
 
-# Check for HTTP errors or database not found
-if echo "${backups_json}" | grep -q '"error"'; then
-  fail "Database '${VORTEX_FETCH_DB_ACQUIA_DB_NAME}' not found in environment '${VORTEX_FETCH_DB_ENVIRONMENT}'. Check database name. API response: ${backups_json}"
-  exit 1
-fi
+      if ($status === 'failed') {
+        fail('Backup creation failed.');
+      }
+    }
 
-# Check for empty items array (no backups found)
-if echo "${backups_json}" | grep -q '"items":\[\]'; then
-  fail "No backups found for database '${VORTEX_FETCH_DB_ACQUIA_DB_NAME}' in environment '${VORTEX_FETCH_DB_ENVIRONMENT}'. Try creating a backup first."
-  exit 1
-fi
+    note(sprintf('Backup in progress (%ds elapsed)...', $elapsed));
+  }
 
-# Acquia response has all backups sorted chronologically by created date.
-backup_id=$(echo "${backups_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup ID: ${backup_id}"
-[ -z "${backup_id}" ] && fail "Unable to discover backup ID for database '${VORTEX_FETCH_DB_ACQUIA_DB_NAME}'. API response: ${backups_json}" && exit 1
+  if (!$backup_completed) {
+    fail(sprintf('Backup creation timed out after %d seconds.', $backup_max_wait));
+  }
 
-# Insert backup id as a suffix.
-file_extension="${VORTEX_FETCH_DB_ACQUIA_DB_FILE##*.}"
-file_prefix="${VORTEX_FETCH_DB_ACQUIA_DB_NAME}_backup_"
-file_name="${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${file_prefix}${backup_id}.${file_extension}"
-file_name_discovered="${file_name}"
-file_name_compressed="${file_name}.gz"
+  note('Fresh backup will be downloaded.');
+}
 
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Target file name: ${file_name}"
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Compressed file name: ${file_name_compressed}"
+task(sprintf('Discovering latest backup ID for DB %s.', $db_name));
+$backups_response = request_get(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups?sort=created', $env_id, $db_name), dl_acquia_api_headers($token));
 
-if [ -f "${file_name_discovered}" ]; then
-  note "Found existing cached database file \"${file_name_discovered}\" for database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\"."
-else
-  # If the gzipped version exists, then we don't need to re-download it.
-  if [ ! -f "${file_name_compressed}" ]; then
-    note "Using the latest backup ID ${backup_id} for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
+if (!$backups_response['ok']) {
+  fail(sprintf('Failed to retrieve backups for database \'%s\'.', $db_name));
+}
 
-    [ ! -d "${VORTEX_FETCH_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_FETCH_DB_ACQUIA_DB_DIR}." && mkdir -p "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}"
+$backups_data = json_decode((string) $backups_response['body'], TRUE);
+$backup_items = $backups_data['_embedded']['items'] ?? [];
 
-    task "Discovering backup URL."
-    # The Acquia API responds with a 200 and a JSON body containing the
-    # temporary, pre-signed S3 download URL under the "url" key. Fetch the
-    # body and extract that URL. The Authorization header is required only to
-    # query the Acquia API; the returned S3 URL is pre-signed and is fetched
-    # later without it.
-    backup_url_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_FETCH_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
-    [ "${VORTEX_DEBUG-}" = "1" ] && note "Download action API response: ${backup_url_json}"
-    backup_url=$(echo "${backup_url_json}" | extract_json_value "url")
-    [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup URL: ${backup_url}"
-    [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID '${backup_id}'. API response: ${backup_url_json}" && exit 1
+if (empty($backup_items)) {
+  fail(sprintf('No backups found for database \'%s\' in environment \'%s\'.', $db_name, $environment));
+}
 
-    task "Downloading database dump into file ${file_name_compressed}."
-    curl --progress-bar -L "${backup_url}" -o "${file_name_compressed}"
-    download_result=$?
+$last_backup = end($backup_items);
+$backup_id = $last_backup['id'] ?? '';
 
-    # shellcheck disable=SC2181
-    [ "${download_result}" -ne 0 ] && fail "Unable to download database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}. curl exit code: ${download_result}" && exit 1
+if ($backup_id === '') {
+  fail(sprintf('Unable to discover backup ID for DB \'%s\'.', $db_name));
+}
 
-    # Check if the downloaded file exists and has content. Leave the file in
-    # place on failure so it can be inspected.
-    if [ ! -f "${file_name_compressed}" ] || [ ! -s "${file_name_compressed}" ]; then
-      fail "Downloaded file is empty or missing: ${file_name_compressed}"
-      exit 1
-    fi
+// Build file names.
+$file_extension = pathinfo($db_file, PATHINFO_EXTENSION);
+$file_prefix = $db_name . '_backup_';
+$file_name = sprintf('%s/%s%s.%s', $db_dir, $file_prefix, $backup_id, $file_extension);
+$file_name_compressed = $file_name . '.gz';
 
-    [ "${VORTEX_DEBUG-}" = "1" ] && note "Download completed successfully."
-  else
-    pass "Found existing cached gzipped database file ${file_name_compressed} for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
-  fi
+if (file_exists($file_name)) {
+  note(sprintf('Found existing cached DB file "%s" for DB "%s".', $file_name, $db_name));
+}
+else {
+  // If the gzipped version exists, skip download.
+  if (!file_exists($file_name_compressed)) {
+    note(sprintf('Using the latest backup ID %s for DB %s.', $backup_id, $db_name));
 
-  task "Expanding database file ${file_name_compressed} into ${file_name}."
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Starting decompression of ${file_name_compressed}."
+    task('Discovering backup URL.');
+    // The Acquia API responds with a 200 and a JSON body containing the
+    // temporary, pre-signed S3 download URL under the "url" key. Fetch the
+    // body and extract that URL. The Authorization header is required only to
+    // query the Acquia API; the returned S3 URL is pre-signed and is fetched
+    // later without it.
+    $backup_url_response = request_get(sprintf('https://cloud.acquia.com/api/environments/%s/databases/%s/backups/%s/actions/download', $env_id, $db_name, $backup_id), dl_acquia_api_headers($token));
 
-  # Test the gzip file first to ensure it's valid. Leave the file in place
-  # on failure so it can be inspected.
-  if ! gunzip -t "${file_name_compressed}" 2>/dev/null; then
-    fail "Downloaded file is not a valid gzip archive: ${file_name_compressed}"
-    exit 1
-  fi
+    if (!$backup_url_response['ok']) {
+      fail(sprintf('Unable to discover backup URL for backup ID \'%s\' (status: %s).', $backup_id, (string) $backup_url_response['status']));
+    }
 
-  gunzip -c "${file_name_compressed}" >"${file_name}"
-  decompress_result=$?
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression result: ${decompress_result}"
+    $backup_url_data = json_decode((string) $backup_url_response['body'], TRUE);
+    $backup_url = is_array($backup_url_data) ? (string) ($backup_url_data['url'] ?? '') : '';
 
-  # Check decompression result and file validity. Leave both files in place
-  # on failure so they can be inspected.
-  if [ "${decompress_result}" != 0 ] || [ ! -f "${file_name}" ] || [ ! -s "${file_name}" ]; then
-    fail "Unable to process database dump file \"${file_name}\". Decompression exit code: ${decompress_result}"
-    exit 1
-  fi
+    if ($backup_url === '') {
+      fail(sprintf('Unable to discover backup URL for backup ID \'%s\'.', $backup_id));
+    }
 
-  rm "${file_name_compressed}"
+    task(sprintf('Downloading DB dump into file %s.', $file_name_compressed));
+    $dl_response = request($backup_url, ['method' => 'GET', 'save_to' => $file_name_compressed, 'timeout' => 600]);
+    if (!$dl_response['ok']) {
+      fail('Unable to download database %s.', $db_name);
+    }
 
-  [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully."
-fi
+    // Check if the downloaded file exists and has content. Leave the file in
+    // place on failure so it can be inspected.
+    if (!file_exists($file_name_compressed) || filesize($file_name_compressed) === 0) {
+      fail(sprintf('Downloaded file is empty or missing: %s', $file_name_compressed));
+    }
+  }
+  else {
+    pass(sprintf('Found existing cached gzipped DB file %s for DB %s.', $file_name_compressed, $db_name));
+  }
 
-task "Renaming file \"${file_name}\" to \"${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}\"."
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Moving from: ${file_name}"
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Moving to: ${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}"
-mv "${file_name}" "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}"
-mv_result=$?
-[ "${mv_result}" -ne 0 ] && fail "Unable to rename file from '${file_name}' to '${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}'. mv exit code: ${mv_result}" && exit 1
-[ "${VORTEX_DEBUG-}" = "1" ] && note "File rename completed successfully."
+  task(sprintf('Expanding DB file %s into %s.', $file_name_compressed, $file_name));
 
-pass "Finished database dump download from Acquia."
+  // Test the gzip file first to ensure it's valid. Leave the file in place
+  // on failure so it can be inspected.
+  $header = file_get_contents($file_name_compressed, FALSE, NULL, 0, 2);
+  if ($header === FALSE || $header !== "\x1f\x8b") {
+    fail(sprintf('Downloaded file is not a valid gzip archive: %s', $file_name_compressed));
+  }
+
+  $gz_in = @fopen('compress.zlib://' . $file_name_compressed, 'rb');
+  if ($gz_in === FALSE) {
+    // @codeCoverageIgnoreStart
+    fail(sprintf('Unable to read compressed file %s.', $file_name_compressed));
+    // @codeCoverageIgnoreEnd
+  }
+
+  $out = @fopen($file_name, 'wb');
+  if ($out === FALSE) {
+    fclose($gz_in);
+    // @codeCoverageIgnoreStart
+    fail(sprintf('Unable to write decompressed file %s.', $file_name));
+    // @codeCoverageIgnoreEnd
+  }
+
+  $bytes = stream_copy_to_stream($gz_in, $out);
+  fclose($gz_in);
+  fclose($out);
+
+  // Check decompression result and file validity. Leave both files in place
+  // on failure so they can be inspected.
+  if ($bytes === FALSE || $bytes === 0) {
+    fail(sprintf('Downloaded file is not a valid gzip archive: %s', $file_name_compressed));
+  }
+
+  if (!file_exists($file_name) || filesize($file_name) === 0) {
+    fail(sprintf('Unable to process DB dump file "%s".', $file_name));
+  }
+
+  @unlink($file_name_compressed);
+}
+
+task(sprintf('Renaming file "%s" to "%s/%s".', $file_name, $db_dir, $db_file));
+$final_path = $db_dir . '/' . $db_file;
+if (!rename($file_name, $final_path)) {
+  fail(sprintf('Unable to rename file from \'%s\' to \'%s\'.', $file_name, $final_path));
+}
+
+pass('Finished database dump download from Acquia.');

@@ -95,36 +95,6 @@ jobs:
       - name: Validate Renovate configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@ee9f69e1f683ed0d08225086482b34fc9abe9300 # v2.1.0
 
-      - name: Install Ahoy
-        run: |
-          version=2.4.0 && \
-          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
-          chmod +x /usr/local/bin/ahoy && \
-          ahoy --version
-
-      - name: Run tests
-        run: ./tests/test.common.sh
-        working-directory: .vortex
-        env:
-          TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
-
-      - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: ${{github.job}}-code-coverage-report
-          path: /tmp/.vortex-coverage-html
-          include-hidden-files: true
-          if-no-files-found: error
-
-      - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-        continue-on-error: true
-        with:
-          directory: /tmp/.vortex-coverage-html
-          fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   vortex-test-workflow:
     runs-on: ubuntu-latest
 

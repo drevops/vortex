@@ -1,138 +1,169 @@
-#!/usr/bin/env bash
-##
-# Task to copy files between Acquia environments.
-#
-# It does not rely on 'drush ac-api-*' commands, which makes it capable of
-# running on hosts without configured Drush and Drush aliases.
-#
-# It requires to have Cloud API token Key and Secret provided.
-# To create your Cloud API token Acquia UI, go to
-# Acquia Cloud UI -> Account -> API tokens -> Create Token
-#
-# @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsFiles
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Task to copy files between Acquia environments.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Acquia Cloud API key.
-VORTEX_TASK_COPY_FILES_ACQUIA_KEY="${VORTEX_TASK_COPY_FILES_ACQUIA_KEY:-${VORTEX_ACQUIA_KEY:-}}"
+namespace DrevOps\VortexTooling;
 
-# Acquia Cloud API secret.
-VORTEX_TASK_COPY_FILES_ACQUIA_SECRET="${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET:-${VORTEX_ACQUIA_SECRET:-}}"
+require_once __DIR__ . '/helpers.php';
 
-# Application name. Used to discover UUID.
-VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME="${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME:-${VORTEX_ACQUIA_APP_NAME:-}}"
+// -----------------------------------------------------------------------------
 
-# Source environment name to copy from.
-VORTEX_TASK_COPY_FILES_ACQUIA_SRC="${VORTEX_TASK_COPY_FILES_ACQUIA_SRC:-}"
+// Acquia Cloud API key.
+$acquia_key = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_KEY', 'VORTEX_ACQUIA_KEY');
 
-# Destination environment name to copy to.
-VORTEX_TASK_COPY_FILES_ACQUIA_DST="${VORTEX_TASK_COPY_FILES_ACQUIA_DST:-}"
+// Acquia Cloud API secret.
+$acquia_secret = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET');
 
-# Number of status retrieval retries. If this limit reached and task has not
-# yet finished, the task is considered failed.
-VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES="${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES:-300}"
+// Application name. Used to discover UUID.
+$app_name = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME');
 
-# Interval in seconds to check task status.
-VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL="${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL:-10}"
+// Source environment name to copy from.
+$src_env = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_SRC');
 
-#-------------------------------------------------------------------------------
+// Destination environment name to copy to.
+$dst_env = getenv_required('VORTEX_TASK_COPY_FILES_ACQUIA_DST');
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Number of status retrieval retries.
+$status_retries = (int) getenv_default('VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES', '300');
 
-# Pre-flight checks.
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Interval in seconds to check task status.
+$status_interval = (int) getenv_default('VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL', '10');
 
-info "Started files copying between environments in Acquia."
+// -----------------------------------------------------------------------------
 
-#
-# Extract last value from JSON object passed via STDIN.
-#
-extract_json_last_value() {
-  local key="${1}"
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+// Inlined Acquia API helpers.
+function files_acquia_api_get_token(string $key, string $secret): string {
+  $response = request_post('https://accounts.acquia.com/api/auth/oauth/token', http_build_query(['client_id' => $key, 'client_secret' => $secret, 'grant_type' => 'client_credentials']), ['Content-Type: application/x-www-form-urlencoded']);
+
+  if (!$response['ok']) {
+    fail('Unable to retrieve a token.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $token = $data['access_token'] ?? '';
+  if ($token === '') {
+    fail('Unable to retrieve a token.');
+  }
+
+  return $token;
 }
 
-#
-# Extract keyed value from JSON object passed via STDIN.
-#
-extract_json_value() {
-  local key="${1}"
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+function files_acquia_api_headers(string $token): array {
+  return [
+    'Accept: application/json, version=2',
+    'Authorization: Bearer ' . $token,
+  ];
 }
 
-# Check that all required variables are present.
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_SRC}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_SRC." && exit 1
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_DST}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_DST." && exit 1
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES." && exit 1
-[ -z "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL}" ] && fail "Missing value for VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL." && exit 1
+function files_acquia_api_get_app_uuid(string $token, string $app_name): string {
+  $url = 'https://cloud.acquia.com/api/applications?filter=name%3D' . rawurlencode($app_name);
+  $response = request_get($url, files_acquia_api_headers($token));
 
-task "Retrieving authentication token."
-token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_FILES_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
-token=$(echo "${token_json}" | extract_json_value "access_token")
-[ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
+  if (!$response['ok']) {
+    fail('Unable to retrieve an application UUID.');
+  }
 
-task "Retrieving ${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME} application UUID."
-app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_COPY_FILES_ACQUIA_APP_NAME/ /%20}")
-app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
-[ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID." && exit 1
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $uuid = $last['uuid'] ?? '';
 
-task "Retrieving source environment ID."
-envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_COPY_FILES_ACQUIA_SRC}")
-src_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
-[ -z "${src_env_id}" ] && fail "Unable to retrieve source environment ID." && exit 1
+  if ($uuid === '') {
+    fail('Unable to retrieve an application UUID.');
+  }
 
-task "Retrieving destination environment ID."
-envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_COPY_FILES_ACQUIA_DST}")
-dst_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
-[ -z "${dst_env_id}" ] && fail "Unable to retrieve destination environment ID." && exit 1
+  return $uuid;
+}
 
-task "Copying files from ${VORTEX_TASK_COPY_FILES_ACQUIA_SRC} to ${VORTEX_TASK_COPY_FILES_ACQUIA_DST} environment."
-task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"source\":\"${src_env_id}\"}" "https://cloud.acquia.com/api/environments/${dst_env_id}/files")
-notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
+function files_acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, rawurlencode($env_name));
+  $response = request_get($url, files_acquia_api_headers($token));
 
-echo -n "     > Checking task status: "
-task_completed=0
-# shellcheck disable=SC2034
-for i in $(seq 1 "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES}"); do
-  echo -n "."
-  sleep "${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL}"
-  task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
-  task_state=$(echo "${task_status_json}" | extract_json_value "status")
-  [ "${task_state}" = "completed" ] && task_completed=1 && break
+  if (!$response['ok']) {
+    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+  }
 
-  task "Retrieving authentication token."
-  token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_FILES_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_FILES_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
-  token=$(echo "${token_json}" | extract_json_value "access_token")
-  [ -z "${token}" ] && fail "Unable to retrieve a token." && exit 1
-done
+  $data = json_decode((string) $response['body'], TRUE);
+  $items = $data['_embedded']['items'] ?? [];
+  $last = end($items);
+  $env_id = $last['id'] ?? '';
 
-echo
+  if ($env_id === '') {
+    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+  }
 
-if [ "${task_completed}" = "0" ]; then
-  fail "Unable to copy files from ${VORTEX_TASK_COPY_FILES_ACQUIA_SRC} to ${VORTEX_TASK_COPY_FILES_ACQUIA_DST} environment."
-  exit 1
-fi
+  return (string) $env_id;
+}
 
-note "Copied files from ${VORTEX_TASK_COPY_FILES_ACQUIA_SRC} to ${VORTEX_TASK_COPY_FILES_ACQUIA_DST} environment."
+function files_acquia_api_poll_notification(string $key, string $secret, string $notification_url, int $retries, int $interval): bool {
+  $token = files_acquia_api_get_token($key, $secret);
 
-self_elapsed_time=$((SECONDS))
-note "Run duration: $((self_elapsed_time / 60)) min $((self_elapsed_time % 60)) sec."
+  for ($i = 1; $i <= $retries; $i++) {
+    sleep($interval);
 
-pass "Finished files copying between environments in Acquia."
+    $response = request_get($notification_url, files_acquia_api_headers($token));
+
+    if (!$response['ok'] && ($response['status'] ?? 0) === 401) {
+      $token = files_acquia_api_get_token($key, $secret);
+      $response = request_get($notification_url, files_acquia_api_headers($token));
+    }
+
+    if ($response['ok']) {
+      $data = json_decode((string) $response['body'], TRUE);
+      $status = $data['status'] ?? '';
+      if ($status === 'completed') {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+// -----------------------------------------------------------------------------
+
+info('Started files copying between environments in Acquia.');
+
+task('Retrieving authentication token.');
+$token = files_acquia_api_get_token($acquia_key, $acquia_secret);
+
+task(sprintf('Retrieving %s application UUID.', $app_name));
+$app_uuid = files_acquia_api_get_app_uuid($token, $app_name);
+
+task('Retrieving source environment ID.');
+$src_env_id = files_acquia_api_get_env_id($token, $app_uuid, $src_env);
+
+task('Retrieving destination environment ID.');
+$dst_env_id = files_acquia_api_get_env_id($token, $app_uuid, $dst_env);
+
+task(sprintf('Copying files from %s to %s environment.', $src_env, $dst_env));
+$copy_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/files', $dst_env_id), json_encode(['source' => $src_env_id]), array_merge(files_acquia_api_headers($token), ['Content-Type: application/json']));
+
+if (!$copy_response['ok']) {
+  fail('Failed to copy files from %s to %s environment.', $src_env, $dst_env);
+}
+
+$copy_data = json_decode((string) $copy_response['body'], TRUE);
+$notification_url = $copy_data['_links']['notification']['href'] ?? '';
+
+if ($notification_url === '') {
+  fail('Unable to get notification URL for files copy operation.');
+}
+
+$task_completed = files_acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval);
+
+if (!$task_completed) {
+  fail(sprintf('Unable to copy files from %s to %s environment.', $src_env, $dst_env));
+}
+
+note(sprintf('Copied files from %s to %s environment.', $src_env, $dst_env));
+
+pass('Finished files copying between environments in Acquia.');

@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Test fixture script for multiple passthru operations.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script will call passthru twice' . PHP_EOL;
+
+passthru('echo "first"', $exit_code1);
+echo 'First call returned code ' . $exit_code1 . PHP_EOL;
+
+passthru('echo "second"', $exit_code2);
+echo 'Second call returned code ' . $exit_code2 . PHP_EOL;
+
+echo 'Script completed' . PHP_EOL;

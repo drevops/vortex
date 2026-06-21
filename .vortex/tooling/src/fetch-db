@@ -1,109 +1,103 @@
-#!/usr/bin/env bash
-##
-# Download database dump.
-#
-# This is a router script to call relevant scripts based on type.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Download database dump.
+ *
+ * This is a router script to call relevant scripts based on type.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
-# use the indexed variant (e.g., VORTEX_FETCH_DB2_SOURCE instead of
-# VORTEX_FETCH_DB_SOURCE).
-_db_index="${VORTEX_DB_INDEX:-}"
+namespace DrevOps\VortexTooling;
 
-# Note that `container_registry` works only for database-in-image
-# database storage (when $VORTEX_DB_IMAGE variable has a value).
-_v="VORTEX_FETCH_DB${_db_index}_SOURCE"
-VORTEX_FETCH_DB_SOURCE="${!_v:-url}"
+require_once __DIR__ . '/helpers.php';
 
-# Force DB download even if the cache exists.
-# Usually set in CircleCI UI to override per build cache.
-_v="VORTEX_FETCH_DB${_db_index}_FORCE"
-VORTEX_FETCH_DB_FORCE="${!_v:-}"
+// -----------------------------------------------------------------------------
 
-# Proceed with download.
-_v="VORTEX_FETCH_DB${_db_index}_PROCEED"
-VORTEX_FETCH_DB_PROCEED="${!_v:-1}"
+// Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+// use the indexed variant (e.g., VORTEX_FETCH_DB2_SOURCE instead of
+// VORTEX_FETCH_DB_SOURCE).
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
 
-# Database dump file name.
-_v="VORTEX_FETCH_DB${_db_index}_FILE"
-_vs="VORTEX_DB${_db_index}_FILE"
-VORTEX_FETCH_DB_FILE="${!_v:-${!_vs:-db.sql}}"
+// Database download source.
+$source = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SOURCE', 'VORTEX_FETCH_DB_SOURCE', 'url'])));
 
-# Directory with database dump file.
-_v="VORTEX_FETCH_DB${_db_index}_DIR"
-_vs="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_DIR="${!_v:-${!_vs:-./.data}}"
+// Force DB download even if the cache exists.
+$force = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_FORCE', 'VORTEX_FETCH_DB_FORCE', ''])));
 
-# ------------------------------------------------------------------------------
+// Proceed with download.
+$proceed = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_PROCEED', 'VORTEX_FETCH_DB_PROCEED', '1'])));
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Database dump file name.
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_FETCH_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
-info "Started database${_db_index:+ ${_db_index}} download."
+// Directory with database dump file.
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
-[ "${VORTEX_FETCH_DB_PROCEED}" != "1" ] && pass "Skipped database download as VORTEX_FETCH_DB_PROCEED is not set to 1." && exit 0
+// Semaphore file to indicate download completion.
+$semaphore = getenv_default('VORTEX_FETCH_DB_SEMAPHORE', '');
 
-# Skip file existence check for container_registry source as the database is
-# stored as a Docker image, not a file.
-if [ "${VORTEX_FETCH_DB_SOURCE}" != "container_registry" ]; then
-  db_file_basename="${VORTEX_FETCH_DB_FILE%.*}"
-  [ -d "${VORTEX_FETCH_DB_DIR:-}" ] && found_db=$(find "${VORTEX_FETCH_DB_DIR}" -name "${db_file_basename}.sql" -o -name "${db_file_basename}.tar")
+// -----------------------------------------------------------------------------
 
-  if [ -n "${found_db:-}" ]; then
-    note "Found existing database dump file(s)."
-    ls -Alh "${VORTEX_FETCH_DB_DIR}" 2>/dev/null || true
+info('Started database%s download.', $db_index !== '' ? ' ' . $db_index : '');
 
-    if [ "${VORTEX_FETCH_DB_FORCE}" != "1" ]; then
-      note "Using existing database dump file(s)."
-      note "Download will not proceed."
-      note "Remove existing database file or set VORTEX_FETCH_DB_FORCE value to 1 to force download."
-      exit 0
-    else
-      note "Will download a fresh copy of the database."
-    fi
-  fi
-fi
+if ($proceed !== '1') {
+  pass('Skipped database download as VORTEX_FETCH_DB_PROCEED is not set to 1.');
+  quit(0);
+}
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "ftp" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-ftp"
-fi
+// Skip file existence check for container_registry source as the database is
+// stored as a Docker image, not a file.
+if ($source !== 'container_registry') {
+  // Check for existing dump files.
+  $db_file_basename = pathinfo($db_file, PATHINFO_FILENAME);
+  $found_db = '';
+  if (is_dir($db_dir)) {
+    $files = glob($db_dir . '/' . $db_file_basename . '.{sql,tar}', GLOB_BRACE);
+    if ($files !== FALSE && count($files) > 0) {
+      $found_db = implode("\n", $files);
+    }
+  }
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "url" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-url"
-fi
+  if ($found_db !== '') {
+    note('Found existing database dump file(s).');
+    passthru('ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true');
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "acquia" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-acquia"
-fi
+    if ($force !== '1') {
+      note('Using existing database dump file(s).');
+      note('Download will not proceed.');
+      note('Remove existing database file or set VORTEX_FETCH_DB_FORCE value to 1 to force download.');
+      quit(0);
+    }
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "lagoon" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-lagoon"
-fi
+    note('Will download a fresh copy of the database.');
+  }
+}
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-container-registry"
-fi
+$sources = [
+  'ftp' => __DIR__ . '/fetch-db-ftp',
+  'url' => __DIR__ . '/fetch-db-url',
+  'acquia' => __DIR__ . '/fetch-db-acquia',
+  'lagoon' => __DIR__ . '/fetch-db-lagoon',
+  'container_registry' => __DIR__ . '/fetch-db-container-registry',
+  's3' => __DIR__ . '/fetch-db-s3',
+];
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "s3" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/fetch-db-s3"
-fi
+if (!isset($sources[$source])) {
+  fail('Invalid database download source "%s". Available sources: %s.', $source, implode(', ', array_keys($sources)));
+}
 
-ls -Alh "${VORTEX_FETCH_DB_DIR}" || true
+passthru_or_fail($sources[$source], 'Failed to download database from source "%s".', $source);
 
-# Create a semaphore file to indicate that the database has been downloaded.
-[ -n "${VORTEX_FETCH_DB_SEMAPHORE:-}" ] && touch "${VORTEX_FETCH_DB_SEMAPHORE}"
+passthru('ls -Alh ' . escapeshellarg($db_dir) . ' || true');
 
-pass "Finished database${_db_index:+ ${_db_index}} download."
+// Create a semaphore file to indicate that the database has been downloaded.
+if ($semaphore !== '') {
+  touch($semaphore);
+}
+
+pass('Finished database%s download.', $db_index !== '' ? ' ' . $db_index : '');

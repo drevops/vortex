@@ -1,99 +1,101 @@
-#!/usr/bin/env bash
-##
-# Download DB dump via CURL.
-#
-# IMPORTANT! This script runs outside the container on the host system.
-#
-# shellcheck disable=SC1090,SC1091
+#!/usr/bin/env php
+<?php
 
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+/**
+ * @file
+ * Download DB dump via CURL.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+declare(strict_types=1);
 
-# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
-# use the indexed variant.
-_db_index="${VORTEX_DB_INDEX:-}"
+namespace DrevOps\VortexTooling;
 
-# URL of the remote database. If HTTP authentication required, it must be
-# included in the variable.
-_v="VORTEX_FETCH_DB${_db_index}_URL"
-VORTEX_FETCH_DB_URL="${!_v:-}"
+require_once __DIR__ . '/helpers.php';
 
-# Directory with database dump file.
-_v="VORTEX_FETCH_DB${_db_index}_URL_DB_DIR"
-_vs="VORTEX_FETCH_DB${_db_index}_DIR"
-_vss="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_URL_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
+// -----------------------------------------------------------------------------
 
-# Database dump file name.
-_v="VORTEX_FETCH_DB${_db_index}_URL_DB_FILE"
-_vs="VORTEX_FETCH_DB${_db_index}_FILE"
-_vss="VORTEX_DB${_db_index}_FILE"
-VORTEX_FETCH_DB_URL_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
+// Database index suffix.
+$db_index = getenv_default('VORTEX_DB_INDEX', '');
 
-# Password for unzipping password-protected zip files.
-_v="VORTEX_FETCH_DB${_db_index}_UNZIP_PASSWORD"
-VORTEX_FETCH_DB_UNZIP_PASSWORD="${!_v:-}"
+// URL of the remote database.
+$url = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_URL', 'VORTEX_FETCH_DB_URL'])));
 
-#-------------------------------------------------------------------------------
+// Directory with database dump file.
+$db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_URL_DB_DIR', 'VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_URL_DB_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
-# @formatter:off
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
-note() { printf "       %s\n" "${1}"; }
-task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
-pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
-# @formatter:on
+// Database dump file name.
+$db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_URL_DB_FILE', 'VORTEX_FETCH_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_FETCH_DB_URL_DB_FILE', 'VORTEX_FETCH_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
-for cmd in curl unzip; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+// Password for unzipping password-protected zip files.
+$unzip_password = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_UNZIP_PASSWORD', 'VORTEX_FETCH_DB_UNZIP_PASSWORD', ''])));
 
-info "Started database dump download from URL."
+// -----------------------------------------------------------------------------
 
-# Check all required values.
-[ -z "${VORTEX_FETCH_DB_URL}" ] && fail "Missing required value for VORTEX_FETCH_DB_URL." && exit 1
+info('Started database dump download from URL.');
 
-mkdir -p "${VORTEX_FETCH_DB_URL_DB_DIR}"
+if (!is_dir($db_dir)) {
+  mkdir($db_dir, 0755, TRUE);
+}
 
-note "Downloading database dump file."
-curl -fLs "${VORTEX_FETCH_DB_URL}" -o "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}"
+$dest = $db_dir . '/' . $db_file;
 
-if [ "${VORTEX_FETCH_DB_URL%*.zip}" != "${VORTEX_FETCH_DB_URL}" ]; then
-  note "Detecting zip file, preparing for extraction."
-  mv "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}" "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip"
+note('Downloading database dump file.');
+$response = request($url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => 300]);
+if (!$response['ok']) {
+  // Remove the partial file so an HTTP error body is not left on disk as a
+  // bogus dump, matching the host-side 'curl -f' behaviour.
+  @unlink($dest);
+  fail('Failed to download database dump from URL.');
+}
 
-  # Create temporary directory for extraction
-  temp_extract_dir="${VORTEX_FETCH_DB_URL_DB_DIR}/tmp_extract_$$"
-  mkdir -p "${temp_extract_dir}"
+// Handle zip files.
+if (str_ends_with($url, '.zip')) {
+  command_must_exist('unzip');
+  note('Detecting zip file, preparing for extraction.');
 
-  if [ -n "${VORTEX_FETCH_DB_UNZIP_PASSWORD}" ]; then
-    note "Unzipping password-protected database dump file."
-    unzip -o -P "${VORTEX_FETCH_DB_UNZIP_PASSWORD}" "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip" -d "${temp_extract_dir}"
-  else
-    note "Unzipping database dump file."
-    unzip -o "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip" -d "${temp_extract_dir}"
-  fi
+  $zip_file = $dest . '.zip';
+  rename($dest, $zip_file);
 
-  # Find the first regular file (not directory) in the extracted content.
-  note "Discovering database file in archive."
-  extracted_file=$(find "${temp_extract_dir}" -type f -print | head -n 1)
+  $temp_dir = $db_dir . '/tmp_extract_' . getmypid();
+  if (!is_dir($temp_dir)) {
+    mkdir($temp_dir, 0755, TRUE);
+  }
 
-  if [ -z "${extracted_file}" ]; then
-    fail "No files found in the zip archive."
-    rm -rf "${temp_extract_dir}" >/dev/null
-    rm -f "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip" >/dev/null
-    exit 1
-  fi
+  if ($unzip_password !== '') {
+    note('Unzipping password-protected database dump file.');
+    passthru(sprintf('unzip -o -P %s %s -d %s', escapeshellarg($unzip_password), escapeshellarg($zip_file), escapeshellarg($temp_dir)), $exit_code);
+  }
+  else {
+    note('Unzipping database dump file.');
+    passthru(sprintf('unzip -o %s -d %s', escapeshellarg($zip_file), escapeshellarg($temp_dir)), $exit_code);
+  }
 
-  note "Moving extracted file to target location."
-  mv "${extracted_file}" "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}"
+  if ($exit_code !== 0) {
+    // Clean up on failure.
+    shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+    @unlink($zip_file);
+    fail('Failed to extract zip file.');
+  }
 
-  note "Cleaning up temporary files."
-  rm -rf "${temp_extract_dir}" >/dev/null
-  rm -f "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip" >/dev/null
-fi
+  // Find the first regular file in the extracted content.
+  note('Discovering database file in archive.');
+  $extracted_file = shell_exec('find ' . escapeshellarg($temp_dir) . ' -type f -print | head -n 1');
+  $extracted_file = $extracted_file !== NULL ? trim($extracted_file) : '';
 
-pass "Finished database dump download from URL."
+  if ($extracted_file === '') {
+    shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+    @unlink($zip_file);
+    fail('No files found in the zip archive.');
+  }
+
+  note('Moving extracted file to target location.');
+  rename($extracted_file, $dest);
+
+  note('Cleaning up temporary files.');
+  shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+  @unlink($zip_file);
+}
+
+pass('Finished database dump download from URL.');

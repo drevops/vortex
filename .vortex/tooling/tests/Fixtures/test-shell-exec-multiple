@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Test fixture script for multiple shell_exec operations.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/../../src/helpers.php';
+
+echo 'Script will call shell_exec three times' . PHP_EOL;
+
+$result1 = shell_exec('command 1');
+$result2 = shell_exec('command 2');
+$result3 = shell_exec('command 3');
+
+echo 'First: ' . $result1 . PHP_EOL;
+echo 'Second: ' . $result2 . PHP_EOL;
+echo 'Third: ' . $result3 . PHP_EOL;
