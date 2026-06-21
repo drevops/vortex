@@ -58,7 +58,7 @@ class ComposerInstallerTest extends FunctionalTestCase {
 
     $this->logSubstep('Create a local fixture package of type "drupal-library"');
     $library_dir = static::$tmp . '/fixture_library';
-    File::dump($library_dir . '/composer.json', (string) json_encode([
+    File::dump($library_dir . '/composer.json', json_encode([
       'name' => 'vortex-test/' . $library_name,
       'type' => 'drupal-library',
       'version' => '1.0.0',
@@ -67,7 +67,7 @@ class ComposerInstallerTest extends FunctionalTestCase {
 
     $this->logSubstep('Create a project using the template installer configuration');
     $project_dir = static::$tmp . '/project';
-    File::dump($project_dir . '/composer.json', (string) json_encode([
+    File::dump($project_dir . '/composer.json', json_encode([
       'name' => 'vortex-test/project',
       'require' => [
         'composer/installers' => $installers_constraint,
