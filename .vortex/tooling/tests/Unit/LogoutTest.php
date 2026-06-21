@@ -38,7 +38,7 @@ class LogoutTest extends UnitTestCase {
   public function testLogoutBlockAdminFails(): void {
     $this->envSet('VORTEX_LOGOUT_BLOCK_ADMIN', '1');
 
-    $block_cmd = './vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:block';
+    $block_cmd = './vendor/bin/drush -y sql:query "SELECT name FROM \\`users_field_data\\` WHERE \\`uid\\` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:block';
 
     $this->mockPassthru(['cmd' => $block_cmd, 'result_code' => 1]);
 
@@ -46,7 +46,7 @@ class LogoutTest extends UnitTestCase {
   }
 
   public static function dataProviderLogout(): array {
-    $block_cmd = './vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:block';
+    $block_cmd = './vendor/bin/drush -y sql:query "SELECT name FROM \\`users_field_data\\` WHERE \\`uid\\` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:block';
 
     return [
       'block admin' => [

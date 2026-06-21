@@ -52,7 +52,7 @@ class LoginTest extends UnitTestCase {
   public static function dataProviderLogin(): array {
     $password_policy_cmd = './vendor/bin/drush -y pm:list --status=enabled 2>/dev/null | grep -q password_policy';
     $password_reset_cmd = './vendor/bin/drush -y sql:query \'UPDATE `user__field_password_expiration` SET `field_password_expiration_value` = 0 WHERE `bundle` = "user" AND `entity_id` = 1;\' >/dev/null';
-    $unblock_cmd = './vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:unblock 2>/dev/null';
+    $unblock_cmd = './vendor/bin/drush -y sql:query "SELECT name FROM \\`users_field_data\\` WHERE \\`uid\\` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:unblock 2>/dev/null';
     $login_cmd = './vendor/bin/drush -y user:login';
     $login_url = 'http://example.com/user/reset/1/abc123/login';
 

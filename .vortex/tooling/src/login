@@ -29,7 +29,7 @@ if ($unblock_admin === '1') {
   }
 
   // Unblock the admin user.
-  passthru('./vendor/bin/drush -y sql:query "SELECT name FROM `users_field_data` WHERE `uid` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:unblock 2>/dev/null', $exit_code);
+  passthru('./vendor/bin/drush -y sql:query "SELECT name FROM \\`users_field_data\\` WHERE \\`uid\\` = \'1\';" | head -n 1 | xargs ./vendor/bin/drush -y -- user:unblock 2>/dev/null', $exit_code);
 }
 
 passthru_or_fail('./vendor/bin/drush -y user:login');
