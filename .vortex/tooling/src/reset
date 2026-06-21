@@ -27,7 +27,7 @@ $is_hard_reset = isset($GLOBALS['argv'][1]) && $GLOBALS['argv'][1] === 'hard';
 
 info('Started reset.');
 
-passthru(sprintf('rm -rf ./vendor ./%s/core ./%s/profiles/contrib ./%s/modules/contrib ./%s/themes/contrib ./%s/themes/custom/*/build ./%s/themes/custom/*/scss/_components.scss', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
+passthru(sprintf('rm -rf "./vendor" "./%s/core" "./%s/profiles/contrib" "./%s/modules/contrib" "./%s/themes/contrib" "./%s/themes/custom/*/build" "./%s/themes/custom/*/scss/_components.scss"', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
 
 passthru('find . -type d -name node_modules | xargs rm -Rf');
 
