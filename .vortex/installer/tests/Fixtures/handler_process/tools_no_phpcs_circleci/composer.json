@@ -1,4 +1,4 @@
-@@ -39,12 +39,9 @@
+@@ -38,12 +38,9 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -11,7 +11,7 @@
          "drupal/drupal-extension": "__VERSION__",
          "drupal/sdc_devel": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
-@@ -53,7 +50,6 @@
+@@ -52,7 +49,6 @@
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -19,11 +19,11 @@
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
          "phpstan/phpstan": "__VERSION__",
-@@ -82,7 +78,6 @@
+@@ -81,7 +77,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,
 -            "dealerdirect/phpcodesniffer-composer-installer": true,
              "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
-             "oomphinc/composer-installers-extender": true,
+             "php-http/discovery": true,
