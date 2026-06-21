@@ -324,15 +324,6 @@ jobs:
       - name: Build stack
         run: docker compose up --detach && docker builder prune --all --force
 
-      - name: Install development dependencies
-        run: |
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
-            if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
-            COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-          #;< TOOL_JEST
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-          #;> TOOL_JEST
-
       #;< !PROVISION_TYPE_PROFILE
       # Execute commands after the database download finished: if a fresh DB
       # dump was downloaded (cache miss), import it and export it back to
@@ -363,6 +354,15 @@ jobs:
           path: .data
           key: v26.6.0-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-${{ hashFiles('db_cache_timestamp') }}
       #;> !PROVISION_TYPE_PROFILE
+
+      - name: Install development dependencies
+        run: |
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+            if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+            COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+          #;< TOOL_JEST
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+          #;> TOOL_JEST
 
       - name: Provision site
         run: |
