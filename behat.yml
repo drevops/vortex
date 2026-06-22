@@ -84,6 +84,9 @@ default:
       on_failed: true                        # Change to 'false' (no quotes) to disable screenshots on failure.
       always_fullscreen: true                # Always capture full page screenshots.
       purge: false                           # Purge screenshots before each run. Use `BEHAT_SCREENSHOT_PURGE=true` to override.
+      animation:                             # Combine per-step screenshots into an animated GIF for each scenario.
+        enabled: true                        # Change to 'false' (no quotes) to disable animated screenshots.
+        frame_delay: 500                     # Delay between animated GIF frames, in milliseconds.
       info_types:                            # Additional information to include in screenshots.
         - url
         - feature
