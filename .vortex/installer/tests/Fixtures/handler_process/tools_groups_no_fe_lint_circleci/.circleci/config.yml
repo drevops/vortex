@@ -143,7 +143,7 @@ jobs:
           name: Install development dependencies
           command: |
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
-              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"${PACKAGE_TOKEN}\"; fi && \
+              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - run:
@@ -332,7 +332,7 @@ jobs:
           name: Install development dependencies
           command: |
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
-              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"${PACKAGE_TOKEN}\"; fi && \
+              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - run:
