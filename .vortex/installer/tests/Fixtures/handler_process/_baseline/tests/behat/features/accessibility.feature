@@ -19,5 +19,6 @@ Feature: Accessibility
   Scenario: Secondary pages are audited for the site-wide accessibility report
     Given I am an anonymous user
     When I go to "/user/login"
-    And I go to "/user/password"
-    Then the path should be "/user/password"
+    Then the current page should pass accessibility checks
+    When I go to "/user/password"
+    Then the current page should pass accessibility checks
