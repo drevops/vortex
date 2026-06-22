@@ -60,7 +60,7 @@
         "phpunit/phpunit": "^11.5.55",
         "pyrech/composer-changelogs": "^2.2",
         "rector/rector": "^2.5.0",
-        "vincentlanglet/twig-cs-fixer": "^3.14"
+        "vincentlanglet/twig-cs-fixer": "^4.0"
     },
     "conflict": {
         "drupal/drupal": "*"
