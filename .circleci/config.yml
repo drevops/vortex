@@ -276,16 +276,6 @@ jobs:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
 
-      - run:
-          name: Install development dependencies
-          command: |
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
-              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
-              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-            #;< TOOL_JEST
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-            #;> TOOL_JEST
-
       #;< !PROVISION_TYPE_PROFILE
       # Execute commands after the database download finished: if a fresh DB
       # dump was downloaded (cache miss), import it and export it back to
@@ -305,7 +295,50 @@ jobs:
             ./vendor/drevops/vortex-tooling/src/export-db db.sql
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
+
+      # Save the clean DB dump to the cache before the slow dev-dependency
+      # install and provisioning, so it lands sooner and survives a later
+      # failure. save_cache has no per-node runtime condition, and two parallel
+      # runners creating the same key concurrently fail the build, so only the
+      # primary runner may store it: stash .data aside on the non-primary
+      # runners to make their save a no-op, then restore it for provisioning.
+      - run:
+          name: Stash DB on non-primary runners so only the primary saves the cache
+          command: |
+            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && [ -e .data ]; then
+              echo "Stashing .data on non-primary node ${CIRCLE_NODE_INDEX} so only the primary saves the DB cache."
+              rm -rf .data.nosave
+              mv .data .data.nosave
+            fi
+
+      - save_cache:
+          # Save cache per default branch and the timestamp.
+          # The cache will not be saved if it already exists.
+          # Note that the cache fallback flag is enabled for this case in order
+          # to save cache even if the fallback is not used when restoring it.
+          key: v26.6.0-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
+          paths:
+            - /root/project/.data
+
+      - run:
+          name: Restore stashed DB on non-primary runners for provisioning
+          command: |
+            if [ -e .data.nosave ]; then
+              echo "Restoring stashed .data on node ${CIRCLE_NODE_INDEX} for provisioning."
+              rm -rf .data
+              mv .data.nosave .data
+            fi
       #;> !PROVISION_TYPE_PROFILE
+
+      - run:
+          name: Install development dependencies
+          command: |
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+            #;< TOOL_JEST
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            #;> TOOL_JEST
 
       - run:
           name: Provision site
@@ -322,29 +355,6 @@ jobs:
             #;> MIGRATION
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
           no_output_timeout: 30m
-
-      #;< !PROVISION_TYPE_PROFILE
-      # Save the clean DB dump to cache from the primary parallel runner only.
-      # save_cache has no runtime condition, so drop the cached path on the
-      # non-primary runners to make their save a no-op and let only node 0 store
-      # the cache. The provision step above already consumed the dump.
-      - run:
-          name: Keep DB cache only on the primary parallel runner
-          command: |
-            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ]; then
-              echo "Removing .data on non-primary node ${CIRCLE_NODE_INDEX} so only node 0 saves the DB cache."
-              rm -rf .data
-            fi
-
-      - save_cache:
-          # Save cache per default branch and the timestamp.
-          # The cache will not be saved if it already exists.
-          # Note that the cache fallback flag is enabled for this case in order
-          # to save cache even if the fallback is not used when restoring it.
-          key: v26.6.0-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
-          paths:
-            - /root/project/.data
-      #;> !PROVISION_TYPE_PROFILE
 
       #;< TOOL_JEST
       - run:

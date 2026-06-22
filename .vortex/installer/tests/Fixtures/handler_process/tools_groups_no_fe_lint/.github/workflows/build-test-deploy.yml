@@ -17,14 +17,14 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -286,7 +281,6 @@
+@@ -315,7 +310,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 -          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
  
-       # Execute commands after the database download finished: if a fresh DB
-       # dump was downloaded (cache miss), import it and export it back to
+       - name: Provision site
+         run: |
 @@ -325,11 +319,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
