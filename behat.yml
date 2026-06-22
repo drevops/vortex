@@ -19,7 +19,7 @@ default:
 
   formatters:
     # Show test progress and explicit fail information whule continuing the test run.
-    progress_fail: true
+    pretty: true
 
     # Output test results in JUnit format.
     junit:
