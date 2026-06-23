@@ -401,6 +401,25 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyLintSdc(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that SDC validation succeeds on valid components');
+    $this->cmd('ahoy lint-sdc', tio: 120, ito: 90, txt: '`ahoy lint-sdc` runs successfully on valid components');
+
+    $this->logSubstep('Assert that SDC validation failure works');
+    $component = $webroot . '/themes/custom/star_wars/components/button/button.twig';
+    $this->fileAppend($component, "\n{{ broken");
+    $this->syncToContainer($component);
+
+    $this->cmdFail('ahoy lint-sdc', tio: 120, ito: 90, txt: '`ahoy lint-sdc` fails as expected on a component with a Twig error');
+
+    $this->fileRestore($component);
+    $this->syncToContainer($component);
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyLintTests(): void {
     $this->logStepStart();
 
