@@ -65,7 +65,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -501,16 +441,6 @@
+@@ -506,16 +446,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

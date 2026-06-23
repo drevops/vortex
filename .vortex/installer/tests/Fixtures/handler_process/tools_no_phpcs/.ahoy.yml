@@ -6,7 +6,7 @@
        ahoy cli vendor/bin/phpstan
        ahoy cli vendor/bin/rector --dry-run
  
-@@ -229,7 +228,6 @@
+@@ -233,7 +232,6 @@
      usage: Fix lint issues of back-end code.
      cmd: |
        ahoy cli vendor/bin/rector

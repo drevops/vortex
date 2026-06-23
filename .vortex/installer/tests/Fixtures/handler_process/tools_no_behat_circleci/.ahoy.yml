@@ -14,8 +14,8 @@
 -
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
-     cmd: ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
-@@ -262,11 +259,6 @@
+     cmd: |
+@@ -266,11 +263,6 @@
    test-js:
      usage: Run Jest JavaScript unit tests.
      cmd: ahoy cli "yarn test"

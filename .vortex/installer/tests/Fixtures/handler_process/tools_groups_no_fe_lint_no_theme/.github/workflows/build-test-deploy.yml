@@ -42,7 +42,7 @@
        - name: Test with PHPUnit
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli vendor/bin/phpunit
-@@ -463,13 +447,6 @@
+@@ -463,18 +447,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
@@ -51,7 +51,12 @@
 -        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -        run: |
 -          [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
--          docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+-          output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
+-          echo "${output}"
+-          if echo "${output}" | grep -qE 'Critical|Errors?|Warnings?'; then
+-            echo "SDC validation reported problems."
+-            exit 1
+-          fi
 -        continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
        - name: Test with Behat

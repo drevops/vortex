@@ -76,8 +76,8 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -471,20 +407,6 @@
-           docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+@@ -476,20 +412,6 @@
+           fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
 -      - name: Test with Behat
@@ -97,7 +97,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -501,16 +423,6 @@
+@@ -506,16 +428,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
