@@ -14,12 +14,13 @@ pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 [ "${VORTEX_TASK_COPY_FILES_ACQUIA_SKIP}" = "1" ] && echo "Skipping copying of files between Acquia environments." && exit 0
 
+export VORTEX_PLATFORM=acquia
 export VORTEX_ACQUIA_KEY="${VORTEX_ACQUIA_KEY?not set}"
 export VORTEX_ACQUIA_SECRET="${VORTEX_ACQUIA_SECRET?not set}"
 export VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${site}}"
 export VORTEX_TASK_COPY_FILES_ACQUIA_SRC="${VORTEX_TASK_COPY_FILES_ACQUIA_SRC:-prod}"
 export VORTEX_TASK_COPY_FILES_ACQUIA_DST="${VORTEX_TASK_COPY_FILES_ACQUIA_DST:-${target_env}}"
 
-./vendor/drevops/vortex-tooling/src/task-copy-files-acquia
+./vendor/drevops/vortex-tooling/src/task copy-files
 
 popd >/dev/null || exit 1
