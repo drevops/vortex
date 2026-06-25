@@ -26,9 +26,9 @@ for cmd in git; do command -v "${cmd}" >/dev/null || {
 }; done
 
 is_hard_reset=0
-case " $* " in
-  *" --hard "*) is_hard_reset=1 ;;
-esac
+for arg in "$@"; do
+  [ "${arg}" = "--hard" ] && is_hard_reset=1
+done
 
 info "Started reset."
 

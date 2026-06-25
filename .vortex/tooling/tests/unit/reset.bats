@@ -46,7 +46,10 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Started reset."
   assert_output_contains "Finished reset."
+  assert_output_not_contains "Changing permissions and removing all other untracked files."
   assert_output_not_contains "Resetting repository files."
+  assert_output_not_contains "Removing all untracked files."
+  assert_output_not_contains "Removing empty directories."
 
   popd >/dev/null
 }
