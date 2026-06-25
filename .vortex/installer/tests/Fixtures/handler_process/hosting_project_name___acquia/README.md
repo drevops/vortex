@@ -18,5 +18,5 @@
 +  3. Populate `$VORTEX_ACQUIA_KEY` and `$VORTEX_ACQUIA_SECRET` environment
 +     variables in `.env.local` file with values generated in the step above.
  
- - `ahoy download-db`
+ - `ahoy fetch-db`
  
