@@ -26,29 +26,26 @@ note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+is_host() { [ "${RUN_ON_HOST:-$(command -v docker >/dev/null 2>&1 && echo 1 || echo 0)}" = 1 ]; }
 # @formatter:on
-
-#shellcheck disable=SC2043
-for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
 
 info "Started database export."
 
-if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
-  # Export database as a file.
-  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file "$@"
-else
-  # Export database as a container image.
-  VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/export-db-image" "$@"
+if is_host; then
+  if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
+    docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file "$@"
+  else
+    VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/export-db-image" "$@"
 
-  # Deploy container image.
-  # @todo Move deployment into a separate script.
-  if [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
-    VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_EXPORT_DB_IMAGE} \
-      "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry"
+    # Deploy container image.
+    # @todo Move deployment into a separate script.
+    if [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED:-}" = "1" ]; then
+      VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP=database=${VORTEX_EXPORT_DB_IMAGE} \
+        "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry"
+    fi
   fi
+else
+  "$(dirname "${BASH_SOURCE[0]}")/export-db-file" "$@"
 fi
 
 pass "Finished database export."
