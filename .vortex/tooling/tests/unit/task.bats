@@ -43,6 +43,18 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Task: unsupported platform" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  unset VORTEX_TASK_PLATFORM
+  export VORTEX_PLATFORM=invalid-platform
+  run ./.vortex/tooling/src/task copy-db
+  assert_failure
+  assert_output_contains "Unsupported hosting platform 'invalid-platform'."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Task: operation not supported on platform" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

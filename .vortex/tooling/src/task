@@ -31,6 +31,11 @@ esac
 
 [ -z "${VORTEX_TASK_PLATFORM}" ] && fail "Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM." && exit 1
 
+case "${VORTEX_TASK_PLATFORM}" in
+  acquia | lagoon) ;;
+  *) fail "Unsupported hosting platform '${VORTEX_TASK_PLATFORM}'." && exit 1 ;;
+esac
+
 task_script="$(dirname "${BASH_SOURCE[0]}")/task-${operation}-${VORTEX_TASK_PLATFORM}"
 [ ! -x "${task_script}" ] && fail "Operation '${operation}' is not supported on the '${VORTEX_TASK_PLATFORM}' platform." && exit 1
 
