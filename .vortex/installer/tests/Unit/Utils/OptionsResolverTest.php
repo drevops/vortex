@@ -23,7 +23,7 @@ class OptionsResolverTest extends UnitTestCase {
     parent::setUp();
 
     static::envUnsetPrefix('VORTEX_INSTALLER');
-    static::envUnsetPrefix('VORTEX_DOWNLOAD');
+    static::envUnsetPrefix('VORTEX_FETCH');
     static::envUnsetPrefix('VORTEX_DB');
   }
 
