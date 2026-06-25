@@ -61,6 +61,20 @@ Consumer projects created from Vortex should continue to use Git Flow.
 
 :::
 
+## Tagging
+
+A release produces two tags, and their order is fixed: **tag the tooling first, then tag Vortex.**
+
+- **`drevops/vortex-tooling`** - the shipped tooling package, split from `.vortex/tooling/`. Its branches are mirrored to the package repository automatically, but tags are created manually as part of cutting a release.
+- **Vortex** - the template itself.
+
+The following rules apply to every release:
+
+1. **Vortex is always tagged.** A release always creates the **Vortex** tag, whether or not the tooling changed.
+2. **The tooling is always referenced by a tag.** The `drevops/vortex-tooling` requirement in **Vortex**'s root `composer.json` must point at a published tag - never a branch or a development alias.
+3. **The tooling is tagged before Vortex when it changed.** When `.vortex/tooling/` has changed since the previous **Vortex** release, create and publish the new `drevops/vortex-tooling` tag *before* tagging **Vortex**.
+4. **Vortex pins the tooling tag as its upper boundary.** Require the freshly tagged `drevops/vortex-tooling` version in root `composer.json` with a tilde constraint (for example `~1.3.0`), so the upper boundary stays within the tagged minor and the release cannot float onto a tooling version that was never released with it.
+
 ## Release Process
 
 Follow the steps below to release a new version of the Vortex:
@@ -74,12 +88,13 @@ renovate --schedule= --force-cli=true drevops/vortex
 3. Update PHP version in `composer.json` for `config.platform`.
 4. Update PHP version in `phpcs.xml` for `testVersion`.
 5. Update PHP version in `phpstan.neon` for `phpVersion`. Run `php -r "echo PHP_VERSION_ID . PHP_EOL;"` in the container to get the current PHP version.
-6. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`.
-7. Update minor version of dependencies in theme's `package.json`.
-8. Increment the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
-9. Updated documentation with `cd .vortex && ahoy update-docs`.
-10. Update installer video with `cd .vortex && ahoy update-videos installer`.
-11. Create new release notes using release template:
+6. Tag `drevops/vortex-tooling` first when it changed. If `.vortex/tooling/` changed since the previous release, create and publish a new `drevops/vortex-tooling` tag now - before the **Vortex** tag (see [Tagging](#tagging)).
+7. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`. Then pin the `drevops/vortex-tooling` constraint to the freshly tagged version as its upper boundary (for example `~1.3.0`).
+8. Update minor version of dependencies in theme's `package.json`.
+9. Increment the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
+10. Updated documentation with `cd .vortex && ahoy update-docs`.
+11. Update installer video with `cd .vortex && ahoy update-videos installer`.
+12. Tag the **Vortex** release and publish the GitHub release using the template below. **Vortex** is always tagged; when the tooling changed, its tag is created first (see [Tagging](#tagging)).
 
 import CodeBlock from '@theme/CodeBlock';
 import ReleaseTemplate from '!!raw-loader!./_release_template.md'
