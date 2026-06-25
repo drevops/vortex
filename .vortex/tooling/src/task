@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+##
+# Run a task.
+#
+# This is a router script to call the relevant task script based on the command.
+#
+# shellcheck disable=SC1090,SC1091
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# @formatter:off
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+# @formatter:on
+
+command="${1:-}"
+[ -z "${command}" ] && fail "Missing task command." && exit 1
+shift
+
+case "${command}" in
+  copy-db-acquia | copy-files-acquia | purge-cache-acquia)
+    "$(dirname "${BASH_SOURCE[0]}")/task-${command}" "$@"
+    ;;
+  *)
+    fail "Unsupported task command '${command}' provided."
+    exit 1
+    ;;
+esac
