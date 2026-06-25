@@ -1,8 +1,8 @@
-@@ -44,7 +44,6 @@
-         "drevops/phpcs-standard": "__VERSION__",
-         "drupal/coder": "__VERSION__",
-         "drupal/drupal-extension": "__VERSION__",
+@@ -24,7 +24,6 @@
+         "drupal/redis": "__VERSION__",
+         "drupal/reroute_email": "__VERSION__",
+         "drupal/robotstxt": "__VERSION__",
 -        "drupal/sdc_devel": "__VERSION__",
-         "ergebnis/composer-normalize": "__VERSION__",
-         "lullabot/mink-selenium2-driver": "__VERSION__",
-         "lullabot/php-webdriver": "__VERSION__",
+         "drupal/search_api": "__VERSION__",
+         "drupal/search_api_solr": "__VERSION__",
+         "drupal/seckit": "__VERSION__",
