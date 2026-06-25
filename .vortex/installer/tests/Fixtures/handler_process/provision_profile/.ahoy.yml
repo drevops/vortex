@@ -1,4 +1,4 @@
-@@ -115,14 +115,6 @@
+@@ -115,13 +115,6 @@
      usage: Unblock user 1 and generate a one time login link.
      cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login
  
@@ -6,7 +6,6 @@
 -    usage: Fetch database. Run with "--fresh" option to force fresh database backup.
 -    aliases: [download-db, db-download, db-fetch]
 -    cmd: |
--      ahoy require-tooling
 -      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
 -      ./vendor/drevops/vortex-tooling/src/fetch-db
 -

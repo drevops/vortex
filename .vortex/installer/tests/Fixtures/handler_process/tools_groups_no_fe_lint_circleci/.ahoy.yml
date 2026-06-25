@@ -1,4 +1,4 @@
-@@ -210,7 +210,6 @@
+@@ -207,7 +207,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -6,7 +6,7 @@
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
    lint-tests:
-@@ -242,7 +241,6 @@
+@@ -239,7 +238,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -14,7 +14,7 @@
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
    test:
-@@ -265,10 +263,6 @@
+@@ -262,10 +260,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
