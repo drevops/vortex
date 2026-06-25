@@ -40,6 +40,15 @@ if [ ! -f "${dump_file}" ]; then
   exit 1
 fi
 
+# Confirm the dump is readable before dropping the database, so an unreadable
+# file cannot leave the site with no database and no import.
+if [ ! -r "${dump_file}" ]; then
+  fail "Unable to import database from file."
+  note "Dump file ${dump_file} is not readable."
+  note "Site content was not changed."
+  exit 1
+fi
+
 drush sql:drop
 
 $(drush sql:connect) <"${dump_file}"
