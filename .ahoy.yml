@@ -142,7 +142,6 @@ commands:
     usage: Fetch database. Run with "--fresh" option to force fresh database backup.
     aliases: [download-db, db-download, db-fetch]
     cmd: |
-      ahoy require-tooling
       case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
       ./vendor/drevops/vortex-tooling/src/fetch-db
 
@@ -151,7 +150,6 @@ commands:
     usage: Fetch second database (migration). Run with "--fresh" to force.
     aliases: [download-db2, db2-download, db2-fetch]
     cmd: |
-      ahoy require-tooling
       case " $* " in *" --fresh "*) export VORTEX_FETCH_DB2_FRESH=1 VORTEX_FETCH_DB2_FORCE=1;; esac
       VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
   #;> MIGRATION
@@ -186,7 +184,6 @@ commands:
     usage: Export database dump or database image (if VORTEX_DB_IMAGE variable is set).
     aliases: [db-export, db-dump, dump-db]
     cmd: |
-      ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/export-db "$@"
 
   import-db:
@@ -194,7 +191,6 @@ commands:
     aliases: [db-import]
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
-      ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/import-db "$@"
 
   pull-db:
@@ -347,20 +343,17 @@ commands:
     usage: Run remote deployment procedures.
     cmd: |
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'container_registry', 'webhook')" || exit 0
-      ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/deploy "$@"
 
   doctor:
     usage: Find problems with current project setup.
     aliases: [diagnose, health]
     cmd: |
-      ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/doctor "$@"
 
   update-vortex:
     usage: Update project from the Vortex template repository.
     cmd: |
-      ahoy require-tooling
       ./vendor/drevops/vortex-tooling/src/update-vortex "$@"
 
   local:
@@ -397,25 +390,23 @@ commands:
       fi
     hide: true
 
-  # Internal utility command that ensures the Vortex tooling package is
-  # available in vendor/. Installs just the tooling (not the full dep tree)
-  # so commands like 'ahoy fetch-db' work on a fresh clone before a full
-  # 'composer install' has run.
-  require-tooling:
-    cmd: ./scripts/vortex-tooling.sh
-    hide: true
-
 # Override entrypoint to alter default behavior of Ahoy.
 # 1. Exit the script if any statement returns a non-true return value.
 # 2. Read variables from .env file (while respecting existing values) to load
 #    and pass updated environment variables' values into already running
 #    containers.
+# 3. Ensure the Vortex tooling package is present in vendor/ so host-side
+#    commands work on a fresh clone before a full 'composer install' has run.
+#    Only the top-level call runs the check; the exported sentinel makes the
+#    nested 'ahoy' calls that a command chains (e.g. 'ahoy build' runs 'ahoy
+#    reset', which removes vendor/) skip it and avoid a redundant reinstall.
 entrypoint:
   - bash
   - -c
   - -e
   - |
     t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
+    if [ -z "${AHOY_TOOLING_ENSURED:-}" ]; then export AHOY_TOOLING_ENSURED=1; ./scripts/vortex-tooling.sh; fi
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'
