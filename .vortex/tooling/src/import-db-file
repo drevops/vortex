@@ -53,6 +53,6 @@ drush sql:drop
 
 $(drush sql:connect) <"${dump_file}"
 
-pass "Imported database from the dump file."
+note "Imported database from the dump file."
 
 pass "Finished database file import."
