@@ -804,7 +804,7 @@ trait SubtestAhoyTrait {
     $this->assertDirectoryExists('.logs/screenshots');
 
     $this->logSubstep('Run hard reset');
-    $this->cmd('ahoy reset hard');
+    $this->cmd('ahoy reset --hard');
     sleep(10);
 
     $this->logSubstep('Assert expected files and directories present or absent after reset');

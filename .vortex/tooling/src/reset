@@ -25,7 +25,10 @@ for cmd in git; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
-is_hard_reset="$([ "${1:-}" == "hard" ] && echo "1" || echo "0")"
+is_hard_reset=0
+case " $* " in
+  *" --hard "*) is_hard_reset=1 ;;
+esac
 
 info "Started reset."
 
