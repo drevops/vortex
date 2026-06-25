@@ -35,7 +35,7 @@ DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE="${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 
 # Migration database dump file name.
-VORTEX_DOWNLOAD_DB2_FILE="${VORTEX_DOWNLOAD_DB2_FILE:-db2.sql}"
+VORTEX_FETCH_DB2_FILE="${VORTEX_FETCH_DB2_FILE:-db2.sql}"
 
 # ------------------------------------------------------------------------------
 
@@ -124,11 +124,11 @@ fi
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" = "1" ]; then
   task "Importing migration source database."
 
-  [ ! -f "${VORTEX_DB_DIR}/${VORTEX_DOWNLOAD_DB2_FILE}" ] && fail "Migration source database file not found. Please run 'ahoy download-db2'." && exit 1
+  [ ! -f "${VORTEX_DB_DIR}/${VORTEX_FETCH_DB2_FILE}" ] && fail "Migration source database file not found. Please run 'ahoy fetch-db2'." && exit 1
 
   drush sql:drop --database=migrate
   # shellcheck disable=SC2091
-  $(drush sql:connect --database=migrate) <"${VORTEX_DB_DIR}/${VORTEX_DOWNLOAD_DB2_FILE}"
+  $(drush sql:connect --database=migrate) <"${VORTEX_DB_DIR}/${VORTEX_FETCH_DB2_FILE}"
 
   pass "Imported migration source database."
 else

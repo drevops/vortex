@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
@@ -29,7 +29,7 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
         HostingProvider::id() => HostingProvider::ACQUIA,
         HostingProjectName::id() => 'my_acquia-project',
         DeployTypes::id() => [DeployTypes::ARTIFACT],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        DatabaseFetchSource::id() => DatabaseFetchSource::ACQUIA,
         Webroot::id() => Webroot::DOCROOT,
       ] + $expected_defaults,
     ];
@@ -45,7 +45,7 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
         HostingProvider::id() => HostingProvider::ACQUIA,
         HostingProjectName::id() => 'discovered_acquia-project',
         DeployTypes::id() => [DeployTypes::ARTIFACT],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        DatabaseFetchSource::id() => DatabaseFetchSource::ACQUIA,
         Webroot::id() => Webroot::DOCROOT,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
@@ -60,7 +60,7 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
         HostingProvider::id() => HostingProvider::ACQUIA,
         HostingProjectName::id() => 'discovered_from_settings',
         DeployTypes::id() => [DeployTypes::ARTIFACT],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        DatabaseFetchSource::id() => DatabaseFetchSource::ACQUIA,
         Webroot::id() => Webroot::DOCROOT,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
@@ -80,7 +80,7 @@ PHP
         HostingProvider::id() => HostingProvider::LAGOON,
         HostingProjectName::id() => 'my_lagoon-project',
         DeployTypes::id() => [DeployTypes::LAGOON],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
+        DatabaseFetchSource::id() => DatabaseFetchSource::LAGOON,
       ] + $expected_defaults,
     ];
     yield 'hosting project name - lagoon - prompt - invalid' => [
@@ -95,7 +95,7 @@ PHP
         HostingProvider::id() => HostingProvider::LAGOON,
         HostingProjectName::id() => 'discovered_lagoon-project',
         DeployTypes::id() => [DeployTypes::LAGOON],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
+        DatabaseFetchSource::id() => DatabaseFetchSource::LAGOON,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubDotenvValue('LAGOON_PROJECT', 'discovered_lagoon-project');
@@ -109,7 +109,7 @@ PHP
         HostingProvider::id() => HostingProvider::LAGOON,
         HostingProjectName::id() => 'discovered_from_drush',
         DeployTypes::id() => [DeployTypes::LAGOON],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
+        DatabaseFetchSource::id() => DatabaseFetchSource::LAGOON,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         File::dump(static::$sut . '/drush/sites/lagoon.site.yml', <<<YAML

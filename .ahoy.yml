@@ -138,22 +138,22 @@ commands:
     cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login
 
   #;< !PROVISION_TYPE_PROFILE
-  download-db:
-    usage: Download database. Run with "--fresh" option to force fresh database backup.
-    aliases: [fetch-db, db-download, db-fetch]
+  fetch-db:
+    usage: Fetch database. Run with "--fresh" option to force fresh database backup.
+    aliases: [download-db, db-download, db-fetch]
     cmd: |
       ahoy require-tooling
-      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB_FRESH=1 VORTEX_DOWNLOAD_DB_FORCE=1;; esac
-      ./vendor/drevops/vortex-tooling/src/download-db
+      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
+      ./vendor/drevops/vortex-tooling/src/fetch-db
 
   #;< MIGRATION
-  download-db2:
-    usage: Download second database (migration). Run with "--fresh" to force.
-    aliases: [fetch-db2, db2-download, db2-fetch]
+  fetch-db2:
+    usage: Fetch second database (migration). Run with "--fresh" to force.
+    aliases: [download-db2, db2-download, db2-fetch]
     cmd: |
       ahoy require-tooling
-      case " $* " in *" --fresh "*) export VORTEX_DOWNLOAD_DB2_FRESH=1 VORTEX_DOWNLOAD_DB2_FORCE=1;; esac
-      VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/download-db
+      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB2_FRESH=1 VORTEX_FETCH_DB2_FORCE=1;; esac
+      VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
   #;> MIGRATION
   #;> !PROVISION_TYPE_PROFILE
 
@@ -399,7 +399,7 @@ commands:
 
   # Internal utility command that ensures the Vortex tooling package is
   # available in vendor/. Installs just the tooling (not the full dep tree)
-  # so commands like 'ahoy download-db' work on a fresh clone before a full
+  # so commands like 'ahoy fetch-db' work on a fresh clone before a full
   # 'composer install' has run.
   require-tooling:
     cmd: ./scripts/vortex-tooling.sh

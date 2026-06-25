@@ -7,7 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
@@ -38,7 +38,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(CiProvider::class)]
 #[CoversClass(CodeProvider::class)]
-#[CoversClass(DatabaseDownloadSource::class)]
+#[CoversClass(DatabaseFetchSource::class)]
 #[CoversClass(DatabaseImage::class)]
 #[CoversClass(DependencyUpdatesProvider::class)]
 #[CoversClass(DeployTypes::class)]

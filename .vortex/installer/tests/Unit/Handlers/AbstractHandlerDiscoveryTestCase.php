@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
@@ -23,7 +23,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
@@ -150,10 +150,10 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Webroot::id() => Webroot::WEB,
       DeployTypes::id() => [DeployTypes::WEBHOOK],
       ProvisionType::id() => ProvisionType::DATABASE,
-      DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
+      DatabaseFetchSource::id() => DatabaseFetchSource::URL,
       DatabaseImage::id() => NULL,
       Migration::id() => FALSE,
-      MigrationDownloadSource::id() => NULL,
+      MigrationFetchSource::id() => NULL,
       MigrationImage::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       VisualRegression::id() => FALSE,
@@ -230,10 +230,10 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Webroot::id() => static::TUI_DEFAULT,
       DeployTypes::id() => static::TUI_DEFAULT,
       ProvisionType::id() => static::TUI_DEFAULT,
-      DatabaseDownloadSource::id() => static::TUI_DEFAULT,
+      DatabaseFetchSource::id() => static::TUI_DEFAULT,
       DatabaseImage::id() => static::TUI_SKIP,
       Migration::id() => static::TUI_DEFAULT,
-      MigrationDownloadSource::id() => static::TUI_SKIP,
+      MigrationFetchSource::id() => static::TUI_SKIP,
       MigrationImage::id() => static::TUI_SKIP,
       CiProvider::id() => static::TUI_DEFAULT,
       VisualRegression::id() => static::TUI_DEFAULT,

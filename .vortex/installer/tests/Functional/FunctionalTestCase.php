@@ -70,9 +70,9 @@ abstract class FunctionalTestCase extends UnitTestCase {
       $args['--' . $option] = $value;
     }
 
-    // Skip the database download in demo mode as it is not needed for the
+    // Skip the database fetch in demo mode as it is not needed for the
     // installer's tests.
-    Env::put(Config::IS_DEMO_DB_DOWNLOAD_SKIP, '1');
+    Env::put(Config::IS_DEMO_DB_FETCH_SKIP, '1');
 
     $this->applicationRun($args, [], $expect_fail);
   }

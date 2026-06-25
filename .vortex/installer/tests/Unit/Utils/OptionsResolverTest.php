@@ -23,7 +23,7 @@ class OptionsResolverTest extends UnitTestCase {
     parent::setUp();
 
     static::envUnsetPrefix('VORTEX_INSTALLER');
-    static::envUnsetPrefix('VORTEX_DOWNLOAD');
+    static::envUnsetPrefix('VORTEX_FETCH');
     static::envUnsetPrefix('VORTEX_DB');
   }
 
@@ -219,12 +219,12 @@ class OptionsResolverTest extends UnitTestCase {
   }
 
   public function testResolveDemoDbDownloadSkipFromEnv(): void {
-    putenv(Config::IS_DEMO_DB_DOWNLOAD_SKIP . '=1');
+    putenv(Config::IS_DEMO_DB_FETCH_SKIP . '=1');
 
     $options = self::defaultOptions();
     [$config] = OptionsResolver::resolve($options);
 
-    $this->assertTrue((bool) $config->get(Config::IS_DEMO_DB_DOWNLOAD_SKIP));
+    $this->assertTrue((bool) $config->get(Config::IS_DEMO_DB_FETCH_SKIP));
   }
 
   public function testResolveDestinationPriority(): void {

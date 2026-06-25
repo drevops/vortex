@@ -44,14 +44,14 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function dependsOn(): ?array {
-    return [DatabaseDownloadSource::id() => [DatabaseDownloadSource::CONTAINER_REGISTRY]];
+    return [DatabaseFetchSource::id() => [DatabaseFetchSource::CONTAINER_REGISTRY]];
   }
 
   /**
    * {@inheritdoc}
    */
   public function shouldRun(array $responses): bool {
-    return $responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY;
+    return $responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY;
   }
 
   /**

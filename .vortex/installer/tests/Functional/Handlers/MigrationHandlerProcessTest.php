@@ -28,10 +28,10 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           // Token-controlled content preserved in files.
           $test->assertFileContainsString(static::$sut . '/.gitignore', 'settings.migration.php');
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'database2');
-          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'download-db2');
-          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
           $test->assertFileContainsString(static::$sut . '/web/sites/default/settings.php', 'settings.migration.php');
-          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Download migration DB');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Fetch migration DB');
           $test->assertFileContainsString(static::$sut . '/tests/phpunit/Drupal/SettingsTestCase.php', 'DATABASE2_');
       }),
     ];
@@ -46,7 +46,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
-          $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'Download migration DB');
+          $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'Fetch migration DB');
       }),
     ];
     yield 'migration_disabled' => [
@@ -64,10 +64,10 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           // Token-controlled content removed from files.
           $test->assertFileNotContainsString(static::$sut . '/.gitignore', 'settings.migration.php');
           $test->assertFileNotContainsString(static::$sut . '/docker-compose.yml', 'database2');
-          $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'download-db2');
-          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_DOWNLOAD_DB2_SOURCE');
+          $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
           $test->assertFileNotContainsString(static::$sut . '/web/sites/default/settings.php', 'settings.migration.php');
-          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Download migration DB');
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Fetch migration DB');
           $test->assertFileNotContainsString(static::$sut . '/tests/phpunit/Drupal/SettingsTestCase.php', 'DATABASE2_');
       }),
     ];
@@ -82,7 +82,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
-          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'Download migration DB');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'Fetch migration DB');
       }),
     ];
     yield 'migration_enabled_lagoon' => [
@@ -96,7 +96,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
-          $test->assertFileContainsString(static::$sut . '/.lagoon.yml', 'Download migration database');
+          $test->assertFileContainsString(static::$sut . '/.lagoon.yml', 'Fetch migration database');
       }),
     ];
     yield 'migration_disabled_lagoon' => [
@@ -110,7 +110,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
-          $test->assertFileNotContainsString(static::$sut . '/.lagoon.yml', 'Download migration database');
+          $test->assertFileNotContainsString(static::$sut . '/.lagoon.yml', 'Fetch migration database');
       }),
     ];
   }

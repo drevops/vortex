@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Command;
 
 use DrevOps\VortexInstaller\Command\InstallCommand;
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
@@ -223,9 +223,9 @@ class SchemaValidateCommandTest extends FunctionalTestCase {
       'invalid_confirm_not_boolean.json',
       ['valid' => FALSE, 'error_prompt' => Migration::id(), 'error_message' => 'Expected boolean'],
     ];
-    yield 'invalid database download source' => [
+    yield 'invalid database fetch source' => [
       'invalid_database_source.json',
-      ['valid' => FALSE, 'error_prompt' => DatabaseDownloadSource::id(), 'error_message' => 'dropbox'],
+      ['valid' => FALSE, 'error_prompt' => DatabaseFetchSource::id(), 'error_message' => 'dropbox'],
     ];
     yield 'invalid provision type' => [
       'invalid_provision_type.json',

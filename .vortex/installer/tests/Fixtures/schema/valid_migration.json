@@ -8,5 +8,5 @@
   "webroot": "web",
   "hosting_provider": "none",
   "migration": true,
-  "migration_download_source": "url"
+  "migration_fetch_source": "url"
 }

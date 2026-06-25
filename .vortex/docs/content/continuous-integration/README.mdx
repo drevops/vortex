@@ -35,7 +35,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ### 2. Database
 
-- Downloads the latest DB version based on a caching strategy
+- Fetches the latest DB version based on a caching strategy
 - Caches database dumps to speed up the follow-up runs
 
 ### 3. Build
@@ -59,7 +59,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Caching strategy
 
-Database is downloaded overnight and cached so that the next continuous integration run on the same
+Database is fetched overnight and cached so that the next continuous integration run on the same
 day uses the cached database dump.
 
 By default, the database is cached per-branch for 24 hours. If cache is not
