@@ -2,7 +2,7 @@
 ##
 # Manual test script for S3 database fetch.
 #
-# Fetches a database dump file from an S3 bucket using fetch-db-s3.sh.
+# Fetches a database dump file from an S3 bucket using fetch-db-s3.
 #
 # Usage:
 #   export S3_ACCESS_KEY="your-access-key"
