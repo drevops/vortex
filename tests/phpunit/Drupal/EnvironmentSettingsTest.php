@@ -1120,7 +1120,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^nginx\-php$',
-      '^.+\.au\.amazee\.io$',
+      '^.+\.amazee\.io$',
       '^example1\.com|example2/com$',
     ];
     $this->assertSettings($settings);
@@ -1188,7 +1188,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^nginx\-php$',
-      '^.+\.au\.amazee\.io$',
+      '^.+\.amazee\.io$',
       '^example1\.com|example2/com$',
     ];
     $this->assertSettings($settings);
@@ -1256,7 +1256,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^nginx\-php$',
-      '^.+\.au\.amazee\.io$',
+      '^.+\.amazee\.io$',
       '^example1\.com|example2/com$',
     ];
     $this->assertSettings($settings);
@@ -1322,7 +1322,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
       '^nginx\-php$',
-      '^.+\.au\.amazee\.io$',
+      '^.+\.amazee\.io$',
       '^example1\.com|example2/com$',
     ];
     $this->assertSettings($settings);
