@@ -73,7 +73,7 @@ The following rules apply to every release:
 1. **Vortex is always tagged.** A release always creates the **Vortex** tag, whether or not the tooling changed.
 2. **The tooling is always referenced by a tag.** The `drevops/vortex-tooling` requirement in **Vortex**'s root `composer.json` must point at a published tag - never a branch or a development alias.
 3. **The tooling is tagged before Vortex when it changed.** When `.vortex/tooling/` has changed since the previous **Vortex** release, create and publish the new `drevops/vortex-tooling` tag *before* tagging **Vortex**.
-4. **Vortex pins the new tooling tag as its upper boundary.** When the tooling is tagged for a release, require that freshly tagged `drevops/vortex-tooling` version in root `composer.json` with a tilde constraint (for example `~1.3.0`), so the upper boundary stays within the tagged minor and the release cannot float onto a tooling version that was never released with it.
+4. **Vortex caps its tooling requirement at the tagged version.** When the tooling is tagged for a release, require that freshly tagged `drevops/vortex-tooling` version in root `composer.json` with a tilde constraint (for example `~1.3.0`). This makes the freshly tagged version the upper boundary of the requirement at the minor level: later patch releases within the same minor are still accepted, but the requirement cannot float onto a newer minor that was never published with the release.
 
 ## Release Process
 
@@ -89,7 +89,7 @@ renovate --schedule= --force-cli=true drevops/vortex
 4. Update PHP version in `phpcs.xml` for `testVersion`.
 5. Update PHP version in `phpstan.neon` for `phpVersion`. Run `php -r "echo PHP_VERSION_ID . PHP_EOL;"` in the container to get the current PHP version.
 6. Tag `drevops/vortex-tooling` first when it changed. If `.vortex/tooling/` changed since the previous release, create and publish a new `drevops/vortex-tooling` tag now - before the **Vortex** tag (see [Tagging](#tagging)).
-7. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`. When the tooling was tagged in the previous step, pin the `drevops/vortex-tooling` constraint to that freshly tagged version as its upper boundary (for example `~1.3.0`); otherwise keep the existing tag constraint.
+7. Increment minor version of all packages in `composer.json`. Run `composer update -W && composer bump`. When the tooling was tagged in the previous step, require that freshly tagged `drevops/vortex-tooling` version with a tilde constraint (for example `~1.3.0`, see [Tagging](#tagging)); otherwise keep the existing tag constraint.
 8. Update minor version of dependencies in theme's `package.json`.
 9. Increment the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 10. Updated documentation with `cd .vortex && ahoy update-docs`.
