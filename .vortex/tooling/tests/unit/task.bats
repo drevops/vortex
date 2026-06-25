@@ -30,6 +30,17 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Task: missing sibling script" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  chmod -x ./.vortex/tooling/src/task-copy-db-acquia
+  run ./.vortex/tooling/src/task copy-db-acquia
+  assert_failure
+  assert_output_contains "is missing or not executable."
+
+  popd >/dev/null || exit 1
+}
+
 @test "Task: dispatches copy-db-acquia" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

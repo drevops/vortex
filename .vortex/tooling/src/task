@@ -19,7 +19,9 @@ shift
 
 case "${command}" in
   copy-db-acquia | copy-files-acquia | purge-cache-acquia)
-    "$(dirname "${BASH_SOURCE[0]}")/task-${command}" "$@"
+    task_script="$(dirname "${BASH_SOURCE[0]}")/task-${command}"
+    [ ! -x "${task_script}" ] && fail "Task script '${task_script}' is missing or not executable." && exit 1
+    "${task_script}" "$@"
     ;;
   *)
     fail "Unsupported task command '${command}' provided."
