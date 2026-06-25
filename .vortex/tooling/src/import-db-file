@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+##
+# Import database from a file.
+#
+# shellcheck disable=SC1090,SC1091,SC2086
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Directory with database dump file.
+VORTEX_IMPORT_DB_FILE_DIR="${VORTEX_IMPORT_DB_FILE_DIR:-${VORTEX_DB_DIR:-./.data}}"
+
+# Database dump file name.
+VORTEX_IMPORT_DB_FILE="${VORTEX_IMPORT_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+# @formatter:on
+
+info "Started database file import."
+
+drush() { ./vendor/bin/drush -y "$@"; }
+
+# Use the dump file provided as the first argument or fall back to the default
+# location.
+dump_file="${1:-${VORTEX_IMPORT_DB_FILE_DIR}/${VORTEX_IMPORT_DB_FILE}}"
+
+if [ ! -f "${dump_file}" ]; then
+  fail "Unable to import database from file."
+  note "Dump file ${dump_file} does not exist."
+  note "Site content was not changed."
+  exit 1
+fi
+
+drush sql:drop
+
+$(drush sql:connect) <"${dump_file}"
+
+pass "Imported database from the dump file."
+
+pass "Finished database file import."
