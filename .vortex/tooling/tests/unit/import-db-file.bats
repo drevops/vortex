@@ -2,7 +2,7 @@
 ##
 # Unit tests for import-db-file worker script.
 #
-# shellcheck disable=SC2030,SC2031
+# shellcheck disable=SC2030,SC2031,SC2034
 
 load ../_helper.bash
 
