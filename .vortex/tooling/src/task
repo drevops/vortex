@@ -1,30 +1,37 @@
 #!/usr/bin/env bash
 ##
-# Run a task.
+# Run a hosting task.
 #
-# This is a router script to call the relevant task script based on the command.
+# This is a router script that dispatches a platform-agnostic operation to the
+# implementation for the configured hosting platform: 'task <operation> [args...]'
+# runs the 'task-<operation>-<platform>' sibling script.
+#
+# The platform is read from VORTEX_TASK_PLATFORM, falling back to VORTEX_PLATFORM.
 #
 # shellcheck disable=SC1090,SC1091
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Hosting platform to run the operation for.
+VORTEX_TASK_PLATFORM="${VORTEX_TASK_PLATFORM:-${VORTEX_PLATFORM:-}}"
+
 # @formatter:off
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-command="${1:-}"
-[ -z "${command}" ] && fail "Missing task command." && exit 1
+operation="${1:-}"
+[ -z "${operation}" ] && fail "Missing task operation." && exit 1
 shift
 
-case "${command}" in
-  copy-db-acquia | copy-files-acquia | purge-cache-acquia)
-    task_script="$(dirname "${BASH_SOURCE[0]}")/task-${command}"
-    [ ! -x "${task_script}" ] && fail "Task script '${task_script}' is missing or not executable." && exit 1
-    "${task_script}" "$@"
-    ;;
-  *)
-    fail "Unsupported task command '${command}' provided."
-    exit 1
-    ;;
+case "${operation}" in
+  copy-db | copy-files | purge-cache) ;;
+  *) fail "Unsupported task operation '${operation}'." && exit 1 ;;
 esac
+
+[ -z "${VORTEX_TASK_PLATFORM}" ] && fail "Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM." && exit 1
+
+task_script="$(dirname "${BASH_SOURCE[0]}")/task-${operation}-${VORTEX_TASK_PLATFORM}"
+[ ! -x "${task_script}" ] && fail "Operation '${operation}' is not supported on the '${VORTEX_TASK_PLATFORM}' platform." && exit 1
+
+"${task_script}" "$@"
