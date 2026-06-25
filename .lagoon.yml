@@ -43,7 +43,7 @@ tasks:
         command: |
           if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
-            VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./vendor/drevops/vortex-tooling/src/export-db-file
+            VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./vendor/drevops/vortex-tooling/src/export-db
           fi
         service: cli
     #;< !PROVISION_TYPE_PROFILE
