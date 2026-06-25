@@ -14,12 +14,13 @@ pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 [ "${VORTEX_PURGE_CACHE_ACQUIA_SKIP}" = "1" ] && echo "Skipping purging of cache in Acquia environment." && exit 0
 
+export VORTEX_PLATFORM=acquia
 export VORTEX_ACQUIA_KEY="${VORTEX_ACQUIA_KEY?not set}"
 export VORTEX_ACQUIA_SECRET="${VORTEX_ACQUIA_SECRET?not set}"
 export VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${site}}"
 export VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV:-${target_env}}"
 export VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE="${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE:-"/var/www/html/${site}.${target_env}/hooks/library/domains.txt"}"
 
-./vendor/drevops/vortex-tooling/src/task purge-cache-acquia
+./vendor/drevops/vortex-tooling/src/task purge-cache
 
 popd >/dev/null || exit 1

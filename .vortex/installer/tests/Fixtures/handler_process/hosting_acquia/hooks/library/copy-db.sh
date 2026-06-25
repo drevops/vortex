@@ -14,6 +14,7 @@ pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 [ "${VORTEX_TASK_COPY_DB_ACQUIA_SKIP}" = "1" ] && echo "Skipping copying of database between Acquia environments." && exit 0
 
+export VORTEX_PLATFORM=acquia
 export VORTEX_ACQUIA_KEY="${VORTEX_ACQUIA_KEY?not set}"
 export VORTEX_ACQUIA_SECRET="${VORTEX_ACQUIA_SECRET?not set}"
 export VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${site}}"
@@ -21,6 +22,6 @@ export VORTEX_TASK_COPY_DB_ACQUIA_SRC="${VORTEX_TASK_COPY_DB_ACQUIA_SRC:-prod}"
 export VORTEX_TASK_COPY_DB_ACQUIA_DST="${VORTEX_TASK_COPY_DB_ACQUIA_DST:-${target_env}}"
 export VORTEX_TASK_COPY_DB_ACQUIA_NAME="${VORTEX_TASK_COPY_DB_ACQUIA_NAME?not set}"
 
-./vendor/drevops/vortex-tooling/src/task copy-db-acquia
+./vendor/drevops/vortex-tooling/src/task copy-db
 
 popd >/dev/null || exit 1
