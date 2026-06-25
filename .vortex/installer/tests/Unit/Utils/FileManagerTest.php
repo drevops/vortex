@@ -209,7 +209,7 @@ class FileManagerTest extends UnitTestCase {
     $this->assertEquals('Not a demo mode.', $result);
   }
 
-  public function testPrepareDemoWithDownloadSkip(): void {
+  public function testPrepareDemoWithFetchSkip(): void {
     $config = new Config('/tmp/root', self::$sut, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
     $config->set(Config::IS_DEMO_DB_FETCH_SKIP, TRUE);
