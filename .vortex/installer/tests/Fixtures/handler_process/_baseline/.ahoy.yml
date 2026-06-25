@@ -156,7 +156,7 @@ commands:
     cmd: \[ -n "${VORTEX_DB_IMAGE}" \] && docker pull ${VORTEX_DB_IMAGE} || true
 
   reset:
-    usage: Remove containers, all build files. Use with `hard` to reset repository to the last commit.
+    usage: Remove containers, all build files. Use with `--hard` to reset repository to the last commit.
     aliases: [prune, delete]
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
