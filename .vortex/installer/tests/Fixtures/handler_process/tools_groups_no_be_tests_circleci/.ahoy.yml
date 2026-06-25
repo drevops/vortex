@@ -1,4 +1,4 @@
-@@ -194,7 +194,6 @@
+@@ -197,7 +197,6 @@
      cmd: |
        ahoy lint-be
        ahoy lint-fe
@@ -6,7 +6,7 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -210,11 +209,6 @@
+@@ -213,11 +212,6 @@
        ahoy cli "yarn run lint"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
@@ -18,7 +18,7 @@
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -242,35 +236,9 @@
+@@ -245,35 +239,9 @@
        ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  

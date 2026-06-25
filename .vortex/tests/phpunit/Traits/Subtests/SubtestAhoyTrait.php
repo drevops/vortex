@@ -329,7 +329,8 @@ trait SubtestAhoyTrait {
       'ahoy import-db',
       arg: $has_argument ? [$filename] : [],
       out: [
-        '* Provisioning site from the database dump file.',
+        '* Started database import.',
+        '* Imported database from the dump file.',
         '! Running deployment hooks.',
         '! Running database updates.',
       ],

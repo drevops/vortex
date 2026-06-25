@@ -183,11 +183,7 @@ provision_from_db() {
     exit 1
   fi
 
-  drush sql:drop
-
-  $(drush sql:connect) <"${VORTEX_PROVISION_DB}"
-
-  pass "Imported database from the dump file."
+  "$(dirname "${BASH_SOURCE[0]}")/import-db-file" "${VORTEX_PROVISION_DB}"
 }
 
 #

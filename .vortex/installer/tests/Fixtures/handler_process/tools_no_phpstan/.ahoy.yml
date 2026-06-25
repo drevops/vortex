@@ -1,4 +1,4 @@
-@@ -200,7 +200,6 @@
+@@ -203,7 +203,6 @@
      usage: Lint back-end code.
      cmd: |
        ahoy cli vendor/bin/phpcs
