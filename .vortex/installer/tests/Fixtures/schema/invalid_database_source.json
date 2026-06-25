@@ -8,5 +8,5 @@
   "webroot": "web",
   "hosting_provider": "none",
   "provision_type": "database",
-  "database_download_source": "dropbox"
+  "database_fetch_source": "dropbox"
 }

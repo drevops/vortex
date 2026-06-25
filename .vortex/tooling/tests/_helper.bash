@@ -116,9 +116,9 @@ setup() {
   ##
 
   # Isolate variables set in CI.
-  unset VORTEX_DOWNLOAD_DB_SOURCE
+  unset VORTEX_FETCH_DB_SOURCE
   unset VORTEX_DB_IMAGE
-  unset VORTEX_DOWNLOAD_DB_FORCE
+  unset VORTEX_FETCH_DB_FORCE
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
@@ -137,8 +137,8 @@ setup() {
   export VORTEX_DEBUG="${TEST_VORTEX_DEBUG:-}"
 
   # Switch to using test demo DB.
-  # Demo DB is what is being downloaded when the installer runs for the first
-  # time do demonstrate downloading from CURL and importing from the DB dump
+  # Demo DB is what is being fetched when the installer runs for the first
+  # time do demonstrate fetching from CURL and importing from the DB dump
   # functionality.
   export VORTEX_INSTALLER_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
 

@@ -130,23 +130,23 @@ class FileManager {
       return 'Not a demo mode.';
     }
 
-    if (!empty($this->config->get(Config::IS_DEMO_DB_DOWNLOAD_SKIP))) {
-      return sprintf('%s is set. Skipping demo database download.', Config::IS_DEMO_DB_DOWNLOAD_SKIP);
+    if (!empty($this->config->get(Config::IS_DEMO_DB_FETCH_SKIP))) {
+      return sprintf('%s is set. Skipping demo database fetch.', Config::IS_DEMO_DB_FETCH_SKIP);
     }
 
     // Reload variables from destination's .env.
     Env::putFromDotenv($this->config->getDst() . '/.env');
 
-    $url = Env::get('VORTEX_DOWNLOAD_DB_URL');
+    $url = Env::get('VORTEX_FETCH_DB_URL');
     if (empty($url)) {
-      return 'No database download URL provided. Skipping demo database download.';
+      return 'No database fetch URL provided. Skipping demo database fetch.';
     }
 
     $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
     $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
     if (file_exists($data_dir . DIRECTORY_SEPARATOR . $db_file)) {
-      return 'Database dump file already exists. Skipping demo database download.';
+      return 'Database dump file already exists. Skipping demo database fetch.';
     }
 
     $messages = [];
@@ -159,7 +159,7 @@ class FileManager {
     $downloader->download($url, $destination);
 
     $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);
-    $messages[] = sprintf('Downloaded demo database from %s.', $url);
+    $messages[] = sprintf('Fetched demo database from %s.', $url);
 
     return $messages;
   }

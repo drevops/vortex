@@ -43,14 +43,14 @@ class MigrationImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function dependsOn(): ?array {
-    return [MigrationDownloadSource::id() => [MigrationDownloadSource::CONTAINER_REGISTRY]];
+    return [MigrationFetchSource::id() => [MigrationFetchSource::CONTAINER_REGISTRY]];
   }
 
   /**
    * {@inheritdoc}
    */
   public function shouldRun(array $responses): bool {
-    return isset($responses[MigrationDownloadSource::id()]) && $responses[MigrationDownloadSource::id()] === MigrationDownloadSource::CONTAINER_REGISTRY;
+    return isset($responses[MigrationFetchSource::id()]) && $responses[MigrationFetchSource::id()] === MigrationFetchSource::CONTAINER_REGISTRY;
   }
 
   /**

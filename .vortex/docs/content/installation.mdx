@@ -114,8 +114,8 @@ your aliases from the Acquia Cloud UI (see [Using Drush aliases](https://docs.ac
 | Variable | Description |
 |----------|-------------|
 | `LAGOON_PROJECT` | Your Lagoon project name |
-| `VORTEX_DOWNLOAD_DB_LAGOON_SSH_HOST` | Lagoon SSH host (default: `ssh.lagoon.amazeeio.cloud`) |
-| `VORTEX_DOWNLOAD_DB_LAGOON_SSH_PORT` | Lagoon SSH port (default: `32222`) |
+| `VORTEX_FETCH_DB_LAGOON_SSH_HOST` | Lagoon SSH host (default: `ssh.lagoon.amazeeio.cloud`) |
+| `VORTEX_FETCH_DB_LAGOON_SSH_PORT` | Lagoon SSH port (default: `32222`) |
 
 **Add as a secret in your CI provider** (in [step 5](#5-set-up-continuous-integration)):
 
@@ -157,7 +157,7 @@ variables → Actions**:
 ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.ssh/deployer_myproject_gha -N ""
 ```
 
-- `VORTEX_DB_SSH_KEY` - key with read access, for database downloads.
+- `VORTEX_DB_SSH_KEY` - key with read access, for database fetches.
 - `VORTEX_DEPLOY_SSH_KEY` - key with write access, for deployment (may be the same key).
 
 **Add the hosting secrets** from [step 4](#4-set-up-hosting) in the same
@@ -167,7 +167,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.s
 enable it, add the verified host keys as a `VORTEX_SSH_KNOWN_HOSTS` repository
 variable and map it into the workflow `env` block. The steps that load the SSH
 keys skip their `known_hosts` file by default; set the
-`VORTEX_DOWNLOAD_DB_SSH_KNOWN_HOSTS` (database download) and
+`VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
 `VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) repository variables to pin those
 host keys too.
 
@@ -187,7 +187,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f
 ```
 
 **Set the fingerprints** in [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
-`db_ssh_fingerprint` (database download) and `deploy_ssh_fingerprint` (deployment).
+`db_ssh_fingerprint` (database fetch) and `deploy_ssh_fingerprint` (deployment).
 
 **Add the hosting variables** from [step 4](#4-set-up-hosting) under **Project
 Settings → Environment Variables**.

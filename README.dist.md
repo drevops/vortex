@@ -73,14 +73,14 @@ Drupal 11 implementation of YOURSITE for YOURORG
 - Authenticate with Lagoon
   1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://dashboard.amazeeio.cloud/).
   2. Copy `.env.local.example` to `.env.local`.
-  3. Update `$VORTEX_DOWNLOAD_DB_SSH_FILE` environment variable in `.env.local` file
+  3. Update `$VORTEX_FETCH_DB_SSH_FILE` environment variable in `.env.local` file
      with the path to the SSH key.
 
 [//]: # (#;> HOSTING_LAGOON)
 
 [//]: # (#;< !PROVISION_TYPE_PROFILE)
 
-- `ahoy download-db`
+- `ahoy fetch-db`
 
 [//]: # (#;> !PROVISION_TYPE_PROFILE)
 

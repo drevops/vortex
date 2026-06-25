@@ -212,14 +212,14 @@ class FileManagerTest extends UnitTestCase {
   public function testPrepareDemoWithDownloadSkip(): void {
     $config = new Config('/tmp/root', self::$sut, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
-    $config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, TRUE);
+    $config->set(Config::IS_DEMO_DB_FETCH_SKIP, TRUE);
     $fm = new FileManager($config);
 
     $downloader = $this->createMock(Downloader::class);
     $result = $fm->prepareDemo($downloader);
 
     $this->assertIsString($result);
-    $this->assertStringContainsString('Skipping demo database download', $result);
+    $this->assertStringContainsString('Skipping demo database fetch', $result);
   }
 
   public function testPrepareDemoNoUrl(): void {
@@ -234,7 +234,7 @@ class FileManagerTest extends UnitTestCase {
     $result = $fm->prepareDemo($downloader);
 
     $this->assertIsString($result);
-    $this->assertStringContainsString('No database download URL provided', $result);
+    $this->assertStringContainsString('No database fetch URL provided', $result);
   }
 
   public function testPrepareDemoExistingDatabaseFile(): void {
@@ -242,7 +242,7 @@ class FileManagerTest extends UnitTestCase {
     $data_dir = $dst . '/.data';
     mkdir($data_dir, 0777, TRUE);
     file_put_contents($data_dir . '/db.sql', 'existing');
-    file_put_contents($dst . '/.env', "VORTEX_DOWNLOAD_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
     $config = new Config('/tmp/root', $dst, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
@@ -255,9 +255,9 @@ class FileManagerTest extends UnitTestCase {
     $this->assertStringContainsString('already exists', $result);
   }
 
-  public function testPrepareDemoDownloadsDatabase(): void {
+  public function testPrepareDemoFetchesDatabase(): void {
     $dst = self::$sut;
-    file_put_contents($dst . '/.env', "VORTEX_DOWNLOAD_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
     $config = new Config('/tmp/root', $dst, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
@@ -275,7 +275,7 @@ class FileManagerTest extends UnitTestCase {
 
     $has_download_msg = FALSE;
     foreach ($result as $msg) {
-      if (str_contains((string) $msg, 'Downloaded demo database')) {
+      if (str_contains((string) $msg, 'Fetched demo database')) {
         $has_download_msg = TRUE;
       }
     }
@@ -284,7 +284,7 @@ class FileManagerTest extends UnitTestCase {
 
   public function testPrepareDemoCreatesDataDir(): void {
     $dst = self::$sut;
-    file_put_contents($dst . '/.env', "VORTEX_DOWNLOAD_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
     $config = new Config('/tmp/root', $dst, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);

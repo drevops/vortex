@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Schema;
 
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\Org;
@@ -120,30 +120,30 @@ class SchemaValidatorTest extends UnitTestCase {
   public function testDependencyMetValueProvided(): void {
     $config = [
       ProvisionType::id() => ProvisionType::DATABASE,
-      DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
+      DatabaseFetchSource::id() => DatabaseFetchSource::URL,
     ];
 
     $result = $this->validator->validate($config);
 
-    // DatabaseDownloadSource depends on ProvisionType=database.
+    // DatabaseFetchSource depends on ProvisionType=database.
     // Both provided and condition met = OK.
-    $db_errors = array_filter($result['errors'], fn(array $e): bool => $e['prompt'] === DatabaseDownloadSource::id());
+    $db_errors = array_filter($result['errors'], fn(array $e): bool => $e['prompt'] === DatabaseFetchSource::id());
     $this->assertEmpty($db_errors);
-    $this->assertSame(DatabaseDownloadSource::URL, $result['resolved'][DatabaseDownloadSource::id()] ?? NULL);
+    $this->assertSame(DatabaseFetchSource::URL, $result['resolved'][DatabaseFetchSource::id()] ?? NULL);
   }
 
   public function testDependencyNotMetValueProvided(): void {
     $config = [
       ProvisionType::id() => ProvisionType::PROFILE,
-      DatabaseDownloadSource::id() => DatabaseDownloadSource::URL,
+      DatabaseFetchSource::id() => DatabaseFetchSource::URL,
     ];
 
     $result = $this->validator->validate($config);
 
-    // DatabaseDownloadSource depends on ProvisionType=database.
+    // DatabaseFetchSource depends on ProvisionType=database.
     // ProvisionType=profile means condition not met + value provided = warning.
     $warning_prompts = array_column($result['warnings'], 'prompt');
-    $this->assertContains(DatabaseDownloadSource::id(), $warning_prompts);
+    $this->assertContains(DatabaseFetchSource::id(), $warning_prompts);
   }
 
   public function testDependencyMetValueMissing(): void {
@@ -153,11 +153,11 @@ class SchemaValidatorTest extends UnitTestCase {
 
     $result = $this->validator->validate($config);
 
-    // MigrationDownloadSource depends on Migration=true.
+    // MigrationFetchSource depends on Migration=true.
     // Condition met + no value provided + not required = OK (skip).
     $this->assertTrue($result['valid']);
     $error_prompts = array_column($result['errors'], 'prompt');
-    $this->assertNotContains(MigrationDownloadSource::id(), $error_prompts);
+    $this->assertNotContains(MigrationFetchSource::id(), $error_prompts);
   }
 
   public function testDependencyNotMetValueMissing(): void {
@@ -167,10 +167,10 @@ class SchemaValidatorTest extends UnitTestCase {
 
     $result = $this->validator->validate($config);
 
-    // MigrationDownloadSource depends on Migration=true.
+    // MigrationFetchSource depends on Migration=true.
     // Condition not met + no value provided = OK (skip).
     $error_prompts = array_column($result['errors'], 'prompt');
-    $this->assertNotContains(MigrationDownloadSource::id(), $error_prompts);
+    $this->assertNotContains(MigrationFetchSource::id(), $error_prompts);
   }
 
   public function testSystemDependencySkipped(): void {
