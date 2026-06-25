@@ -168,10 +168,19 @@ fi
 # Provision site by importing the database from the dump file.
 #
 provision_from_db() {
-  if [ ! -f "${VORTEX_PROVISION_DB}" ] && [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
-    info "Database dump file is not available. Falling back to profile installation."
-    provision_from_profile 1 "${site_has_config_files}"
-    return
+  if [ ! -f "${VORTEX_PROVISION_DB}" ]; then
+    if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
+      info "Database dump file is not available. Falling back to profile installation."
+      provision_from_profile 1 "${site_has_config_files}"
+      return
+    fi
+
+    echo
+    fail "Unable to import database from file."
+    note "Dump file ${VORTEX_PROVISION_DB} does not exist."
+    note "Site content was not changed."
+
+    exit 1
   fi
 
   "$(dirname "${BASH_SOURCE[0]}")/import-db-file" "${VORTEX_PROVISION_DB}"
