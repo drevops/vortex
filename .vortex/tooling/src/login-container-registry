@@ -29,7 +29,12 @@ VORTEX_LOGIN_CONTAINER_REGISTRY_USER="${VORTEX_LOGIN_CONTAINER_REGISTRY_USER:-${
 # The password to login into the container registry.
 #
 # If not provided, the script will skip the login step.
+#
+# Disable xtrace around the password so it is never written to the trace output
+# (VORTEX_DEBUG=1).
+{ set +x; } 2>/dev/null
 VORTEX_LOGIN_CONTAINER_REGISTRY_PASS="${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
+case "${VORTEX_DEBUG-}" in 1) set -x ;; esac
 
 # Path to Docker configuration directory.
 VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG="${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG:-${DOCKER_CONFIG:-${HOME}/.docker}}"
@@ -54,9 +59,12 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 
 if [ -f "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json" ] && grep -q "${VORTEX_LOGIN_CONTAINER_REGISTRY}" "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json"; then
   note "Already logged in to the registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
-elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" ]; then
+elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS:+1}" ]; then
   task "Logging in to registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
-  echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_LOGIN_CONTAINER_REGISTRY}"
+  (
+    set +x
+    echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}"
+  ) | docker login --username "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_LOGIN_CONTAINER_REGISTRY}"
 else
   note "Skipped login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
 fi

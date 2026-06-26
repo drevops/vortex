@@ -14,8 +14,6 @@ class DeployTypes extends AbstractHandler {
 
   const LAGOON = 'lagoon';
 
-  const CONTAINER_IMAGE = 'container_image';
-
   const WEBHOOK = 'webhook';
 
   /**
@@ -39,7 +37,6 @@ class DeployTypes extends AbstractHandler {
     $options = [
       self::ARTIFACT => 'Code artifact',
       self::LAGOON => 'Lagoon webhook',
-      self::CONTAINER_IMAGE => 'Container image',
       self::WEBHOOK => 'Custom webhook',
     ];
 

@@ -30,7 +30,7 @@ load ../_helper.bash
   run ahoy deploy
   assert_failure
 
-  assert_output_contains "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon."
+  assert_output_contains "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): artifact, webhook, lagoon."
 
   popd >/dev/null
 }

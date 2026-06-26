@@ -254,13 +254,13 @@ jobs:
       # Deploy the freshly-exported database image to the container registry.
       # No-op unless a fresh DB was fetched (the fetch semaphore), the project
       # uses database-in-image storage (VORTEX_DB_IMAGE), and deployment was
-      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED, in the script).
+      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED, in the script).
       - run:
           name: Deploy DB image
           command: |
             [ -z "${VORTEX_DB_IMAGE:-}" ] && echo "==> Database-in-image storage is not used. DB image deployment will not proceed." && exit 0
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB image deployment will not proceed." && exit 0
-            ./vendor/drevops/vortex-tooling/src/deploy-db-image
+            ./vendor/drevops/vortex-tooling/src/push-db-image
           no_output_timeout: 30m
 
       - save_cache:
@@ -284,7 +284,7 @@ jobs:
       # Always use fresh base image for the database (if database-in-image storage is used).
       VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:__VERSION__
       # Deploy container image (if database-in-image storage is used).
-      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
 

@@ -18,18 +18,15 @@ class DeployTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
     yield 'deploy_types_lagoon' => [
       static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::LAGOON]),
     ];
-    yield 'deploy_types_container_image' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::CONTAINER_IMAGE]),
-    ];
     yield 'deploy_types_webhook' => [
       static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK]),
     ];
     yield 'deploy_types_all_gha' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::CONTAINER_IMAGE, DeployTypes::LAGOON, DeployTypes::ARTIFACT]),
+      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::LAGOON, DeployTypes::ARTIFACT]),
     ];
     yield 'deploy_types_all_circleci' => [
       static::cw(function ($test): void {
-          $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::CONTAINER_IMAGE, DeployTypes::LAGOON, DeployTypes::ARTIFACT];
+          $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::LAGOON, DeployTypes::ARTIFACT];
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
     ];

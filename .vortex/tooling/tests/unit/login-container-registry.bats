@@ -82,3 +82,26 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "Login to container registry does not expose the password under VORTEX_DEBUG" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Override any existing values in the current environment.
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="supersecretpass"
+  export DOCKER_CONFIG=/dev/null
+  export VORTEX_CONTAINER_REGISTRY="https://www.example.com"
+  export VORTEX_DEBUG=1
+
+  # shellcheck disable=SC2034
+  declare -a STEPS=(
+    "@docker login --username test_user --password-stdin https://www.example.com # 0 # Login Succeeded"
+  )
+
+  mocks="$(run_steps "setup")"
+  run .vortex/tooling/src/login-container-registry
+  assert_success
+  assert_output_not_contains "supersecretpass"
+
+  popd >/dev/null
+}

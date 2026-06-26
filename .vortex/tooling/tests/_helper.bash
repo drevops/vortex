@@ -119,6 +119,7 @@ setup() {
   unset VORTEX_FETCH_DB_SOURCE
   unset VORTEX_DB_IMAGE
   unset VORTEX_FETCH_DB_FORCE
+  unset VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y

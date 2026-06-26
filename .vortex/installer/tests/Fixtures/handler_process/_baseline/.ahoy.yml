@@ -282,7 +282,7 @@ commands:
   deploy:
     usage: Run remote deployment procedures.
     cmd: |
-      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'code', 'container_registry', 'webhook')" || exit 0
+      ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'artifact', 'webhook', or 'lagoon')" || exit 0
       ./vendor/drevops/vortex-tooling/src/deploy "$@"
 
   doctor:

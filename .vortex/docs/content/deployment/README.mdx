@@ -19,7 +19,6 @@ variable as a comma-separated list of one or multiple supported deployment types
 - [`webhook`](webhook) - A webhook URL is called via CURL.
 - [`artifact`](artifact) - A code artifact is created and sent to a remote repository.
 - [`lagoon`](lagoon) - A Lagoon webhook URL is called via CURL to trigger a deployment.
-- [`docker`](docker) - A container image is built and pushed to a remote registry.
 
 <details>
 <summary>Expand to see deployment in the complete code lifecycle</summary>
@@ -165,5 +164,4 @@ evaluated first and always wins, so a pull request listed in
 | [Webhook](webhook) | Deploy by calling a webhook URL |
 | [Artifact](artifact) | Deploy code artifacts to remote repositories |
 | [Lagoon](lagoon) | Deploy to Lagoon hosting platform |
-| [Docker](docker) | Deploy container images to registries |
 | [Notifications](notifications) | Send deployment notifications |
