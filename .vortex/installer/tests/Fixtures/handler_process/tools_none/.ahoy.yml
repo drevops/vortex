@@ -1,4 +1,4 @@
-@@ -195,29 +195,14 @@
+@@ -192,29 +192,14 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -28,7 +28,7 @@
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -229,51 +214,13 @@
+@@ -226,51 +211,13 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
