@@ -118,7 +118,7 @@ jobs:
 
       - run:
           name: Login to container registry
-          command: ./vendor/drevops/vortex-tooling/src/login-container-registry
+          command: ./vendor/bin/vortex-login-container-registry
 
       - run:
           name: Lint Dockerfiles with Hadolint
@@ -233,7 +233,7 @@ jobs:
 
       - run:
           name: Fetch DB
-          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-fresh ./vendor/drevops/vortex-tooling/src/fetch-db
+          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-fresh ./vendor/bin/vortex-fetch-db
           no_output_timeout: 30m
 
       # Execute commands after database fetch script finished: if the
@@ -246,12 +246,12 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            ./vendor/drevops/vortex-tooling/src/login-container-registry
+            ./vendor/bin/vortex-login-container-registry
             docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
-            ./vendor/drevops/vortex-tooling/src/export-db db.sql
+            ./vendor/bin/vortex-export-db db.sql
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
@@ -264,7 +264,7 @@ jobs:
           command: |
             [ -z "${VORTEX_DB_IMAGE:-}" ] && echo "==> Database-in-image storage is not used. DB image deployment will not proceed." && exit 0
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB image deployment will not proceed." && exit 0
-            ./vendor/drevops/vortex-tooling/src/push-db-image
+            ./vendor/bin/vortex-push-db-image
           no_output_timeout: 30m
 
       - save_cache:
@@ -331,7 +331,7 @@ jobs:
 
       - run:
           name: Login to container registry
-          command: ./vendor/drevops/vortex-tooling/src/login-container-registry
+          command: ./vendor/bin/vortex-login-container-registry
 
       - run:
           name: Build stack
@@ -360,7 +360,7 @@ jobs:
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
             fi
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
           no_output_timeout: 30m
 
       - run:

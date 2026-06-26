@@ -79,7 +79,7 @@
 -        run: ./scripts/vortex-tooling.sh
 -
 -      - name: Deploy
--        run: ./vendor/drevops/vortex-tooling/src/deploy
+-        run: ./vendor/bin/vortex-deploy
 -        env:
 -          VORTEX_DEPLOY_MODE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || 'branch' }}
 -          VORTEX_DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}
