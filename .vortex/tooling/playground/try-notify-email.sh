@@ -18,8 +18,14 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
-# Default email for testing
-EMAIL_RECIPIENT="${EMAIL_RECIPIENT:-alex+vortex@drevops.com}"
+# Require an explicit recipient so test mail never goes to an unintended address.
+EMAIL_RECIPIENT="${EMAIL_RECIPIENT:-}"
+
+if [ -z "${EMAIL_RECIPIENT}" ]; then
+  echo "Error: EMAIL_RECIPIENT environment variable is required"
+  echo "Usage: EMAIL_RECIPIENT=\"tester@example.com\" $0 [branch|pr]"
+  exit 1
+fi
 
 echo "Testing Email notification..."
 echo ""
@@ -29,20 +35,27 @@ echo ""
 # Determine test scenario
 SCENARIO="${1:-branch}"
 
-if [ "${SCENARIO}" = "pr" ]; then
-  echo "Testing PR deployment notification"
-  export VORTEX_NOTIFY_PROJECT="Test Project with PR"
-  export VORTEX_NOTIFY_BRANCH="feature/PROJ-123-test-feature"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_PR_NUMBER="123"
-  export VORTEX_NOTIFY_LABEL="PR-123"
-else
-  echo "Testing branch deployment notification"
-  export VORTEX_NOTIFY_PROJECT="Test Project"
-  export VORTEX_NOTIFY_BRANCH="main"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="main"
-fi
+case "${SCENARIO}" in
+  pr)
+    echo "Testing PR deployment notification"
+    export VORTEX_NOTIFY_PROJECT="Test Project with PR"
+    export VORTEX_NOTIFY_BRANCH="feature/PROJ-123-test-feature"
+    export VORTEX_NOTIFY_SHA="abc123def456"
+    export VORTEX_NOTIFY_PR_NUMBER="123"
+    export VORTEX_NOTIFY_LABEL="PR-123"
+    ;;
+  branch)
+    echo "Testing branch deployment notification"
+    export VORTEX_NOTIFY_PROJECT="Test Project"
+    export VORTEX_NOTIFY_BRANCH="main"
+    export VORTEX_NOTIFY_SHA="abc123def456"
+    export VORTEX_NOTIFY_LABEL="main"
+    ;;
+  *)
+    echo "Error: scenario must be 'branch' or 'pr'"
+    exit 1
+    ;;
+esac
 
 # Set required environment variables
 export VORTEX_NOTIFY_CHANNELS=email

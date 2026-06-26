@@ -29,24 +29,26 @@ fi
 
 echo "Testing New Relic authentication..."
 echo "Endpoint: ${NEWRELIC_ENDPOINT}"
-echo "User API Key: ${NEWRELIC_USER_KEY:0:20}..."
+echo "User API Key: [provided]"
 echo ""
 
 echo "Testing API key validity (/applications.json endpoint):"
-HTTP_CODE=$(curl -w "%{http_code}" -o /tmp/newrelic_response.txt -s -X GET \
+RESPONSE=$(curl -s -w $'\n%{http_code}' -X GET \
   -H "Api-Key: ${NEWRELIC_USER_KEY}" \
   "${NEWRELIC_ENDPOINT}/applications.json")
+HTTP_CODE=$(printf '%s' "${RESPONSE}" | tail -n1)
+RESPONSE_BODY=$(printf '%s' "${RESPONSE}" | sed '$d')
 
 echo "HTTP Status Code: ${HTTP_CODE}"
 if [ "${HTTP_CODE}" = "200" ]; then
   echo "✅ Authentication successful!"
   echo ""
   echo "Available applications:"
-  cat /tmp/newrelic_response.txt | python3 -c "import sys, json; apps = json.load(sys.stdin).get('applications', []); print('Found {} applications:'.format(len(apps))); [print('  - {} (ID: {})'.format(app.get('name'), app.get('id'))) for app in apps[:10]]" 2>/dev/null || cat /tmp/newrelic_response.txt
+  printf '%s' "${RESPONSE_BODY}" | python3 -c "import sys, json; apps = json.load(sys.stdin).get('applications', []); print('Found {} applications:'.format(len(apps))); [print('  - {} (ID: {})'.format(app.get('name'), app.get('id'))) for app in apps[:10]]" 2>/dev/null || printf '%s\n' "${RESPONSE_BODY}"
 else
   echo "❌ Authentication failed"
   echo "Response:"
-  cat /tmp/newrelic_response.txt
+  printf '%s\n' "${RESPONSE_BODY}"
   echo ""
   echo "Troubleshooting:"
   echo "- Verify you're using a REST API key (User API key)"
@@ -55,6 +57,3 @@ else
   echo "- Get your API key from: https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher"
 fi
 echo ""
-
-# Clean up
-rm -f /tmp/newrelic_response.txt

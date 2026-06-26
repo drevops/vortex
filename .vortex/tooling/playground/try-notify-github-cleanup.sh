@@ -35,20 +35,21 @@ echo "GitHub Deployment Cleanup"
 echo "========================="
 echo ""
 echo "Repository: ${GITHUB_REPOSITORY}"
-echo "Token: ${GITHUB_TOKEN:0:20}..."
+echo "Token: [set]"
 echo ""
-
-# Function to extract JSON value
-extract_json_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
-}
 
 echo "Fetching all deployments..."
 deployments=$(curl -s \
   -H "Authorization: token ${GITHUB_TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \
-  "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments")
+  "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?per_page=100")
+
+# Reject error objects (e.g. bad credentials) before treating the response as a list.
+if ! echo "${deployments}" | php -r "\$d=json_decode(file_get_contents('php://stdin'), TRUE); exit(is_array(\$d) && array_is_list(\$d) ? 0 : 1);"; then
+  echo "Error: unexpected API response (not a deployment list):"
+  echo "${deployments}"
+  exit 1
+fi
 
 # Count deployments
 deployment_count=$(echo "${deployments}" | php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); echo count(\$data);")

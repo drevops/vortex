@@ -38,29 +38,27 @@ echo ""
 # Use printf instead of echo -n for better portability
 TOKEN=$(printf "%s:%s" "${JIRA_USER}" "${JIRA_TOKEN}" | base64 | tr -d '\n\r ')
 
-echo "Encoded token (first 50 chars): ${TOKEN:0:50}..."
+echo "Encoded token generated."
 echo "Token length: ${#TOKEN}"
 echo ""
 
-# Debug: Show what we're encoding
-echo "Debug - encoding string: ${JIRA_USER}:<token>"
-echo ""
-
 echo "Testing with Basic auth (/myself endpoint):"
-HTTP_CODE=$(curl -w "%{http_code}" -o /tmp/jira_response.txt -s -X GET \
+RESPONSE=$(curl -s -w $'\n%{http_code}' -X GET \
   -H "Authorization: Basic ${TOKEN}" \
   -H "Accept: application/json" \
   "${JIRA_ENDPOINT}/rest/api/3/myself")
+HTTP_CODE=$(printf '%s' "${RESPONSE}" | tail -n1)
+RESPONSE_BODY=$(printf '%s' "${RESPONSE}" | sed '$d')
 
 echo "HTTP Status Code: ${HTTP_CODE}"
 if [ "${HTTP_CODE}" = "200" ]; then
   echo "✅ Authentication successful!"
   echo ""
   echo "User info:"
-  cat /tmp/jira_response.txt | python3 -m json.tool 2>/dev/null || cat /tmp/jira_response.txt
+  printf '%s' "${RESPONSE_BODY}" | python3 -m json.tool 2>/dev/null || printf '%s\n' "${RESPONSE_BODY}"
 else
   echo "❌ Authentication failed"
   echo "Response:"
-  cat /tmp/jira_response.txt
+  printf '%s\n' "${RESPONSE_BODY}"
 fi
 echo ""

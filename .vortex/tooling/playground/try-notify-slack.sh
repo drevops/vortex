@@ -37,7 +37,7 @@ fi
 
 echo "Testing Slack notifications..."
 echo ""
-echo "Webhook URL: ${SLACK_WEBHOOK_URL:0:50}..."
+echo "Webhook URL: [configured]"
 echo ""
 echo "This will send 4 notifications to Slack:"
 echo "  1. Branch pre-deployment (no View Site or Login links)"

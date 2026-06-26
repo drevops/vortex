@@ -39,19 +39,26 @@ echo "Testing GitHub notification..."
 echo ""
 echo "Repository: ${GITHUB_REPOSITORY}"
 echo "PR Number : ${PR_NUMBER}"
-echo "Token: ${GITHUB_TOKEN:0:20}..."
+echo "Token: [set]"
 echo ""
 
 # Determine test scenario
 SCENARIO="${1:-pre}"
 
-if [ "${SCENARIO}" = "post" ]; then
-  echo "Testing post-deployment notification (updates deployment status)"
-  export VORTEX_NOTIFY_EVENT="post_deployment"
-else
-  echo "Testing pre-deployment notification (creates deployment)"
-  export VORTEX_NOTIFY_EVENT="pre_deployment"
-fi
+case "${SCENARIO}" in
+  post)
+    echo "Testing post-deployment notification (updates deployment status)"
+    export VORTEX_NOTIFY_EVENT="post_deployment"
+    ;;
+  pre)
+    echo "Testing pre-deployment notification (creates deployment)"
+    export VORTEX_NOTIFY_EVENT="pre_deployment"
+    ;;
+  *)
+    echo "Error: scenario must be 'pre' or 'post'"
+    exit 1
+    ;;
+esac
 
 # Set deployment context variables
 export VORTEX_NOTIFY_PROJECT="Test Project"

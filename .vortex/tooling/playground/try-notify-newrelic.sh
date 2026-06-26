@@ -35,7 +35,7 @@ fi
 echo "Testing New Relic notification..."
 echo ""
 echo "Endpoint: ${NEWRELIC_ENDPOINT}"
-echo "API User Key: ${NEWRELIC_USER_KEY:0:20}..."
+echo "API User Key: [provided]"
 echo ""
 
 # Determine test scenario

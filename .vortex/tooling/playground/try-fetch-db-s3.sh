@@ -13,7 +13,6 @@
 #   ./try-fetch-db-s3.sh
 
 set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 # Source secrets if available.
 if [ -f "$HOME/.profile.secrets" ]; then
@@ -67,6 +66,9 @@ export VORTEX_FETCH_DB_S3_SECRET_KEY="${S3_SECRET_KEY}"
 export VORTEX_FETCH_DB_S3_BUCKET="${S3_BUCKET}"
 export VORTEX_FETCH_DB_S3_REGION="${S3_REGION}"
 export VORTEX_FETCH_DB_S3_PREFIX="${S3_PREFIX}"
+
+# Enable xtrace only after credentials are exported so secrets are not traced.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 ./vendor/drevops/vortex-tooling/src/fetch-db-s3
 
