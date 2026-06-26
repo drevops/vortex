@@ -11,7 +11,7 @@
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+set -o pipefail
 
 # AWS access key.
 VORTEX_PUSH_DB_S3_ACCESS_KEY="${VORTEX_PUSH_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}"
@@ -74,7 +74,23 @@ service="s3"
 base_url=".${service}.${VORTEX_PUSH_DB_S3_REGION}.amazonaws.com"
 date_short=$(date -u +'%Y%m%d')
 date_long=$(date -u +'%Y%m%dT%H%M%SZ')
-object_url="https://${VORTEX_PUSH_DB_S3_BUCKET}${base_url}/${VORTEX_PUSH_DB_S3_PREFIX}${VORTEX_PUSH_DB_S3_REMOTE_FILE}"
+
+# URL-encode the object key for signing and the request URL, preserving "/".
+uri_encode_key() {
+  _s="${1}"
+  _out=""
+  while [ -n "${_s}" ]; do
+    _c="${_s:0:1}"
+    case "${_c}" in
+      [a-zA-Z0-9._~/-]) _out="${_out}${_c}" ;;
+      *) _out="${_out}$(printf '%%%02X' "'${_c}")" ;;
+    esac
+    _s="${_s:1}"
+  done
+  printf '%s' "${_out}"
+}
+object_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${VORTEX_PUSH_DB_S3_REMOTE_FILE}")"
+object_url="https://${VORTEX_PUSH_DB_S3_BUCKET}${base_url}/${object_key}"
 
 note "Local file:     ${local_file}"
 note "Remote file:    ${VORTEX_PUSH_DB_S3_PREFIX}${VORTEX_PUSH_DB_S3_REMOTE_FILE}"
@@ -103,7 +119,7 @@ header_list='content-type;host;x-amz-content-sha256;x-amz-date;x-amz-server-side
 
 canonical_request="\
 ${request_type}
-/${VORTEX_PUSH_DB_S3_PREFIX}${VORTEX_PUSH_DB_S3_REMOTE_FILE}
+/${object_key}
 
 content-type:${content_type}
 host:${VORTEX_PUSH_DB_S3_BUCKET}${base_url}
@@ -125,7 +141,11 @@ ${canonical_request_hash}"
 
 signature=$(aws_sign4 "${VORTEX_PUSH_DB_S3_SECRET_KEY}" "${date_short}" "${VORTEX_PUSH_DB_S3_REGION}" "${service}" "${string_to_sign}")
 
-response=$(curl --silent --location --proto-redir =https --request "${request_type}" --upload-file "${local_file}" \
+set +e
+response=$(curl --silent --show-error --location --proto-redir =https \
+  --connect-timeout "${VORTEX_PUSH_DB_S3_CONNECT_TIMEOUT:-10}" \
+  --max-time "${VORTEX_PUSH_DB_S3_MAX_TIME:-300}" \
+  --request "${request_type}" --upload-file "${local_file}" \
   --header "Content-Type: ${content_type}" \
   --header "Host: ${VORTEX_PUSH_DB_S3_BUCKET}${base_url}" \
   --header "X-Amz-Content-SHA256: ${payload_hash}" \
@@ -135,6 +155,14 @@ response=$(curl --silent --location --proto-redir =https --request "${request_ty
   --header "Authorization: ${auth_type} Credential=${VORTEX_PUSH_DB_S3_ACCESS_KEY}/${date_short}/${VORTEX_PUSH_DB_S3_REGION}/${service}/aws4_request, SignedHeaders=${header_list}, Signature=${signature}" \
   --write-out "\n%{http_code}" \
   "${object_url}")
+curl_status=$?
+set -e
+
+# Enable xtrace only after the signed request so credentials and the
+# signature are never written to the trace output.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+[ "${curl_status}" -ne 0 ] && fail "S3 push request failed with curl exit ${curl_status}." && exit 1
 
 http_code=$(echo "${response}" | tail -1)
 response_body=$(echo "${response}" | sed '$d')
