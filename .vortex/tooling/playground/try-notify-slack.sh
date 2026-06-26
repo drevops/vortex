@@ -10,7 +10,7 @@
 #
 # Usage:
 #   export SLACK_WEBHOOK_URL="your-webhook-url"
-#   ./try-slack-notification.sh
+#   ./try-notify-slack.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

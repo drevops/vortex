@@ -7,7 +7,7 @@
 #
 # Usage:
 #   export GITHUB_TOKEN="your-github-token"
-#   ./try-github-cleanup.sh
+#   ./try-notify-github-cleanup.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

@@ -4,7 +4,7 @@
 #
 # Usage:
 #   export GITHUB_TOKEN="your-github-token"
-#   ./try-github-auth.sh
+#   ./try-notify-github-auth.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

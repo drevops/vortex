@@ -6,7 +6,7 @@
 #   export JIRA_USER="your-email@example.com"
 #   export JIRA_TOKEN="your-api-token"
 #   export JIRA_ENDPOINT="https://your-domain.atlassian.net"
-#   ./try-jira-auth.sh
+#   ./try-notify-jira-auth.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

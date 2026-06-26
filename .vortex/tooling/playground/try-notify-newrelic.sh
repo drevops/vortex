@@ -6,7 +6,7 @@
 #   export NEWRELIC_USER_KEY="your-user-api-key"
 #   export NEWRELIC_APP_NAME="your-app-name"  # Optional (default: Test Project-main)
 #   export NEWRELIC_ENDPOINT="https://api.newrelic.com/v2"  # Optional
-#   ./try-newrelic-notification.sh [branch|pr]
+#   ./try-notify-newrelic.sh [branch|pr]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

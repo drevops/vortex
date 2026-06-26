@@ -6,7 +6,7 @@
 #
 # Usage:
 #   export GITHUB_TOKEN="your-github-token"
-#   ./try-github-notification.sh [pre|post]
+#   ./try-notify-github.sh [pre|post]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

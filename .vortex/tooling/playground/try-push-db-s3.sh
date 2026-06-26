@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ##
-# Manual test script for S3 database upload.
+# Manual test script for S3 database push.
 #
-# Uploads a database dump file to an S3 bucket using upload-db-s3.sh.
+# Pushes a database dump file to an S3 bucket using push-db-s3.
 #
 # Usage:
 #   export S3_ACCESS_KEY="your-access-key"
@@ -10,7 +10,7 @@
 #   export S3_BUCKET="your-bucket"
 #   export S3_REGION="ap-southeast-2"
 #   export S3_PREFIX="path/to/folder/"
-#   ./try-s3-upload.sh
+#   ./try-push-db-s3.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
@@ -51,25 +51,25 @@ if [ -z "${S3_BUCKET}" ]; then
   exit 1
 fi
 
-echo "Testing S3 database upload..."
+echo "Testing S3 database push..."
 echo ""
 echo "S3 bucket:      ${S3_BUCKET}"
 echo "S3 region:      ${S3_REGION}"
 [ -n "${S3_PREFIX}" ] && echo "S3 prefix:      ${S3_PREFIX}"
 echo "Local file:     ${VORTEX_DB_DIR:-./.data}/${VORTEX_DB_FILE:-db.sql}"
-echo "Remote file:    ${VORTEX_UPLOAD_DB_S3_REMOTE_FILE:-db.sql}"
-echo "Storage class:  ${VORTEX_UPLOAD_DB_S3_STORAGE_CLASS:-STANDARD}"
+echo "Remote file:    ${VORTEX_PUSH_DB_S3_REMOTE_FILE:-db.sql}"
+echo "Storage class:  ${VORTEX_PUSH_DB_S3_STORAGE_CLASS:-STANDARD}"
 echo ""
 
 cd "${PROJECT_ROOT}" || exit 1
 
-export VORTEX_UPLOAD_DB_S3_ACCESS_KEY="${S3_ACCESS_KEY}"
-export VORTEX_UPLOAD_DB_S3_SECRET_KEY="${S3_SECRET_KEY}"
-export VORTEX_UPLOAD_DB_S3_BUCKET="${S3_BUCKET}"
-export VORTEX_UPLOAD_DB_S3_REGION="${S3_REGION}"
-export VORTEX_UPLOAD_DB_S3_PREFIX="${S3_PREFIX}"
+export VORTEX_PUSH_DB_S3_ACCESS_KEY="${S3_ACCESS_KEY}"
+export VORTEX_PUSH_DB_S3_SECRET_KEY="${S3_SECRET_KEY}"
+export VORTEX_PUSH_DB_S3_BUCKET="${S3_BUCKET}"
+export VORTEX_PUSH_DB_S3_REGION="${S3_REGION}"
+export VORTEX_PUSH_DB_S3_PREFIX="${S3_PREFIX}"
 
-./vendor/drevops/vortex-tooling/src/upload-db-s3
+./vendor/drevops/vortex-tooling/src/push-db-s3
 
 echo ""
-echo "Upload complete!"
+echo "Push complete!"

@@ -5,7 +5,7 @@
 # Usage:
 #   export NEWRELIC_USER_KEY="your-user-api-key"
 #   export NEWRELIC_ENDPOINT="https://api.newrelic.com/v2"  # Optional
-#   ./try-newrelic-auth.sh
+#   ./try-notify-newrelic-auth.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

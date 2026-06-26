@@ -7,7 +7,7 @@
 #   export JIRA_TOKEN="your-api-token"
 #   export JIRA_ENDPOINT="https://your-domain.atlassian.net"
 #   export JIRA_ISSUE="PROJ-123"
-#   ./test-jira-notification.sh [branch|pr]
+#   ./try-notify-jira.sh [branch|pr]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

@@ -10,7 +10,7 @@
 #   export S3_BUCKET="your-bucket"
 #   export S3_REGION="ap-southeast-2"
 #   export S3_PREFIX="path/to/folder/"
-#   ./try-s3-fetch.sh
+#   ./try-fetch-db-s3.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

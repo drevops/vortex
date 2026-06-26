@@ -3,7 +3,7 @@
 # Manual test script for Email notifications.
 #
 # Usage:
-#   ./try-email-notification.sh [branch|pr]
+#   ./try-notify-email.sh [branch|pr]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x

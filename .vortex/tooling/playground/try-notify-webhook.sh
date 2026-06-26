@@ -4,7 +4,7 @@
 #
 # Usage:
 #   export WEBHOOK_URL="https://webhook.site/your-unique-id"
-#   ./try-webhook-notification.sh [branch|pr]
+#   ./try-notify-webhook.sh [branch|pr]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
