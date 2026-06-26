@@ -21,7 +21,7 @@ stub_sibling() {
   export RUN_ON_HOST=0
 
   mock_docker=$(mock_command "docker")
-  stub_sibling "import-db-file" "Imported in place."
+  stub_sibling "vortex-import-db-file" "Imported in place."
 
   run .vortex/tooling/src/vortex-import-db
   assert_success

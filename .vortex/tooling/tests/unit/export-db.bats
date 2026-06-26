@@ -21,7 +21,7 @@ stub_sibling() {
   export RUN_ON_HOST=0
 
   mock_docker=$(mock_command "docker")
-  stub_sibling "export-db-file" "Exported in place."
+  stub_sibling "vortex-export-db-file" "Exported in place."
 
   run .vortex/tooling/src/vortex-export-db
   assert_success
@@ -71,7 +71,7 @@ stub_sibling() {
   export RUN_ON_HOST=1
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
-  stub_sibling "export-db-image" "Exported as a container image."
+  stub_sibling "vortex-export-db-image" "Exported as a container image."
 
   run .vortex/tooling/src/vortex-export-db
   assert_success

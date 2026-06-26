@@ -25,7 +25,7 @@ stub_sibling() {
   unset VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
-  stub_sibling "push-container-registry" "Pushed the container image."
+  stub_sibling "vortex-push-container-registry" "Pushed the container image."
 
   run .vortex/tooling/src/vortex-push-db-image
   assert_success
@@ -41,7 +41,7 @@ stub_sibling() {
   export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
-  stub_sibling "push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
+  stub_sibling "vortex-push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
 
   run .vortex/tooling/src/vortex-push-db-image
   assert_success
@@ -59,7 +59,7 @@ stub_sibling() {
   unset VORTEX_EXPORT_DB_IMAGE
   export VORTEX_DB_IMAGE="myorg/fallback"
 
-  stub_sibling "push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
+  stub_sibling "vortex-push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
 
   run .vortex/tooling/src/vortex-push-db-image
   assert_success

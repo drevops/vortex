@@ -28,7 +28,7 @@ is_host() { [ "${RUN_ON_HOST:-$(command -v docker >/dev/null 2>&1 && echo 1 || e
 info "Started database import."
 
 if is_host; then
-  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/import-db-file "$@"
+  docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-import-db-file "$@"
 else
   "$(dirname "${BASH_SOURCE[0]}")/vortex-import-db-file" "$@"
 fi

@@ -58,7 +58,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Login to container registry
-        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+        run: ./vendor/bin/vortex-login-container-registry
         env:
           VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
           VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
@@ -253,7 +253,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Login to container registry
-        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+        run: ./vendor/bin/vortex-login-container-registry
         env:
           VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
           VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
