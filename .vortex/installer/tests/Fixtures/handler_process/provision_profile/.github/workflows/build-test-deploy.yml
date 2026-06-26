@@ -101,13 +101,13 @@
 -
 -      - name: Fetch DB
 -        run: |
--          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+-          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-fresh ./vendor/drevops/vortex-tooling/src/fetch-db
 -          echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
 -        timeout-minutes: 30
 -
 -      - name: Export DB
 -        run: |
--          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
+-          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
 -          ./vendor/drevops/vortex-tooling/src/login-container-registry
 -          docker compose up --detach && sleep 15
 -          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql

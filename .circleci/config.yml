@@ -259,7 +259,7 @@ jobs:
 
       - run:
           name: Fetch DB
-          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-fresh ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
       #;< MIGRATION
@@ -278,7 +278,7 @@ jobs:
       - run:
           name: Export DB after fetch
           command: |
-            [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
             ./vendor/drevops/vortex-tooling/src/login-container-registry
             docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
@@ -286,6 +286,18 @@ jobs:
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/drevops/vortex-tooling/src/export-db db.sql
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+          no_output_timeout: 30m
+
+      # Deploy the freshly-exported database image to the container registry.
+      # No-op unless a fresh DB was fetched (the fetch semaphore), the project
+      # uses database-in-image storage (VORTEX_DB_IMAGE), and deployment was
+      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED, in the script).
+      - run:
+          name: Deploy DB image
+          command: |
+            [ -z "${VORTEX_DB_IMAGE:-}" ] && echo "==> Database-in-image storage is not used. DB image deployment will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB image deployment will not proceed." && exit 0
+            ./vendor/drevops/vortex-tooling/src/deploy-db-image
           no_output_timeout: 30m
 
       - save_cache:
