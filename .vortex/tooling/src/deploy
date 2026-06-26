@@ -24,7 +24,7 @@ set -eu
 # The types of deployment.
 #
 # Can be a combination of comma-separated values (to support multiple
-# deployments): code, webhook, lagoon.
+# deployments): artifact, webhook, lagoon.
 VORTEX_DEPLOY_TYPES="${VORTEX_DEPLOY_TYPES:-}"
 
 # Deployment mode.
@@ -84,7 +84,7 @@ if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
   exit 0
 fi
 
-[ -z "${VORTEX_DEPLOY_TYPES}" ] && fail "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, webhook, lagoon." && exit 1
+[ -z "${VORTEX_DEPLOY_TYPES}" ] && fail "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): artifact, webhook, lagoon." && exit 1
 
 if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
   note "Found flag to skip a deployment."
