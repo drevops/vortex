@@ -33,6 +33,26 @@ setup_robo_fixture() {
   popd >/dev/null
 }
 
+@test "Empty VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP skips before requiring credentials" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export DOCKER_CONFIG=/dev/null
+
+  # No map and no credentials provided.
+  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP
+  unset VORTEX_CONTAINER_REGISTRY_USER
+  unset VORTEX_CONTAINER_REGISTRY_PASS
+  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_USER
+  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS
+
+  run .vortex/tooling/src/push-container-registry
+  assert_success
+  assert_output_contains "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
+  assert_output_not_contains "Missing required value"
+
+  popd >/dev/null
+}
+
 @test "Container registry push with valid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -148,6 +168,89 @@ setup_robo_fixture() {
   run .vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1=service2=image2" provided.'
+
+  # Empty image.
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1="
+
+  run .vortex/tooling/src/push-container-registry
+  assert_failure
+  assert_output_contains 'Invalid key/value pair "service1=" provided.'
+
+  # Empty service.
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="=image1"
+
+  run .vortex/tooling/src/push-container-registry
+  assert_failure
+  assert_output_contains 'Invalid key/value pair "=image1" provided.'
+
+  popd >/dev/null
+}
+
+@test "Container registry push tags only on the final reference segment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
+  export DOCKER_CONFIG=/dev/null
+
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
+  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+
+  # service1 already carries a tag and must be left as-is; service2 carries a
+  # registry host:port that must not be mistaken for a tag.
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=org/image1:custom,service2=host.io:5000/app"
+
+  declare -a STEPS=(
+    "Started container registry push."
+    "@docker login --username test_user --password-stdin registry.example.com"
+    "Processing service service1"
+    "@docker compose ps -q service1 # service1_service_id"
+    'Committing container image with name "registry.example.com/org/image1:custom".'
+    "@docker commit service1_service_id registry.example.com/org/image1:custom # sha256:service1_image_id"
+    "@docker push registry.example.com/org/image1:custom"
+    "Processing service service2"
+    "@docker compose ps -q service2 # service2_service_id"
+    'Committing container image with name "registry.example.com/host.io:5000/app:test_latest".'
+    "@docker commit service2_service_id registry.example.com/host.io:5000/app:test_latest # sha256:service2_image_id"
+    "@docker push registry.example.com/host.io:5000/app:test_latest"
+    "Finished container registry push."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./.vortex/tooling/src/push-container-registry
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "Container registry push does not expose the password under VORTEX_DEBUG" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_CONTAINER_REGISTRY_USER="test_user"
+  export VORTEX_CONTAINER_REGISTRY_PASS="supersecretpass"
+  export DOCKER_CONFIG=/dev/null
+
+  export VORTEX_DEBUG=1
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
+  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1"
+
+  declare -a STEPS=(
+    "@docker login --username test_user --password-stdin registry.example.com"
+    "@docker compose ps -q service1 # service1_service_id"
+    "@docker commit service1_service_id registry.example.com/image1:test_latest # sha256:service1_image_id"
+    "@docker push registry.example.com/image1:test_latest"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./.vortex/tooling/src/push-container-registry
+  assert_success
+  assert_output_not_contains "supersecretpass"
 
   popd >/dev/null
 }

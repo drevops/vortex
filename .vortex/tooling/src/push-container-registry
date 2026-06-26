@@ -12,7 +12,9 @@
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
 set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Xtrace (VORTEX_DEBUG=1) is intentionally enabled only after the registry
+# login below, so the registry password is never written to the trace output.
 
 # Comma-separated map of container services and images to push in
 # format "service1=org/image1,service2=org/image2".
@@ -50,10 +52,6 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 
 info "Started container registry push."
 
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY." && exit 1
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_USER." && exit 1
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS." && exit 1
-
 # Only push if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
 # @todo: Handle this better - empty $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP should use defaults.
@@ -62,6 +60,10 @@ if [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ]; then
   exit 0
 fi
 
+[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY." && exit 1
+[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_USER." && exit 1
+[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS." && exit 1
+
 services=()
 images=()
 # Parse and validate map.
@@ -69,6 +71,7 @@ IFS=',' read -r -a values <<<"${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
   [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided." && exit 1
+  { [ -z "${parts[0]}" ] || [ -z "${parts[1]}" ]; } && fail "Invalid key/value pair \"${value}\" provided." && exit 1
   services+=("${parts[0]}")
   images+=("${parts[1]}")
 done
@@ -77,6 +80,9 @@ export VORTEX_CONTAINER_REGISTRY="${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
 export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}"
 export VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}"
 "$(dirname "${BASH_SOURCE[0]}")/login-container-registry"
+
+# Safe to trace from here on - no secrets are referenced below.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 for key in "${!services[@]}"; do
   service="${services[${key}]}"
@@ -89,7 +95,10 @@ for key in "${!services[@]}"; do
   [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
   note "Found \"${service}\" service container with id \"${cid}\"."
 
-  [ -n "${image##*:*}" ] && image="${image}:${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG}"
+  # Only treat a ':' or '@' in the final reference segment as an existing tag or
+  # digest, so a registry host:port is never mistaken for one.
+  image_ref="${image##*/}"
+  [ -n "${image_ref##*[:@]*}" ] && image="${image}:${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG}"
   new_image="${VORTEX_DEPLOY_CONTAINER_REGISTRY}/${image}"
 
   task "Committing container image with name \"${new_image}\"."
