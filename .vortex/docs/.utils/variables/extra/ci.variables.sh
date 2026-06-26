@@ -18,7 +18,7 @@ VORTEX_DEPLOY_SKIP_BRANCHES=
 # Label that authorizes a pull request deployment. When set, a PR is deployed only if it carries this label.
 VORTEX_DEPLOY_ALLOW_LABEL=
 
-# Proceed with container image deployment after it was exported.
+# Proceed with container image push after it was exported.
 VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=
 
 # Ignore Hadolint failures.
