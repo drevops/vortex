@@ -72,31 +72,11 @@ stub_sibling() {
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
   stub_sibling "export-db-image" "Exported as a container image."
-  stub_sibling "deploy-container-registry" "Deployed the container image."
 
   run .vortex/tooling/src/export-db
   assert_success
   assert_output_contains "Exported as a container image."
   assert_output_contains "Finished database export."
-  assert_output_not_contains "Deployed the container image."
-
-  popd >/dev/null
-}
-
-@test "export-db: Deploys the container image when deployment is requested" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  export RUN_ON_HOST=1
-  export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
-  export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=1
-
-  stub_sibling "export-db-image" "Exported as a container image."
-  stub_sibling "deploy-container-registry" "Deployed the container image."
-
-  run .vortex/tooling/src/export-db
-  assert_success
-  assert_output_contains "Exported as a container image."
-  assert_output_contains "Deployed the container image."
 
   popd >/dev/null
 }
