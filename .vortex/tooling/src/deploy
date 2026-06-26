@@ -2,8 +2,8 @@
 ##
 # Deploy code to a remote location.
 #
-# Deployment may include pushing code, pushing created container image,
-# notifying remote hosting service via webhook call etc.
+# Deployment may include pushing code, notifying remote hosting service via
+# webhook call etc.
 #
 # Multiple deployments can be configured by providing a comma-separated list of
 # deployment types in $VORTEX_DEPLOY_TYPES variable.
@@ -24,7 +24,7 @@ set -eu
 # The types of deployment.
 #
 # Can be a combination of comma-separated values (to support multiple
-# deployments): code, container_registry, webhook, lagoon.
+# deployments): code, webhook, lagoon.
 VORTEX_DEPLOY_TYPES="${VORTEX_DEPLOY_TYPES:-}"
 
 # Deployment mode.
@@ -84,7 +84,7 @@ if [ "${VORTEX_DEPLOY_SKIP:-}" = "1" ]; then
   exit 0
 fi
 
-[ -z "${VORTEX_DEPLOY_TYPES}" ] && fail "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon." && exit 1
+[ -z "${VORTEX_DEPLOY_TYPES}" ] && fail "Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, webhook, lagoon." && exit 1
 
 if [ "${VORTEX_DEPLOY_ALLOW_SKIP:-}" = "1" ]; then
   note "Found flag to skip a deployment."
@@ -143,10 +143,6 @@ fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*webhook*}" ]; then
   "${SCRIPT_DIR}/deploy-webhook"
-fi
-
-if [ -z "${VORTEX_DEPLOY_TYPES##*container_registry*}" ]; then
-  "${SCRIPT_DIR}/deploy-container-registry"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*lagoon*}" ]; then

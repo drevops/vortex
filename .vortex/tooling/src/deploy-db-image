@@ -30,6 +30,6 @@ info "Started database container image deployment."
 
 [ -z "${VORTEX_EXPORT_DB_IMAGE}" ] && fail "Container image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB_IMAGE in a format <org>/<repository>." && exit 1
 
-VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="database=${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/deploy-container-registry"
+VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="database=${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/push-container-registry"
 
 pass "Finished database container image deployment."

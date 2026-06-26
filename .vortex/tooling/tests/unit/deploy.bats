@@ -252,7 +252,7 @@ load ../_helper.bash
 @test "Skip applies to all deployment types" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export VORTEX_DEPLOY_TYPES="webhook,artifact,container_registry"
+  export VORTEX_DEPLOY_TYPES="webhook,artifact,lagoon"
   export VORTEX_DEPLOY_ALLOW_SKIP="1"
   export VORTEX_DEPLOY_PR="123"
   export VORTEX_DEPLOY_SKIP_PRS="123"
@@ -260,7 +260,7 @@ load ../_helper.bash
   run .vortex/tooling/src/deploy
   assert_success
   assert_output_contains "Found PR 123 in skip list."
-  assert_output_contains "Skipped deployment webhook,artifact,container_registry."
+  assert_output_contains "Skipped deployment webhook,artifact,lagoon."
 
   popd >/dev/null
 }

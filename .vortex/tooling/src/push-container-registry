@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Deploy via pushing container images to the container registry.
+# Push container images to the container registry.
 #
 # Push multiple container images by tagging services provided in the
 # $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable.
@@ -14,7 +14,7 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Comma-separated map of container services and images to use for deployment in
+# Comma-separated map of container services and images to push in
 # format "service1=org/image1,service2=org/image2".
 VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP:-}"
 
@@ -48,17 +48,17 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
-info "Started container registry deployment."
+info "Started container registry push."
 
 [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY." && exit 1
 [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_USER." && exit 1
 [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS." && exit 1
 
-# Only deploy if the map was provided, but do not fail if it has not as this
+# Only push if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
 # @todo: Handle this better - empty $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP should use defaults.
 if [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ]; then
-  note "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
+  note "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
   exit 0
 fi
 
@@ -101,4 +101,4 @@ for key in "${!services[@]}"; do
   docker push "${new_image}"
 done
 
-pass "Finished container registry deployment."
+pass "Finished container registry push."

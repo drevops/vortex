@@ -25,7 +25,7 @@ stub_sibling() {
   unset VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
-  stub_sibling "deploy-container-registry" "Deployed the container image."
+  stub_sibling "push-container-registry" "Deployed the container image."
 
   run .vortex/tooling/src/deploy-db-image
   assert_success
@@ -41,7 +41,7 @@ stub_sibling() {
   export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=1
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
-  stub_sibling "deploy-container-registry" 'Deployed with map: ${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}'
+  stub_sibling "push-container-registry" 'Deployed with map: ${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}'
 
   run .vortex/tooling/src/deploy-db-image
   assert_success
@@ -59,7 +59,7 @@ stub_sibling() {
   unset VORTEX_EXPORT_DB_IMAGE
   export VORTEX_DB_IMAGE="myorg/fallback"
 
-  stub_sibling "deploy-container-registry" 'Deployed with map: ${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}'
+  stub_sibling "push-container-registry" 'Deployed with map: ${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}'
 
   run .vortex/tooling/src/deploy-db-image
   assert_success
@@ -89,8 +89,8 @@ stub_sibling() {
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
   mkdir -p .vortex/tooling/src
-  printf '#!/usr/bin/env bash\nexit 1\n' >.vortex/tooling/src/deploy-container-registry
-  chmod +x .vortex/tooling/src/deploy-container-registry
+  printf '#!/usr/bin/env bash\nexit 1\n' >.vortex/tooling/src/push-container-registry
+  chmod +x .vortex/tooling/src/push-container-registry
 
   run .vortex/tooling/src/deploy-db-image
   assert_failure

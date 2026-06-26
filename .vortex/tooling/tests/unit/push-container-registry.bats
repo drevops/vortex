@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for .vortex/tooling/src/deploy-container-registry script.
+# Tests for .vortex/tooling/src/push-container-registry script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
@@ -16,7 +16,7 @@ setup_robo_fixture() {
   chmod +x "${HOME}/.composer/vendor/bin/git-artifact"
 }
 
-@test "Missing VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP - deployment should not proceed" {
+@test "Missing VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP - push should not proceed" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
@@ -26,14 +26,14 @@ setup_robo_fixture() {
 
   unset VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP
 
-  run .vortex/tooling/src/deploy-container-registry
+  run .vortex/tooling/src/push-container-registry
   assert_success
-  assert_output_contains "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue."
+  assert_output_contains "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
 
   popd >/dev/null
 }
 
-@test "Container registry deployment with valid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP" {
+@test "Container registry push with valid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
@@ -48,7 +48,7 @@ setup_robo_fixture() {
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1,service2=image2,service3=image3"
 
   declare -a STEPS=(
-    "Started container registry deployment."
+    "Started container registry push."
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1 # service1_service_id"
@@ -74,19 +74,19 @@ setup_robo_fixture() {
     'Committed container image with id "service3_image_id".'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image3:test_latest"
-    "Finished container registry deployment."
+    "Finished container registry push."
   )
 
   mocks="$(run_steps "setup")"
 
-  run ./.vortex/tooling/src/deploy-container-registry
+  run ./.vortex/tooling/src/push-container-registry
   assert_success
   run_steps "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
 
-@test "Container registry deployment with services not running" {
+@test "Container registry push with services not running" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
@@ -101,7 +101,7 @@ setup_robo_fixture() {
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1"
 
   declare -a STEPS=(
-    "Started container registry deployment."
+    "Started container registry push."
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1"
@@ -110,7 +110,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./.vortex/tooling/src/deploy-container-registry
+  run ./.vortex/tooling/src/push-container-registry
   assert_failure
   run_steps "assert" "${mocks[@]}"
 
@@ -131,21 +131,21 @@ setup_robo_fixture() {
   # No key/value pair
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1"
 
-  run ./.vortex/tooling/src/deploy-container-registry
+  run ./.vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1" provided.'
 
   # Using a space delimiter.
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
-  run .vortex/tooling/src/deploy-container-registry
+  run .vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1 service2=image2" provided.'
 
   # No comma delimiter
   export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
-  run .vortex/tooling/src/deploy-container-registry
+  run .vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1=service2=image2" provided.'
 
