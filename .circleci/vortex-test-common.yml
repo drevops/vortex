@@ -174,13 +174,13 @@ jobs:
       # Deploy the freshly-exported database image to the container registry.
       # No-op unless a fresh DB was fetched (the fetch semaphore), the project
       # uses database-in-image storage (VORTEX_DB_IMAGE), and deployment was
-      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED, in the script).
+      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED, in the script).
       - run:
           name: Deploy DB image
           command: |
             [ -z "${VORTEX_DB_IMAGE:-}" ] && echo "==> Database-in-image storage is not used. DB image deployment will not proceed." && exit 0
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB image deployment will not proceed." && exit 0
-            ./vendor/drevops/vortex-tooling/src/deploy-db-image
+            ./vendor/drevops/vortex-tooling/src/push-db-image
           no_output_timeout: 30m
 
       - save_cache:
@@ -387,8 +387,8 @@ jobs:
       VORTEX_FETCH_DB_SOURCE: url
       VORTEX_FETCH_DB_FORCE: 1
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
-      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
-      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
 
   vortex-dev-didi-build-fi:
@@ -405,8 +405,8 @@ jobs:
       VORTEX_FETCH_DB_SOURCE: VORTEX_CONTAINER_REGISTRY
       VORTEX_FETCH_DB_FORCE: 1
       VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
-      VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
-      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED: 1
+      VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-database-ii
+      VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
 
   vortex-dev-didi-build-ii:

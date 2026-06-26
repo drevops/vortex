@@ -16,7 +16,7 @@ setup_robo_fixture() {
   chmod +x "${HOME}/.composer/vendor/bin/git-artifact"
 }
 
-@test "Missing VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP - push should not proceed" {
+@test "Missing VORTEX_PUSH_CONTAINER_REGISTRY_MAP - push should not proceed" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
@@ -24,36 +24,36 @@ setup_robo_fixture() {
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
 
-  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP
+  unset VORTEX_PUSH_CONTAINER_REGISTRY_MAP
 
   run .vortex/tooling/src/push-container-registry
   assert_success
-  assert_output_contains "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
+  assert_output_contains "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
 
   popd >/dev/null
 }
 
-@test "Empty VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP skips before requiring credentials" {
+@test "Empty VORTEX_PUSH_CONTAINER_REGISTRY_MAP skips before requiring credentials" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export DOCKER_CONFIG=/dev/null
 
   # No map and no credentials provided.
-  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP
+  unset VORTEX_PUSH_CONTAINER_REGISTRY_MAP
   unset VORTEX_CONTAINER_REGISTRY_USER
   unset VORTEX_CONTAINER_REGISTRY_PASS
-  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_USER
-  unset VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS
+  unset VORTEX_PUSH_CONTAINER_REGISTRY_USER
+  unset VORTEX_PUSH_CONTAINER_REGISTRY_PASS
 
   run .vortex/tooling/src/push-container-registry
   assert_success
-  assert_output_contains "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
+  assert_output_contains "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
   assert_output_not_contains "Missing required value"
 
   popd >/dev/null
 }
 
-@test "Container registry push with valid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP" {
+@test "Container registry push with valid VORTEX_PUSH_CONTAINER_REGISTRY_MAP" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
@@ -61,11 +61,11 @@ setup_robo_fixture() {
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
 
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+  export VORTEX_PUSH_CONTAINER_REGISTRY="registry.example.com"
+  fixture_docker_config_file "${VORTEX_PUSH_CONTAINER_REGISTRY}"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
 
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1,service2=image2,service3=image3"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1,service2=image2,service3=image3"
 
   declare -a STEPS=(
     "Started container registry push."
@@ -114,11 +114,11 @@ setup_robo_fixture() {
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
 
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+  export VORTEX_PUSH_CONTAINER_REGISTRY="registry.example.com"
+  fixture_docker_config_file "${VORTEX_PUSH_CONTAINER_REGISTRY}"
 
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1"
 
   declare -a STEPS=(
     "Started container registry push."
@@ -137,7 +137,7 @@ setup_robo_fixture() {
   popd >/dev/null
 }
 
-@test "Invalid VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP provided" {
+@test "Invalid VORTEX_PUSH_CONTAINER_REGISTRY_MAP provided" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   # Override any existing values in the current environment.
@@ -145,39 +145,39 @@ setup_robo_fixture() {
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
 
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+  export VORTEX_PUSH_CONTAINER_REGISTRY="registry.example.com"
 
   # No key/value pair
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1"
 
   run ./.vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1" provided.'
 
   # Using a space delimiter.
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
   run .vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1 service2=image2" provided.'
 
   # No comma delimiter
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
   run .vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1=service2=image2" provided.'
 
   # Empty image.
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1="
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1="
 
   run .vortex/tooling/src/push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=" provided.'
 
   # Empty service.
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="=image1"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="=image1"
 
   run .vortex/tooling/src/push-container-registry
   assert_failure
@@ -193,13 +193,13 @@ setup_robo_fixture() {
   export VORTEX_CONTAINER_REGISTRY_PASS="test_pass"
   export DOCKER_CONFIG=/dev/null
 
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+  export VORTEX_PUSH_CONTAINER_REGISTRY="registry.example.com"
+  fixture_docker_config_file "${VORTEX_PUSH_CONTAINER_REGISTRY}"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
 
   # service1 already carries a tag and must be left as-is; service2 carries a
   # registry host:port that must not be mistaken for a tag.
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=org/image1:custom,service2=host.io:5000/app"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=org/image1:custom,service2=host.io:5000/app"
 
   declare -a STEPS=(
     "Started container registry push."
@@ -234,10 +234,10 @@ setup_robo_fixture() {
   export DOCKER_CONFIG=/dev/null
 
   export VORTEX_DEBUG=1
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY="registry.example.com"
-  fixture_docker_config_file "${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
-  export VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="service1=image1"
+  export VORTEX_PUSH_CONTAINER_REGISTRY="registry.example.com"
+  fixture_docker_config_file "${VORTEX_PUSH_CONTAINER_REGISTRY}"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG="test_latest"
+  export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1"
 
   declare -a STEPS=(
     "@docker login --username test_user --password-stdin registry.example.com"

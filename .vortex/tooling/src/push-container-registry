@@ -3,7 +3,7 @@
 # Push container images to the container registry.
 #
 # Push multiple container images by tagging services provided in the
-# $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable.
+# $VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable.
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
@@ -18,21 +18,21 @@ set -eu
 
 # Comma-separated map of container services and images to push in
 # format "service1=org/image1,service2=org/image2".
-VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP="${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP:-}"
+VORTEX_PUSH_CONTAINER_REGISTRY_MAP="${VORTEX_PUSH_CONTAINER_REGISTRY_MAP:-}"
 
 # The tag of the container image.
-VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG="${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG:-latest}"
+VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG="${VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG:-latest}"
 
 # Container registry name.
 #
 # Provide port, if required as `<server_name>:<port>`.
-VORTEX_DEPLOY_CONTAINER_REGISTRY="${VORTEX_DEPLOY_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
+VORTEX_PUSH_CONTAINER_REGISTRY="${VORTEX_PUSH_CONTAINER_REGISTRY:-${VORTEX_CONTAINER_REGISTRY:-docker.io}}"
 
 # The username to login into the container registry.
-VORTEX_DEPLOY_CONTAINER_REGISTRY_USER="${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
+VORTEX_PUSH_CONTAINER_REGISTRY_USER="${VORTEX_PUSH_CONTAINER_REGISTRY_USER:-${VORTEX_CONTAINER_REGISTRY_USER:-}}"
 
 # The password to login into the container registry.
-VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
+VORTEX_PUSH_CONTAINER_REGISTRY_PASS="${VORTEX_PUSH_CONTAINER_REGISTRY_PASS:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -54,20 +54,20 @@ info "Started container registry push."
 
 # Only push if the map was provided, but do not fail if it has not as this
 # may be called as a part of another task.
-# @todo: Handle this better - empty $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP should use defaults.
-if [ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}" ]; then
-  note "Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
+# @todo: Handle this better - empty $VORTEX_PUSH_CONTAINER_REGISTRY_MAP should use defaults.
+if [ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}" ]; then
+  note "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
   exit 0
 fi
 
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY." && exit 1
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_USER." && exit 1
-[ -z "${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS." && exit 1
+[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY." && exit 1
+[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_USER." && exit 1
+[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_PASS." && exit 1
 
 services=()
 images=()
 # Parse and validate map.
-IFS=',' read -r -a values <<<"${VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP}"
+IFS=',' read -r -a values <<<"${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
   [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided." && exit 1
@@ -76,9 +76,9 @@ for value in "${values[@]}"; do
   images+=("${parts[1]}")
 done
 
-export VORTEX_CONTAINER_REGISTRY="${VORTEX_DEPLOY_CONTAINER_REGISTRY}"
-export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_DEPLOY_CONTAINER_REGISTRY_USER}"
-export VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS}"
+export VORTEX_CONTAINER_REGISTRY="${VORTEX_PUSH_CONTAINER_REGISTRY}"
+export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_PUSH_CONTAINER_REGISTRY_USER}"
+export VORTEX_CONTAINER_REGISTRY_PASS="${VORTEX_PUSH_CONTAINER_REGISTRY_PASS}"
 "$(dirname "${BASH_SOURCE[0]}")/login-container-registry"
 
 # Safe to trace from here on - no secrets are referenced below.
@@ -98,8 +98,8 @@ for key in "${!services[@]}"; do
   # Only treat a ':' or '@' in the final reference segment as an existing tag or
   # digest, so a registry host:port is never mistaken for one.
   image_ref="${image##*/}"
-  [ -n "${image_ref##*[:@]*}" ] && image="${image}:${VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG}"
-  new_image="${VORTEX_DEPLOY_CONTAINER_REGISTRY}/${image}"
+  [ -n "${image_ref##*[:@]*}" ] && image="${image}:${VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG}"
+  new_image="${VORTEX_PUSH_CONTAINER_REGISTRY}/${image}"
 
   task "Committing container image with name \"${new_image}\"."
   iid=$(docker commit "${cid}" "${new_image}")
