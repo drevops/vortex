@@ -4,7 +4,7 @@
 #
 # Usage:
 #   export GITHUB_TOKEN="your-github-token"
-#   ./try-github-auth.sh
+#   ./try-notify-github-auth.sh
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
@@ -26,25 +26,27 @@ if [ -z "${GITHUB_TOKEN}" ]; then
 fi
 
 echo "Testing GitHub authentication..."
-echo "Token: ${GITHUB_TOKEN:0:20}..."
+echo "Token: [set]"
 echo ""
 
 echo "Testing API authentication (/user endpoint):"
-HTTP_CODE=$(curl -w "%{http_code}" -o /tmp/github_response.txt -s \
+RESPONSE=$(curl -s -w $'\n%{http_code}' \
   -H "Authorization: token ${GITHUB_TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/user")
+HTTP_CODE=$(printf '%s' "${RESPONSE}" | tail -n1)
+RESPONSE_BODY=$(printf '%s' "${RESPONSE}" | sed '$d')
 
 echo "HTTP Status Code: ${HTTP_CODE}"
 if [ "${HTTP_CODE}" = "200" ]; then
   echo "✅ Authentication successful!"
   echo ""
   echo "User details:"
-  cat /tmp/github_response.txt | python3 -c "import sys, json; user = json.load(sys.stdin); print(f\"  Login: {user.get('login')}\"); print(f\"  Name: {user.get('name')}\"); print(f\"  Email: {user.get('email')}\")" 2>/dev/null || cat /tmp/github_response.txt
+  printf '%s' "${RESPONSE_BODY}" | python3 -c "import sys, json; user = json.load(sys.stdin); print(f\"  Login: {user.get('login')}\"); print(f\"  Name: {user.get('name')}\"); print(f\"  Email: {user.get('email')}\")" 2>/dev/null || printf '%s\n' "${RESPONSE_BODY}"
 else
   echo "❌ Authentication failed"
   echo "Response:"
-  cat /tmp/github_response.txt
+  printf '%s\n' "${RESPONSE_BODY}"
   echo ""
   echo "Troubleshooting:"
   echo "- Verify you're using a personal access token (classic or fine-grained)"
@@ -53,6 +55,3 @@ else
   echo "- Generate a new token at: https://github.com/settings/tokens"
 fi
 echo ""
-
-# Clean up
-rm -f /tmp/github_response.txt

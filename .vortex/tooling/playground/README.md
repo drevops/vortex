@@ -13,7 +13,7 @@ formatting are correct.
 
 ## Available Scripts
 
-### Slack Notifications (`try-slack-notification.sh`)
+### Slack Notifications (`try-notify-slack.sh`)
 
 Manually send Slack webhook notifications to verify message formatting and
 delivery.
@@ -21,13 +21,13 @@ delivery.
 **Usage**:
 ```bash
 # From project root
-.vortex/tooling/playground/try-slack-notification.sh [branch|pr]
+.vortex/tooling/playground/try-notify-slack.sh [branch|pr]
 
 # Try branch deployment notification
-.vortex/tooling/playground/try-slack-notification.sh branch
+.vortex/tooling/playground/try-notify-slack.sh branch
 
 # Try PR deployment notification
-.vortex/tooling/playground/try-slack-notification.sh pr
+.vortex/tooling/playground/try-notify-slack.sh pr
 ```
 
 **Configuration**:
@@ -41,7 +41,7 @@ delivery.
 
 ---
 
-### JIRA Notifications (`try-jira-notification.sh`)
+### JIRA Notifications (`try-notify-jira.sh`)
 
 Manually send JIRA notifications to verify comment posting, issue transitions,
 and assignments.
@@ -49,13 +49,13 @@ and assignments.
 **Usage**:
 ```bash
 # From project root
-.vortex/tooling/playground/try-jira-notification.sh [branch|pr]
+.vortex/tooling/playground/try-notify-jira.sh [branch|pr]
 
 # Try branch deployment notification
-.vortex/tooling/playground/try-jira-notification.sh branch
+.vortex/tooling/playground/try-notify-jira.sh branch
 
 # Try PR deployment notification
-.vortex/tooling/playground/try-jira-notification.sh pr
+.vortex/tooling/playground/try-notify-jira.sh pr
 ```
 
 **Configuration**:
@@ -78,7 +78,7 @@ and assignments.
 
 ---
 
-### New Relic Notifications (`try-newrelic-notification.sh`)
+### New Relic Notifications (`try-notify-newrelic.sh`)
 
 Manually send New Relic deployment notifications to verify message formatting
 and delivery.
@@ -86,13 +86,13 @@ and delivery.
 **Usage**:
 ```bash
 # From project root
-.vortex/tooling/playground/try-newrelic-notification.sh [branch|pr]
+.vortex/tooling/playground/try-notify-newrelic.sh [branch|pr]
 
 # Try branch deployment notification
-.vortex/tooling/playground/try-newrelic-notification.sh branch
+.vortex/tooling/playground/try-notify-newrelic.sh branch
 
 # Try PR deployment notification
-.vortex/tooling/playground/try-newrelic-notification.sh pr
+.vortex/tooling/playground/try-notify-newrelic.sh pr
 ```
 
 **Configuration**:
@@ -113,14 +113,14 @@ and delivery.
 
 ---
 
-### JIRA Authentication (`try-jira-auth.sh`)
+### JIRA Authentication (`try-notify-jira-auth.sh`)
 
 Helper script to manually verify JIRA API authentication before trying full
 notifications.
 
 **Usage**:
 ```bash
-.vortex/tooling/playground/try-jira-auth.sh
+.vortex/tooling/playground/try-notify-jira-auth.sh
 ```
 
 **What it tests**:
@@ -131,14 +131,14 @@ notifications.
 
 ---
 
-### New Relic Authentication (`try-newrelic-auth.sh`)
+### New Relic Authentication (`try-notify-newrelic-auth.sh`)
 
 Helper script to manually verify New Relic API authentication before trying
 full notifications.
 
 **Usage**:
 ```bash
-.vortex/tooling/playground/try-newrelic-auth.sh
+.vortex/tooling/playground/try-notify-newrelic-auth.sh
 ```
 
 **What it tests**:
@@ -241,7 +241,7 @@ curl -X POST -H 'Content-type: application/json' --data '{"text":"Test"}' $SLACK
 echo $JIRA_TOKEN
 
 # Test authentication:
-.vortex/tooling/playground/try-jira-auth.sh
+.vortex/tooling/playground/try-notify-jira-auth.sh
 ```
 
 ### New Relic Authentication Failures
@@ -256,7 +256,7 @@ echo $JIRA_TOKEN
 echo $NEWRELIC_USER_KEY
 
 # Test authentication:
-.vortex/tooling/playground/try-newrelic-auth.sh
+.vortex/tooling/playground/try-notify-newrelic-auth.sh
 
 # Get your API key from:
 # https://one.newrelic.com/launcher/api-keys-ui.api-keys-launcher
@@ -274,7 +274,7 @@ ls -la ./vendor/drevops/vortex-tooling/src/      # Verify project structure
 
 When adding new notification integrations:
 
-1. **Create test script** following naming pattern: `try-{service}-notification.sh`
+1. **Create test script** following naming pattern: `try-notify-{service}.sh`
 2. **Include both scenarios**: branch and PR deployment notifications
 3. **Document configuration**: Required environment variables and defaults
 4. **Update this README**: Add usage instructions and what it tests
