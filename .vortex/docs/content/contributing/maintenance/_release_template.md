@@ -70,10 +70,12 @@
 - [ ] Updated PHP version in `phpcs.xml` for `testVersion`.
 - [ ] Updated PHP version in `phpstan.neon` for `phpVersion`.
 - [ ] Updated minor version of all packages in `composer.json`.
+- [ ] Tagged `drevops/vortex-tooling` before the Vortex tag when the tooling changed, and pinned the freshly tagged version as the upper boundary in `composer.json`.
 - [ ] Updated minor version of dependencies in theme's `package.json`.
 - [ ] Update `drevops/ci-runner` to the latest version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 - [ ] Incremented the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 - [ ] Updated documentation.
+- [ ] Tagged the Vortex release.
 
 ---
 
