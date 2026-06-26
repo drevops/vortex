@@ -27,7 +27,7 @@ stub_sibling() {
 
   stub_sibling "push-container-registry" "Pushed the container image."
 
-  run .vortex/tooling/src/push-db-image
+  run .vortex/tooling/src/vortex-push-db-image
   assert_success
   assert_output_contains "Skipped database container image push as VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED is not set to 1."
   assert_output_not_contains "Pushed the container image."
@@ -43,7 +43,7 @@ stub_sibling() {
 
   stub_sibling "push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
 
-  run .vortex/tooling/src/push-db-image
+  run .vortex/tooling/src/vortex-push-db-image
   assert_success
   assert_output_contains "Started database container image push."
   assert_output_contains "Pushed with map: database=myorg/myapp"
@@ -61,7 +61,7 @@ stub_sibling() {
 
   stub_sibling "push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
 
-  run .vortex/tooling/src/push-db-image
+  run .vortex/tooling/src/vortex-push-db-image
   assert_success
   assert_output_contains "Pushed with map: database=myorg/fallback"
 
@@ -75,7 +75,7 @@ stub_sibling() {
   unset VORTEX_EXPORT_DB_IMAGE
   unset VORTEX_DB_IMAGE
 
-  run .vortex/tooling/src/push-db-image
+  run .vortex/tooling/src/vortex-push-db-image
   assert_failure
   assert_output_contains "Container image name is not specified."
 
@@ -89,10 +89,10 @@ stub_sibling() {
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
   mkdir -p .vortex/tooling/src
-  printf '#!/usr/bin/env bash\nexit 1\n' >.vortex/tooling/src/push-container-registry
-  chmod +x .vortex/tooling/src/push-container-registry
+  printf '#!/usr/bin/env bash\nexit 1\n' >.vortex/tooling/src/vortex-push-container-registry
+  chmod +x .vortex/tooling/src/vortex-push-container-registry
 
-  run .vortex/tooling/src/push-db-image
+  run .vortex/tooling/src/vortex-push-db-image
   assert_failure
   assert_output_contains "Started database container image push."
   assert_output_not_contains "Finished database container image push."

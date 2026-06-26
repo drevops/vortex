@@ -18,7 +18,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_DIFFY_TOKEN="token12345"
   export VORTEX_NOTIFY_DIFFY_REPOSITORY="myorg/myrepo"
 
-  run ./.vortex/tooling/src/notify
+  run ./.vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started Diffy notification."
@@ -42,7 +42,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_DIFFY_TOKEN="token12345"
   export VORTEX_NOTIFY_DIFFY_REPOSITORY="myorg/myrepo"
 
-  run ./.vortex/tooling/src/notify
+  run ./.vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started Diffy notification."
@@ -66,7 +66,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_DIFFY_REPOSITORY="myorg/myrepo"
   export VORTEX_NOTIFY_DIFFY_BRANCHES="develop,main"
 
-  run ./.vortex/tooling/src/notify
+  run ./.vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Skipped Diffy notification for branch 'feature/random'"
@@ -89,7 +89,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_DIFFY_TOKEN="badtoken"
   export VORTEX_NOTIFY_DIFFY_REPOSITORY="myorg/myrepo"
 
-  run ./.vortex/tooling/src/notify
+  run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
   assert_output_contains "GitHub repository_dispatch failed with HTTP 401"
@@ -109,7 +109,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_DIFFY_TOKEN=""
   export VORTEX_NOTIFY_DIFFY_REPOSITORY="myorg/myrepo"
 
-  run ./.vortex/tooling/src/notify
+  run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
   assert_output_contains "Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN"

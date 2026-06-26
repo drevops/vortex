@@ -36,10 +36,10 @@ if is_host; then
   if [ -z "${VORTEX_EXPORT_DB_IMAGE}" ]; then
     docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file "$@"
   else
-    VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/export-db-image" "$@"
+    VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/vortex-export-db-image" "$@"
   fi
 else
-  "$(dirname "${BASH_SOURCE[0]}")/export-db-file" "$@"
+  "$(dirname "${BASH_SOURCE[0]}")/vortex-export-db-file" "$@"
 fi
 
 pass "Finished database export."

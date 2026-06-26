@@ -20,7 +20,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_FTP_DB_DIR=".data"
   export VORTEX_FETCH_DB_FTP_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_success
   assert_output_contains "[INFO] Started database dump fetch from FTP."
   assert_output_contains "[ OK ] Finished database dump fetch from FTP."
@@ -42,7 +42,7 @@ load ../_helper.bash
   # Don't set VORTEX_FETCH_DB_FTP_DB_DIR and VORTEX_FETCH_DB_FTP_DB_FILE to test defaults
   unset VORTEX_FETCH_DB_FTP_DB_DIR VORTEX_FETCH_DB_FTP_DB_FILE
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_success
   assert_output_contains "[INFO] Started database dump fetch from FTP."
   assert_output_contains "[ OK ] Finished database dump fetch from FTP."
@@ -59,7 +59,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_FTP_PORT="21"
   export VORTEX_FETCH_DB_FTP_FILE="backup/db.sql"
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_failure
   assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_FTP_USER."
 
@@ -75,7 +75,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_FTP_PORT="21"
   export VORTEX_FETCH_DB_FTP_FILE="backup/db.sql"
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_failure
   assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_FTP_PASS."
 
@@ -91,7 +91,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_FTP_PORT="21"
   export VORTEX_FETCH_DB_FTP_FILE="backup/db.sql"
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_failure
   assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_FTP_HOST."
 
@@ -107,7 +107,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_FTP_PORT=""
   export VORTEX_FETCH_DB_FTP_FILE="backup/db.sql"
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_failure
   assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_FTP_PORT."
 
@@ -123,7 +123,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_FTP_PORT="21"
   export VORTEX_FETCH_DB_FTP_FILE=""
 
-  run .vortex/tooling/src/fetch-db-ftp
+  run .vortex/tooling/src/vortex-fetch-db-ftp
   assert_failure
   assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_FTP_FILE."
 

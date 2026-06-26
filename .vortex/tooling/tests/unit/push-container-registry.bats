@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for .vortex/tooling/src/push-container-registry script.
+# Tests for .vortex/tooling/src/vortex-push-container-registry script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
@@ -26,7 +26,7 @@ setup_robo_fixture() {
 
   unset VORTEX_PUSH_CONTAINER_REGISTRY_MAP
 
-  run .vortex/tooling/src/push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_success
   assert_output_contains "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
 
@@ -45,7 +45,7 @@ setup_robo_fixture() {
   unset VORTEX_PUSH_CONTAINER_REGISTRY_USER
   unset VORTEX_PUSH_CONTAINER_REGISTRY_PASS
 
-  run .vortex/tooling/src/push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_success
   assert_output_contains "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
   assert_output_not_contains "Missing required value"
@@ -99,7 +99,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./.vortex/tooling/src/push-container-registry
+  run ./.vortex/tooling/src/vortex-push-container-registry
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -130,7 +130,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./.vortex/tooling/src/push-container-registry
+  run ./.vortex/tooling/src/vortex-push-container-registry
   assert_failure
   run_steps "assert" "${mocks[@]}"
 
@@ -151,35 +151,35 @@ setup_robo_fixture() {
   # No key/value pair
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1"
 
-  run ./.vortex/tooling/src/push-container-registry
+  run ./.vortex/tooling/src/vortex-push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1" provided.'
 
   # Using a space delimiter.
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
-  run .vortex/tooling/src/push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1 service2=image2" provided.'
 
   # No comma delimiter
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
-  run .vortex/tooling/src/push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=image1=service2=image2" provided.'
 
   # Empty image.
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1="
 
-  run .vortex/tooling/src/push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1=" provided.'
 
   # Empty service.
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="=image1"
 
-  run .vortex/tooling/src/push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "=image1" provided.'
 
@@ -219,7 +219,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./.vortex/tooling/src/push-container-registry
+  run ./.vortex/tooling/src/vortex-push-container-registry
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -248,7 +248,7 @@ setup_robo_fixture() {
 
   mocks="$(run_steps "setup")"
 
-  run ./.vortex/tooling/src/push-container-registry
+  run ./.vortex/tooling/src/vortex-push-container-registry
   assert_success
   assert_output_not_contains "supersecretpass"
 

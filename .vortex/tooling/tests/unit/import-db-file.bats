@@ -25,7 +25,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/import-db-file .data/db_custom.sql
+  run .vortex/tooling/src/vortex-import-db-file .data/db_custom.sql
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -55,7 +55,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/import-db-file
+  run .vortex/tooling/src/vortex-import-db-file
   assert_success
 
   run_steps "assert" "${mocks[@]}"
@@ -66,7 +66,7 @@ load ../_helper.bash
 @test "import-db-file: Fails when the dump file does not exist" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  run .vortex/tooling/src/import-db-file .data/missing.sql
+  run .vortex/tooling/src/vortex-import-db-file .data/missing.sql
   assert_failure
 
   assert_output_contains "Unable to import database from file."
@@ -89,7 +89,7 @@ load ../_helper.bash
   touch "./.data/db.sql"
   chmod 000 "./.data/db.sql"
 
-  run .vortex/tooling/src/import-db-file .data/db.sql
+  run .vortex/tooling/src/vortex-import-db-file .data/db.sql
   assert_failure
 
   assert_output_contains "Unable to import database from file."

@@ -44,7 +44,7 @@ package](#tooling-package) section below.
 
 `tooling/` is published as the standalone `drevops/vortex-tooling` Composer
 package - a read-only mirror split from `.vortex/tooling/`. Consumer projects
-install it and run the shipped scripts from `vendor/drevops/vortex-tooling/src/`.
+install it and run the shipped scripts from `vendor/bin/vortex-*`.
 `tests/` and `playground/` are stripped from the published archive via
 `.gitattributes` `export-ignore`; only `src/` ships.
 

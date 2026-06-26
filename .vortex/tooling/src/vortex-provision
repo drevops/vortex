@@ -183,7 +183,7 @@ provision_from_db() {
     exit 1
   fi
 
-  "$(dirname "${BASH_SOURCE[0]}")/import-db-file" "${VORTEX_PROVISION_DB}"
+  "$(dirname "${BASH_SOURCE[0]}")/vortex-import-db-file" "${VORTEX_PROVISION_DB}"
 }
 
 #
@@ -412,7 +412,7 @@ echo
 
 # Sanitize database.
 if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/provision-sanitize-db"
+  "$(dirname "${BASH_SOURCE[0]}")/vortex-provision-sanitize-db"
 else
   pass "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   echo

@@ -16,7 +16,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_URL_DB_DIR=".data"
   export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump fetch from URL."
   assert_output_contains "Fetching database dump file."
@@ -40,7 +40,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
   export VORTEX_FETCH_DB_UNZIP_PASSWORD=""
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump fetch from URL."
   assert_output_contains "Unzipping database dump file."
@@ -64,7 +64,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
   export VORTEX_FETCH_DB_UNZIP_PASSWORD="secret123"
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump fetch from URL."
   assert_output_contains "Unzipping password-protected database dump file."
@@ -80,7 +80,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_URL_DB_DIR=".data"
   export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_failure
   assert_output_contains "[INFO] Started database dump fetch from URL."
   assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_URL."
@@ -98,7 +98,7 @@ load ../_helper.bash
   # Don't set VORTEX_FETCH_DB_URL_DB_DIR and VORTEX_FETCH_DB_URL_DB_FILE to test defaults
   unset VORTEX_FETCH_DB_URL_DB_DIR VORTEX_FETCH_DB_URL_DB_FILE VORTEX_FETCH_DB_UNZIP_PASSWORD
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   assert_output_contains "[INFO] Started database dump fetch from URL."
   assert_output_contains "Fetching database dump file."
@@ -117,7 +117,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_URL_DB_DIR=".data"
   export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   # The -f flag makes curl exit non-zero on HTTP 4xx/5xx instead of writing
   # the error body into the dump file and reporting success.
@@ -138,7 +138,7 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_URL_DB_DIR=".data"
   export VORTEX_FETCH_DB_URL_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/fetch-db-url
+  run .vortex/tooling/src/vortex-fetch-db-url
   assert_failure
   assert_output_contains "[INFO] Started database dump fetch from URL."
   assert_output_not_contains "[ OK ] Finished database dump fetch from URL."
