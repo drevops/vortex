@@ -395,18 +395,19 @@ commands:
 # 2. Read variables from .env file (while respecting existing values) to load
 #    and pass updated environment variables' values into already running
 #    containers.
-# 3. Ensure the Vortex tooling package is present in vendor/ so host-side
-#    commands work on a fresh clone before a full 'composer install' has run.
-#    Only the top-level call runs the check; the exported sentinel makes the
-#    nested 'ahoy' calls that a command chains (e.g. 'ahoy build' runs 'ahoy
-#    reset', which removes vendor/) skip it and avoid a redundant reinstall.
+# 3. Ensure the Vortex tooling package is present in vendor/ (via
+#    'scripts/vortex-tooling.sh') so host-side commands work on a fresh clone
+#    before a full 'composer install' has run. Export AHOY_TOOLING_ENSURED so
+#    the nested 'ahoy' calls a command chains (e.g. 'ahoy build' runs 'ahoy
+#    reset', which removes vendor/) inherit it and skip the re-check.
 entrypoint:
   - bash
   - -c
   - -e
   - |
     t=$(mktemp) && export -p > "$t" && set -a && . ./.env && if [ -f ./.env.local ];then . ./.env.local;fi && set +a && . "$t" && rm "$t" && unset t
-    if [ -z "${AHOY_TOOLING_ENSURED:-}" ]; then export AHOY_TOOLING_ENSURED=1; ./scripts/vortex-tooling.sh; fi
+    ./scripts/vortex-tooling.sh
+    export AHOY_TOOLING_ENSURED=1
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'

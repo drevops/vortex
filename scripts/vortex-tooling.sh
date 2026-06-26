@@ -20,6 +20,12 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# A set AHOY_TOOLING_ENSURED marks that an outer invocation has already
+# ensured the tooling for this process tree, so there is nothing to do here.
+# This avoids a redundant reinstall when an outer command removes vendor/
+# part-way through (e.g. a reset) before its later steps run.
+[ -n "${AHOY_TOOLING_ENSURED:-}" ] && exit 0
+
 # Already installed - nothing to do.
 if [ -d ./vendor/drevops/vortex-tooling ]; then
   exit 0
