@@ -171,8 +171,8 @@ trait SutTrait {
     File::copy($source, $target);
 
     // Copying the package skips Composer, so the 'vendor/bin/vortex-*' proxies
-    // Composer would generate from the package 'bin' array are absent. Host-side
-    // recipes invoke those binaries (e.g. 'ahoy reset' guards on
+    // it generates from the package 'bin' array are absent. Host-side recipes
+    // invoke those binaries (e.g. 'ahoy reset' guards on
     // 'vendor/bin/vortex-reset'), so recreate them here.
     $this->linkToolingBinaries($target, $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'bin');
   }
@@ -202,7 +202,11 @@ trait SutTrait {
     }
 
     foreach ($bins as $bin) {
-      $proxy = $bin_dir . DIRECTORY_SEPARATOR . basename((string) $bin);
+      if (!is_string($bin)) {
+        continue;
+      }
+
+      $proxy = $bin_dir . DIRECTORY_SEPARATOR . basename($bin);
       $body = "#!/usr/bin/env sh\n" . 'dir=$(cd "$(dirname "$0")/../drevops/vortex-tooling" && pwd)' . "\n" . 'exec "${dir}/' . $bin . '" "$@"' . "\n";
       file_put_contents($proxy, $body);
       chmod($proxy, 0755);
