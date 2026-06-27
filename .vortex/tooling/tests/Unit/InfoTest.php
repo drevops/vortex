@@ -53,7 +53,7 @@ class InfoTest extends UnitTestCase {
         [],
         [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1]],
         [
-          '* [INFO] Project information',
+          '* [INFO] Project information:',
           '* Project name                : test_project',
           '* Docker Compose project name : test_compose',
           '* Site local URL              : http://test-project.docker.amazee.io',

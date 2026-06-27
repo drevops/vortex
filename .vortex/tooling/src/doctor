@@ -94,7 +94,7 @@ command_must_exist('docker');
 command_must_exist('pygmy');
 command_must_exist('ahoy');
 
-info('Checking project requirements');
+info('Checking project requirements.');
 
 if ($check_tools === '1') {
   if (!command_path('docker')) {
@@ -150,7 +150,7 @@ if ($check_containers === '1') {
       quit(1);
     }
   }
-  pass('All containers are running');
+  pass('All containers are running.');
 }
 
 if ($check_ssh === '1') {
@@ -161,7 +161,7 @@ if ($check_ssh === '1') {
   passthru(sprintf('pygmy status 2>&1 | grep -q %s', escapeshellarg($ssh_file)), $exit_code);
   if ($exit_code !== 0) {
     fail_no_exit('SSH key is not added to pygmy.');
-    note("The SSH key will not be available in CLI container. Run 'pygmy restart' and then 'ahoy up'");
+    note("The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'.");
   }
   else {
     $ssh_key_added_to_pygmy = TRUE;
@@ -184,10 +184,10 @@ if ($check_ssh === '1') {
   if ($ssh_key_added_to_pygmy && $ssh_key_volume_mounted) {
     passthru("docker compose exec -T cli bash -c \"ssh-add -L | grep -q 'ssh-rsa'\"", $exit_code);
     if ($exit_code !== 0) {
-      fail_no_exit("SSH key was not added into container. Run 'pygmy restart'.");
+      fail_no_exit("SSH key was not added to the container. Run 'pygmy restart'.");
     }
     else {
-      pass('SSH key is available within CLI container.');
+      pass('SSH key is available within the CLI container.');
     }
   }
 }

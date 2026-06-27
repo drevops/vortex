@@ -92,7 +92,7 @@ class HelpersCommandExistsTest extends UnitTestCase {
     finally {
       $output = ob_get_clean();
       $this->assertIsString($output);
-      $this->assertStringContainsString("Command 'nonexistent_command_12345' is not available", $output);
+      $this->assertStringContainsString("Command 'nonexistent_command_12345' is not available.", $output);
     }
   }
 

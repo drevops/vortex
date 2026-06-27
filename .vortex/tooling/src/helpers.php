@@ -278,7 +278,7 @@ function command_path(string $command): string|false {
  */
 function command_must_exist(string $command): void {
   if (!command_path($command)) {
-    fail(sprintf("Command '%s' is not available", $command));
+    fail(sprintf("Command '%s' is not available.", $command));
   }
 }
 

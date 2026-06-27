@@ -26,7 +26,7 @@ $show_login = getenv_default('VORTEX_SHOW_LOGIN', '');
 
 $sequelace = !empty(getenv('VORTEX_HOST_HAS_SEQUELACE')) ? "('ahoy db' to start SequelAce)" : '';
 
-info('Project information');
+info('Project information:');
 
 echo PHP_EOL;
 note('Project name                : %s', getenv('VORTEX_PROJECT') ?: '');
