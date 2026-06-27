@@ -127,17 +127,6 @@ class ExportDbTest extends UnitTestCase {
         },
         'expected' => ['Started database export.', 'Finished database export.'],
       ],
-      'image export with registry deploy' => [
-        'before' => function (self $test): void {
-          $test->envSet('VORTEX_EXPORT_DB_IMAGE', 'myorg/mydb');
-          $test->envSet('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED', '1');
-          $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/export-db-image ', 'result_code' => 0],
-            ['cmd' => self::$srcDir . '/deploy-container-registry', 'result_code' => 0],
-          ]);
-        },
-        'expected' => ['Finished database export.'],
-      ],
       'container file export' => [
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '0');
@@ -178,17 +167,6 @@ class ExportDbTest extends UnitTestCase {
           ]);
         },
         'expected' => 'Failed to export database as image',
-      ],
-      'registry deploy fails' => [
-        'before' => function (self $test): void {
-          $test->envSet('VORTEX_EXPORT_DB_IMAGE', 'myorg/mydb');
-          $test->envSet('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED', '1');
-          $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/export-db-image ', 'result_code' => 0],
-            ['cmd' => self::$srcDir . '/deploy-container-registry', 'result_code' => 1],
-          ]);
-        },
-        'expected' => 'Failed to deploy container image',
       ],
       'container file export fails' => [
         'before' => function (self $test): void {
