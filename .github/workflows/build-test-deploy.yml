@@ -279,7 +279,7 @@ jobs:
       # Lookup cache based on the default branch and a timestamp. Allows
       # to use cache from the very first build on the day (sanitized database dump, for example).
       - name: Restore DB cache
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .data
           # Use cached database from previous builds of this branch.
@@ -349,7 +349,7 @@ jobs:
       # Save the clean DB dump to cache from the primary parallel runner only,
       # and only when a fresh dump was fetched this run (db_hash changed).
       - name: Save DB cache
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.db_hash != hashFiles('.data') }}
         with:
           path: .data
