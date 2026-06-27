@@ -96,7 +96,7 @@ class ImportDbTest extends UnitTestCase {
   public function testSuccess(\Closure $before, array $expected): void {
     $before($this);
 
-    $output = $this->runScript('src/import-db');
+    $output = $this->runScript('src/vortex-import-db');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -109,7 +109,7 @@ class ImportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '0');
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/import-db-file ',
+            'cmd' => self::$srcDir . '/vortex-import-db-file ',
             'result_code' => 0,
           ]);
         },
@@ -119,7 +119,7 @@ class ImportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '1');
           $test->mockPassthru([
-            'cmd' => 'docker compose exec -T cli php /import-db-file ',
+            'cmd' => 'docker compose exec -T cli php /vortex-import-db-file ',
             'result_code' => 0,
           ]);
         },
@@ -129,7 +129,7 @@ class ImportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->mockCommandExists();
           $test->mockPassthru([
-            'cmd' => 'docker compose exec -T cli php /import-db-file ',
+            'cmd' => 'docker compose exec -T cli php /vortex-import-db-file ',
             'result_code' => 0,
           ]);
         },
@@ -140,7 +140,7 @@ class ImportDbTest extends UnitTestCase {
           $test->envSet('RUN_ON_HOST', '1');
           $GLOBALS['argv'] = ['import-db', '.data/db_custom.sql'];
           $test->mockPassthru([
-            'cmd' => "docker compose exec -T cli php /import-db-file '.data/db_custom.sql'",
+            'cmd' => "docker compose exec -T cli php /vortex-import-db-file '.data/db_custom.sql'",
             'result_code' => 0,
           ]);
         },
@@ -153,7 +153,7 @@ class ImportDbTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/import-db', $expected);
+    $this->runScriptError('src/vortex-import-db', $expected);
   }
 
   public static function dataProviderError(): array {
@@ -162,7 +162,7 @@ class ImportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '0');
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/import-db-file ',
+            'cmd' => self::$srcDir . '/vortex-import-db-file ',
             'result_code' => 1,
           ]);
         },
@@ -172,7 +172,7 @@ class ImportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '1');
           $test->mockPassthru([
-            'cmd' => 'docker compose exec -T cli php /import-db-file ',
+            'cmd' => 'docker compose exec -T cli php /vortex-import-db-file ',
             'result_code' => 1,
           ]);
         },

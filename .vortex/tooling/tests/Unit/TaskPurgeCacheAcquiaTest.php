@@ -27,27 +27,27 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
     $this->envSet('VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY', '');
     $this->envUnset('VORTEX_ACQUIA_KEY');
 
-    $this->runScriptError('src/task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY');
+    $this->runScriptError('src/vortex-task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY');
   }
 
   public function testMissingSecret(): void {
     $this->envSet('VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET', '');
     $this->envUnset('VORTEX_ACQUIA_SECRET');
 
-    $this->runScriptError('src/task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET');
+    $this->runScriptError('src/vortex-task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET');
   }
 
   public function testMissingAppName(): void {
     $this->envSet('VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME', '');
     $this->envUnset('VORTEX_ACQUIA_APP_NAME');
 
-    $this->runScriptError('src/task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME');
+    $this->runScriptError('src/vortex-task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME');
   }
 
   public function testMissingEnv(): void {
     $this->envSet('VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV', '');
 
-    $this->runScriptError('src/task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV');
+    $this->runScriptError('src/vortex-task-purge-cache-acquia', 'Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV');
   }
 
   public function testDomainsFileNotFound(): void {
@@ -68,7 +68,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/task-purge-cache-acquia', 'Domains file');
+    $this->runScriptError('src/vortex-task-purge-cache-acquia', 'Domains file');
   }
 
   public function testSuccessDevEnv(): void {
@@ -104,7 +104,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     $this->assertStringContainsString('Started cache purging in Acquia.', $output);
     $this->assertStringContainsString('Purged cache for dev environment domain dev.example.com.', $output);
@@ -142,7 +142,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     // Prod strips $target_env prefix from domain names.
     $this->assertStringContainsString('Purged cache for prod environment domain example.com.', $output);
@@ -179,7 +179,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     // Test env remaps $target_env_remap to 'stage'.
     $this->assertStringContainsString('Purged cache for test environment domain stage.example.com.', $output);
@@ -211,7 +211,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     $this->assertStringContainsString('Unable to purge cache for dev environment domain dev.example.com as it does not exist.', $output);
     $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
@@ -242,7 +242,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     $this->assertStringContainsString('Failed to purge cache for dev environment domain dev.example.com: Internal Server Error', $output);
     $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
@@ -269,7 +269,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     $this->assertStringContainsString('Unable to find domains to purge cache for dev environment.', $output);
     $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
@@ -318,7 +318,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-purge-cache-acquia');
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
     $this->assertStringContainsString('Purged cache for dev environment domain dev.example.com.', $output);
     $this->assertStringContainsString('Purged cache for dev environment domain dev.example2.com.', $output);
@@ -333,7 +333,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/task-purge-cache-acquia', 'Unable to retrieve a token');
+    $this->runScriptError('src/vortex-task-purge-cache-acquia', 'Unable to retrieve a token');
   }
 
 }

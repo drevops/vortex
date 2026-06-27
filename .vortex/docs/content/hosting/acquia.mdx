@@ -92,7 +92,7 @@ through a single, platform-agnostic task runner that dispatches each operation
 to the implementation for the configured hosting platform:
 
 ```shell
-./vendor/drevops/vortex-tooling/src/task <operation>
+./vendor/bin/vortex-task <operation>
 ```
 
 | Operation     | Description                            |
@@ -107,7 +107,7 @@ themselves; set it yourself when running an operation manually - for example,
 from your local machine:
 
 ```shell
-VORTEX_PLATFORM=acquia ./vendor/drevops/vortex-tooling/src/task copy-db
+VORTEX_PLATFORM=acquia ./vendor/bin/vortex-task copy-db
 ```
 
 Each operation reads its configuration - application name, API credentials, and

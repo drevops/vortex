@@ -99,7 +99,7 @@ class ExportDbTest extends UnitTestCase {
   public function testSuccess(\Closure $before, array $expected): void {
     $before($this);
 
-    $output = $this->runScript('src/export-db');
+    $output = $this->runScript('src/vortex-export-db');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -111,7 +111,7 @@ class ExportDbTest extends UnitTestCase {
       'file export' => [
         'before' => function (self $test): void {
           $test->mockPassthru([
-            'cmd' => 'docker compose exec -T cli php /export-db-file ',
+            'cmd' => 'docker compose exec -T cli php /vortex-export-db-file ',
             'result_code' => 0,
           ]);
         },
@@ -121,7 +121,7 @@ class ExportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('VORTEX_EXPORT_DB_IMAGE', 'myorg/mydb');
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/export-db-image ',
+            'cmd' => self::$srcDir . '/vortex-export-db-image ',
             'result_code' => 0,
           ]);
         },
@@ -131,7 +131,7 @@ class ExportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '0');
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/export-db-file ',
+            'cmd' => self::$srcDir . '/vortex-export-db-file ',
             'result_code' => 0,
           ]);
         },
@@ -144,7 +144,7 @@ class ExportDbTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/export-db', $expected);
+    $this->runScriptError('src/vortex-export-db', $expected);
   }
 
   public static function dataProviderError(): array {
@@ -152,7 +152,7 @@ class ExportDbTest extends UnitTestCase {
       'file export fails' => [
         'before' => function (self $test): void {
           $test->mockPassthru([
-            'cmd' => 'docker compose exec -T cli php /export-db-file ',
+            'cmd' => 'docker compose exec -T cli php /vortex-export-db-file ',
             'result_code' => 1,
           ]);
         },
@@ -162,7 +162,7 @@ class ExportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('VORTEX_EXPORT_DB_IMAGE', 'myorg/mydb');
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/export-db-image ',
+            'cmd' => self::$srcDir . '/vortex-export-db-image ',
             'result_code' => 1,
           ]);
         },
@@ -172,7 +172,7 @@ class ExportDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $test->envSet('RUN_ON_HOST', '0');
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/export-db-file ',
+            'cmd' => self::$srcDir . '/vortex-export-db-file ',
             'result_code' => 1,
           ]);
         },

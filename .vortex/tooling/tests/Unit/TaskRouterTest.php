@@ -18,7 +18,7 @@ class TaskRouterTest extends UnitTestCase {
   public function testFailureWhenOperationMissing(): void {
     $GLOBALS['argv'] = ['task'];
 
-    $this->runScriptError('src/task', 'Missing task operation.');
+    $this->runScriptError('src/vortex-task', 'Missing task operation.');
   }
 
   #[DataProvider('dataProviderFailureWhenOperationUnsupported')]
@@ -26,7 +26,7 @@ class TaskRouterTest extends UnitTestCase {
     $GLOBALS['argv'] = ['task', $operation];
     $this->envSet('VORTEX_PLATFORM', 'acquia');
 
-    $this->runScriptError('src/task', "Unsupported task operation '" . $operation . "'.");
+    $this->runScriptError('src/vortex-task', "Unsupported task operation '" . $operation . "'.");
   }
 
   public static function dataProviderFailureWhenOperationUnsupported(): array {
@@ -42,21 +42,21 @@ class TaskRouterTest extends UnitTestCase {
     $this->envUnset('VORTEX_PLATFORM');
     $this->envUnset('VORTEX_TASK_PLATFORM');
 
-    $this->runScriptError('src/task', 'Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM.');
+    $this->runScriptError('src/vortex-task', 'Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM.');
   }
 
   public function testFailureWhenPlatformUnsupported(): void {
     $GLOBALS['argv'] = ['task', 'copy-db'];
     $this->envSet('VORTEX_PLATFORM', 'heroku');
 
-    $this->runScriptError('src/task', "Unsupported hosting platform 'heroku'.");
+    $this->runScriptError('src/vortex-task', "Unsupported hosting platform 'heroku'.");
   }
 
   public function testFailureWhenOperationNotSupportedOnPlatform(): void {
     $GLOBALS['argv'] = ['task', 'copy-db'];
     $this->envSet('VORTEX_PLATFORM', 'lagoon');
 
-    $this->runScriptError('src/task', "Operation 'copy-db' is not supported on the 'lagoon' platform.");
+    $this->runScriptError('src/vortex-task', "Operation 'copy-db' is not supported on the 'lagoon' platform.");
   }
 
   public function testTaskPlatformOverridesPlatform(): void {
@@ -64,14 +64,14 @@ class TaskRouterTest extends UnitTestCase {
     $this->envSet('VORTEX_PLATFORM', 'lagoon');
     $this->envSet('VORTEX_TASK_PLATFORM', 'acquia');
 
-    $script_path = realpath(__DIR__ . '/../../src/task-copy-db-acquia');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-task-copy-db-acquia');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'output' => 'Copied DB between Acquia environments',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/task');
+    $output = $this->runScript('src/vortex-task');
 
     $this->assertStringContainsString('Copied DB between Acquia environments', $output);
   }
@@ -81,14 +81,14 @@ class TaskRouterTest extends UnitTestCase {
     $GLOBALS['argv'] = ['task', $operation];
     $this->envSet('VORTEX_PLATFORM', 'acquia');
 
-    $script_path = realpath(__DIR__ . '/../../src/task-' . $operation . '-acquia');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-task-' . $operation . '-acquia');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'output' => 'Task completed',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/task');
+    $output = $this->runScript('src/vortex-task');
 
     $this->assertStringContainsString('Task completed', $output);
   }
@@ -105,14 +105,14 @@ class TaskRouterTest extends UnitTestCase {
     $GLOBALS['argv'] = ['task', 'copy-db', 'extra'];
     $this->envSet('VORTEX_PLATFORM', 'acquia');
 
-    $script_path = realpath(__DIR__ . '/../../src/task-copy-db-acquia');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-task-copy-db-acquia');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . "\" 'extra'",
       'output' => 'Task completed',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/task');
+    $output = $this->runScript('src/vortex-task');
 
     $this->assertStringContainsString('Task completed', $output);
   }
@@ -121,13 +121,13 @@ class TaskRouterTest extends UnitTestCase {
     $GLOBALS['argv'] = ['task', 'copy-db'];
     $this->envSet('VORTEX_PLATFORM', 'acquia');
 
-    $script_path = realpath(__DIR__ . '/../../src/task-copy-db-acquia');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-task-copy-db-acquia');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/task', "Task 'copy-db' failed with exit code 1.");
+    $this->runScriptError('src/vortex-task', "Task 'copy-db' failed with exit code 1.");
   }
 
 }

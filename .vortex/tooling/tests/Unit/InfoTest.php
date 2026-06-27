@@ -42,7 +42,7 @@ class InfoTest extends UnitTestCase {
       $this->mockPassthru($mock);
     }
 
-    $output = $this->runScript('src/info');
+    $output = $this->runScript('src/vortex-info');
 
     $this->assertStringContainsOrNot($output, $expected);
   }
@@ -111,7 +111,7 @@ class InfoTest extends UnitTestCase {
         ['VORTEX_SHOW_LOGIN' => '1'],
         [
           ['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1],
-          ['cmd' => 'php ' . dirname(__DIR__, 2) . '/src/login', 'output' => 'http://example.com/user/reset/1/abc123/login', 'result_code' => 0],
+          ['cmd' => 'php ' . dirname(__DIR__, 2) . '/src/vortex-login', 'output' => 'http://example.com/user/reset/1/abc123/login', 'result_code' => 0],
         ],
         [
           '* Site login link             :',

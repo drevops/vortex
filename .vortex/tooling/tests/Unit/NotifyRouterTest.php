@@ -32,26 +32,26 @@ class NotifyRouterTest extends UnitTestCase {
   public function testSkipWhenNotifySkipIsSet(): void {
     $this->envSet('VORTEX_NOTIFY_SKIP', '1');
 
-    $this->runScriptEarlyPass('src/notify', 'Skipped dispatching notifications');
+    $this->runScriptEarlyPass('src/vortex-notify', 'Skipped dispatching notifications');
   }
 
   public function testSkipWhenNoChannelsSpecified(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', ',,,');
 
-    $this->runScriptEarlyPass('src/notify', 'No notification channels specified');
+    $this->runScriptEarlyPass('src/vortex-notify', 'No notification channels specified');
   }
 
   public function testFailureWhenLabelIsMissing(): void {
     $this->envUnset('VORTEX_NOTIFY_LABEL');
 
-    $this->runScriptError('src/notify', 'Missing required value for VORTEX_NOTIFY_LABEL');
+    $this->runScriptError('src/vortex-notify', 'Missing required value for VORTEX_NOTIFY_LABEL');
   }
 
   #[DataProvider('dataProviderFailureWithInvalidEventType')]
   public function testFailureWithInvalidEventType(string $event): void {
     $this->envSet('VORTEX_NOTIFY_EVENT', $event);
 
-    $this->runScriptError('src/notify', 'Unsupported event ' . $event . ' provided');
+    $this->runScriptError('src/vortex-notify', 'Unsupported event ' . $event . ' provided');
   }
 
   public static function dataProviderFailureWithInvalidEventType(): array {
@@ -66,18 +66,18 @@ class NotifyRouterTest extends UnitTestCase {
   public function testFailureWhenChannelScriptNotFound(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'nonexistent');
 
-    $this->runScriptError('src/notify', "Notification script for channel 'nonexistent' not found or is not executable");
+    $this->runScriptError('src/vortex-notify', "Notification script for channel 'nonexistent' not found or is not executable");
   }
 
   public function testFailureWhenChannelScriptNotExecutable(): void {
-    $script_path = __DIR__ . '/../../src/notify-test-not-executable';
+    $script_path = __DIR__ . '/../../src/vortex-notify-test-not-executable';
     file_put_contents($script_path, '#!/usr/bin/env php');
     chmod($script_path, 0644);
 
     try {
       $this->envSet('VORTEX_NOTIFY_CHANNELS', 'test-not-executable');
 
-      $this->runScriptError('src/notify', "Notification script for channel 'test-not-executable' not found or is not executable");
+      $this->runScriptError('src/vortex-notify', "Notification script for channel 'test-not-executable' not found or is not executable");
     }
     finally {
       if (file_exists($script_path)) {
@@ -89,26 +89,26 @@ class NotifyRouterTest extends UnitTestCase {
   public function testFailureWhenChannelScriptExitsFails(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-email');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/notify', 'Notification to email failed with exit code 1');
+    $this->runScriptError('src/vortex-notify', 'Notification to email failed with exit code 1');
   }
 
   public function testSuccessfulNotificationWithDefaultChannel(): void {
     $this->envUnset('VORTEX_NOTIFY_CHANNELS');
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-email');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'output' => 'Email notification sent successfully',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Started dispatching notifications', $output);
     $this->assertStringContainsString('Email notification sent successfully', $output);
@@ -118,14 +118,14 @@ class NotifyRouterTest extends UnitTestCase {
   public function testSuccessfulNotificationWithSingleChannel(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'slack');
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-slack');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-slack');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'output' => 'Slack notification sent successfully',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Started dispatching notifications', $output);
     $this->assertStringContainsString('Slack notification sent successfully', $output);
@@ -135,9 +135,9 @@ class NotifyRouterTest extends UnitTestCase {
   public function testSuccessfulNotificationWithMultipleChannels(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email,slack,webhook');
 
-    $email_path = realpath(__DIR__ . '/../../src/notify-email');
-    $slack_path = realpath(__DIR__ . '/../../src/notify-slack');
-    $webhook_path = realpath(__DIR__ . '/../../src/notify-webhook');
+    $email_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
+    $slack_path = realpath(__DIR__ . '/../../src/vortex-notify-slack');
+    $webhook_path = realpath(__DIR__ . '/../../src/vortex-notify-webhook');
 
     $this->mockPassthru([
       'cmd' => '"' . $email_path . '"',
@@ -157,7 +157,7 @@ class NotifyRouterTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Started dispatching notifications', $output);
     $this->assertStringContainsString('Email notification sent', $output);
@@ -169,9 +169,9 @@ class NotifyRouterTest extends UnitTestCase {
   public function testSuccessfulNotificationWithChannelsContainingSpaces(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', ' email , slack , webhook ');
 
-    $email_path = realpath(__DIR__ . '/../../src/notify-email');
-    $slack_path = realpath(__DIR__ . '/../../src/notify-slack');
-    $webhook_path = realpath(__DIR__ . '/../../src/notify-webhook');
+    $email_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
+    $slack_path = realpath(__DIR__ . '/../../src/vortex-notify-slack');
+    $webhook_path = realpath(__DIR__ . '/../../src/vortex-notify-webhook');
 
     $this->mockPassthru([
       'cmd' => '"' . $email_path . '"',
@@ -188,7 +188,7 @@ class NotifyRouterTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Finished dispatching notifications', $output);
   }
@@ -200,13 +200,13 @@ class NotifyRouterTest extends UnitTestCase {
       'VORTEX_NOTIFY_EVENT' => $event,
     ]);
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-email');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Finished dispatching notifications', $output);
   }
@@ -222,13 +222,13 @@ class NotifyRouterTest extends UnitTestCase {
     $this->envUnset('VORTEX_NOTIFY_EVENT');
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-email');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Finished dispatching notifications', $output);
   }
@@ -238,13 +238,13 @@ class NotifyRouterTest extends UnitTestCase {
     $this->envSet('VORTEX_PROJECT', 'fallback-project');
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-email');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Finished dispatching notifications', $output);
   }
@@ -254,13 +254,13 @@ class NotifyRouterTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_ENVIRONMENT_URL', 'https://example.com');
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
 
-    $script_path = realpath(__DIR__ . '/../../src/notify-email');
+    $script_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
     $this->mockPassthru([
       'cmd' => '"' . $script_path . '"',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Finished dispatching notifications', $output);
   }
@@ -268,8 +268,8 @@ class NotifyRouterTest extends UnitTestCase {
   public function testAllChannelsExecutedEvenIfOneHasNoOutput(): void {
     $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email,slack');
 
-    $email_path = realpath(__DIR__ . '/../../src/notify-email');
-    $slack_path = realpath(__DIR__ . '/../../src/notify-slack');
+    $email_path = realpath(__DIR__ . '/../../src/vortex-notify-email');
+    $slack_path = realpath(__DIR__ . '/../../src/vortex-notify-slack');
 
     $this->mockPassthru([
       'cmd' => '"' . $email_path . '"',
@@ -282,7 +282,7 @@ class NotifyRouterTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/notify');
+    $output = $this->runScript('src/vortex-notify');
 
     $this->assertStringContainsString('Started dispatching notifications', $output);
     $this->assertStringContainsString('Slack notification sent', $output);

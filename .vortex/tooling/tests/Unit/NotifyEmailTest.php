@@ -46,7 +46,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Started email notification', $output);
     $this->assertStringContainsString('Project        : test-project', $output);
@@ -67,7 +67,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Recipients     : to1@example.com|Jane Doe, to2@example.com|John Doe', $output);
     $this->assertStringContainsString('Email notification sent successfully to 2 recipient(s)', $output);
@@ -84,7 +84,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Custom deployment of test-project to main', $output);
     $this->assertStringContainsString('Finished email notification', $output);
@@ -100,7 +100,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Subject        : [test-project] Deployed main', $output);
     $this->assertStringContainsString('Finished email notification', $output);
@@ -109,14 +109,14 @@ class NotifyEmailTest extends UnitTestCase {
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-email', 'Skipped email notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/vortex-notify-email', 'Skipped email notification for pre_deployment event');
   }
 
   public function testNotificationSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-email', "Skipped email notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/vortex-notify-email', "Skipped email notification for branch 'develop'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -130,7 +130,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Finished email notification', $output);
   }
@@ -138,7 +138,7 @@ class NotifyEmailTest extends UnitTestCase {
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-email', 'Missing required value for ' . $var_name);
+    $this->runScriptError('src/vortex-notify-email', 'Missing required value for ' . $var_name);
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
@@ -175,7 +175,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Project        : generic-project', $output);
     $this->assertStringContainsString('From           : site@example.com', $output);
@@ -192,7 +192,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('test-project deployed to main at', $output);
     $this->assertStringContainsString('example.com', $output);
@@ -208,7 +208,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Subject        : Deployed main to https://example.com', $output);
   }
@@ -223,7 +223,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Login here: https://example.com/login', $output);
   }
@@ -238,7 +238,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Email notification sent successfully to 3 recipient(s)', $output);
   }
@@ -253,7 +253,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Email notification sent successfully to 3 recipient(s)', $output);
   }
@@ -273,7 +273,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('CC             : cc@example.com', $output);
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
@@ -294,7 +294,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('CC             : cc1@example.com|Jane Doe, cc2@example.com|John Doe', $output);
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
@@ -315,7 +315,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('BCC            : bcc@example.com', $output);
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
@@ -336,7 +336,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('BCC            : bcc1@example.com, bcc2@example.com', $output);
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
@@ -359,7 +359,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('CC             : cc@example.com|CC User', $output);
     $this->assertStringContainsString('BCC            : bcc@example.com|BCC User', $output);
@@ -384,7 +384,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('CC             : cc@example.com', $output);
     $this->assertStringContainsString('Email notification sent successfully to 2 recipient(s)', $output);
@@ -407,7 +407,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('CC             : cc1@example.com, cc2@example.com|Named User', $output);
     $this->assertStringContainsString('BCC            : bcc1@example.com|First BCC, bcc2@example.com', $output);
@@ -428,7 +428,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Email notification sent successfully to 2 recipient(s)', $output);
   }
@@ -447,7 +447,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
   }
@@ -466,7 +466,7 @@ class NotifyEmailTest extends UnitTestCase {
       'result' => TRUE,
     ]);
 
-    $output = $this->runScript('src/notify-email');
+    $output = $this->runScript('src/vortex-notify-email');
 
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
   }

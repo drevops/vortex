@@ -33,7 +33,7 @@ class FetchDbTest extends UnitTestCase {
   public function testEarlyPass(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptEarlyPass('src/fetch-db', $expected);
+    $this->runScriptEarlyPass('src/vortex-fetch-db', $expected);
   }
 
   public static function dataProviderEarlyPass(): array {
@@ -63,7 +63,7 @@ class FetchDbTest extends UnitTestCase {
   public function testSuccess(\Closure $before, array $expected, ?\Closure $after = NULL): void {
     $before($this);
 
-    $output = $this->runScript('src/fetch-db');
+    $output = $this->runScript('src/vortex-fetch-db');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -80,7 +80,7 @@ class FetchDbTest extends UnitTestCase {
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
           $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/fetch-db-url', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/vortex-fetch-db-url', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -92,7 +92,7 @@ class FetchDbTest extends UnitTestCase {
           $db_dir = self::$tmp . '/data';
           $test->envSet('VORTEX_FETCH_DB_SOURCE', 'ftp');
           $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/fetch-db-ftp', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/vortex-fetch-db-ftp', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -107,7 +107,7 @@ class FetchDbTest extends UnitTestCase {
           $test->envSet('VORTEX_FETCH_DB_FORCE', '1');
           $test->mockPassthruMultiple([
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true', 'result_code' => 0],
-            ['cmd' => self::$srcDir . '/fetch-db-url', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/vortex-fetch-db-url', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -119,7 +119,7 @@ class FetchDbTest extends UnitTestCase {
           $db_dir = self::$tmp . '/data';
           $test->envSet('VORTEX_FETCH_DB_SEMAPHORE', self::$tmp . '/sem');
           $test->mockPassthruMultiple([
-            ['cmd' => self::$srcDir . '/fetch-db-url', 'result_code' => 0],
+            ['cmd' => self::$srcDir . '/vortex-fetch-db-url', 'result_code' => 0],
             ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
           ]);
         },
@@ -135,7 +135,7 @@ class FetchDbTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/fetch-db', $expected);
+    $this->runScriptError('src/vortex-fetch-db', $expected);
   }
 
   public static function dataProviderError(): array {
@@ -149,7 +149,7 @@ class FetchDbTest extends UnitTestCase {
       'source script fails' => [
         'before' => function (self $test): void {
           $test->mockPassthru([
-            'cmd' => self::$srcDir . '/fetch-db-url',
+            'cmd' => self::$srcDir . '/vortex-fetch-db-url',
             'result_code' => 1,
           ]);
         },

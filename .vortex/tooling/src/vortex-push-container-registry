@@ -60,7 +60,7 @@ putenv('VORTEX_CONTAINER_REGISTRY=' . $push_container_registry);
 putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $push_container_registry_user);
 putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $push_container_registry_pass);
 
-passthru(__DIR__ . '/login-container-registry', $login_exit_code);
+passthru(__DIR__ . '/vortex-login-container-registry', $login_exit_code);
 if ($login_exit_code !== 0) {
   quit($login_exit_code);
 }

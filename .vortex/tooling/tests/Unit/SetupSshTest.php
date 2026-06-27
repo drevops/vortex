@@ -35,13 +35,13 @@ class SetupSshTest extends UnitTestCase {
   public function testMissingPrefix(): void {
     $this->envUnset('VORTEX_SSH_PREFIX');
 
-    $this->runScriptError('src/setup-ssh', 'Missing required value for VORTEX_SSH_PREFIX');
+    $this->runScriptError('src/vortex-setup-ssh', 'Missing required value for VORTEX_SSH_PREFIX');
   }
 
   public function testSshKeyDisabled(): void {
     $this->envSet('VORTEX_DEPLOY_SSH_FILE', 'false');
 
-    $output = $this->runScript('src/setup-ssh', 0);
+    $output = $this->runScript('src/vortex-setup-ssh', 0);
 
     $this->assertStringContainsString('SSH key is set to false meaning that it is not required. Skipped setup.', $output);
   }
@@ -62,7 +62,7 @@ class SetupSshTest extends UnitTestCase {
     // Mock ssh-add -l - key is already loaded.
     $this->mockShellExec('id_rsa');
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Started SSH setup.', $output);
     $this->assertStringContainsString('Using SSH key file ' . $key_file . '.', $output);
@@ -87,7 +87,7 @@ class SetupSshTest extends UnitTestCase {
     // Mock ssh-add -l - key is already loaded.
     $this->mockShellExec('custom_key');
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Using SSH key file ' . $custom_file . '.', $output);
   }
@@ -96,7 +96,7 @@ class SetupSshTest extends UnitTestCase {
     // Don't create the key file.
     $key_file = self::$tmp . '/.ssh/id_rsa';
 
-    $this->runScriptError('src/setup-ssh', 'SSH key file ' . $key_file . ' does not exist.');
+    $this->runScriptError('src/vortex-setup-ssh', 'SSH key file ' . $key_file . ' does not exist.');
   }
 
   public function testStartSshAgent(): void {
@@ -129,7 +129,7 @@ class SetupSshTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Starting SSH agent.', $output);
     $this->assertStringContainsString('SSH agent does not have a required key loaded.', $output);
@@ -172,7 +172,7 @@ class SetupSshTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Removing all keys from the SSH agent.', $output);
   }
@@ -195,7 +195,7 @@ class SetupSshTest extends UnitTestCase {
     // Mock ssh-add -l - key is already loaded.
     $this->mockShellExec('id_rsa');
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Disabling strict host key checking.', $output);
 
@@ -224,7 +224,7 @@ class SetupSshTest extends UnitTestCase {
 
     $this->mockShellExec('id_rsa');
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('pinning takes precedence', $output);
     $this->assertStringContainsString('Pinning SSH host keys to known_hosts.', $output);
@@ -255,7 +255,7 @@ class SetupSshTest extends UnitTestCase {
 
     $this->mockShellExec('id_rsa');
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Pinning SSH host keys to known_hosts.', $output);
 
@@ -283,7 +283,7 @@ class SetupSshTest extends UnitTestCase {
     // Mock ssh-add -l - key is already loaded.
     $this->mockShellExec('id_rsa_112233445566778899aabbccddeeff00');
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Using fingerprint-based deploy key', $output);
     $this->assertStringContainsString('Using SSH key file ' . $expected_file . '.', $output);
@@ -312,7 +312,7 @@ class SetupSshTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/setup-ssh', 'Failed to add SSH key to agent.');
+    $this->runScriptError('src/vortex-setup-ssh', 'Failed to add SSH key to agent.');
   }
 
   public function testFingerprintBasedKeySha256(): void {
@@ -349,7 +349,7 @@ class SetupSshTest extends UnitTestCase {
       ['value' => 'id_rsa_112233445566778899aabbccddeeff00'],
     ]);
 
-    $output = $this->runScript('src/setup-ssh');
+    $output = $this->runScript('src/vortex-setup-ssh');
 
     $this->assertStringContainsString('Searching for MD5 hash as fingerprint starts with SHA256.', $output);
     $this->assertStringContainsString('Found matching existing key file ' . $expected_file . '.', $output);

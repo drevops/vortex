@@ -56,7 +56,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200, 'body' => 'ok']
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Started Slack notification', $output);
     $this->assertStringContainsString('Project        : test-project', $output);
@@ -88,7 +88,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Event          : Deployment Starting', $output);
     $this->assertStringContainsString('Finished Slack notification', $output);
@@ -110,7 +110,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Finished Slack notification', $output);
   }
@@ -131,7 +131,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Channel        : #deployments', $output);
     $this->assertStringContainsString('Finished Slack notification', $output);
@@ -157,7 +157,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Username       : Custom Bot', $output);
     $this->assertStringContainsString('Finished Slack notification', $output);
@@ -167,7 +167,7 @@ class NotifySlackTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_SLACK_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-slack', "Skipped Slack notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/vortex-notify-slack', "Skipped Slack notification for branch 'develop'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -182,7 +182,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Finished Slack notification', $output);
   }
@@ -190,7 +190,7 @@ class NotifySlackTest extends UnitTestCase {
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-slack', 'Missing required value for ' . $var_name);
+    $this->runScriptError('src/vortex-notify-slack', 'Missing required value for ' . $var_name);
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
@@ -227,7 +227,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Project        : generic-project', $output);
     $this->assertStringContainsString('Deployment     : develop', $output);
@@ -242,7 +242,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 500, 'body' => 'Internal Server Error']
     );
 
-    $this->runScriptError('src/notify-slack', 'Unable to send notification to Slack');
+    $this->runScriptError('src/vortex-notify-slack', 'Unable to send notification to Slack');
   }
 
   public function testWebhookUrlSanitization(): void {
@@ -256,7 +256,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     // Verify domain is shown but path is hidden.
     $this->assertStringContainsString('Webhook        : https://hooks.slack.com/***', $output);
@@ -282,7 +282,7 @@ class NotifySlackTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-slack');
+    $output = $this->runScript('src/vortex-notify-slack');
 
     $this->assertStringContainsString('Finished Slack notification', $output);
   }

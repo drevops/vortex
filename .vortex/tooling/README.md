@@ -13,8 +13,8 @@ to be added to your Drupal consumer project site.
 composer require drevops/vortex-tooling
 ```
 
-Once installed, you run the shipped scripts from
-`vendor/drevops/vortex-tooling/src/<script-name>`.
+Once installed, you run the shipped scripts as Composer binaries from
+`vendor/bin/vortex-<script-name>`.
 
 ## Read-only mirror
 

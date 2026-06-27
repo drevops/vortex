@@ -41,7 +41,7 @@ class NotifyNewrelicTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-newrelic', "Skipped New Relic notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/vortex-notify-newrelic', "Skipped New Relic notification for branch 'develop'.");
   }
 
   public function testEnabledGateTakesPrecedenceOverBranchFilter(): void {
@@ -51,7 +51,7 @@ class NotifyNewrelicTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-newrelic', 'New Relic is not enabled');
+    $this->runScriptEarlyPass('src/vortex-notify-newrelic', 'New Relic is not enabled');
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -67,7 +67,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Started New Relic notification', $output);
     $this->assertStringContainsString('Finished New Relic notification', $output);
@@ -76,7 +76,7 @@ class NotifyNewrelicTest extends UnitTestCase {
   public function testNotificationSkippedWhenNotEnabled(): void {
     $this->envUnset('VORTEX_NOTIFY_NEWRELIC_ENABLED');
 
-    $this->runScriptEarlyPass('src/notify-newrelic', 'New Relic is not enabled');
+    $this->runScriptEarlyPass('src/vortex-notify-newrelic', 'New Relic is not enabled');
   }
 
   public function testNotificationEnabledWithFallbackVariable(): void {
@@ -92,7 +92,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Started New Relic notification', $output);
     $this->assertStringContainsString('Finished New Relic notification', $output);
@@ -115,7 +115,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"deployment": {"id": 999}}']
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Started New Relic notification', $output);
     $this->assertStringContainsString('Project          : test-project', $output);
@@ -140,7 +140,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Auto-generated revision:', $output);
     $this->assertMatchesRegularExpression('/main-\d{8}-\d{6}/', $output);
@@ -167,7 +167,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Discovering application ID by name', $output);
     $this->assertStringContainsString('App ID (resolved): 87654321', $output);
@@ -185,13 +185,13 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"applications": []}']
     );
 
-    $this->runScriptEarlyPass('src/notify-newrelic', 'Notification skipped: No New Relic application ID found');
+    $this->runScriptEarlyPass('src/vortex-notify-newrelic', 'Notification skipped: No New Relic application ID found');
   }
 
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_NEWRELIC_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-newrelic', 'Skipped New Relic notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/vortex-notify-newrelic', 'Skipped New Relic notification for pre_deployment event');
   }
 
   public function testSuccessfulNotificationWithCustomDescription(): void {
@@ -211,7 +211,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('test-project deployed to main', $output);
   }
@@ -233,7 +233,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Finished New Relic notification', $output);
   }
@@ -250,7 +250,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Endpoint         : https://api.eu.newrelic.com/v2', $output);
     $this->assertStringContainsString('Finished New Relic notification', $output);
@@ -267,13 +267,13 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 500, 'body' => 'Internal Server Error']
     );
 
-    $this->runScriptError('src/notify-newrelic', 'Failed to create a deployment notification');
+    $this->runScriptError('src/vortex-notify-newrelic', 'Failed to create a deployment notification');
   }
 
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-newrelic', 'Missing required New Relic User API Key');
+    $this->runScriptError('src/vortex-notify-newrelic', 'Missing required New Relic User API Key');
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
@@ -307,7 +307,7 @@ class NotifyNewrelicTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-newrelic');
+    $output = $this->runScript('src/vortex-notify-newrelic');
 
     $this->assertStringContainsString('Project          : fallback-project', $output);
     $this->assertStringContainsString('Deployment       : develop', $output);

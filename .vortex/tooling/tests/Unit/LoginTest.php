@@ -28,7 +28,7 @@ class LoginTest extends UnitTestCase {
 
     if ($expect_error) {
       try {
-        $this->runScript('src/login', 1);
+        $this->runScript('src/vortex-login', 1);
       }
       catch (QuitErrorException $e) {
         if (!empty($expected)) {
@@ -39,7 +39,7 @@ class LoginTest extends UnitTestCase {
       return;
     }
 
-    $output = $this->runScript('src/login');
+    $output = $this->runScript('src/vortex-login');
 
     if (empty($expected)) {
       $this->assertEmpty(trim($output));

@@ -63,7 +63,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Started JIRA notification', $output);
     $this->assertStringContainsString('Found issue TEST-123', $output);
@@ -130,7 +130,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 204, 'body' => '']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Transitioning issue to In Review', $output);
     $this->assertStringContainsString('Discovering transition ID for In Review', $output);
@@ -189,7 +189,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 400, 'body' => 'Bad Request']
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to transition issue to In Review. HTTP status: 400');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to transition issue to In Review. HTTP status: 400');
   }
 
   public function testSuccessfulNotificationWithAssignee(): void {
@@ -246,7 +246,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 204, 'body' => '']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Assigning issue to assignee@example.com', $output);
     $this->assertStringContainsString('Discovering assignee user ID for assignee@example.com', $output);
@@ -307,20 +307,20 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 400, 'body' => 'Bad Request']
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to assign issue to assignee@example.com. HTTP status: 400');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to assign issue to assignee@example.com. HTTP status: 400');
   }
 
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_JIRA_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-jira', 'Skipped JIRA notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/vortex-notify-jira', 'Skipped JIRA notification for pre_deployment event');
   }
 
   public function testNotificationSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_JIRA_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
 
-    $this->runScriptEarlyPass('src/notify-jira', "Skipped JIRA notification for branch 'feature/x'.");
+    $this->runScriptEarlyPass('src/vortex-notify-jira', "Skipped JIRA notification for branch 'feature/x'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -348,7 +348,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Finished JIRA notification', $output);
   }
@@ -365,7 +365,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"accountId": "short"}']
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to authenticate');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to authenticate');
 
   }
 
@@ -393,7 +393,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 400, 'body' => 'Bad Request']
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to create a comment');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to create a comment');
 
   }
 
@@ -434,7 +434,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"transitions": []}']
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to retrieve transition ID');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to retrieve transition ID');
 
   }
 
@@ -475,7 +475,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 200, 'body' => '[]']
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to retrieve assignee account ID');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to retrieve assignee account ID');
 
   }
 
@@ -505,7 +505,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Finished JIRA notification', $output);
   }
@@ -513,7 +513,7 @@ class NotifyJiraTest extends UnitTestCase {
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-jira', 'Missing required value for ' . $var_name);
+    $this->runScriptError('src/vortex-notify-jira', 'Missing required value for ' . $var_name);
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
@@ -565,7 +565,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Project        : fallback-project', $output);
     $this->assertStringContainsString('Deployment     : feature/PROJ-456-fallback', $output);
@@ -601,7 +601,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Found issue ABC-123', $output);
   }
@@ -632,7 +632,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Endpoint       : https://jira.atlassian.com', $output);
     $this->assertStringContainsString('Finished JIRA notification', $output);
@@ -713,7 +713,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 204, 'body' => '']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Posted comment with ID 10001', $output);
     $this->assertStringContainsString('Transitioned issue to Done', $output);
@@ -724,7 +724,7 @@ class NotifyJiraTest extends UnitTestCase {
   public function testBranchWithoutIssueNumber(): void {
     $this->envSet('VORTEX_NOTIFY_JIRA_BRANCH', 'main');
 
-    $this->runScriptEarlyPass('src/notify-jira', 'Branch main does not contain issue number');
+    $this->runScriptEarlyPass('src/vortex-notify-jira', 'Branch main does not contain issue number');
   }
 
   #[DataProvider('dataProviderAuthenticationFailures')]
@@ -739,7 +739,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 200, 'body' => $response_body]
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to authenticate');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to authenticate');
   }
 
   public static function dataProviderAuthenticationFailures(): array {
@@ -773,7 +773,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => $response_body]
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to create a comment');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to create a comment');
   }
 
   public static function dataProviderCommentCreationFailures(): array {
@@ -819,7 +819,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 200, 'body' => $response_body]
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to retrieve transition ID');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to retrieve transition ID');
   }
 
   public static function dataProviderTransitionDiscoveryFailures(): array {
@@ -866,7 +866,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 200, 'body' => $response_body]
     );
 
-    $this->runScriptError('src/notify-jira', 'Unable to retrieve assignee account ID');
+    $this->runScriptError('src/vortex-notify-jira', 'Unable to retrieve assignee account ID');
   }
 
   public static function dataProviderAssigneeDiscoveryFailures(): array {
@@ -903,7 +903,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Finished JIRA notification', $output);
     $this->assertStringNotContainsString('Skipped JIRA notification', $output);
@@ -934,7 +934,7 @@ class NotifyJiraTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": "10001"}']
     );
 
-    $output = $this->runScript('src/notify-jira');
+    $output = $this->runScript('src/vortex-notify-jira');
 
     $this->assertStringContainsString('Found issue ' . $expected_issue, $output);
   }

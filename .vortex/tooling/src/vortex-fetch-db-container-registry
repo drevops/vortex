@@ -87,7 +87,7 @@ if (!$image_expanded_successfully) {
   putenv('VORTEX_CONTAINER_REGISTRY=' . $registry);
   putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $registry_user);
   putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $registry_pass);
-  passthru_or_fail(__DIR__ . '/login-container-registry', 'Failed to login to the container registry.');
+  passthru_or_fail(__DIR__ . '/vortex-login-container-registry', 'Failed to login to the container registry.');
 
   passthru_or_fail(sprintf('docker pull %s', escapeshellarg($registry . '/' . $image)), 'Failed to pull image %s from registry.', $image);
 }

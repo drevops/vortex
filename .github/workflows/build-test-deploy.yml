@@ -120,7 +120,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Login to container registry
-        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+        run: ./vendor/bin/vortex-login-container-registry
 
       - name: Lint Dockerfiles with Hadolint
         run: |
@@ -289,7 +289,7 @@ jobs:
       #;> !PROVISION_TYPE_PROFILE
 
       - name: Login to container registry
-        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+        run: ./vendor/bin/vortex-login-container-registry
 
       #;< !PROVISION_TYPE_PROFILE
       - name: Add SSH private key used to fetch database
@@ -306,7 +306,7 @@ jobs:
       # the fetch script skips itself, leaving no semaphore file behind.
       - name: Fetch DB
         run: |
-          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/bin/vortex-fetch-db
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
         timeout-minutes: 30
         #;< DB_FETCH_SOURCE_ACQUIA
@@ -317,7 +317,7 @@ jobs:
 
       #;< MIGRATION
       - name: Fetch migration DB
-        run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
+        run: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
       #;> MIGRATION
       #;> !PROVISION_TYPE_PROFILE
 
@@ -337,9 +337,9 @@ jobs:
           if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
           if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
-          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
-          ./vendor/drevops/vortex-tooling/src/export-db db.sql
-          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/drevops/vortex-tooling/src/push-db-image; fi
+          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
+          ./vendor/bin/vortex-export-db db.sql
+          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
           docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
         env:
@@ -377,7 +377,7 @@ jobs:
             docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
           fi
           #;> MIGRATION
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
         timeout-minutes: 30
 
       #;< TOOL_JEST
@@ -575,7 +575,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Login to container registry
-        run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+        run: ./vendor/bin/vortex-login-container-registry
 
       - name: Build stack
         run: docker compose up --detach && docker builder prune --all --force
@@ -678,7 +678,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Deploy
-        run: ./vendor/drevops/vortex-tooling/src/deploy
+        run: ./vendor/bin/vortex-deploy
         env:
           VORTEX_DEPLOY_MODE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || 'branch' }}
           VORTEX_DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}

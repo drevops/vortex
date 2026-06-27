@@ -33,7 +33,7 @@ class FetchDbFtpTest extends UnitTestCase {
       ['url' => 'ftp://ftp.example.com:21/backups/db.sql', 'method' => 'GET', 'response' => []],
     ]);
 
-    $output = $this->runScript('src/fetch-db-ftp');
+    $output = $this->runScript('src/vortex-fetch-db-ftp');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -69,7 +69,7 @@ class FetchDbFtpTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/fetch-db-ftp', $expected);
+    $this->runScriptError('src/vortex-fetch-db-ftp', $expected);
   }
 
   public static function dataProviderError(): array {

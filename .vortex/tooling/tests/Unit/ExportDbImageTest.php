@@ -24,7 +24,7 @@ class ExportDbImageTest extends UnitTestCase {
   public function testMissingImage(): void {
     $this->envSet('VORTEX_EXPORT_DB_IMAGE', '');
 
-    $this->runScriptError('src/export-db-image', 'Missing required value for VORTEX_EXPORT_DB_IMAGE');
+    $this->runScriptError('src/vortex-export-db-image', 'Missing required value for VORTEX_EXPORT_DB_IMAGE');
   }
 
   public function testSuccessWithCustomFilename(): void {
@@ -75,7 +75,7 @@ class ExportDbImageTest extends UnitTestCase {
     // Simulate docker save creating the file.
     file_put_contents($archive_file, 'tar-content');
 
-    $output = $this->runScript('src/export-db-image');
+    $output = $this->runScript('src/vortex-export-db-image');
 
     $this->assertStringContainsString('Started database data container image export.', $output);
     $this->assertStringContainsString('Committing exported container image with name docker.io/myorg/mydb.', $output);
@@ -125,7 +125,7 @@ class ExportDbImageTest extends UnitTestCase {
 
     file_put_contents($archive_file, 'tar-content');
 
-    $output = $this->runScript('src/export-db-image');
+    $output = $this->runScript('src/vortex-export-db-image');
 
     $this->assertStringContainsString('export_db_20240101_120000.tar', $output);
     $this->assertStringContainsString('Finished database data container image export.', $output);
@@ -169,7 +169,7 @@ class ExportDbImageTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/export-db-image', 'Unable to save database image archive file');
+    $this->runScriptError('src/vortex-export-db-image', 'Unable to save database image archive file');
   }
 
   public function testArchiveEmptyAfterSave(): void {
@@ -213,7 +213,7 @@ class ExportDbImageTest extends UnitTestCase {
     // Create empty file to simulate failed save.
     file_put_contents($archive_file, '');
 
-    $this->runScriptError('src/export-db-image', 'Unable to save database image archive file');
+    $this->runScriptError('src/vortex-export-db-image', 'Unable to save database image archive file');
   }
 
   public function testExistingArchiveRemoved(): void {
@@ -259,7 +259,7 @@ class ExportDbImageTest extends UnitTestCase {
     // Simulate new content being written by docker save.
     file_put_contents($archive_file, 'new-tar-content');
 
-    $output = $this->runScript('src/export-db-image');
+    $output = $this->runScript('src/vortex-export-db-image');
 
     $this->assertStringContainsString('Finished database data container image export.', $output);
   }

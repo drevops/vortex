@@ -58,7 +58,7 @@ info(sprintf('Started Lagoon task %s.', $task_name));
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=TASK_CUSTOM_LAGOON');
-passthru_or_fail(__DIR__ . '/setup-ssh', 'Failed to setup SSH.');
+passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
 
 // Lagoon CLI binary path.
 $lagoon_bin = 'lagoon';

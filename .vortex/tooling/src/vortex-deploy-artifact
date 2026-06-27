@@ -90,7 +90,7 @@ if (empty($global_git_email)) {
 putenv('VORTEX_SSH_PREFIX=DEPLOY_ARTIFACT');
 !empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
 !empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FILE=' . $deploy_ssh_file);
-passthru_or_fail(__DIR__ . '/setup-ssh');
+passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 
 task('Installing artifact builder.');
 $tmp_dir = getenv('TMPDIR') ?: '/tmp';
