@@ -9,6 +9,6 @@
   "hosting_provider": "lagoon",
   "hosting_project_name": "db-site",
   "provision_type": "database",
-  "database_download_source": "container_registry",
+  "database_fetch_source": "container_registry",
   "database_image": "myorg/db:latest"
 }
