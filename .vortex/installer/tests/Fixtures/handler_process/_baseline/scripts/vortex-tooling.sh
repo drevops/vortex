@@ -20,9 +20,14 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Already installed - nothing to do.
+# Already installed - nothing to do. If the package is present but its
+# 'vendor/bin/' proxies are missing (a workspace bootstrapped before the
+# binaries were surfaced), remove it so the install below re-creates both.
 if [ -d ./vendor/drevops/vortex-tooling ]; then
-  exit 0
+  if compgen -G './vendor/bin/vortex-*' >/dev/null; then
+    exit 0
+  fi
+  rm -rf ./vendor/drevops/vortex-tooling
 fi
 
 mkdir -p vendor-temp vendor/drevops
