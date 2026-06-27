@@ -203,7 +203,7 @@ all containers and downloaded dependency packages (`vendor`, `node_modules` etc.
     # Reset local environment
     ahoy reset
     # Fully reset repository to a state as if it was just cloned
-    ahoy reset hard
+    ahoy reset --hard
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -213,7 +213,7 @@ all containers and downloaded dependency packages (`vendor`, `node_modules` etc.
     ./vendor/drevops/vortex-tooling/src/reset
     # Fully reset repository to a state as if it was just cloned
     docker compose down
-    ./vendor/drevops/vortex-tooling/src/reset hard
+    ./vendor/drevops/vortex-tooling/src/reset --hard
     ```
   </TabItem>
 </Tabs>

@@ -23,7 +23,7 @@ $webroot = getenv_default('WEBROOT', 'web');
 
 command_must_exist('git');
 
-$is_hard_reset = isset($GLOBALS['argv'][1]) && $GLOBALS['argv'][1] === 'hard';
+$is_hard_reset = in_array('--hard', array_slice($GLOBALS['argv'], 1), TRUE);
 
 info('Started reset.');
 
