@@ -13,8 +13,8 @@ to be added to your Drupal consumer project site.
 composer require drevops/vortex-tooling
 ```
 
-Once installed, you run the shipped scripts from
-`vendor/drevops/vortex-tooling/src/<script-name>`.
+Once installed, you run the shipped scripts as Composer binaries from
+`vendor/bin/vortex-<script-name>`.
 
 ## Read-only mirror
 
@@ -61,7 +61,7 @@ your-project/
 │   ├── provision-20-migration.sh # shipped example - copy or remove
 │   └── provision-30-custom.sh    # your own hook script
 ├── vendor/
-│   └── drevops/vortex-tooling/src/provision   # runs each provision-*.sh in order
+│   └── bin/vortex-provision   # runs each provision-*.sh in order
 ├── web/                          # Drupal web root
 │   └── ...
 └── ...

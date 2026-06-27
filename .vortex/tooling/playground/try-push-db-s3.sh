@@ -71,7 +71,7 @@ export VORTEX_PUSH_DB_S3_PREFIX="${S3_PREFIX}"
 # Enable xtrace only after credentials are exported so secrets are not traced.
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-./vendor/drevops/vortex-tooling/src/push-db-s3
+./vendor/drevops/vortex-tooling/src/vortex-push-db-s3
 
 echo ""
 echo "Push complete!"

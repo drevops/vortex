@@ -25,9 +25,9 @@ fetch the latest database dump into the `.data` directory.
   <TabItem value="host" label="Host">
     ```shell
     # Fetch latest database dump (uses cache if fetched today)
-    ./vendor/drevops/vortex-tooling/src/fetch-db
+    ./vendor/bin/vortex-fetch-db
     # Force a fresh fetch regardless of cache
-    VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1 ./vendor/drevops/vortex-tooling/src/fetch-db
+    VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1 ./vendor/bin/vortex-fetch-db
     ```
   </TabItem>
 </Tabs>
@@ -60,9 +60,9 @@ Import the database dump into the local environment and run all necessary update
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
     # Import database and run updates
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/provision
+    docker compose exec cli ./vendor/bin/vortex-provision
     # Import database without running updates
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/import-db
+    docker compose exec cli ./vendor/bin/vortex-import-db
     ```
   </TabItem>
 </Tabs>
@@ -87,7 +87,7 @@ Export timestamped database dumps from the local environment.
   <TabItem value="host" label="Host">
     ```shell
     # Export current database to .data directory
-    ./vendor/drevops/vortex-tooling/src/export-db
+    ./vendor/bin/vortex-export-db
     ```
   </TabItem>
 </Tabs>

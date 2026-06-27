@@ -66,7 +66,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -128,7 +128,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -191,7 +191,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -255,7 +255,7 @@ bats_require_minimum_version 1.5.0
   unset VORTEX_FETCH_DB_ACQUIA_DB_DIR VORTEX_FETCH_DB_ACQUIA_DB_FILE
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -285,7 +285,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -319,7 +319,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -357,7 +357,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -399,7 +399,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_NAME="nonexistent-db"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -441,7 +441,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -519,7 +519,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success
@@ -566,7 +566,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -610,7 +610,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -659,7 +659,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_FRESH="1"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -717,7 +717,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -769,7 +769,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -821,7 +821,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -873,7 +873,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run .vortex/tooling/src/fetch-db-acquia
+  run .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_failure
@@ -931,7 +931,7 @@ bats_require_minimum_version 1.5.0
   export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
 
   mocks="$(run_steps "setup")"
-  run --separate-stderr .vortex/tooling/src/fetch-db-acquia
+  run --separate-stderr .vortex/tooling/src/vortex-fetch-db-acquia
   run_steps "assert" "${mocks}"
 
   assert_success

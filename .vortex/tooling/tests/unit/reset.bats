@@ -9,7 +9,7 @@ load ../_helper.bash
 @test "reset: soft reset skips the hard-reset steps" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  run .vortex/tooling/src/reset
+  run .vortex/tooling/src/vortex-reset
   assert_success
   assert_output_contains "Started reset."
   assert_output_contains "Finished reset."
@@ -27,7 +27,7 @@ load ../_helper.bash
   # Stub git so the hard-reset branch runs without mutating the fixture repo.
   mock_command "git" >/dev/null
 
-  run .vortex/tooling/src/reset --hard
+  run .vortex/tooling/src/vortex-reset --hard
   assert_success
   assert_output_contains "Started reset."
   assert_output_contains "Changing permissions and removing all other untracked files."
@@ -42,7 +42,7 @@ load ../_helper.bash
 @test "reset: legacy 'hard' positional no longer triggers a hard reset" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  run .vortex/tooling/src/reset hard
+  run .vortex/tooling/src/vortex-reset hard
   assert_success
   assert_output_contains "Started reset."
   assert_output_contains "Finished reset."

@@ -13,7 +13,7 @@ load ../_helper.bash
   unset VORTEX_DEPLOY_WEBHOOK_METHOD
   unset VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS
 
-  run .vortex/tooling/src/deploy-webhook
+  run .vortex/tooling/src/vortex-deploy-webhook
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_WEBHOOK_URL."
 
@@ -23,7 +23,7 @@ load ../_helper.bash
   unset VORTEX_DEPLOY_WEBHOOK_METHOD
   unset VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS
 
-  run .vortex/tooling/src/deploy-webhook
+  run .vortex/tooling/src/vortex-deploy-webhook
   assert_success
   assert_output_not_contains "Missing required value for VORTEX_DEPLOY_WEBHOOK_METHOD."
   assert_output_not_contains "Missing required value for VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS."
@@ -40,7 +40,7 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" "${VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS}" 1
 
-  run .vortex/tooling/src/deploy-webhook
+  run .vortex/tooling/src/vortex-deploy-webhook
   assert_success
   assert_output_contains "Webhook call completed."
   assert_output_contains "Finished webhook deployment."
@@ -57,7 +57,7 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" "400" 1
 
-  run .vortex/tooling/src/deploy-webhook
+  run .vortex/tooling/src/vortex-deploy-webhook
   assert_failure
   assert_output_contains "Unable to complete webhook deployment."
 

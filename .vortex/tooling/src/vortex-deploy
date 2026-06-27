@@ -138,13 +138,13 @@ fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*artifact*}" ]; then
   [ "${VORTEX_DEPLOY_MODE}" = "tag" ] && export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="deployment/[tags:-]"
-  "${SCRIPT_DIR}/deploy-artifact"
+  "${SCRIPT_DIR}/vortex-deploy-artifact"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*webhook*}" ]; then
-  "${SCRIPT_DIR}/deploy-webhook"
+  "${SCRIPT_DIR}/vortex-deploy-webhook"
 fi
 
 if [ -z "${VORTEX_DEPLOY_TYPES##*lagoon*}" ]; then
-  "${SCRIPT_DIR}/deploy-lagoon"
+  "${SCRIPT_DIR}/vortex-deploy-lagoon"
 fi

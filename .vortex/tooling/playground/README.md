@@ -197,7 +197,7 @@ All scripts follow a common pattern:
 2. **Scenario Selection**: Choose between branch or PR deployment scenarios
 3. **Variable Export**: Set Vortex notification environment variables
 4. **Path Resolution**: Navigate to project root from script location
-5. **Execution**: Run the actual notification script (`vendor/drevops/vortex-tooling/src/notify`)
+5. **Execution**: Run the actual notification script (`vendor/bin/vortex-notify`)
 6. **Verification**: User manually confirms output in external service
 
 ## Integration with Automated Tests

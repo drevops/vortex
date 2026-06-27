@@ -112,7 +112,7 @@ fi
 { [ -z "${VORTEX_DEPLOY_LAGOON_BRANCH}" ] && [ -z "${VORTEX_DEPLOY_LAGOON_PR}" ]; } && fail "Missing required value for VORTEX_DEPLOY_LAGOON_BRANCH or VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_LAGOON_PR or VORTEX_DEPLOY_PR." && exit 1
 
 export VORTEX_SSH_PREFIX="DEPLOY_LAGOON"
-. "$(dirname "${BASH_SOURCE[0]}")/setup-ssh"
+. "$(dirname "${BASH_SOURCE[0]}")/vortex-setup-ssh"
 
 if ! command -v lagoon >/dev/null || [ -n "${VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL}" ]; then
   task "Installing Lagoon CLI."

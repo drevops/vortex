@@ -11,13 +11,13 @@ load ../_helper.bash
 
   # Mock the fetch-db-url.sh script by creating it
   mkdir -p .vortex/tooling/src
-  cat >.vortex/tooling/src/fetch-db-url <<'EOF'
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump fetch from URL."
 echo "Fetching database dump file."
 echo "Finished database dump fetch from URL."
 EOF
-  chmod +x .vortex/tooling/src/fetch-db-url
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
 
   # Mock ls command for final directory listing
   mock_ls=$(mock_command "ls")
@@ -33,7 +33,7 @@ EOF
   export VORTEX_FETCH_DB_FILE="db.sql"
   export VORTEX_FETCH_DB_SEMAPHORE=".data/.db-downloaded"
 
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database fetch."
   assert_output_contains "Started database dump fetch from URL."
@@ -52,19 +52,19 @@ EOF
   export VORTEX_FETCH_DB_DIR=".data"
   export VORTEX_FETCH_DB_FILE="db.sql"
 
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database fetch."
   assert_output_contains "Skipped database fetch as VORTEX_FETCH_DB_PROCEED is not set to 1."
 
   # Test default source (should default to url/curl)
   mkdir -p .vortex/tooling/src
-  cat >.vortex/tooling/src/fetch-db-url <<'EOF'
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump fetch from URL."
 echo "Finished database dump fetch from URL."
 EOF
-  chmod +x .vortex/tooling/src/fetch-db-url
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 1024 -rw-r--r-- 1 user user 1048576 Jan 01 12:00 db.sql" 1
@@ -73,7 +73,7 @@ EOF
   unset VORTEX_FETCH_DB_SOURCE
   export VORTEX_FETCH_DB_PROCEED="1"
 
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database fetch."
   assert_output_contains "Started database dump fetch from URL."
@@ -92,12 +92,12 @@ EOF
 
   # Mock the container registry sub-script.
   mkdir -p .vortex/tooling/src
-  cat >.vortex/tooling/src/fetch-db-container-registry <<'EOF'
+  cat >.vortex/tooling/src/vortex-fetch-db-container-registry <<'EOF'
 #!/usr/bin/env bash
 echo "Started database data container image fetch."
 echo "Finished database data container image fetch."
 EOF
-  chmod +x .vortex/tooling/src/fetch-db-container-registry
+  chmod +x .vortex/tooling/src/vortex-fetch-db-container-registry
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
@@ -108,7 +108,7 @@ EOF
   export VORTEX_FETCH_DB_FILE="db.sql"
   export VORTEX_FETCH_DB_FORCE=""
 
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database fetch."
   assert_output_contains "Started database data container image fetch."
@@ -126,12 +126,12 @@ EOF
 
   # Mock the URL sub-script.
   mkdir -p .vortex/tooling/src
-  cat >.vortex/tooling/src/fetch-db-url <<'EOF'
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump fetch from URL."
 echo "Finished database dump fetch from URL."
 EOF
-  chmod +x .vortex/tooling/src/fetch-db-url
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
@@ -143,7 +143,7 @@ EOF
   export VORTEX_FETCH_DB2_DIR=".data"
   export VORTEX_FETCH_DB2_FILE="db2.sql"
 
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database 2 fetch."
   assert_output_contains "Started database dump fetch from URL."
@@ -157,12 +157,12 @@ EOF
 
   # Mock the URL sub-script.
   mkdir -p .vortex/tooling/src
-  cat >.vortex/tooling/src/fetch-db-url <<'EOF'
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump fetch from URL."
 echo "Finished database dump fetch from URL."
 EOF
-  chmod +x .vortex/tooling/src/fetch-db-url
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
 
   mock_ls=$(mock_command "ls")
   mock_set_output "${mock_ls}" "total 0" 1
@@ -175,7 +175,7 @@ EOF
   export VORTEX_DB2_DIR=".data"
   export VORTEX_DB2_FILE="db2.sql"
 
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database 2 fetch."
   assert_output_contains "Started database dump fetch from URL."
@@ -202,7 +202,7 @@ EOF
 
   # Test using existing file when force is not set
   export VORTEX_FETCH_DB_FORCE=""
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database fetch."
   assert_output_contains "Found existing database dump file(s)."
@@ -212,15 +212,15 @@ EOF
 
   # Test forcing download when existing file found
   mkdir -p .vortex/tooling/src
-  cat >.vortex/tooling/src/fetch-db-url <<'EOF'
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
 #!/usr/bin/env bash
 echo "Started database dump fetch from URL."
 echo "Finished database dump fetch from URL."
 EOF
-  chmod +x .vortex/tooling/src/fetch-db-url
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
 
   export VORTEX_FETCH_DB_FORCE="1"
-  run .vortex/tooling/src/fetch-db
+  run .vortex/tooling/src/vortex-fetch-db
   assert_success
   assert_output_contains "Started database fetch."
   assert_output_contains "Found existing database dump file(s)."

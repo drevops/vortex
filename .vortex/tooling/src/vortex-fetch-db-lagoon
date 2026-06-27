@@ -105,7 +105,7 @@ for cmd in ssh rsync; do command -v "${cmd}" >/dev/null || {
 info "Started database dump fetch from Lagoon."
 
 export VORTEX_SSH_PREFIX="FETCH_DB"
-. "$(dirname "${BASH_SOURCE[0]}")/setup-ssh"
+. "$(dirname "${BASH_SOURCE[0]}")/vortex-setup-ssh"
 
 ssh_opts=(-o "UserKnownHostsFile=/dev/null")
 ssh_opts+=(-o "StrictHostKeyChecking=no")

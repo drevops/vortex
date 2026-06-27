@@ -21,9 +21,9 @@ stub_sibling() {
   export RUN_ON_HOST=0
 
   mock_docker=$(mock_command "docker")
-  stub_sibling "import-db-file" "Imported in place."
+  stub_sibling "vortex-import-db-file" "Imported in place."
 
-  run .vortex/tooling/src/import-db
+  run .vortex/tooling/src/vortex-import-db
   assert_success
   assert_output_contains "Started database import."
   assert_output_contains "Imported in place."
@@ -41,12 +41,12 @@ stub_sibling() {
   mock_docker=$(mock_command "docker")
   mock_set_output "${mock_docker}" "Imported through Docker Compose." 1
 
-  run .vortex/tooling/src/import-db
+  run .vortex/tooling/src/vortex-import-db
   assert_success
   assert_output_contains "Imported through Docker Compose."
   assert_output_contains "Finished database import."
   assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
-  assert_equal "compose exec -T cli ./vendor/drevops/vortex-tooling/src/import-db-file" "$(mock_get_call_args "${mock_docker}" 1)"
+  assert_equal "compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-import-db-file" "$(mock_get_call_args "${mock_docker}" 1)"
 
   popd >/dev/null
 }
@@ -57,7 +57,7 @@ stub_sibling() {
   mock_docker=$(mock_command "docker")
   mock_set_output "${mock_docker}" "Imported through detected Docker." 1
 
-  run .vortex/tooling/src/import-db
+  run .vortex/tooling/src/vortex-import-db
   assert_success
   assert_output_contains "Imported through detected Docker."
   assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
@@ -73,10 +73,10 @@ stub_sibling() {
   mock_docker=$(mock_command "docker")
   mock_set_output "${mock_docker}" "Imported through Docker Compose." 1
 
-  run .vortex/tooling/src/import-db .data/db_custom.sql
+  run .vortex/tooling/src/vortex-import-db .data/db_custom.sql
   assert_success
   assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
-  assert_equal "compose exec -T cli ./vendor/drevops/vortex-tooling/src/import-db-file .data/db_custom.sql" "$(mock_get_call_args "${mock_docker}" 1)"
+  assert_equal "compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-import-db-file .data/db_custom.sql" "$(mock_get_call_args "${mock_docker}" 1)"
 
   popd >/dev/null
 }

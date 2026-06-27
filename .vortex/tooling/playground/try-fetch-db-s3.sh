@@ -70,7 +70,7 @@ export VORTEX_FETCH_DB_S3_PREFIX="${S3_PREFIX}"
 # Enable xtrace only after credentials are exported so secrets are not traced.
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-./vendor/drevops/vortex-tooling/src/fetch-db-s3
+./vendor/drevops/vortex-tooling/src/vortex-fetch-db-s3
 
 echo ""
 echo "Fetch complete!"

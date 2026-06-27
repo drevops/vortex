@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for .vortex/tooling/src/deploy-lagoon script.
+# Tests for .vortex/tooling/src/vortex-deploy-lagoon script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 
@@ -12,7 +12,7 @@ load ../_helper.bash
   export LAGOON_PROJECT="test_project"
   export VORTEX_DEPLOY_MODE="tag"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   assert_output_contains "Started Lagoon deployment."
   assert_output_contains "Lagoon does not support tag deployments. Skipped."
@@ -34,7 +34,7 @@ load ../_helper.bash
   unset LAGOON_PROJECT
   export VORTEX_DEPLOY_BRANCH="test-branch"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT or LAGOON_PROJECT."
 
@@ -48,7 +48,7 @@ load ../_helper.bash
   unset VORTEX_DEPLOY_BRANCH
   unset VORTEX_DEPLOY_PR
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
   assert_output_contains "Missing required value for VORTEX_DEPLOY_LAGOON_BRANCH or VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_LAGOON_PR or VORTEX_DEPLOY_PR."
 
@@ -82,7 +82,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -119,7 +119,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -165,7 +165,7 @@ load ../_helper.bash
 
   # Mock commands are handled by the steps
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -201,7 +201,7 @@ load ../_helper.bash
 
   # Mock commands are handled by the steps
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -243,7 +243,7 @@ load ../_helper.bash
 
   # Mock commands are handled by the steps
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -291,7 +291,7 @@ load ../_helper.bash
   mocks="$(run_steps "setup")"
 
   # Mock commands are handled by the steps
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -323,7 +323,7 @@ load ../_helper.bash
 
   # Mock commands are handled by the steps
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -359,7 +359,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 
@@ -395,7 +395,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
   run_steps "assert" "${mocks[@]}"
 
@@ -435,7 +435,7 @@ load ../_helper.bash
 
   mocks="$(run_steps "setup")"
 
-  run .vortex/tooling/src/deploy-lagoon
+  run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
   run_steps "assert" "${mocks[@]}"
 

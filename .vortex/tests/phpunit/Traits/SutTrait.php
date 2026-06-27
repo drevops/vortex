@@ -164,8 +164,52 @@ trait SutTrait {
     // to the template-root copy for tests that bypass injectTestingTooling.
     $source = is_dir($sut_source) ? $sut_source : $repo_source;
 
-    if (is_dir($source)) {
-      File::copy($source, $target);
+    if (!is_dir($source)) {
+      return;
+    }
+
+    File::copy($source, $target);
+
+    // Copying the package skips Composer, so the 'vendor/bin/vortex-*' proxies
+    // it generates from the package 'bin' array are absent. Host-side recipes
+    // invoke those binaries (e.g. 'ahoy reset' guards on
+    // 'vendor/bin/vortex-reset'), so recreate them here.
+    $this->linkToolingBinaries($target, $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'bin');
+  }
+
+  /**
+   * Generate Composer-style bin proxies for the copied tooling package.
+   *
+   * Each proxy resolves its own real location and execs the matching script in
+   * the package 'src/', so the script's own sibling dispatch keeps working.
+   */
+  protected function linkToolingBinaries(string $package_dir, string $bin_dir): void {
+    $composer_file = $package_dir . DIRECTORY_SEPARATOR . 'composer.json';
+
+    if (!file_exists($composer_file)) {
+      return;
+    }
+
+    $composer = json_decode((string) file_get_contents($composer_file), TRUE);
+    $bins = is_array($composer) && isset($composer['bin']) && is_array($composer['bin']) ? $composer['bin'] : [];
+
+    if ($bins === []) {
+      return;
+    }
+
+    if (!is_dir($bin_dir)) {
+      mkdir($bin_dir, 0755, TRUE);
+    }
+
+    foreach ($bins as $bin) {
+      if (!is_string($bin)) {
+        continue;
+      }
+
+      $proxy = $bin_dir . DIRECTORY_SEPARATOR . basename($bin);
+      $body = "#!/usr/bin/env sh\n" . 'dir=$(cd "$(dirname "$0")/../drevops/vortex-tooling" && pwd)' . "\n" . 'exec "${dir}/' . $bin . '" "$@"' . "\n";
+      file_put_contents($proxy, $body);
+      chmod($proxy, 0755);
     }
   }
 
@@ -261,7 +305,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before fetching the database.');
 
     $this->cmd(
-      './vendor/drevops/vortex-tooling/src/fetch-db',
+      './vendor/bin/vortex-fetch-db',
       env: ['VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database fetched from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
@@ -322,12 +366,12 @@ trait SutTrait {
 
     $this->assertFileContainsString(
       '.ahoy.yml',
-      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
+      '      ahoy cli ./vendor/bin/vortex-provision',
       '`ahoy provision` should exist in .ahoy.yml'
     );
     File::replaceContentInFile('.ahoy.yml',
-      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
-      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
+      '      ahoy cli ./vendor/bin/vortex-provision',
+      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/bin/vortex-provision',
     );
   }
 

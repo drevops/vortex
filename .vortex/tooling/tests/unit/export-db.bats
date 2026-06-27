@@ -21,9 +21,9 @@ stub_sibling() {
   export RUN_ON_HOST=0
 
   mock_docker=$(mock_command "docker")
-  stub_sibling "export-db-file" "Exported in place."
+  stub_sibling "vortex-export-db-file" "Exported in place."
 
-  run .vortex/tooling/src/export-db
+  run .vortex/tooling/src/vortex-export-db
   assert_success
   assert_output_contains "Started database export."
   assert_output_contains "Exported in place."
@@ -41,12 +41,12 @@ stub_sibling() {
   mock_docker=$(mock_command "docker")
   mock_set_output "${mock_docker}" "Exported through Docker Compose." 1
 
-  run .vortex/tooling/src/export-db
+  run .vortex/tooling/src/vortex-export-db
   assert_success
   assert_output_contains "Exported through Docker Compose."
   assert_output_contains "Finished database export."
   assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
-  assert_equal "compose exec -T cli ./vendor/drevops/vortex-tooling/src/export-db-file" "$(mock_get_call_args "${mock_docker}" 1)"
+  assert_equal "compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-export-db-file" "$(mock_get_call_args "${mock_docker}" 1)"
 
   popd >/dev/null
 }
@@ -57,7 +57,7 @@ stub_sibling() {
   mock_docker=$(mock_command "docker")
   mock_set_output "${mock_docker}" "Exported through detected Docker." 1
 
-  run .vortex/tooling/src/export-db
+  run .vortex/tooling/src/vortex-export-db
   assert_success
   assert_output_contains "Exported through detected Docker."
   assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
@@ -71,9 +71,9 @@ stub_sibling() {
   export RUN_ON_HOST=1
   export VORTEX_EXPORT_DB_IMAGE="myorg/myapp"
 
-  stub_sibling "export-db-image" "Exported as a container image."
+  stub_sibling "vortex-export-db-image" "Exported as a container image."
 
-  run .vortex/tooling/src/export-db
+  run .vortex/tooling/src/vortex-export-db
   assert_success
   assert_output_contains "Exported as a container image."
   assert_output_contains "Finished database export."

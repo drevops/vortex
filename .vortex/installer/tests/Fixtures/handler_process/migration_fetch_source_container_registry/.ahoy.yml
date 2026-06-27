@@ -23,14 +23,14 @@
    # ----------------------------------------------------------------------------
 @@ -122,6 +131,13 @@
        case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
-       ./vendor/drevops/vortex-tooling/src/fetch-db
+       ./vendor/bin/vortex-fetch-db
  
 +  fetch-db2:
 +    usage: Fetch second database (migration). Run with "--fresh" to force.
 +    aliases: [download-db2, db2-download, db2-fetch]
 +    cmd: |
 +      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB2_FRESH=1 VORTEX_FETCH_DB2_FORCE=1;; esac
-+      VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
++      VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
 +
    reload-db:
      usage: Reload the database container using local database image.
