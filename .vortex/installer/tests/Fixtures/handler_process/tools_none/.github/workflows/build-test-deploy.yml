@@ -46,7 +46,7 @@
        - name: Provision site
          run: |
 @@ -327,71 +305,6 @@
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
 -      - name: Test with Jest

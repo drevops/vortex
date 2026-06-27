@@ -56,7 +56,7 @@
 -            __VERSION__-${{ hashFiles('db_cache_branch') }}-${{ hashFiles('db_cache_fallback_yes') }}-
 -
        - name: Login to container registry
-         run: ./vendor/drevops/vortex-tooling/src/login-container-registry
+         run: ./vendor/bin/vortex-login-container-registry
  
 -      - name: Add SSH private key used to fetch database
 -        if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
@@ -72,7 +72,7 @@
 -      # the fetch script skips itself, leaving no semaphore file behind.
 -      - name: Fetch DB
 -        run: |
--          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
+-          VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/bin/vortex-fetch-db
 -          echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
 -        timeout-minutes: 30
 -
@@ -91,9 +91,9 @@
 -          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
 -          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0; fi
 -          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
--          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
--          ./vendor/drevops/vortex-tooling/src/export-db db.sql
--          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/drevops/vortex-tooling/src/push-db-image; fi
+-          docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
+-          ./vendor/bin/vortex-export-db db.sql
+-          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
 -          docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
 -        timeout-minutes: 30
 -        env:

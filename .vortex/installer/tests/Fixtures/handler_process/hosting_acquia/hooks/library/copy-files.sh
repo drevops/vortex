@@ -21,6 +21,6 @@ export VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${site}}"
 export VORTEX_TASK_COPY_FILES_ACQUIA_SRC="${VORTEX_TASK_COPY_FILES_ACQUIA_SRC:-prod}"
 export VORTEX_TASK_COPY_FILES_ACQUIA_DST="${VORTEX_TASK_COPY_FILES_ACQUIA_DST:-${target_env}}"
 
-./vendor/drevops/vortex-tooling/src/task copy-files
+./vendor/bin/vortex-task copy-files
 
 popd >/dev/null || exit 1
