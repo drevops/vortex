@@ -3,7 +3,7 @@
          timeout-minutes: 30
  
 +      - name: Fetch migration DB
-+        run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
++        run: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
 +
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
@@ -17,5 +17,5 @@
 +            docker compose exec -T cli mkdir -p .data
 +            docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
            fi
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/drevops/vortex-tooling/src/provision
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

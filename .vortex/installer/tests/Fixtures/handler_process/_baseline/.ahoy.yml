@@ -35,7 +35,7 @@ commands:
       export VORTEX_HOST_SOLR_PORT=$(docker compose port search 8983 2>/dev/null | cut -d : -f 2)
       export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port browser 7900 2>/dev/null | cut -d : -f 2)
       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-      ahoy cli ./vendor/drevops/vortex-tooling/src/info "$@"
+      ahoy cli ./vendor/bin/vortex-info "$@"
 
   db:
     usage: Open DB in Sequel Ace.
@@ -113,14 +113,14 @@ commands:
 
   login:
     usage: Unblock user 1 and generate a one time login link.
-    cmd: ahoy cli ./vendor/drevops/vortex-tooling/src/login
+    cmd: ahoy cli ./vendor/bin/vortex-login
 
   fetch-db:
     usage: Download database. Run with "--fresh" option to force fresh database backup.
     aliases: [download-db, db-download, db-fetch]
     cmd: |
       case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
-      ./vendor/drevops/vortex-tooling/src/fetch-db
+      ./vendor/bin/vortex-fetch-db
 
   reload-db:
     usage: Reload the database container using local database image.
@@ -135,21 +135,21 @@ commands:
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
       [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
-      ahoy cli ./vendor/drevops/vortex-tooling/src/provision
+      ahoy cli ./vendor/bin/vortex-provision
       [ "${VORTEX_SHOW_LOGIN:-1}" = "1" ] && ahoy login || true
 
   export-db:
     usage: Export database dump or database image (if VORTEX_DB_IMAGE variable is set).
     aliases: [db-export, db-dump, dump-db]
     cmd: |
-      ./vendor/drevops/vortex-tooling/src/export-db "$@"
+      ./vendor/bin/vortex-export-db "$@"
 
   import-db:
     usage: Import database from dump.
     aliases: [db-import]
     cmd: |
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
-      ./vendor/drevops/vortex-tooling/src/import-db "$@"
+      ./vendor/bin/vortex-import-db "$@"
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
@@ -161,8 +161,8 @@ commands:
     cmd: |
       ahoy confirm "All containers and build files will be removed. Proceed?" || exit 0
       AHOY_CONFIRM_RESPONSE=y ahoy down || true
-      if [ -f ./vendor/drevops/vortex-tooling/src/reset ]; then
-        ./vendor/drevops/vortex-tooling/src/reset "$@"
+      if [ -f ./vendor/bin/vortex-reset ]; then
+        ./vendor/bin/vortex-reset "$@"
       fi
 
   fei:
@@ -283,18 +283,18 @@ commands:
     usage: Run remote deployment procedures.
     cmd: |
       ahoy confirm "Deployment usually runs in CI. Are you sure you want to proceed with manual deployment? (Run as ahoy deploy [type1,[type2..]], where [type] is 'artifact', 'webhook', or 'lagoon')" || exit 0
-      ./vendor/drevops/vortex-tooling/src/deploy "$@"
+      ./vendor/bin/vortex-deploy "$@"
 
   doctor:
     usage: Find problems with current project setup.
     aliases: [diagnose, health]
     cmd: |
-      ./vendor/drevops/vortex-tooling/src/doctor "$@"
+      ./vendor/bin/vortex-doctor "$@"
 
   update-vortex:
     usage: Update project from the Vortex template repository.
     cmd: |
-      ./vendor/drevops/vortex-tooling/src/update-vortex "$@"
+      ./vendor/bin/vortex-update "$@"
 
   local:
     usage: Custom local commands. See `ahoy local help`.

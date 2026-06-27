@@ -21,6 +21,6 @@ export VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${site}}"
 export VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV:-${target_env}}"
 export VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE="${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE:-"/var/www/html/${site}.${target_env}/hooks/library/domains.txt"}"
 
-./vendor/drevops/vortex-tooling/src/task purge-cache
+./vendor/bin/vortex-task purge-cache
 
 popd >/dev/null || exit 1
