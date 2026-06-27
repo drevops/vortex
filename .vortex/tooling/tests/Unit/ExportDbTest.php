@@ -25,6 +25,7 @@ class ExportDbTest extends UnitTestCase {
     $this->envSet('VORTEX_EXPORT_DB_IMAGE', '');
     $this->envUnset('VORTEX_DB_IMAGE');
     $this->envSet('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED', '0');
+    $this->envUnset('RUN_ON_HOST');
 
     $GLOBALS['argv'] = ['export-db'];
   }
@@ -137,6 +138,16 @@ class ExportDbTest extends UnitTestCase {
         },
         'expected' => ['Finished database export.'],
       ],
+      'container file export' => [
+        'before' => function (self $test): void {
+          $test->envSet('RUN_ON_HOST', '0');
+          $test->mockPassthru([
+            'cmd' => self::$srcDir . '/export-db-file ',
+            'result_code' => 0,
+          ]);
+        },
+        'expected' => ['Started database export.', 'Finished database export.'],
+      ],
     ];
   }
 
@@ -178,6 +189,16 @@ class ExportDbTest extends UnitTestCase {
           ]);
         },
         'expected' => 'Failed to deploy container image',
+      ],
+      'container file export fails' => [
+        'before' => function (self $test): void {
+          $test->envSet('RUN_ON_HOST', '0');
+          $test->mockPassthru([
+            'cmd' => self::$srcDir . '/export-db-file ',
+            'result_code' => 1,
+          ]);
+        },
+        'expected' => 'Failed to export database as file',
       ],
     ];
   }
