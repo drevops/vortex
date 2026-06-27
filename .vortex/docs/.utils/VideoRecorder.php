@@ -302,11 +302,54 @@ final class VideoRecorder {
       throw new RuntimeException("Failed to redact login tokens in cast: $cast_path");
     }
 
+    $contents = $this->redactSecrets($contents);
+
     if (file_put_contents($cast_path, $contents) === FALSE) {
       throw new RuntimeException("Failed to write postprocessed cast: $cast_path");
     }
 
     $this->pass('Cast post-processed');
+  }
+
+  /**
+   * Mask credential-like secrets in cast contents with a fixed placeholder.
+   *
+   * Recorded command output can surface real secrets - for example a
+   * 'PACKAGE_TOKEN' replayed verbatim by a cached Docker build layer, or a
+   * token printed by a provisioning step. Published demos must never embed
+   * real credentials, so recognised token formats and the literal values of
+   * sensitive environment variables are masked before the cast is rendered to
+   * SVG and PNG.
+   */
+  protected function redactSecrets(string $contents): string {
+    $placeholder = 'XXXXX';
+
+    $patterns = [
+      // GitHub personal access, OAuth, user-to-server, server-to-server and
+      // refresh tokens (for example 'ghp_...', 'gho_...').
+      '#\bgh[oprsu]_[A-Za-z0-9]{36,255}#',
+      // GitHub fine-grained personal access tokens ('github_pat_...').
+      '#\bgithub_pat_[A-Za-z0-9_]{22,255}#',
+      // AWS access key identifiers.
+      '#\b(?:AKIA|ASIA)[A-Z0-9]{16}#',
+    ];
+
+    $masked = preg_replace($patterns, $placeholder, $contents);
+    if ($masked === NULL) {
+      throw new RuntimeException('Failed to mask secret token patterns in cast');
+    }
+
+    // Defence in depth: mask the literal values of sensitive environment
+    // variables when set, catching tokens whose format the patterns above do
+    // not recognise. Short values are skipped to avoid mangling innocuous text.
+    foreach (['PACKAGE_TOKEN', 'GITHUB_TOKEN', 'VORTEX_CONTAINER_REGISTRY_PASS'] as $name) {
+      $value = getenv($name);
+      if (is_string($value) && strlen($value) >= 8) {
+        $masked = str_replace($value, $placeholder, $masked);
+      }
+    }
+
+    return $masked;
   }
 
   /**
