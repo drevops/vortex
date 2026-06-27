@@ -2,13 +2,13 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
-+      - name: Download migration DB
++      - name: Fetch migration DB
 +        run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
 +
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
-@@ -322,6 +325,10 @@
+@@ -323,6 +326,10 @@
            if [ -f .data/db.sql ]; then
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql

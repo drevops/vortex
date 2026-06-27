@@ -1,4 +1,4 @@
-@@ -38,27 +38,18 @@
+@@ -39,26 +39,17 @@
      "require-dev": {
          "behat/behat": "__VERSION__",
          "dantleech/gherkin-lint": "__VERSION__",
@@ -9,7 +9,6 @@
 -        "drevops/phpcs-standard": "__VERSION__",
 -        "drupal/coder": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
-         "drupal/sdc_devel": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
          "lullabot/php-webdriver": "__VERSION__",

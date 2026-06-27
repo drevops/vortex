@@ -1,4 +1,4 @@
-@@ -238,27 +238,6 @@
+@@ -242,27 +242,6 @@
        ahoy cli "yarn run lint-fix"
        ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  

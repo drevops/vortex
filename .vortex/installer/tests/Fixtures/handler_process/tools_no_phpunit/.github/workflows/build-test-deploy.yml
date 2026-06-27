@@ -1,4 +1,4 @@
-@@ -331,66 +331,6 @@
+@@ -332,66 +332,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -65,7 +65,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -428,16 +368,6 @@
+@@ -434,16 +374,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

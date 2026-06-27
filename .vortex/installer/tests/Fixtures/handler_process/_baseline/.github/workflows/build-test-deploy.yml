@@ -132,7 +132,7 @@ jobs:
       - name: Install development dependencies
         run: |
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
-            if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+            if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
@@ -260,7 +260,7 @@ jobs:
       - name: Login to container registry
         run: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
-      - name: Add SSH private key used to download database
+      - name: Add SSH private key used to fetch database
         if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
         with:
@@ -269,10 +269,10 @@ jobs:
         env:
           VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
 
-      # On the first build of the day (cache miss), download a fresh DB dump.
+      # On the first build of the day (cache miss), fetch a fresh DB dump.
       # On subsequent builds, the restored cache already contains the dump and
-      # the download script skips itself, leaving no semaphore file behind.
-      - name: Download DB
+      # the fetch script skips itself, leaving no semaphore file behind.
+      - name: Fetch DB
         run: |
           VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
@@ -281,20 +281,21 @@ jobs:
       - name: Build stack
         run: docker compose up --detach && docker builder prune --all --force
 
-      # Execute commands after the database download finished: if a fresh DB
-      # dump was downloaded (cache miss), import it and export it back to
+      # Execute commands after the database fetch finished: if a fresh DB
+      # dump was fetched (cache miss), import it and export it back to
       # produce a clean dump cached for the rest of the day's builds. This also
       # validates the dump and supports "file-to-image" / "image-to-file"
       # conversions. Configuration changes and DB updates are not applied, so
-      # the cached database stays in the same state as downloaded. Only the
+      # the cached database stays in the same state as fetched. Only the
       # primary parallel runner pushes a refreshed database container image.
-      - name: Export DB after download
+      - name: Export DB after fetch
         run: |
-          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
-          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0; fi
+          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
+          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
           ./vendor/drevops/vortex-tooling/src/export-db db.sql
+          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/drevops/vortex-tooling/src/push-db-image; fi
           docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
         env:
@@ -302,7 +303,7 @@ jobs:
           STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
 
       # Save the clean DB dump to cache from the primary parallel runner only,
-      # and only when a fresh dump was downloaded this run (db_hash changed).
+      # and only when a fresh dump was fetched this run (db_hash changed).
       - name: Save DB cache
         uses: actions/cache/save@__HASH__ # __VERSION__
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.db_hash != hashFiles('.data') }}
@@ -313,7 +314,7 @@ jobs:
       - name: Install development dependencies
         run: |
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
-            if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+            if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
@@ -395,7 +396,12 @@ jobs:
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
         run: |
           [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
-          docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}"
+          output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
+          echo "${output}"
+          if echo "${output}" | grep -qE 'Critical|Errors?|Warnings?'; then
+            echo "SDC validation reported problems."
+            exit 1
+          fi
         continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
 
       - name: Test with Behat

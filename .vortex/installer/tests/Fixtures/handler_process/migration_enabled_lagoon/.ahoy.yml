@@ -21,7 +21,7 @@
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -123,6 +132,14 @@
+@@ -122,6 +131,13 @@
        case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
        ./vendor/drevops/vortex-tooling/src/fetch-db
  
@@ -29,14 +29,13 @@
 +    usage: Download second database (migration). Run with "--fresh" to force.
 +    aliases: [download-db2, db2-download, db2-fetch]
 +    cmd: |
-+      ahoy require-tooling
 +      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB2_FRESH=1 VORTEX_FETCH_DB2_FORCE=1;; esac
 +      VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
 +
    reload-db:
      usage: Reload the database container using local database image.
      cmd: |
-@@ -130,6 +147,13 @@
+@@ -129,6 +145,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up

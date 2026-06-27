@@ -12,6 +12,13 @@ Feature: Behat configuration
     Then I save screenshot
     And save screenshot with name "behat-test-screenshot"
 
+  @api @javascript
+  Scenario: Animated screenshot is recorded across multiple steps
+    Given I am an anonymous user
+    When I am on the homepage
+    And I go to "/user/login"
+    Then the path should be "/user/login"
+
   @api
   Scenario: Drush integration works
     Given I run drush "status"

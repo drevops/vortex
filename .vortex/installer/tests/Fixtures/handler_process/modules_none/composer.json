@@ -1,4 +1,4 @@
-@@ -8,30 +8,13 @@
+@@ -8,31 +8,13 @@
          "composer/installers": "__VERSION__",
          "cweagans/composer-patches": "__VERSION__",
          "drevops/vortex-tooling": "__VERSION__",
@@ -19,6 +19,7 @@
          "drupal/redis": "__VERSION__",
 -        "drupal/reroute_email": "__VERSION__",
 -        "drupal/robotstxt": "__VERSION__",
+-        "drupal/sdc_devel": "__VERSION__",
          "drupal/search_api": "__VERSION__",
          "drupal/search_api_solr": "__VERSION__",
 -        "drupal/seckit": "__VERSION__",
@@ -29,11 +30,3 @@
          "drush/drush": "__VERSION__",
          "webflo/drupal-finder": "__VERSION__"
      },
-@@ -45,7 +28,6 @@
-         "drevops/phpcs-standard": "__VERSION__",
-         "drupal/coder": "__VERSION__",
-         "drupal/drupal-extension": "__VERSION__",
--        "drupal/sdc_devel": "__VERSION__",
-         "ergebnis/composer-normalize": "__VERSION__",
-         "lullabot/mink-selenium2-driver": "__VERSION__",
-         "lullabot/php-webdriver": "__VERSION__",

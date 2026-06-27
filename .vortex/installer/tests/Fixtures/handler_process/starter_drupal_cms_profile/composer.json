@@ -6,7 +6,7 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -33,7 +34,9 @@
+@@ -34,7 +35,9 @@
          "drupal/testmode": "__VERSION__",
          "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__",

@@ -47,18 +47,22 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -215,10 +187,6 @@
+@@ -215,14 +187,6 @@
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
  
 -  lint-sdc:
 -    usage: Validate Single Directory Components (requires a provisioned site).
--    cmd: ahoy cli "vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME}"
+-    cmd: |
+-      ahoy cli " \
+-        output=\$(vendor/bin/drush sdc-devel:validate \${DRUPAL_THEME} 2>&1); \
+-        echo \"\${output}\"; \
+-        if echo \"\${output}\" | grep -qE 'Critical|Errors?|Warnings?'; then echo 'SDC validation reported problems.'; exit 1; fi"
 -
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -235,8 +203,6 @@
+@@ -239,8 +203,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -67,7 +71,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -258,10 +224,6 @@
+@@ -262,10 +224,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"

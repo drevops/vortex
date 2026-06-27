@@ -6,13 +6,14 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -22,11 +21,9 @@
+@@ -22,12 +21,10 @@
          "drupal/generated_content": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
 -        "drupal/redis": "__VERSION__",
          "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",
+         "drupal/sdc_devel": "__VERSION__",
          "drupal/search_api": "__VERSION__",
 -        "drupal/search_api_solr": "__VERSION__",
          "drupal/seckit": "__VERSION__",
