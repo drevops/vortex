@@ -147,17 +147,17 @@ if (in_array('artifact', $deploy_types, TRUE)) {
     putenv('VORTEX_DEPLOY_ARTIFACT_DST_BRANCH=deployment/[tags:-]');
   }
 
-  passthru(__DIR__ . '/deploy-artifact', $exit_code);
+  passthru(__DIR__ . '/vortex-deploy-artifact', $exit_code);
   $exit_code && quit($exit_code);
 }
 
 if (in_array('webhook', $deploy_types, TRUE)) {
-  passthru(__DIR__ . '/deploy-webhook', $exit_code);
+  passthru(__DIR__ . '/vortex-deploy-webhook', $exit_code);
   $exit_code && quit($exit_code);
 }
 
 if (in_array('lagoon', $deploy_types, TRUE)) {
-  passthru(__DIR__ . '/deploy-lagoon', $exit_code);
+  passthru(__DIR__ . '/vortex-deploy-lagoon', $exit_code);
   $exit_code && quit($exit_code);
 }
 

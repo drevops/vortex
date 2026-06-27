@@ -46,7 +46,7 @@ if (!in_array($platform, ['acquia', 'lagoon'], TRUE)) {
   fail("Unsupported hosting platform '%s'.", $platform);
 }
 
-$task_script = __DIR__ . '/task-' . $operation . '-' . $platform;
+$task_script = __DIR__ . '/vortex-task-' . $operation . '-' . $platform;
 
 if (!file_exists($task_script) || !is_executable($task_script)) {
   fail("Operation '%s' is not supported on the '%s' platform.", $operation, $platform);

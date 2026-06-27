@@ -65,7 +65,7 @@ note('Xdebug                      : %s', $xdebug_status);
 
 if ($show_login === '1') {
   echo '       Site login link             : ';
-  passthru('php ' . __DIR__ . '/login');
+  passthru('php ' . __DIR__ . '/vortex-login');
 }
 else {
   echo PHP_EOL;

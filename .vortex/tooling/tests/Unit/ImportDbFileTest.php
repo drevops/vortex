@@ -29,7 +29,7 @@ class ImportDbFileTest extends UnitTestCase {
 
     $this->mockImportSequence($dump_file);
 
-    $output = $this->runScript('src/import-db-file');
+    $output = $this->runScript('src/vortex-import-db-file');
 
     $this->assertStringContainsString('Started database file import.', $output);
     $this->assertStringContainsString('Imported database from the dump file.', $output);
@@ -42,7 +42,7 @@ class ImportDbFileTest extends UnitTestCase {
 
     $this->mockImportSequence($dump_file);
 
-    $output = $this->runScript('src/import-db-file');
+    $output = $this->runScript('src/vortex-import-db-file');
 
     $this->assertStringContainsString('Imported database from the dump file.', $output);
     $this->assertStringContainsString('Finished database file import.', $output);
@@ -59,7 +59,7 @@ class ImportDbFileTest extends UnitTestCase {
 
     $this->mockImportSequence($dump_file);
 
-    $output = $this->runScript('src/import-db-file');
+    $output = $this->runScript('src/vortex-import-db-file');
 
     $this->assertStringContainsString('Imported database from the dump file.', $output);
   }
@@ -69,7 +69,7 @@ class ImportDbFileTest extends UnitTestCase {
 
     $GLOBALS['argv'] = ['import-db-file', $dump_file];
 
-    $this->runScriptError('src/import-db-file', 'Unable to import database from file.');
+    $this->runScriptError('src/vortex-import-db-file', 'Unable to import database from file.');
   }
 
   public function testFileNotReadable(): void {
@@ -84,7 +84,7 @@ class ImportDbFileTest extends UnitTestCase {
     $GLOBALS['argv'] = ['import-db-file', $dump_file];
 
     try {
-      $this->runScriptError('src/import-db-file', 'is not readable.');
+      $this->runScriptError('src/vortex-import-db-file', 'is not readable.');
     }
     finally {
       chmod($dump_file, 0644);
@@ -116,7 +116,7 @@ class ImportDbFileTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/import-db-file', 'Failed to import database from dump file.');
+    $this->runScriptError('src/vortex-import-db-file', 'Failed to import database from dump file.');
   }
 
   protected function mockImportSequence(string $dump_file): void {

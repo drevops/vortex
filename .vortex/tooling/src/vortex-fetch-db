@@ -79,12 +79,12 @@ if ($source !== 'container_registry') {
 }
 
 $sources = [
-  'ftp' => __DIR__ . '/fetch-db-ftp',
-  'url' => __DIR__ . '/fetch-db-url',
-  'acquia' => __DIR__ . '/fetch-db-acquia',
-  'lagoon' => __DIR__ . '/fetch-db-lagoon',
-  'container_registry' => __DIR__ . '/fetch-db-container-registry',
-  's3' => __DIR__ . '/fetch-db-s3',
+  'ftp' => __DIR__ . '/vortex-fetch-db-ftp',
+  'url' => __DIR__ . '/vortex-fetch-db-url',
+  'acquia' => __DIR__ . '/vortex-fetch-db-acquia',
+  'lagoon' => __DIR__ . '/vortex-fetch-db-lagoon',
+  'container_registry' => __DIR__ . '/vortex-fetch-db-container-registry',
+  's3' => __DIR__ . '/vortex-fetch-db-s3',
 ];
 
 if (!isset($sources[$source])) {

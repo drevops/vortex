@@ -44,6 +44,23 @@
             "DrevOps\\VortexTooling\\Tests\\": "tests/"
         }
     },
+    "bin": [
+        "src/vortex-deploy",
+        "src/vortex-doctor",
+        "src/vortex-export-db",
+        "src/vortex-fetch-db",
+        "src/vortex-import-db",
+        "src/vortex-info",
+        "src/vortex-login",
+        "src/vortex-login-container-registry",
+        "src/vortex-logout",
+        "src/vortex-notify",
+        "src/vortex-provision",
+        "src/vortex-push-db-image",
+        "src/vortex-reset",
+        "src/vortex-task",
+        "src/vortex-update"
+    ],
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,

@@ -105,7 +105,7 @@ if (empty($deploy_branch) && empty($deploy_pr)) {
 putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
 !empty($ssh_fingerprint) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT=' . $ssh_fingerprint);
 !empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
-passthru_or_fail(__DIR__ . '/setup-ssh');
+passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 
 // Install Lagoon CLI if needed.
 if (!command_path('lagoon') || !empty($lagooncli_force_install)) {

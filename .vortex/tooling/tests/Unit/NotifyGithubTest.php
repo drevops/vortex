@@ -34,7 +34,7 @@ class NotifyGithubTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_GITHUB_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
 
-    $this->runScriptEarlyPass('src/notify-github', "Skipped GitHub notification for branch 'feature/x'.");
+    $this->runScriptEarlyPass('src/vortex-notify-github', "Skipped GitHub notification for branch 'feature/x'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -50,7 +50,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": 123456789}']
     );
 
-    $output = $this->runScript('src/notify-github');
+    $output = $this->runScript('src/vortex-notify-github');
 
     $this->assertStringContainsString('Finished GitHub notification', $output);
   }
@@ -76,7 +76,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": 123456789}']
     );
 
-    $output = $this->runScript('src/notify-github');
+    $output = $this->runScript('src/vortex-notify-github');
 
     $this->assertStringContainsString('Started GitHub notification for pre_deployment event', $output);
     $this->assertStringContainsString('Repository      : owner/repo', $output);
@@ -119,7 +119,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"state": "success"}']
     );
 
-    $output = $this->runScript('src/notify-github');
+    $output = $this->runScript('src/vortex-notify-github');
 
     $this->assertStringContainsString('Started GitHub notification for post_deployment event', $output);
     $this->assertStringContainsString('Deployment ID      : 987654321', $output);
@@ -144,7 +144,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": 123456789}']
     );
 
-    $output = $this->runScript('src/notify-github');
+    $output = $this->runScript('src/vortex-notify-github');
 
     $this->assertStringContainsString('Environment Type: PR', $output);
   }
@@ -160,7 +160,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"id": 123}']
     );
 
-    $this->runScriptError('src/notify-github', 'Failed to get a deployment ID for a pre_deployment event');
+    $this->runScriptError('src/vortex-notify-github', 'Failed to get a deployment ID for a pre_deployment event');
 
   }
 
@@ -174,7 +174,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 200, 'body' => '[]']
     );
 
-    $this->runScriptError('src/notify-github', 'Failed to find a previous deployment for ref main');
+    $this->runScriptError('src/vortex-notify-github', 'Failed to find a previous deployment for ref main');
   }
 
   public function testPostDeploymentFailureStatusUpdateFailed(): void {
@@ -195,14 +195,14 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"state": "error"}']
     );
 
-    $this->runScriptError('src/notify-github', 'unable to update the deployment status');
+    $this->runScriptError('src/vortex-notify-github', 'unable to update the deployment status');
 
   }
 
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-github', 'Missing required value for ' . $var_name);
+    $this->runScriptError('src/vortex-notify-github', 'Missing required value for ' . $var_name);
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
@@ -237,7 +237,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 201, 'body' => '{"id": 123456789}']
     );
 
-    $output = $this->runScript('src/notify-github');
+    $output = $this->runScript('src/vortex-notify-github');
 
     $this->assertStringContainsString('Branch (ref)    : develop', $output);
     $this->assertStringContainsString('Finished GitHub notification', $output);
@@ -247,7 +247,7 @@ class NotifyGithubTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_GITHUB_EVENT', 'post_deployment');
     $this->envUnset('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL');
 
-    $this->runScriptError('src/notify-github', 'Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL');
+    $this->runScriptError('src/vortex-notify-github', 'Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL');
   }
 
   public function testDeploymentIdValidationEdgeCases(): void {
@@ -262,7 +262,7 @@ class NotifyGithubTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"id": 12345678}']
     );
 
-    $this->runScriptError('src/notify-github', 'Failed to get a deployment ID');
+    $this->runScriptError('src/vortex-notify-github', 'Failed to get a deployment ID');
 
   }
 

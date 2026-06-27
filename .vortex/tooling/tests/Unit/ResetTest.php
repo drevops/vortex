@@ -38,7 +38,7 @@ class ResetTest extends UnitTestCase {
 
     if ($expect_error) {
       try {
-        $this->runScript('src/reset', 1);
+        $this->runScript('src/vortex-reset', 1);
       }
       catch (QuitErrorException $e) {
         if (!empty($expected)) {
@@ -49,7 +49,7 @@ class ResetTest extends UnitTestCase {
       return;
     }
 
-    $output = $this->runScript('src/reset');
+    $output = $this->runScript('src/vortex-reset');
 
     $this->assertStringContainsOrNot($output, $expected);
   }

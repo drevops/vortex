@@ -20,6 +20,6 @@ export PHP_INI_SCAN_DIR
 # Do not unblock admin account.
 export VORTEX_UNBLOCK_ADMIN="${VORTEX_UNBLOCK_ADMIN:-0}"
 
-./vendor/drevops/vortex-tooling/src/provision
+./vendor/bin/vortex-provision
 
 popd >/dev/null || exit 1

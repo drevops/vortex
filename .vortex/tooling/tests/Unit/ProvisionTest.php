@@ -48,7 +48,7 @@ class ProvisionTest extends UnitTestCase {
   public function testSkipProvision(): void {
     $this->envSet('VORTEX_PROVISION_SKIP', '1');
 
-    $this->runScriptEarlyPass('src/provision', 'Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.');
+    $this->runScriptEarlyPass('src/vortex-provision', 'Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.');
   }
 
   public function testDatabaseProvisionSiteInstalledNoOverride(): void {
@@ -66,7 +66,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Started site provisioning.', $output);
     $this->assertStringContainsString('Existing site was found.', $output);
@@ -97,7 +97,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Existing site content will be removed and fresh content will be imported', $output);
   }
@@ -123,7 +123,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Existing site was not found.', $output);
     $this->assertStringContainsString('Fresh site content will be imported from the database dump file.', $output);
@@ -136,7 +136,7 @@ class ProvisionTest extends UnitTestCase {
     // Drush sql:drop (called inside provision_from_db before the file check is
     // not reached because the file check happens first).
     // Actually, file check is the first thing in provision_from_db.
-    $this->runScriptError('src/provision', 'Unable to import database from file.');
+    $this->runScriptError('src/vortex-provision', 'Unable to import database from file.');
   }
 
   public function testDatabaseProvisionNoSiteNoDumpFallbackToProfile(): void {
@@ -175,7 +175,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Database dump file is not available. Falling back to profile installation.', $output);
     $this->assertStringContainsString('Installed a site from the profile.', $output);
@@ -217,7 +217,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Database in the container image is not available. Falling back to profile installation.', $output);
     $this->assertStringContainsString('Installed a site from the profile.', $output);
@@ -231,7 +231,7 @@ class ProvisionTest extends UnitTestCase {
 
     $this->mockDrushStartupSequence(FALSE);
 
-    $this->runScriptError('src/provision', 'Looks like the database in the container image is corrupted.');
+    $this->runScriptError('src/vortex-provision', 'Looks like the database in the container image is corrupted.');
   }
 
   public function testDatabaseProvisionSiteInstalledDbImage(): void {
@@ -251,7 +251,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Database is baked into the container image.', $output);
     $this->assertStringContainsString('Site content will be preserved.', $output);
@@ -284,7 +284,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Provisioning site from the profile.', $output);
     $this->assertStringContainsString('Existing site was not found.', $output);
@@ -307,7 +307,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Provisioning site from the profile.', $output);
     $this->assertStringContainsString('Site content will be preserved.', $output);
@@ -344,7 +344,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Existing site content will be removed and new content will be created from the profile.', $output);
     $this->assertStringContainsString('Installed a site from the profile.', $output);
@@ -412,7 +412,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Enabling maintenance mode.', $output);
     $this->assertStringContainsString('Completed running database updates.', $output);
@@ -497,7 +497,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Updated site UUID from the configuration', $output);
     $this->assertStringContainsString('Completed running database updates.', $output);
@@ -583,7 +583,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Completed configuration import.', $output);
     $this->assertStringContainsString('Repeating configuration import.', $output);
@@ -610,7 +610,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Fallback to profile            : Yes', $output);
     $this->assertStringContainsString('Verify config after update     : Yes', $output);
@@ -637,7 +637,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('custom-db-dir/db.sql', $output);
   }
@@ -650,7 +650,7 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/provision', 'Drush command failed: --version');
+    $this->runScriptError('src/vortex-provision', 'Drush command failed: --version');
   }
 
   public function testDatabaseImportFails(): void {
@@ -664,7 +664,7 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/provision', 'Failed to import database from dump file.');
+    $this->runScriptError('src/vortex-provision', 'Failed to import database from dump file.');
   }
 
   public function testProfileProvisionWithAdminEmail(): void {
@@ -697,7 +697,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Installed a site from the profile.', $output);
   }
@@ -729,7 +729,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Installed a site from the profile.', $output);
   }
@@ -805,7 +805,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Sanitizing database.', $output);
     $this->assertStringContainsString('Sanitized database using drush sql:sanitize.', $output);
@@ -907,7 +907,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Updated username with user email.', $output);
     $this->assertStringContainsString('Applied custom sanitization commands from file.', $output);
@@ -1015,7 +1015,7 @@ class ProvisionTest extends UnitTestCase {
     $this->mockQuit(0);
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/provision');
+    $output = $this->runScript('src/vortex-provision');
 
     $this->assertStringContainsString('Verified that database updates did not change configuration.', $output);
   }
@@ -1080,7 +1080,7 @@ class ProvisionTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $this->runScriptError('src/provision', 'Configuration was changed by database updates.');
+    $this->runScriptError('src/vortex-provision', 'Configuration was changed by database updates.');
   }
 
   protected function drushCmd(string $command): string {
@@ -1088,7 +1088,7 @@ class ProvisionTest extends UnitTestCase {
   }
 
   protected function importDbFileCmd(string $dump_file): string {
-    return realpath(__DIR__ . '/../../src') . '/import-db-file ' . escapeshellarg($dump_file);
+    return realpath(__DIR__ . '/../../src') . '/vortex-import-db-file ' . escapeshellarg($dump_file);
   }
 
   protected function createDbDumpFile(): void {

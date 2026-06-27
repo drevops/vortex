@@ -40,14 +40,14 @@ class DeployLagoonTest extends UnitTestCase {
     $this->envSet('VORTEX_DEPLOY_BRANCH', 'develop');
     $this->envUnset('LAGOON_PROJECT');
 
-    $this->runScriptError('src/deploy-lagoon', 'Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT, LAGOON_PROJECT');
+    $this->runScriptError('src/vortex-deploy-lagoon', 'Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT, LAGOON_PROJECT');
   }
 
   public function testMissingBranchAndPr(): void {
     $this->envSet('VORTEX_DEPLOY_BRANCH', '');
     $this->envSet('VORTEX_DEPLOY_PR', '');
 
-    $this->runScriptError('src/deploy-lagoon', 'Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
+    $this->runScriptError('src/vortex-deploy-lagoon', 'Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
   }
 
   public function testDestroyAction(): void {
@@ -78,7 +78,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Started Lagoon deployment.', $output);
     $this->assertStringContainsString('Destroying environment: project test-project, branch: develop.', $output);
@@ -116,7 +116,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Started Lagoon deployment.', $output);
     $this->assertStringContainsString('Discovering existing environments for branch deployments.', $output);
@@ -161,7 +161,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for branch "develop".', $output);
     $this->assertStringContainsString('Setting a database overwrite flag to 0.', $output);
@@ -219,7 +219,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Adding a database import override flag for the current deployment.', $output);
     $this->assertStringContainsString('Waiting for deployment to be queued.', $output);
@@ -263,7 +263,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Started Lagoon deployment.', $output);
     $this->assertStringContainsString('Discovering existing environments for pullrequest deployments.', $output);
@@ -313,7 +313,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for PR "123".', $output);
     $this->assertStringContainsString('Setting a database overwrite flag to 0.', $output);
@@ -354,7 +354,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Lagoon environment limit exceeded.', $output);
     $this->assertStringContainsString('Ignoring environment limit exceeded error as per configuration.', $output);
@@ -373,7 +373,7 @@ class DeployLagoonTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-lagoon');
+    $this->runScript('src/vortex-deploy-lagoon');
   }
 
   public function testLagoonConfigFailure(): void {
@@ -396,7 +396,7 @@ class DeployLagoonTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-lagoon');
+    $this->runScript('src/vortex-deploy-lagoon');
   }
 
   public function testLagoonCliCommandFailure(): void {
@@ -425,7 +425,7 @@ class DeployLagoonTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('[FAIL] Lagoon CLI command', $output);
   }
@@ -464,7 +464,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Deploying environment: project test-project, branch: develop.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
@@ -508,7 +508,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Lagoon environment limit exceeded.', $output);
   }
@@ -572,7 +572,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for PR "123".', $output);
     $this->assertStringContainsString('Adding a database import override flag for the current deployment.', $output);
@@ -606,7 +606,7 @@ class DeployLagoonTest extends UnitTestCase {
       ['status' => 404, 'ok' => FALSE, 'body' => '', 'error' => 'Not Found']
     );
 
-    $this->runScriptError('src/deploy-lagoon', 'Failed to download Lagoon CLI from');
+    $this->runScriptError('src/vortex-deploy-lagoon', 'Failed to download Lagoon CLI from');
   }
 
   public function testLagoonCliInstallationCreatesDirectory(): void {
@@ -660,7 +660,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Installing Lagoon CLI.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
@@ -718,7 +718,7 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-lagoon');
+    $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Installing Lagoon CLI.', $output);
     $this->assertStringContainsString('Downloading Lagoon CLI from ' . $download_url . '.', $output);
@@ -727,7 +727,7 @@ class DeployLagoonTest extends UnitTestCase {
   }
 
   protected function getSetupSshPath(): string {
-    return dirname(__DIR__, 2) . '/src/setup-ssh';
+    return dirname(__DIR__, 2) . '/src/vortex-setup-ssh';
   }
 
   protected function getLagoonCommand(string $subcommand): string {

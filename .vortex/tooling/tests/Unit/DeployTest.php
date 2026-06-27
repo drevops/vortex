@@ -34,7 +34,7 @@ class DeployTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('[FAIL] Missing required value for VORTEX_DEPLOY_TYPES', $output);
@@ -50,7 +50,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Found flag to skip all deployments.', $output);
@@ -69,7 +69,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Found flag to skip a deployment.', $output);
@@ -89,7 +89,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Found flag to skip a deployment.', $output);
@@ -109,7 +109,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString("Found flag to gate deployment on the 'deploy' label.", $output);
     $this->assertStringContainsString("PR 123 does not carry the 'deploy' label.", $output);
@@ -134,7 +134,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString("PR 123 carries the 'deploy' label.", $output);
     $this->assertStringContainsString('[ OK ] Finished deployment.', $output);
@@ -153,7 +153,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Artifact deployed successfully', $output);
@@ -173,7 +173,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Webhook deployed successfully', $output);
@@ -193,7 +193,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Lagoon deployed successfully', $output);
@@ -225,7 +225,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Artifact deployed', $output);
@@ -250,7 +250,7 @@ class DeployTest extends UnitTestCase {
 
     $this->expectException(QuitSuccessException::class);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Artifact deployed with tag mode', $output);
@@ -274,7 +274,7 @@ class DeployTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Artifact deployment failed', $output);
@@ -294,7 +294,7 @@ class DeployTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Webhook deployment failed', $output);
@@ -314,22 +314,22 @@ class DeployTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $output = $this->runScript('src/deploy');
+    $output = $this->runScript('src/vortex-deploy');
 
     $this->assertStringContainsString('[INFO] Started deployment.', $output);
     $this->assertStringContainsString('Lagoon deployment failed', $output);
   }
 
   protected function getDeployArtifactPath(): string {
-    return (string) realpath(__DIR__ . '/../../src/deploy-artifact');
+    return (string) realpath(__DIR__ . '/../../src/vortex-deploy-artifact');
   }
 
   protected function getDeployWebhookPath(): string {
-    return (string) realpath(__DIR__ . '/../../src/deploy-webhook');
+    return (string) realpath(__DIR__ . '/../../src/vortex-deploy-webhook');
   }
 
   protected function getDeployLagoonPath(): string {
-    return (string) realpath(__DIR__ . '/../../src/deploy-lagoon');
+    return (string) realpath(__DIR__ . '/../../src/vortex-deploy-lagoon');
   }
 
 }

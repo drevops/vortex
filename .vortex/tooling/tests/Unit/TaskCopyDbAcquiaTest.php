@@ -28,39 +28,39 @@ class TaskCopyDbAcquiaTest extends UnitTestCase {
     $this->envSet('VORTEX_TASK_COPY_DB_ACQUIA_KEY', '');
     $this->envUnset('VORTEX_ACQUIA_KEY');
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_KEY');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_KEY');
   }
 
   public function testMissingSecret(): void {
     $this->envSet('VORTEX_TASK_COPY_DB_ACQUIA_SECRET', '');
     $this->envUnset('VORTEX_ACQUIA_SECRET');
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET');
   }
 
   public function testMissingAppName(): void {
     $this->envSet('VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME', '');
     $this->envUnset('VORTEX_ACQUIA_APP_NAME');
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME');
   }
 
   public function testMissingSrc(): void {
     $this->envSet('VORTEX_TASK_COPY_DB_ACQUIA_SRC', '');
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SRC');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SRC');
   }
 
   public function testMissingDst(): void {
     $this->envSet('VORTEX_TASK_COPY_DB_ACQUIA_DST', '');
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_DST');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_DST');
   }
 
   public function testMissingDbName(): void {
     $this->envSet('VORTEX_TASK_COPY_DB_ACQUIA_NAME', '');
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_NAME');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_NAME');
   }
 
   public function testSuccess(): void {
@@ -104,7 +104,7 @@ class TaskCopyDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-copy-db-acquia');
+    $output = $this->runScript('src/vortex-task-copy-db-acquia');
 
     $this->assertStringContainsString('Started database copying between environments in Acquia.', $output);
     $this->assertStringContainsString('Copied DB from prod to dev environment.', $output);
@@ -159,7 +159,7 @@ class TaskCopyDbAcquiaTest extends UnitTestCase {
 
     $this->mockRequestMultiple($requests);
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Unable to copy DB from prod to dev environment');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Unable to copy DB from prod to dev environment');
   }
 
   public function testTokenError(): void {
@@ -170,7 +170,7 @@ class TaskCopyDbAcquiaTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/task-copy-db-acquia', 'Unable to retrieve a token');
+    $this->runScriptError('src/vortex-task-copy-db-acquia', 'Unable to retrieve a token');
   }
 
 }

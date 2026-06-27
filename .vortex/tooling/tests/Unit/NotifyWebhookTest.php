@@ -40,7 +40,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"success": true}']
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Started webhook notification', $output);
     $this->assertStringContainsString('Project            : test-project', $output);
@@ -57,21 +57,21 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200, 'body' => '{"success": true}']
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
   public function testPreDeploymentEventSkipped(): void {
     $this->envSet('VORTEX_NOTIFY_WEBHOOK_EVENT', 'pre_deployment');
-    $this->runScriptEarlyPass('src/notify-webhook', 'Skipped webhook notification for pre_deployment event');
+    $this->runScriptEarlyPass('src/vortex-notify-webhook', 'Skipped webhook notification for pre_deployment event');
   }
 
   public function testNotificationSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_WEBHOOK_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'develop');
 
-    $this->runScriptEarlyPass('src/notify-webhook', "Skipped webhook notification for branch 'develop'.");
+    $this->runScriptEarlyPass('src/vortex-notify-webhook', "Skipped webhook notification for branch 'develop'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {
@@ -84,7 +84,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Finished webhook notification', $output);
   }
@@ -92,7 +92,7 @@ class NotifyWebhookTest extends UnitTestCase {
   #[DataProvider('dataProviderMissingRequiredVariables')]
   public function testMissingRequiredVariables(string $var_name): void {
     $this->envUnset($var_name);
-    $this->runScriptError('src/notify-webhook', 'Missing required value for ' . $var_name);
+    $this->runScriptError('src/vortex-notify-webhook', 'Missing required value for ' . $var_name);
   }
 
   public static function dataProviderMissingRequiredVariables(): array {
@@ -127,7 +127,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Project            : generic-project', $output);
     $this->assertStringContainsString('Deployment         : develop', $output);
@@ -143,7 +143,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Method             : ' . $method, $output);
   }
@@ -165,7 +165,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Content-type: application/json|Authorization: Bearer token123|X-Custom: value', $output);
   }
@@ -179,7 +179,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 201]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Expected Status    : 201', $output);
   }
@@ -191,7 +191,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 500, 'body' => 'Internal Server Error']
     );
 
-    $this->runScriptError('src/notify-webhook', 'Webhook notification failed. Expected status 200 but got 500.');
+    $this->runScriptError('src/vortex-notify-webhook', 'Webhook notification failed. Expected status 200 but got 500.');
   }
 
   public function testTokenReplacementWithSpecialCharacters(): void {
@@ -207,7 +207,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Finished webhook notification', $output);
   }
@@ -221,7 +221,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     // Verify domain is shown but path is hidden.
     $this->assertStringContainsString('Webhook URL        : https://webhook.example.com/***', $output);
@@ -237,7 +237,7 @@ class NotifyWebhookTest extends UnitTestCase {
       ['status' => 200]
     );
 
-    $output = $this->runScript('src/notify-webhook');
+    $output = $this->runScript('src/vortex-notify-webhook');
 
     $this->assertStringContainsString('Finished webhook notification', $output);
   }

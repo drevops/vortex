@@ -57,7 +57,7 @@ class DoctorTest extends UnitTestCase {
 
     if ($expect_error) {
       try {
-        $this->runScript('src/doctor', 1);
+        $this->runScript('src/vortex-doctor', 1);
       }
       catch (QuitErrorException $e) {
         if (!empty($expected)) {
@@ -68,7 +68,7 @@ class DoctorTest extends UnitTestCase {
       return;
     }
 
-    $output = $this->runScript('src/doctor');
+    $output = $this->runScript('src/vortex-doctor');
 
     $this->assertStringContainsOrNot($output, $expected);
   }
@@ -100,7 +100,7 @@ class DoctorTest extends UnitTestCase {
     $this->mockPassthru(['cmd' => 'ahoy --version 2>/dev/null || echo "Ahoy is not installed."', 'result_code' => 0]);
 
     try {
-      $this->runScript('src/doctor', 0);
+      $this->runScript('src/vortex-doctor', 0);
     }
     catch (QuitSuccessException $e) {
       $this->assertStringContainsOrNot($e->getOutput(), [
@@ -142,7 +142,7 @@ class DoctorTest extends UnitTestCase {
     $this->mockPassthru(['cmd' => 'ahoy --version 2>/dev/null || echo "Ahoy is not installed."', 'result_code' => 0]);
 
     try {
-      $this->runScript('src/doctor', 0);
+      $this->runScript('src/vortex-doctor', 0);
     }
     catch (QuitSuccessException $e) {
       $this->assertStringContainsOrNot($e->getOutput(), [

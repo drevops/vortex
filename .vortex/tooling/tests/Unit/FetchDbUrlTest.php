@@ -24,7 +24,7 @@ class FetchDbUrlTest extends UnitTestCase {
   public function testSuccess(\Closure $before, array $expected, ?\Closure $after = NULL): void {
     $before($this);
 
-    $output = $this->runScript('src/fetch-db-url');
+    $output = $this->runScript('src/vortex-fetch-db-url');
 
     foreach ($expected as $str) {
       $this->assertStringContainsString($str, $output);
@@ -122,7 +122,7 @@ class FetchDbUrlTest extends UnitTestCase {
   public function testError(\Closure $before, string $expected): void {
     $before($this);
 
-    $this->runScriptError('src/fetch-db-url', $expected);
+    $this->runScriptError('src/vortex-fetch-db-url', $expected);
   }
 
   public static function dataProviderError(): array {

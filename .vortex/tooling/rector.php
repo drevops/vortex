@@ -36,13 +36,13 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 return RectorConfig::configure()
   ->withPaths([
     __DIR__ . '/check-no-exit.php',
-    __DIR__ . '/src/notify',
-    __DIR__ . '/src/notify-email',
-    __DIR__ . '/src/notify-github',
-    __DIR__ . '/src/notify-jira',
-    __DIR__ . '/src/notify-newrelic',
-    __DIR__ . '/src/notify-slack',
-    __DIR__ . '/src/notify-webhook',
+    __DIR__ . '/src/vortex-notify',
+    __DIR__ . '/src/vortex-notify-email',
+    __DIR__ . '/src/vortex-notify-github',
+    __DIR__ . '/src/vortex-notify-jira',
+    __DIR__ . '/src/vortex-notify-newrelic',
+    __DIR__ . '/src/vortex-notify-slack',
+    __DIR__ . '/src/vortex-notify-webhook',
     __DIR__ . '/playground',
     __DIR__ . '/tests',
   ])

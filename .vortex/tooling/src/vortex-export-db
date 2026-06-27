@@ -38,18 +38,18 @@ if ($run_on_host === '1') {
     // Export database as a file.
     // Script runs inside the container - use path relative to project root.
     $script_rel = ltrim(str_replace((string) getcwd(), '', __DIR__), '/');
-    passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
+    passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/vortex-export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
   }
   else {
     // Export database as a container image.
     putenv('VORTEX_EXPORT_DB_IMAGE=' . $db_image);
-    passthru_or_fail(__DIR__ . '/export-db-image ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as image.');
+    passthru_or_fail(__DIR__ . '/vortex-export-db-image ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as image.');
   }
 }
 else {
   // Script already runs inside the container - export the database as a file
   // directly, without dispatching through Docker.
-  passthru_or_fail(__DIR__ . '/export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
+  passthru_or_fail(__DIR__ . '/vortex-export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
 }
 
 pass('Finished database export.');

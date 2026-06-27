@@ -90,7 +90,7 @@ note('Event          : ' . $event);
 note('Channels       : ' . implode(',', $channels));
 
 foreach ($channels as $channel) {
-  $script = __DIR__ . ('/notify-' . $channel);
+  $script = __DIR__ . ('/vortex-notify-' . $channel);
 
   if (!file_exists($script) || !is_executable($script)) {
     fail("Notification script for channel '%s' not found or is not executable: %s", $channel, $script);

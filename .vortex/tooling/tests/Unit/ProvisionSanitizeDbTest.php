@@ -24,7 +24,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     $this->assertStringContainsString('Sanitizing database.', $output);
     $this->assertStringContainsString('Sanitized database using drush sql:sanitize.', $output);
@@ -55,7 +55,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     $this->assertStringContainsString('Updated username with user email.', $output);
   }
@@ -87,7 +87,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     $this->assertStringContainsString('Applied custom sanitization commands from file.', $output);
   }
@@ -116,7 +116,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     $this->assertStringContainsString('Updated user 1 email.', $output);
   }
@@ -139,7 +139,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     $this->assertStringContainsString('Sanitized database using drush sql:sanitize.', $output);
   }
@@ -162,7 +162,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     // Additional file not found, so no custom sanitization message.
     $this->assertStringNotContainsString('Applied custom sanitization commands', $output);
@@ -177,7 +177,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/provision-sanitize-db', 'Drush command failed');
+    $this->runScriptError('src/vortex-provision-sanitize-db', 'Drush command failed');
   }
 
   public function testFullOptions(): void {
@@ -222,7 +222,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/provision-sanitize-db');
+    $output = $this->runScript('src/vortex-provision-sanitize-db');
 
     $this->assertStringContainsString('Sanitized database using drush sql:sanitize.', $output);
     $this->assertStringContainsString('Updated username with user email.', $output);

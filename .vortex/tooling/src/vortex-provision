@@ -130,7 +130,7 @@ function provision_from_db(string $provision_db): void {
     quit(1);
   }
 
-  passthru_or_fail(__DIR__ . '/import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
+  passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
 }
 
 /**

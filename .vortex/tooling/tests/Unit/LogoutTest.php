@@ -25,7 +25,7 @@ class LogoutTest extends UnitTestCase {
       $this->mockPassthru($mock);
     }
 
-    $output = $this->runScript('src/logout');
+    $output = $this->runScript('src/vortex-logout');
 
     if (empty($expected)) {
       $this->assertEmpty(trim($output));
@@ -42,7 +42,7 @@ class LogoutTest extends UnitTestCase {
 
     $this->mockPassthru(['cmd' => $block_cmd, 'result_code' => 1]);
 
-    $this->runScriptError('src/logout', 'Failed to block admin user.');
+    $this->runScriptError('src/vortex-logout', 'Failed to block admin user.');
   }
 
   public static function dataProviderLogout(): array {

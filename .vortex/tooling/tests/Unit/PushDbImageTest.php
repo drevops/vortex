@@ -29,22 +29,22 @@ class PushDbImageTest extends UnitTestCase {
   public function testSkipWhenPushNotRequested(): void {
     $this->envSet('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED', '0');
 
-    $this->runScriptEarlyPass('src/push-db-image', 'Skipped database container image push');
+    $this->runScriptEarlyPass('src/vortex-push-db-image', 'Skipped database container image push');
   }
 
   public function testFailureWhenImageNotSpecified(): void {
     $this->envSet('VORTEX_EXPORT_DB_IMAGE', '');
 
-    $this->runScriptError('src/push-db-image', 'Container image name is not specified');
+    $this->runScriptError('src/vortex-push-db-image', 'Container image name is not specified');
   }
 
   public function testSuccessfulPush(): void {
     $this->mockPassthru([
-      'cmd' => self::$srcDir . '/push-container-registry',
+      'cmd' => self::$srcDir . '/vortex-push-container-registry',
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/push-db-image');
+    $output = $this->runScript('src/vortex-push-db-image');
 
     $this->assertStringContainsString('Started database container image push.', $output);
     $this->assertStringContainsString('Finished database container image push.', $output);
@@ -52,11 +52,11 @@ class PushDbImageTest extends UnitTestCase {
 
   public function testFailureWhenPushFails(): void {
     $this->mockPassthru([
-      'cmd' => self::$srcDir . '/push-container-registry',
+      'cmd' => self::$srcDir . '/vortex-push-container-registry',
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/push-db-image', 'Failed to push database container image');
+    $this->runScriptError('src/vortex-push-db-image', 'Failed to push database container image');
   }
 
 }

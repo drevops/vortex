@@ -32,13 +32,13 @@ class NotifyDiffyTest extends UnitTestCase {
   public function testSkippedOnPreDeployment(): void {
     $this->envSet('VORTEX_NOTIFY_DIFFY_EVENT', 'pre_deployment');
 
-    $this->runScriptEarlyPass('src/notify-diffy', 'Skipped Diffy notification for pre_deployment event.');
+    $this->runScriptEarlyPass('src/vortex-notify-diffy', 'Skipped Diffy notification for pre_deployment event.');
   }
 
   public function testSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_DIFFY_BRANCHES', 'develop,master');
 
-    $this->runScriptEarlyPass('src/notify-diffy', "Skipped Diffy notification for branch 'main' (not in branch allowlist).");
+    $this->runScriptEarlyPass('src/vortex-notify-diffy', "Skipped Diffy notification for branch 'main' (not in branch allowlist).");
   }
 
   public function testProceedsWhenBranchInFilter(): void {
@@ -46,7 +46,7 @@ class NotifyDiffyTest extends UnitTestCase {
 
     $this->mockRequestPost('https://api.github.com/repos/owner/repo/dispatches', NULL, [], 10, ['status' => 204]);
 
-    $output = $this->runScript('src/notify-diffy');
+    $output = $this->runScript('src/vortex-notify-diffy');
 
     $this->assertStringContainsString('Finished Diffy notification.', $output);
   }
@@ -54,7 +54,7 @@ class NotifyDiffyTest extends UnitTestCase {
   public function testSuccessfulDispatch(): void {
     $this->mockRequestPost('https://api.github.com/repos/owner/repo/dispatches', NULL, [], 10, ['status' => 204]);
 
-    $output = $this->runScript('src/notify-diffy');
+    $output = $this->runScript('src/vortex-notify-diffy');
 
     $this->assertStringContainsString('Started Diffy notification.', $output);
     $this->assertStringContainsString('Diffy notification summary:', $output);
@@ -68,7 +68,7 @@ class NotifyDiffyTest extends UnitTestCase {
   public function testDispatchFailure(): void {
     $this->mockRequestPost('https://api.github.com/repos/owner/repo/dispatches', NULL, [], 10, ['status' => 401]);
 
-    $this->runScriptError('src/notify-diffy', 'GitHub repository_dispatch failed with HTTP 401.');
+    $this->runScriptError('src/vortex-notify-diffy', 'GitHub repository_dispatch failed with HTTP 401.');
   }
 
   public function testRepositorySanitization(): void {
@@ -76,7 +76,7 @@ class NotifyDiffyTest extends UnitTestCase {
 
     $this->mockRequestPost('https://api.github.com/repos/owner/repo/dispatches', NULL, [], 10, ['status' => 204]);
 
-    $output = $this->runScript('src/notify-diffy');
+    $output = $this->runScript('src/vortex-notify-diffy');
 
     $this->assertStringContainsString('owner/repo', $output);
     $this->assertStringNotContainsString('github.com', $output);
@@ -86,13 +86,13 @@ class NotifyDiffyTest extends UnitTestCase {
   public function testMissingToken(): void {
     $this->envUnset('VORTEX_NOTIFY_DIFFY_TOKEN');
 
-    $this->runScriptError('src/notify-diffy', 'Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN.');
+    $this->runScriptError('src/vortex-notify-diffy', 'Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN.');
   }
 
   public function testMissingLabel(): void {
     $this->envUnset('VORTEX_NOTIFY_DIFFY_LABEL');
 
-    $this->runScriptError('src/notify-diffy', 'Missing required value for VORTEX_NOTIFY_DIFFY_LABEL.');
+    $this->runScriptError('src/vortex-notify-diffy', 'Missing required value for VORTEX_NOTIFY_DIFFY_LABEL.');
   }
 
   public function testFallbackVariables(): void {
@@ -115,7 +115,7 @@ class NotifyDiffyTest extends UnitTestCase {
 
     $this->mockRequestPost('https://api.github.com/repos/owner/fallback/dispatches', NULL, [], 10, ['status' => 204]);
 
-    $output = $this->runScript('src/notify-diffy');
+    $output = $this->runScript('src/vortex-notify-diffy');
 
     $this->assertStringContainsString('owner/fallback', $output);
     $this->assertStringContainsString('PR-456', $output);

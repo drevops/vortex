@@ -24,7 +24,7 @@ class DeployWebhookTest extends UnitTestCase {
   public function testSuccessfulWebhookCallGet(): void {
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE]);
 
-    $output = $this->runScript('src/deploy-webhook');
+    $output = $this->runScript('src/vortex-deploy-webhook');
 
     $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
@@ -36,7 +36,7 @@ class DeployWebhookTest extends UnitTestCase {
 
     $this->mockRequest('https://example.com/webhook', ['method' => 'POST'], ['status' => 200, 'ok' => TRUE]);
 
-    $output = $this->runScript('src/deploy-webhook');
+    $output = $this->runScript('src/vortex-deploy-webhook');
 
     $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
@@ -48,7 +48,7 @@ class DeployWebhookTest extends UnitTestCase {
 
     $this->mockRequest('https://example.com/webhook', ['method' => 'PUT'], ['status' => 200, 'ok' => TRUE]);
 
-    $output = $this->runScript('src/deploy-webhook');
+    $output = $this->runScript('src/vortex-deploy-webhook');
 
     $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
@@ -60,7 +60,7 @@ class DeployWebhookTest extends UnitTestCase {
 
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 201, 'ok' => TRUE]);
 
-    $output = $this->runScript('src/deploy-webhook');
+    $output = $this->runScript('src/vortex-deploy-webhook');
 
     $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);
@@ -70,19 +70,19 @@ class DeployWebhookTest extends UnitTestCase {
   public function testMissingRequiredUrl(): void {
     $this->envUnset('VORTEX_DEPLOY_WEBHOOK_URL');
 
-    $this->runScriptError('src/deploy-webhook', 'Missing required value for VORTEX_DEPLOY_WEBHOOK_URL');
+    $this->runScriptError('src/vortex-deploy-webhook', 'Missing required value for VORTEX_DEPLOY_WEBHOOK_URL');
   }
 
   public function testHttpRequestFailure(): void {
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 500, 'ok' => FALSE]);
 
-    $this->runScriptError('src/deploy-webhook', 'Unable to complete webhook deployment.');
+    $this->runScriptError('src/vortex-deploy-webhook', 'Unable to complete webhook deployment.');
   }
 
   public function testUnexpectedResponseStatus(): void {
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 201, 'ok' => TRUE]);
 
-    $this->runScriptError('src/deploy-webhook', 'Unable to complete webhook deployment.');
+    $this->runScriptError('src/vortex-deploy-webhook', 'Unable to complete webhook deployment.');
   }
 
   public function testDefaultValues(): void {
@@ -93,7 +93,7 @@ class DeployWebhookTest extends UnitTestCase {
 
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE]);
 
-    $output = $this->runScript('src/deploy-webhook');
+    $output = $this->runScript('src/vortex-deploy-webhook');
 
     $this->assertStringContainsString('Started webhook deployment.', $output);
     $this->assertStringContainsString('Webhook call completed.', $output);

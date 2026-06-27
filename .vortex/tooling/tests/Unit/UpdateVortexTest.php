@@ -70,7 +70,7 @@ class UpdateVortexTest extends UnitTestCase {
 
     if ($expect_error) {
       try {
-        $this->runScript('src/update-vortex', 1);
+        $this->runScript('src/vortex-update', 1);
       }
       catch (QuitErrorException $e) {
         if (!empty($expected)) {
@@ -82,7 +82,7 @@ class UpdateVortexTest extends UnitTestCase {
     }
 
     try {
-      $this->runScript('src/update-vortex', 0);
+      $this->runScript('src/vortex-update', 0);
     }
     catch (QuitSuccessException $e) {
       if (!empty($expected)) {

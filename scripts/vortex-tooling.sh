@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Install 'drevops/vortex-tooling' into 'vendor/drevops/'.
+# Install 'drevops/vortex-tooling' into 'vendor/drevops/' and link its binaries.
 #
 # Host-side recipes (ahoy fetch-db, ahoy deploy, ahoy doctor, etc.) need
 # the shipped Vortex scripts before the project's full 'composer install'
@@ -91,3 +91,15 @@ fi
 #;> VORTEX_DEV
 
 mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/
+
+# Expose the surfaced tooling binaries under 'vendor/bin/' too, so host-side
+# recipes can invoke 'vendor/bin/vortex-*' before the project's full
+# 'composer install' has generated them. The throwaway install created the bin
+# proxies in 'vendor-temp/vendor/bin/'; their relative targets resolve once the
+# proxies sit alongside the package under 'vendor/'.
+if [ -d vendor-temp/vendor/bin ]; then
+  mkdir -p vendor/bin
+  for bin in vendor-temp/vendor/bin/vortex-*; do
+    [ -e "${bin}" ] && mv "${bin}" vendor/bin/
+  done
+fi

@@ -261,7 +261,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before fetching the database.');
 
     $this->cmd(
-      './vendor/drevops/vortex-tooling/src/fetch-db',
+      './vendor/bin/vortex-fetch-db',
       env: ['VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
       txt: 'Demo database fetched from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
@@ -322,12 +322,12 @@ trait SutTrait {
 
     $this->assertFileContainsString(
       '.ahoy.yml',
-      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
+      '      ahoy cli ./vendor/bin/vortex-provision',
       '`ahoy provision` should exist in .ahoy.yml'
     );
     File::replaceContentInFile('.ahoy.yml',
-      '      ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
-      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/drevops/vortex-tooling/src/provision',
+      '      ahoy cli ./vendor/bin/vortex-provision',
+      '      if [ -d .data ]; then docker compose exec -T cli mkdir -p .data; docker compose cp -L .data/. cli:/app/.data; fi; ahoy cli ./vendor/bin/vortex-provision',
     );
   }
 

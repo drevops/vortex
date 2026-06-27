@@ -33,7 +33,7 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->envUnset('VORTEX_FETCH_DB_LAGOON_PROJECT');
     $this->envUnset('LAGOON_PROJECT');
 
-    $this->runScriptError('src/fetch-db-lagoon', 'Missing required value for VORTEX_FETCH_DB_LAGOON_PROJECT, LAGOON_PROJECT');
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Missing required value for VORTEX_FETCH_DB_LAGOON_PROJECT, LAGOON_PROJECT');
   }
 
   public function testSuccess(): void {
@@ -71,7 +71,7 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       // setup-ssh.
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       // Ssh command.
@@ -96,7 +96,7 @@ class FetchDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/fetch-db-lagoon');
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Started database dump download from Lagoon.', $output);
     $this->assertStringContainsString('Discovering or creating a database dump on Lagoon.', $output);
@@ -140,7 +140,7 @@ class FetchDbLagoonTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       [
@@ -163,7 +163,7 @@ class FetchDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/fetch-db-lagoon');
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Database dump refresh requested.', $output);
     $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
@@ -203,7 +203,7 @@ class FetchDbLagoonTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       [
@@ -226,7 +226,7 @@ class FetchDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/fetch-db-lagoon', 'Failed to download database dump from Lagoon');
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to download database dump from Lagoon');
   }
 
   public function testSetupSshFails(): void {
@@ -236,11 +236,11 @@ class FetchDbLagoonTest extends UnitTestCase {
     $date_mock->expects($this->any())->willReturn('20240101');
 
     $this->mockPassthru([
-      'cmd' => self::$srcDir . '/setup-ssh',
+      'cmd' => self::$srcDir . '/vortex-setup-ssh',
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/fetch-db-lagoon', 'Failed to setup SSH');
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to setup SSH');
   }
 
   public function testDirectoryCreation(): void {
@@ -278,7 +278,7 @@ class FetchDbLagoonTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       [
@@ -301,7 +301,7 @@ class FetchDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/fetch-db-lagoon');
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Creating directory for database dumps.', $output);
     $this->assertTrue(is_dir($db_dir));
@@ -343,7 +343,7 @@ class FetchDbLagoonTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       [
@@ -366,7 +366,7 @@ class FetchDbLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/fetch-db-lagoon');
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
   }

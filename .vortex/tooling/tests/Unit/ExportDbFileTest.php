@@ -37,7 +37,7 @@ class ExportDbFileTest extends UnitTestCase {
     // Create the dump file to simulate drush output.
     file_put_contents($dump_file, 'SQL DUMP');
 
-    $output = $this->runScript('src/export-db-file');
+    $output = $this->runScript('src/vortex-export-db-file');
 
     $this->assertStringContainsString('Started database file export.', $output);
     $this->assertStringContainsString('Exported database dump saved', $output);
@@ -61,7 +61,7 @@ class ExportDbFileTest extends UnitTestCase {
     // Pass custom filename via $argv.
     $GLOBALS['argv'] = ['export-db-file', 'custom.sql'];
 
-    $output = $this->runScript('src/export-db-file');
+    $output = $this->runScript('src/vortex-export-db-file');
 
     $this->assertStringContainsString('Exported database dump saved', $output);
     $this->assertStringContainsString('custom.sql', $output);
@@ -82,7 +82,7 @@ class ExportDbFileTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $this->runScriptError('src/export-db-file', 'Unable to save dump file');
+    $this->runScriptError('src/vortex-export-db-file', 'Unable to save dump file');
   }
 
   public function testDumpFileEmpty(): void {
@@ -103,7 +103,7 @@ class ExportDbFileTest extends UnitTestCase {
     // Create empty file.
     file_put_contents($dump_file, '');
 
-    $this->runScriptError('src/export-db-file', 'Unable to save dump file');
+    $this->runScriptError('src/vortex-export-db-file', 'Unable to save dump file');
   }
 
   public function testDrushFails(): void {
@@ -120,7 +120,7 @@ class ExportDbFileTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/export-db-file', 'Drush command failed');
+    $this->runScriptError('src/vortex-export-db-file', 'Drush command failed');
   }
 
   public function testDirectoryCreation(): void {
@@ -143,7 +143,7 @@ class ExportDbFileTest extends UnitTestCase {
     mkdir($new_dir, 0755, TRUE);
     file_put_contents($dump_file, 'SQL DUMP');
 
-    $output = $this->runScript('src/export-db-file');
+    $output = $this->runScript('src/vortex-export-db-file');
 
     $this->assertTrue(is_dir($new_dir));
     $this->assertStringContainsString('Finished database file export.', $output);

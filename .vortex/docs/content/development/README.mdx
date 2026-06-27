@@ -187,7 +187,7 @@ on what changed:
     # Rebuild frontend assets (only if theme files changed)
     docker compose exec cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"
     # Provision site (only if database or configuration changes expected)
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/provision
+    docker compose exec cli ./vendor/bin/vortex-provision
     ```
   </TabItem>
 </Tabs>
@@ -210,10 +210,10 @@ all containers and downloaded dependency packages (`vendor`, `node_modules` etc.
     ```shell
     # Reset local environment
     docker compose down
-    ./vendor/drevops/vortex-tooling/src/reset
+    ./vendor/bin/vortex-reset
     # Fully reset repository to a state as if it was just cloned
     docker compose down
-    ./vendor/drevops/vortex-tooling/src/reset --hard
+    ./vendor/bin/vortex-reset --hard
     ```
   </TabItem>
 </Tabs>
@@ -281,9 +281,9 @@ To update environment variables in your local development environment:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    ./vendor/drevops/vortex-tooling/src/doctor                       # Check for common issues
+    ./vendor/bin/vortex-doctor                       # Check for common issues
     docker compose down && docker compose up -d      # Restart containers
-    docker compose exec cli ./vendor/drevops/vortex-tooling/src/info # Verify URLs and ports
+    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
     ```
   </TabItem>
 </Tabs>

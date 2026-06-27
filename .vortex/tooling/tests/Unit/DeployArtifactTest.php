@@ -39,19 +39,19 @@ class DeployArtifactTest extends UnitTestCase {
   public function testMissingGitRemote(): void {
     $this->envUnset('VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE');
 
-    $this->runScriptError('src/deploy-artifact', 'Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE');
+    $this->runScriptError('src/vortex-deploy-artifact', 'Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE');
   }
 
   public function testMissingGitUserEmail(): void {
     $this->envUnset('VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL');
 
-    $this->runScriptError('src/deploy-artifact', 'Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL');
+    $this->runScriptError('src/vortex-deploy-artifact', 'Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL');
   }
 
   public function testMissingSrc(): void {
     $this->envUnset('VORTEX_DEPLOY_ARTIFACT_SRC');
 
-    $this->runScriptError('src/deploy-artifact', 'Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC');
+    $this->runScriptError('src/vortex-deploy-artifact', 'Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC');
   }
 
   public function testDefaultValues(): void {
@@ -89,7 +89,7 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-artifact');
+    $output = $this->runScript('src/vortex-deploy-artifact');
 
     $this->assertStringContainsString('Started artifact deployment.', $output);
     $this->assertStringContainsString('Installing artifact builder.', $output);
@@ -146,7 +146,7 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-artifact');
+    $output = $this->runScript('src/vortex-deploy-artifact');
 
     $this->assertStringContainsString('Configuring global git user name.', $output);
     $this->assertStringContainsString('Configuring global git user email.', $output);
@@ -169,7 +169,7 @@ class DeployArtifactTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-artifact');
+    $this->runScript('src/vortex-deploy-artifact');
   }
 
   public function testGitConfigUserEmailFailure(): void {
@@ -198,7 +198,7 @@ class DeployArtifactTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-artifact');
+    $this->runScript('src/vortex-deploy-artifact');
   }
 
   public function testSshSetupFailure(): void {
@@ -220,7 +220,7 @@ class DeployArtifactTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-artifact');
+    $this->runScript('src/vortex-deploy-artifact');
   }
 
   public function testGitArtifactDownloadFailure(): void {
@@ -244,7 +244,7 @@ class DeployArtifactTest extends UnitTestCase {
       ['ok' => FALSE, 'status' => 404, 'body' => 'Not Found'],
     );
 
-    $this->runScriptError('src/deploy-artifact', 'Failed to download git-artifact binary.');
+    $this->runScriptError('src/vortex-deploy-artifact', 'Failed to download git-artifact binary.');
   }
 
   public function testGitArtifactSha256Failure(): void {
@@ -266,7 +266,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     $this->mockGitArtifactDownload();
 
-    $this->runScriptError('src/deploy-artifact', 'SHA256 checksum verification failed for git-artifact binary.');
+    $this->runScriptError('src/vortex-deploy-artifact', 'SHA256 checksum verification failed for git-artifact binary.');
   }
 
   public function testGitArtifactFailure(): void {
@@ -309,7 +309,7 @@ class DeployArtifactTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-artifact');
+    $this->runScript('src/vortex-deploy-artifact');
   }
 
   public function testRealpathFailure(): void {
@@ -333,7 +333,7 @@ class DeployArtifactTest extends UnitTestCase {
     // Mock git-artifact download.
     $this->mockGitArtifactDownload();
 
-    $this->runScriptError('src/deploy-artifact', 'Failed to resolve real path for deployment directories.');
+    $this->runScriptError('src/vortex-deploy-artifact', 'Failed to resolve real path for deployment directories.');
   }
 
   public function testCustomBranch(): void {
@@ -373,13 +373,13 @@ class DeployArtifactTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-artifact');
+    $output = $this->runScript('src/vortex-deploy-artifact');
 
     $this->assertStringContainsString('Finished artifact deployment.', $output);
   }
 
   protected function getSetupSshPath(): string {
-    return dirname(__DIR__, 2) . '/src/setup-ssh';
+    return dirname(__DIR__, 2) . '/src/vortex-setup-ssh';
   }
 
   protected function getGitArtifactBinPath(): string {

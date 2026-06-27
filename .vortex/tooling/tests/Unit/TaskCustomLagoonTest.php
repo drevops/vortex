@@ -36,20 +36,20 @@ class TaskCustomLagoonTest extends UnitTestCase {
   public function testMissingBranch(): void {
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_BRANCH', '');
 
-    $this->runScriptError('src/task-custom-lagoon', 'Missing required value for VORTEX_TASK_CUSTOM_LAGOON_BRANCH');
+    $this->runScriptError('src/vortex-task-custom-lagoon', 'Missing required value for VORTEX_TASK_CUSTOM_LAGOON_BRANCH');
   }
 
   public function testMissingCommand(): void {
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_COMMAND', '');
 
-    $this->runScriptError('src/task-custom-lagoon', 'Missing required value for VORTEX_TASK_CUSTOM_LAGOON_COMMAND');
+    $this->runScriptError('src/vortex-task-custom-lagoon', 'Missing required value for VORTEX_TASK_CUSTOM_LAGOON_COMMAND');
   }
 
   public function testMissingProject(): void {
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_PROJECT', '');
     $this->envUnset('LAGOON_PROJECT');
 
-    $this->runScriptError('src/task-custom-lagoon', 'Missing required value for VORTEX_TASK_CUSTOM_LAGOON_PROJECT');
+    $this->runScriptError('src/vortex-task-custom-lagoon', 'Missing required value for VORTEX_TASK_CUSTOM_LAGOON_PROJECT');
   }
 
   public function testSuccess(): void {
@@ -71,7 +71,7 @@ class TaskCustomLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       // setup-ssh.
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       // Lagoon config add.
@@ -102,7 +102,7 @@ class TaskCustomLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $output = $this->runScript('src/task-custom-lagoon');
+    $output = $this->runScript('src/vortex-task-custom-lagoon');
 
     $this->assertStringContainsString('Started Lagoon task Test task.', $output);
     $this->assertStringContainsString('Installing Lagoon CLI.', $output);
@@ -113,11 +113,11 @@ class TaskCustomLagoonTest extends UnitTestCase {
 
   public function testSetupSshFails(): void {
     $this->mockPassthru([
-      'cmd' => self::$srcDir . '/setup-ssh',
+      'cmd' => self::$srcDir . '/vortex-setup-ssh',
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/task-custom-lagoon', 'Failed to setup SSH');
+    $this->runScriptError('src/vortex-task-custom-lagoon', 'Failed to setup SSH');
   }
 
   public function testLagoonRunFails(): void {
@@ -137,7 +137,7 @@ class TaskCustomLagoonTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       [
-        'cmd' => self::$srcDir . '/setup-ssh',
+        'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       [
@@ -166,7 +166,7 @@ class TaskCustomLagoonTest extends UnitTestCase {
       ],
     ]);
 
-    $this->runScriptError('src/task-custom-lagoon', 'Failed to run Lagoon custom task');
+    $this->runScriptError('src/vortex-task-custom-lagoon', 'Failed to run Lagoon custom task');
   }
 
 }

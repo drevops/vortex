@@ -27,7 +27,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Logging in to registry "docker.io".', $output);
   }
@@ -36,7 +36,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
     mkdir(self::$tmp . '/.docker');
     file_put_contents(self::$tmp . '/.docker/config.json', '{"auths":{"docker.io":{"auth":"dGVzdA=="}}}');
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Already logged in to the registry "docker.io".', $output);
   }
@@ -44,7 +44,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
   public function testMissingCredentialsSkips(): void {
     $this->envUnsetMultiple(['VORTEX_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_PASS']);
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Skipped login to the container registry', $output);
   }
@@ -52,7 +52,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
   public function testMissingUserOnly(): void {
     $this->envUnset('VORTEX_CONTAINER_REGISTRY_USER');
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Skipped login to the container registry', $output);
   }
@@ -60,7 +60,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
   public function testMissingPasswordOnly(): void {
     $this->envUnset('VORTEX_CONTAINER_REGISTRY_PASS');
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Skipped login to the container registry', $output);
   }
@@ -74,7 +74,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Logging in to registry "   ".', $output);
   }
@@ -88,7 +88,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/login-container-registry');
+    $output = $this->runScript('src/vortex-login-container-registry');
 
     $this->assertStringContainsString('Logging in to registry "gcr.io".', $output);
   }
@@ -100,7 +100,7 @@ class LoginContainerRegistryTest extends UnitTestCase {
       'result_code' => 1,
     ]);
 
-    $this->runScriptError('src/login-container-registry');
+    $this->runScriptError('src/vortex-login-container-registry');
   }
 
 }
