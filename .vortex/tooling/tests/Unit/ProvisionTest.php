@@ -81,22 +81,9 @@ class ProvisionTest extends UnitTestCase {
 
     $this->mockDrushStartupSequence(TRUE);
 
-    // Drush sql:drop.
+    // Database import delegated to the import-db-file script.
     $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:drop'),
-      'result_code' => 0,
-    ]);
-
-    // Drush sql:connect.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:connect'),
-      'output' => 'mysql -u root -p test_db',
-      'result_code' => 0,
-    ]);
-
-    // SQL import via piped command.
-    $this->mockPassthru([
-      'cmd' => 'mysql -u root -p test_db <' . escapeshellarg(self::$tmp . '/db.sql'),
+      'cmd' => $this->importDbFileCmd(self::$tmp . '/db.sql'),
       'result_code' => 0,
     ]);
 
@@ -113,7 +100,6 @@ class ProvisionTest extends UnitTestCase {
     $output = $this->runScript('src/provision');
 
     $this->assertStringContainsString('Existing site content will be removed and fresh content will be imported', $output);
-    $this->assertStringContainsString('Imported database from the dump file.', $output);
   }
 
   public function testDatabaseProvisionNoSiteFreshImport(): void {
@@ -121,22 +107,9 @@ class ProvisionTest extends UnitTestCase {
 
     $this->mockDrushStartupSequence(FALSE);
 
-    // Drush sql:drop.
+    // Database import delegated to the import-db-file script.
     $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:drop'),
-      'result_code' => 0,
-    ]);
-
-    // Drush sql:connect.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:connect'),
-      'output' => 'mysql -u root -p test_db',
-      'result_code' => 0,
-    ]);
-
-    // SQL import.
-    $this->mockPassthru([
-      'cmd' => 'mysql -u root -p test_db <' . escapeshellarg(self::$tmp . '/db.sql'),
+      'cmd' => $this->importDbFileCmd(self::$tmp . '/db.sql'),
       'result_code' => 0,
     ]);
 
@@ -154,7 +127,6 @@ class ProvisionTest extends UnitTestCase {
 
     $this->assertStringContainsString('Existing site was not found.', $output);
     $this->assertStringContainsString('Fresh site content will be imported from the database dump file.', $output);
-    $this->assertStringContainsString('Imported database from the dump file.', $output);
   }
 
   public function testDatabaseProvisionNoSiteNoDumpFileFails(): void {
@@ -686,22 +658,9 @@ class ProvisionTest extends UnitTestCase {
 
     $this->mockDrushStartupSequence(FALSE);
 
-    // Drush sql:drop.
+    // Database import delegated to the import-db-file script fails.
     $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:drop'),
-      'result_code' => 0,
-    ]);
-
-    // Drush sql:connect.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:connect'),
-      'output' => 'mysql -u root -p test_db',
-      'result_code' => 0,
-    ]);
-
-    // SQL import fails.
-    $this->mockPassthru([
-      'cmd' => 'mysql -u root -p test_db <' . escapeshellarg(self::$tmp . '/db.sql'),
+      'cmd' => $this->importDbFileCmd(self::$tmp . '/db.sql'),
       'result_code' => 1,
     ]);
 
@@ -788,22 +747,9 @@ class ProvisionTest extends UnitTestCase {
 
     $this->mockDrushStartupSequence(TRUE);
 
-    // Drush sql:drop (provision_from_db).
+    // Database import delegated to the import-db-file script.
     $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:drop'),
-      'result_code' => 0,
-    ]);
-
-    // Drush sql:connect.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:connect'),
-      'output' => 'mysql -u root -p test_db',
-      'result_code' => 0,
-    ]);
-
-    // SQL import.
-    $this->mockPassthru([
-      'cmd' => 'mysql -u root -p test_db <' . escapeshellarg(self::$tmp . '/db.sql'),
+      'cmd' => $this->importDbFileCmd(self::$tmp . '/db.sql'),
       'result_code' => 0,
     ]);
 
@@ -885,22 +831,9 @@ class ProvisionTest extends UnitTestCase {
 
     $this->mockDrushStartupSequence(TRUE);
 
-    // Drush sql:drop.
+    // Database import delegated to the import-db-file script.
     $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:drop'),
-      'result_code' => 0,
-    ]);
-
-    // Drush sql:connect.
-    $this->mockPassthru([
-      'cmd' => $this->drushCmd('sql:connect'),
-      'output' => 'mysql -u root -p test_db',
-      'result_code' => 0,
-    ]);
-
-    // SQL import.
-    $this->mockPassthru([
-      'cmd' => 'mysql -u root -p test_db <' . escapeshellarg(self::$tmp . '/db.sql'),
+      'cmd' => $this->importDbFileCmd(self::$tmp . '/db.sql'),
       'result_code' => 0,
     ]);
 
@@ -1152,6 +1085,10 @@ class ProvisionTest extends UnitTestCase {
 
   protected function drushCmd(string $command): string {
     return './vendor/bin/drush -y ' . $command;
+  }
+
+  protected function importDbFileCmd(string $dump_file): string {
+    return realpath(__DIR__ . '/../../src') . '/import-db-file ' . escapeshellarg($dump_file);
   }
 
   protected function createDbDumpFile(): void {

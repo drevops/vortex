@@ -130,16 +130,7 @@ function provision_from_db(string $provision_db): void {
     quit(1);
   }
 
-  drush('sql:drop');
-
-  $sql_connect = trim(drush('sql:connect'));
-  passthru($sql_connect . ' <' . escapeshellarg($provision_db), $import_exit_code);
-
-  if ($import_exit_code !== 0) {
-    fail('Failed to import database from dump file.');
-  }
-
-  pass('Imported database from the dump file.');
+  passthru_or_fail(__DIR__ . '/import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
 }
 
 /**

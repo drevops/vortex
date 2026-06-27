@@ -1,0 +1,63 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Import database from a file.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+
+// Directory with database dump file.
+$db_dir = getenv_default('VORTEX_IMPORT_DB_FILE_DIR', 'VORTEX_DB_DIR', './.data');
+
+// Database dump file name.
+$db_file = getenv_default('VORTEX_IMPORT_DB_FILE', 'VORTEX_DB_FILE', 'db.sql');
+
+// Dump file provided as the first CLI argument.
+$custom_file = $GLOBALS['argv'][1] ?? '';
+
+// -----------------------------------------------------------------------------
+
+info('Started database file import.');
+
+// Use the dump file provided as the first argument or fall back to the default
+// location.
+$dump_file = $custom_file !== '' ? $custom_file : $db_dir . '/' . $db_file;
+
+if (!file_exists($dump_file)) {
+  fail_no_exit('Unable to import database from file.');
+  note('Dump file %s does not exist.', $dump_file);
+  note('Site content was not changed.');
+  quit(1);
+}
+
+// Confirm the dump is readable before dropping the database, so an unreadable
+// file cannot leave the site with no database and no import.
+if (!is_readable($dump_file)) {
+  fail_no_exit('Unable to import database from file.');
+  note('Dump file %s is not readable.', $dump_file);
+  note('Site content was not changed.');
+  quit(1);
+}
+
+drush('sql:drop');
+
+$sql_connect = trim(drush('sql:connect'));
+passthru($sql_connect . ' <' . escapeshellarg($dump_file), $import_exit_code);
+
+if ($import_exit_code !== 0) {
+  fail('Failed to import database from dump file.');
+}
+
+note('Imported database from the dump file.');
+
+pass('Finished database file import.');

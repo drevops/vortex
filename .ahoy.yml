@@ -192,7 +192,10 @@ commands:
   import-db:
     usage: Import database from dump.
     aliases: [db-import]
-    cmd: VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_PROVISION_DB="$@" ahoy cli ./vendor/drevops/vortex-tooling/src/provision
+    cmd: |
+      ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
+      ahoy require-tooling
+      ./vendor/drevops/vortex-tooling/src/import-db "$@"
 
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
