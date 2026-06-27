@@ -166,6 +166,46 @@ trait SutTrait {
 
     if (is_dir($source)) {
       File::copy($source, $target);
+      $this->linkToolingBinaries($sut_root, $target);
+    }
+  }
+
+  /**
+   * Link the tooling package's Composer 'bin' entries into 'vendor/bin/'.
+   *
+   * The package is copied into 'vendor/' directly, bypassing Composer, so the
+   * 'vendor/bin/' proxies a real install would generate are absent. Host-side
+   * recipes invoke the user-facing scripts as 'vendor/bin/vortex-*', so each
+   * 'bin' entry is symlinked back to its script in the copied package.
+   */
+  protected function linkToolingBinaries(string $sut_root, string $target): void {
+    $manifest = $target . DIRECTORY_SEPARATOR . 'composer.json';
+
+    if (!is_file($manifest)) {
+      return;
+    }
+
+    $config = json_decode((string) file_get_contents($manifest), TRUE);
+    $bins = is_array($config) && is_array($config['bin'] ?? NULL) ? $config['bin'] : [];
+
+    if (empty($bins)) {
+      return;
+    }
+
+    $bin_dir = $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'bin';
+    File::mkdir($bin_dir);
+
+    foreach ($bins as $bin) {
+      if (!is_string($bin)) {
+        continue;
+      }
+
+      $proxy = $bin_dir . DIRECTORY_SEPARATOR . basename($bin);
+      $relative = '..' . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling' . DIRECTORY_SEPARATOR . $bin;
+
+      if (!is_link($proxy) && !file_exists($proxy)) {
+        symlink($relative, $proxy);
+      }
     }
   }
 
