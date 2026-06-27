@@ -3,10 +3,10 @@
 
 /**
  * @file
- * Deploy via pushing container images to the container registry.
+ * Push container images to the container registry.
  *
  * Push multiple container images by tagging services provided in the
- * $VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable.
+ * $VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable.
  */
 
 declare(strict_types=1);
@@ -21,51 +21,51 @@ require_once __DIR__ . '/helpers.php';
 //
 // Falls back to VORTEX_CONTAINER_REGISTRY, then defaults to docker.io.
 // Examples: docker.io, gcr.io, ghcr.io.
-$deploy_container_registry = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
+$push_container_registry = getenv_default('VORTEX_PUSH_CONTAINER_REGISTRY', 'VORTEX_CONTAINER_REGISTRY', 'docker.io');
 
 // Container registry username.
 //
 // Falls back to VORTEX_CONTAINER_REGISTRY_USER.
-$deploy_container_registry_user = getenv_required('VORTEX_DEPLOY_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER');
+$push_container_registry_user = getenv_required('VORTEX_PUSH_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER');
 
 // Container registry password.
 //
 // Falls back to VORTEX_CONTAINER_REGISTRY_PASS.
-$deploy_container_registry_pass = getenv_required('VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS');
+$push_container_registry_pass = getenv_required('VORTEX_PUSH_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS');
 
 // Service to image mapping.
 //
 // Format: service1=org/image1,service2=org/image2:tag
 // Example: web=myorg/myapp,db=myorg/mydb:latest.
-$deploy_container_registry_map = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', '');
+$push_container_registry_map = getenv_default('VORTEX_PUSH_CONTAINER_REGISTRY_MAP', '');
 
 // Image tag to use if not specified in the mapping.
-$deploy_container_registry_image_tag = getenv_default('VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG', 'latest');
+$push_container_registry_image_tag = getenv_default('VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG', 'latest');
 
 // -----------------------------------------------------------------------------
 
-info('Started container registry deployment.');
+info('Started container registry push.');
 
-$deploy_container_registry_map = string_map_to_array($deploy_container_registry_map);
+$push_container_registry_map = string_map_to_array($push_container_registry_map);
 
-// Only deploy if the map was provided, but do not fail if it has not as this
+// Only push if the map was provided, but do not fail if it has not as this
 // may be called as a part of another task.
-if (empty($deploy_container_registry_map)) {
-  note('Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable. Container registry deployment will not continue.');
+if (empty($push_container_registry_map)) {
+  note('Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue.');
   quit(0);
 }
 
 // Export variables and call login script.
-putenv('VORTEX_CONTAINER_REGISTRY=' . $deploy_container_registry);
-putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $deploy_container_registry_user);
-putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $deploy_container_registry_pass);
+putenv('VORTEX_CONTAINER_REGISTRY=' . $push_container_registry);
+putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $push_container_registry_user);
+putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $push_container_registry_pass);
 
 passthru(__DIR__ . '/login-container-registry', $login_exit_code);
 if ($login_exit_code !== 0) {
   quit($login_exit_code);
 }
 
-foreach ($deploy_container_registry_map as $service => $image) {
+foreach ($push_container_registry_map as $service => $image) {
   task(sprintf('Processing service %s.', $service));
 
   // Check if the service is running.
@@ -80,10 +80,10 @@ foreach ($deploy_container_registry_map as $service => $image) {
 
   // Add tag if not present.
   if (!str_contains($image, ':')) {
-    $image .= ':' . $deploy_container_registry_image_tag;
+    $image .= ':' . $push_container_registry_image_tag;
   }
 
-  $fully_qualified_image_reference = $deploy_container_registry . '/' . $image;
+  $fully_qualified_image_reference = $push_container_registry . '/' . $image;
 
   task(sprintf('Committing container image with name "%s".', $fully_qualified_image_reference));
   $iid = shell_exec(sprintf('docker commit %s %s', escapeshellarg($cid), escapeshellarg($fully_qualified_image_reference)));
@@ -102,4 +102,4 @@ foreach ($deploy_container_registry_map as $service => $image) {
   }
 }
 
-pass('Finished container registry deployment.');
+pass('Finished container registry push.');

@@ -55,8 +55,8 @@ $output = implode("\n", [
     'VORTEX_FETCH_DB_SOURCE' => 'url',
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x',
-    'VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG' => 'vortex-dev-didi-database-fi',
-    'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED' => 1,
+    'VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG' => 'vortex-dev-didi-database-fi',
+    'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED' => 1,
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-fi',
   ]),
   '',
@@ -72,8 +72,8 @@ $output = implode("\n", [
     'VORTEX_FETCH_DB_SOURCE' => 'VORTEX_CONTAINER_REGISTRY',
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x',
-    'VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG' => 'vortex-dev-database-ii',
-    'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED' => 1,
+    'VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG' => 'vortex-dev-database-ii',
+    'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED' => 1,
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-ii',
   ]),
   '',
@@ -278,7 +278,7 @@ function build_database_builder_job(string $name, array $env): string {
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/drevops/vortex-tooling/src/export-db db.sql
-            if grep -q ^VORTEX_DB_IMAGE .env; then ./vendor/drevops/vortex-tooling/src/deploy-db-image; fi
+            if grep -q ^VORTEX_DB_IMAGE .env; then ./vendor/drevops/vortex-tooling/src/push-db-image; fi
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 YAML;

@@ -24,7 +24,7 @@ class ExportDbTest extends UnitTestCase {
 
     $this->envSet('VORTEX_EXPORT_DB_IMAGE', '');
     $this->envUnset('VORTEX_DB_IMAGE');
-    $this->envSet('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED', '0');
+    $this->envSet('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED', '0');
     $this->envUnset('RUN_ON_HOST');
 
     $GLOBALS['argv'] = ['export-db'];

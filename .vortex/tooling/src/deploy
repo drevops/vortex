@@ -5,8 +5,8 @@
  * @file
  * Deploy code to a remote location.
  *
- * Deployment may include pushing code, pushing created container image,
- * notifying remote hosting service via webhook call etc.
+ * Deployment may include pushing code, notifying remote hosting service via
+ * webhook call etc.
  *
  * Multiple deployments can be configured by providing a comma-separated list of
  * deployment types in $VORTEX_DEPLOY_TYPES variable.
@@ -28,7 +28,7 @@ require_once __DIR__ . '/helpers.php';
 // The types of deployment.
 //
 // Can be a combination of comma-separated values (to support multiple
-// deployments): code, container_registry, webhook, lagoon.
+// deployments): artifact, webhook, lagoon.
 $deploy_types = getenv_default('VORTEX_DEPLOY_TYPES', '');
 $deploy_types = !empty($deploy_types) ? array_map('trim', explode(',', $deploy_types)) : [];
 
@@ -103,7 +103,7 @@ if (!empty($deploy_skip)) {
 }
 
 if (empty($deploy_types)) {
-  fail('Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): code, container_registry, webhook, lagoon.');
+  fail('Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): artifact, webhook, lagoon.');
 }
 
 // Check for conditional skip flags.
@@ -153,11 +153,6 @@ if (in_array('artifact', $deploy_types, TRUE)) {
 
 if (in_array('webhook', $deploy_types, TRUE)) {
   passthru(__DIR__ . '/deploy-webhook', $exit_code);
-  $exit_code && quit($exit_code);
-}
-
-if (in_array('container_registry', $deploy_types, TRUE)) {
-  passthru(__DIR__ . '/deploy-container-registry', $exit_code);
   $exit_code && quit($exit_code);
 }
 

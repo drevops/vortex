@@ -16,7 +16,6 @@
     <file>check-no-exit.php</file>
     <file>playground</file>
     <file>src/deploy-artifact</file>
-    <file>src/deploy-container-registry</file>
     <file>src/deploy-lagoon</file>
     <file>src/deploy-webhook</file>
     <file>src/deploy</file>
@@ -30,6 +29,7 @@
     <file>src/notify-webhook</file>
     <file>src/notify</file>
     <file>src/provision</file>
+    <file>src/push-container-registry</file>
     <file>src/setup-ssh</file>
     <file>src</file>
     <file>tests</file>

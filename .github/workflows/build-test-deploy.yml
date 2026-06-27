@@ -335,11 +335,11 @@ jobs:
       - name: Export DB after fetch
         run: |
           if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
-          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0; fi
+          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
           ./vendor/drevops/vortex-tooling/src/export-db db.sql
-          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/drevops/vortex-tooling/src/deploy-db-image; fi
+          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/drevops/vortex-tooling/src/push-db-image; fi
           docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
         env:

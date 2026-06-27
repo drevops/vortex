@@ -8,7 +8,7 @@ use DrevOps\VortexTooling\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('deploy')]
-class DeployContainerRegistryTest extends UnitTestCase {
+class PushContainerRegistryTest extends UnitTestCase {
 
   protected function getLoginScriptPath(): string {
     return realpath(__DIR__ . '/../../src') . '/login-container-registry';
@@ -18,15 +18,15 @@ class DeployContainerRegistryTest extends UnitTestCase {
     parent::setUp();
 
     $this->envSetMultiple([
-      'VORTEX_DEPLOY_CONTAINER_REGISTRY' => 'docker.io',
-      'VORTEX_DEPLOY_CONTAINER_REGISTRY_USER' => 'testuser',
-      'VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS' => 'testpass',
-      'VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP' => 'web=myorg/myapp',
-      'VORTEX_DEPLOY_CONTAINER_REGISTRY_IMAGE_TAG' => 'latest',
+      'VORTEX_PUSH_CONTAINER_REGISTRY' => 'docker.io',
+      'VORTEX_PUSH_CONTAINER_REGISTRY_USER' => 'testuser',
+      'VORTEX_PUSH_CONTAINER_REGISTRY_PASS' => 'testpass',
+      'VORTEX_PUSH_CONTAINER_REGISTRY_MAP' => 'web=myorg/myapp',
+      'VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG' => 'latest',
     ]);
   }
 
-  public function testSuccessfulDeploymentSingleService(): void {
+  public function testSuccessfulPushSingleService(): void {
     // Mock login script.
     $this->mockPassthru([
       'cmd' => $this->getLoginScriptPath(),
@@ -49,19 +49,19 @@ class DeployContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-container-registry');
+    $output = $this->runScript('src/push-container-registry');
 
-    $this->assertStringContainsString('Started container registry deployment.', $output);
+    $this->assertStringContainsString('Started container registry push.', $output);
     $this->assertStringContainsString('Processing service web.', $output);
     $this->assertStringContainsString('Found "web" service container with id "abc123".', $output);
     $this->assertStringContainsString('Committing container image with name "docker.io/myorg/myapp:latest".', $output);
     $this->assertStringContainsString('Committed container image with id "def456".', $output);
     $this->assertStringContainsString('Pushing container image to the registry.', $output);
-    $this->assertStringContainsString('Finished container registry deployment.', $output);
+    $this->assertStringContainsString('Finished container registry push.', $output);
   }
 
-  public function testSuccessfulDeploymentMultipleServices(): void {
-    $this->envSet('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', 'web=myorg/web,db=myorg/db');
+  public function testSuccessfulPushMultipleServices(): void {
+    $this->envSet('VORTEX_PUSH_CONTAINER_REGISTRY_MAP', 'web=myorg/web,db=myorg/db');
 
     // Mock login script.
     $this->mockPassthru([
@@ -95,15 +95,15 @@ class DeployContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-container-registry');
+    $output = $this->runScript('src/push-container-registry');
 
     $this->assertStringContainsString('Processing service web.', $output);
     $this->assertStringContainsString('Processing service db.', $output);
-    $this->assertStringContainsString('Finished container registry deployment.', $output);
+    $this->assertStringContainsString('Finished container registry push.', $output);
   }
 
   public function testImageWithExistingTag(): void {
-    $this->envSet('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', 'web=myorg/myapp:v1.0');
+    $this->envSet('VORTEX_PUSH_CONTAINER_REGISTRY_MAP', 'web=myorg/myapp:v1.0');
 
     // Mock login script.
     $this->mockPassthru([
@@ -125,13 +125,13 @@ class DeployContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-container-registry');
+    $output = $this->runScript('src/push-container-registry');
 
     $this->assertStringContainsString('Committing container image with name "docker.io/myorg/myapp:v1.0".', $output);
   }
 
   public function testCustomRegistry(): void {
-    $this->envSet('VORTEX_DEPLOY_CONTAINER_REGISTRY', 'gcr.io');
+    $this->envSet('VORTEX_PUSH_CONTAINER_REGISTRY', 'gcr.io');
 
     // Mock login script.
     $this->mockPassthru([
@@ -153,36 +153,36 @@ class DeployContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-container-registry');
+    $output = $this->runScript('src/push-container-registry');
 
     $this->assertStringContainsString('Committing container image with name "gcr.io/myorg/myapp:latest".', $output);
   }
 
   public function testEmptyMap(): void {
-    $this->envSet('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', '');
+    $this->envSet('VORTEX_PUSH_CONTAINER_REGISTRY_MAP', '');
 
-    $output = $this->runScript('src/deploy-container-registry', 0);
+    $output = $this->runScript('src/push-container-registry', 0);
 
-    $this->assertStringContainsString('Services map is not specified in VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP variable.', $output);
+    $this->assertStringContainsString('Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable.', $output);
     $this->assertStringNotContainsString('Processing service', $output);
   }
 
   public function testMissingUser(): void {
-    $this->envUnsetMultiple(['VORTEX_DEPLOY_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER']);
+    $this->envUnsetMultiple(['VORTEX_PUSH_CONTAINER_REGISTRY_USER', 'VORTEX_CONTAINER_REGISTRY_USER']);
 
-    $this->runScriptError('src/deploy-container-registry', 'Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_USER, VORTEX_CONTAINER_REGISTRY_USER');
+    $this->runScriptError('src/push-container-registry', 'Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_USER, VORTEX_CONTAINER_REGISTRY_USER');
   }
 
   public function testMissingPassword(): void {
-    $this->envUnsetMultiple(['VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS']);
+    $this->envUnsetMultiple(['VORTEX_PUSH_CONTAINER_REGISTRY_PASS', 'VORTEX_CONTAINER_REGISTRY_PASS']);
 
-    $this->runScriptError('src/deploy-container-registry', 'Missing required value for VORTEX_DEPLOY_CONTAINER_REGISTRY_PASS, VORTEX_CONTAINER_REGISTRY_PASS');
+    $this->runScriptError('src/push-container-registry', 'Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_PASS, VORTEX_CONTAINER_REGISTRY_PASS');
   }
 
   public function testInvalidMapFormat(): void {
-    $this->envSet('VORTEX_DEPLOY_CONTAINER_REGISTRY_MAP', 'invalid-no-equals');
+    $this->envSet('VORTEX_PUSH_CONTAINER_REGISTRY_MAP', 'invalid-no-equals');
 
-    $this->runScriptError('src/deploy-container-registry', 'invalid key/value pair "invalid-no-equals" provided.');
+    $this->runScriptError('src/push-container-registry', 'invalid key/value pair "invalid-no-equals" provided.');
   }
 
   public function testServiceNotRunning(): void {
@@ -196,7 +196,7 @@ class DeployContainerRegistryTest extends UnitTestCase {
     // Mock shell_exec returning empty (service not running).
     $this->mockShellExec('');
 
-    $this->runScriptError('src/deploy-container-registry', 'Service "web" is not running.');
+    $this->runScriptError('src/push-container-registry', 'Service "web" is not running.');
   }
 
   public function testDockerCommitFailure(): void {
@@ -215,7 +215,7 @@ class DeployContainerRegistryTest extends UnitTestCase {
       ['value' => ''],
     ]);
 
-    $this->runScriptError('src/deploy-container-registry', 'Failed to commit container image.');
+    $this->runScriptError('src/push-container-registry', 'Failed to commit container image.');
   }
 
   public function testLoginFailure(): void {
@@ -231,7 +231,7 @@ class DeployContainerRegistryTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-container-registry');
+    $this->runScript('src/push-container-registry');
   }
 
   public function testPushFailure(): void {
@@ -260,11 +260,11 @@ class DeployContainerRegistryTest extends UnitTestCase {
     $this->expectException(QuitErrorException::class);
     $this->expectExceptionCode(1);
 
-    $this->runScript('src/deploy-container-registry');
+    $this->runScript('src/push-container-registry');
   }
 
   public function testFallbackToVortexContainerRegistry(): void {
-    $this->envUnset('VORTEX_DEPLOY_CONTAINER_REGISTRY');
+    $this->envUnset('VORTEX_PUSH_CONTAINER_REGISTRY');
     $this->envSet('VORTEX_CONTAINER_REGISTRY', 'fallback.registry.io');
 
     // Mock login script.
@@ -287,7 +287,7 @@ class DeployContainerRegistryTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    $output = $this->runScript('src/deploy-container-registry');
+    $output = $this->runScript('src/push-container-registry');
 
     $this->assertStringContainsString('Committing container image with name "fallback.registry.io/myorg/myapp:latest".', $output);
   }
