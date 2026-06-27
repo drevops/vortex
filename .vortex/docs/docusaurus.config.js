@@ -34,6 +34,22 @@ const config = {
   tagline: 'Vortex documentation',
   favicon: 'img/favicon.ico',
 
+  stylesheets: [
+    {
+      href: 'https://fonts.googleapis.com',
+      rel: 'preconnect',
+    },
+    {
+      href: 'https://fonts.gstatic.com',
+      rel: 'preconnect',
+      crossorigin: 'anonymous',
+    },
+    {
+      href: 'https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap',
+      rel: 'stylesheet',
+    },
+  ],
+
   // Set the production url of your site here
   url: 'https://www.vortextemplate.com/',
   // Set the /<baseUrl>/ pathname under which your site is served
