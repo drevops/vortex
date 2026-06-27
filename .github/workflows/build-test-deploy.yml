@@ -292,7 +292,7 @@ jobs:
         run: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
       #;< !PROVISION_TYPE_PROFILE
-      - name: Add SSH private key used to download database
+      - name: Add SSH private key used to fetch database
         if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
@@ -301,22 +301,22 @@ jobs:
         env:
           VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
 
-      # On the first build of the day (cache miss), download a fresh DB dump.
+      # On the first build of the day (cache miss), fetch a fresh DB dump.
       # On subsequent builds, the restored cache already contains the dump and
-      # the download script skips itself, leaving no semaphore file behind.
-      - name: Download DB
+      # the fetch script skips itself, leaving no semaphore file behind.
+      - name: Fetch DB
         run: |
           VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
         timeout-minutes: 30
-        #;< DB_DOWNLOAD_SOURCE_ACQUIA
+        #;< DB_FETCH_SOURCE_ACQUIA
         env:
           VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
           VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
-        #;> DB_DOWNLOAD_SOURCE_ACQUIA
+        #;> DB_FETCH_SOURCE_ACQUIA
 
       #;< MIGRATION
-      - name: Download migration DB
+      - name: Fetch migration DB
         run: VORTEX_DB_INDEX=2 ./vendor/drevops/vortex-tooling/src/fetch-db
       #;> MIGRATION
       #;> !PROVISION_TYPE_PROFILE
@@ -325,16 +325,16 @@ jobs:
         run: docker compose up --detach && docker builder prune --all --force
 
       #;< !PROVISION_TYPE_PROFILE
-      # Execute commands after the database download finished: if a fresh DB
-      # dump was downloaded (cache miss), import it and export it back to
+      # Execute commands after the database fetch finished: if a fresh DB
+      # dump was fetched (cache miss), import it and export it back to
       # produce a clean dump cached for the rest of the day's builds. This also
       # validates the dump and supports "file-to-image" / "image-to-file"
       # conversions. Configuration changes and DB updates are not applied, so
-      # the cached database stays in the same state as downloaded. Only the
+      # the cached database stays in the same state as fetched. Only the
       # primary parallel runner pushes a refreshed database container image.
-      - name: Export DB after download
+      - name: Export DB after fetch
         run: |
-          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database download semaphore file is missing. DB export will not proceed."; exit 0; fi
+          if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
           if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_DEPLOY_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
@@ -346,7 +346,7 @@ jobs:
           STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
 
       # Save the clean DB dump to cache from the primary parallel runner only,
-      # and only when a fresh dump was downloaded this run (db_hash changed).
+      # and only when a fresh dump was fetched this run (db_hash changed).
       - name: Save DB cache
         uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.db_hash != hashFiles('.data') }}

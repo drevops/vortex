@@ -146,7 +146,7 @@ You’ll also find scaffolds for:
 **Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
 project. These pipelines include:
 
-- Database download and caching (for faster builds)
+- Database fetch and caching (for faster builds)
 - Full site provisioning in CI
 - Running code quality checks
 - Running unit, functional and behavior tests
@@ -219,7 +219,7 @@ for your setup, based on configuration or environment variables.
 
 For example:
 
-- `fetch-db.sh` is a router script that downloads a database from any
+- `fetch-db.sh` is a router script that fetches a database from any
   supported hosting provider or custom location without needing to know the
   specifics of each provider.
 - `deploy.sh` is a router script that deploys code to any hosting provider in a

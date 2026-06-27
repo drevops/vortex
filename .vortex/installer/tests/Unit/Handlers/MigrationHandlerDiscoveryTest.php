@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
@@ -25,15 +25,15 @@ class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     yield 'migration - prompt - enabled' => [
       [
         Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationDownloadSource::id() => Key::ENTER,
+        MigrationFetchSource::id() => Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_defaults,
     ];
     yield 'migration - discovery - database2 exists' => [
       [
-        MigrationDownloadSource::id() => Key::ENTER,
+        MigrationFetchSource::id() => Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_installed,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], 'antivirus' => [], 'cache' => [], 'search' => []]]));

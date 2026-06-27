@@ -14,7 +14,7 @@ primary database, and a `settings.migration.php` file registers the
 ### Via the installer
 
 When running the Vortex installer, answer **Yes** to
-"Use a second database for migrations?" and select a download source.
+"Use a second database for migrations?" and select a fetch source.
 
 ### Manual setup
 
@@ -34,8 +34,8 @@ If you already have a Vortex project and want to add migration support:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `VORTEX_FETCH_DB2_FILE` | `db2.sql` | Migration database dump file name |
-| `VORTEX_FETCH_DB2_SOURCE` | `url` | Download source (`url`, `ftp`, `acquia`, `lagoon`, `s3`) |
-| `VORTEX_FETCH_DB2_URL` | _(empty)_ | URL to download the migration database dump |
+| `VORTEX_FETCH_DB2_SOURCE` | `url` | Fetch source (`url`, `ftp`, `acquia`, `lagoon`, `s3`) |
+| `VORTEX_FETCH_DB2_URL` | _(empty)_ | URL to fetch the migration database dump |
 | `DATABASE2_HOST` | `database2` | Migration database host |
 | `DATABASE2_NAME` | `drupal` | Migration database name |
 | `DATABASE2_USERNAME` | `drupal` | Migration database user |
@@ -87,14 +87,14 @@ which resolves to this connection.
 
 | Command | Description |
 |---------|-------------|
-| `ahoy fetch-db2` | Download the migration database dump |
-| `ahoy fetch-db2 --fresh` | Force a fresh download |
+| `ahoy fetch-db2` | Fetch the migration database dump |
+| `ahoy fetch-db2 --fresh` | Force a fresh fetch |
 | `ahoy db2` | Open the migration database in Sequel Ace |
 
 The `fetch-db2` command reuses the existing `fetch-db.sh` script with
 `VORTEX_DB_INDEX=2`, which makes all scripts resolve indexed variable names
 (e.g., `VORTEX_FETCH_DB2_SOURCE` instead of `VORTEX_FETCH_DB_SOURCE`,
-`VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so all existing download
+`VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so all existing fetch
 sources (URL, FTP, Acquia, Lagoon, S3) work for the migration database as well.
 
 ## Migration deploy step
@@ -170,7 +170,7 @@ to `composer.json` when the migration feature is enabled).
 ## CI integration
 
 Both CI systems (GitHub Actions and CircleCI) include a migration database
-download step in the existing `database` job. Both database files are cached
+fetch step in the existing `database` job. Both database files are cached
 together in the same `.data` directory.
 
 The `build` job copies the migration database file into the CLI container
@@ -184,7 +184,7 @@ alongside the primary database before running provision.
    VORTEX_FETCH_DB2_URL=https://example.com/legacy-database.sql
    ```
 
-2. Download the migration database:
+2. Fetch the migration database:
 
    ```bash
    ahoy fetch-db2

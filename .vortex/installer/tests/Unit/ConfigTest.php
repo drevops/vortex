@@ -300,7 +300,7 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals('VORTEX_INSTALLER_TEMPLATE_REF', Config::REF);
     $this->assertEquals('VORTEX_INSTALLER_PROCEED', Config::PROCEED);
     $this->assertEquals('VORTEX_INSTALLER_IS_DEMO', Config::IS_DEMO);
-    $this->assertEquals('VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', Config::IS_DEMO_DB_DOWNLOAD_SKIP);
+    $this->assertEquals('VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP', Config::IS_DEMO_DB_FETCH_SKIP);
     $this->assertEquals('VORTEX_INSTALLER_IS_VORTEX_PROJECT', Config::IS_VORTEX_PROJECT);
     $this->assertEquals('VORTEX_INSTALLER_VERSION', Config::VERSION);
     $this->assertEquals('VORTEX_INSTALLER_NO_INTERACTION', Config::NO_INTERACTION);

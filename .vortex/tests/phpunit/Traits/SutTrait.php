@@ -254,19 +254,19 @@ trait SutTrait {
     return $installer_phar;
   }
 
-  protected function downloadDatabase(bool $copy_to_container = FALSE): void {
+  protected function fetchDatabase(bool $copy_to_container = FALSE): void {
     $this->logStepStart();
 
     File::remove('.data/db.sql');
-    $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before downloading the database.');
+    $this->assertFileDoesNotExist('.data/db.sql', 'File .data/db.sql should not exist before fetching the database.');
 
     $this->cmd(
       './vendor/drevops/vortex-tooling/src/fetch-db',
       env: ['VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
-      txt: 'Demo database downloaded from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
+      txt: 'Demo database fetched from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
     );
 
-    $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after downloading the database.');
+    $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after fetching the database.');
 
     if ($copy_to_container && file_exists('.data/db.sql')) {
       $this->logNote('Copy database file to container');

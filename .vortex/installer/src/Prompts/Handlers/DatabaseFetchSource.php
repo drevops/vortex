@@ -7,7 +7,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
-class MigrationDownloadSource extends AbstractHandler {
+class DatabaseFetchSource extends AbstractHandler {
 
   const URL = 'url';
 
@@ -21,18 +21,20 @@ class MigrationDownloadSource extends AbstractHandler {
 
   const S3 = 's3';
 
+  const NONE = 'none';
+
   /**
    * {@inheritdoc}
    */
   public function label(): string {
-    return 'Migration database source';
+    return 'Database source';
   }
 
   /**
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Use ⬆ and ⬇ to select the migration database download source.';
+    return 'Use ⬆ and ⬇ to select the database fetch source.';
   }
 
   /**
@@ -46,6 +48,7 @@ class MigrationDownloadSource extends AbstractHandler {
       self::LAGOON => 'Lagoon environment',
       self::CONTAINER_REGISTRY => 'Container registry',
       self::S3 => 'S3 bucket',
+      self::NONE => 'None',
     ];
 
     if (isset($responses[HostingProvider::id()])) {
@@ -65,14 +68,14 @@ class MigrationDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function dependsOn(): ?array {
-    return [Migration::id() => [TRUE]];
+    return [ProvisionType::id() => [ProvisionType::DATABASE]];
   }
 
   /**
    * {@inheritdoc}
    */
   public function shouldRun(array $responses): bool {
-    return isset($responses[Migration::id()]) && $responses[Migration::id()] === TRUE;
+    return isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] !== ProvisionType::PROFILE;
   }
 
   /**
@@ -94,39 +97,35 @@ class MigrationDownloadSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return Env::getFromDotenv('VORTEX_FETCH_DB2_SOURCE', $this->dstDir);
+    return Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->dstDir);
   }
 
   /**
    * {@inheritdoc}
    */
   public function process(): void {
+    $v = $this->getResponseAsString();
     $t = $this->tmpDir;
 
-    $v = NULL;
-    if (!empty($this->response)) {
-      $v = $this->getResponseAsString();
+    Env::writeValueDotenv('VORTEX_FETCH_DB_SOURCE', $v, $t . '/.env');
 
-      Env::writeValueDotenv('VORTEX_FETCH_DB2_SOURCE', $v, $t . '/.env');
-
-      // Lagoon identifies environments by branch name; the production branch
-      // is `main`. The shared default (`prod`) is correct for Acquia only.
-      if ($v === self::LAGOON) {
-        Env::writeValueDotenv('VORTEX_FETCH_DB2_ENVIRONMENT', 'main', $t . '/.env');
-      }
+    // Lagoon identifies environments by branch name; the production branch
+    // is `main`. The shared default (`prod`) is correct for Acquia only.
+    if ($v === self::LAGOON) {
+      Env::writeValueDotenv('VORTEX_FETCH_DB_ENVIRONMENT', 'main', $t . '/.env');
     }
 
     $types = [
-      MigrationDownloadSource::URL,
-      MigrationDownloadSource::FTP,
-      MigrationDownloadSource::ACQUIA,
-      MigrationDownloadSource::LAGOON,
-      MigrationDownloadSource::CONTAINER_REGISTRY,
-      MigrationDownloadSource::S3,
+      DatabaseFetchSource::URL,
+      DatabaseFetchSource::FTP,
+      DatabaseFetchSource::ACQUIA,
+      DatabaseFetchSource::LAGOON,
+      DatabaseFetchSource::CONTAINER_REGISTRY,
+      DatabaseFetchSource::S3,
     ];
 
     foreach ($types as $type) {
-      $token = 'MIGRATION_DB_DOWNLOAD_SOURCE_' . strtoupper($type);
+      $token = 'DB_FETCH_SOURCE_' . strtoupper($type);
       if ($v === $type) {
         File::removeTokenAsync('!' . $token);
       }

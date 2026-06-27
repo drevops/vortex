@@ -10,7 +10,7 @@ declare(strict_types=1);
  * assembles them with the DIDI variant jobs into a single test config. The
  * DIDI database-builder jobs are synthesized here (the main config no longer
  * carries a standalone database job), while the DIDI build jobs reuse the
- * test job anchor and skip the database download to consume a pre-built image.
+ * test job anchor and skip the database fetch to consume a pre-built image.
  *
  * Usage:
  *   php .vortex/tests/generate-vortex-dev-circleci         # Generate
@@ -228,7 +228,7 @@ function build_variant_job(string $name, string $anchor, array $env): string {
 /**
  * Build a DIDI database-builder job YAML block.
  *
- * Downloads the database, imports it without applying configuration or database
+ * Fetches the database, imports it without applying configuration or database
  * updates, then exports it as a container image and pushes it for the matching
  * build job to consume. Mirrors the database-handling steps of the test job.
  *
@@ -258,7 +258,7 @@ function build_database_builder_job(string $name, array $env): string {
           command: ./vendor/drevops/vortex-tooling/src/login-container-registry
 
       - run:
-          name: Download DB
+          name: Fetch DB
           command: VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/drevops/vortex-tooling/src/fetch-db
           no_output_timeout: 30m
 
@@ -266,14 +266,14 @@ function build_database_builder_job(string $name, array $env): string {
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
 
-      # Import the downloaded dump and export it as a database container image,
+      # Import the fetched dump and export it as a database container image,
       # then push it for the matching build job to pull. Configuration changes
       # and database updates are not applied, so the image stays in the same
-      # state as downloaded.
+      # state as fetched.
       - run:
-          name: Export DB after download
+          name: Export DB after fetch
           command: |
-            [ ! -f /tmp/fetch-db-success ] && echo "==> Database download semaphore file is missing. DB export will not proceed." && exit 0
+            [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/drevops/vortex-tooling/src/provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true

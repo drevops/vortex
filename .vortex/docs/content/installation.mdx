@@ -157,7 +157,7 @@ variables → Actions**:
 ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-gha@example.com" -f ~/.ssh/deployer_myproject_gha -N ""
 ```
 
-- `VORTEX_DB_SSH_KEY` - key with read access, for database downloads.
+- `VORTEX_DB_SSH_KEY` - key with read access, for database fetches.
 - `VORTEX_DEPLOY_SSH_KEY` - key with write access, for deployment (may be the same key).
 
 **Add the hosting secrets** from [step 4](#4-set-up-hosting) in the same
@@ -187,7 +187,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject-circleci@example.com" -f
 ```
 
 **Set the fingerprints** in [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
-`db_ssh_fingerprint` (database download) and `deploy_ssh_fingerprint` (deployment).
+`db_ssh_fingerprint` (database fetch) and `deploy_ssh_fingerprint` (deployment).
 
 **Add the hosting variables** from [step 4](#4-set-up-hosting) under **Project
 Settings → Environment Variables**.

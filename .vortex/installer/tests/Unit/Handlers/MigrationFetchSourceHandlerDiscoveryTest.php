@@ -5,53 +5,53 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
 
-#[CoversClass(MigrationDownloadSource::class)]
-class MigrationDownloadSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
+#[CoversClass(MigrationFetchSource::class)]
+class MigrationFetchSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     yield 'migration download source - prompt' => [
       [
         Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationDownloadSource::id() => Key::ENTER,
+        MigrationFetchSource::id() => Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_defaults,
     ];
     yield 'migration download source - prompt - ftp' => [
       [
         Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationDownloadSource::id() => Key::DOWN . Key::ENTER,
+        MigrationFetchSource::id() => Key::DOWN . Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::FTP] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::FTP] + $expected_defaults,
     ];
     yield 'migration download source - discovery' => [
       [
         Migration::id() => Key::LEFT . Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::FTP] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::FTP] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', MigrationDownloadSource::FTP);
+        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', MigrationFetchSource::FTP);
       },
     ];
     yield 'migration download source - discovery - s3' => [
       [
         Migration::id() => Key::LEFT . Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::S3] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::S3] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
-        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', MigrationDownloadSource::S3);
+        $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', MigrationFetchSource::S3);
       },
     ];
     yield 'migration download source - discovery - invalid' => [
       [
         Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationDownloadSource::id() => Key::ENTER,
+        MigrationFetchSource::id() => Key::ENTER,
       ],
-      [Migration::id() => TRUE, MigrationDownloadSource::id() => MigrationDownloadSource::URL] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test): void {
         $test->stubDotenvValue('VORTEX_FETCH_DB2_SOURCE', 'invalid_source');
       },

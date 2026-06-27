@@ -122,7 +122,7 @@ class OptionsResolver {
     }
 
     // Internal flag to skip processing of the demo mode.
-    $config->set(Config::IS_DEMO_DB_DOWNLOAD_SKIP, (bool) Env::get(Config::IS_DEMO_DB_DOWNLOAD_SKIP, FALSE));
+    $config->set(Config::IS_DEMO_DB_FETCH_SKIP, (bool) Env::get(Config::IS_DEMO_DB_FETCH_SKIP, FALSE));
 
     // Parse --prompts JSON if provided.
     if (isset($options['prompts']) && is_scalar($options['prompts'])) {

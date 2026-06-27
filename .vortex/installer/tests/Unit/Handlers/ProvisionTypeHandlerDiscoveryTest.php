@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Utils\Config;
 use Laravel\Prompts\Key;
@@ -28,7 +28,7 @@ class ProvisionTypeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     ];
     yield 'provision type - discovery - profile' => [
       [],
-      [ProvisionType::id() => ProvisionType::PROFILE, DatabaseDownloadSource::id() => DatabaseDownloadSource::NONE] + $expected_defaults,
+      [ProvisionType::id() => ProvisionType::PROFILE, DatabaseFetchSource::id() => DatabaseFetchSource::NONE] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
       },

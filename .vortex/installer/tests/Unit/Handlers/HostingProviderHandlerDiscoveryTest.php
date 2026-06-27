@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
@@ -30,7 +30,7 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
         HostingProjectName::id() => 'myproject',
         Webroot::id() => Webroot::DOCROOT,
         DeployTypes::id() => [DeployTypes::ARTIFACT],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        DatabaseFetchSource::id() => DatabaseFetchSource::ACQUIA,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         File::dump(static::$sut . '/hooks/somehook');
@@ -43,10 +43,10 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
         HostingProjectName::id() => 'myproject',
         Webroot::id() => Webroot::DOCROOT,
         DeployTypes::id() => [DeployTypes::ARTIFACT],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::ACQUIA,
+        DatabaseFetchSource::id() => DatabaseFetchSource::ACQUIA,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        $test->stubDotenvValue('VORTEX_FETCH_DB_SOURCE', DatabaseDownloadSource::ACQUIA);
+        $test->stubDotenvValue('VORTEX_FETCH_DB_SOURCE', DatabaseFetchSource::ACQUIA);
       },
     ];
     yield 'hosting provider - discovery - Lagoon' => [
@@ -55,7 +55,7 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
         HostingProvider::id() => HostingProvider::LAGOON,
         HostingProjectName::id() => 'myproject',
         DeployTypes::id() => [DeployTypes::LAGOON],
-        DatabaseDownloadSource::id() => DatabaseDownloadSource::LAGOON,
+        DatabaseFetchSource::id() => DatabaseFetchSource::LAGOON,
       ] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         File::dump(static::$sut . '/.lagoon.yml');

@@ -36,7 +36,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 ### 2. Test
 
 - Runs in parallel with the `lint` and `build` jobs
-- Downloads the database on the first build of the day and caches it for the rest of the day's builds (only one runner stores the cache when running in parallel)
+- Fetches the database on the first build of the day and caches it for the rest of the day's builds (only one runner stores the cache when running in parallel)
 - Uses Docker Compose to set up the full environment
 - Validates Composer configuration
 - Assembles the codebase by installing dependencies
@@ -62,7 +62,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Caching strategy
 
-The database is downloaded on the first continuous integration run of the day and cached so that
+The database is fetched on the first continuous integration run of the day and cached so that
 the remaining runs on the same day reuse the cached database dump.
 
 By default, the database is cached per-branch for 24 hours. If cache is not

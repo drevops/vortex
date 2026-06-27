@@ -11,22 +11,22 @@ import TabItem from '@theme/TabItem';
 ## Fetching database
 
 To fetch the database with the latest data from the production environment,
-download the latest database dump into the `.data` directory.
+fetch the latest database dump into the `.data` directory.
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    # Download latest database dump (uses cache if downloaded today)
+    # Fetch latest database dump (uses cache if fetched today)
     ahoy fetch-db
-    # Force a fresh download regardless of cache
+    # Force a fresh fetch regardless of cache
     ahoy fetch-db --fresh
     ```
   </TabItem>
   <TabItem value="host" label="Host">
     ```shell
-    # Download latest database dump (uses cache if downloaded today)
+    # Fetch latest database dump (uses cache if fetched today)
     ./vendor/drevops/vortex-tooling/src/fetch-db
-    # Force a fresh download regardless of cache
+    # Force a fresh fetch regardless of cache
     VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1 ./vendor/drevops/vortex-tooling/src/fetch-db
     ```
   </TabItem>
@@ -36,10 +36,10 @@ download the latest database dump into the `.data` directory.
 
 The database dump is stored in the `.data` directory instead of being directly
 imported into the local environment to allow for caching and reusing the
-database dump without needing to download it every time you need to refresh
+database dump without needing to fetch it every time you need to refresh
 the local environment.
 
-You can manually download the database dump from the production environment,
+You can manually fetch the database dump from the production environment,
 name it `db.sql`, and place it in the `.data` directory.
 
 :::

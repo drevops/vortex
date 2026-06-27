@@ -56,7 +56,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 10 * 60);
     $this->cmd('docker compose exec -T cli bash -cl "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"', txt: 'Lint code with theme linters', tio: 10 * 60);
 
-    $this->downloadDatabase(TRUE);
+    $this->fetchDatabase(TRUE);
 
     $this->logSubstep('Provisioning with direct script execution');
     $this->cmd('docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/provision', txt: 'Run ./vendor/drevops/vortex-tooling/src/provision in container', tio: 10 * 60);
@@ -87,7 +87,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 10 * 60);
     $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 10 * 60);
 
-    $this->downloadDatabase(TRUE);
+    $this->fetchDatabase(TRUE);
 
     $this->logSubstep('Provisioning with direct script execution');
     $this->cmd('docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/provision', txt: 'Run ./vendor/drevops/vortex-tooling/src/provision in container', tio: 10 * 60);

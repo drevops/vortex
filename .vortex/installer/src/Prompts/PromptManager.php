@@ -11,7 +11,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
-use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
@@ -25,7 +25,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
@@ -199,9 +199,9 @@ class PromptManager {
       ->intro('Workflow')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(ProvisionType::class), ProvisionType::id())
       ->addIf(
-          fn(array $r): bool => $this->handlers[DatabaseDownloadSource::id()]->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseDownloadSource::class, $r),
-          DatabaseDownloadSource::id()
+          fn(array $r): bool => $this->handlers[DatabaseFetchSource::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseFetchSource::class, $r),
+          DatabaseFetchSource::id()
         )
         ->addIf(
             fn(array $r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
@@ -210,9 +210,9 @@ class PromptManager {
           )
       ->add(fn($r, $pr, $n): mixed => $this->prompt(Migration::class), Migration::id())
       ->addIf(
-          fn(array $r): bool => $this->handlers[MigrationDownloadSource::id()]->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(MigrationDownloadSource::class, $r),
-          MigrationDownloadSource::id()
+          fn(array $r): bool => $this->handlers[MigrationFetchSource::id()]->shouldRun($r),
+          fn(array $r, $pr, $n): mixed => $this->prompt(MigrationFetchSource::class, $r),
+          MigrationFetchSource::id()
         )
         ->addIf(
             fn(array $r): bool => $this->handlers[MigrationImage::id()]->shouldRun($r),
@@ -266,9 +266,9 @@ class PromptManager {
     // Always remove ThemeCustom key (it's only used for internal merging)
     unset($responses[ThemeCustom::id()]);
 
-    // Handle DatabaseDownloadSource when ProvisionType is PROFILE.
+    // Handle DatabaseFetchSource when ProvisionType is PROFILE.
     if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
-      $responses[DatabaseDownloadSource::id()] = DatabaseDownloadSource::NONE;
+      $responses[DatabaseFetchSource::id()] = DatabaseFetchSource::NONE;
     }
 
     // Handle Starter when the installer is running in update mode.
@@ -315,10 +315,10 @@ class PromptManager {
       VisualRegression::id(),
       CiProvider::id(),
       MigrationImage::id(),
-      MigrationDownloadSource::id(),
+      MigrationFetchSource::id(),
       Migration::id(),
       DatabaseImage::id(),
-      DatabaseDownloadSource::id(),
+      DatabaseFetchSource::id(),
       ProvisionType::id(),
       NotificationChannels::id(),
       DeployTypes::id(),
@@ -489,19 +489,19 @@ class PromptManager {
     $values['Provision type'] = $responses[ProvisionType::id()];
 
     if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
-      $values['Database source'] = $responses[DatabaseDownloadSource::id()];
+      $values['Database source'] = $responses[DatabaseFetchSource::id()];
 
-      if ($responses[DatabaseDownloadSource::id()] == DatabaseDownloadSource::CONTAINER_REGISTRY) {
+      if ($responses[DatabaseFetchSource::id()] == DatabaseFetchSource::CONTAINER_REGISTRY) {
         $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
 
     if (isset($responses[Migration::id()])) {
       $values['Migration database'] = Converter::bool($responses[Migration::id()]);
-      if ($responses[Migration::id()] === TRUE && isset($responses[MigrationDownloadSource::id()])) {
-        $values['Migration database source'] = $responses[MigrationDownloadSource::id()];
+      if ($responses[Migration::id()] === TRUE && isset($responses[MigrationFetchSource::id()])) {
+        $values['Migration database source'] = $responses[MigrationFetchSource::id()];
 
-        if ($responses[MigrationDownloadSource::id()] == MigrationDownloadSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
+        if ($responses[MigrationFetchSource::id()] == MigrationFetchSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
           $values['Migration database container image'] = $responses[MigrationImage::id()];
         }
       }

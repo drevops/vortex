@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationDownloadSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-#[CoversClass(MigrationDownloadSource::class)]
-class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTestCase {
+#[CoversClass(MigrationFetchSource::class)]
+class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
-    yield 'migration_download_source_url' => [
+    yield 'migration_fetch_source_url' => [
       static::cw(function ($test): void {
           $test->prompts[Migration::id()] = TRUE;
-          $test->prompts[MigrationDownloadSource::id()] = MigrationDownloadSource::URL;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::URL;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=url');
@@ -25,10 +25,10 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
       }),
     ];
-    yield 'migration_download_source_ftp' => [
+    yield 'migration_fetch_source_ftp' => [
       static::cw(function ($test): void {
           $test->prompts[Migration::id()] = TRUE;
-          $test->prompts[MigrationDownloadSource::id()] = MigrationDownloadSource::FTP;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::FTP;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=ftp');
@@ -37,10 +37,10 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
       }),
     ];
-    yield 'migration_download_source_acquia' => [
+    yield 'migration_fetch_source_acquia' => [
       static::cw(function ($test): void {
           $test->prompts[Migration::id()] = TRUE;
-          $test->prompts[MigrationDownloadSource::id()] = MigrationDownloadSource::ACQUIA;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::ACQUIA;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=acquia');
@@ -49,10 +49,10 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
       }),
     ];
-    yield 'migration_download_source_lagoon' => [
+    yield 'migration_fetch_source_lagoon' => [
       static::cw(function ($test): void {
           $test->prompts[Migration::id()] = TRUE;
-          $test->prompts[MigrationDownloadSource::id()] = MigrationDownloadSource::LAGOON;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::LAGOON;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=lagoon');
@@ -61,10 +61,10 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
       }),
     ];
-    yield 'migration_download_source_s3' => [
+    yield 'migration_fetch_source_s3' => [
       static::cw(function ($test): void {
           $test->prompts[Migration::id()] = TRUE;
-          $test->prompts[MigrationDownloadSource::id()] = MigrationDownloadSource::S3;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::S3;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=s3');
@@ -73,10 +73,10 @@ class MigrationDownloadSourceHandlerProcessTest extends AbstractHandlerProcessTe
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
       }),
     ];
-    yield 'migration_download_source_container_registry' => [
+    yield 'migration_fetch_source_container_registry' => [
       static::cw(function ($test): void {
           $test->prompts[Migration::id()] = TRUE;
-          $test->prompts[MigrationDownloadSource::id()] = MigrationDownloadSource::CONTAINER_REGISTRY;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::CONTAINER_REGISTRY;
           $test->prompts[MigrationImage::id()] = 'the_empire/star_wars-migration:latest';
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

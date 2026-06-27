@@ -89,7 +89,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyImportDb('.data/mydb.sql');
 
-    $this->downloadDatabase(TRUE);
+    $this->fetchDatabase(TRUE);
 
     $this->subtestAhoyProvision();
 
@@ -142,7 +142,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   #[Group('p4')]
   public function testAhoyWorkflowDatabaseFromImageStorageInImage(): void {
     static::$sutInstallerPrompts = [
-      'database_download_source' => 'container_registry',
+      'database_fetch_source' => 'container_registry',
       'database_image' => self::VORTEX_DB_IMAGE_TEST,
     ];
     $this->prepareSut();
@@ -153,11 +153,11 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_DB_IMAGE=' . self::VORTEX_DB_IMAGE_TEST, '.env should contain correct database image');
     // Assert that demo config was removed as a part of the installation.
     $this->assertFileNotContainsString('.env', 'VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest', '.env should not contain demo database image');
-    $this->assertFileNotContainsString('.env', 'VORTEX_FETCH_DB_URL=', '.env should not contain database download URL');
+    $this->assertFileNotContainsString('.env', 'VORTEX_FETCH_DB_URL=', '.env should not contain database fetch URL');
 
     // Do not use demo database - testing demo database discovery is
     // another test.
-    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP', 1);
 
     // Explicitly specify that we do not want to login into the public registry
     // to use test image.
@@ -168,8 +168,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyInfo(db_image: self::VORTEX_DB_IMAGE_TEST);
 
-    // Assert that the database was not downloaded
-    // because VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP was set.
+    // Assert that the database was not fetched
+    // because VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP was set.
     $this->assertFileDoesNotExist('.data/db.sql', 'Demo database file should not exist after installer');
 
     $this->logSubstep('Test database reload functionality');
@@ -226,7 +226,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
     $this->assertFileContainsString('.env', 'DRUPAL_PROFILE=standard');
 
-    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP', 1);
 
     $this->subtestAhoyBuild();
 
@@ -252,7 +252,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_PROVISION_TYPE=profile', '.env should contain profile provision type');
     $this->assertFileContainsString('.env', 'DRUPAL_PROFILE=../recipes/drupal_cms_starter');
 
-    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_DOWNLOAD_SKIP', 1);
+    $this->fileAddVar('.env', 'VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP', 1);
 
     $this->subtestAhoyBuild();
 
@@ -276,7 +276,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     ];
     static::$sutInstallerPrompts = [
       'migration' => TRUE,
-      'migration_download_source' => 'url',
+      'migration_fetch_source' => 'url',
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
@@ -284,13 +284,13 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     // Verify installer produced the migration infrastructure.
     $this->subtestAhoyMigrationFilesPresent();
 
-    // Download migration database before build so it is available when
+    // Fetch migration database before build so it is available when
     // provisioning runs during `ahoy build`.
-    $this->subtestAhoyMigrationDownloadDb();
+    $this->subtestAhoyMigrationFetchDb();
 
     $this->subtestAhoyBuild();
 
-    $this->downloadDatabase(TRUE);
+    $this->fetchDatabase(TRUE);
 
     $this->subtestAhoyMigrationProvision();
 
@@ -304,7 +304,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     ];
     static::$sutInstallerPrompts = [
       'migration' => TRUE,
-      'migration_download_source' => 'container_registry',
+      'migration_fetch_source' => 'container_registry',
       'migration_image' => self::VORTEX_DB_IMAGE_TEST,
     ];
     $this->prepareSut();

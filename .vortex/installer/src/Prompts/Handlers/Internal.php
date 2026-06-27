@@ -152,13 +152,13 @@ class Internal extends AbstractHandler {
         // registry download source. This is because the demo mode would not
         // have access to integrations with providers to pull the database
         // from.
-        if ($responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::URL) {
+        if ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::URL) {
           // For a downloading from URL, demo mode is enabled if the database
           // file does not exist or if there is an explicit comment in the
           // destination .env file that indicates that this is a demo mode.
           $is_demo = !$db_file_exists || $has_comment;
         }
-        elseif ($responses[DatabaseDownloadSource::id()] === DatabaseDownloadSource::CONTAINER_REGISTRY) {
+        elseif ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY) {
           // For a downloading from container registry, demo mode is enabled if
           // there is an explicit comment in the destination .env file that
           // indicates that this is a demo mode.

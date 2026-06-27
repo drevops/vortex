@@ -121,9 +121,9 @@ class InstallCommandTest extends FunctionalTestCase {
 
     $command_inputs['--' . InstallCommand::OPTION_DESTINATION] = self::$sut;
 
-    // Skip the demo database download as it is not needed for these tests and
-    // would otherwise attempt a real network download.
-    Env::put(Config::IS_DEMO_DB_DOWNLOAD_SKIP, '1');
+    // Skip the demo database fetch as it is not needed for these tests and
+    // would otherwise attempt a real network fetch.
+    Env::put(Config::IS_DEMO_DB_FETCH_SKIP, '1');
 
     $this->applicationRun($command_inputs, [], $expect_failure);
 
