@@ -277,7 +277,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait-for-dependencies:
-    image: drevops/docker-wait-for-dependencies:26.6.0
+    image: drevops/docker-wait-for-dependencies:26.6.1
     depends_on:
       #;< SERVICE_ANTIVIRUS
       - antivirus
