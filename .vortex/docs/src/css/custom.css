@@ -111,7 +111,7 @@
   --ink: #0e1a2d;
   --ink-2: #16243a;
   --muted: #56657c;
-  --faint: #8595ab;
+  --faint: #5b6a82;
   --border: #e7edf5;
   --border-2: #d6e0ec;
 
@@ -150,7 +150,7 @@ html[data-theme='dark'] .vtx-home {
   --ink: #eaf0fa;
   --ink-2: #dbe5f3;
   --muted: #9bacc4;
-  --faint: #66798f;
+  --faint: #7e90a6;
   --border: #1d293c;
   --border-2: #283750;
 
@@ -171,27 +171,19 @@ html[data-theme='dark'] .vtx-home {
   --hero-glow-3: rgba(95, 196, 214, 0.1);
 }
 
-/* Ambient background glow behind the homepage. */
-.vtx-home::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+/* Ambient background glow behind the homepage content. */
+.vtx-home > main {
+  position: relative;
   background:
     radial-gradient(
       820px 460px at 82% -6%,
       var(--hero-glow-1),
       transparent 70%
     ),
-    radial-gradient(680px 460px at 2% 2%, var(--hero-glow-3), transparent 68%);
+    radial-gradient(680px 460px at 2% 2%, var(--hero-glow-3), transparent 68%),
+    var(--bg);
+  background-repeat: no-repeat;
   transition: background var(--tcolor);
-}
-
-.vtx-home > main {
-  position: relative;
-  z-index: 1;
-  background: var(--bg);
 }
 
 .vtx-home ::selection {

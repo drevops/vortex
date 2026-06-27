@@ -12,17 +12,18 @@ function copyToClipboard(text) {
     navigator.clipboard &&
     navigator.clipboard.writeText
   ) {
-    return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    return navigator.clipboard
+      .writeText(text)
+      .then(() => true)
+      .catch(() => fallbackCopy(text));
   }
 
-  fallbackCopy(text);
-
-  return Promise.resolve();
+  return Promise.resolve(fallbackCopy(text));
 }
 
 function fallbackCopy(text) {
   if (typeof document === 'undefined') {
-    return;
+    return false;
   }
 
   const ta = document.createElement('textarea');
@@ -33,13 +34,17 @@ function fallbackCopy(text) {
   document.body.appendChild(ta);
   ta.select();
 
+  let ok = false;
+
   try {
-    document.execCommand('copy');
+    ok = document.execCommand('copy');
   } catch (e) {
-    // Clipboard access can be blocked; the visible command stays selectable.
+    ok = false;
   }
 
   document.body.removeChild(ta);
+
+  return ok;
 }
 
 function useCopied() {
@@ -56,7 +61,11 @@ function useCopied() {
   );
 
   const trigger = text => {
-    copyToClipboard(text).then(() => {
+    copyToClipboard(text).then(ok => {
+      if (!ok) {
+        return;
+      }
+
       setCopied(true);
 
       if (timer.current) {
@@ -175,6 +184,7 @@ export default function Home() {
   const [playerOpen, setPlayerOpen] = useState(false);
   const triggerRef = useRef(null);
   const closeRef = useRef(null);
+  const modalRef = useRef(null);
 
   useReveals();
 
@@ -186,6 +196,29 @@ export default function Home() {
     const onKey = e => {
       if (e.key === 'Escape') {
         setPlayerOpen(false);
+
+        return;
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusables.length === 0) {
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -903,7 +936,7 @@ export default function Home() {
                   </p>
                   <div className="step-code">
                     <code>
-                      <span className="pr">$</span> php installer.php
+                      <span className="pr">$</span> {INSTALL_COMMAND}
                     </code>
                     <CopyMini
                       command={INSTALL_COMMAND}
@@ -1194,7 +1227,7 @@ export default function Home() {
             aria-label="Vortex installer demo"
             onClick={closeOnBackdrop}
           >
-            <div className="vtx-modal-panel">
+            <div className="vtx-modal-panel" ref={modalRef}>
               <div className="vtx-modal-bar">
                 <span className="media-dots">
                   <span className="r" />
