@@ -1,0 +1,65 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Run a hosting task.
+ *
+ * This is a router script that dispatches a platform-agnostic operation to the
+ * implementation for the configured hosting platform: 'task <operation>
+ * [args...]' runs the 'task-<operation>-<platform>' sibling script.
+ *
+ * The platform is read from VORTEX_TASK_PLATFORM, falling back to
+ * VORTEX_PLATFORM.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+
+// Hosting platform to run the operation for.
+$platform = getenv_default('VORTEX_TASK_PLATFORM', getenv_default('VORTEX_PLATFORM', ''));
+
+// -----------------------------------------------------------------------------
+
+$operation = $GLOBALS['argv'][1] ?? '';
+
+if ($operation === '') {
+  fail('Missing task operation.');
+}
+
+if (!in_array($operation, ['copy-db', 'copy-files', 'purge-cache'], TRUE)) {
+  fail("Unsupported task operation '%s'.", $operation);
+}
+
+if ($platform === '') {
+  fail('Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM.');
+}
+
+if (!in_array($platform, ['acquia', 'lagoon'], TRUE)) {
+  fail("Unsupported hosting platform '%s'.", $platform);
+}
+
+$task_script = __DIR__ . '/task-' . $operation . '-' . $platform;
+
+if (!file_exists($task_script) || !is_executable($task_script)) {
+  fail("Operation '%s' is not supported on the '%s' platform.", $operation, $platform);
+}
+
+$command = sprintf('"%s"', $task_script);
+foreach (array_slice($GLOBALS['argv'], 2) as $arg) {
+  $command .= ' ' . escapeshellarg($arg);
+}
+
+$exit_code = 0;
+passthru($command, $exit_code);
+
+if ($exit_code !== 0) {
+  fail("Task '%s' failed with exit code %s.", $operation, $exit_code);
+}

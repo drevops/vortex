@@ -84,3 +84,31 @@ or CI builds:
 ```shell
 ahoy fetch-db
 ```
+
+### Run a hosting task
+
+Copying databases or files between environments and purging the edge cache run
+through a single, platform-agnostic task runner that dispatches each operation
+to the implementation for the configured hosting platform:
+
+```shell
+./vendor/drevops/vortex-tooling/src/task <operation>
+```
+
+| Operation     | Description                            |
+|---------------|----------------------------------------|
+| `copy-db`     | Copy the database between environments |
+| `copy-files`  | Copy files between environments        |
+| `purge-cache` | Purge the edge (Varnish) cache         |
+
+The platform is read from `VORTEX_PLATFORM`, or from `VORTEX_TASK_PLATFORM` to
+override a single task. The Acquia deployment hooks export `VORTEX_PLATFORM`
+themselves; set it yourself when running an operation manually - for example,
+from your local machine:
+
+```shell
+VORTEX_PLATFORM=acquia ./vendor/drevops/vortex-tooling/src/task copy-db
+```
+
+Each operation reads its configuration - application name, API credentials, and
+source and destination environments - from your `.env` and `.env.local` files.
