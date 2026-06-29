@@ -127,7 +127,7 @@ The `w3c: true` option is required for compatibility with Selenium 4.
 The custom [`tests/phpunit/bootstrap.php`](https://github.com/drevops/vortex/blob/main/tests/phpunit/bootstrap.php)
 file runs before tests to:
 
-1. Set `BROWSERTEST_OUTPUT_BASE_URL` from the `VORTEX_LOCALDEV_URL` environment
+1. Set `BROWSERTEST_OUTPUT_BASE_URL` from the `LOCALDEV_URL` environment
    variable so that HTML output links are accessible from the host machine.
 2. Create the `web/sites/simpletest/browser_output` directory required by the
    `HtmlOutputLogger` extension before it initializes

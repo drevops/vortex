@@ -35,6 +35,7 @@ class BuildCommandTest extends FunctionalTestCase {
     ?\Closure $requirements_exit_callback = NULL,
     ?\Closure $requirements_finder_callback = NULL,
     ?string $docker_compose_url = 'test-project.docker.amazee.io',
+    string $url_service = 'cli',
     ?\Closure $before = NULL,
   ): void {
     if ($before instanceof \Closure) {
@@ -53,14 +54,14 @@ class BuildCommandTest extends FunctionalTestCase {
 
     // Mock getOutput() to handle both string and array returns.
     // For 'docker' command (compose config), return JSON with
-    // VORTEX_LOCALDEV_URL. For other commands, return standard mock output.
-    $build_process_runner->method('getOutput')->willReturnCallback(function (bool $as_array = FALSE) use (&$current_command, $docker_compose_url): array|string {
+    // LOCALDEV_URL. For other commands, return standard mock output.
+    $build_process_runner->method('getOutput')->willReturnCallback(function (bool $as_array = FALSE) use (&$current_command, $docker_compose_url, $url_service): array|string {
       if ($current_command === 'docker' && $docker_compose_url !== NULL) {
         $config = [
           'services' => [
-            'cli' => [
+            $url_service => [
               'environment' => [
-                'VORTEX_LOCALDEV_URL' => $docker_compose_url,
+                'LOCALDEV_URL' => $docker_compose_url,
               ],
             ],
           ],
@@ -147,7 +148,7 @@ class BuildCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testBuildWithMockedRunner.
    *
-   * @return \Iterator<string, array{exit_code_callback: \Closure, command_inputs: array<string, mixed>, expect_failure: bool, output_assertions: array<string>, requirements_exit_callback?: (\Closure | null), requirements_finder_callback?: (\Closure | null), docker_compose_url?: (string | null), before?: (\Closure | null)}>
+   * @return \Iterator<string, array{exit_code_callback: \Closure, command_inputs: array<string, mixed>, expect_failure: bool, output_assertions: array<string>, requirements_exit_callback?: (\Closure | null), requirements_finder_callback?: (\Closure | null), docker_compose_url?: (string | null), url_service?: string, before?: (\Closure | null)}>
    */
   public static function dataProviderBuildCommand(): \Iterator {
     // -----------------------------------------------------------------------
@@ -392,6 +393,22 @@ class BuildCommandTest extends FunctionalTestCase {
       'requirements_exit_callback' => NULL,
       'requirements_finder_callback' => NULL,
       'docker_compose_url' => 'my-custom-project.docker.amazee.io',
+    ];
+    yield 'Build success shows site URL from nginx service when cli is absent' => [
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--skip-requirements-check' => TRUE],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
+          TuiOutput::present([
+            TuiOutput::BUILD_BUILDING_SITE,
+            TuiOutput::BUILD_BUILD_COMPLETED,
+            TuiOutput::INSTALL_LOGIN,
+            // Falls back to the nginx service when cli has no LOCALDEV_URL.
+            TuiOutput::BUILD_SITE_URL . ' http://my-custom-project.docker.amazee.io',
+          ]),
+      ),
+      'docker_compose_url' => 'my-custom-project.docker.amazee.io',
+      'url_service' => 'nginx',
     ];
     yield 'Build success hides site URL when docker compose fails' => [
       'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
