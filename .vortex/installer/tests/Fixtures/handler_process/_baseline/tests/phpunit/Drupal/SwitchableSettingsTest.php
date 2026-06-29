@@ -81,7 +81,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   #[DataProvider('dataProviderConfigSplit')]
   public function testConfigSplit(string $env, array $expected_present, array $expected_absent): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => $env,
+      'ENVIRONMENT_TYPE' => $env,
     ]);
 
     $this->requireSettingsFile();
@@ -166,7 +166,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   #[DataProvider('dataProviderEnvironmentIndicator')]
   public function testEnvironmentIndicator(string $env, array $expected_present, array $expected_absent = []): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => $env,
+      'ENVIRONMENT_TYPE' => $env,
     ]);
 
     $this->requireSettingsFile();
@@ -330,7 +330,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   #[DataProvider('dataProviderShield')]
   public function testShield(string $env, array $vars, array $expected_present, array $expected_absent = [], array $pre_config = []): void {
-    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+    $this->setEnvVars($vars + ['ENVIRONMENT_TYPE' => $env]);
 
     $this->requireSettingsFile([], $pre_config);
 
@@ -699,7 +699,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   #[DataProvider('dataProviderRerouteEmail')]
   public function testRerouteEmail(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
-    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+    $this->setEnvVars($vars + ['ENVIRONMENT_TYPE' => $env]);
 
     $this->requireSettingsFile();
 
@@ -838,7 +838,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
    */
   #[DataProvider('dataProviderStageFileProxy')]
   public function testStageFileProxy(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
-    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+    $this->setEnvVars($vars + ['ENVIRONMENT_TYPE' => $env]);
 
     $this->requireSettingsFile();
 

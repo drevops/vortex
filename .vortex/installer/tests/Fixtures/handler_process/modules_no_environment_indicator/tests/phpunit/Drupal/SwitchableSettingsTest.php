@@ -7,7 +7,7 @@
 -  #[DataProvider('dataProviderEnvironmentIndicator')]
 -  public function testEnvironmentIndicator(string $env, array $expected_present, array $expected_absent = []): void {
 -    $this->setEnvVars([
--      'DRUPAL_ENVIRONMENT' => $env,
+-      'ENVIRONMENT_TYPE' => $env,
 -    ]);
 -
 -    $this->requireSettingsFile();
