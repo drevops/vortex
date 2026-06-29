@@ -10,7 +10,7 @@
 declare(strict_types=1);
 
 // Set the browser test output base URL from the local development URL.
-$localdev_url = getenv('VORTEX_LOCALDEV_URL');
+$localdev_url = getenv('LOCALDEV_URL');
 if ($localdev_url) {
   $base_url = str_starts_with($localdev_url, 'http') ? $localdev_url : 'http://' . $localdev_url;
   putenv('BROWSERTEST_OUTPUT_BASE_URL=' . $base_url);
