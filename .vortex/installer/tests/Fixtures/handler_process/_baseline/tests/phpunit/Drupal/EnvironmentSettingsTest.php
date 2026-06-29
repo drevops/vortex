@@ -50,6 +50,15 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       self::ENVIRONMENT_CI,
     ];
 
+    // The ENVIRONMENT_TYPE override wins over a detected platform signal.
+    yield [
+      [
+        'ENVIRONMENT_TYPE' => self::ENVIRONMENT_PROD,
+        'CI' => 1,
+      ],
+      self::ENVIRONMENT_PROD,
+    ];
+
     // Container.
     yield [
       [
@@ -108,6 +117,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['maintenance_theme'] = 'claro';
     $settings['trusted_host_patterns'] = [
       '^localhost$',
+      '^127\.0\.0\.1$',
+      '^(web|app|webserver|nginx|apache|apache2)$',
     ];
     $this->assertSettings($settings);
   }
@@ -192,6 +203,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['maintenance_theme'] = 'custom_theme';
     $settings['trusted_host_patterns'] = [
       '^localhost$',
+      '^127\.0\.0\.1$',
+      '^(web|app|webserver|nginx|apache|apache2)$',
     ];
 
     $this->assertSettings($settings);
@@ -251,6 +264,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
+      '^127\.0\.0\.1$',
+      '^(web|app|webserver|nginx|apache|apache2)$',
     ];
     $this->assertSettings($settings);
   }
@@ -309,8 +324,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^example-site\.docker\.amazee\.io$',
-      '^webserver$',
+      '^127\.0\.0\.1$',
+      '^(web|app|webserver|nginx|apache|apache2)$',
+      '^example\-site\.docker\.amazee\.io$',
     ];
     $this->assertSettings($settings);
   }
@@ -370,6 +386,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['suspend_mail_send'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
+      '^127\.0\.0\.1$',
+      '^(web|app|webserver|nginx|apache|apache2)$',
     ];
     $this->assertSettings($settings);
   }

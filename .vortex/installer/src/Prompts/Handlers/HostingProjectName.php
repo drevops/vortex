@@ -77,19 +77,6 @@ class HostingProjectName extends AbstractHandler {
       return $v;
     }
 
-    // @deprecated Discovery from hardcoded path in settings.acquia.php. The
-    // new settings.acquia.php uses AH_SITE_GROUP environment variable instead
-    // of a hardcoded project name. Kept for backward compatibility with older
-    // installations.
-    $acquia_settings_file = $this->dstDir . sprintf('/%s/sites/default/includes/providers/settings.acquia.php', $this->webroot);
-    if (file_exists($acquia_settings_file)) {
-      $content = file_get_contents($acquia_settings_file);
-      // Require '/var/www/site-php/your_site/your_site-settings.inc';.
-      if ($content !== FALSE && preg_match('/require\s+[\'"]\/var\/www\/site-php\/([a-z0-9_]+)\/[a-z0-9_]+-settings\.inc[\'"]\s*;/', $content, $matches) && !empty($matches[1])) {
-        return $matches[1];
-      }
-    }
-
     // Try Lagoon.
     $v = Env::getFromDotenv('LAGOON_PROJECT', $this->dstDir);
     if (!empty($v)) {
@@ -132,14 +119,8 @@ class HostingProjectName extends AbstractHandler {
 
     $v = $this->getResponseAsString();
     $t = $this->tmpDir;
-    $w = $this->webroot;
 
     Env::writeValueDotenv('VORTEX_ACQUIA_APP_NAME', $v, $t . '/.env');
-    // @deprecated The settings.acquia.php no longer uses hardcoded project
-    // names - it uses AH_SITE_GROUP environment variable instead. This
-    // replacement is kept for backward compatibility with older installations
-    // that may still use the hardcoded path pattern.
-    File::replaceContentInFile($t . '/' . $w . '/sites/default/includes/providers/settings.acquia.php', 'your_site', $v);
 
     Env::writeValueDotenv('LAGOON_PROJECT', $v, $t . '/.env');
     File::replaceContentInFile($t . '/drush/sites/lagoon.site.yml', 'your_site-${env-name}', $v . '-${env-name}');

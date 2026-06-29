@@ -1,4 +1,4 @@
-@@ -18,7 +18,6 @@
+@@ -19,7 +19,6 @@
          "drupal/deploy_steps": "__VERSION__",
          "drupal/devel": "__VERSION__",
          "drupal/drupal_helpers": "__VERSION__",

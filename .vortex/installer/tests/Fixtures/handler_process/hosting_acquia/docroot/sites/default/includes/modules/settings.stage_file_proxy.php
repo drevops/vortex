@@ -7,8 +7,10 @@
 
 declare(strict_types=1);
 
+use DrevOps\EnvironmentDetector\Environment;
+
 $stage_file_proxy_origin = getenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN');
-if (!empty($stage_file_proxy_origin) && $settings['environment'] !== ENVIRONMENT_PROD) {
+if (!empty($stage_file_proxy_origin) && $settings['environment'] !== Environment::PRODUCTION) {
   $stage_file_proxy_user = getenv('DRUPAL_SHIELD_USER');
   $stage_file_proxy_pass = getenv('DRUPAL_SHIELD_PASS');
   if (!empty($stage_file_proxy_user) && !empty($stage_file_proxy_pass)) {

@@ -1,4 +1,4 @@
-@@ -223,8 +223,6 @@
+@@ -236,8 +236,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -7,7 +7,7 @@
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
-@@ -281,8 +279,6 @@
+@@ -296,8 +294,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -16,7 +16,7 @@
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
      $this->assertConfig($config);
-@@ -341,8 +337,6 @@
+@@ -357,8 +353,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';

@@ -978,12 +978,16 @@ class SwitchableSettingsTest extends SettingsTestCase {
       [],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
       ],
     ];
     yield 'single domain' => [
       ['DRUPAL_TRUSTED_HOSTS' => 'example.com'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^example\.com$',
       ],
     ];
@@ -991,6 +995,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => 'example.com,www.example.com,cdn.example.org'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^example\.com$',
         '^www\.example\.com$',
         '^cdn\.example\.org$',
@@ -1000,6 +1006,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => ' example.com , , www.example.com '],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^example\.com$',
         '^www\.example\.com$',
       ],
@@ -1008,6 +1016,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => 'sub-domain.example.com,test.example-site.org'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^sub\-domain\.example\.com$',
         '^test\.example\-site\.org$',
       ],
@@ -1016,6 +1026,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => 'api.v2.example.com,cdn-assets.example-site.co.uk'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^api\.v2\.example\.com$',
         '^cdn\-assets\.example\-site\.co\.uk$',
       ],
@@ -1024,6 +1036,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => 'example.com,test.org,example.com,another.com,test.org'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^example\.com$',
         '^test\.org$',
         '^example\.com$',
@@ -1035,6 +1049,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => 'EXAMPLE.COM,Test.ORG,www.EXAMPLE-SITE.CO.UK'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^example\.com$',
         '^test\.org$',
         '^www\.example\-site\.co\.uk$',
@@ -1044,6 +1060,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ['DRUPAL_TRUSTED_HOSTS' => 'localhost,example.com,localhost,test.org'],
       [
         '^localhost$',
+        '^127\.0\.0\.1$',
+        '^(web|app|webserver|nginx|apache|apache2)$',
         '^localhost$',
         '^example\.com$',
         '^localhost$',

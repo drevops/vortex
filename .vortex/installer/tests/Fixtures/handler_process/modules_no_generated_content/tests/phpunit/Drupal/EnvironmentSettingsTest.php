@@ -1,4 +1,4 @@
-@@ -90,7 +90,6 @@
+@@ -99,7 +99,6 @@
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
        'devel',
@@ -6,7 +6,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -174,7 +173,6 @@
+@@ -185,7 +184,6 @@
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
        'devel',
@@ -14,7 +14,7 @@
        'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
-@@ -232,7 +230,6 @@
+@@ -245,7 +243,6 @@
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
        'devel',
@@ -22,7 +22,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -290,7 +287,6 @@
+@@ -305,7 +302,6 @@
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
        'devel',
@@ -30,7 +30,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -350,7 +346,6 @@
+@@ -366,7 +362,6 @@
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
        'devel',

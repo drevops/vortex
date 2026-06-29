@@ -52,26 +52,6 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
         $test->stubDotenvValue('VORTEX_ACQUIA_APP_NAME', 'discovered_acquia-project');
       },
     ];
-    yield 'hosting project name - acquia - discovery from settings.acquia.php' => [
-      [
-        HostingProvider::id() => Key::DOWN . Key::ENTER,
-      ],
-      [
-        HostingProvider::id() => HostingProvider::ACQUIA,
-        HostingProjectName::id() => 'discovered_from_settings',
-        DeployTypes::id() => [DeployTypes::ARTIFACT],
-        DatabaseFetchSource::id() => DatabaseFetchSource::ACQUIA,
-        Webroot::id() => Webroot::DOCROOT,
-      ] + $expected_defaults,
-      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        File::dump(static::$sut . '/web/sites/default/includes/providers/settings.acquia.php', <<<PHP
-<?php
-// Acquia settings file.
-require '/var/www/site-php/discovered_from_settings/discovered_from_settings-settings.inc';
-PHP
-        );
-      },
-    ];
     yield 'hosting project name - lagoon - prompt' => [
       [
         HostingProvider::id() => Key::DOWN . Key::DOWN . Key::ENTER . $clear_keys . 'my_lagoon-project',

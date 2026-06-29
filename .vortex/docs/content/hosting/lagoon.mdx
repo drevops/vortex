@@ -40,10 +40,11 @@ environment-specific configurations.
 
 ### Environment detection
 
-Vortex automatically detects when running on Lagoon and loads appropriate
-settings from [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
-This includes Lagoon-specific configurations for caching, file paths, and
-environment variables provided by the platform.
+Vortex automatically detects when running on Lagoon and applies the
+Lagoon-specific Drupal settings through the
+[`drevops/environment-detector`](https://github.com/drevops/environment-detector)
+package. This includes Lagoon-specific configurations for caching, file paths,
+and environment variables provided by the platform.
 
 ## Onboarding
 

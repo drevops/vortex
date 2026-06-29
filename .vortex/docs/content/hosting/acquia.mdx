@@ -42,10 +42,11 @@ operations.
 
 ### Environment detection
 
-Vortex automatically detects when running on Acquia and loads appropriate
-settings from [`web/sites/default/includes/providers/settings.acquia.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.acquia.php).
-This includes Acquia-specific configurations for caching, file paths, and
-environment variables.
+Vortex automatically detects when running on Acquia and applies the
+Acquia-specific Drupal settings through the
+[`drevops/environment-detector`](https://github.com/drevops/environment-detector)
+package. This includes Acquia-specific configurations for caching, file paths,
+and environment variables.
 
 #### Acquia settings file
 

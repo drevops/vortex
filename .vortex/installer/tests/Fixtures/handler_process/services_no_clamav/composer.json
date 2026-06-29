@@ -1,5 +1,5 @@
-@@ -9,7 +9,6 @@
-         "cweagans/composer-patches": "__VERSION__",
+@@ -10,7 +10,6 @@
+         "drevops/environment-detector": "dev-main",
          "drevops/vortex-tooling": "__VERSION__",
          "drupal/admin_toolbar": "__VERSION__",
 -        "drupal/clamav": "__VERSION__",

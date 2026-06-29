@@ -1,4 +1,4 @@
-@@ -89,7 +89,6 @@
+@@ -98,7 +98,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -6,7 +6,7 @@
        'generated_content',
        'testmode',
      ];
-@@ -173,7 +172,6 @@
+@@ -184,7 +183,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -14,7 +14,7 @@
        'generated_content',
        'testmode',
      ];
-@@ -231,7 +229,6 @@
+@@ -244,7 +242,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -22,7 +22,7 @@
        'generated_content',
        'testmode',
      ];
-@@ -289,7 +286,6 @@
+@@ -304,7 +301,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -30,7 +30,7 @@
        'generated_content',
        'testmode',
      ];
-@@ -349,7 +345,6 @@
+@@ -365,7 +361,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [

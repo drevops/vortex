@@ -7,6 +7,7 @@
         "php": ">=8.4",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^2.0",
+        "drevops/environment-detector": "dev-main",
         "drevops/vortex-tooling": "^2.0@alpha",
         "drupal/admin_toolbar": "^3.6.3",
         "drupal/clamav": "^2.1",

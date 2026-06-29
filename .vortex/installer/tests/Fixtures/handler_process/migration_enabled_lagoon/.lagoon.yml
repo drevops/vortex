@@ -39,7 +39,7 @@ tasks:
     - run:
         name: Backup DB before deployment in production
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${ENVIRONMENT_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
             VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./vendor/bin/vortex-export-db
           fi
@@ -48,7 +48,7 @@ tasks:
     - run:
         name: Download database in non-production environments
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" != "production" ] && [ "$LAGOON_GIT_BRANCH" != "${ENVIRONMENT_PRODUCTION_BRANCH:-main}" ]; then
             # No need to load SSH file to access production DB as Lagoon has SSH agent keys.
             export VORTEX_FETCH_DB_SSH_FILE=false
             export VORTEX_DB_DIR=/tmp/data
@@ -68,7 +68,7 @@ tasks:
     - run:
         name: Provision site
         command: |
-          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${VORTEX_LAGOON_PRODUCTION_BRANCH:-main}" ]; then
+          if [ "$LAGOON_ENVIRONMENT_TYPE" = "production" ] || [ "$LAGOON_GIT_BRANCH" = "${ENVIRONMENT_PRODUCTION_BRANCH:-main}" ]; then
             echo "==> Running in PRODUCTION environment."
             # Never overwrite existing DB when production site already exists.
             export VORTEX_PROVISION_OVERRIDE_DB=0

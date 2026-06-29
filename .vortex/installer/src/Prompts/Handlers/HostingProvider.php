@@ -111,7 +111,6 @@ class HostingProvider extends AbstractHandler {
 
   protected function removeAcquia(): void {
     File::remove($this->tmpDir . '/hooks');
-    File::remove(sprintf('%s/%s/sites/default/includes/providers/settings.acquia.php', $this->tmpDir, $this->webroot));
 
     File::removeTokenAsync('HOSTING_ACQUIA');
     File::removeTokenAsync('SETTINGS_PROVIDER_ACQUIA');
@@ -121,7 +120,6 @@ class HostingProvider extends AbstractHandler {
     File::remove($this->tmpDir . '/drush/sites/lagoon.site.yml');
     File::remove($this->tmpDir . '/.lagoon.yml');
     File::remove($this->tmpDir . '/.github/workflows/close-pull-request.yml');
-    File::remove(sprintf('%s/%s/sites/default/includes/providers/settings.lagoon.php', $this->tmpDir, $this->webroot));
 
     File::removeTokenAsync('HOSTING_LAGOON');
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');

@@ -111,8 +111,9 @@ and [Drupal > Theme Scaffold](./drupal/theme-scaffold)
 **Vortex** includes a structured way to manage Drupal settings per environment.
 Here's how it works:
 
-- The environment type (e.g. local, CI, stage) is automatically detected based
-  on the environment provider settings located in `web/sites/default/includes/providers/`.
+- The environment type (e.g. local, CI, stage, preview) is automatically
+  detected by the [`drevops/environment-detector`](https://github.com/drevops/environment-detector)
+  package, which also applies the hosting platform's environment-specific settings.
 - Settings overrides are stored in `web/sites/default/includes/modules/` with logic per
   environment inside each module-specific file.
 

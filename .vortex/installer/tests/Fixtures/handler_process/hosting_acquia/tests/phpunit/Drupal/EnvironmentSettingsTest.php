@@ -1,4 +1,4 @@
-@@ -58,6 +58,50 @@
+@@ -67,6 +67,50 @@
        self::ENVIRONMENT_LOCAL,
      ];
  
@@ -7,7 +7,7 @@
 +      [
 +        'AH_SITE_ENVIRONMENT' => TRUE,
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
@@ -37,24 +37,26 @@
 +      [
 +        'AH_SITE_ENVIRONMENT' => 'ode1',
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
 +        'AH_SITE_ENVIRONMENT' => 'nonode1',
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +
    }
  
    /**
-@@ -368,6 +412,337 @@
+@@ -384,6 +428,349 @@
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
      $settings['suspend_mail_send'] = TRUE;
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -73,7 +75,7 @@
 +    $config['config_split.config_split.dev']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PREVIEW;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -96,7 +98,7 @@
 +    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = self::ENVIRONMENT_DEV;
++    $settings['environment'] = self::ENVIRONMENT_PREVIEW;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -109,6 +111,8 @@
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -118,7 +122,7 @@
 +   */
 +  public function testEnvironmentAcquiaDev(): void {
 +    $this->setEnvVars([
-+      'AH_SITE_ENVIRONMENT' => 1,
++      'AH_SITE_ENVIRONMENT' => 'dev',
 +    ]);
 +
 +    $this->requireSettingsFile();
@@ -163,6 +167,8 @@
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -172,7 +178,7 @@
 +   */
 +  public function testEnvironmentAcquiaStage(): void {
 +    $this->setEnvVars([
-+      'AH_SITE_ENVIRONMENT' => 'stage',
++      'AH_SITE_ENVIRONMENT' => 'test',
 +    ]);
 +
 +    $this->requireSettingsFile();
@@ -217,6 +223,8 @@
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -268,6 +276,8 @@
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -277,7 +287,7 @@
 +   */
 +  public function testEnvironmentAcquiaConfigPathOverride(): void {
 +    $this->setEnvVars([
-+      'AH_SITE_ENVIRONMENT' => 1,
++      'AH_SITE_ENVIRONMENT' => 'dev',
 +      'DRUPAL_CONFIG_PATH' => 'custom_acquia_config',
 +    ]);
 +
@@ -323,6 +333,8 @@
 +    $settings['maintenance_theme'] = 'claro';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -336,7 +348,7 @@
 +   */
 +  public function testEnvironmentAcquiaConfigVcsDirectoryFallback(): void {
 +    $this->setEnvVars([
-+      'AH_SITE_ENVIRONMENT' => 1,
++      'AH_SITE_ENVIRONMENT' => 'dev',
 +    ]);
 +
 +    // Pre-seed config_vcs_directory to simulate the value set by the
@@ -386,4 +398,4 @@
 +    $settings['maintenance_theme'] = 'claro';
      $settings['trusted_host_patterns'] = [
        '^localhost$',
-     ];
+       '^127\.0\.0\.1$',

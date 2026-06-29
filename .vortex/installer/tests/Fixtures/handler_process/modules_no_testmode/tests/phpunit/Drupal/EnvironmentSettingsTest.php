@@ -1,4 +1,4 @@
-@@ -91,7 +91,6 @@
+@@ -100,7 +100,6 @@
      $settings['config_exclude_modules'] = [
        'devel',
        'generated_content',
@@ -6,7 +6,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -175,7 +174,6 @@
+@@ -186,7 +185,6 @@
      $settings['config_exclude_modules'] = [
        'devel',
        'generated_content',
@@ -14,7 +14,7 @@
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -233,7 +231,6 @@
+@@ -246,7 +244,6 @@
      $settings['config_exclude_modules'] = [
        'devel',
        'generated_content',
@@ -22,7 +22,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -291,7 +288,6 @@
+@@ -306,7 +303,6 @@
      $settings['config_exclude_modules'] = [
        'devel',
        'generated_content',
@@ -30,7 +30,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -351,7 +347,6 @@
+@@ -367,7 +363,6 @@
      $settings['config_exclude_modules'] = [
        'devel',
        'generated_content',
