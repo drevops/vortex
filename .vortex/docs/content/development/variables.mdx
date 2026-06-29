@@ -45,7 +45,10 @@ separate from the main `.env` file.
 ### Naming conventions
 
 All variables used by **Vortex** scripts start with the `VORTEX_` prefix to
-differentiate them from other environment variables.
+differentiate them from other environment variables. The exception is
+`LOCALDEV_URL`, the local development URL, which shares its value with the
+unprefixed hosting route (`LAGOON_ROUTE`) and is therefore used without the
+prefix.
 
 All Drupal-specific environment variables start with the `DRUPAL_` prefix.
 
