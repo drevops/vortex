@@ -146,9 +146,9 @@ if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   }
 }
 
-// Allow to override an environment type using the DRUPAL_ENVIRONMENT variable.
-if (!empty(getenv('DRUPAL_ENVIRONMENT'))) {
-  $settings['environment'] = getenv('DRUPAL_ENVIRONMENT');
+// Allow to override an environment type using the ENVIRONMENT_TYPE variable.
+if (!empty(getenv('ENVIRONMENT_TYPE'))) {
+  $settings['environment'] = getenv('ENVIRONMENT_TYPE');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
