@@ -293,7 +293,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentNoOverrides(): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => self::ENVIRONMENT_SUT,
+      'ENVIRONMENT_TYPE' => self::ENVIRONMENT_SUT,
     ]);
 
     $this->requireSettingsFile();
@@ -353,7 +353,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentOverrides(): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => self::ENVIRONMENT_SUT,
+      'ENVIRONMENT_TYPE' => self::ENVIRONMENT_SUT,
       // Database configuration.
       'DATABASE_NAME' => 'custom_db',
       'DATABASE_USERNAME' => 'custom_user',
@@ -455,7 +455,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentLocal(): void {
     $this->setEnvVars([
-      'DRUPAL_ENVIRONMENT' => self::ENVIRONMENT_LOCAL,
+      'ENVIRONMENT_TYPE' => self::ENVIRONMENT_LOCAL,
     ]);
 
     $this->requireSettingsFile();

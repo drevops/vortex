@@ -234,7 +234,7 @@ hosting platforms.
 #### Overriding environment type
 
 You can override the detected environment type by setting the
-`DRUPAL_ENVIRONMENT` environment variable.
+`ENVIRONMENT_TYPE` environment variable.
 
 This is useful when:
 
@@ -242,7 +242,7 @@ This is useful when:
 - Working around gaps in the detection logic.
 - Forcing a known environment type for debugging.
 
-For example, add `DRUPAL_ENVIRONMENT=ci` to your `.env.local` file to simulate
+For example, add `ENVIRONMENT_TYPE=ci` to your `.env.local` file to simulate
 the CI environment locally.
 
 ### Per-module overrides
