@@ -22,7 +22,7 @@ x-environment: &default-environment
   # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   # Local development URL.
-  VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+  LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
   # Local development route used in Lagoon images and Pygmy to route requests.
   LAGOON_ROUTE: *default-url
   # Local database host (variable is not used in hosting environment).

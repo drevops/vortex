@@ -7,7 +7,7 @@
 -  #[DataProvider('dataProviderConfigSplit')]
 -  public function testConfigSplit(string $env, array $expected_present, array $expected_absent): void {
 -    $this->setEnvVars([
--      'DRUPAL_ENVIRONMENT' => $env,
+-      'ENVIRONMENT_TYPE' => $env,
 -    ]);
 -
 -    $this->requireSettingsFile();
