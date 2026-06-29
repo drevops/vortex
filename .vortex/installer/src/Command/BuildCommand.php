@@ -139,7 +139,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    * Get the local development URL from Docker Compose configuration.
    *
    * Runs `docker compose config --format json` to get the resolved
-   * VORTEX_LOCALDEV_URL, which correctly accounts for COMPOSE_PROJECT_NAME.
+   * LOCALDEV_URL, which correctly accounts for COMPOSE_PROJECT_NAME.
    *
    * @return string|null
    *   The local development URL, or NULL if it cannot be determined.
@@ -158,9 +158,9 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       $config = json_decode($output, TRUE);
 
       if (is_array($config)) {
-        // Extract URL from any service that has VORTEX_LOCALDEV_URL.
-        $url = $config['services']['cli']['environment']['VORTEX_LOCALDEV_URL']
-          ?? $config['services']['webserver']['environment']['VORTEX_LOCALDEV_URL']
+        // Extract URL from any service that has LOCALDEV_URL.
+        $url = $config['services']['cli']['environment']['LOCALDEV_URL']
+          ?? $config['services']['webserver']['environment']['LOCALDEV_URL']
           ?? NULL;
 
         if ($url !== NULL) {

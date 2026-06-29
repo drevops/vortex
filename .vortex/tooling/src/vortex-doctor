@@ -193,7 +193,7 @@ if ($check_ssh === '1') {
 }
 
 if ($check_webserver === '1') {
-  $local_dev_url = trim((string) shell_exec("docker compose exec -T cli bash -c 'echo \${VORTEX_LOCALDEV_URL}' 2>/dev/null"));
+  $local_dev_url = trim((string) shell_exec("docker compose exec -T cli bash -c 'echo \${LOCALDEV_URL}' 2>/dev/null"));
 
   if ($local_dev_url !== '') {
     // Depending on the type of installation, the homepage may return 200 or 403.

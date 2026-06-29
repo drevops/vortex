@@ -31,7 +31,7 @@ info('Project information:');
 echo PHP_EOL;
 note('Project name                : %s', getenv('VORTEX_PROJECT') ?: '');
 note('Docker Compose project name : %s', getenv('COMPOSE_PROJECT_NAME') ?: '');
-note('Site local URL              : http://%s', getenv('VORTEX_LOCALDEV_URL') ?: '');
+note('Site local URL              : http://%s', getenv('LOCALDEV_URL') ?: '');
 note('Path to web root            : %s/%s', (string) getcwd(), $webroot);
 note('DB host                     : %s', getenv('DATABASE_HOST') ?: '');
 note('DB username                 : %s', getenv('DATABASE_USERNAME') ?: '');
