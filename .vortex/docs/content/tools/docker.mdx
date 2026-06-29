@@ -168,7 +168,7 @@ Consider the example:
 ```shell
 TZ: ${TZ:-UTC}
 # Local development URL.
-VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
 # Local development route used in Lagoon images and Pygmy to route requests.
 LAGOON_ROUTE: *default-url
 ```
@@ -178,10 +178,10 @@ where
 - `TZ: ${TZ:-UTC}` - defines a variable `TZ` with a
   default value of `UTC`, but only if `TZ` variable is
   not defined.
-- `VORTEX_LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - defines
-   a variable `VORTEX_LOCALDEV_URL` with a default value of
+- `LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - defines
+   a variable `LOCALDEV_URL` with a default value of
   `${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io`, but only if
-  `VORTEX_LOCALDEV_URL` variable is not defined. The value of the variable
+  `LOCALDEV_URL` variable is not defined. The value of the variable
   is also stored in a YAML anchor `default-url` for later use.
 - `LAGOON_ROUTE: *default-url` - defines a variable `LAGOON_ROUTE` with a value
   of `*default-url`, which is a reference to the `default-url` YAML anchor

@@ -121,7 +121,7 @@ commands:
 
   drush:
     usage: Run Drush commands in the CLI service container.
-    cmd: ahoy cli "vendor/bin/drush -l \${VORTEX_LOCALDEV_URL} $*"
+    cmd: ahoy cli "vendor/bin/drush -l \${LOCALDEV_URL} $*"
 
   #;< SERVICE_REDIS
   flush-redis:

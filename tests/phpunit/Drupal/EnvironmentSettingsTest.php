@@ -53,7 +53,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     // Container.
     yield [
       [
-        'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
+        'LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
       ],
       self::ENVIRONMENT_LOCAL,
     ];
@@ -510,7 +510,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   public function testEnvironmentLocalContainer(): void {
     $this->setEnvVars([
-      'VORTEX_LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
+      'LOCALDEV_URL' => 'https://example-site.docker.amazee.io',
     ]);
 
     $this->requireSettingsFile();

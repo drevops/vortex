@@ -53,14 +53,14 @@ class BuildCommandTest extends FunctionalTestCase {
 
     // Mock getOutput() to handle both string and array returns.
     // For 'docker' command (compose config), return JSON with
-    // VORTEX_LOCALDEV_URL. For other commands, return standard mock output.
+    // LOCALDEV_URL. For other commands, return standard mock output.
     $build_process_runner->method('getOutput')->willReturnCallback(function (bool $as_array = FALSE) use (&$current_command, $docker_compose_url): array|string {
       if ($current_command === 'docker' && $docker_compose_url !== NULL) {
         $config = [
           'services' => [
             'cli' => [
               'environment' => [
-                'VORTEX_LOCALDEV_URL' => $docker_compose_url,
+                'LOCALDEV_URL' => $docker_compose_url,
               ],
             ],
           ],

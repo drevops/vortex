@@ -10,7 +10,7 @@
 # Docker Compose to the name of the project directory.
 #
 # Override only if you need to use a different URL than the default.
-VORTEX_LOCALDEV_URL="${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io"
+LOCALDEV_URL="${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io"
 
 # Set to `1` to print debug information in Vortex scripts.
 VORTEX_DEBUG=
