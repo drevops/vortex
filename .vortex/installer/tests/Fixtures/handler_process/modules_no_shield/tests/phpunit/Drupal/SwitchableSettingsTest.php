@@ -6,7 +6,7 @@
 -   */
 -  #[DataProvider('dataProviderShield')]
 -  public function testShield(string $env, array $vars, array $expected_present, array $expected_absent = [], array $pre_config = []): void {
--    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+-    $this->setEnvVars($vars + ['ENVIRONMENT_TYPE' => $env]);
 -
 -    $this->requireSettingsFile([], $pre_config);
 -

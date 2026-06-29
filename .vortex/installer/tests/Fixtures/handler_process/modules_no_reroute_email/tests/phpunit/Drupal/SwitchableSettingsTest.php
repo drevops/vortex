@@ -6,7 +6,7 @@
 -   */
 -  #[DataProvider('dataProviderRerouteEmail')]
 -  public function testRerouteEmail(string $env, array $vars, array $expected_present, array $expected_absent = []): void {
--    $this->setEnvVars($vars + ['DRUPAL_ENVIRONMENT' => $env]);
+-    $this->setEnvVars($vars + ['ENVIRONMENT_TYPE' => $env]);
 -
 -    $this->requireSettingsFile();
 -
