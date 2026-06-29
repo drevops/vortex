@@ -7,7 +7,7 @@
         "php": "__VERSION__",
         "composer/installers": "__VERSION__",
         "cweagans/composer-patches": "__VERSION__",
-        "drevops/environment-detector": "dev-main",
+        "drevops/environment-detector": "__VERSION__",
         "drevops/vortex-tooling": "__VERSION__",
         "drupal/admin_toolbar": "__VERSION__",
         "drupal/clamav": "__VERSION__",

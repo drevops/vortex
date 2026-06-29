@@ -8,7 +8,7 @@
      "type": "project",
      "require": {
 @@ -10,7 +10,6 @@
-         "drevops/environment-detector": "dev-main",
+         "drevops/environment-detector": "__VERSION__",
          "drevops/vortex-tooling": "__VERSION__",
          "drupal/admin_toolbar": "__VERSION__",
 -        "drupal/clamav": "__VERSION__",
