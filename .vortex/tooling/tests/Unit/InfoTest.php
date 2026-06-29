@@ -21,7 +21,7 @@ class InfoTest extends UnitTestCase {
     $this->envSetMultiple([
       'VORTEX_PROJECT' => 'test_project',
       'COMPOSE_PROJECT_NAME' => 'test_compose',
-      'VORTEX_LOCALDEV_URL' => 'test-project.docker.amazee.io',
+      'LOCALDEV_URL' => 'test-project.docker.amazee.io',
       'WEBROOT' => 'web',
       'DATABASE_HOST' => 'database',
       'DATABASE_USERNAME' => 'drupal',
