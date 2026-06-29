@@ -14,7 +14,7 @@ COMPOSE_PROJECT_NAME=
 # Override detected Drupal environment type.
 #
 # Used in the application to override the automatically detected environment type.
-DRUPAL_ENVIRONMENT=
+ENVIRONMENT_TYPE=
 
 # Drupal hash salt.
 #
