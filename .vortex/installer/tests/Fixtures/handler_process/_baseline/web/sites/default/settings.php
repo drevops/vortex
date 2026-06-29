@@ -80,17 +80,6 @@ date_default_timezone_set((getenv('DRUPAL_TIMEZONE') ?: getenv('TZ')) ?: 'UTC');
 // Maintenance theme.
 $settings['maintenance_theme'] = (getenv('DRUPAL_MAINTENANCE_THEME') ?: getenv('DRUPAL_THEME')) ?: 'claro';
 
-// Trusted Host Patterns.
-// See https://www.drupal.org/node/2410395 for more information on how to
-// populate this array.
-// Settings for specific environments (including a local container-based
-// environment) are populated within provider-specific
-// `includes/providers/settings.<provider>.php` files.
-// @see https://www.vortextemplate.com/docs/drupal/settings#per-module-overrides
-$settings['trusted_host_patterns'] = [
-  '^localhost$',
-];
-
 // Modules excluded from config export.
 // Populate this array in the `includes/modules/settings.<module>.php` file.
 $settings['config_exclude_modules'] = [];
@@ -113,43 +102,9 @@ $settings['entity_update_batch_size'] = 50;
 ////////////////////////////////////////////////////////////////////////////////
 // @see https://www.vortextemplate.com/docs/drupal/settings#environment-type-detection
 
-// Use these constants anywhere in code to alter behavior for a specific
-// environment.
-// @codeCoverageIgnoreStart
-if (!defined('ENVIRONMENT_LOCAL')) {
-  define('ENVIRONMENT_LOCAL', 'local');
-}
-if (!defined('ENVIRONMENT_CI')) {
-  define('ENVIRONMENT_CI', 'ci');
-}
-if (!defined('ENVIRONMENT_DEV')) {
-  define('ENVIRONMENT_DEV', 'dev');
-}
-if (!defined('ENVIRONMENT_STAGE')) {
-  define('ENVIRONMENT_STAGE', 'stage');
-}
-if (!defined('ENVIRONMENT_PROD')) {
-  define('ENVIRONMENT_PROD', 'prod');
-}
-// @codeCoverageIgnoreEnd
-
-// Default environment type is 'local'.
-$settings['environment'] = ENVIRONMENT_LOCAL;
-
-// Load provider-specific environment detection settings.
-if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
-  $files = glob($app_root . '/' . $site_path . '/includes/providers/settings.*.php');
-  if ($files) {
-    foreach ($files as $file) {
-      require $file;
-    }
-  }
-}
-
-// Allow to override an environment type using the ENVIRONMENT_TYPE variable.
-if (!empty(getenv('ENVIRONMENT_TYPE'))) {
-  $settings['environment'] = getenv('ENVIRONMENT_TYPE');
-}
+// Detect the environment type from the hosting platform and apply the
+// platform-related settings.
+require $app_root . '/../vendor/drevops/environment-detector/environment.drupal.php';
 
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-MODULE OVERRIDES                               ///
