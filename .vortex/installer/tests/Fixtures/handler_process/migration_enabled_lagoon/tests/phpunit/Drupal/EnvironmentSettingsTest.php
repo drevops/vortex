@@ -1,4 +1,4 @@
-@@ -58,6 +58,186 @@
+@@ -67,6 +67,194 @@
        self::ENVIRONMENT_LOCAL,
      ];
  
@@ -7,7 +7,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +
 +    yield [
@@ -21,7 +21,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_GIT_BRANCH' => 'main',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'main',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => 'main',
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +      ],
 +      self::ENVIRONMENT_PROD,
@@ -30,7 +30,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_GIT_BRANCH' => 'main',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'master',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => 'master',
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +      ],
 +      self::ENVIRONMENT_STAGE,
@@ -39,7 +39,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_GIT_BRANCH' => 'master',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +      ],
 +      self::ENVIRONMENT_STAGE,
@@ -48,7 +48,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_GIT_BRANCH' => 'master',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'production',
 +      ],
 +      self::ENVIRONMENT_PROD,
@@ -57,7 +57,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_GIT_BRANCH' => 'main',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +      ],
 +      self::ENVIRONMENT_STAGE,
@@ -66,7 +66,7 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_GIT_BRANCH' => 'main',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'production',
 +      ],
 +      self::ENVIRONMENT_PROD,
@@ -78,7 +78,7 @@
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => 'release',
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
@@ -94,7 +94,7 @@
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => 'hotfix',
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
@@ -111,67 +111,67 @@
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => FALSE,
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +      ],
-+      self::ENVIRONMENT_DEV,
-+    ];
-+    yield [
-+      [
-+        'LAGOON_KUBERNETES' => 1,
-+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
-+        'LAGOON_GIT_BRANCH' => FALSE,
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-+      ],
-+      self::ENVIRONMENT_DEV,
-+    ];
-+    yield [
-+      [
-+        'LAGOON_KUBERNETES' => 1,
-+        'LAGOON_ENVIRONMENT_TYPE' => 'development',
-+        'LAGOON_GIT_BRANCH' => 'somebranch',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => FALSE,
-+      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => FALSE,
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => 'somebranch',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'otherbranch',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => FALSE,
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
++    ];
++    yield [
++      [
++        'LAGOON_KUBERNETES' => 1,
++        'LAGOON_ENVIRONMENT_TYPE' => 'development',
++        'LAGOON_GIT_BRANCH' => FALSE,
++        'ENVIRONMENT_PRODUCTION_BRANCH' => 'otherbranch',
++      ],
++      self::ENVIRONMENT_PREVIEW,
++    ];
++    yield [
++      [
++        'LAGOON_KUBERNETES' => 1,
++        'LAGOON_ENVIRONMENT_TYPE' => 'development',
++        'LAGOON_GIT_BRANCH' => 'somebranch',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => 'otherbranch',
++      ],
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => '',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => '',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => '',
 +      ],
-+      self::ENVIRONMENT_DEV,
++      self::ENVIRONMENT_PREVIEW,
 +    ];
 +    yield [
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
 +        'LAGOON_GIT_BRANCH' => 'mainbranch',
-+        'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'mainbranch',
++        'ENVIRONMENT_PRODUCTION_BRANCH' => 'mainbranch',
 +      ],
 +      self::ENVIRONMENT_PROD,
 +    ];
@@ -179,13 +179,21 @@
 +      [
 +        'LAGOON_KUBERNETES' => 1,
 +        'LAGOON_ENVIRONMENT_TYPE' => 'development',
++        'LAGOON_GIT_BRANCH' => 'develop',
 +      ],
 +      self::ENVIRONMENT_DEV,
++    ];
++    yield [
++      [
++        'LAGOON_KUBERNETES' => 1,
++        'LAGOON_ENVIRONMENT_TYPE' => 'development',
++      ],
++      self::ENVIRONMENT_PREVIEW,
 +    ];
    }
  
    /**
-@@ -150,6 +330,13 @@
+@@ -161,6 +349,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,10 +207,11 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -370,6 +557,260 @@
-     $settings['suspend_mail_send'] = TRUE;
+@@ -387,6 +582,268 @@
      $settings['trusted_host_patterns'] = [
        '^localhost$',
+       '^127\.0\.0\.1$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -225,7 +234,7 @@
 +    $config['config_split.config_split.dev']['status'] = TRUE;
 +    $config['environment_indicator.indicator']['bg_color'] = '#4caf50';
 +    $config['environment_indicator.indicator']['fg_color'] = '#000000';
-+    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_DEV;
++    $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_PREVIEW;
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -241,7 +250,7 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
-+    $settings['cache_prefix']['default'] = 'test_project_test_branch';
++    $settings['cache_prefix'] = 'test_project_test_branch';
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
@@ -250,7 +259,7 @@
 +    $settings['config_sync_directory'] = '../config/default';
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
 +    $settings['entity_update_batch_size'] = 50;
-+    $settings['environment'] = self::ENVIRONMENT_DEV;
++    $settings['environment'] = self::ENVIRONMENT_PREVIEW;
 +    $settings['file_public_path'] = 'sites/default/files';
 +    $settings['file_private_path'] = 'sites/default/files/private';
 +    $settings['file_temp_path'] = '/tmp';
@@ -264,9 +273,11 @@
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^(example1\.com|example2/com)$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -305,7 +316,7 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
-+    $settings['cache_prefix']['default'] = 'test_project_develop';
++    $settings['cache_prefix'] = 'test_project_develop';
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
@@ -328,9 +339,11 @@
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^(example1\.com|example2/com)$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -369,7 +382,7 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
-+    $settings['cache_prefix']['default'] = 'test_project_master';
++    $settings['cache_prefix'] = 'test_project_master';
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
@@ -392,9 +405,11 @@
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^(example1\.com|example2/com)$',
++      '^(web|app|webserver|nginx|apache|apache2)$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -410,7 +425,7 @@
 +      'LAGOON_PROJECT' => 'test_project',
 +      'LAGOON_GIT_BRANCH' => 'production',
 +      'LAGOON_GIT_SAFE_BRANCH' => 'production',
-+      'VORTEX_LAGOON_PRODUCTION_BRANCH' => 'production',
++      'ENVIRONMENT_PRODUCTION_BRANCH' => 'production',
 +    ]);
 +
 +    $this->requireSettingsFile();
@@ -431,7 +446,7 @@
 +    $this->assertConfig($config);
 +
 +    $settings['auto_create_htaccess'] = FALSE;
-+    $settings['cache_prefix']['default'] = 'test_project_production';
++    $settings['cache_prefix'] = 'test_project_production';
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
@@ -454,9 +469,10 @@
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
++      '^127\.0\.0\.1$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^(example1\.com|example2/com)$',
+       '^(web|app|webserver|nginx|apache|apache2)$',
      ];
      $this->assertSettings($settings);
-   }

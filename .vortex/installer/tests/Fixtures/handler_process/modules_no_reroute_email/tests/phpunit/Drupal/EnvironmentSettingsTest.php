@@ -1,4 +1,4 @@
-@@ -79,9 +79,6 @@
+@@ -88,9 +88,6 @@
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
@@ -8,7 +8,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-@@ -162,9 +159,6 @@
+@@ -173,9 +170,6 @@
      $config['shield.settings']['shield_enable'] = TRUE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
@@ -18,7 +18,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-@@ -220,9 +214,6 @@
+@@ -233,9 +227,6 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -28,7 +28,7 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-@@ -278,9 +269,6 @@
+@@ -293,9 +284,6 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
@@ -38,7 +38,7 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-@@ -338,9 +326,6 @@
+@@ -354,9 +342,6 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;

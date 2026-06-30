@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal;
 
+use DrevOps\EnvironmentDetector\Environment;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -40,14 +41,19 @@ abstract class SettingsTestCase extends TestCase {
   final const ENVIRONMENT_STAGE = 'stage';
 
   /**
-   * Defines a constant for the name of the 'dev' environment.
+   * Defines a constant for the name of the 'development' environment.
    */
-  final const ENVIRONMENT_DEV = 'dev';
+  final const ENVIRONMENT_DEV = 'development';
 
   /**
-   * Defines a constant for the name of the 'prod' environment.
+   * Defines a constant for the name of the 'production' environment.
    */
-  final const ENVIRONMENT_PROD = 'prod';
+  final const ENVIRONMENT_PROD = 'production';
+
+  /**
+   * Defines a constant for the name of the 'preview' environment.
+   */
+  final const ENVIRONMENT_PREVIEW = 'preview';
 
   /**
    * Defines a constant for the allowed environment variables.
@@ -70,6 +76,9 @@ abstract class SettingsTestCase extends TestCase {
     // Vortex and Drupal variables.
     'VORTEX_',
     'DRUPAL_',
+    // Environment detector variables.
+    'ENVIRONMENT_',
+    'LOCALDEV_URL',
   ];
 
   /**
@@ -145,6 +154,19 @@ abstract class SettingsTestCase extends TestCase {
       $vars['CI'] = FALSE;
     }
 
+    // Do not let a real CI platform variable leak in and activate a detector
+    // platform during the test run. NULL unsets it so the platform reports
+    // inactive; an empty string would still count as present.
+    if (!isset($vars['CIRCLECI'])) {
+      $vars['CIRCLECI'] = NULL;
+    }
+
+    // Clear any leaked detected type unless a test pre-sets ENVIRONMENT_TYPE to
+    // force one (the detector treats a pre-set value as an override).
+    if (!isset($vars['ENVIRONMENT_TYPE'])) {
+      $vars['ENVIRONMENT_TYPE'] = NULL;
+    }
+
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues(static::ALLOWED_ENV_VARS);
 
@@ -202,6 +224,13 @@ abstract class SettingsTestCase extends TestCase {
     $config = $pre_config;
     $settings = $pre_settings;
     $databases = [];
+
+    // Reset the detector and the type it caches so each settings.php require
+    // re-detects from the variables set for this test. The detector's Drupal
+    // context holds the local $settings/$config by reference (via
+    // environment.drupal.php), so its changes are captured in the local
+    // variables above.
+    Environment::reset(TRUE);
 
     putenv('DRUPAL_SETTINGS_LOCAL_SKIP=1');
     require $app_root . DIRECTORY_SEPARATOR . $site_path . DIRECTORY_SEPARATOR . 'settings.php';

@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
-if ($settings['environment'] !== ENVIRONMENT_PROD) {
+use DrevOps\EnvironmentDetector\Environment;
+
+if ($settings['environment'] !== Environment::PRODUCTION) {
   $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
 }

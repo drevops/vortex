@@ -1,4 +1,4 @@
-@@ -16,7 +16,6 @@
+@@ -17,7 +17,6 @@
          "drupal/core-composer-scaffold": "__VERSION__",
          "drupal/core-recommended": "__VERSION__",
          "drupal/deploy_steps": "__VERSION__",

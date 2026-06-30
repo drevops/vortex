@@ -35,7 +35,7 @@ function ys_base_deploy_create_about_page(): string {
   $environment = \Drupal\Core\Site\Settings::get('environment');
 
   // Conditional execution based on environment.
-  if ($environment === ENVIRONMENT_PROD) {
+  if ($environment === \DrevOps\EnvironmentDetector\Environment::PRODUCTION) {
     return 'Skipped in production environment';
   }
 

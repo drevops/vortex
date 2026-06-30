@@ -1,4 +1,4 @@
-@@ -11,7 +11,6 @@
+@@ -12,7 +12,6 @@
   *
   * Base class for testing Drupal settings.
   *

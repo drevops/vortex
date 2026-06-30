@@ -186,55 +186,69 @@ for platform-specific guidance.
 
 ### Environment type detection
 
-**Vortex** defines an _environment type_ to represent the context in which the
-Drupal site is running — such as local, CI, development, staging, or production.
-This concept allows the system to conditionally adjust settings and behaviors
-depending on the runtime environment.
+**Vortex** uses an _environment type_ to represent the context in which the
+Drupal site is running. Detection is delegated to the
+[`drevops/environment-detector`](https://github.com/drevops/environment-detector)
+package, which identifies the active _hosting platform_ (such as Acquia or
+Lagoon) or _CI service_, resolves the environment type, and applies that
+platform's environment-specific Drupal settings.
 
-The _environment type_ is detected automatically based on known _hosting provider_
-indicators or predefined environment variables. Detection logic is intentionally
-isolated from configuration logic — it identifies the context but does not apply
-any overrides directly.
+The detector recognizes six environment types:
 
-Once detected, the environment type value is stored in the `$settings['environment']`
-, which can be used by modules, settings overrides, and shell scripts to
-drive environment-specific behavior.
+| Type | What it is | Lifespan |
+|------|------------|----------|
+| `local` | Your own machine or a local container stack; no hosting platform is active. | Persistent |
+| `ci` | An automated CI runner (GitHub Actions, CircleCI). | Ephemeral, per job |
+| `development` | A shared, long-lived hosting environment for ongoing integration work. Also the safe fallback. | Persistent |
+| `preview` | A short-lived, throwaway per-branch or per-PR environment with its own URL. | Ephemeral |
+| `stage` | A persistent pre-production environment that mirrors production; used for UAT and release sign-off. | Persistent |
+| `production` | The live environment serving real users. | Persistent |
+
+On the Drupal side, the detected type is stored in `$settings['environment']`,
+which modules and settings overrides use to drive environment-specific
+behavior; shell scripts read the `ENVIRONMENT_TYPE` environment variable
+instead. **Vortex** treats `preview` the same as `development` in its module
+settings.
 
 #### Environment type constants
 
-**Vortex** defines the following constants to represent supported environments:
+The detector exposes the supported environment types as constants on the
+`DrevOps\EnvironmentDetector\Environment` class:
 
-- `ENVIRONMENT_LOCAL`
-- `ENVIRONMENT_CI`
-- `ENVIRONMENT_DEV`
-- `ENVIRONMENT_STAGE`
-- `ENVIRONMENT_PROD`
+- `Environment::LOCAL` (`local`)
+- `Environment::CI` (`ci`)
+- `Environment::DEVELOPMENT` (`development`)
+- `Environment::PREVIEW` (`preview`)
+- `Environment::STAGE` (`stage`)
+- `Environment::PRODUCTION` (`production`)
 
-These constants are used consistently throughout settings files and scripts to
-determine conditional behavior.
+Use these constants in module settings files instead of hardcoding the string
+values.
 
 #### Detection mechanism
 
-The detection process uses indicators provided by known cloud hosting platforms. Logic
-for supported providers is stored in the `includes/providers` directory.
+The detector resolves the environment type from the active platform and applies
+that platform's Drupal settings (reverse proxy, trusted hosts, file paths, and
+similar):
 
-To add support for a custom platform, simply create a `settings.[provider].php`
-file in that directory with the relevant detection logic.
+- If a hosting platform or CI service is detected, it determines the environment
+  type.
+- If the active platform cannot determine a specific type, the type falls back
+  to `Environment::DEVELOPMENT` — the safest default, so a misconfigured
+  environment never receives local settings in production or production settings
+  locally.
+- If no platform is detected, the type is `Environment::CI` when a generic CI
+  signal is present, otherwise `Environment::LOCAL`.
 
-- If a provider is detected, the default environment type is set to `ENVIRONMENT_DEV`.
-- Additional provider-specific conditions can elevate this to `ENVIRONMENT_STAGE` or `ENVIRONMENT_PROD`.
-- If no provider is detected, the environment type defaults to `ENVIRONMENT_LOCAL`.
-
-It is important to note that this detection logic is only responsible for
-identifying the environment type. It does not apply any configuration changes.
-Those are handled separately in per-module override files located in
-`includes/providers`, making the setup modular and independent of the cloud
-hosting platforms.
+The detector owns all environment-specific settings. **Vortex** only bridges a
+few of its own variables (such as the Lagoon production branch and the local
+development URL) to the variable names the detector reads.
 
 #### Overriding environment type
 
 You can override the detected environment type by setting the
-`ENVIRONMENT_TYPE` environment variable.
+`ENVIRONMENT_TYPE` environment variable. When it is set before detection, the
+detector uses its value verbatim.
 
 This is useful when:
 
@@ -265,7 +279,7 @@ web/sites/default/includes/modules/settings.[module_name].php
 
 Each settings file should:
 
-- Use environment type constants (`ENVIRONMENT_LOCAL`, `ENVIRONMENT_PROD`, etc.) for conditional logic
+- Use the environment detector's constants (`Environment::LOCAL`, `Environment::PRODUCTION`, etc.) for conditional logic
 - Leverage environment variables for configuration values
 - Provide sensible defaults when environment variables are not set
 - Be self-contained and removable without affecting other modules
@@ -291,6 +305,7 @@ local development, and CI environments accessible without authentication.
 | Local       | No             | No need for HTTP auth during local development  |
 | CI          | No             | Automated tests must access the site freely     |
 | Dev         | **Yes**        | Protects development environments from crawlers |
+| Preview     | **Yes**        | Protects ephemeral preview environments         |
 | Stage       | **Yes**        | Protects staging environments from public access|
 | Prod        | No             | Production is publicly accessible                |
 
@@ -333,11 +348,12 @@ tested.
 | Local       | No                | Emails are typically not sent in local development            |
 | CI          | No                | Automated tests do not send real emails                       |
 | Dev         | **Yes**           | Prevents accidental delivery to real users                    |
+| Preview     | **Yes**           | Prevents accidental delivery to real users                    |
 | Stage       | No                | Stage may require real email delivery for UAT                 |
 | Prod        | No                | Production emails must reach actual recipients                |
 
-Rerouting is also enabled in any custom environments (e.g., PR environments)
-that do not match the standard environment types listed above.
+Rerouting is also enabled in any custom environments that do not match the
+standard environment types listed above.
 
 **Environment variables:**
 

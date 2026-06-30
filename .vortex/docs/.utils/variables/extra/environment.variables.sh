@@ -11,9 +11,10 @@
 # Defaults to the name of the project directory.
 COMPOSE_PROJECT_NAME=
 
-# Override detected Drupal environment type.
+# Override the detected environment type.
 #
-# Used in the application to override the automatically detected environment type.
+# Set before detection to force a specific environment type. Read by the
+# environment detector.
 ENVIRONMENT_TYPE=
 
 # Drupal hash salt.

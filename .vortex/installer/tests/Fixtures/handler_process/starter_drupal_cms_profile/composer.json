@@ -1,4 +1,4 @@
-@@ -10,6 +10,7 @@
+@@ -11,6 +11,7 @@
          "drevops/vortex-tooling": "__VERSION__",
          "drupal/admin_toolbar": "__VERSION__",
          "drupal/clamav": "__VERSION__",
@@ -6,7 +6,7 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -34,7 +35,9 @@
+@@ -35,7 +36,9 @@
          "drupal/testmode": "__VERSION__",
          "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__",
@@ -17,7 +17,7 @@
      },
      "require-dev": {
          "behat/behat": "__VERSION__",
-@@ -70,7 +73,7 @@
+@@ -71,7 +74,7 @@
              "url": "https://packages.drupal.org/8"
          }
      ],
@@ -26,7 +26,7 @@
      "prefer-stable": true,
      "autoload-dev": {
          "classmap": [
-@@ -87,7 +90,11 @@
+@@ -88,7 +91,11 @@
              "php-http/discovery": true,
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
@@ -39,7 +39,7 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -162,6 +169,19 @@
+@@ -163,6 +170,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },

@@ -1,4 +1,4 @@
-@@ -62,6 +62,7 @@
+@@ -68,6 +68,7 @@
    const ALLOWED_ENV_VARS = [
      // Service variables.
      'DATABASE_',
