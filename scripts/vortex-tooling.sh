@@ -8,7 +8,8 @@
 # Composer project in 'vendor-temp/', so the project's main vendor/ and
 # composer.lock are not touched.
 #
-# Idempotent: exits early if 'vendor/drevops/vortex-tooling/' already exists.
+# Idempotent: exits early only once the package and its 'vendor/bin/vortex-*'
+# proxies are both present.
 #
 # Patches declared for 'drevops/vortex-tooling' in the project composer.json
 # under 'extra.patches' (and the optional 'extra.patches-file') are copied
@@ -20,8 +21,8 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Already installed - nothing to do.
-if [ -d ./vendor/drevops/vortex-tooling ]; then
+# Already installed and its binaries linked - nothing to do.
+if [ -d ./vendor/drevops/vortex-tooling ] && ls ./vendor/bin/vortex-* >/dev/null 2>&1; then
   exit 0
 fi
 
