@@ -68,15 +68,19 @@ Work through each checklist item from the release process doc:
    (`phpVersion`), and `phpcs.xml` (`testVersion`) if needed.
 4. **Composer packages** - Run `composer update -W` then check composer.json was bumped
    (the project uses `bump-after-update` config).
-   - **`drevops/vortex-tooling` version pin (update ALL spots in lockstep).** When
+   - **`drevops/vortex-tooling` version pin (update EVERY spot in lockstep).** When
      `.vortex/tooling/` changed and a new `drevops/vortex-tooling` tag is published for
-     this release, the pinned version MUST be updated in **three** places at once, or the
-     dev/CI `require-tooling` bootstrap becomes unresolvable and every CI job fails:
-     (a) the `require` constraint in root `composer.json`; (b) the path-repository
-     `versions` override in root `composer.json`; and (c) the hardcoded `versions`
-     override in `scripts/vortex-tooling.sh` (inside the `#;< VORTEX_DEV` throwaway
-     path-repo config). After bumping, grep the repo for the previous tooling version to
-     confirm no spot was missed.
+     this release, the pinned version MUST be updated in **all** the spots below at once,
+     or resolution breaks and CI fails - the dev/CI `require-tooling` bootstrap becomes
+     unresolvable, and the workflow-test SUT Docker build hits a higher-priority path repo
+     that no longer matches the `~<new>` constraint: (a) the `require` constraint in root
+     `composer.json`; (b) the path-repository `versions` override in root `composer.json`;
+     (c) the hardcoded `versions` override in `scripts/vortex-tooling.sh` (inside the
+     `#;< VORTEX_DEV` throwaway path-repo config); and (d) the `versions` override in
+     `.vortex/tests/phpunit/Traits/SutTrait.php` (the test-harness `.tooling-source` path
+     repo). **After bumping, grep the whole repo for the previous tooling version**
+     (e.g. `grep -rn "vortex-tooling.*<old-version>" --exclude-dir=vendor`) - this is the
+     authoritative check, since new pin spots have been added over time.
 5. **Theme dependencies** - Run `yarn upgrade` in `web/themes/custom/your_site_theme/`.
    Use yarn, NOT npm.
 6. **CI runner** - Check if `drevops/ci-runner` is at the latest version.
