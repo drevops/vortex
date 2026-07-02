@@ -1,4 +1,4 @@
-@@ -43,7 +43,7 @@
+@@ -46,7 +46,7 @@
    pass "Created the content model."
  
    task "Setting site name."
@@ -7,7 +7,7 @@
    pass "Set site name."
  
    task "Installing contrib modules."
-@@ -76,11 +76,11 @@
+@@ -79,11 +79,11 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."

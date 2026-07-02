@@ -1,4 +1,4 @@
-@@ -59,10 +59,6 @@
+@@ -62,10 +62,6 @@
    drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
    pass "Installed and configured ClamAV."
  
@@ -9,7 +9,7 @@
    task "Installing Single Directory Component development tools."
    drush pm:install sdc_devel || true
    pass "Installed Single Directory Component development tools."
-@@ -77,8 +73,6 @@
+@@ -80,8 +76,6 @@
    # parent "provision.sh" script.
    task "Installing custom site modules."
    drush pm:install sw_base
