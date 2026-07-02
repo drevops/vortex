@@ -39,7 +39,7 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   # The demo site modules attach behaviour to the 'page' content type, so it
   # must exist before those modules are installed and their deploy hooks run.
   task "Creating the content model."
-  drush recipe "$(pwd)/recipes/page"
+  ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
   pass "Created the content model."
 
   task "Setting site name."
