@@ -1,4 +1,4 @@
-@@ -35,10 +35,8 @@
+@@ -38,10 +38,8 @@
  !.stylelintrc.js
  !.twig-cs-fixer.php
  !auth.json
@@ -9,7 +9,7 @@
  !jest.config.js
  !package-lock.json
  !package.json
-@@ -46,7 +44,6 @@
+@@ -49,7 +47,6 @@
  !patches.lock.json
  !phpcs.xml
  !phpstan.neon
