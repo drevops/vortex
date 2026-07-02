@@ -36,6 +36,15 @@ note "Environment: ${environment}"
 if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   note "Running example operations in non-production environment."
 
+  # The demo site modules attach behaviour to the 'page' content type, so it
+  # must exist before those modules are installed and their deploy hooks run.
+  task "Creating the content model."
+  # Guard against environments where the Drupal CLI is not available.
+  if [ -x ./vendor/bin/dr ]; then
+    ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
+  fi
+  pass "Created the content model."
+
   task "Setting site name."
   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
   pass "Set site name."

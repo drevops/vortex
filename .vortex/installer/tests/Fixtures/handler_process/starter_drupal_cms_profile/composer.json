@@ -26,10 +26,10 @@
      "prefer-stable": true,
      "autoload-dev": {
          "classmap": [
-@@ -86,7 +89,11 @@
-             "php-http/discovery": true,
+@@ -87,7 +90,11 @@
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
+             "symfony/runtime": true,
 -            "tbachert/spi": true
 +            "tbachert/spi": true,
 +            "drupal/core-project-message": true,
@@ -39,7 +39,7 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -161,6 +168,19 @@
+@@ -162,6 +169,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
