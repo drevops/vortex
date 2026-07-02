@@ -39,7 +39,10 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   # The demo site modules attach behaviour to the 'page' content type, so it
   # must exist before those modules are installed and their deploy hooks run.
   task "Creating the content model."
-  ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
+  # Guard against environments where the Drupal CLI is not available.
+  if [ -x ./vendor/bin/dr ]; then
+    ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
+  fi
   pass "Created the content model."
 
   task "Setting site name."
