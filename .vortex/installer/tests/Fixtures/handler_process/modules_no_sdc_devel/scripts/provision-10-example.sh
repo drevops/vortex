@@ -1,4 +1,4 @@
-@@ -57,10 +57,6 @@
+@@ -63,10 +63,6 @@
    drush pm:install search_api search_api_solr
    pass "Installed Solr search modules."
  

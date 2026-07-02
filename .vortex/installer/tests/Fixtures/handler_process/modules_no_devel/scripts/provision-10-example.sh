@@ -1,4 +1,4 @@
-@@ -61,10 +61,6 @@
+@@ -67,10 +67,6 @@
    drush pm:install sdc_devel || true
    pass "Installed Single Directory Component development tools."
  

@@ -1,4 +1,4 @@
-@@ -44,10 +44,6 @@
+@@ -50,10 +50,6 @@
    drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
    pass "Installed contrib modules."
  

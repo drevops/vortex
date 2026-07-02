@@ -1,4 +1,4 @@
-@@ -40,10 +40,6 @@
+@@ -46,10 +46,6 @@
    drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
    pass "Set site name."
  
@@ -9,7 +9,7 @@
    task "Installing Redis module."
    drush pm:install redis || true
    pass "Installed Redis module."
-@@ -56,14 +52,6 @@
+@@ -62,14 +58,6 @@
    task "Installing Solr search modules."
    drush pm:install search_api search_api_solr
    pass "Installed Solr search modules."
