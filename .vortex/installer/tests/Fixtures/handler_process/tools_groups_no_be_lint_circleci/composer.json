@@ -35,5 +35,5 @@
              "php-http/discovery": true,
 -            "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
+             "symfony/runtime": true,
              "tbachert/spi": true
-         },

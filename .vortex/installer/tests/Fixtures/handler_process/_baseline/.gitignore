@@ -40,6 +40,7 @@ web/sites/default/*
 
 # Ignore all recipes by default. Custom recipes should be added explicitly.
 recipes/*
+!recipes/page
 
 # Ignore all Claude files by default. Custom files should be added explicitly.
 !.claude

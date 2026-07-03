@@ -67,7 +67,7 @@
  
  # Ignore all recipes by default. Custom recipes should be added explicitly.
  recipes/*
-@@ -49,10 +49,10 @@
+@@ -50,10 +50,10 @@
  # Ignore dependencies cache files.
  /vendor
  /node_modules
