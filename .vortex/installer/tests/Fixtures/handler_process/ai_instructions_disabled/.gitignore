@@ -1,6 +1,6 @@
-@@ -41,11 +41,6 @@
- # Ignore all recipes by default. Custom recipes should be added explicitly.
+@@ -42,11 +42,6 @@
  recipes/*
+ !recipes/page
  
 -# Ignore all Claude files by default. Custom files should be added explicitly.
 -!.claude
