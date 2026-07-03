@@ -60,9 +60,9 @@ aliases:
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
           #;< DEPLOY_TYPES_ARTIFACT
-          # Directory to use for artifact deployments.
+          # Directory with the source code used for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
-          # Source code location for artifact deployments.
+          # Root directory the deployment script runs from.
           VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
