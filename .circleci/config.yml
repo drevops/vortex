@@ -19,9 +19,11 @@ aliases:
   - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
   #;> !PROVISION_TYPE_PROFILE
 
+  #;< DEPLOYMENT
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
   - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
+  #;> DEPLOYMENT
 
   # Shared runner container configuration applied to each job.
   - &runner_config
@@ -30,7 +32,9 @@ aliases:
       #;< !PROVISION_TYPE_PROFILE
       VORTEX_FETCH_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       #;> !PROVISION_TYPE_PROFILE
+      #;< DEPLOYMENT
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+      #;> DEPLOYMENT
     docker:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
@@ -64,12 +68,14 @@ aliases:
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
+          #;< DEPLOY_TYPES_ARTIFACT
           # Directory to use for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
           # Source code location for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
           # Report file location for artifact deployments.
           VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
+          #;> DEPLOY_TYPES_ARTIFACT
           # Check only minimal stack requirements.
           VORTEX_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.
@@ -497,17 +503,21 @@ jobs:
             du -sh "/tmp/workspace/code"
       #;> DEPLOY_TYPES_ARTIFACT
 
+      #;< DEPLOY_TYPES_ARTIFACT
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
             - code
+      #;> DEPLOY_TYPES_ARTIFACT
 
   # Deploy primary branches.
   deploy: &job_deploy
     <<: *runner_config
     steps:
+      #;< DEPLOY_TYPES_ARTIFACT
       - attach_workspace:
           at: /tmp/workspace
+      #;> DEPLOY_TYPES_ARTIFACT
 
       - add_ssh_keys:
           fingerprints:
@@ -545,8 +555,10 @@ jobs:
   deploy-tags: &job-deploy-tags
     <<: *runner_config
     steps:
+      #;< DEPLOY_TYPES_ARTIFACT
       - attach_workspace:
           at: /tmp/workspace
+      #;> DEPLOY_TYPES_ARTIFACT
 
       - add_ssh_keys:
           fingerprints:

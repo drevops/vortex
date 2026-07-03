@@ -651,6 +651,7 @@ jobs:
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
 
+      #;< DEPLOY_TYPES_ARTIFACT
       # Artifact deployments do not work for manual deploys as the build job is skipped.
       - name: Download exported codebase as an artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -664,6 +665,7 @@ jobs:
         run: |
           mkdir -p /tmp/workspace
           tar -xpf /tmp/artifacts/code.tar -C /tmp/workspace
+      #;> DEPLOY_TYPES_ARTIFACT
 
       - name: Add SSH private key to the runner
         if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
@@ -685,12 +687,16 @@ jobs:
           VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
           VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
           VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          #;< DEPLOY_TYPES_ARTIFACT
           VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
           VORTEX_DEPLOY_ARTIFACT_ROOT: ${{ github.workspace }}
           VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
           VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL }}
           VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
+          #;> DEPLOY_TYPES_ARTIFACT
+          #;< DEPLOY_TYPES_WEBHOOK
           VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
+          #;> DEPLOY_TYPES_WEBHOOK
           VORTEX_DEPLOY_SKIP: ${{ vars.VORTEX_DEPLOY_SKIP }}
           VORTEX_DEPLOY_ALLOW_SKIP: ${{ vars.VORTEX_DEPLOY_ALLOW_SKIP }}
           VORTEX_DEPLOY_SKIP_PRS: ${{ vars.VORTEX_DEPLOY_SKIP_PRS }}
