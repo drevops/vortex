@@ -266,6 +266,7 @@ class Customizer {
   protected int $rows = 40;
   protected int $scroll = 0;
   protected string $scrollKey = '';
+  protected bool $manualScroll = FALSE;
 
   protected $in;
   protected string $buf = '';
@@ -660,6 +661,7 @@ class Customizer {
     if ($key !== $this->scrollKey) {
       $this->scrollKey = $key;
       $this->scroll = 0;
+      $this->manualScroll = FALSE;
     }
 
     $header = $f['header'];
@@ -669,7 +671,7 @@ class Customizer {
     $total = count($body);
 
     $offset = $this->scroll;
-    if ($f['focus'] >= 0) {
+    if ($f['focus'] >= 0 && !$this->manualScroll) {
       if ($f['focus'] < $offset) {
         $offset = $f['focus'];
       }
@@ -733,7 +735,7 @@ class Customizer {
     if (ord($c) === 0x1b) {
       stream_set_blocking($this->in, FALSE);
       $seq = '';
-      for ($i = 0; $i < 6; $i++) {
+      for ($i = 0; $i < 32; $i++) {
         $n = fread($this->in, 1);
         if ($n === '' || $n === FALSE) {
           usleep(1200);
@@ -760,7 +762,7 @@ class Customizer {
     $c = $this->buf[$this->bufPos++];
     if (ord($c) === 0x1b) {
       $seq = '';
-      while ($this->bufPos < strlen($this->buf) && strlen($seq) < 6) {
+      while ($this->bufPos < strlen($this->buf) && strlen($seq) < 32) {
         $n = $this->buf[$this->bufPos++];
         $seq .= $n;
         if (ctype_alpha($n) || $n === '~') {
@@ -780,7 +782,19 @@ class Customizer {
       return 'ESC';
     }
     if ($seq[0] === '[' || $seq[0] === 'O') {
-      return match (substr($seq, 1)) {
+      $rest = substr($seq, 1);
+      // SGR mouse report: <button;col;row(M|m). Wheel up = 64, wheel down = 65.
+      if (($rest[0] ?? '') === '<') {
+        if (preg_match('/^<(\d+);\d+;\d+[Mm]$/', $rest, $m)) {
+          return match ((int) $m[1]) {
+            64 => 'SCROLL_UP',
+            65 => 'SCROLL_DOWN',
+            default => 'NONE',
+          };
+        }
+        return 'NONE';
+      }
+      return match ($rest) {
         'A' => 'UP', 'B' => 'DOWN', 'C' => 'RIGHT', 'D' => 'LEFT',
         '5~' => 'PGUP', '6~' => 'PGDN',
         'H', '1~', '7~' => 'HOME',
@@ -814,7 +828,8 @@ class Customizer {
     $this->sttyRestore = trim((string) shell_exec('stty -g 2>/dev/null'));
     shell_exec('stty -icanon -echo -isig min 1 time 0 2>/dev/null');
     register_shutdown_function([$this, 'restore']);
-    echo "\033[?1049h\033[?25l";
+    // Alt screen + hide cursor + SGR mouse tracking (for wheel scrolling).
+    echo "\033[?1049h\033[?25l\033[?1000h\033[?1006h";
 
     while (TRUE) {
       $this->paint();
@@ -852,9 +867,11 @@ class Customizer {
    * `type:<text>`, or a single char.
    */
   public function runKeys(string $spec): int {
-    $map = ['up' => 'UP', 'down' => 'DOWN', 'left' => 'LEFT', 'right' => 'RIGHT', 'enter' => 'ENTER', 'esc' => 'ESC', 'space' => 'SPACE', 'back' => 'BACKSPACE', 'pgup' => 'PGUP', 'pgdn' => 'PGDN', 'home' => 'HOME', 'end' => 'END'];
+    $map = ['up' => 'UP', 'down' => 'DOWN', 'left' => 'LEFT', 'right' => 'RIGHT', 'enter' => 'ENTER', 'esc' => 'ESC', 'space' => 'SPACE', 'back' => 'BACKSPACE', 'pgup' => 'PGUP', 'pgdn' => 'PGDN', 'home' => 'HOME', 'end' => 'END', 'wheelup' => 'SCROLL_UP', 'wheeldown' => 'SCROLL_DOWN'];
+    // Mirror the first interactive paint priming the scroll key.
+    $this->scrollKey = $this->screen . ':' . $this->sectionIndex . ':' . ($this->editor['field']['id'] ?? '');
     foreach (explode(',', $spec) as $token) {
-      if ($token === '') {
+      if ($token === '' || $token === 'render') {
         continue;
       }
       if (str_starts_with($token, 'type:')) {
@@ -867,7 +884,14 @@ class Customizer {
         break;
       }
     }
-    $this->dumpAnswers();
+    if (str_contains(',' . $spec . ',', ',render,')) {
+      $this->rows = 18;
+      echo $this->composeFrame() . "\n";
+      fwrite(STDOUT, sprintf("[debug] screen=%s hubIndex=%d fieldIndex=%d scroll=%d manual=%d\n", $this->screen, $this->hubIndex, $this->fieldIndex, $this->scroll, $this->manualScroll ? 1 : 0));
+    }
+    else {
+      $this->dumpAnswers();
+    }
     return 0;
   }
 
@@ -887,7 +911,7 @@ class Customizer {
     if ($this->scripted) {
       return;
     }
-    echo "\033[?25h\033[?1049l";
+    echo "\033[?1000l\033[?1006l\033[?25h\033[?1049l";
     if ($this->sttyRestore !== '') {
       shell_exec('stty ' . $this->sttyRestore . ' 2>/dev/null');
     }
@@ -899,6 +923,22 @@ class Customizer {
   // ---- Dispatch -------------------------------------------------------------
 
   protected function dispatch(string $k): bool {
+    if ($k === 'NONE') {
+      return TRUE;
+    }
+    // Mouse wheel scrolls the viewport without moving the cursor.
+    if ($k === 'SCROLL_UP') {
+      $this->scroll = max(0, $this->scroll - 3);
+      $this->manualScroll = TRUE;
+      return TRUE;
+    }
+    if ($k === 'SCROLL_DOWN') {
+      $this->scroll += 3;
+      $this->manualScroll = TRUE;
+      return TRUE;
+    }
+    // Any other key re-engages cursor-follow scrolling.
+    $this->manualScroll = FALSE;
     return match ($this->screen) {
       'hub' => $this->onHub($k),
       'section' => $this->onSection($k),
