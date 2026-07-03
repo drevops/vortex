@@ -14,16 +14,11 @@ aliases:
   # Replace this key fingerprint with your own and remove this comment.
   - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
-  # SSH key fingerprint to deploy code.
-  # Replace this key fingerprint with your own and remove this comment.
-  - &deploy_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
-
   # Shared runner container configuration applied to each job.
   - &runner_config
     working_directory: &working_directory ~/project
     environment:
       VORTEX_FETCH_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
-      VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
       # This container has all the necessary tools to run a dockerized environment.
@@ -55,12 +50,6 @@ aliases:
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
-          # Directory to use for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
-          # Source code location for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
-          # Report file location for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
           # Check only minimal stack requirements.
           VORTEX_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.

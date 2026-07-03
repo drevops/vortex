@@ -8,14 +8,22 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
-@@ -323,6 +326,10 @@
-           if [ -f .data/db.sql ]; then
+@@ -324,6 +327,10 @@
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
-+          fi
+           fi
 +          if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
 +            docker compose exec -T cli mkdir -p .data
 +            docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
-           fi
++          fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
+ 
+@@ -570,7 +577,6 @@
+           VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
+           VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
+           VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+-          VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
+           VORTEX_DEPLOY_SKIP: ${{ vars.VORTEX_DEPLOY_SKIP }}
+           VORTEX_DEPLOY_ALLOW_SKIP: ${{ vars.VORTEX_DEPLOY_ALLOW_SKIP }}
+           VORTEX_DEPLOY_SKIP_PRS: ${{ vars.VORTEX_DEPLOY_SKIP_PRS }}

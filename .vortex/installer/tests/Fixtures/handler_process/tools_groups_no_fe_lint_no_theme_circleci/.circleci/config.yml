@@ -55,12 +55,6 @@ aliases:
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
-          # Directory to use for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
-          # Source code location for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
-          # Report file location for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
           # Check only minimal stack requirements.
           VORTEX_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.
@@ -392,17 +386,10 @@ jobs:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
 
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - code
-
   # Deploy primary branches.
   deploy: &job_deploy
     <<: *runner_config
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
 
       - add_ssh_keys:
           fingerprints:
@@ -440,8 +427,6 @@ jobs:
   deploy-tags: &job-deploy-tags
     <<: *runner_config
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
 
       - add_ssh_keys:
           fingerprints:
