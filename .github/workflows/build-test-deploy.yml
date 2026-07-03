@@ -320,11 +320,11 @@ jobs:
       #;< MIGRATION
       - name: Fetch migration DB
         run: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
-        #;< MIGRATION_FETCH_SOURCE_ACQUIA
+        #;< DB2_FETCH_SOURCE_ACQUIA
         env:
           VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
           VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
-        #;> MIGRATION_FETCH_SOURCE_ACQUIA
+        #;> DB2_FETCH_SOURCE_ACQUIA
       #;> MIGRATION
       #;> !PROVISION_TYPE_PROFILE
 

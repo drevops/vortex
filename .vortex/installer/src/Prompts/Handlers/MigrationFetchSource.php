@@ -126,7 +126,7 @@ class MigrationFetchSource extends AbstractHandler {
     ];
 
     foreach ($types as $type) {
-      $token = 'MIGRATION_FETCH_SOURCE_' . strtoupper($type);
+      $token = 'DB2_FETCH_SOURCE_' . strtoupper($type);
       if ($v === $type) {
         File::removeTokenAsync('!' . $token);
       }
@@ -137,7 +137,7 @@ class MigrationFetchSource extends AbstractHandler {
 
     // Gates content required only for the hosting-connected fetch sources.
     if ($v !== self::ACQUIA && $v !== self::LAGOON) {
-      File::removeTokenAsync('MIGRATION_FETCH_SOURCE_HOSTED');
+      File::removeTokenAsync('DB2_FETCH_SOURCE_HOSTED');
     }
   }
 
