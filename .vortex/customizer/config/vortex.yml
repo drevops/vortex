@@ -1,5 +1,19 @@
 title: 'Vortex Customizer'
 subject: Acme
+
+# TUI colour theme. `preset` selects a built-in palette:
+#   default green amber magenta dim-value reverse mono
+# Override any role with a style string built from colours
+#   (black red green yellow blue magenta cyan white grey + bright*)
+#   and attributes (bold dim underline reverse), space-separated.
+# Roles: title subject marker label label_selected description value
+#   value_selected badge_edited badge_auto chevron accent accent_selected on
+theme:
+  preset: default
+  # value: white
+  # value_selected: bold green
+  # label_selected: bold cyan
+
 panels:
   - id: general
     title: 'General information'

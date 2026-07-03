@@ -1,0 +1,10 @@
+# Theme-only overlay - layer it on top of the base config to recolour without
+# touching the panels. Later --config files override earlier ones:
+#
+#   php run.php --config=config/vortex.yml --config=config/theme-green.yml
+#
+# This one selects the "green" preset and further tweaks a couple of roles.
+theme:
+  preset: green
+  value_selected: bold green
+  label_selected: bold cyan

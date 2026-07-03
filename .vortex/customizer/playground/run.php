@@ -290,14 +290,77 @@ function normalize_panel(array $panel): array {
  *
  * @return array{title:string,subject:string,sections:array}
  */
-function load_config(string $path): array {
-  if (!is_file($path)) {
-    fwrite(STDERR, "Config not found: $path\n");
-    exit(1);
+function load_configs(array $paths): array {
+  $data = [];
+  foreach ($paths as $path) {
+    if (!is_file($path)) {
+      fwrite(STDERR, "Config not found: $path\n");
+      exit(1);
+    }
+    // Later files override earlier ones (e.g. a base config + a theme file).
+    $data = array_replace_recursive($data, yaml_load((string) file_get_contents($path)));
   }
-  $data = yaml_load((string) file_get_contents($path));
   $sections = array_map('normalize_panel', $data['panels'] ?? []);
-  return ['title' => $data['title'] ?? 'Customizer', 'subject' => $data['subject'] ?? '', 'sections' => $sections];
+  return ['title' => $data['title'] ?? 'Customizer', 'subject' => $data['subject'] ?? '', 'sections' => $sections, 'theme' => $data['theme'] ?? []];
+}
+
+// -----------------------------------------------------------------------------
+// Colour theme: semantic roles → ANSI styles, with built-in presets.
+// -----------------------------------------------------------------------------
+
+/**
+ * Translate a style spec like "bold cyan" into an ANSI SGR code list "1;36".
+ */
+function theme_style(string $spec): string {
+  static $map = [
+    'black' => '30', 'red' => '31', 'green' => '32', 'yellow' => '33', 'blue' => '34', 'magenta' => '35', 'cyan' => '36', 'white' => '37',
+    'grey' => '90', 'gray' => '90', 'brightred' => '91', 'brightgreen' => '92', 'brightyellow' => '93', 'brightblue' => '94', 'brightmagenta' => '95', 'brightcyan' => '96', 'brightwhite' => '97',
+    'bold' => '1', 'dim' => '2', 'underline' => '4', 'reverse' => '7',
+  ];
+  $codes = [];
+  foreach (preg_split('/\s+/', trim(strtolower($spec))) as $tok) {
+    if ($tok !== '' && isset($map[$tok])) {
+      $codes[] = $map[$tok];
+    }
+  }
+  return implode(';', $codes);
+}
+
+/**
+ * Default role → style map. "normal" (or unknown) means no styling.
+ */
+function base_theme(): array {
+  return [
+    'title' => 'bold',
+    'subject' => 'cyan',
+    'marker' => 'bold cyan',
+    'label' => 'normal',
+    'label_selected' => 'bold cyan',
+    'description' => 'grey',
+    'value' => 'normal',
+    'value_selected' => 'bold',
+    'badge_edited' => 'yellow',
+    'badge_auto' => 'dim',
+    'chevron' => 'dim',
+    'accent' => 'green',
+    'accent_selected' => 'bold green',
+    'on' => 'bold green',
+  ];
+}
+
+/**
+ * Built-in presets, each overriding a few roles on top of base_theme().
+ */
+function theme_presets(): array {
+  return [
+    'default' => [],
+    'green' => ['value' => 'green', 'value_selected' => 'bold green'],
+    'amber' => ['value' => 'yellow', 'value_selected' => 'bold yellow', 'badge_edited' => 'magenta'],
+    'magenta' => ['value' => 'magenta', 'value_selected' => 'bold magenta'],
+    'dim-value' => ['value' => 'dim', 'value_selected' => 'bold white'],
+    'reverse' => ['marker' => 'bold', 'label_selected' => 'bold reverse', 'value_selected' => 'reverse'],
+    'mono' => ['subject' => 'normal', 'marker' => 'bold', 'label_selected' => 'bold', 'value' => 'normal', 'value_selected' => 'bold reverse', 'description' => 'dim', 'accent' => 'bold', 'accent_selected' => 'bold reverse', 'on' => 'bold', 'badge_edited' => 'bold'],
+  ];
 }
 
 // -----------------------------------------------------------------------------
@@ -328,6 +391,9 @@ class Customizer {
   protected string $scrollKey = '';
   protected bool $manualScroll = FALSE;
 
+  /** @var array<string,string> Resolved role → ANSI code map. */
+  protected array $styles = [];
+
   protected $in;
   protected string $buf = '';
   protected int $bufPos = 0;
@@ -340,6 +406,26 @@ class Customizer {
     $this->sections = $config['sections'];
     $this->update = $update;
     $this->initAnswers($this->sections);
+    $this->applyTheme('default');
+  }
+
+  /**
+   * Resolve a preset (+ optional role overrides) into the active style map.
+   */
+  public function applyTheme(string $preset, array $overrides = []): void {
+    $roles = array_merge(base_theme(), theme_presets()[$preset] ?? [], $overrides);
+    $this->styles = [];
+    foreach ($roles as $role => $spec) {
+      $this->styles[$role] = theme_style((string) $spec);
+    }
+  }
+
+  /**
+   * Wrap text in the ANSI style for a semantic role.
+   */
+  protected function style(string $role, string $text): string {
+    $codes = $this->styles[$role] ?? '';
+    return ($codes === '' || !$GLOBALS['color'] || $text === '') ? $text : "\033[" . $codes . 'm' . $text . "\033[0m";
   }
 
   protected function initAnswers(array $panels): void {
@@ -653,14 +739,14 @@ class Customizer {
     if ($root) {
       $header = [
         '',
-        IND . spread(bold($this->title) . dim('  ·  configure ') . cyan('"' . $this->subject . '"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
+        IND . spread($this->style('title', $this->title) . dim('  ·  configure ') . $this->style('subject', '"' . $this->subject . '"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
         rule(),
       ];
     }
     else {
       $header = [
         '',
-        IND . spread(bold($this->breadcrumb()), dim('esc back')),
+        IND . spread($this->style('title', $this->breadcrumb()), dim('esc back')),
         rule(),
       ];
     }
@@ -679,13 +765,13 @@ class Customizer {
       if ($sel) {
         $focus = count($body);
       }
-      $marker = $sel ? boldcyan('❯ ') : '  ';
-      $label = $sel ? boldcyan($field['label']) : $field['label'];
-      $badge = $this->isEdited($field) ? yellow('✎') : ($this->isAuto($field) ? dim('auto') : '');
+      $marker = $sel ? $this->style('marker', '❯ ') : '  ';
+      $label = $sel ? $this->style('label_selected', $field['label']) : $this->style('label', $field['label']);
+      $badge = $this->isEdited($field) ? $this->style('badge_edited', '✎') : ($this->isAuto($field) ? $this->style('badge_auto', 'auto') : '');
       $body[] = $this->titleRow($marker, $label, $badge);
-      $body[] = IND . '    ' . grey(clip($field['desc'], COLS - 6));
+      $body[] = IND . '    ' . $this->style('description', clip($field['desc'], COLS - 6));
       $value = clip($this->display($field), COLS - 6);
-      $body[] = IND . '    ' . ($sel ? boldcyan($value) : $value);
+      $body[] = IND . '    ' . ($sel ? $this->style('value_selected', $value) : $this->style('value', $value));
       $nav++;
     }
 
@@ -694,13 +780,13 @@ class Customizer {
       if ($sel) {
         $focus = count($body);
       }
-      $marker = $sel ? boldcyan('❯ ') : '  ';
-      $title = ($sel ? boldcyan($sp['title']) : $sp['title']) . dim(' ›');
-      $badge = $this->panelEdited($sp) ? yellow('✎') : ($this->panelAuto($sp) ? dim('auto') : '');
+      $marker = $sel ? $this->style('marker', '❯ ') : '  ';
+      $title = ($sel ? $this->style('label_selected', $sp['title']) : $this->style('label', $sp['title'])) . $this->style('chevron', ' ›');
+      $badge = $this->panelEdited($sp) ? $this->style('badge_edited', '✎') : ($this->panelAuto($sp) ? $this->style('badge_auto', 'auto') : '');
       $body[] = $this->titleRow($marker, $title, $badge);
-      $body[] = IND . '    ' . grey(clip($sp['desc'], COLS - 6));
+      $body[] = IND . '    ' . $this->style('description', clip($sp['desc'], COLS - 6));
       $summary = clip($this->summary($sp), COLS - 6);
-      $body[] = IND . '    ' . ($sel ? boldcyan($summary) : $summary);
+      $body[] = IND . '    ' . ($sel ? $this->style('value_selected', $summary) : $this->style('value', $summary));
       $nav++;
     }
 
@@ -709,9 +795,9 @@ class Customizer {
       if ($selReview) {
         $focus = count($body) - 1;
       }
-      $marker = $selReview ? boldcyan('❯ ') : '  ';
-      $label = $selReview ? boldgreen('Review & apply') : green('Review & apply');
-      $footer = [rule(), IND . spread($marker . boldgreen('✔') . ' ' . $label, dim('nothing written yet'))];
+      $marker = $selReview ? $this->style('marker', '❯ ') : '  ';
+      $label = $selReview ? $this->style('accent_selected', 'Review & apply') : $this->style('accent', 'Review & apply');
+      $footer = [rule(), IND . spread($marker . $this->style('accent', '✔') . ' ' . $label, dim('nothing written yet'))];
     }
     else {
       $footer = [rule(), IND . dim('↑/↓ move  ·  ↵ open/edit  ·  esc back  ·  r reset')];
@@ -1531,6 +1617,37 @@ class Customizer {
 
   // ---- Demo storyboard ------------------------------------------------------
 
+  /**
+   * Render a compact sample panel under each built-in preset, for comparison.
+   */
+  public function themesDemo(): void {
+    foreach (array_keys(theme_presets()) as $name) {
+      $this->applyTheme($name);
+      $roles = array_merge(base_theme(), theme_presets()[$name]);
+      echo "\n" . IND . magenta('◆ theme: ' . $name) . "\n";
+      echo IND . dim(sprintf('label_selected=%s · value=%s · value_selected=%s', $roles['label_selected'], $roles['value'], $roles['value_selected'])) . "\n";
+      foreach ($this->sampleLines() as $line) {
+        echo $line . "\n";
+      }
+    }
+    $this->applyTheme('default');
+  }
+
+  protected function sampleLines(): array {
+    return [
+      rule(),
+      IND . $this->style('marker', '❯ ') . $this->style('label_selected', 'Profile'),
+      IND . '    ' . $this->style('description', 'Drupal installation profile the site is built on.'),
+      IND . '    ' . $this->style('value_selected', 'Standard'),
+      IND . '  ' . $this->style('label', 'Theme'),
+      IND . '    ' . $this->style('description', "Base theme for the site's front-end."),
+      IND . '    ' . $this->style('value', 'Olivero'),
+      IND . spread('  ' . $this->style('label', 'Modules'), $this->style('badge_edited', '✎') . ' '),
+      IND . '    ' . $this->style('description', 'Optional contributed modules to include.'),
+      IND . '    ' . $this->style('value', '17 selected'),
+    ];
+  }
+
   public function demo(): void {
     $frames = [];
 
@@ -1623,14 +1740,30 @@ if (in_array('--no-color', $args, TRUE) || getenv('NO_COLOR')) {
   $GLOBALS['color'] = FALSE;
 }
 
-$config_path = __DIR__ . '/../config/vortex.yml';
+$config_paths = [];
+$theme_name = '';
 foreach ($args as $a) {
   if (str_starts_with($a, '--config=')) {
-    $config_path = substr($a, 9);
+    $config_paths[] = substr($a, 9);
+  }
+  if (str_starts_with($a, '--theme=')) {
+    $theme_name = substr($a, 8);
   }
 }
+if (!$config_paths) {
+  $config_paths = [__DIR__ . '/../config/vortex.yml'];
+}
 
-$app = new Customizer(load_config($config_path), in_array('--update', $args, TRUE));
+$config = load_configs($config_paths);
+$app = new Customizer($config, in_array('--update', $args, TRUE));
+
+// Theme resolution: --theme wins, else config theme.preset, else 'default';
+// remaining keys under `theme:` are per-role overrides.
+$theme_cfg = is_array($config['theme'] ?? NULL) ? $config['theme'] : [];
+$preset = $theme_name !== '' ? $theme_name : (string) ($theme_cfg['preset'] ?? 'default');
+$overrides = $theme_cfg;
+unset($overrides['preset']);
+$app->applyTheme($preset, $overrides);
 
 foreach ($args as $a) {
   if (str_starts_with($a, '--keys=')) {
@@ -1641,6 +1774,11 @@ foreach ($args as $a) {
     $app->probe((int) $r ?: 18, $s !== '' ? $s : 'hub', (int) $i);
     exit(0);
   }
+}
+
+if (in_array('--themes', $args, TRUE)) {
+  $app->themesDemo();
+  exit(0);
 }
 
 if (in_array('--demo', $args, TRUE)) {
