@@ -67,8 +67,8 @@ class GenerateOnlyNeededTest extends FunctionalTestCase {
       $this->assertFileDoesNotExist(static::$sut . '/' . $file);
     }
 
-    foreach ($expected_present_files as $file) {
-      $this->assertFileExists(static::$sut . '/' . $file);
+    foreach ($expected_present_files as $expected_present_file) {
+      $this->assertFileExists(static::$sut . '/' . $expected_present_file);
     }
   }
 
