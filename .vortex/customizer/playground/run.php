@@ -267,6 +267,16 @@ function normalize_panel(array $panel): array {
     if (isset($f['when'])) {
       $field['when'] = $f['when'];
     }
+    if (isset($f['derive'])) {
+      $d = $f['derive'];
+      if (is_string($d)) {
+        $d = ['template' => $d];
+      }
+      if (isset($d['from']) && !isset($d['template'])) {
+        $d['template'] = '{' . $d['from'] . '}';
+      }
+      $field['derive'] = ['template' => (string) ($d['template'] ?? ''), 'transform' => (string) ($d['transform'] ?? 'none')];
+    }
     if (isset($f['options'])) {
       $opts = [];
       foreach ($f['options'] as $opt) {
@@ -340,7 +350,9 @@ function base_theme(): array {
     'value' => 'normal',
     'value_selected' => 'bold',
     'badge_edited' => 'yellow',
-    'badge_auto' => 'dim',
+    'badge_auto' => 'blue',
+    'badge_override' => 'reverse yellow',
+    'badge_detected' => 'dim',
     'chevron' => 'dim',
     'accent' => 'green',
     'accent_selected' => 'bold green',
@@ -374,6 +386,8 @@ class Customizer {
   protected array $sections;
   protected array $answers = [];
   protected array $defaults = [];
+  /** @var array<string,bool> Derived fields the user has pinned (overridden). */
+  protected array $overridden = [];
   protected bool $update = FALSE;
 
   protected string $screen = 'panel';
@@ -406,6 +420,7 @@ class Customizer {
     $this->sections = $config['sections'];
     $this->update = $update;
     $this->initAnswers($this->sections);
+    $this->recompute();
     $this->applyTheme('default');
   }
 
@@ -514,6 +529,93 @@ class Customizer {
       }
     }
     return NULL;
+  }
+
+  /**
+   * Recompute every derived field that hasn't been overridden. Iterates to a
+   * fixpoint so chains (name → machine_name → theme) settle.
+   */
+  protected function recompute(): void {
+    $derived = [];
+    $walk = function (array $panels) use (&$walk, &$derived): void {
+      foreach ($panels as $panel) {
+        foreach ($panel['fields'] as $field) {
+          if (!empty($field['derive'])) {
+            $derived[] = $field;
+          }
+        }
+        if (!empty($panel['panels'])) {
+          $walk($panel['panels']);
+        }
+      }
+    };
+    $walk($this->sections);
+
+    for ($iter = 0; $iter < 8; $iter++) {
+      $changed = FALSE;
+      foreach ($derived as $field) {
+        if (!empty($this->overridden[$field['id']])) {
+          continue;
+        }
+        $new = $this->computeDerived($field);
+        if (($this->answers[$field['id']] ?? NULL) !== $new) {
+          $this->answers[$field['id']] = $new;
+          $changed = TRUE;
+        }
+      }
+      if (!$changed) {
+        break;
+      }
+    }
+  }
+
+  protected function computeDerived(array $field): string {
+    $transform = $field['derive']['transform'] ?? 'none';
+    return (string) preg_replace_callback('/\{(\w+)\}/', fn($m) => $this->applyTransform((string) ($this->answers[$m[1]] ?? ''), $transform), $field['derive']['template'] ?? '');
+  }
+
+  protected function applyTransform(string $s, string $t): string {
+    return match ($t) {
+      'machine' => trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower($s)), '_'),
+      'host', 'kebab' => trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($s)), '-'),
+      'lower' => strtolower($s),
+      'upper' => strtoupper($s),
+      default => $s,
+    };
+  }
+
+  /**
+   * The human label of the field a derived value follows (for the footnote).
+   */
+  protected function sourceLabel(array $field): string {
+    if (preg_match('/\{(\w+)\}/', $field['derive']['template'] ?? '', $m)) {
+      $f = $this->field($m[1]);
+      return $f['label'] ?? $m[1];
+    }
+    return 'its source';
+  }
+
+  /**
+   * "Changed by the user": an override for derived fields, an edit otherwise.
+   */
+  protected function fieldChanged(array $field): bool {
+    return !empty($field['derive']) ? !empty($this->overridden[$field['id']]) : $this->isEdited($field);
+  }
+
+  /**
+   * The right-aligned provenance badge for a field's label line.
+   */
+  protected function badgeFor(array $field): string {
+    if (!empty($field['derive'])) {
+      return !empty($this->overridden[$field['id']]) ? $this->style('badge_override', ' override ') : $this->style('badge_auto', 'auto');
+    }
+    if ($this->isEdited($field)) {
+      return $this->style('badge_edited', '✎');
+    }
+    if ($this->isAuto($field)) {
+      return $this->style('badge_detected', 'detected');
+    }
+    return '';
   }
 
   protected function isActive(array $field): bool {
@@ -634,7 +736,7 @@ class Customizer {
 
   protected function panelEdited(array $panel): bool {
     foreach ($panel['fields'] as $field) {
-      if ($this->isActive($field) && $this->isEdited($field)) {
+      if ($this->isActive($field) && $this->fieldChanged($field)) {
         return TRUE;
       }
     }
@@ -767,11 +869,14 @@ class Customizer {
       }
       $marker = $sel ? $this->style('marker', '❯ ') : '  ';
       $label = $sel ? $this->style('label_selected', $field['label']) : $this->style('label', $field['label']);
-      $badge = $this->isEdited($field) ? $this->style('badge_edited', '✎') : ($this->isAuto($field) ? $this->style('badge_auto', 'auto') : '');
-      $body[] = $this->titleRow($marker, $label, $badge);
+      $body[] = $this->titleRow($marker, $label, $this->badgeFor($field));
       $body[] = IND . '    ' . $this->style('description', clip($field['desc'], COLS - 6));
       $value = clip($this->display($field), COLS - 6);
-      $body[] = IND . '    ' . ($sel ? $this->style('value_selected', $value) : $this->style('value', $value));
+      $vline = $sel ? $this->style('value_selected', $value) : $this->style('value', $value);
+      if ($sel && !empty($field['derive']) && !empty($this->overridden[$field['id']])) {
+        $vline .= '   ' . $this->style('description', "overridden — won't follow " . $this->sourceLabel($field));
+      }
+      $body[] = IND . '    ' . $vline;
       $nav++;
     }
 
@@ -1223,8 +1328,10 @@ class Customizer {
     foreach ($this->answers as $id => $v) {
       $v = is_array($v) ? implode(',', $v) : var_export($v, TRUE);
       $field = $this->field($id);
-      $edited = ($field && $this->isEdited($field)) ? ' [edited]' : '';
-      fwrite(STDOUT, sprintf("  %-28s %s%s\n", $id, $v, $edited));
+      $mark = ($field && !empty($field['derive']))
+        ? (!empty($this->overridden[$id]) ? ' [override]' : ' [auto]')
+        : (($field && $this->isEdited($field)) ? ' [edited]' : '');
+      fwrite(STDOUT, sprintf("  %-28s %s%s\n", $id, $v, $mark));
     }
   }
 
@@ -1325,8 +1432,12 @@ class Customizer {
 
       case 'r':
         foreach ($panel['fields'] as $field) {
-          $this->answers[$field['id']] = $this->defaults[$field['id']];
+          unset($this->overridden[$field['id']]);
+          if (empty($field['derive'])) {
+            $this->answers[$field['id']] = $this->defaults[$field['id']];
+          }
         }
+        $this->recompute();
         break;
 
       case 'q':
@@ -1358,7 +1469,12 @@ class Customizer {
     if ($save) {
       $field = $this->editor['field'];
       $this->answers[$field['id']] = $this->editor['value'];
+      // Editing a derived field pins it: it stops following its source.
+      if (!empty($field['derive'])) {
+        $this->overridden[$field['id']] = TRUE;
+      }
     }
+    $this->recompute();
     $this->screen = 'panel';
     // Re-clamp the cursor in case conditionals changed the active item set.
     $items = $this->panelItems($this->currentPanel());
@@ -1686,6 +1802,16 @@ class Customizer {
 
     $this->openEditorDemo('frontend_build', 0);
     $frames['Confirm field'] = $this->frameToString($this->renderConfirm($this->editor['field']));
+
+    // Derived values that follow the site name, with one pinned override.
+    $this->overridden = ['domain' => TRUE];
+    $this->answers['domain'] = 'acme.com';
+    $this->answers['name'] = 'Widget Co';
+    $this->recompute();
+    $this->screen = 'panel';
+    $this->path = [0];
+    $this->cursor = 4;
+    $frames['Derived values & an override'] = $this->frameToString($this->renderPanel());
 
     $this->screen = 'review';
     $frames['Review & apply'] = $this->frameToString($this->renderReview());

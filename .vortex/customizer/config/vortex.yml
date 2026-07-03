@@ -9,7 +9,7 @@ subject: Acme
 # Roles: title subject marker label label_selected description value
 #   value_selected badge_edited badge_auto chevron accent accent_selected on
 theme:
-  preset: default
+  preset: green
   # value: white
   # value_selected: bold green
   # label_selected: bold cyan
@@ -31,22 +31,33 @@ panels:
         type: text
         default: acme
         machine: true
+        derive:
+          from: name
+          transform: machine
       - id: org
         label: 'Organization name'
         description: 'Human-readable name of your organization.'
         type: text
         default: 'Acme Org'
+        derive:
+          template: '{name} Org'
       - id: org_machine_name
         label: 'Organization machine name'
         description: 'Machine-readable name of your organization.'
         type: text
         default: acme_org
         machine: true
+        derive:
+          from: org
+          transform: machine
       - id: domain
         label: 'Public domain'
         description: 'Primary public domain the site will be served on.'
         type: text
         default: acme.com
+        derive:
+          template: '{machine_name}.com'
+          transform: host
   - id: drupal
     title: Drupal
     description: 'Install profile, modules, theme and front-end build'
@@ -180,6 +191,9 @@ panels:
         type: text
         default: ''
         machine: true
+        derive:
+          from: machine_name
+          transform: machine
         when:
           field: theme
           eq: custom
@@ -403,6 +417,8 @@ panels:
         description: 'Image name and tag of the database-in-image.'
         type: text
         default: 'acme/acme-data:latest'
+        derive:
+          template: '{org_machine_name}/{machine_name}-data:latest'
         when:
           all:
             - field: provision_type
@@ -445,6 +461,8 @@ panels:
             description: 'Image name and tag of the migration database.'
             type: text
             default: 'acme/acme-data-migration:latest'
+            derive:
+              template: '{org_machine_name}/{machine_name}-data-migration:latest'
             when:
               all:
                 - field: migration
