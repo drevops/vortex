@@ -139,12 +139,12 @@ class DatabaseFetchSource extends AbstractHandler {
     $migration_source = $this->responses[MigrationFetchSource::id()] ?? NULL;
 
     if ($v !== self::LAGOON && $migration_source !== MigrationFetchSource::LAGOON) {
-      File::removeTokenAsync('DB_FETCH_SOURCE_LAGOON_ANY');
+      File::removeTokenAsync('DB_FETCH_ANY_SOURCE_LAGOON');
     }
 
     // Gates content required only for the hosting-connected fetch sources.
     if ($v !== self::ACQUIA && $v !== self::LAGOON) {
-      File::removeTokenAsync('DB_FETCH_SOURCE_ACQUIA_LAGOON');
+      File::removeTokenAsync('DB_FETCH_SOURCE_HOSTED');
     }
   }
 

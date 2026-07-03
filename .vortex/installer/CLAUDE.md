@@ -121,7 +121,7 @@ Content removed if feature not selected
 | CI       | `CI_PROVIDER_GHA`, `CI_PROVIDER_CIRCLECI`                                          |
 | Hosting  | `HOSTING_LAGOON`, `HOSTING_ACQUIA`                                                 |
 | Deploy   | `DEPLOY_TYPES_WEBHOOK`, `DEPLOY_TYPES_ARTIFACT`                                    |
-| Database | `DB_FETCH_SOURCE_<SOURCE>`, `MIGRATION_DB_FETCH_SOURCE_<SOURCE>` per source; combined: `DB_FETCH_SOURCE_LAGOON_ANY` (primary or migration source is Lagoon), `DB_FETCH_SOURCE_ACQUIA_LAGOON` / `MIGRATION_DB_FETCH_SOURCE_ACQUIA_LAGOON` (hosting-connected sources) |
+| Database | `DB_FETCH_SOURCE_<SOURCE>`, `MIGRATION_FETCH_SOURCE_<SOURCE>` per source; combined: `DB_FETCH_ANY_SOURCE_LAGOON` (primary or migration source is Lagoon), `DB_FETCH_SOURCE_HOSTED` / `MIGRATION_FETCH_SOURCE_HOSTED` (hosting-connected sources). Token names must never contain another removable token as a substring - marker matching is substring-based, so removing the shorter token would swallow the longer token's regions. |
 
 ### Handler Locations
 

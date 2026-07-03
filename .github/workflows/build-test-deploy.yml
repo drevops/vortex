@@ -292,7 +292,7 @@ jobs:
         run: ./vendor/bin/vortex-login-container-registry
 
       #;< !PROVISION_TYPE_PROFILE
-      #;< DB_FETCH_SOURCE_LAGOON_ANY
+      #;< DB_FETCH_ANY_SOURCE_LAGOON
       - name: Add SSH private key used to fetch database
         if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
@@ -301,7 +301,7 @@ jobs:
           known_hosts: ${{ vars.VORTEX_FETCH_DB_SSH_KNOWN_HOSTS || 'unnecessary' }}
         env:
           VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
-      #;> DB_FETCH_SOURCE_LAGOON_ANY
+      #;> DB_FETCH_ANY_SOURCE_LAGOON
 
       # On the first build of the day (cache miss), fetch a fresh DB dump.
       # On subsequent builds, the restored cache already contains the dump and
@@ -320,11 +320,11 @@ jobs:
       #;< MIGRATION
       - name: Fetch migration DB
         run: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
-        #;< MIGRATION_DB_FETCH_SOURCE_ACQUIA
+        #;< MIGRATION_FETCH_SOURCE_ACQUIA
         env:
           VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
           VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
-        #;> MIGRATION_DB_FETCH_SOURCE_ACQUIA
+        #;> MIGRATION_FETCH_SOURCE_ACQUIA
       #;> MIGRATION
       #;> !PROVISION_TYPE_PROFILE
 
