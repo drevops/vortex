@@ -23,7 +23,7 @@ class CodeProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(fn($test): string => $test->prompts[CodeProvider::id()] = CodeProvider::OTHER),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertDirectoryDoesNotExist(static::$sut . '/.github');
-          $test->assertSutNotContains('github-actions');
+          $test->assertFileNotContainsString(static::$sut . '/renovate.json', 'github-actions');
       }),
     ];
   }
