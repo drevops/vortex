@@ -1,4 +1,4 @@
-@@ -53,19 +53,9 @@
+@@ -53,19 +53,8 @@
  ahoy lint     # Check code style
  ahoy lint-fix # Auto-fix code style
  
@@ -11,7 +11,7 @@
 -
  # Jest testing
  ahoy test-js  # Run Jest JavaScript unit tests
- 
+-
 -# Behat testing
 -ahoy test-bdd # Run Behat tests
 -ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag

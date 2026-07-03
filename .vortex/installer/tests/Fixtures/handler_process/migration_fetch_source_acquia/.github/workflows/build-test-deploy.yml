@@ -1,14 +1,17 @@
-@@ -278,6 +278,9 @@
+@@ -269,6 +269,12 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
 +      - name: Fetch migration DB
 +        run: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
++        env:
++          VORTEX_ACQUIA_KEY: ${{ secrets.VORTEX_ACQUIA_KEY }}
++          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
 +
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
-@@ -323,6 +326,10 @@
+@@ -309,6 +315,10 @@
            if [ -f .data/db.sql ]; then
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
