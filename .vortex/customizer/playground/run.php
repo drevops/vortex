@@ -9,6 +9,11 @@
  * No dependencies - it draws every screen itself with ANSI colour so the
  * visuals are fully under our control. It writes NO files; Apply is a stub.
  *
+ * It takes over the whole terminal (alternate screen buffer). Because that
+ * disables the terminal's own scrollback, the panel scrolls internally: a
+ * pinned header + footer with a scrollable body that follows the cursor and
+ * shows ▲/▼ indicators when there is more above or below.
+ *
  * Run interactively:
  *   php .vortex/customizer/playground/run.php
  *
@@ -17,7 +22,8 @@
  *   --no-color    Disable ANSI colour (useful for alignment inspection).
  *   --update      Simulate "update existing project" mode (shows `auto` badges).
  *
- * Keys: up/down move - enter open/edit - esc back - a apply - q quit.
+ * Keys: up/down move - pgup/pgdn/home/end jump - enter open/edit - esc back -
+ *       a apply - q quit.
  */
 
 declare(strict_types=1);
@@ -97,6 +103,16 @@ function spread(string $left, string $right, int $cols = COLS): string {
 
 function rule(): string {
   return ' ' . dim(str_repeat('─', COLS - 1));
+}
+
+/**
+ * A divider with a right-aligned indicator, e.g. "▲ 3 more" / "▼ 8 more".
+ */
+function scroll_rule(string $right): string {
+  $w = COLS - 1;
+  $tag = ' ' . $right . ' ';
+  $dash = str_repeat('─', max(0, $w - mb_strwidth($tag)));
+  return ' ' . dim($dash) . cyan($tag);
 }
 
 // -----------------------------------------------------------------------------
@@ -247,6 +263,10 @@ class Customizer {
   /** @var array<string,mixed> Transient editor state. */
   protected array $editor = [];
 
+  protected int $rows = 40;
+  protected int $scroll = 0;
+  protected string $scrollKey = '';
+
   protected $in;
   protected string $buf = '';
   protected int $bufPos = 0;
@@ -351,39 +371,6 @@ class Customizer {
     return array_values(array_filter($section['fields'], fn($f) => $this->isActive($f)));
   }
 
-  // ---- Rendering: hub -------------------------------------------------------
-
-  public function renderHub(): string {
-    $o = [];
-    $o[] = '';
-    $o[] = IND . spread(bold('Vortex Customizer') . dim('  ·  configure ') . cyan('"Acme"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit'));
-    $o[] = rule();
-
-    $rows = count($this->sections);
-    foreach ($this->sections as $i => $section) {
-      $sel = $this->screen === 'hub' && $this->hubIndex === $i;
-      $edited = $this->sectionEdited($section);
-      $auto = $this->sectionAuto($section);
-
-      $marker = $sel ? boldcyan('❯ ') : '  ';
-      $title = $sel ? boldcyan($section['title']) : $section['title'];
-      $badge = $edited ? yellow('✎') : ($auto ? dim('auto') : '');
-      $o[] = $this->titleRow($marker, $title, $badge);
-
-      $o[] = IND . '    ' . grey(clip($section['desc'], COLS - 6));
-      $value = clip($this->summary($section), COLS - 6);
-      $o[] = IND . '    ' . ($sel ? $value : dim($value));
-    }
-
-    $o[] = rule();
-    $selReview = $this->screen === 'hub' && $this->hubIndex === $rows;
-    $marker = $selReview ? boldcyan('❯ ') : '  ';
-    $label = ($selReview ? boldgreen('Review & apply') : green('Review & apply'));
-    $o[] = IND . spread($marker . boldgreen('✔') . ' ' . $label, dim('nothing written yet'));
-    $o[] = '';
-    return implode("\n", $o);
-  }
-
   protected function sectionEdited(array $section): bool {
     foreach ($section['fields'] as $field) {
       if ($this->isActive($field) && $this->isEdited($field)) {
@@ -409,40 +396,6 @@ class Customizer {
     return $badge === '' ? IND . $marker . $title : IND . spread($marker . $title, $badge . ' ');
   }
 
-  // ---- Rendering: section ---------------------------------------------------
-
-  public function renderSection(): string {
-    $section = $this->sections[$this->sectionIndex];
-    $o = [];
-    $o[] = '';
-    $o[] = IND . spread(bold($section['title']), dim('section ' . ($this->sectionIndex + 1) . ' of ' . count($this->sections)));
-    $o[] = rule();
-
-    $nav = $this->activeFields($section);
-    foreach ($section['fields'] as $field) {
-      if (!$this->isActive($field)) {
-        $plain = '⌁ ' . $field['label'] . '   inactive · ' . $this->conditionText($field);
-        $o[] = IND . '  ' . grey(clip($plain, COLS - 4));
-        continue;
-      }
-      $pos = array_search($field['id'], array_column($nav, 'id'), TRUE);
-      $sel = $this->screen === 'section' && $this->fieldIndex === $pos;
-
-      $marker = $sel ? boldcyan('❯ ') : '  ';
-      $label = $sel ? boldcyan($field['label']) : $field['label'];
-      $badge = $this->isEdited($field) ? yellow('✎') : ($this->isAuto($field) ? dim('auto') : '');
-      $o[] = $this->titleRow($marker, $label, $badge);
-      $o[] = IND . '    ' . grey(clip($field['desc'], COLS - 6));
-      $value = clip($this->display($field), COLS - 6);
-      $o[] = IND . '    ' . ($sel ? cyan($value) : dim($value));
-    }
-
-    $o[] = rule();
-    $o[] = IND . dim('↑/↓ move  ·  ↵ edit  ·  esc back  ·  r reset section');
-    $o[] = '';
-    return implode("\n", $o);
-  }
-
   protected function conditionText(array $field): string {
     return match ($field['id']) {
       'profile_custom' => 'appears when Profile = Custom',
@@ -456,9 +409,97 @@ class Customizer {
     };
   }
 
-  // ---- Rendering: editors ---------------------------------------------------
+  // ---- Frames ---------------------------------------------------------------
+  //
+  // Every screen returns a frame: a pinned `header`, a scrollable `body`, a
+  // pinned `footer`, and a `focus` line index within the body to keep visible
+  // (-1 = no cursor; the user scrolls manually). paint() slices the body to the
+  // terminal height. The last header line and first footer line are always
+  // dividers, so paint() can stamp the ▲/▼ scroll indicators onto them.
 
-  public function renderEditor(): string {
+  protected function frame(): array {
+    return match ($this->screen) {
+      'section' => $this->renderSection(),
+      'editor' => $this->renderEditor(),
+      'review' => $this->renderReview(),
+      default => $this->renderHub(),
+    };
+  }
+
+  public function renderHub(): array {
+    $header = [
+      '',
+      IND . spread(bold('Vortex Customizer') . dim('  ·  configure ') . cyan('"Acme"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
+      rule(),
+    ];
+
+    $body = [];
+    $focus = -1;
+    foreach ($this->sections as $i => $section) {
+      $sel = $this->screen === 'hub' && $this->hubIndex === $i;
+      if ($sel) {
+        $focus = count($body);
+      }
+      $marker = $sel ? boldcyan('❯ ') : '  ';
+      $title = $sel ? boldcyan($section['title']) : $section['title'];
+      $badge = $this->sectionEdited($section) ? yellow('✎') : ($this->sectionAuto($section) ? dim('auto') : '');
+      $body[] = $this->titleRow($marker, $title, $badge);
+      $body[] = IND . '    ' . grey(clip($section['desc'], COLS - 6));
+      $value = clip($this->summary($section), COLS - 6);
+      $body[] = IND . '    ' . ($sel ? $value : dim($value));
+    }
+
+    $count = count($this->sections);
+    $selReview = $this->screen === 'hub' && $this->hubIndex === $count;
+    if ($selReview) {
+      $focus = count($body) - 1;
+    }
+    $marker = $selReview ? boldcyan('❯ ') : '  ';
+    $label = $selReview ? boldgreen('Review & apply') : green('Review & apply');
+    $footer = [
+      rule(),
+      IND . spread($marker . boldgreen('✔') . ' ' . $label, dim('nothing written yet')),
+    ];
+
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
+  }
+
+  public function renderSection(): array {
+    $section = $this->sections[$this->sectionIndex];
+    $header = [
+      '',
+      IND . spread(bold($section['title']), dim('section ' . ($this->sectionIndex + 1) . ' of ' . count($this->sections))),
+      rule(),
+    ];
+
+    $body = [];
+    $focus = -1;
+    $nav = $this->activeFields($section);
+    foreach ($section['fields'] as $field) {
+      if (!$this->isActive($field)) {
+        $plain = '⌁ ' . $field['label'] . '   inactive · ' . $this->conditionText($field);
+        $body[] = IND . '  ' . grey(clip($plain, COLS - 4));
+        continue;
+      }
+      $pos = array_search($field['id'], array_column($nav, 'id'), TRUE);
+      $sel = $this->screen === 'section' && $this->fieldIndex === $pos;
+      if ($sel) {
+        $focus = count($body);
+      }
+      $marker = $sel ? boldcyan('❯ ') : '  ';
+      $label = $sel ? boldcyan($field['label']) : $field['label'];
+      $badge = $this->isEdited($field) ? yellow('✎') : ($this->isAuto($field) ? dim('auto') : '');
+      $body[] = $this->titleRow($marker, $label, $badge);
+      $body[] = IND . '    ' . grey(clip($field['desc'], COLS - 6));
+      $value = clip($this->display($field), COLS - 6);
+      $body[] = IND . '    ' . ($sel ? cyan($value) : dim($value));
+    }
+
+    $footer = [rule(), IND . dim('↑/↓ move  ·  ↵ edit  ·  esc back  ·  r reset section')];
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
+  }
+
+  public function renderEditor(): array {
     $field = $this->editor['field'];
     return match ($field['type']) {
       'select' => $this->renderChoice($field, FALSE),
@@ -469,170 +510,213 @@ class Customizer {
     };
   }
 
+  /**
+   * Pinned editor header: blank, "Section › Field" (+ optional right tag), rule.
+   */
   protected function editorHeader(array $field, string $right = ''): array {
     $section = $this->sections[$this->sectionIndex];
     $title = bold($section['title']) . dim(' › ') . boldcyan($field['label']);
-    $o = [];
-    $o[] = '';
-    $o[] = $right === '' ? IND . $title : IND . spread($title, dim($right));
-    $o[] = rule();
-    $o[] = IND . grey($field['desc']);
-    $o[] = '';
-    return $o;
+    return ['', $right === '' ? IND . $title : IND . spread($title, dim($right)), rule()];
   }
 
-  protected function windowed(array $items, int $cursor, int $height): array {
-    $n = count($items);
-    if ($n <= $height) {
-      return [$items, 0];
-    }
-    $start = max(0, min($cursor - intdiv($height, 2), $n - $height));
-    return [array_slice($items, $start, $height, TRUE), $start];
-  }
+  protected function renderChoice(array $field, bool $suggest): array {
+    $header = $this->editorHeader($field);
+    $body = [IND . grey($field['desc']), ''];
 
-  protected function renderChoice(array $field, bool $suggest): string {
-    $o = $this->editorHeader($field);
     $keys = array_keys($field['options']);
-
     if ($suggest) {
       $filter = (string) $this->editor['filter'];
       $keys = array_values(array_filter($keys, fn($k) => $filter === '' || stripos($k, $filter) !== FALSE));
-      $o[] = IND . dim('filter: ') . ($filter === '' ? dim('(type to filter)') : cyan($filter)) . cyan('▏');
-      $o[] = '';
+      $body[] = IND . dim('filter: ') . ($filter === '' ? dim('(type to filter)') : cyan($filter)) . cyan('▏');
+      $body[] = '';
     }
 
+    $focus = -1;
     if (!$keys) {
-      $o[] = IND . '  ' . dim('no matches');
+      $body[] = IND . '  ' . dim('no matches');
     }
-    $cursor = $this->editor['cursor'];
-    [$view, $start] = $this->windowed($keys, $cursor, 12);
-    foreach ($view as $idx => $key) {
+    $cursor = min((int) $this->editor['cursor'], max(0, count($keys) - 1));
+    foreach ($keys as $idx => $key) {
       $sel = $idx === $cursor;
+      if ($sel) {
+        $focus = count($body);
+      }
       $on = $this->editor['value'] === $key;
       $radio = $on ? boldgreen('(•)') : dim('( )');
       $label = $sel ? boldcyan($this->optLabel($field, $key)) : $this->optLabel($field, $key);
       $desc = $this->optDesc($field, $key);
       $line = $desc === '' ? $radio . ' ' . $label : $radio . ' ' . pad_right($label, 20) . ' ' . grey($desc);
-      $o[] = IND . ($sel ? boldcyan('❯ ') : '  ') . $line;
-    }
-    if (count($keys) > 12) {
-      $o[] = IND . '  ' . dim('… ' . count($keys) . ' options, showing ' . ($start + 1) . '-' . ($start + count($view)));
+      $body[] = IND . ($sel ? boldcyan('❯ ') : '  ') . $line;
     }
 
-    $o[] = '';
-    $o[] = rule();
     $hint = $suggest ? 'type filter  ·  ↑/↓ move  ·  ↵ select  ·  esc cancel' : '↑/↓ move  ·  ↵ select  ·  esc cancel';
-    $o[] = IND . dim($hint);
-    $o[] = '';
-    return implode("\n", $o);
+    $footer = [rule(), IND . dim($hint)];
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
   }
 
-  protected function renderMulti(array $field): string {
+  protected function renderMulti(array $field): array {
     $all = array_keys($field['options']);
     $filter = (string) $this->editor['filter'];
     $keys = array_values(array_filter($all, fn($k) => $filter === '' || stripos($k, $filter) !== FALSE));
     $selected = (array) $this->editor['value'];
     $count = count(array_intersect($all, $selected));
 
-    $o = $this->editorHeader($field, $count . ' of ' . count($all) . ' selected');
-
+    $header = $this->editorHeader($field, $count . ' of ' . count($all) . ' selected');
+    $body = [IND . grey($field['desc']), ''];
     if ($filter !== '') {
-      $o[] = IND . dim('filter: ') . cyan($filter) . cyan('▏');
-      $o[] = '';
+      $body[] = IND . dim('filter: ') . cyan($filter) . cyan('▏');
+      $body[] = '';
     }
 
-    $cursor = min($this->editor['cursor'], max(0, count($keys) - 1));
-    [$view, $start] = $this->windowed($keys, $cursor, 12);
-    foreach ($view as $idx => $key) {
+    $cursor = min((int) $this->editor['cursor'], max(0, count($keys) - 1));
+    $focus = -1;
+    foreach ($keys as $idx => $key) {
       $sel = $idx === $cursor;
+      if ($sel) {
+        $focus = count($body);
+      }
       $on = in_array($key, $selected, TRUE);
       $box = $on ? boldgreen('[x]') : dim('[ ]');
       $label = $sel ? boldcyan($this->optLabel($field, $key)) : $this->optLabel($field, $key);
       $desc = $this->optDesc($field, $key);
       $line = $desc === '' ? $box . ' ' . $label : $box . ' ' . pad_right($label, 22) . ' ' . grey(clip($desc, COLS - 34));
-      $o[] = IND . ($sel ? boldcyan('❯ ') : '  ') . $line;
-    }
-    if (count($keys) > 12) {
-      $o[] = IND . '  ' . dim('… ' . count($keys) . ' items, showing ' . ($start + 1) . '-' . ($start + count($view)));
+      $body[] = IND . ($sel ? boldcyan('❯ ') : '  ') . $line;
     }
 
-    $o[] = '';
-    $o[] = rule();
-    $o[] = IND . dim('space toggle  ·  type to filter  ·  ↑/↓ move  ·  ↵ confirm  ·  esc cancel');
-    $o[] = '';
-    return implode("\n", $o);
+    $footer = [rule(), IND . dim('space toggle  ·  type to filter  ·  ↑/↓ move  ·  ↵ confirm  ·  esc cancel')];
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
   }
 
-  protected function renderConfirm(array $field): string {
-    $o = $this->editorHeader($field);
-    foreach ([TRUE => 'Yes', FALSE => 'No'] as $val => $label) {
-      $val = (bool) $val;
+  protected function renderConfirm(array $field): array {
+    $header = $this->editorHeader($field);
+    $body = [IND . grey($field['desc']), ''];
+    $focus = -1;
+    foreach ([1 => 'Yes', 0 => 'No'] as $flag => $label) {
+      $val = (bool) $flag;
       $sel = $this->editor['value'] === $val;
+      if ($sel) {
+        $focus = count($body);
+      }
       $radio = $sel ? boldgreen('(•)') : dim('( )');
       $text = $sel ? boldcyan($label) : $label;
-      $o[] = IND . ($sel ? boldcyan('❯ ') : '  ') . $radio . ' ' . $text;
+      $body[] = IND . ($sel ? boldcyan('❯ ') : '  ') . $radio . ' ' . $text;
     }
-    $o[] = '';
-    $o[] = rule();
-    $o[] = IND . dim('↑/↓ or y/n  ·  ↵ confirm  ·  esc cancel');
-    $o[] = '';
-    return implode("\n", $o);
+    $footer = [rule(), IND . dim('↑/↓ or y/n  ·  ↵ confirm  ·  esc cancel')];
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
   }
 
-  protected function renderText(array $field): string {
-    $o = $this->editorHeader($field);
+  protected function renderText(array $field): array {
+    $header = $this->editorHeader($field);
     $text = (string) $this->editor['value'];
     $inner = COLS - 8;
-    $o[] = IND . '  ' . dim('┌' . str_repeat('─', $inner) . '┐');
-    $o[] = IND . '  ' . dim('│') . ' ' . pad_right(cyan($text) . reverse(' '), $inner - 2) . ' ' . dim('│');
-    $o[] = IND . '  ' . dim('└' . str_repeat('─', $inner) . '┘');
-    $o[] = '';
+    $body = [
+      IND . grey($field['desc']),
+      '',
+      IND . '  ' . dim('┌' . str_repeat('─', $inner) . '┐'),
+      IND . '  ' . dim('│') . ' ' . pad_right(cyan($text) . reverse(' '), $inner - 2) . ' ' . dim('│'),
+      IND . '  ' . dim('└' . str_repeat('─', $inner) . '┘'),
+      '',
+    ];
     $err = $this->editor['error'] ?? '';
-    if ($err !== '') {
-      $o[] = IND . '  ' . red('✕ ' . $err);
-    }
-    else {
-      $o[] = IND . '  ' . green('✔ Looks good.');
-    }
-    $o[] = '';
-    $o[] = rule();
-    $o[] = IND . dim('type to edit  ·  ↵ save  ·  esc cancel');
-    $o[] = '';
-    return implode("\n", $o);
+    $body[] = $err !== '' ? IND . '  ' . red('✕ ' . $err) : IND . '  ' . green('✔ Looks good.');
+    $footer = [rule(), IND . dim('type to edit  ·  ↵ save  ·  esc cancel')];
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => 0];
   }
 
-  // ---- Rendering: review ----------------------------------------------------
-
-  public function renderReview(): string {
-    $o = [];
-    $o[] = '';
-    $o[] = IND . bold('Review & apply');
-    $o[] = rule();
+  public function renderReview(): array {
+    $header = ['', IND . bold('Review & apply'), rule()];
+    $body = [];
     foreach ($this->sections as $section) {
-      $o[] = IND . boldcyan($section['title']);
+      $body[] = IND . boldcyan($section['title']);
       foreach ($section['fields'] as $field) {
         if (!$this->isActive($field)) {
           continue;
         }
         $badge = $this->isEdited($field) ? '  ' . yellow('✎') : '';
-        $o[] = IND . '  ' . pad_right($field['label'] . '  ', 32) . dim($this->display($field)) . $badge;
+        $body[] = IND . '  ' . pad_right($field['label'] . '  ', 32) . dim($this->display($field)) . $badge;
       }
     }
-    $o[] = rule();
-    $o[] = IND . dim('Nothing is written until you choose Apply.');
-    $o[] = '';
-    $o[] = IND . '   ' . reverse(boldgreen(' Apply ')) . '    ' . dim('esc back to panel  ·  q quit');
-    $o[] = '';
-    return implode("\n", $o);
+    $footer = [
+      rule(),
+      IND . dim('↑/↓ scroll  ·  ') . reverse(boldgreen(' ↵ apply ')) . dim('  ·  esc back  ·  q quit'),
+    ];
+    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => -1];
   }
 
-  public function render(): string {
-    return match ($this->screen) {
-      'section' => $this->renderSection(),
-      'editor' => $this->renderEditor(),
-      'review' => $this->renderReview(),
-      default => $this->renderHub(),
-    };
+  protected function frameToString(array $f): string {
+    return implode("\n", array_merge($f['header'], $f['body'], $f['footer']));
+  }
+
+  // ---- Paint (viewport + scrolling) -----------------------------------------
+
+  protected function paint(): void {
+    $this->detectSize();
+    echo "\033[2J\033[H" . $this->composeFrame();
+  }
+
+  protected function composeFrame(): string {
+    $f = $this->frame();
+    $key = $this->screen . ':' . $this->sectionIndex . ':' . ($this->editor['field']['id'] ?? '');
+    if ($key !== $this->scrollKey) {
+      $this->scrollKey = $key;
+      $this->scroll = 0;
+    }
+
+    $header = $f['header'];
+    $footer = $f['footer'];
+    $body = $f['body'];
+    $avail = max(1, $this->rows - count($header) - count($footer));
+    $total = count($body);
+
+    $offset = $this->scroll;
+    if ($f['focus'] >= 0) {
+      if ($f['focus'] < $offset) {
+        $offset = $f['focus'];
+      }
+      if ($f['focus'] >= $offset + $avail) {
+        $offset = $f['focus'] - $avail + 1;
+      }
+    }
+    $offset = max(0, min($offset, max(0, $total - $avail)));
+    $this->scroll = $offset;
+
+    $view = array_slice($body, $offset, $avail);
+    if ($total > $avail) {
+      while (count($view) < $avail) {
+        $view[] = '';
+      }
+      if ($offset > 0) {
+        $header[count($header) - 1] = scroll_rule('▲ ' . $offset . ' more');
+      }
+      $below = $total - $offset - $avail;
+      if ($below > 0) {
+        $footer[0] = scroll_rule('▼ ' . $below . ' more');
+      }
+    }
+
+    return implode("\n", array_merge($header, $view, $footer));
+  }
+
+  /**
+   * Headless render of one screen at a fixed height (for verifying scrolling).
+   */
+  public function probe(int $rows, string $screen, int $index): void {
+    $this->scripted = TRUE;
+    $this->rows = $rows;
+    $this->screen = $screen;
+    $this->hubIndex = $index;
+    $this->sectionIndex = min($index, count($this->sections) - 1);
+    echo $this->composeFrame() . "\n";
+  }
+
+  protected function detectSize(): void {
+    if ($this->scripted) {
+      return;
+    }
+    $out = trim((string) @shell_exec('stty size </dev/tty 2>/dev/null'));
+    if (preg_match('/^(\d+)\s+(\d+)$/', $out, $m)) {
+      $this->rows = max(8, (int) $m[1]);
+    }
   }
 
   // ---- Input ----------------------------------------------------------------
@@ -646,27 +730,27 @@ class Customizer {
     if ($c === '' || $c === FALSE) {
       return 'EOF';
     }
-    $o = ord($c);
-    if ($o === 0x1b) {
+    if (ord($c) === 0x1b) {
       stream_set_blocking($this->in, FALSE);
-      $c2 = fread($this->in, 1);
-      if ($c2 === '') {
-        usleep(1500);
-        $c2 = fread($this->in, 1);
-      }
-      $tok = 'ESC';
-      if ($c2 === '[' || $c2 === 'O') {
-        $c3 = fread($this->in, 1);
-        if ($c3 === '') {
-          usleep(1500);
-          $c3 = fread($this->in, 1);
+      $seq = '';
+      for ($i = 0; $i < 6; $i++) {
+        $n = fread($this->in, 1);
+        if ($n === '' || $n === FALSE) {
+          usleep(1200);
+          $n = fread($this->in, 1);
         }
-        $tok = $this->arrow($c3);
+        if ($n === '' || $n === FALSE) {
+          break;
+        }
+        $seq .= $n;
+        if (ctype_alpha($n) || $n === '~') {
+          break;
+        }
       }
       stream_set_blocking($this->in, TRUE);
-      return $tok;
+      return $this->csi($seq);
     }
-    return $this->normalize($o, $c);
+    return $this->normalize(ord($c), $c);
   }
 
   protected function keyBuffered(): string {
@@ -674,23 +758,37 @@ class Customizer {
       return 'EOF';
     }
     $c = $this->buf[$this->bufPos++];
-    $o = ord($c);
-    if ($o === 0x1b) {
-      if (($this->buf[$this->bufPos] ?? '') === '[' || ($this->buf[$this->bufPos] ?? '') === 'O') {
-        $this->bufPos++;
-        $c3 = $this->buf[$this->bufPos++] ?? '';
-        return $this->arrow($c3);
+    if (ord($c) === 0x1b) {
+      $seq = '';
+      while ($this->bufPos < strlen($this->buf) && strlen($seq) < 6) {
+        $n = $this->buf[$this->bufPos++];
+        $seq .= $n;
+        if (ctype_alpha($n) || $n === '~') {
+          break;
+        }
       }
-      return 'ESC';
+      return $this->csi($seq);
     }
-    return $this->normalize($o, $c);
+    return $this->normalize(ord($c), $c);
   }
 
-  protected function arrow(string $c): string {
-    return match ($c) {
-      'A' => 'UP', 'B' => 'DOWN', 'C' => 'RIGHT', 'D' => 'LEFT',
-      default => 'ESC',
-    };
+  /**
+   * Map a CSI escape tail to a token. Empty tail = a lone ESC (back).
+   */
+  protected function csi(string $seq): string {
+    if ($seq === '') {
+      return 'ESC';
+    }
+    if ($seq[0] === '[' || $seq[0] === 'O') {
+      return match (substr($seq, 1)) {
+        'A' => 'UP', 'B' => 'DOWN', 'C' => 'RIGHT', 'D' => 'LEFT',
+        '5~' => 'PGUP', '6~' => 'PGDN',
+        'H', '1~', '7~' => 'HOME',
+        'F', '4~', '8~' => 'END',
+        default => 'ESC',
+      };
+    }
+    return 'ESC';
   }
 
   protected function normalize(int $o, string $c): string {
@@ -750,10 +848,11 @@ class Customizer {
   /**
    * Headless driver for verification: comma-separated tokens, e.g.
    *   down,enter,type:Acme Digital,enter
-   * Tokens: up down left right enter esc space back, `type:<text>`, or a char.
+   * Tokens: up down left right enter esc space back pgup pgdn home end,
+   * `type:<text>`, or a single char.
    */
   public function runKeys(string $spec): int {
-    $map = ['up' => 'UP', 'down' => 'DOWN', 'left' => 'LEFT', 'right' => 'RIGHT', 'enter' => 'ENTER', 'esc' => 'ESC', 'space' => 'SPACE', 'back' => 'BACKSPACE'];
+    $map = ['up' => 'UP', 'down' => 'DOWN', 'left' => 'LEFT', 'right' => 'RIGHT', 'enter' => 'ENTER', 'esc' => 'ESC', 'space' => 'SPACE', 'back' => 'BACKSPACE', 'pgup' => 'PGUP', 'pgdn' => 'PGDN', 'home' => 'HOME', 'end' => 'END'];
     foreach (explode(',', $spec) as $token) {
       if ($token === '') {
         continue;
@@ -782,10 +881,6 @@ class Customizer {
         fwrite(STDOUT, sprintf("  %-28s %s%s\n", $field['id'], $v, $edited));
       }
     }
-  }
-
-  protected function paint(): void {
-    echo "\033[2J\033[H" . $this->render();
   }
 
   public function restore(): void {
@@ -824,6 +919,22 @@ class Customizer {
         $this->hubIndex = ($this->hubIndex + 1) % ($max + 1);
         break;
 
+      case 'PGUP':
+        $this->hubIndex = max(0, $this->hubIndex - 5);
+        break;
+
+      case 'PGDN':
+        $this->hubIndex = min($max, $this->hubIndex + 5);
+        break;
+
+      case 'HOME':
+        $this->hubIndex = 0;
+        break;
+
+      case 'END':
+        $this->hubIndex = $max;
+        break;
+
       case 'ENTER':
       case 'RIGHT':
         if ($this->hubIndex === $max) {
@@ -857,6 +968,16 @@ class Customizer {
 
       case 'DOWN':
         $this->fieldIndex = ($this->fieldIndex + 1) % $count;
+        break;
+
+      case 'PGUP':
+      case 'HOME':
+        $this->fieldIndex = 0;
+        break;
+
+      case 'PGDN':
+      case 'END':
+        $this->fieldIndex = $count - 1;
         break;
 
       case 'ESC':
@@ -948,6 +1069,16 @@ class Customizer {
         $this->editor['cursor'] = ($this->editor['cursor'] + 1) % $n;
         break;
 
+      case 'HOME':
+      case 'PGUP':
+        $this->editor['cursor'] = 0;
+        break;
+
+      case 'END':
+      case 'PGDN':
+        $this->editor['cursor'] = $n - 1;
+        break;
+
       case 'ENTER':
         if ($keys) {
           $this->editor['value'] = $keys[$this->editor['cursor']] ?? $this->editor['value'];
@@ -990,15 +1121,25 @@ class Customizer {
         $cursor = ($cursor + 1) % $n;
         break;
 
+      case 'HOME':
+      case 'PGUP':
+        $cursor = 0;
+        break;
+
+      case 'END':
+      case 'PGDN':
+        $cursor = $n - 1;
+        break;
+
       case 'SPACE':
         if ($keys) {
-          $key = $keys[$cursor];
+          $selected_key = $keys[$cursor];
           $val = (array) $this->editor['value'];
-          if (in_array($key, $val, TRUE)) {
-            $val = array_values(array_diff($val, [$key]));
+          if (in_array($selected_key, $val, TRUE)) {
+            $val = array_values(array_diff($val, [$selected_key]));
           }
           else {
-            $val[] = $key;
+            $val[] = $selected_key;
           }
           $this->editor['value'] = $val;
         }
@@ -1099,7 +1240,32 @@ class Customizer {
   }
 
   protected function onReview(string $k): bool {
+    $page = max(1, $this->rows - 4);
     switch ($k) {
+      case 'UP':
+        $this->scroll = max(0, $this->scroll - 1);
+        break;
+
+      case 'DOWN':
+        $this->scroll++;
+        break;
+
+      case 'PGUP':
+        $this->scroll = max(0, $this->scroll - $page);
+        break;
+
+      case 'PGDN':
+        $this->scroll += $page;
+        break;
+
+      case 'HOME':
+        $this->scroll = 0;
+        break;
+
+      case 'END':
+        $this->scroll = 100000;
+        break;
+
       case 'ENTER':
         $this->paint();
         echo "\n" . IND . green('✔ (prototype) Apply is a stub - no files were changed.') . "\n";
@@ -1123,35 +1289,35 @@ class Customizer {
 
     $this->screen = 'hub';
     $this->hubIndex = 0;
-    $frames['The control panel (hub)'] = $this->renderHub();
+    $frames['The control panel (hub)'] = $this->frameToString($this->renderHub());
 
     $this->sectionIndex = 1;
     $this->fieldIndex = 1;
     $this->screen = 'section';
-    $frames['A section opened (Drupal)'] = $this->renderSection();
+    $frames['A section opened (Drupal)'] = $this->frameToString($this->renderSection());
 
     $this->screen = 'editor';
     $this->openEditorDemo('profile', 1);
-    $frames['Select field (Profile)'] = $this->renderEditor();
+    $frames['Select field (Profile)'] = $this->frameToString($this->renderEditor());
 
     $this->openEditorDemo('modules', 6);
-    $frames['Multiselect field (Modules)'] = $this->renderEditor();
+    $frames['Multiselect field (Modules)'] = $this->frameToString($this->renderEditor());
 
     $this->openEditorDemo('name', 0);
-    $frames['Text field (Site name)'] = $this->renderEditor();
+    $frames['Text field (Site name)'] = $this->frameToString($this->renderEditor());
 
     $this->openEditorDemo('name', 0);
     $this->editor['value'] = '';
     $this->editor['error'] = 'Site name is required.';
-    $frames['Text field with a validation error'] = $this->renderEditor();
+    $frames['Text field with a validation error'] = $this->frameToString($this->renderEditor());
 
     $this->openEditorDemo('frontend_build', 0);
-    $frames['Confirm field'] = $this->renderConfirm($this->editor['field']);
+    $frames['Confirm field'] = $this->frameToString($this->renderConfirm($this->editor['field']));
 
     $this->answers['theme'] = 'olivero';
     $this->answers['name'] = 'Acme Digital';
     $this->screen = 'review';
-    $frames['Review & apply'] = $this->renderReview();
+    $frames['Review & apply'] = $this->frameToString($this->renderReview());
 
     foreach ($frames as $caption => $frame) {
       echo "\n" . IND . magenta('◆ ' . $caption) . "\n";
@@ -1194,6 +1360,11 @@ $app = new Customizer(in_array('--update', $args, TRUE));
 foreach ($args as $a) {
   if (str_starts_with($a, '--keys=')) {
     exit($app->runKeys(substr($a, 7)));
+  }
+  if (str_starts_with($a, '--probe=')) {
+    [$r, $s, $i] = array_pad(explode(',', substr($a, 8)), 3, '');
+    $app->probe((int) $r ?: 18, $s !== '' ? $s : 'hub', (int) $i);
+    exit(0);
   }
 }
 
