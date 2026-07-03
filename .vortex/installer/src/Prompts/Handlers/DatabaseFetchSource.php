@@ -133,6 +133,19 @@ class DatabaseFetchSource extends AbstractHandler {
         File::removeTokenAsync($token);
       }
     }
+
+    // Gates content required when either the primary or the migration
+    // database is fetched from Lagoon.
+    $migration_source = $this->responses[MigrationFetchSource::id()] ?? NULL;
+
+    if ($v !== self::LAGOON && $migration_source !== MigrationFetchSource::LAGOON) {
+      File::removeTokenAsync('DB_FETCH_SOURCE_LAGOON_ANY');
+    }
+
+    // Gates content required only for the hosting-connected fetch sources.
+    if ($v !== self::ACQUIA && $v !== self::LAGOON) {
+      File::removeTokenAsync('DB_FETCH_SOURCE_ACQUIA_LAGOON');
+    }
   }
 
 }

@@ -86,6 +86,9 @@ DOC;
     Env::writeValueDotenv('VORTEX_PROVISION_TYPE', $v, $t . '/.env');
 
     if ($v === static::PROFILE) {
+      // Sanitization applies only to imported database dumps.
+      File::remove($t . '/scripts/sanitize.sql');
+
       File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
     }
     else {

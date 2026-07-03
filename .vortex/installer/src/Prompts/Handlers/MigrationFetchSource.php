@@ -134,6 +134,11 @@ class MigrationFetchSource extends AbstractHandler {
         File::removeTokenAsync($token);
       }
     }
+
+    // Gates content required only for the hosting-connected fetch sources.
+    if ($v !== self::ACQUIA && $v !== self::LAGOON) {
+      File::removeTokenAsync('MIGRATION_DB_FETCH_SOURCE_ACQUIA_LAGOON');
+    }
   }
 
 }

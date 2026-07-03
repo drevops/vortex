@@ -40,8 +40,10 @@ ahoy info   # Show URLs and status
 ahoy login  # Get admin login URL
 
 # Build & Database
+#;< !PROVISION_TYPE_PROFILE
 ahoy fetch-db          # Fetch database from remote (cached for the day)
 ahoy fetch-db --fresh  # Force a fresh database fetch, bypassing the cache
+#;> !PROVISION_TYPE_PROFILE
 ahoy build        # Complete site rebuild
 ahoy provision    # Re-provision (import DB + apply config)
 ahoy import-db    # Import database from file without applying config
@@ -62,6 +64,7 @@ ahoy composer require drupal/[module_name]
 # Code quality
 ahoy lint     # Check code style
 ahoy lint-fix # Auto-fix code style
+#;< TOOL_PHPUNIT
 
 # PHPUnit testing
 ahoy test            # Run PHPUnit tests
@@ -69,13 +72,18 @@ ahoy test-unit       # Run PHPUnit Unit tests
 ahoy test-kernel     # Run PHPUnit Kernel tests
 ahoy test-functional # Run PHPUnit Functional tests
 ahoy test -- --filter=TestClassName  # Run specific PHPUnit test class
+#;> TOOL_PHPUNIT
+#;< TOOL_JEST
 
 # Jest testing
 ahoy test-js  # Run Jest JavaScript unit tests
+#;> TOOL_JEST
+#;< TOOL_BEHAT
 
 # Behat testing
 ahoy test-bdd # Run Behat tests
 ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
+#;> TOOL_BEHAT
 ```
 
 ## Before Starting Any Task

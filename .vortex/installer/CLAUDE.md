@@ -121,6 +121,7 @@ Content removed if feature not selected
 | CI       | `CI_PROVIDER_GHA`, `CI_PROVIDER_CIRCLECI`                                          |
 | Hosting  | `HOSTING_LAGOON`, `HOSTING_ACQUIA`                                                 |
 | Deploy   | `DEPLOY_TYPES_WEBHOOK`, `DEPLOY_TYPES_ARTIFACT`                                    |
+| Database | `DB_FETCH_SOURCE_<SOURCE>`, `MIGRATION_DB_FETCH_SOURCE_<SOURCE>` per source; combined: `DB_FETCH_SOURCE_LAGOON_ANY` (primary or migration source is Lagoon), `DB_FETCH_SOURCE_ACQUIA_LAGOON` / `MIGRATION_DB_FETCH_SOURCE_ACQUIA_LAGOON` (hosting-connected sources) |
 
 ### Handler Locations
 
