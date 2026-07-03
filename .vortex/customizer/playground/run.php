@@ -685,7 +685,7 @@ class Customizer {
       $body[] = $this->titleRow($marker, $label, $badge);
       $body[] = IND . '    ' . grey(clip($field['desc'], COLS - 6));
       $value = clip($this->display($field), COLS - 6);
-      $body[] = IND . '    ' . ($sel ? cyan($value) : dim($value));
+      $body[] = IND . '    ' . ($sel ? boldcyan($value) : $value);
       $nav++;
     }
 
@@ -700,7 +700,7 @@ class Customizer {
       $body[] = $this->titleRow($marker, $title, $badge);
       $body[] = IND . '    ' . grey(clip($sp['desc'], COLS - 6));
       $summary = clip($this->summary($sp), COLS - 6);
-      $body[] = IND . '    ' . ($sel ? $summary : dim($summary));
+      $body[] = IND . '    ' . ($sel ? boldcyan($summary) : $summary);
       $nav++;
     }
 
