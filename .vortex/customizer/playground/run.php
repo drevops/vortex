@@ -8,7 +8,11 @@
  * A self-contained, panel-style "control panel". The reusable ENGINE (this
  * file) is separate from the project DATA (a YAML config, default
  * config/vortex.yml), so the TUI could ship as its own package and each
- * project supplies its own panels/fields/conditionals.
+ * project supplies its own panels/fields/conditionals/sub-panels.
+ *
+ * Navigation is a recursive panel stack: the root panel lists the top-level
+ * panels; entering a panel shows its fields and any nested sub-panels; entering
+ * a sub-panel drills deeper; esc pops back up.
  *
  * It takes over the whole terminal (alternate screen buffer). Because that
  * disables the terminal's own scrollback, the panel scrolls internally: a
@@ -242,6 +246,46 @@ function yaml_scalar(string $s): mixed {
 }
 
 /**
+ * Normalize one panel (recursively) into the engine's internal shape.
+ */
+function normalize_panel(array $panel): array {
+  $fields = [];
+  foreach ($panel['fields'] ?? [] as $f) {
+    $type = $f['type'] ?? 'text';
+    $field = [
+      'id' => $f['id'],
+      'label' => $f['label'] ?? $f['id'],
+      'desc' => $f['description'] ?? '',
+      'type' => $type,
+      'default' => $f['default'] ?? ($type === 'multiselect' ? [] : ($type === 'confirm' ? FALSE : '')),
+    ];
+    foreach (['required', 'machine', 'auto'] as $flag) {
+      if (!empty($f[$flag])) {
+        $field[$flag] = TRUE;
+      }
+    }
+    if (isset($f['when'])) {
+      $field['when'] = $f['when'];
+    }
+    if (isset($f['options'])) {
+      $opts = [];
+      foreach ($f['options'] as $opt) {
+        $opts[$opt['value']] = [$opt['label'] ?? $opt['value'], $opt['description'] ?? ''];
+      }
+      $field['options'] = $opts;
+    }
+    $fields[] = $field;
+  }
+
+  $subs = [];
+  foreach ($panel['panels'] ?? [] as $sp) {
+    $subs[] = normalize_panel($sp);
+  }
+
+  return ['id' => $panel['id'], 'title' => $panel['title'] ?? $panel['id'], 'desc' => $panel['description'] ?? '', 'fields' => $fields, 'panels' => $subs];
+}
+
+/**
  * Load and normalize a config file into the engine's internal shape.
  *
  * @return array{title:string,subject:string,sections:array}
@@ -252,39 +296,7 @@ function load_config(string $path): array {
     exit(1);
   }
   $data = yaml_load((string) file_get_contents($path));
-
-  $sections = [];
-  foreach ($data['panels'] ?? [] as $panel) {
-    $fields = [];
-    foreach ($panel['fields'] ?? [] as $f) {
-      $type = $f['type'] ?? 'text';
-      $field = [
-        'id' => $f['id'],
-        'label' => $f['label'] ?? $f['id'],
-        'desc' => $f['description'] ?? '',
-        'type' => $type,
-        'default' => $f['default'] ?? ($type === 'multiselect' ? [] : ($type === 'confirm' ? FALSE : '')),
-      ];
-      foreach (['required', 'machine', 'auto'] as $flag) {
-        if (!empty($f[$flag])) {
-          $field[$flag] = TRUE;
-        }
-      }
-      if (isset($f['when'])) {
-        $field['when'] = $f['when'];
-      }
-      if (isset($f['options'])) {
-        $opts = [];
-        foreach ($f['options'] as $opt) {
-          $opts[$opt['value']] = [$opt['label'] ?? $opt['value'], $opt['description'] ?? ''];
-        }
-        $field['options'] = $opts;
-      }
-      $fields[] = $field;
-    }
-    $sections[] = ['id' => $panel['id'], 'title' => $panel['title'] ?? $panel['id'], 'desc' => $panel['description'] ?? '', 'fields' => $fields];
-  }
-
+  $sections = array_map('normalize_panel', $data['panels'] ?? []);
   return ['title' => $data['title'] ?? 'Customizer', 'subject' => $data['subject'] ?? '', 'sections' => $sections];
 }
 
@@ -301,10 +313,12 @@ class Customizer {
   protected array $defaults = [];
   protected bool $update = FALSE;
 
-  protected string $screen = 'hub';
-  protected int $hubIndex = 0;
-  protected int $sectionIndex = 0;
-  protected int $fieldIndex = 0;
+  protected string $screen = 'panel';
+  /** @var int[] Indices from root to the current panel ([] = root). */
+  protected array $path = [];
+  protected int $cursor = 0;
+  /** @var int[] Saved cursor per ancestor, for restoring on pop. */
+  protected array $cursorStack = [];
 
   /** @var array<string,mixed> Transient editor state. */
   protected array $editor = [];
@@ -325,21 +339,91 @@ class Customizer {
     $this->subject = $config['subject'];
     $this->sections = $config['sections'];
     $this->update = $update;
-    foreach ($this->sections as $section) {
-      foreach ($section['fields'] as $field) {
+    $this->initAnswers($this->sections);
+  }
+
+  protected function initAnswers(array $panels): void {
+    foreach ($panels as $panel) {
+      foreach ($panel['fields'] as $field) {
         $this->answers[$field['id']] = $field['default'];
         $this->defaults[$field['id']] = $field['default'];
       }
+      if (!empty($panel['panels'])) {
+        $this->initAnswers($panel['panels']);
+      }
     }
+  }
+
+  // ---- Tree navigation helpers ----------------------------------------------
+
+  protected function currentPanel(): array {
+    if (empty($this->path)) {
+      return ['title' => $this->title, 'desc' => '', 'fields' => [], 'panels' => $this->sections];
+    }
+    $panel = $this->sections[$this->path[0]];
+    for ($i = 1; $i < count($this->path); $i++) {
+      $panel = $panel['panels'][$this->path[$i]];
+    }
+    return $panel;
+  }
+
+  /**
+   * Navigable items of a panel: active fields, then sub-panels.
+   */
+  protected function panelItems(array $panel): array {
+    $items = [];
+    foreach ($panel['fields'] as $field) {
+      if ($this->isActive($field)) {
+        $items[] = ['kind' => 'field', 'field' => $field];
+      }
+    }
+    foreach ($panel['panels'] ?? [] as $i => $sp) {
+      $items[] = ['kind' => 'panel', 'panel' => $sp, 'index' => $i];
+    }
+    return $items;
+  }
+
+  protected function breadcrumb(): string {
+    if (empty($this->path)) {
+      return $this->title;
+    }
+    $panel = $this->sections[$this->path[0]];
+    $titles = [$panel['title']];
+    for ($i = 1; $i < count($this->path); $i++) {
+      $panel = $panel['panels'][$this->path[$i]];
+      $titles[] = $panel['title'];
+    }
+    return implode(' › ', $titles);
+  }
+
+  protected function pushPanel(int $index): void {
+    $this->cursorStack[] = $this->cursor;
+    $this->path[] = $index;
+    $this->cursor = 0;
+  }
+
+  protected function popPanel(): void {
+    array_pop($this->path);
+    $this->cursor = array_pop($this->cursorStack) ?? 0;
   }
 
   // ---- Field / value helpers ------------------------------------------------
 
   protected function field(string $id): ?array {
-    foreach ($this->sections as $section) {
-      foreach ($section['fields'] as $field) {
+    return $this->findField($this->sections, $id);
+  }
+
+  protected function findField(array $panels, string $id): ?array {
+    foreach ($panels as $panel) {
+      foreach ($panel['fields'] as $field) {
         if ($field['id'] === $id) {
           return $field;
+        }
+      }
+      if (!empty($panel['panels'])) {
+        $found = $this->findField($panel['panels'], $id);
+        if ($found) {
+          return $found;
         }
       }
     }
@@ -444,11 +528,11 @@ class Customizer {
   }
 
   /**
-   * One-line summary of a section's active field values for the hub.
+   * One-line summary of a panel's active field values.
    */
-  protected function summary(array $section): string {
+  protected function summary(array $panel): string {
     $parts = [];
-    foreach ($section['fields'] as $field) {
+    foreach ($panel['fields'] as $field) {
       if ($this->isActive($field)) {
         $parts[] = $this->display($field);
       }
@@ -456,25 +540,34 @@ class Customizer {
         break;
       }
     }
+    if (!$parts && !empty($panel['panels'])) {
+      return count($panel['panels']) . ' sub-panel' . (count($panel['panels']) === 1 ? '' : 's');
+    }
     return implode(' · ', $parts);
   }
 
-  protected function activeFields(array $section): array {
-    return array_values(array_filter($section['fields'], fn($f) => $this->isActive($f)));
-  }
-
-  protected function sectionEdited(array $section): bool {
-    foreach ($section['fields'] as $field) {
+  protected function panelEdited(array $panel): bool {
+    foreach ($panel['fields'] as $field) {
       if ($this->isActive($field) && $this->isEdited($field)) {
+        return TRUE;
+      }
+    }
+    foreach ($panel['panels'] ?? [] as $sp) {
+      if ($this->panelEdited($sp)) {
         return TRUE;
       }
     }
     return FALSE;
   }
 
-  protected function sectionAuto(array $section): bool {
-    foreach ($section['fields'] as $field) {
+  protected function panelAuto(array $panel): bool {
+    foreach ($panel['fields'] as $field) {
       if ($this->isActive($field) && $this->isAuto($field)) {
+        return TRUE;
+      }
+    }
+    foreach ($panel['panels'] ?? [] as $sp) {
+      if ($this->panelAuto($sp)) {
         return TRUE;
       }
     }
@@ -542,75 +635,47 @@ class Customizer {
   //
   // Every screen returns a frame: a pinned `header`, a scrollable `body`, a
   // pinned `footer`, and a `focus` line index within the body to keep visible
-  // (-1 = no cursor; the user scrolls manually). The last header line and first
-  // footer line are always dividers, so composeFrame() can stamp ▲/▼ onto them.
+  // (-1 = no cursor). The last header line and first footer line are always
+  // dividers, so composeFrame() can stamp ▲/▼ onto them.
 
   protected function frame(): array {
     return match ($this->screen) {
-      'section' => $this->renderSection(),
       'editor' => $this->renderEditor(),
       'review' => $this->renderReview(),
-      default => $this->renderHub(),
+      default => $this->renderPanel(),
     };
   }
 
-  public function renderHub(): array {
-    $header = [
-      '',
-      IND . spread(bold($this->title) . dim('  ·  configure ') . cyan('"' . $this->subject . '"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
-      rule(),
-    ];
+  public function renderPanel(): array {
+    $panel = $this->currentPanel();
+    $root = empty($this->path);
+
+    if ($root) {
+      $header = [
+        '',
+        IND . spread(bold($this->title) . dim('  ·  configure ') . cyan('"' . $this->subject . '"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
+        rule(),
+      ];
+    }
+    else {
+      $header = [
+        '',
+        IND . spread(bold($this->breadcrumb()), dim('esc back')),
+        rule(),
+      ];
+    }
 
     $body = [];
     $focus = -1;
-    foreach ($this->sections as $i => $section) {
-      $sel = $this->screen === 'hub' && $this->hubIndex === $i;
-      if ($sel) {
-        $focus = count($body);
-      }
-      $marker = $sel ? boldcyan('❯ ') : '  ';
-      $title = $sel ? boldcyan($section['title']) : $section['title'];
-      $badge = $this->sectionEdited($section) ? yellow('✎') : ($this->sectionAuto($section) ? dim('auto') : '');
-      $body[] = $this->titleRow($marker, $title, $badge);
-      $body[] = IND . '    ' . grey(clip($section['desc'], COLS - 6));
-      $value = clip($this->summary($section), COLS - 6);
-      $body[] = IND . '    ' . ($sel ? $value : dim($value));
-    }
+    $nav = 0;
 
-    $count = count($this->sections);
-    $selReview = $this->screen === 'hub' && $this->hubIndex === $count;
-    if ($selReview) {
-      $focus = count($body) - 1;
-    }
-    $marker = $selReview ? boldcyan('❯ ') : '  ';
-    $label = $selReview ? boldgreen('Review & apply') : green('Review & apply');
-    $footer = [
-      rule(),
-      IND . spread($marker . boldgreen('✔') . ' ' . $label, dim('nothing written yet')),
-    ];
-
-    return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
-  }
-
-  public function renderSection(): array {
-    $section = $this->sections[$this->sectionIndex];
-    $header = [
-      '',
-      IND . spread(bold($section['title']), dim('section ' . ($this->sectionIndex + 1) . ' of ' . count($this->sections))),
-      rule(),
-    ];
-
-    $body = [];
-    $focus = -1;
-    $nav = $this->activeFields($section);
-    foreach ($section['fields'] as $field) {
+    foreach ($panel['fields'] as $field) {
       if (!$this->isActive($field)) {
         $plain = '⌁ ' . $field['label'] . '   inactive · ' . $this->conditionText($field);
         $body[] = IND . '  ' . grey(clip($plain, COLS - 4));
         continue;
       }
-      $pos = array_search($field['id'], array_column($nav, 'id'), TRUE);
-      $sel = $this->screen === 'section' && $this->fieldIndex === $pos;
+      $sel = $this->screen === 'panel' && $this->cursor === $nav;
       if ($sel) {
         $focus = count($body);
       }
@@ -621,9 +686,37 @@ class Customizer {
       $body[] = IND . '    ' . grey(clip($field['desc'], COLS - 6));
       $value = clip($this->display($field), COLS - 6);
       $body[] = IND . '    ' . ($sel ? cyan($value) : dim($value));
+      $nav++;
     }
 
-    $footer = [rule(), IND . dim('↑/↓ move  ·  ↵ edit  ·  esc back  ·  r reset section')];
+    foreach ($panel['panels'] ?? [] as $sp) {
+      $sel = $this->screen === 'panel' && $this->cursor === $nav;
+      if ($sel) {
+        $focus = count($body);
+      }
+      $marker = $sel ? boldcyan('❯ ') : '  ';
+      $title = ($sel ? boldcyan($sp['title']) : $sp['title']) . dim(' ›');
+      $badge = $this->panelEdited($sp) ? yellow('✎') : ($this->panelAuto($sp) ? dim('auto') : '');
+      $body[] = $this->titleRow($marker, $title, $badge);
+      $body[] = IND . '    ' . grey(clip($sp['desc'], COLS - 6));
+      $summary = clip($this->summary($sp), COLS - 6);
+      $body[] = IND . '    ' . ($sel ? $summary : dim($summary));
+      $nav++;
+    }
+
+    if ($root) {
+      $selReview = $this->screen === 'panel' && $this->cursor === $nav;
+      if ($selReview) {
+        $focus = count($body) - 1;
+      }
+      $marker = $selReview ? boldcyan('❯ ') : '  ';
+      $label = $selReview ? boldgreen('Review & apply') : green('Review & apply');
+      $footer = [rule(), IND . spread($marker . boldgreen('✔') . ' ' . $label, dim('nothing written yet'))];
+    }
+    else {
+      $footer = [rule(), IND . dim('↑/↓ move  ·  ↵ open/edit  ·  esc back  ·  r reset')];
+    }
+
     return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => $focus];
   }
 
@@ -639,11 +732,10 @@ class Customizer {
   }
 
   /**
-   * Pinned editor header: blank, "Section › Field" (+ optional right tag), rule.
+   * Pinned editor header: blank, "A › B › Field" (+ optional right tag), rule.
    */
   protected function editorHeader(array $field, string $right = ''): array {
-    $section = $this->sections[$this->sectionIndex];
-    $title = bold($section['title']) . dim(' › ') . boldcyan($field['label']);
+    $title = bold($this->breadcrumb()) . dim(' › ') . boldcyan($field['label']);
     return ['', $right === '' ? IND . $title : IND . spread($title, dim($right)), rule()];
   }
 
@@ -754,21 +846,29 @@ class Customizer {
   public function renderReview(): array {
     $header = ['', IND . bold('Review & apply'), rule()];
     $body = [];
-    foreach ($this->sections as $section) {
-      $body[] = IND . boldcyan($section['title']);
-      foreach ($section['fields'] as $field) {
-        if (!$this->isActive($field)) {
-          continue;
-        }
-        $badge = $this->isEdited($field) ? '  ' . yellow('✎') : '';
-        $body[] = IND . '  ' . pad_right($field['label'] . '  ', 32) . dim($this->display($field)) . $badge;
-      }
+    foreach ($this->sections as $panel) {
+      $this->reviewPanel($panel, $body, 0);
     }
     $footer = [
       rule(),
       IND . dim('↑/↓ scroll  ·  ') . reverse(boldgreen(' ↵ apply ')) . dim('  ·  esc back  ·  q quit'),
     ];
     return ['header' => $header, 'body' => $body, 'footer' => $footer, 'focus' => -1];
+  }
+
+  protected function reviewPanel(array $panel, array &$body, int $depth): void {
+    $indent = str_repeat('  ', $depth);
+    $body[] = IND . $indent . boldcyan($panel['title']);
+    foreach ($panel['fields'] as $field) {
+      if (!$this->isActive($field)) {
+        continue;
+      }
+      $badge = $this->isEdited($field) ? '  ' . yellow('✎') : '';
+      $body[] = IND . $indent . '  ' . pad_right($field['label'] . '  ', 32 - $depth * 2) . dim($this->display($field)) . $badge;
+    }
+    foreach ($panel['panels'] ?? [] as $sp) {
+      $this->reviewPanel($sp, $body, $depth + 1);
+    }
   }
 
   protected function frameToString(array $f): string {
@@ -784,7 +884,7 @@ class Customizer {
 
   protected function composeFrame(): string {
     $f = $this->frame();
-    $key = $this->screen . ':' . $this->sectionIndex . ':' . ($this->editor['field']['id'] ?? '');
+    $key = $this->screen . ':' . implode('.', $this->path) . ':' . ($this->editor['field']['id'] ?? '');
     if ($key !== $this->scrollKey) {
       $this->scrollKey = $key;
       $this->scroll = 0;
@@ -829,12 +929,22 @@ class Customizer {
   /**
    * Headless render of one screen at a fixed height (for verifying scrolling).
    */
-  public function probe(int $rows, string $screen, int $index): void {
+  public function probe(int $rows, string $mode, int $index): void {
     $this->scripted = TRUE;
     $this->rows = $rows;
-    $this->screen = $screen;
-    $this->hubIndex = $index;
-    $this->sectionIndex = min($index, count($this->sections) - 1);
+    if ($mode === 'review') {
+      $this->screen = 'review';
+    }
+    elseif ($mode === 'section') {
+      $this->screen = 'panel';
+      $this->path = [min($index, count($this->sections) - 1)];
+      $this->cursor = 0;
+    }
+    else {
+      $this->screen = 'panel';
+      $this->path = [];
+      $this->cursor = $index;
+    }
     echo $this->composeFrame() . "\n";
   }
 
@@ -996,7 +1106,7 @@ class Customizer {
   public function runKeys(string $spec): int {
     $map = ['up' => 'UP', 'down' => 'DOWN', 'left' => 'LEFT', 'right' => 'RIGHT', 'enter' => 'ENTER', 'esc' => 'ESC', 'space' => 'SPACE', 'back' => 'BACKSPACE', 'pgup' => 'PGUP', 'pgdn' => 'PGDN', 'home' => 'HOME', 'end' => 'END', 'wheelup' => 'SCROLL_UP', 'wheeldown' => 'SCROLL_DOWN'];
     // Mirror the first interactive paint priming the scroll key.
-    $this->scrollKey = $this->screen . ':' . $this->sectionIndex . ':' . ($this->editor['field']['id'] ?? '');
+    $this->scrollKey = $this->screen . ':' . implode('.', $this->path) . ':' . ($this->editor['field']['id'] ?? '');
     foreach (explode(',', $spec) as $token) {
       if ($token === '' || $token === 'render') {
         continue;
@@ -1014,7 +1124,7 @@ class Customizer {
     if (str_contains(',' . $spec . ',', ',render,')) {
       $this->rows = 18;
       echo $this->composeFrame() . "\n";
-      fwrite(STDOUT, sprintf("[debug] screen=%s hubIndex=%d fieldIndex=%d scroll=%d manual=%d\n", $this->screen, $this->hubIndex, $this->fieldIndex, $this->scroll, $this->manualScroll ? 1 : 0));
+      fwrite(STDOUT, sprintf("[debug] screen=%s path=%s cursor=%d scroll=%d manual=%d\n", $this->screen, implode('.', $this->path), $this->cursor, $this->scroll, $this->manualScroll ? 1 : 0));
     }
     else {
       $this->dumpAnswers();
@@ -1024,13 +1134,11 @@ class Customizer {
 
   protected function dumpAnswers(): void {
     fwrite(STDOUT, "HEADLESS RUN - final answers:\n");
-    foreach ($this->sections as $section) {
-      foreach ($section['fields'] as $field) {
-        $v = $this->answers[$field['id']];
-        $v = is_array($v) ? implode(',', $v) : var_export($v, TRUE);
-        $edited = $this->isEdited($field) ? ' [edited]' : '';
-        fwrite(STDOUT, sprintf("  %-28s %s%s\n", $field['id'], $v, $edited));
-      }
+    foreach ($this->answers as $id => $v) {
+      $v = is_array($v) ? implode(',', $v) : var_export($v, TRUE);
+      $field = $this->field($id);
+      $edited = ($field && $this->isEdited($field)) ? ' [edited]' : '';
+      fwrite(STDOUT, sprintf("  %-28s %s%s\n", $id, $v, $edited));
     }
   }
 
@@ -1067,99 +1175,70 @@ class Customizer {
     // Any other key re-engages cursor-follow scrolling.
     $this->manualScroll = FALSE;
     return match ($this->screen) {
-      'hub' => $this->onHub($k),
-      'section' => $this->onSection($k),
+      'panel' => $this->onPanel($k),
       'editor' => $this->onEditor($k),
       'review' => $this->onReview($k),
       default => TRUE,
     };
   }
 
-  protected function onHub(string $k): bool {
-    $max = count($this->sections);
+  protected function onPanel(string $k): bool {
+    $panel = $this->currentPanel();
+    $items = $this->panelItems($panel);
+    $root = empty($this->path);
+    $count = max(1, count($items) + ($root ? 1 : 0));
     switch ($k) {
       case 'UP':
-        $this->hubIndex = ($this->hubIndex - 1 + ($max + 1)) % ($max + 1);
+        $this->cursor = ($this->cursor - 1 + $count) % $count;
         break;
 
       case 'DOWN':
-        $this->hubIndex = ($this->hubIndex + 1) % ($max + 1);
-        break;
-
-      case 'PGUP':
-        $this->hubIndex = max(0, $this->hubIndex - 5);
-        break;
-
-      case 'PGDN':
-        $this->hubIndex = min($max, $this->hubIndex + 5);
-        break;
-
-      case 'HOME':
-        $this->hubIndex = 0;
-        break;
-
-      case 'END':
-        $this->hubIndex = $max;
-        break;
-
-      case 'ENTER':
-      case 'RIGHT':
-        if ($this->hubIndex === $max) {
-          $this->screen = 'review';
-        }
-        else {
-          $this->sectionIndex = $this->hubIndex;
-          $this->fieldIndex = 0;
-          $this->screen = 'section';
-        }
-        break;
-
-      case 'a':
-        $this->screen = 'review';
-        break;
-
-      case 'q':
-        return FALSE;
-    }
-    return TRUE;
-  }
-
-  protected function onSection(string $k): bool {
-    $section = $this->sections[$this->sectionIndex];
-    $nav = $this->activeFields($section);
-    $count = count($nav);
-    switch ($k) {
-      case 'UP':
-        $this->fieldIndex = ($this->fieldIndex - 1 + $count) % $count;
-        break;
-
-      case 'DOWN':
-        $this->fieldIndex = ($this->fieldIndex + 1) % $count;
+        $this->cursor = ($this->cursor + 1) % $count;
         break;
 
       case 'PGUP':
       case 'HOME':
-        $this->fieldIndex = 0;
+        $this->cursor = 0;
         break;
 
       case 'PGDN':
       case 'END':
-        $this->fieldIndex = $count - 1;
+        $this->cursor = $count - 1;
         break;
 
       case 'ESC':
       case 'LEFT':
-        $this->screen = 'hub';
-        $this->hubIndex = $this->sectionIndex;
+        if (!$root) {
+          $this->popPanel();
+        }
         break;
 
       case 'ENTER':
       case 'RIGHT':
-        $this->openEditor($nav[$this->fieldIndex]);
+        if ($root && $this->cursor === $count - 1) {
+          $this->screen = 'review';
+          break;
+        }
+        $item = $items[$this->cursor] ?? NULL;
+        if ($item === NULL) {
+          break;
+        }
+        if ($item['kind'] === 'field') {
+          $this->openEditor($item['field']);
+        }
+        else {
+          $this->pushPanel($item['index']);
+        }
+        break;
+
+      case 'a':
+        if ($root) {
+          $this->screen = 'review';
+        }
         break;
 
       case 'r':
-        foreach ($section['fields'] as $field) {
+        foreach ($panel['fields'] as $field) {
           $this->answers[$field['id']] = $this->defaults[$field['id']];
         }
         break;
@@ -1194,10 +1273,11 @@ class Customizer {
       $field = $this->editor['field'];
       $this->answers[$field['id']] = $this->editor['value'];
     }
-    $this->screen = 'section';
-    // Re-sync field index in case conditionals changed the active set.
-    $nav = $this->activeFields($this->sections[$this->sectionIndex]);
-    $this->fieldIndex = min($this->fieldIndex, max(0, count($nav) - 1));
+    $this->screen = 'panel';
+    // Re-clamp the cursor in case conditionals changed the active item set.
+    $items = $this->panelItems($this->currentPanel());
+    $max = count($items) + (empty($this->path) ? 1 : 0);
+    $this->cursor = min($this->cursor, max(0, $max - 1));
   }
 
   protected function onEditor(string $k): bool {
@@ -1440,7 +1520,7 @@ class Customizer {
 
       case 'ESC':
       case 'LEFT':
-        $this->screen = 'hub';
+        $this->screen = 'panel';
         break;
 
       case 'q':
@@ -1454,14 +1534,23 @@ class Customizer {
   public function demo(): void {
     $frames = [];
 
-    $this->screen = 'hub';
-    $this->hubIndex = 0;
-    $frames['The control panel (hub)'] = $this->frameToString($this->renderHub());
+    $this->screen = 'panel';
+    $this->path = [];
+    $this->cursor = 0;
+    $frames['The control panel (hub)'] = $this->frameToString($this->renderPanel());
 
-    $this->sectionIndex = 1;
-    $this->fieldIndex = 1;
-    $this->screen = 'section';
-    $frames['A section opened (Drupal)'] = $this->frameToString($this->renderSection());
+    $this->path = [1];
+    $this->cursor = 1;
+    $frames['A panel opened (Drupal)'] = $this->frameToString($this->renderPanel());
+
+    // Workflow has direct fields plus a Migrations sub-panel.
+    $this->path = [6];
+    $this->cursor = 2;
+    $frames['A panel with a sub-panel (Workflow)'] = $this->frameToString($this->renderPanel());
+
+    $this->path = [6, 0];
+    $this->cursor = 0;
+    $frames['Inside a sub-panel (Migrations)'] = $this->frameToString($this->renderPanel());
 
     $this->screen = 'editor';
     $this->openEditorDemo('profile', 1);
@@ -1491,7 +1580,8 @@ class Customizer {
   }
 
   protected function openEditorDemo(string $id, int $cursor): void {
-    $this->sectionIndex = $this->sectionOf($id);
+    $this->path = [$this->sectionOf($id)];
+    $this->cursor = 0;
     $field = $this->field($id);
     $this->editor = ['field' => $field, 'value' => $this->answers[$id], 'cursor' => $cursor, 'filter' => '', 'error' => ''];
     if ($field['type'] === 'multiselect') {
@@ -1500,14 +1590,26 @@ class Customizer {
   }
 
   protected function sectionOf(string $id): int {
-    foreach ($this->sections as $i => $section) {
-      foreach ($section['fields'] as $field) {
-        if ($field['id'] === $id) {
-          return $i;
-        }
+    foreach ($this->sections as $i => $panel) {
+      if ($this->panelHasField($panel, $id)) {
+        return $i;
       }
     }
     return 0;
+  }
+
+  protected function panelHasField(array $panel, string $id): bool {
+    foreach ($panel['fields'] as $field) {
+      if ($field['id'] === $id) {
+        return TRUE;
+      }
+    }
+    foreach ($panel['panels'] ?? [] as $sp) {
+      if ($this->panelHasField($sp, $id)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
 }

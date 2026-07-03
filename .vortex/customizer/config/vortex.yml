@@ -395,43 +395,48 @@ panels:
               ne: profile
             - field: database_fetch_source
               eq: container_registry
-      - id: migration
-        label: 'Use a second database for migrations?'
-        description: 'Add a migration source database service.'
-        type: confirm
-        default: false
-      - id: migration_fetch_source
-        label: 'Migration database source'
-        description: 'Where the migration database is fetched from.'
-        type: select
-        default: url
-        when:
-          field: migration
-          eq: true
-        options:
-          - value: url
-            label: URL
-          - value: ftp
-            label: FTP
-          - value: acquia
-            label: 'Acquia Cloud'
-          - value: lagoon
-            label: Lagoon
-          - value: container_registry
-            label: 'Container registry'
-          - value: s3
-            label: S3
-      - id: migration_image
-        label: 'Migration container image'
-        description: 'Image name and tag of the migration database.'
-        type: text
-        default: 'acme/acme-data-migration:latest'
-        when:
-          all:
-            - field: migration
+    panels:
+      - id: migrations
+        title: Migrations
+        description: 'Optional second database for content migrations'
+        fields:
+          - id: migration
+            label: 'Use a second database for migrations?'
+            description: 'Add a migration source database service.'
+            type: confirm
+            default: false
+          - id: migration_fetch_source
+            label: 'Migration database source'
+            description: 'Where the migration database is fetched from.'
+            type: select
+            default: url
+            when:
+              field: migration
               eq: true
-            - field: migration_fetch_source
-              eq: container_registry
+            options:
+              - value: url
+                label: URL
+              - value: ftp
+                label: FTP
+              - value: acquia
+                label: 'Acquia Cloud'
+              - value: lagoon
+                label: Lagoon
+              - value: container_registry
+                label: 'Container registry'
+              - value: s3
+                label: S3
+          - id: migration_image
+            label: 'Migration container image'
+            description: 'Image name and tag of the migration database.'
+            type: text
+            default: 'acme/acme-data-migration:latest'
+            when:
+              all:
+                - field: migration
+                  eq: true
+                - field: migration_fetch_source
+                  eq: container_registry
   - id: notifications
     title: Notifications
     description: 'Where build and deployment notifications are sent'
