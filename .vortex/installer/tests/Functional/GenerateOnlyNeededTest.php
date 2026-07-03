@@ -46,6 +46,8 @@ class GenerateOnlyNeededTest extends FunctionalTestCase {
   public function testGenerateOnlyNeeded(array $prompts, array $expected_absent, array $expected_present = []): void {
     $this->runNonInteractiveInstall(options: [InstallCommand::OPTION_PROMPTS => json_encode($prompts)]);
 
+    $this->assertFileExists(static::$sut . '/.env', 'The installation produced a generated project.');
+
     $this->assertSutNotContains($expected_absent);
 
     if (!empty($expected_present)) {
