@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
@@ -35,6 +36,16 @@ class ProvisionTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (FunctionalTestCase $test): void {
           $test->assertSutNotContains(['/VORTEX_FETCH_DB/', '/VORTEX_PROVISION_SANITIZE_DB_/', 'VORTEX_PROVISION_FALLBACK_TO_PROFILE']);
+          $test->assertFileDoesNotExist($test::$sut . '/scripts/sanitize.sql');
+      }),
+    ];
+    yield 'provision_profile_circleci' => [
+      static::cw(function ($test): void {
+          $test->prompts[ProvisionType::id()] = ProvisionType::PROFILE;
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
+      }),
+      static::cw(function (FunctionalTestCase $test): void {
+          $test->assertSutNotContains(['/VORTEX_FETCH_DB/', '/VORTEX_PROVISION_SANITIZE_DB_/', 'VORTEX_PROVISION_FALLBACK_TO_PROFILE', 'db_ssh_fingerprint']);
           $test->assertFileDoesNotExist($test::$sut . '/scripts/sanitize.sql');
       }),
     ];

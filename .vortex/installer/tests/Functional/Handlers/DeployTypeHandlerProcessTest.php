@@ -51,7 +51,7 @@ class DeployTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[DeployTypes::id()] = [];
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('/VORTEX_DEPLOY_/')),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains(['/VORTEX_DEPLOY_/', 'acquia', 'LAGOON_PROJECT'])),
     ];
   }
 
