@@ -107,15 +107,25 @@ class CodeProvider extends AbstractHandler {
       return;
     }
 
-    if (isset($data['enabledManagers']) && is_array($data['enabledManagers'])) {
+    $changed = FALSE;
+
+    if (isset($data['enabledManagers']) && is_array($data['enabledManagers']) && in_array('github-actions', $data['enabledManagers'], TRUE)) {
       $data['enabledManagers'] = array_values(array_diff($data['enabledManagers'], ['github-actions']));
+      $changed = TRUE;
     }
 
     if (isset($data['packageRules']) && is_array($data['packageRules'])) {
-      $data['packageRules'] = array_values(array_filter($data['packageRules'], fn(array $rule): bool => ($rule['matchManagers'] ?? NULL) !== ['github-actions']));
+      $filtered = array_values(array_filter($data['packageRules'], fn(array $rule): bool => ($rule['matchManagers'] ?? NULL) !== ['github-actions']));
+
+      if (count($filtered) !== count($data['packageRules'])) {
+        $data['packageRules'] = $filtered;
+        $changed = TRUE;
+      }
     }
 
-    file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
+    if ($changed) {
+      file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
+    }
   }
 
 }

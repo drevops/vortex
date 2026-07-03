@@ -347,6 +347,9 @@ jobs:
           #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
+          #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
+          grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+          #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
           ./vendor/bin/vortex-export-db db.sql
           #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
           if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
