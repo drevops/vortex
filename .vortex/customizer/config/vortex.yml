@@ -1,0 +1,533 @@
+title: 'Vortex Customizer'
+subject: Acme
+panels:
+  - id: general
+    title: 'General information'
+    description: 'Site name, organization and public domain'
+    fields:
+      - id: name
+        label: 'Site name'
+        description: 'Human-readable name of your site.'
+        type: text
+        default: Acme
+        required: true
+      - id: machine_name
+        label: 'Site machine name'
+        description: 'Machine-readable name: lowercase letters, numbers and underscores.'
+        type: text
+        default: acme
+        machine: true
+      - id: org
+        label: 'Organization name'
+        description: 'Human-readable name of your organization.'
+        type: text
+        default: 'Acme Org'
+      - id: org_machine_name
+        label: 'Organization machine name'
+        description: 'Machine-readable name of your organization.'
+        type: text
+        default: acme_org
+        machine: true
+      - id: domain
+        label: 'Public domain'
+        description: 'Primary public domain the site will be served on.'
+        type: text
+        default: acme.com
+  - id: drupal
+    title: Drupal
+    description: 'Install profile, modules, theme and front-end build'
+    fields:
+      - id: starter
+        label: Starter
+        description: 'How the site is first created on the initial build.'
+        type: select
+        default: load_demodb
+        options:
+          - value: install_profile_core
+            label: 'Drupal, installed from profile'
+            description: 'Install a standard or custom profile from scratch.'
+          - value: install_profile_drupalcms
+            label: 'Drupal CMS'
+            description: 'Install the Drupal CMS distribution.'
+          - value: load_demodb
+            label: 'Drupal, from the demo database'
+            description: 'Start from the bundled demo database.'
+      - id: profile
+        label: Profile
+        description: 'Drupal installation profile the site is built on.'
+        type: select
+        default: standard
+        options:
+          - value: standard
+            label: Standard
+            description: 'Drupal standard profile.'
+          - value: minimal
+            label: Minimal
+            description: 'Minimal profile, few modules enabled.'
+          - value: demo_umami
+            label: 'Demo: Umami'
+            description: 'Umami demonstration profile.'
+          - value: custom
+            label: Custom…
+            description: 'Provide your own profile machine name.'
+      - id: profile_custom
+        label: 'Custom profile machine name'
+        description: 'Machine name of your custom installation profile.'
+        type: text
+        default: ''
+        machine: true
+        when:
+          field: profile
+          eq: custom
+      - id: modules
+        label: Modules
+        description: 'Optional contributed modules to include.'
+        type: multiselect
+        default: [admin_toolbar, coffee, config_split, config_update, devel, drupal_helpers, environment_indicator, generated_content, pathauto, redirect, reroute_email, robotstxt, sdc_devel, seckit, shield, stage_file_proxy, testmode, xmlsitemap]
+        options:
+          - value: admin_toolbar
+            label: admin_toolbar
+          - value: coffee
+            label: coffee
+          - value: config_split
+            label: config_split
+          - value: config_update
+            label: config_update
+          - value: devel
+            label: devel
+          - value: drupal_helpers
+            label: drupal_helpers
+          - value: environment_indicator
+            label: environment_indicator
+          - value: generated_content
+            label: generated_content
+          - value: pathauto
+            label: pathauto
+          - value: redirect
+            label: redirect
+          - value: reroute_email
+            label: reroute_email
+          - value: robotstxt
+            label: robotstxt
+          - value: sdc_devel
+            label: sdc_devel
+          - value: seckit
+            label: seckit
+          - value: shield
+            label: shield
+          - value: stage_file_proxy
+            label: stage_file_proxy
+          - value: testmode
+            label: testmode
+          - value: xmlsitemap
+            label: xmlsitemap
+      - id: module_prefix
+        label: 'Custom module prefix'
+        description: 'Prefix used for custom module machine names.'
+        type: text
+        default: acme
+        machine: true
+      - id: custom_modules
+        label: 'Custom modules'
+        description: 'Which scaffolded custom modules to keep.'
+        type: multiselect
+        default: [base, search, demo]
+        options:
+          - value: base
+            label: base
+            description: 'Core custom module with shared code.'
+          - value: search
+            label: search
+            description: 'Search API + Solr integration.'
+          - value: demo
+            label: demo
+            description: 'Demo content and examples.'
+      - id: theme
+        label: Theme
+        description: 'Base theme for the site''s front-end.'
+        type: select
+        default: olivero
+        options:
+          - value: olivero
+            label: Olivero
+            description: 'Modern default Drupal front-end theme.'
+          - value: claro
+            label: Claro
+            description: 'Clean administration theme.'
+          - value: stark
+            label: Stark
+            description: 'Unstyled base theme.'
+          - value: custom
+            label: Custom…
+            description: 'Provide your own theme machine name.'
+      - id: theme_custom
+        label: 'Custom theme machine name'
+        description: 'Machine name of your custom theme.'
+        type: text
+        default: ''
+        machine: true
+        when:
+          field: theme
+          eq: custom
+      - id: frontend_build
+        label: 'Build front-end assets in the container?'
+        description: 'Compile the theme assets inside the container image.'
+        type: confirm
+        default: true
+        when:
+          field: theme
+          eq: custom
+  - id: code
+    title: 'Code repository'
+    description: 'Where the code lives and how releases are versioned'
+    fields:
+      - id: code_provider
+        label: 'Repository provider'
+        description: 'Where the source code is hosted.'
+        type: select
+        default: github
+        options:
+          - value: github
+            label: GitHub
+          - value: other
+            label: Other
+      - id: version_scheme
+        label: 'Release versioning scheme'
+        description: 'How releases are numbered.'
+        type: select
+        default: calver
+        options:
+          - value: calver
+            label: CalVer
+            description: 'Calendar-based versioning, e.g. 2024.5.1.'
+          - value: semver
+            label: SemVer
+            description: 'Semantic versioning, e.g. 1.4.2.'
+          - value: other
+            label: Other
+  - id: environment
+    title: Environment
+    description: 'Timezone, Docker services and developer tooling'
+    fields:
+      - id: timezone
+        label: Timezone
+        description: 'Default timezone for the site and containers.'
+        type: suggest
+        default: UTC
+        options:
+          - value: UTC
+            label: UTC
+          - value: Europe/London
+            label: Europe/London
+          - value: Europe/Berlin
+            label: Europe/Berlin
+          - value: Europe/Paris
+            label: Europe/Paris
+          - value: Europe/Madrid
+            label: Europe/Madrid
+          - value: Europe/Kyiv
+            label: Europe/Kyiv
+          - value: America/New_York
+            label: America/New_York
+          - value: America/Chicago
+            label: America/Chicago
+          - value: America/Denver
+            label: America/Denver
+          - value: America/Los_Angeles
+            label: America/Los_Angeles
+          - value: America/Sao_Paulo
+            label: America/Sao_Paulo
+          - value: Asia/Dubai
+            label: Asia/Dubai
+          - value: Asia/Kolkata
+            label: Asia/Kolkata
+          - value: Asia/Singapore
+            label: Asia/Singapore
+          - value: Asia/Tokyo
+            label: Asia/Tokyo
+          - value: Australia/Sydney
+            label: Australia/Sydney
+          - value: Australia/Melbourne
+            label: Australia/Melbourne
+          - value: Pacific/Auckland
+            label: Pacific/Auckland
+      - id: services
+        label: Services
+        description: 'Optional containerized services.'
+        type: multiselect
+        default: [clamav, redis, solr]
+        options:
+          - value: clamav
+            label: clamav
+            description: 'Antivirus scanning for uploads.'
+          - value: solr
+            label: solr
+            description: 'Apache Solr search backend.'
+          - value: redis
+            label: redis
+            description: 'Redis cache backend.'
+      - id: tools
+        label: 'Development tools'
+        description: 'Linters and test runners to include.'
+        type: multiselect
+        default: [phpcs, phpstan, rector, eslint, stylelint, phpunit, behat, jest]
+        options:
+          - value: phpcs
+            label: phpcs
+          - value: phpstan
+            label: phpstan
+          - value: rector
+            label: rector
+          - value: eslint
+            label: eslint
+          - value: stylelint
+            label: stylelint
+          - value: phpunit
+            label: phpunit
+          - value: behat
+            label: behat
+          - value: jest
+            label: jest
+  - id: hosting
+    title: Hosting
+    description: 'Target hosting provider and project name'
+    fields:
+      - id: hosting_provider
+        label: 'Hosting provider'
+        description: 'Where the site is hosted.'
+        type: select
+        default: none
+        auto: true
+        options:
+          - value: acquia
+            label: Acquia
+            description: 'Acquia Cloud hosting.'
+          - value: lagoon
+            label: Lagoon
+            description: 'amazee.io Lagoon hosting.'
+          - value: other
+            label: Other
+          - value: none
+            label: None
+      - id: hosting_project_name
+        label: 'Hosting project name'
+        description: 'Project/application name on the hosting provider.'
+        type: text
+        default: ''
+        when:
+          field: hosting_provider
+          in: [acquia, lagoon]
+      - id: webroot
+        label: 'Custom web root directory'
+        description: 'Directory that serves as the Drupal web root.'
+        type: text
+        default: web
+        auto: true
+  - id: deployment
+    title: Deployment
+    description: 'How code is shipped to the hosting environment'
+    fields:
+      - id: deploy_types
+        label: 'Deployment types'
+        description: 'One or more deployment mechanisms.'
+        type: multiselect
+        default: [webhook]
+        options:
+          - value: artifact
+            label: artifact
+            description: 'Build and push a deployment artifact.'
+          - value: lagoon
+            label: lagoon
+            description: 'Deploy via Lagoon.'
+          - value: webhook
+            label: webhook
+            description: 'Trigger a deployment webhook.'
+  - id: workflow
+    title: Workflow
+    description: 'Provisioning method and database source'
+    fields:
+      - id: provision_type
+        label: 'Provision type'
+        description: 'How the site database is provisioned.'
+        type: select
+        default: database
+        options:
+          - value: database
+            label: Database
+            description: 'Provision from a database dump.'
+          - value: profile
+            label: Profile
+            description: 'Install from the Drupal profile.'
+      - id: database_fetch_source
+        label: 'Database source'
+        description: 'Where the database dump is fetched from.'
+        type: select
+        default: url
+        when:
+          field: provision_type
+          ne: profile
+        options:
+          - value: url
+            label: URL
+            description: 'Download from a URL.'
+          - value: ftp
+            label: FTP
+            description: 'Fetch over FTP.'
+          - value: acquia
+            label: 'Acquia Cloud'
+          - value: lagoon
+            label: Lagoon
+          - value: container_registry
+            label: 'Container registry'
+            description: 'Pull a database-in-image.'
+          - value: s3
+            label: S3
+          - value: none
+            label: None
+      - id: database_image
+        label: 'Database container image'
+        description: 'Image name and tag of the database-in-image.'
+        type: text
+        default: 'acme/acme-data:latest'
+        when:
+          all:
+            - field: provision_type
+              ne: profile
+            - field: database_fetch_source
+              eq: container_registry
+      - id: migration
+        label: 'Use a second database for migrations?'
+        description: 'Add a migration source database service.'
+        type: confirm
+        default: false
+      - id: migration_fetch_source
+        label: 'Migration database source'
+        description: 'Where the migration database is fetched from.'
+        type: select
+        default: url
+        when:
+          field: migration
+          eq: true
+        options:
+          - value: url
+            label: URL
+          - value: ftp
+            label: FTP
+          - value: acquia
+            label: 'Acquia Cloud'
+          - value: lagoon
+            label: Lagoon
+          - value: container_registry
+            label: 'Container registry'
+          - value: s3
+            label: S3
+      - id: migration_image
+        label: 'Migration container image'
+        description: 'Image name and tag of the migration database.'
+        type: text
+        default: 'acme/acme-data-migration:latest'
+        when:
+          all:
+            - field: migration
+              eq: true
+            - field: migration_fetch_source
+              eq: container_registry
+  - id: notifications
+    title: Notifications
+    description: 'Where build and deployment notifications are sent'
+    fields:
+      - id: notification_channels
+        label: 'Notification channels'
+        description: 'One or more notification destinations.'
+        type: multiselect
+        default: [email]
+        options:
+          - value: email
+            label: email
+          - value: github
+            label: github
+          - value: jira
+            label: jira
+          - value: newrelic
+            label: newrelic
+          - value: slack
+            label: slack
+          - value: webhook
+            label: webhook
+  - id: ci
+    title: 'Continuous integration'
+    description: 'CI provider and visual regression testing'
+    fields:
+      - id: ci_provider
+        label: 'CI provider'
+        description: 'Continuous integration platform.'
+        type: select
+        default: gha
+        options:
+          - value: gha
+            label: 'GitHub Actions'
+          - value: circleci
+            label: CircleCI
+          - value: none
+            label: None
+      - id: visual_regression
+        label: 'Visual regression testing with Diffy?'
+        description: 'Run automated visual regression on deploys.'
+        type: confirm
+        default: false
+  - id: automations
+    title: Automations
+    description: 'Dependency updates, coverage and PR automation'
+    fields:
+      - id: dependency_updates_provider
+        label: 'Dependency updates provider'
+        description: 'How dependencies are kept up to date.'
+        type: select
+        default: renovatebot_app
+        options:
+          - value: renovatebot_app
+            label: 'RenovateBot (app)'
+            description: 'Hosted RenovateBot GitHub app.'
+          - value: renovatebot_ci
+            label: 'RenovateBot (CI)'
+            description: 'Self-hosted in CI.'
+          - value: none
+            label: None
+      - id: code_coverage_provider
+        label: 'Code coverage provider'
+        description: 'Where coverage reports are uploaded.'
+        type: select
+        default: none
+        options:
+          - value: codecov
+            label: Codecov
+          - value: none
+            label: None
+      - id: assign_author_pr
+        label: 'Auto-assign the author to their PR?'
+        description: 'Assign the opener as the PR assignee.'
+        type: confirm
+        default: true
+      - id: label_merge_conflicts_pr
+        label: 'Auto-label PRs with merge conflicts?'
+        description: 'Add a CONFLICT label when conflicts occur.'
+        type: confirm
+        default: true
+  - id: documentation
+    title: Documentation
+    description: 'Whether project documentation is kept'
+    fields:
+      - id: preserve_docs_project
+        label: 'Preserve project documentation?'
+        description: 'Keep the docs/ directory in the project.'
+        type: confirm
+        default: true
+  - id: ai
+    title: AI
+    description: 'Whether AI agent instructions are included'
+    fields:
+      - id: ai_code_instructions
+        label: 'Provide AI agent instructions?'
+        description: 'Include AGENTS.md / CLAUDE.md guidance.'
+        type: confirm
+        default: true

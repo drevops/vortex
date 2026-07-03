@@ -3,27 +3,30 @@
 
 /**
  * @file
- * Vortex Customizer - interactive TUI prototype (throwaway spike).
+ * Customizer - interactive TUI prototype (throwaway spike).
  *
- * A self-contained, panel-style "control panel" for the Vortex customizer.
- * No dependencies - it draws every screen itself with ANSI colour so the
- * visuals are fully under our control. It writes NO files; Apply is a stub.
+ * A self-contained, panel-style "control panel". The reusable ENGINE (this
+ * file) is separate from the project DATA (a YAML config, default
+ * config/vortex.yml), so the TUI could ship as its own package and each
+ * project supplies its own panels/fields/conditionals.
  *
  * It takes over the whole terminal (alternate screen buffer). Because that
  * disables the terminal's own scrollback, the panel scrolls internally: a
  * pinned header + footer with a scrollable body that follows the cursor and
- * shows ▲/▼ indicators when there is more above or below.
+ * shows ▲/▼ indicators. The mouse wheel scrolls the panel without moving the
+ * cursor.
  *
  * Run interactively:
  *   php .vortex/customizer/playground/run.php
  *
  * Options:
- *   --demo        Print a static storyboard of key frames and exit.
- *   --no-color    Disable ANSI colour (useful for alignment inspection).
- *   --update      Simulate "update existing project" mode (shows `auto` badges).
+ *   --config=PATH  Use a different YAML config (default config/vortex.yml).
+ *   --demo         Print a static storyboard of key frames and exit.
+ *   --no-color     Disable ANSI colour (useful for alignment inspection).
+ *   --update       Simulate "update existing project" mode (shows `auto` badges).
  *
  * Keys: up/down move - pgup/pgdn/home/end jump - enter open/edit - esc back -
- *       a apply - q quit.
+ *       a apply - q quit. Mouse wheel scrolls.
  */
 
 declare(strict_types=1);
@@ -116,132 +119,173 @@ function scroll_rule(string $right): string {
 }
 
 // -----------------------------------------------------------------------------
-// Data model - the 12 sections and their fields (seeded, mirrors the handlers).
+// Minimal YAML loader (block maps/lists, scalars, inline scalar flow lists).
+//
+// Enough to read the config schema without a dependency; a real package would
+// swap this for symfony/yaml or ext-yaml.
 // -----------------------------------------------------------------------------
 
+function yaml_load(string $text): array {
+  $lines = [];
+  foreach (explode("\n", $text) as $raw) {
+    $raw = rtrim($raw, "\r");
+    $trimmed = ltrim($raw, ' ');
+    if ($trimmed === '' || $trimmed[0] === '#') {
+      continue;
+    }
+    $lines[] = ['indent' => strlen($raw) - strlen($trimmed), 'content' => $trimmed];
+  }
+  $pos = 0;
+  return $lines ? yaml_node($lines, $pos) : [];
+}
+
+function yaml_node(array &$lines, int &$pos): mixed {
+  $content = $lines[$pos]['content'];
+  if ($content === '-' || str_starts_with($content, '- ')) {
+    return yaml_seq($lines, $pos, $lines[$pos]['indent']);
+  }
+  return yaml_map($lines, $pos, $lines[$pos]['indent']);
+}
+
+function yaml_map(array &$lines, int &$pos, int $indent): array {
+  $map = [];
+  while ($pos < count($lines) && $lines[$pos]['indent'] === $indent) {
+    $content = $lines[$pos]['content'];
+    if (str_starts_with($content, '- ') || $content === '-') {
+      break;
+    }
+    $cp = strpos($content, ':');
+    if ($cp === FALSE) {
+      break;
+    }
+    $key = trim(substr($content, 0, $cp));
+    $rest = trim(substr($content, $cp + 1));
+    if ($rest === '') {
+      $pos++;
+      $map[$key] = ($pos < count($lines) && $lines[$pos]['indent'] > $indent) ? yaml_node($lines, $pos) : NULL;
+    }
+    elseif ($rest[0] === '[') {
+      $map[$key] = yaml_flow($rest);
+      $pos++;
+    }
+    else {
+      $map[$key] = yaml_scalar($rest);
+      $pos++;
+    }
+  }
+  return $map;
+}
+
+function yaml_seq(array &$lines, int &$pos, int $indent): array {
+  $items = [];
+  while ($pos < count($lines) && $lines[$pos]['indent'] === $indent) {
+    $content = $lines[$pos]['content'];
+    if ($content !== '-' && !str_starts_with($content, '- ')) {
+      break;
+    }
+    $after = ltrim(substr($content, 1), ' ');
+    if ($after === '') {
+      $pos++;
+      $items[] = ($pos < count($lines) && $lines[$pos]['indent'] > $indent) ? yaml_node($lines, $pos) : NULL;
+    }
+    elseif (preg_match('/^[A-Za-z0-9_]+:(\s|$)/', $after)) {
+      // Map item: re-root this line as a map body indented past the dash.
+      $lines[$pos] = ['indent' => $indent + 2, 'content' => $after];
+      $items[] = yaml_map($lines, $pos, $indent + 2);
+    }
+    elseif ($after[0] === '[') {
+      $items[] = yaml_flow($after);
+      $pos++;
+    }
+    else {
+      $items[] = yaml_scalar($after);
+      $pos++;
+    }
+  }
+  return $items;
+}
+
+function yaml_flow(string $s): array {
+  $s = trim(trim($s), '[]');
+  $s = trim($s);
+  if ($s === '') {
+    return [];
+  }
+  return array_map(fn($x) => yaml_scalar(trim($x)), explode(',', $s));
+}
+
+function yaml_scalar(string $s): mixed {
+  $s = trim($s);
+  if ($s === '') {
+    return '';
+  }
+  $lower = strtolower($s);
+  if ($lower === 'true') {
+    return TRUE;
+  }
+  if ($lower === 'false') {
+    return FALSE;
+  }
+  if ($lower === 'null' || $s === '~') {
+    return NULL;
+  }
+  if ($s[0] === "'" && str_ends_with($s, "'")) {
+    return str_replace("''", "'", substr($s, 1, -1));
+  }
+  if ($s[0] === '"' && str_ends_with($s, '"')) {
+    return str_replace('\\"', '"', substr($s, 1, -1));
+  }
+  if (preg_match('/^-?\d+$/', $s)) {
+    return (int) $s;
+  }
+  return $s;
+}
+
 /**
- * Build the section registry. Each field: id, label, desc, type, options,
- * default, and an optional `when` predicate for conditional visibility.
+ * Load and normalize a config file into the engine's internal shape.
+ *
+ * @return array{title:string,subject:string,sections:array}
  */
-function build_sections(): array {
-  $modules = ['admin_toolbar', 'coffee', 'config_split', 'config_update', 'devel', 'drupal_helpers', 'environment_indicator', 'generated_content', 'pathauto', 'redirect', 'reroute_email', 'robotstxt', 'sdc_devel', 'seckit', 'shield', 'stage_file_proxy', 'testmode', 'xmlsitemap'];
-  $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'phpunit', 'behat', 'jest'];
-  $tz = ['UTC', 'Europe/London', 'Europe/Berlin', 'Europe/Paris', 'Europe/Madrid', 'Europe/Kyiv', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Sao_Paulo', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Singapore', 'Asia/Tokyo', 'Australia/Sydney', 'Australia/Melbourne', 'Pacific/Auckland'];
+function load_config(string $path): array {
+  if (!is_file($path)) {
+    fwrite(STDERR, "Config not found: $path\n");
+    exit(1);
+  }
+  $data = yaml_load((string) file_get_contents($path));
 
-  $keyed = fn(array $list): array => array_combine($list, array_map(fn($x) => [$x, ''], $list));
+  $sections = [];
+  foreach ($data['panels'] ?? [] as $panel) {
+    $fields = [];
+    foreach ($panel['fields'] ?? [] as $f) {
+      $type = $f['type'] ?? 'text';
+      $field = [
+        'id' => $f['id'],
+        'label' => $f['label'] ?? $f['id'],
+        'desc' => $f['description'] ?? '',
+        'type' => $type,
+        'default' => $f['default'] ?? ($type === 'multiselect' ? [] : ($type === 'confirm' ? FALSE : '')),
+      ];
+      foreach (['required', 'machine', 'auto'] as $flag) {
+        if (!empty($f[$flag])) {
+          $field[$flag] = TRUE;
+        }
+      }
+      if (isset($f['when'])) {
+        $field['when'] = $f['when'];
+      }
+      if (isset($f['options'])) {
+        $opts = [];
+        foreach ($f['options'] as $opt) {
+          $opts[$opt['value']] = [$opt['label'] ?? $opt['value'], $opt['description'] ?? ''];
+        }
+        $field['options'] = $opts;
+      }
+      $fields[] = $field;
+    }
+    $sections[] = ['id' => $panel['id'], 'title' => $panel['title'] ?? $panel['id'], 'desc' => $panel['description'] ?? '', 'fields' => $fields];
+  }
 
-  return [
-    ['id' => 'general', 'title' => 'General information', 'desc' => 'Site name, organization and public domain', 'fields' => [
-      ['id' => 'name', 'label' => 'Site name', 'desc' => 'Human-readable name of your site.', 'type' => 'text', 'default' => 'Acme', 'required' => TRUE],
-      ['id' => 'machine_name', 'label' => 'Site machine name', 'desc' => 'Machine-readable name: lowercase letters, numbers and underscores.', 'type' => 'text', 'default' => 'acme', 'machine' => TRUE],
-      ['id' => 'org', 'label' => 'Organization name', 'desc' => 'Human-readable name of your organization.', 'type' => 'text', 'default' => 'Acme Org'],
-      ['id' => 'org_machine_name', 'label' => 'Organization machine name', 'desc' => 'Machine-readable name of your organization.', 'type' => 'text', 'default' => 'acme_org', 'machine' => TRUE],
-      ['id' => 'domain', 'label' => 'Public domain', 'desc' => 'Primary public domain the site will be served on.', 'type' => 'text', 'default' => 'acme.com'],
-    ]],
-    ['id' => 'drupal', 'title' => 'Drupal', 'desc' => 'Install profile, modules, theme and front-end build', 'fields' => [
-      ['id' => 'starter', 'label' => 'Starter', 'desc' => 'How the site is first created on the initial build.', 'type' => 'select', 'default' => 'load_demodb', 'options' => [
-        'install_profile_core' => ['Drupal, installed from profile', 'Install a standard or custom profile from scratch.'],
-        'install_profile_drupalcms' => ['Drupal CMS', 'Install the Drupal CMS distribution.'],
-        'load_demodb' => ['Drupal, from the demo database', 'Start from the bundled demo database.'],
-      ]],
-      ['id' => 'profile', 'label' => 'Profile', 'desc' => 'Drupal installation profile the site is built on.', 'type' => 'select', 'default' => 'standard', 'options' => [
-        'standard' => ['Standard', 'Drupal standard profile.'],
-        'minimal' => ['Minimal', 'Minimal profile, few modules enabled.'],
-        'demo_umami' => ['Demo: Umami', 'Umami demonstration profile.'],
-        'custom' => ['Custom…', 'Provide your own profile machine name.'],
-      ]],
-      ['id' => 'profile_custom', 'label' => 'Custom profile machine name', 'desc' => 'Machine name of your custom installation profile.', 'type' => 'text', 'default' => '', 'machine' => TRUE, 'when' => fn($a) => ($a['profile'] ?? '') === 'custom'],
-      ['id' => 'modules', 'label' => 'Modules', 'desc' => 'Optional contributed modules to include.', 'type' => 'multiselect', 'default' => $modules, 'options' => $keyed($modules)],
-      ['id' => 'module_prefix', 'label' => 'Custom module prefix', 'desc' => 'Prefix used for custom module machine names.', 'type' => 'text', 'default' => 'acme', 'machine' => TRUE],
-      ['id' => 'custom_modules', 'label' => 'Custom modules', 'desc' => 'Which scaffolded custom modules to keep.', 'type' => 'multiselect', 'default' => ['base', 'search', 'demo'], 'options' => [
-        'base' => ['base', 'Core custom module with shared code.'],
-        'search' => ['search', 'Search API + Solr integration.'],
-        'demo' => ['demo', 'Demo content and examples.'],
-      ]],
-      ['id' => 'theme', 'label' => 'Theme', 'desc' => "Base theme for the site's front-end.", 'type' => 'select', 'default' => 'olivero', 'options' => [
-        'olivero' => ['Olivero', 'Modern default Drupal front-end theme.'],
-        'claro' => ['Claro', 'Clean administration theme.'],
-        'stark' => ['Stark', 'Unstyled base theme.'],
-        'custom' => ['Custom…', 'Provide your own theme machine name.'],
-      ]],
-      ['id' => 'theme_custom', 'label' => 'Custom theme machine name', 'desc' => 'Machine name of your custom theme.', 'type' => 'text', 'default' => '', 'machine' => TRUE, 'when' => fn($a) => ($a['theme'] ?? '') === 'custom'],
-      ['id' => 'frontend_build', 'label' => 'Build front-end assets in the container?', 'desc' => 'Compile the theme assets inside the container image.', 'type' => 'confirm', 'default' => TRUE, 'when' => fn($a) => ($a['theme'] ?? '') === 'custom'],
-    ]],
-    ['id' => 'code', 'title' => 'Code repository', 'desc' => 'Where the code lives and how releases are versioned', 'fields' => [
-      ['id' => 'code_provider', 'label' => 'Repository provider', 'desc' => 'Where the source code is hosted.', 'type' => 'select', 'default' => 'github', 'options' => ['github' => ['GitHub', ''], 'other' => ['Other', '']]],
-      ['id' => 'version_scheme', 'label' => 'Release versioning scheme', 'desc' => 'How releases are numbered.', 'type' => 'select', 'default' => 'calver', 'options' => [
-        'calver' => ['CalVer', 'Calendar-based versioning, e.g. 2024.5.1.'],
-        'semver' => ['SemVer', 'Semantic versioning, e.g. 1.4.2.'],
-        'other' => ['Other', ''],
-      ]],
-    ]],
-    ['id' => 'environment', 'title' => 'Environment', 'desc' => 'Timezone, Docker services and developer tooling', 'fields' => [
-      ['id' => 'timezone', 'label' => 'Timezone', 'desc' => 'Default timezone for the site and containers.', 'type' => 'suggest', 'default' => 'UTC', 'options' => $keyed($tz)],
-      ['id' => 'services', 'label' => 'Services', 'desc' => 'Optional containerized services.', 'type' => 'multiselect', 'default' => ['clamav', 'redis', 'solr'], 'options' => [
-        'clamav' => ['clamav', 'Antivirus scanning for uploads.'],
-        'solr' => ['solr', 'Apache Solr search backend.'],
-        'redis' => ['redis', 'Redis cache backend.'],
-      ]],
-      ['id' => 'tools', 'label' => 'Development tools', 'desc' => 'Linters and test runners to include.', 'type' => 'multiselect', 'default' => $tools, 'options' => $keyed($tools)],
-    ]],
-    ['id' => 'hosting', 'title' => 'Hosting', 'desc' => 'Target hosting provider and project name', 'fields' => [
-      ['id' => 'hosting_provider', 'label' => 'Hosting provider', 'desc' => 'Where the site is hosted.', 'type' => 'select', 'default' => 'none', 'auto' => TRUE, 'options' => [
-        'acquia' => ['Acquia', 'Acquia Cloud hosting.'],
-        'lagoon' => ['Lagoon', 'amazee.io Lagoon hosting.'],
-        'other' => ['Other', ''],
-        'none' => ['None', ''],
-      ]],
-      ['id' => 'hosting_project_name', 'label' => 'Hosting project name', 'desc' => 'Project/application name on the hosting provider.', 'type' => 'text', 'default' => '', 'when' => fn($a) => in_array($a['hosting_provider'] ?? '', ['acquia', 'lagoon'], TRUE)],
-      ['id' => 'webroot', 'label' => 'Custom web root directory', 'desc' => 'Directory that serves as the Drupal web root.', 'type' => 'text', 'default' => 'web', 'auto' => TRUE],
-    ]],
-    ['id' => 'deployment', 'title' => 'Deployment', 'desc' => 'How code is shipped to the hosting environment', 'fields' => [
-      ['id' => 'deploy_types', 'label' => 'Deployment types', 'desc' => 'One or more deployment mechanisms.', 'type' => 'multiselect', 'default' => ['webhook'], 'options' => [
-        'artifact' => ['artifact', 'Build and push a deployment artifact.'],
-        'lagoon' => ['lagoon', 'Deploy via Lagoon.'],
-        'webhook' => ['webhook', 'Trigger a deployment webhook.'],
-      ]],
-    ]],
-    ['id' => 'workflow', 'title' => 'Workflow', 'desc' => 'Provisioning method and database source', 'fields' => [
-      ['id' => 'provision_type', 'label' => 'Provision type', 'desc' => 'How the site database is provisioned.', 'type' => 'select', 'default' => 'database', 'options' => [
-        'database' => ['Database', 'Provision from a database dump.'],
-        'profile' => ['Profile', 'Install from the Drupal profile.'],
-      ]],
-      ['id' => 'database_fetch_source', 'label' => 'Database source', 'desc' => 'Where the database dump is fetched from.', 'type' => 'select', 'default' => 'url', 'when' => fn($a) => ($a['provision_type'] ?? '') !== 'profile', 'options' => [
-        'url' => ['URL', 'Download from a URL.'], 'ftp' => ['FTP', 'Fetch over FTP.'], 'acquia' => ['Acquia Cloud', ''], 'lagoon' => ['Lagoon', ''], 'container_registry' => ['Container registry', 'Pull a database-in-image.'], 's3' => ['S3', ''], 'none' => ['None', ''],
-      ]],
-      ['id' => 'database_image', 'label' => 'Database container image', 'desc' => 'Image name and tag of the database-in-image.', 'type' => 'text', 'default' => 'acme/acme-data:latest', 'when' => fn($a) => ($a['provision_type'] ?? '') !== 'profile' && ($a['database_fetch_source'] ?? '') === 'container_registry'],
-      ['id' => 'migration', 'label' => 'Use a second database for migrations?', 'desc' => 'Add a migration source database service.', 'type' => 'confirm', 'default' => FALSE],
-      ['id' => 'migration_fetch_source', 'label' => 'Migration database source', 'desc' => 'Where the migration database is fetched from.', 'type' => 'select', 'default' => 'url', 'when' => fn($a) => !empty($a['migration']), 'options' => [
-        'url' => ['URL', ''], 'ftp' => ['FTP', ''], 'acquia' => ['Acquia Cloud', ''], 'lagoon' => ['Lagoon', ''], 'container_registry' => ['Container registry', ''], 's3' => ['S3', ''],
-      ]],
-      ['id' => 'migration_image', 'label' => 'Migration container image', 'desc' => 'Image name and tag of the migration database.', 'type' => 'text', 'default' => 'acme/acme-data-migration:latest', 'when' => fn($a) => !empty($a['migration']) && ($a['migration_fetch_source'] ?? '') === 'container_registry'],
-    ]],
-    ['id' => 'notifications', 'title' => 'Notifications', 'desc' => 'Where build and deployment notifications are sent', 'fields' => [
-      ['id' => 'notification_channels', 'label' => 'Notification channels', 'desc' => 'One or more notification destinations.', 'type' => 'multiselect', 'default' => ['email'], 'options' => [
-        'email' => ['email', ''], 'github' => ['github', ''], 'jira' => ['jira', ''], 'newrelic' => ['newrelic', ''], 'slack' => ['slack', ''], 'webhook' => ['webhook', ''],
-      ]],
-    ]],
-    ['id' => 'ci', 'title' => 'Continuous integration', 'desc' => 'CI provider and visual regression testing', 'fields' => [
-      ['id' => 'ci_provider', 'label' => 'CI provider', 'desc' => 'Continuous integration platform.', 'type' => 'select', 'default' => 'gha', 'options' => [
-        'gha' => ['GitHub Actions', ''], 'circleci' => ['CircleCI', ''], 'none' => ['None', ''],
-      ]],
-      ['id' => 'visual_regression', 'label' => 'Visual regression testing with Diffy?', 'desc' => 'Run automated visual regression on deploys.', 'type' => 'confirm', 'default' => FALSE],
-    ]],
-    ['id' => 'automations', 'title' => 'Automations', 'desc' => 'Dependency updates, coverage and PR automation', 'fields' => [
-      ['id' => 'dependency_updates_provider', 'label' => 'Dependency updates provider', 'desc' => 'How dependencies are kept up to date.', 'type' => 'select', 'default' => 'renovatebot_app', 'options' => [
-        'renovatebot_app' => ['RenovateBot (app)', 'Hosted RenovateBot GitHub app.'], 'renovatebot_ci' => ['RenovateBot (CI)', 'Self-hosted in CI.'], 'none' => ['None', ''],
-      ]],
-      ['id' => 'code_coverage_provider', 'label' => 'Code coverage provider', 'desc' => 'Where coverage reports are uploaded.', 'type' => 'select', 'default' => 'none', 'options' => ['codecov' => ['Codecov', ''], 'none' => ['None', '']]],
-      ['id' => 'assign_author_pr', 'label' => 'Auto-assign the author to their PR?', 'desc' => 'Assign the opener as the PR assignee.', 'type' => 'confirm', 'default' => TRUE],
-      ['id' => 'label_merge_conflicts_pr', 'label' => 'Auto-label PRs with merge conflicts?', 'desc' => 'Add a CONFLICT label when conflicts occur.', 'type' => 'confirm', 'default' => TRUE],
-    ]],
-    ['id' => 'documentation', 'title' => 'Documentation', 'desc' => 'Whether project documentation is kept', 'fields' => [
-      ['id' => 'preserve_docs_project', 'label' => 'Preserve project documentation?', 'desc' => 'Keep the docs/ directory in the project.', 'type' => 'confirm', 'default' => TRUE],
-    ]],
-    ['id' => 'ai', 'title' => 'AI', 'desc' => 'Whether AI agent instructions are included', 'fields' => [
-      ['id' => 'ai_code_instructions', 'label' => 'Provide AI agent instructions?', 'desc' => 'Include AGENTS.md / CLAUDE.md guidance.', 'type' => 'confirm', 'default' => TRUE],
-    ]],
-  ];
+  return ['title' => $data['title'] ?? 'Customizer', 'subject' => $data['subject'] ?? '', 'sections' => $sections];
 }
 
 // -----------------------------------------------------------------------------
@@ -250,6 +294,8 @@ function build_sections(): array {
 
 class Customizer {
 
+  protected string $title;
+  protected string $subject;
   protected array $sections;
   protected array $answers = [];
   protected array $defaults = [];
@@ -274,8 +320,10 @@ class Customizer {
   protected bool $scripted = FALSE;
   protected string $sttyRestore = '';
 
-  public function __construct(bool $update = FALSE) {
-    $this->sections = build_sections();
+  public function __construct(array $config, bool $update = FALSE) {
+    $this->title = $config['title'];
+    $this->subject = $config['subject'];
+    $this->sections = $config['sections'];
     $this->update = $update;
     foreach ($this->sections as $section) {
       foreach ($section['fields'] as $field) {
@@ -299,7 +347,50 @@ class Customizer {
   }
 
   protected function isActive(array $field): bool {
-    return empty($field['when']) || ($field['when'])($this->answers);
+    return empty($field['when']) || $this->matchCond($field['when']);
+  }
+
+  /**
+   * Evaluate a structured condition against the current answers.
+   */
+  protected function matchCond(array $c): bool {
+    if (isset($c['all'])) {
+      foreach ($c['all'] as $x) {
+        if (!$this->matchCond($x)) {
+          return FALSE;
+        }
+      }
+      return TRUE;
+    }
+    if (isset($c['any'])) {
+      foreach ($c['any'] as $x) {
+        if ($this->matchCond($x)) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+    if (isset($c['not'])) {
+      return !$this->matchCond($c['not']);
+    }
+    $f = $c['field'] ?? NULL;
+    if ($f === NULL) {
+      return TRUE;
+    }
+    $val = $this->answers[$f] ?? NULL;
+    if (array_key_exists('eq', $c)) {
+      return $val == $c['eq'];
+    }
+    if (array_key_exists('ne', $c)) {
+      return $val != $c['ne'];
+    }
+    if (array_key_exists('in', $c)) {
+      return in_array($val, (array) $c['in'], FALSE);
+    }
+    if (array_key_exists('contains', $c)) {
+      return in_array($c['contains'], (array) $val, FALSE);
+    }
+    return TRUE;
   }
 
   protected function isEdited(array $field): bool {
@@ -398,25 +489,61 @@ class Customizer {
   }
 
   protected function conditionText(array $field): string {
-    return match ($field['id']) {
-      'profile_custom' => 'appears when Profile = Custom',
-      'theme_custom', 'frontend_build' => 'appears when Theme = Custom',
-      'hosting_project_name' => 'appears when Hosting = Acquia or Lagoon',
-      'database_fetch_source' => 'appears when Provision type = Database',
-      'database_image' => 'appears when Database source = Container registry',
-      'migration_fetch_source' => 'appears when the migration database is enabled',
-      'migration_image' => 'appears when Migration source = Container registry',
-      default => 'appears when its dependency is met',
-    };
+    return 'appears when ' . $this->describeCond($field['when'] ?? []);
+  }
+
+  /**
+   * Human-readable rendering of a structured condition (data-driven).
+   */
+  protected function describeCond(array $c): string {
+    if (isset($c['all'])) {
+      return implode(' and ', array_map(fn($x) => $this->describeCond($x), $c['all']));
+    }
+    if (isset($c['any'])) {
+      return implode(' or ', array_map(fn($x) => $this->describeCond($x), $c['any']));
+    }
+    if (isset($c['not'])) {
+      return 'not (' . $this->describeCond($c['not']) . ')';
+    }
+    $f = (string) ($c['field'] ?? '');
+    $label = $this->fieldLabelOf($f);
+    if (array_key_exists('eq', $c)) {
+      return $label . ' = ' . $this->valueLabelOf($f, $c['eq']);
+    }
+    if (array_key_exists('ne', $c)) {
+      return $label . ' ≠ ' . $this->valueLabelOf($f, $c['ne']);
+    }
+    if (array_key_exists('in', $c)) {
+      return $label . ' in [' . implode(', ', array_map(fn($v) => $this->valueLabelOf($f, $v), (array) $c['in'])) . ']';
+    }
+    if (array_key_exists('contains', $c)) {
+      return $label . ' includes ' . (string) $c['contains'];
+    }
+    return 'its dependency is met';
+  }
+
+  protected function fieldLabelOf(string $id): string {
+    $f = $this->field($id);
+    return $f['label'] ?? $id;
+  }
+
+  protected function valueLabelOf(string $fieldId, mixed $value): string {
+    if (is_bool($value)) {
+      return $value ? 'Yes' : 'No';
+    }
+    $f = $this->field($fieldId);
+    if ($f && isset($f['options'][(string) $value])) {
+      return $this->optLabel($f, (string) $value);
+    }
+    return (string) $value;
   }
 
   // ---- Frames ---------------------------------------------------------------
   //
   // Every screen returns a frame: a pinned `header`, a scrollable `body`, a
   // pinned `footer`, and a `focus` line index within the body to keep visible
-  // (-1 = no cursor; the user scrolls manually). paint() slices the body to the
-  // terminal height. The last header line and first footer line are always
-  // dividers, so paint() can stamp the ▲/▼ scroll indicators onto them.
+  // (-1 = no cursor; the user scrolls manually). The last header line and first
+  // footer line are always dividers, so composeFrame() can stamp ▲/▼ onto them.
 
   protected function frame(): array {
     return match ($this->screen) {
@@ -430,7 +557,7 @@ class Customizer {
   public function renderHub(): array {
     $header = [
       '',
-      IND . spread(bold('Vortex Customizer') . dim('  ·  configure ') . cyan('"Acme"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
+      IND . spread(bold($this->title) . dim('  ·  configure ') . cyan('"' . $this->subject . '"'), dim('↑/↓  ·  ↵ open  ·  a apply  ·  q quit')),
       rule(),
     ];
 
@@ -863,8 +990,8 @@ class Customizer {
   /**
    * Headless driver for verification: comma-separated tokens, e.g.
    *   down,enter,type:Acme Digital,enter
-   * Tokens: up down left right enter esc space back pgup pgdn home end,
-   * `type:<text>`, or a single char.
+   * Tokens: up down left right enter esc space back pgup pgdn home end
+   * wheelup wheeldown, `type:<text>`, `render`, or a single char.
    */
   public function runKeys(string $spec): int {
     $map = ['up' => 'UP', 'down' => 'DOWN', 'left' => 'LEFT', 'right' => 'RIGHT', 'enter' => 'ENTER', 'esc' => 'ESC', 'space' => 'SPACE', 'back' => 'BACKSPACE', 'pgup' => 'PGUP', 'pgdn' => 'PGDN', 'home' => 'HOME', 'end' => 'END', 'wheelup' => 'SCROLL_UP', 'wheeldown' => 'SCROLL_DOWN'];
@@ -1354,8 +1481,6 @@ class Customizer {
     $this->openEditorDemo('frontend_build', 0);
     $frames['Confirm field'] = $this->frameToString($this->renderConfirm($this->editor['field']));
 
-    $this->answers['theme'] = 'olivero';
-    $this->answers['name'] = 'Acme Digital';
     $this->screen = 'review';
     $frames['Review & apply'] = $this->frameToString($this->renderReview());
 
@@ -1395,7 +1520,15 @@ $args = array_slice($argv, 1);
 if (in_array('--no-color', $args, TRUE) || getenv('NO_COLOR')) {
   $GLOBALS['color'] = FALSE;
 }
-$app = new Customizer(in_array('--update', $args, TRUE));
+
+$config_path = __DIR__ . '/../config/vortex.yml';
+foreach ($args as $a) {
+  if (str_starts_with($a, '--config=')) {
+    $config_path = substr($a, 9);
+  }
+}
+
+$app = new Customizer(load_config($config_path), in_array('--update', $args, TRUE));
 
 foreach ($args as $a) {
   if (str_starts_with($a, '--keys=')) {
