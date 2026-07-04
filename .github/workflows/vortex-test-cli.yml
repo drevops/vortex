@@ -86,6 +86,9 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           coverage: none
 
+      - name: Set default branch name
+        run: git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
+
       - name: Install dependencies
         run: composer install --no-interaction --no-progress
         working-directory: .vortex/cli
