@@ -30,3 +30,7 @@ non-interactive path with a defined precedence.
 ## Out of scope
 
 Schema / validate surfaces (PRD-0007).
+
+## Design decisions
+
+- **Layered config is DIY and dependency-free** (not `consolidation/config`). The customizer stays a thin, portable library, so the external input layers (static/handler default < config file < env < `--prompts`/`--config`) are merged by a small in-engine overlay helper that feeds the Engine's existing field-aware precedence (which interleaves `discovered` and `derived`). `consolidation/config` (`ConfigOverlay`/loaders/`interpolate`) was evaluated and declined for the core to avoid coupling the portable engine to a key-value/dot-notation store; only its external-layering slice overlapped, and the Engine already owns the field-aware half. A consumer app (the CLI) may still adopt it independently to assemble inputs.

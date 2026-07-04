@@ -7,6 +7,7 @@ namespace DrevOps\Customizer\Engine;
 use DrevOps\Customizer\Condition\ConditionEvaluator;
 use DrevOps\Customizer\Config\Config;
 use DrevOps\Customizer\Config\Field;
+use DrevOps\Customizer\Derive\Deriver;
 use DrevOps\Customizer\Handler\Context;
 use DrevOps\Customizer\Handler\HandlerInterface;
 use DrevOps\Customizer\Handler\HandlerRegistry;
@@ -16,10 +17,10 @@ use DrevOps\Customizer\Handler\HandlerRegistry;
  *
  * For each configured field the engine resolves a value (supplied input, else
  * a value discovered in update mode, else the field default), runs the
- * resolved handler's validate() and transform(), settles conditional
- * activation and fix-ups to a fixpoint, then applies every active answer via
- * process(). It never knows what any field means: all behaviour comes from the
- * handlers, which are optional.
+ * resolved handler's validate() and transform(), then settles derived values,
+ * conditional activation and fix-ups to a fixpoint before applying every
+ * active answer via process(). It never knows what any field means: all
+ * behaviour comes from the handlers, which are optional.
  *
  * @package DrevOps\Customizer\Engine
  */
@@ -29,6 +30,18 @@ class Engine {
    * The condition evaluator for `when` gating and fix-up guards.
    */
   protected ConditionEvaluator $evaluator;
+
+  /**
+   * The deriver for computed field values.
+   */
+  protected Deriver $deriver;
+
+  /**
+   * The provenance of each active field from the most recent run().
+   *
+   * @var array<string,string>
+   */
+  protected array $lastProvenance = [];
 
   /**
    * Construct an engine.
@@ -43,6 +56,7 @@ class Engine {
     protected HandlerRegistry $handlers,
   ) {
     $this->evaluator = new ConditionEvaluator();
+    $this->deriver = new Deriver();
   }
 
   /**
@@ -61,9 +75,11 @@ class Engine {
     $this->collectFields($this->config->panels, $fields);
 
     $values = [];
+    $sources = [];
     foreach ($fields as $field) {
       $handler = $this->handlers->get($field->id);
-      $value = $this->resolveValue($field, $handler, $inputs, $context);
+      [$value, $source] = $this->resolveInitial($field, $handler, $inputs, $context);
+      $sources[$field->id] = $source;
 
       if ($handler instanceof HandlerInterface) {
         $error = $handler->validate($field, $value);
@@ -77,7 +93,17 @@ class Engine {
       $values[$field->id] = $value;
     }
 
-    [$active, $values] = $this->stabilize($fields, $values);
+    $derive_rules = [];
+    $overridden = [];
+    foreach ($fields as $field) {
+      if ($field->derive !== NULL) {
+        $derive_rules[$field->id] = $field->derive;
+        $overridden[$field->id] = ($sources[$field->id] ?? '') === 'input';
+      }
+    }
+
+    [$active, $values] = $this->stabilize($fields, $values, $derive_rules, $overridden);
+    $this->lastProvenance = $this->provenanceFor($fields, $sources, $overridden, $active);
 
     $answers = $this->activeAnswers($fields, $values, $active);
     $applied = new Context($context->directory, $answers, $context->update);
@@ -91,7 +117,17 @@ class Engine {
   }
 
   /**
-   * Resolve the incoming value for a field before validate/transform.
+   * The provenance of each active field from the most recent run().
+   *
+   * @return array<string,string>
+   *   One of default / detected / edited / derived / override, keyed by id.
+   */
+  public function provenance(): array {
+    return $this->lastProvenance;
+  }
+
+  /**
+   * Resolve the initial value and its source for a field.
    *
    * @param \DrevOps\Customizer\Config\Field $field
    *   The field.
@@ -102,51 +138,56 @@ class Engine {
    * @param \DrevOps\Customizer\Handler\Context $context
    *   The run context.
    *
-   * @return mixed
-   *   The resolved value.
+   * @return array{mixed,string}
+   *   The resolved value and its source (input / detected / default).
    */
-  protected function resolveValue(Field $field, ?HandlerInterface $handler, array $inputs, Context $context): mixed {
+  protected function resolveInitial(Field $field, ?HandlerInterface $handler, array $inputs, Context $context): array {
     if (array_key_exists($field->id, $inputs)) {
-      return $inputs[$field->id];
+      return [$inputs[$field->id], 'input'];
     }
 
     if ($context->update && $handler instanceof HandlerInterface) {
       $discovered = $handler->discover($field, $context);
       if ($discovered !== NULL) {
-        return $discovered;
+        return [$discovered, 'detected'];
       }
     }
 
-    return $field->default;
+    return [$field->default, 'default'];
   }
 
   /**
-   * Settle conditional activation and fix-ups until they stop changing.
+   * Settle derived values, conditional activation and fix-ups to a fixpoint.
    *
    * @param \DrevOps\Customizer\Config\Field[] $fields
    *   The fields, in order.
    * @param array<string,mixed> $values
    *   The resolved values keyed by field id.
+   * @param array<string,array<array-key,mixed>> $derive_rules
+   *   Derive rules keyed by field id.
+   * @param array<string,bool> $overridden
+   *   Field ids the user has pinned (not re-derived).
    *
    * @return array{array<string,bool>,array<string,mixed>}
-   *   The active map and the (possibly fixed-up) values.
+   *   The active map and the settled values.
    */
-  protected function stabilize(array $fields, array $values): array {
+  protected function stabilize(array $fields, array $values, array $derive_rules, array $overridden): array {
     $active = [];
     foreach ($fields as $field) {
       $active[$field->id] = TRUE;
     }
 
-    $limit = count($fields) + 1;
+    $limit = count($fields) + 2;
     for ($i = 0; $i <= $limit; $i++) {
-      $answers = $this->activeAnswers($fields, $values, $active);
+      $derived = $this->deriver->derive($derive_rules, $values, $overridden);
 
       $next_active = [];
+      $answers = $this->activeAnswers($fields, $derived, $active);
       foreach ($fields as $field) {
         $next_active[$field->id] = $field->when === NULL || $this->evaluator->matches($field->when, $answers);
       }
 
-      $next_values = $this->applyFixups($values, $this->activeAnswers($fields, $values, $next_active));
+      $next_values = $this->applyFixups($derived, $this->activeAnswers($fields, $derived, $next_active));
 
       if ($next_active === $active && $next_values === $values) {
         return [$active, $values];
@@ -157,6 +198,40 @@ class Engine {
     }
 
     return [$active, $values];
+  }
+
+  /**
+   * Compute the provenance of every field.
+   *
+   * @param \DrevOps\Customizer\Config\Field[] $fields
+   *   The fields, in order.
+   * @param array<string,string> $sources
+   *   The initial source per field id (input / detected / default).
+   * @param array<string,bool> $overridden
+   *   Field ids the user has pinned.
+   * @param array<string,bool> $active
+   *   The active map.
+   *
+   * @return array<string,string>
+   *   The provenance of each active field.
+   */
+  protected function provenanceFor(array $fields, array $sources, array $overridden, array $active): array {
+    $provenance = [];
+    foreach ($fields as $field) {
+      if (!($active[$field->id] ?? FALSE)) {
+        continue;
+      }
+
+      $source = $sources[$field->id] ?? 'default';
+      $provenance[$field->id] = match (TRUE) {
+        $field->derive !== NULL => ($overridden[$field->id] ?? FALSE) ? 'override' : 'derived',
+        $source === 'input' => 'edited',
+        $source === 'detected' => 'detected',
+        default => 'default',
+      };
+    }
+
+    return $provenance;
   }
 
   /**
