@@ -84,11 +84,14 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
 
-      - name: Set up shfmt
+      - name: Set up shell linters
         run: |
           curl -fsSL -o /usr/local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64
           chmod +x /usr/local/bin/shfmt
           shfmt --version
+          curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz | tar -xJ -C "${RUNNER_TEMP}"
+          mv "${RUNNER_TEMP}/shellcheck-v0.11.0/shellcheck" /usr/local/bin/shellcheck
+          shellcheck --version
 
       - name: Lint code
         run: |

@@ -252,6 +252,7 @@ function build_database_builder_job(string $name, array $env): string {
           command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry

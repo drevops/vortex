@@ -92,6 +92,19 @@ aliases:
       docker_layer_caching: false
       version: default
 
+  - &step_install_docker_tools
+    run:
+      name: Install pinned Docker Compose and Buildx CLI plugins
+      # The convenience image ships older Docker CLI plugins than the stack
+      # relies on; install the versions that resolve 'service:' build contexts.
+      command: |
+        mkdir -p "${HOME}/.docker/cli-plugins"
+        curl -fsSL -o "${HOME}/.docker/cli-plugins/docker-compose" https://github.com/docker/compose/releases/download/v5.1.4/docker-compose-linux-x86_64
+        curl -fsSL -o "${HOME}/.docker/cli-plugins/docker-buildx" https://github.com/docker/buildx/releases/download/v0.34.1/buildx-v0.34.1.linux-amd64
+        chmod +x "${HOME}/.docker/cli-plugins/docker-compose" "${HOME}/.docker/cli-plugins/docker-buildx"
+        docker compose version
+        docker buildx version
+
   - &step_process_codebase_for_ci
     run:
       name: Process codebase to run in CI
@@ -128,6 +141,7 @@ jobs:
           command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry
@@ -259,6 +273,7 @@ jobs:
       #;> !PROVISION_TYPE_PROFILE
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry
@@ -495,6 +510,7 @@ jobs:
           command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry
@@ -608,6 +624,7 @@ jobs:
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name:  Install Ahoy
