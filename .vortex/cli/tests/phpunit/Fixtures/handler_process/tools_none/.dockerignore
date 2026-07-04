@@ -1,0 +1,21 @@
+@@ -38,20 +38,14 @@
+ !.stylelintrc.js
+ !.twig-cs-fixer.php
+ !auth.json
+-!behat.yml
+ !composer.json
+ !composer.lock
+-!gherkinlint.json
+ !jest.config.js
+ !package-lock.json
+ !package.json
+ !patches
+ !patches.lock.json
+-!phpcs.xml
+-!phpstan.neon
+-!phpunit.xml
+ !postcss.config.js
+-!rector.php
+ !scripts
+ !tests
+ !yarn.lock

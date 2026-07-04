@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Demo module for star wars.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_theme().
+ *
+ * @phpstan-ignore-next-line
+ */
+function sw_demo_theme(): array {
+  return [
+    'sw_demo_counter_block' => [
+      'variables' => [
+        'counter_value' => 0,
+      ],
+      'template' => 'sw-demo-counter-block',
+    ],
+  ];
+}

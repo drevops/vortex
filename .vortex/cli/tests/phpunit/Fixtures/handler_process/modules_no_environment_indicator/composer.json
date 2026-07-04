@@ -1,0 +1,8 @@
+@@ -19,7 +19,6 @@
+         "drupal/deploy_steps": "__VERSION__",
+         "drupal/devel": "__VERSION__",
+         "drupal/drupal_helpers": "__VERSION__",
+-        "drupal/environment_indicator": "__VERSION__",
+         "drupal/generated_content": "__VERSION__",
+         "drupal/pathauto": "__VERSION__",
+         "drupal/redirect": "__VERSION__",

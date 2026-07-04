@@ -1,0 +1,12 @@
+@@ -42,11 +42,6 @@
+ recipes/*
+ !recipes/page
+ 
+-# Ignore all Claude files by default. Custom files should be added explicitly.
+-!.claude
+-.claude/*
+-!.claude/settings.json
+-
+ # Ignore dependencies cache files.
+ /vendor
+ /node_modules

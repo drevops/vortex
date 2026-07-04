@@ -1,0 +1,8 @@
+*.jpg
+*.png
+^.docker/config/solr/config-set/*
+yarn.lock
+node_modules
+scripts/vortex/*
+vendor
+.env.local

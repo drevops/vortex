@@ -1,0 +1,8 @@
+@@ -48,7 +48,6 @@
+ !patches
+ !patches.lock.json
+ !phpcs.xml
+-!phpstan.neon
+ !phpunit.xml
+ !postcss.config.js
+ !rector.php

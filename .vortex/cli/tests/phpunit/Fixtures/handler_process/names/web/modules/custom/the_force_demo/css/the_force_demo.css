@@ -1,0 +1,100 @@
+/**
+ * @file
+ * YS Demo module styles.
+ */
+
+/* Counter Block Styles */
+.the-force-demo-counter-block {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 300px;
+  padding: 20px;
+  text-align: center;
+}
+
+.the-force-demo-counter-display {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.the-force-demo-counter-label {
+  color: #666;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.the-force-demo-counter-value {
+  background: #007cba;
+  border-radius: 4px;
+  color: white;
+  display: inline-block;
+  min-width: 60px;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+}
+
+.the-force-demo-counter-value.updated {
+  background: #28a745;
+  transform: scale(1.1);
+}
+
+.the-force-demo-counter-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.the-force-demo-counter-btn {
+  background: #007cba;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 15px;
+  transition: all 0.2s ease;
+}
+
+.the-force-demo-counter-btn:hover {
+  background: #005a87;
+  transform: translateY(-2px);
+}
+
+.the-force-demo-counter-btn:active {
+  transform: translateY(0);
+}
+
+.the-force-demo-counter-btn--decrement {
+  background: #dc3545;
+}
+
+.the-force-demo-counter-btn--decrement:hover {
+  background: #c82333;
+}
+
+.the-force-demo-counter-btn--increment {
+  background: #28a745;
+}
+
+.the-force-demo-counter-btn--increment:hover {
+  background: #218838;
+}
+
+.the-force-demo-counter-btn--reset {
+  background: #6c757d;
+  font-size: 14px;
+  padding: 8px 16px;
+}
+
+.the-force-demo-counter-btn--reset:hover {
+  background: #5a6268;
+}
+
+.the-force-demo-counter-btn-text {
+  display: inline-block;
+  line-height: 1;
+}

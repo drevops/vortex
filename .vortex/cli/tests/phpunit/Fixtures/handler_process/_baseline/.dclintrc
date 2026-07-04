@@ -1,0 +1,82 @@
+{
+  "rules": {
+    "no-build-and-image": 0,
+    "services-alphabetical-order": 0,
+    "no-unbound-port-interfaces": 0,
+    "require-project-name-field": 0,
+    "service-keys-order": [
+      1,
+      {
+        "groupOrder": [
+          "Core Definitions",
+          "Environment Configuration",
+          "Data Management and Configuration",
+          "Service Dependencies",
+          "Networking",
+          "Runtime Behavior",
+          "Security and Execution Context",
+          "Operational Metadata"
+        ],
+        "groups": {
+          "Core Definitions": [
+            "build",
+            "image",
+            "container_name",
+            "profiles",
+            "restart",
+            "extends"
+          ],
+          "Environment Configuration": [
+            "env_file",
+            "environment"
+          ],
+          "Data Management and Configuration": [
+            "<<",
+            "volumes",
+            "volumes_from",
+            "secrets",
+            "configs",
+            "tmpfs"
+          ],
+          "Service Dependencies": [
+            "depends_on",
+            "links"
+          ],
+          "Networking": [
+            "ports",
+            "expose",
+            "networks",
+            "network_mode",
+            "hostname",
+            "extra_hosts",
+            "dns",
+            "dns_search"
+          ],
+          "Runtime Behavior": [
+            "command",
+            "entrypoint",
+            "working_dir",
+            "shm_size",
+            "healthcheck",
+            "stop_grace_period",
+            "tty",
+            "stdin_open"
+          ],
+          "Operational Metadata": [
+            "labels",
+            "logging"
+          ],
+          "Security and Execution Context": [
+            "user",
+            "security_opt",
+            "cap_add",
+            "cap_drop",
+            "read_only",
+            "privileged",
+            "ulimits"
+          ]
+        }
+      }
+    ]
+  }
+}
