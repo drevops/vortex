@@ -7,6 +7,7 @@ namespace DrevOps\VortexTooling\Tests\Unit;
 use DrevOps\VortexTooling\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for shared Lagoon CLI helper functions.
@@ -17,6 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversFunction('DrevOps\VortexTooling\lagoon_config')]
 #[CoversFunction('DrevOps\VortexTooling\lagoon_exec')]
 #[Group('helpers')]
+#[RunTestsInSeparateProcesses]
 class HelpersLagoonTest extends UnitTestCase {
 
   protected function setUp(): void {

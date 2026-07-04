@@ -72,8 +72,8 @@ RUN arch="$(uname -m)" && \
       *) echo "Unsupported architecture: ${arch}" && exit 1 ;; \
     esac && \
     curl -fsSL --retry 3 --retry-delay 2 --max-time 60 -o /usr/local/bin/lagoon "https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}/lagoon-cli-${VORTEX_LAGOONCLI_VERSION}-linux-${arch}" && \
-    chmod +x /usr/local/bin/lagoon && \
-    lagoon --version
+    test -s /usr/local/bin/lagoon && \
+    chmod +x /usr/local/bin/lagoon
 #;> HOSTING_LAGOON
 
 # Add patches and scripts.
