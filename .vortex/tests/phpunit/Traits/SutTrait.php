@@ -478,7 +478,13 @@ trait SutTrait {
     $this->assertFileContainsString('composer.json', '"drevops/vortex-tooling"');
     $this->assertFileExists('scripts/vortex-tooling.sh');
 
-    $this->assertFileExists('scripts/sanitize.sql');
+    // Sanitization SQL ships only for database provisioning.
+    if (File::contains('.env', 'VORTEX_PROVISION_TYPE=profile')) {
+      $this->assertFileDoesNotExist('scripts/sanitize.sql');
+    }
+    else {
+      $this->assertFileExists('scripts/sanitize.sql');
+    }
 
     // Test files.
     $this->assertFileExists('tests/behat/bootstrap/FeatureContext.php');

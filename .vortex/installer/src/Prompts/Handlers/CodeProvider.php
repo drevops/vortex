@@ -79,6 +79,52 @@ class CodeProvider extends AbstractHandler {
     }
     else {
       File::remove($t . '/.github');
+
+      $this->removeRenovateGithubActionsManager($t . '/renovate.json');
+    }
+  }
+
+  /**
+   * Remove the GitHub Actions manager from the Renovate configuration.
+   *
+   * The manager only operates on files under '.github/workflows', which do
+   * not exist for non-GitHub code providers.
+   */
+  protected function removeRenovateGithubActionsManager(string $path): void {
+    if (!file_exists($path)) {
+      return;
+    }
+
+    $content = file_get_contents($path);
+
+    if ($content === FALSE) {
+      return;
+    }
+
+    $data = json_decode($content, TRUE);
+
+    if (!is_array($data)) {
+      return;
+    }
+
+    $changed = FALSE;
+
+    if (isset($data['enabledManagers']) && is_array($data['enabledManagers']) && in_array('github-actions', $data['enabledManagers'], TRUE)) {
+      $data['enabledManagers'] = array_values(array_diff($data['enabledManagers'], ['github-actions']));
+      $changed = TRUE;
+    }
+
+    if (isset($data['packageRules']) && is_array($data['packageRules'])) {
+      $filtered = array_values(array_filter($data['packageRules'], fn(array $rule): bool => ($rule['matchManagers'] ?? NULL) !== ['github-actions']));
+
+      if (count($filtered) !== count($data['packageRules'])) {
+        $data['packageRules'] = $filtered;
+        $changed = TRUE;
+      }
+    }
+
+    if ($changed) {
+      file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
     }
   }
 

@@ -9,7 +9,7 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -332,66 +328,6 @@
+@@ -318,66 +314,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -76,7 +76,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -404,20 +340,6 @@
+@@ -390,20 +326,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -97,7 +97,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -434,16 +356,6 @@
+@@ -420,16 +342,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

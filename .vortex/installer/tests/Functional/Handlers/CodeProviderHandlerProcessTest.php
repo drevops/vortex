@@ -16,12 +16,14 @@ class CodeProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.dist.md');
           $test->assertFileContainsString(static::$sut . '/.github/PULL_REQUEST_TEMPLATE.md', 'Checklist before requesting a review');
+          $test->assertFileContainsString(static::$sut . '/renovate.json', 'github-actions');
       }),
     ];
     yield 'code_provider_other' => [
       static::cw(fn($test): string => $test->prompts[CodeProvider::id()] = CodeProvider::OTHER),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertDirectoryDoesNotExist(static::$sut . '/.github');
+          $test->assertFileNotContainsString(static::$sut . '/renovate.json', 'github-actions');
       }),
     ];
   }

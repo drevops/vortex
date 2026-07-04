@@ -93,21 +93,23 @@ class DeployTypes extends AbstractHandler {
     $types = $this->getResponseAsArray();
     $t = $this->tmpDir;
 
+    if (!in_array(self::ARTIFACT, $types)) {
+      File::removeTokenAsync('DEPLOY_TYPES_ARTIFACT');
+      File::remove($t . '/.gitignore.deployment');
+      File::remove($t . '/.gitignore.artifact');
+    }
+
+    if (!in_array(self::WEBHOOK, $types)) {
+      File::removeTokenAsync('DEPLOY_TYPES_WEBHOOK');
+    }
+
     if (!empty($types)) {
       Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($types), $t . '/.env');
-
-      if (!in_array(self::ARTIFACT, $types)) {
-        File::removeTokenAsync('DEPLOY_TYPES_ARTIFACT');
-        File::remove($t . '/.gitignore.deployment');
-        File::remove($t . '/.gitignore.artifact');
-      }
 
       File::removeTokenAsync('!DEPLOYMENT');
     }
     else {
       File::remove($t . '/docs/deployment.md');
-      File::remove($t . '/.gitignore.deployment');
-      File::remove($t . '/.gitignore.artifact');
 
       File::removeTokenAsync('DEPLOYMENT');
     }

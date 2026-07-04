@@ -10,9 +10,6 @@
 version: '2.1'
 
 aliases:
-  # SSH key fingerprint to fetch the database.
-  # Replace this key fingerprint with your own and remove this comment.
-  - &db_ssh_fingerprint "SHA256:6d+U5QubT0eAWz+4N2wt+WM2qx6o4cvyvQ6xILETJ84"
 
   # SSH key fingerprint to deploy code.
   # Replace this key fingerprint with your own and remove this comment.
@@ -22,7 +19,6 @@ aliases:
   - &runner_config
     working_directory: &working_directory ~/project
     environment:
-      VORTEX_FETCH_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
       # Using the 'runner' container where each job will be executed.
@@ -55,12 +51,6 @@ aliases:
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
           VORTEX_CI_ARTIFACTS: &artifacts /tmp/artifacts
-          # Directory to use for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
-          # Source code location for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_ROOT: *working_directory
-          # Report file location for artifact deployments.
-          VORTEX_DEPLOY_ARTIFACT_LOG: /tmp/artifacts/deployment_log.txt
           # Check only minimal stack requirements.
           VORTEX_DOCTOR_CHECK_MINIMAL: 1
     # CI runner resource class.
@@ -192,10 +182,6 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
 
-      - add_ssh_keys:
-          fingerprints:
-            - *db_ssh_fingerprint
-
       - checkout
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
@@ -251,12 +237,9 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0
             docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
-            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
-            if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
@@ -415,17 +398,10 @@ jobs:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force
 
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - code
-
   # Deploy primary branches.
   deploy: &job_deploy
     <<: *runner_config
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
 
       - add_ssh_keys:
           fingerprints:
@@ -463,8 +439,6 @@ jobs:
   deploy-tags: &job-deploy-tags
     <<: *runner_config
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
 
       - add_ssh_keys:
           fingerprints:

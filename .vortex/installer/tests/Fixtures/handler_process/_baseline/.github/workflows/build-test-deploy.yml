@@ -260,15 +260,6 @@ jobs:
       - name: Login to container registry
         run: ./vendor/bin/vortex-login-container-registry
 
-      - name: Add SSH private key used to fetch database
-        if: ${{ env.VORTEX_FETCH_DB_SSH_PRIVATE_KEY != '' }}
-        uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
-        with:
-          key: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ vars.VORTEX_FETCH_DB_SSH_KNOWN_HOSTS || 'unnecessary' }}
-        env:
-          VORTEX_FETCH_DB_SSH_PRIVATE_KEY: ${{ secrets.VORTEX_FETCH_DB_SSH_PRIVATE_KEY }}
-
       # On the first build of the day (cache miss), fetch a fresh DB dump.
       # On subsequent builds, the restored cache already contains the dump and
       # the fetch script skips itself, leaving no semaphore file behind.
@@ -291,16 +282,11 @@ jobs:
       - name: Export DB after fetch
         run: |
           if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
-          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0; fi
           docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
           ./vendor/bin/vortex-export-db db.sql
-          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
           docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
-        env:
-          STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
-          STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
 
       # Save the clean DB dump to cache from the primary parallel runner only,
       # and only when a fresh dump was fetched this run (db_hash changed).
@@ -550,20 +536,6 @@ jobs:
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
 
-      # Artifact deployments do not work for manual deploys as the build job is skipped.
-      - name: Download exported codebase as an artifact
-        uses: actions/download-artifact@__HASH__ # __VERSION__
-        if: ${{ !inputs.deploy_target && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
-        with:
-          name: code-artifact
-          path: "/tmp/artifacts"
-
-      - name: Unpack downloaded exported codebase
-        if: ${{ !inputs.deploy_target && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
-        run: |
-          mkdir -p /tmp/workspace
-          tar -xpf /tmp/artifacts/code.tar -C /tmp/workspace
-
       - name: Add SSH private key to the runner
         if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
         uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
@@ -584,11 +556,6 @@ jobs:
           VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
           VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
           VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
-          VORTEX_DEPLOY_ARTIFACT_SRC: /tmp/workspace/code
-          VORTEX_DEPLOY_ARTIFACT_ROOT: ${{ github.workspace }}
-          VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE }}
-          VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL }}
-          VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME: ${{ vars.VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME }}
           VORTEX_DEPLOY_WEBHOOK_URL: ${{ vars.VORTEX_DEPLOY_WEBHOOK_URL }}
           VORTEX_DEPLOY_SKIP: ${{ vars.VORTEX_DEPLOY_SKIP }}
           VORTEX_DEPLOY_ALLOW_SKIP: ${{ vars.VORTEX_DEPLOY_ALLOW_SKIP }}

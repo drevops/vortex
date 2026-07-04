@@ -23,6 +23,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
+          $test->assertSutNotContains(['/VORTEX_FETCH_DB_SSH_/', '/VORTEX_ACQUIA_/']);
       }),
     ];
     yield 'migration_fetch_source_ftp' => [
@@ -47,6 +48,8 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
+          $test->assertSutContains('/VORTEX_ACQUIA_/');
+          $test->assertSutNotContains('/VORTEX_FETCH_DB_SSH_/');
       }),
     ];
     yield 'migration_fetch_source_lagoon' => [
@@ -59,6 +62,8 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
+          $test->assertSutContains(['/VORTEX_FETCH_DB_SSH_/', 'VORTEX_FETCH_DB2_ENVIRONMENT']);
+          $test->assertSutNotContains(['/VORTEX_ACQUIA_/', 'VORTEX_FETCH_DB_ENVIRONMENT']);
       }),
     ];
     yield 'migration_fetch_source_s3' => [

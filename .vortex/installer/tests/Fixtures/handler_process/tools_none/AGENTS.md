@@ -1,7 +1,8 @@
-@@ -53,19 +53,6 @@
+@@ -52,20 +52,6 @@
+ # Code quality
  ahoy lint     # Check code style
  ahoy lint-fix # Auto-fix code style
- 
+-
 -# PHPUnit testing
 -ahoy test            # Run PHPUnit tests
 -ahoy test-unit       # Run PHPUnit Unit tests
