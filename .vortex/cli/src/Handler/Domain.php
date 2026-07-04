@@ -6,6 +6,8 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Handler\AbstractHandler;
+use DrevOps\Customizer\Handler\Context;
+use DrevOps\VortexCli\Utils\File;
 
 /**
  * Handler for the "domain" question.
@@ -26,6 +28,19 @@ class Domain extends AbstractHandler {
    */
   public function transform(Field $field, mixed $value): mixed {
     return is_string($value) ? Validate::domain($value) : $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(Field $field, mixed $value, Context $context): void {
+    $domain = is_string($value) ? $value : '';
+
+    // Replace in regular expressions.
+    File::replaceContentAsync(preg_quote('your-site-domain.example'), preg_quote($domain));
+
+    // Replace scalar values.
+    File::replaceContentAsync('your-site-domain.example', $domain);
   }
 
 }

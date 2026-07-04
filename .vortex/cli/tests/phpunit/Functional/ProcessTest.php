@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Tests\Functional;
 
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Engine\Engine;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\VortexCli\Handler\Name;
-use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Command\Customize;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Tests the collection -> process -> apply pipeline through a handler.
+ * Tests the collection -> apply pipeline (reverse-order process + flush).
  */
-#[CoversClass(Name::class)]
+#[CoversClass(Customize::class)]
 #[Group('process')]
 final class ProcessTest extends TestCase {
 
@@ -38,18 +35,31 @@ final class ProcessTest extends TestCase {
     parent::tearDown();
   }
 
-  public function testNameProcessAppliesReplacement(): void {
-    file_put_contents($this->dir . '/index.php', "// Project YOURSITE\n");
+  public function testGeneralSectionAppliesReplacements(): void {
+    file_put_contents($this->dir . '/content.txt', 'YOURSITE your_site your-site YourSite YOURORG your_org your-site-domain.example');
+    (new Filesystem())->mkdir($this->dir . '/your_site');
+    file_put_contents($this->dir . '/your_site/keep.txt', 'content');
 
-    $config = (new ConfigLoader())->loadFiles([dirname(__DIR__, 3) . '/config/vortex.yml']);
-    $engine = new Engine($config, new HandlerRegistry(['DrevOps\\VortexCli\\Handler']));
+    $this->apply('{"name":"Acme Site"}');
 
-    $engine->run(['name' => 'Acme Site'], new Context($this->dir, [], FALSE));
-    File::runDirectoryTasks($this->dir);
+    $result = (string) file_get_contents($this->dir . '/content.txt');
+    $this->assertSame('Acme Site acme_site acme-site AcmeSite Acme Site Org acme_site_org acme-site.com', $result);
+    $this->assertFileExists($this->dir . '/acme_site/keep.txt');
+    $this->assertDirectoryDoesNotExist($this->dir . '/your_site');
+  }
 
-    $result = (string) file_get_contents($this->dir . '/index.php');
-    $this->assertStringContainsString('Project Acme Site', $result);
-    $this->assertStringNotContainsString('YOURSITE', $result);
+  /**
+   * Run the customize command with --apply on the working directory.
+   *
+   * @param string $prompts
+   *   The answers as JSON.
+   */
+  protected function apply(string $prompts): void {
+    $application = new Application();
+    $application->add(new Customize());
+    $tester = new CommandTester($application->find('customize'));
+
+    $tester->execute(['--prompts' => $prompts, '--apply' => TRUE, '--dir' => $this->dir], ['interactive' => FALSE]);
   }
 
 }

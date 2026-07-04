@@ -18,6 +18,7 @@ use DrevOps\Customizer\Tui\PanelController;
 use DrevOps\Customizer\Tui\PanelRenderer;
 use DrevOps\Customizer\Tui\Terminal;
 use DrevOps\Customizer\Tui\Theme;
+use DrevOps\VortexCli\Utils\File;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -57,7 +58,8 @@ class Customize extends Command {
       ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an existing project (enable discovery).')
       ->addOption('schema', NULL, InputOption::VALUE_NONE, 'Print the question schema as JSON and exit.')
       ->addOption('validate', NULL, InputOption::VALUE_REQUIRED, 'Validate an answer set (JSON) against the schema and exit.', '')
-      ->addOption('agent-help', NULL, InputOption::VALUE_NONE, 'Print instructions for driving the customizer non-interactively.');
+      ->addOption('agent-help', NULL, InputOption::VALUE_NONE, 'Print instructions for driving the customizer non-interactively.')
+      ->addOption('apply', 'a', InputOption::VALUE_NONE, 'Apply the collected answers to the project directory.');
   }
 
   /**
@@ -83,7 +85,8 @@ class Customize extends Command {
       return $this->validateAnswers($config, $validate, $output);
     }
 
-    $engine = new Engine($config, new HandlerRegistry([static::HANDLER_NAMESPACE]));
+    $registry = new HandlerRegistry([static::HANDLER_NAMESPACE]);
+    $engine = new Engine($config, $registry);
     $context = new Context($this->stringOption($input, 'dir'), [], (bool) $input->getOption('update'));
     $prompts = $this->stringOption($input, 'prompts');
 
@@ -91,12 +94,16 @@ class Customize extends Command {
       $inputs = (new InputResolver(static::ENV_PREFIX))->resolve($config->fields(), $prompts, getenv());
 
       try {
-        $engine->collect($inputs, $context);
+        $answers = $engine->collect($inputs, $context);
       }
       catch (EngineException $engine_exception) {
         $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
 
         return Command::FAILURE;
+      }
+
+      if ($input->getOption('apply')) {
+        $this->apply($config, $registry, $answers, $context);
       }
 
       $output->writeln($engine->answers()->toJson());
@@ -112,6 +119,34 @@ class Customize extends Command {
 
     return Command::SUCCESS;
     // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Apply the collected answers to the project directory.
+   *
+   * Handlers process in reverse question order so specific replacements run
+   * before generic ones (matching the installer), then the queued file tasks
+   * are flushed once.
+   *
+   * @param \DrevOps\Customizer\Config\Config $config
+   *   The configuration.
+   * @param \DrevOps\Customizer\Handler\HandlerRegistry $handlers
+   *   The handler registry.
+   * @param array<string,mixed> $answers
+   *   The collected answers.
+   * @param \DrevOps\Customizer\Handler\Context $context
+   *   The run context.
+   */
+  protected function apply(Config $config, HandlerRegistry $handlers, array $answers, Context $context): void {
+    $applied = new Context($context->directory, $answers, $context->update);
+
+    foreach (array_reverse($config->fields()) as $field) {
+      if (array_key_exists($field->id, $answers)) {
+        $handlers->get($field->id)?->process($field, $answers[$field->id], $applied);
+      }
+    }
+
+    File::runDirectoryTasks($context->directory);
   }
 
   /**

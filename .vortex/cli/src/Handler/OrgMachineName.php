@@ -6,6 +6,8 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Handler\AbstractHandler;
+use DrevOps\Customizer\Handler\Context;
+use DrevOps\VortexCli\Utils\File;
 
 /**
  * Handler for the "org_machine_name" question.
@@ -26,6 +28,16 @@ class OrgMachineName extends AbstractHandler {
    */
   public function transform(Field $field, mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(Field $field, mixed $value, Context $context): void {
+    $org_machine_name = is_string($value) ? $value : '';
+
+    File::replaceContentAsync('your_org', $org_machine_name);
+    File::renameInDir($context->directory, 'your_org', $org_machine_name);
   }
 
 }
