@@ -52,7 +52,32 @@ class ConfigLoader {
       $this->toString($data['title'] ?? 'Customizer'),
       $this->toString($data['subject'] ?? ''),
       $panels,
+      $this->buildFixups($data['fixups'] ?? []),
     );
+  }
+
+  /**
+   * Build the list of raw fix-up rules from decoded data.
+   *
+   * @param mixed $items
+   *   The decoded fix-ups list.
+   *
+   * @return array<int,array<array-key,mixed>>
+   *   The fix-up rules, each a raw mapping.
+   */
+  protected function buildFixups(mixed $items): array {
+    if (!is_array($items)) {
+      return [];
+    }
+
+    $fixups = [];
+    foreach ($items as $item) {
+      if (is_array($item)) {
+        $fixups[] = $item;
+      }
+    }
+
+    return $fixups;
   }
 
   /**

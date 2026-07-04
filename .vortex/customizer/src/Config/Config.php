@@ -20,11 +20,14 @@ final readonly class Config {
    *   The subject being configured (e.g. the project name).
    * @param \DrevOps\Customizer\Config\Panel[] $panels
    *   The top-level panels.
+   * @param array<int,array<array-key,mixed>> $fixups
+   *   Raw post-submit fix-up rules, evaluated by the engine.
    */
   public function __construct(
     public string $title,
     public string $subject,
     public array $panels = [],
+    public array $fixups = [],
   ) {
   }
 

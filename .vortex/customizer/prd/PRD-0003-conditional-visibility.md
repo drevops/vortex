@@ -1,6 +1,6 @@
 # PRD-0003 - Conditional visibility & post-submit fix-ups
 
-**Status:** draft · **Prototype:** partial · **Depends on:** 0001, 0002 · **Blocks:** 0004, 0006
+**Status:** done · **Prototype:** partial · **Depends on:** 0001, 0002 · **Blocks:** 0004, 0006
 
 ## Context
 
@@ -11,18 +11,18 @@ post-submit fix-ups that must be reproduced.
 
 ## Requirements
 
-- [ ] Structured `when` conditions: `field` with `eq` / `ne` / `in` / `contains`, composed with `all` / `any` / `not`.
-- [ ] Inactive fields render disabled with a generated "appears when X = Y" reason (config may opt to fully hide instead).
-- [ ] Auto-resolve-and-skip: a field whose value is fully determined is set without prompting.
-- [ ] Post-submit fix-ups: merge a custom sub-value into its parent (e.g. custom profile/theme name), and force a dependent value (e.g. database source = none when provisioning from profile).
-- [ ] Re-evaluate conditionals + fix-ups on every answer change until stable.
+- [x] Structured `when` conditions: `field` with `eq` / `ne` / `in` / `contains`, composed with `all` / `any` / `not`.
+- [x] Inactive fields render disabled with a generated "appears when X = Y" reason (config may opt to fully hide instead).
+- [x] Auto-resolve-and-skip: a field whose value is fully determined is set without prompting.
+- [x] Post-submit fix-ups: merge a custom sub-value into its parent (e.g. custom profile/theme name), and force a dependent value (e.g. database source = none when provisioning from profile).
+- [x] Re-evaluate conditionals + fix-ups on every answer change until stable.
 
 ## Acceptance criteria
 
-- [ ] Toggling a source field activates/deactivates its dependents live; tested.
-- [ ] An auto-resolvable field is skipped and its value still set; tested.
-- [ ] Each documented fix-up applies deterministically; tested.
-- [ ] Inactive fields are excluded from the collected answer set; tested.
+- [x] Toggling a source field activates/deactivates its dependents live; tested.
+- [x] An auto-resolvable field is skipped and its value still set; tested.
+- [x] Each documented fix-up applies deterministically; tested.
+- [x] Inactive fields are excluded from the collected answer set; tested.
 
 ## Installer references
 
