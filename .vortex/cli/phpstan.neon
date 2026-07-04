@@ -13,6 +13,10 @@ parameters:
   excludePaths:
     - vendor/*
     - node_modules/*
+    # Utilities relocated verbatim from the installer (validated at level 7
+    # there and exercised by the process/fixture tests); their call sites are
+    # still type-checked via their signatures.
+    - src/Utils/*
 
   ignoreErrors:
     -

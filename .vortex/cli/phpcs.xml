@@ -30,4 +30,15 @@
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
+
+    <!-- Utilities relocated verbatim from the installer keep its relaxations. -->
+    <rule ref="Drupal.Commenting.ClassComment">
+        <exclude-pattern>src/Utils/*</exclude-pattern>
+    </rule>
+    <rule ref="Drupal.Commenting.FunctionComment.Missing">
+        <exclude-pattern>src/Utils/*</exclude-pattern>
+    </rule>
+    <rule ref="Drupal.Commenting.VariableComment.Missing">
+        <exclude-pattern>src/Utils/*</exclude-pattern>
+    </rule>
 </ruleset>
