@@ -361,6 +361,88 @@ function drush(string $command, ?int &$exit_code = NULL): string {
 }
 
 /**
+ * Require the Lagoon CLI to be available.
+ *
+ * Vortex wraps the provider-native Lagoon CLI rather than reimplementing its
+ * behaviour, so the CLI must be present. On a developer host it is installed by
+ * the developer; inside the hosting environment it ships with the container
+ * image.
+ *
+ * @return string
+ *   The Lagoon CLI binary name.
+ */
+function lagoon_cli_require(): string {
+  if (!command_path('lagoon')) {
+    fail("Command 'lagoon' is not available. Install the Lagoon CLI (https://github.com/uselagoon/lagoon-cli) or use a container image that provides it.");
+  }
+
+  return 'lagoon';
+}
+
+/**
+ * Register a Lagoon CLI instance configuration.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param string $instance
+ *   The Lagoon instance name.
+ * @param string $graphql
+ *   The Lagoon instance GraphQL endpoint.
+ * @param string $hostname
+ *   The Lagoon instance SSH hostname.
+ * @param string $port
+ *   The Lagoon instance SSH port.
+ */
+function lagoon_config(string $bin, string $instance, string $graphql, string $hostname, string $port): void {
+  passthru_or_fail(sprintf('%s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($bin), escapeshellarg($instance), escapeshellarg($graphql), escapeshellarg($hostname), escapeshellarg($port)), 'Failed to add Lagoon instance configuration.');
+}
+
+/**
+ * Run a Lagoon CLI subcommand and capture its output.
+ *
+ * The common authentication flags (instance, project and, on a host, the SSH
+ * key) are threaded from the context; command-specific flags (environment,
+ * backup id, output format) are provided by the caller in the subcommand.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param string $subcommand
+ *   The subcommand with its command-specific flags.
+ * @param array{instance: string, project: string, ssh_key?: string} $ctx
+ *   Execution context. The SSH key flag is omitted when 'ssh_key' is empty or
+ *   'false' (e.g. inside the hosting environment where identity is implicit).
+ * @param int|null $exit_code
+ *   (optional) Variable to capture the exit code. Pass an initialised variable
+ *   (e.g. `$exit_code = 0`) to suppress the automatic fail() on non-zero exit.
+ *
+ * @param-out int $exit_code
+ *
+ * @return string
+ *   The captured command output.
+ */
+function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code = NULL): string {
+  $ssh_key = $ctx['ssh_key'] ?? '';
+  $ssh_key_flag = (!empty($ssh_key) && $ssh_key !== 'false') ? ' --ssh-key ' . escapeshellarg($ssh_key) : '';
+
+  $cmd = sprintf('%s --force --skip-update-check%s --lagoon %s --project %s %s 2>&1', escapeshellarg($bin), $ssh_key_flag, escapeshellarg($ctx['instance']), escapeshellarg($ctx['project']), $subcommand);
+
+  $exit_code_provided = $exit_code !== NULL;
+  if (!$exit_code_provided) {
+    $exit_code = 0;
+  }
+
+  ob_start();
+  passthru($cmd, $exit_code);
+  $output = ob_get_clean();
+
+  if (!$exit_code_provided && $exit_code !== 0) {
+    fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+  }
+
+  return $output ?: '';
+}
+
+/**
  * Recursively copy a directory.
  *
  * @param string $src

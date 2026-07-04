@@ -14,361 +14,260 @@ class FetchDbLagoonTest extends UnitTestCase {
    */
   protected static string $srcDir;
 
+  /**
+   * SSH key file used in assertions.
+   */
+  protected static string $sshFile = '/home/user/.ssh/id_rsa';
+
   protected function setUp(): void {
     parent::setUp();
 
     self::$srcDir = (string) realpath(__DIR__ . '/../../src');
 
-    $this->envSet('VORTEX_FETCH_DB_LAGOON_PROJECT', 'myproject');
-    $this->envSet('LAGOON_PROJECT', 'myproject');
-    $this->envSet('VORTEX_FETCH_DB_ENVIRONMENT', 'main');
-    $this->envSet('VORTEX_FETCH_DB_SSH_FILE', '/home/user/.ssh/id_rsa');
-    $this->envSet('VORTEX_FETCH_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud');
-    $this->envSet('VORTEX_FETCH_DB_LAGOON_SSH_PORT', '32222');
-    $this->envSet('VORTEX_FETCH_DB_LAGOON_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_FETCH_DB_LAGOON_DB_FILE', 'db.sql');
+    $this->envSetMultiple([
+      'VORTEX_FETCH_DB_LAGOON_PROJECT' => 'myproject',
+      'VORTEX_FETCH_DB_ENVIRONMENT' => 'main',
+      'VORTEX_FETCH_DB_SSH_FILE' => self::$sshFile,
+      'VORTEX_FETCH_DB_LAGOON_DB_DIR' => self::$tmp . '/data',
+      'VORTEX_FETCH_DB_LAGOON_DB_FILE' => 'db.sql',
+    ]);
   }
 
   public function testMissingProject(): void {
     $this->envUnset('VORTEX_FETCH_DB_LAGOON_PROJECT');
-    $this->envUnset('LAGOON_PROJECT');
 
     $this->runScriptError('src/vortex-fetch-db-lagoon', 'Missing required value for VORTEX_FETCH_DB_LAGOON_PROJECT, LAGOON_PROJECT');
   }
 
+  public function testMissingLagoonCli(): void {
+    $this->mockCommandMissing();
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', "Command 'lagoon' is not available.");
+  }
+
   public function testSuccess(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
-
-    $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
-    $date_mock->expects($this->any())->willReturn('20240101');
-
-    $ssh_opts = [
-      '-o', 'UserKnownHostsFile=/dev/null',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'LogLevel=error',
-      '-o', 'IdentitiesOnly=yes',
-      '-p', '32222',
-      '-i', '/home/user/.ssh/id_rsa',
-    ];
-    $ssh_opts_escaped = implode(' ', array_map(escapeshellarg(...), $ssh_opts));
-    $ssh_opts_string = implode(' ', $ssh_opts);
-
-    $remote_file = 'db_20240101.sql';
-    $ssh_user = 'myproject-main';
-    $ssh_host = 'ssh.lagoon.amazeeio.cloud';
-
-    $remote_cmd = <<<BASH
-    if [ ! -f "/tmp/{$remote_file}" ] || [ "" = "1" ] ; then
-      [ -n "db_*.sql" ] && rm -f "/tmp/db_*.sql" && echo "Removed previously created DB dumps."
-      echo "      > Creating a database dump /tmp/{$remote_file}."
-      /app/vendor/bin/drush --root=./web sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "/tmp/{$remote_file}"
-    else
-      echo "      > Using existing dump /tmp/{$remote_file}."
-    fi
-    BASH;
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
 
     $this->mockPassthruMultiple([
-      // setup-ssh.
-      [
-        'cmd' => self::$srcDir . '/vortex-setup-ssh',
-        'result_code' => 0,
-      ],
-      // Ssh command.
-      [
-        'cmd' => sprintf(
-          'ssh %s %s service=cli container=cli %s',
-          $ssh_opts_escaped,
-          escapeshellarg($ssh_user . '@' . $ssh_host),
-          escapeshellarg($remote_cmd)
-        ),
-        'result_code' => 0,
-      ],
-      // Rsync command.
-      [
-        'cmd' => sprintf(
-          'rsync -e %s %s %s',
-          escapeshellarg('ssh ' . $ssh_opts_string),
-          escapeshellarg($ssh_user . '@' . $ssh_host . ':/tmp/' . $remote_file),
-          escapeshellarg($db_dir . '/db.sql')
-        ),
-        'result_code' => 0,
-      ],
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
+
+    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
 
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
-    $this->assertStringContainsString('Started database dump download from Lagoon.', $output);
-    $this->assertStringContainsString('Discovering or creating a database dump on Lagoon.', $output);
-    $this->assertStringContainsString('Downloading a database dump.', $output);
-    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
+    $this->assertStringContainsString('Started database backup download from Lagoon.', $output);
+    $this->assertStringContainsString('Discovering "mariadb" backups for environment "main".', $output);
+    $this->assertStringContainsString('Selected backup "latest-id"', $output);
+    $this->assertStringContainsString('Downloading the database backup.', $output);
+    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
   }
 
-  public function testFreshDump(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
-
-    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
-
-    $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
-    $date_mock->expects($this->any())->willReturn('20240101');
-
-    $ssh_opts = [
-      '-o', 'UserKnownHostsFile=/dev/null',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'LogLevel=error',
-      '-o', 'IdentitiesOnly=yes',
-      '-p', '32222',
-      '-i', '/home/user/.ssh/id_rsa',
-    ];
-    $ssh_opts_escaped = implode(' ', array_map(escapeshellarg(...), $ssh_opts));
-    $ssh_opts_string = implode(' ', $ssh_opts);
-
-    $remote_file = 'db_20240101.sql';
-    $ssh_user = 'myproject-main';
-    $ssh_host = 'ssh.lagoon.amazeeio.cloud';
-
-    $remote_cmd = <<<BASH
-    if [ ! -f "/tmp/{$remote_file}" ] || [ "1" = "1" ] ; then
-      [ -n "db_*.sql" ] && rm -f "/tmp/db_*.sql" && echo "Removed previously created DB dumps."
-      echo "      > Creating a database dump /tmp/{$remote_file}."
-      /app/vendor/bin/drush --root=./web sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "/tmp/{$remote_file}"
-    else
-      echo "      > Using existing dump /tmp/{$remote_file}."
-    fi
-    BASH;
+  public function testSuccessAfterPolling(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
+    $this->mockSleep();
 
     $this->mockPassthruMultiple([
-      [
-        'cmd' => self::$srcDir . '/vortex-setup-ssh',
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'ssh %s %s service=cli container=cli %s',
-          $ssh_opts_escaped,
-          escapeshellarg($ssh_user . '@' . $ssh_host),
-          escapeshellarg($remote_cmd)
-        ),
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'rsync -e %s %s %s',
-          escapeshellarg('ssh ' . $ssh_opts_string),
-          escapeshellarg($ssh_user . '@' . $ssh_host . ':/tmp/' . $remote_file),
-          escapeshellarg($db_dir . '/db.sql')
-        ),
-        'result_code' => 0,
-      ],
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
+      // First poll: not ready yet.
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'no download file found, status of backups restoration is pending', 'result_code' => 1],
+      // Second poll: ready.
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
+
+    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
 
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
-    $this->assertStringContainsString('Database dump refresh requested.', $output);
-    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
+    $this->assertStringContainsString('Waiting for the backup to be retrieved.', $output);
+    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
   }
 
-  public function testRsyncFails(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
-
-    $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
-    $date_mock->expects($this->any())->willReturn('20240101');
-
-    $ssh_opts = [
-      '-o', 'UserKnownHostsFile=/dev/null',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'LogLevel=error',
-      '-o', 'IdentitiesOnly=yes',
-      '-p', '32222',
-      '-i', '/home/user/.ssh/id_rsa',
-    ];
-    $ssh_opts_escaped = implode(' ', array_map(escapeshellarg(...), $ssh_opts));
-    $ssh_opts_string = implode(' ', $ssh_opts);
-
-    $remote_file = 'db_20240101.sql';
-    $ssh_user = 'myproject-main';
-    $ssh_host = 'ssh.lagoon.amazeeio.cloud';
-
-    $remote_cmd = <<<BASH
-    if [ ! -f "/tmp/{$remote_file}" ] || [ "" = "1" ] ; then
-      [ -n "db_*.sql" ] && rm -f "/tmp/db_*.sql" && echo "Removed previously created DB dumps."
-      echo "      > Creating a database dump /tmp/{$remote_file}."
-      /app/vendor/bin/drush --root=./web sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "/tmp/{$remote_file}"
-    else
-      echo "      > Using existing dump /tmp/{$remote_file}."
-    fi
-    BASH;
+  public function testRetrieveAlreadyCreatedIsNonFatal(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
 
     $this->mockPassthruMultiple([
-      [
-        'cmd' => self::$srcDir . '/vortex-setup-ssh',
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'ssh %s %s service=cli container=cli %s',
-          $ssh_opts_escaped,
-          escapeshellarg($ssh_user . '@' . $ssh_host),
-          escapeshellarg($remote_cmd)
-        ),
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'rsync -e %s %s %s',
-          escapeshellarg('ssh ' . $ssh_opts_string),
-          escapeshellarg($ssh_user . '@' . $ssh_host . ':/tmp/' . $remote_file),
-          escapeshellarg($db_dir . '/db.sql')
-        ),
-        'result_code' => 1,
-      ],
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      // Retrieval already triggered previously - non-zero but non-fatal.
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'retrieval for latest-id has already been created', 'result_code' => 1],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
 
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to download database dump from Lagoon');
+    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
+  }
+
+  public function testRetrieveFailure(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'permission denied', 'result_code' => 1],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to request backup retrieval');
+  }
+
+  public function testNoBackupsFound(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      // Only a files backup exists, no matching 'mariadb' source.
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"files-id","source":"nginx","created":"2024-01-03 00:00:00"}]}', 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'No "mariadb" backups found for environment "main".');
+  }
+
+  public function testEmptyBackupIdFails(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"","source":"mariadb","created":"2024-01-01 00:00:00"}]}', 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Unable to determine the latest backup ID.');
+  }
+
+  public function testPollTimeout(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_STATUS_RETRIES', '2');
+    $this->mockCommandExists();
+    $this->mockSleep();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'pending', 'result_code' => 1],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'pending', 'result_code' => 1],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Timed out waiting for the backup to be retrieved.');
+  }
+
+  public function testDownloadFailure(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 500, 'ok' => FALSE, 'body' => '', 'error' => 'Server error']);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to download the database backup from Lagoon');
   }
 
   public function testSetupSshFails(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthru(['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 1]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to setup SSH.');
+  }
+
+  public function testInContainerSkipsSsh(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->envSet('VORTEX_FETCH_DB_SSH_FILE', 'false');
+    $this->mockCommandExists();
 
-    $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
-    $date_mock->expects($this->any())->willReturn('20240101');
-
-    $this->mockPassthru([
-      'cmd' => self::$srcDir . '/vortex-setup-ssh',
-      'result_code' => 1,
+    // No vortex-setup-ssh call and no --ssh-key flag in the CLI commands.
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty", FALSE), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'", FALSE), 'output' => 'restore created', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json", FALSE), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
 
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to setup SSH');
+    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
   }
 
   public function testDirectoryCreation(): void {
-    // Don't pre-create directory.
     $db_dir = self::$tmp . '/new-dir';
     $this->envSet('VORTEX_FETCH_DB_LAGOON_DB_DIR', $db_dir);
-
-    $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
-    $date_mock->expects($this->any())->willReturn('20240101');
-
-    $ssh_opts = [
-      '-o', 'UserKnownHostsFile=/dev/null',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'LogLevel=error',
-      '-o', 'IdentitiesOnly=yes',
-      '-p', '32222',
-      '-i', '/home/user/.ssh/id_rsa',
-    ];
-    $ssh_opts_escaped = implode(' ', array_map(escapeshellarg(...), $ssh_opts));
-    $ssh_opts_string = implode(' ', $ssh_opts);
-
-    $remote_file = 'db_20240101.sql';
-    $ssh_user = 'myproject-main';
-    $ssh_host = 'ssh.lagoon.amazeeio.cloud';
-
-    $remote_cmd = <<<BASH
-    if [ ! -f "/tmp/{$remote_file}" ] || [ "" = "1" ] ; then
-      [ -n "db_*.sql" ] && rm -f "/tmp/db_*.sql" && echo "Removed previously created DB dumps."
-      echo "      > Creating a database dump /tmp/{$remote_file}."
-      /app/vendor/bin/drush --root=./web sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "/tmp/{$remote_file}"
-    else
-      echo "      > Using existing dump /tmp/{$remote_file}."
-    fi
-    BASH;
+    $this->mockCommandExists();
 
     $this->mockPassthruMultiple([
-      [
-        'cmd' => self::$srcDir . '/vortex-setup-ssh',
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'ssh %s %s service=cli container=cli %s',
-          $ssh_opts_escaped,
-          escapeshellarg($ssh_user . '@' . $ssh_host),
-          escapeshellarg($remote_cmd)
-        ),
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'rsync -e %s %s %s',
-          escapeshellarg('ssh ' . $ssh_opts_string),
-          escapeshellarg($ssh_user . '@' . $ssh_host . ':/tmp/' . $remote_file),
-          escapeshellarg($db_dir . '/db.sql')
-        ),
-        'result_code' => 0,
-      ],
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
+
+    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
 
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Creating directory for database dumps.', $output);
     $this->assertTrue(is_dir($db_dir));
-    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
   }
 
-  public function testSshFileFalseDisablesIdentity(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
-    $this->envSet('VORTEX_FETCH_DB_SSH_FILE', 'false');
-
-    $date_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'date');
-    $date_mock->expects($this->any())->willReturn('20240101');
-
-    // No -i flag when SSH file is 'false'.
-    $ssh_opts = [
-      '-o', 'UserKnownHostsFile=/dev/null',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'LogLevel=error',
-      '-o', 'IdentitiesOnly=yes',
-      '-p', '32222',
-    ];
-    $ssh_opts_escaped = implode(' ', array_map(escapeshellarg(...), $ssh_opts));
-    $ssh_opts_string = implode(' ', $ssh_opts);
-
-    $remote_file = 'db_20240101.sql';
-    $ssh_user = 'myproject-main';
-    $ssh_host = 'ssh.lagoon.amazeeio.cloud';
-
-    $remote_cmd = <<<BASH
-    if [ ! -f "/tmp/{$remote_file}" ] || [ "" = "1" ] ; then
-      [ -n "db_*.sql" ] && rm -f "/tmp/db_*.sql" && echo "Removed previously created DB dumps."
-      echo "      > Creating a database dump /tmp/{$remote_file}."
-      /app/vendor/bin/drush --root=./web sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "/tmp/{$remote_file}"
-    else
-      echo "      > Using existing dump /tmp/{$remote_file}."
-    fi
-    BASH;
-
-    $this->mockPassthruMultiple([
-      [
-        'cmd' => self::$srcDir . '/vortex-setup-ssh',
-        'result_code' => 0,
+  /**
+   * Builds a backups listing fixture.
+   *
+   * Contains two DB backups (the latest is selected) and a non-matching files
+   * backup that must be filtered out.
+   */
+  protected function backupsJson(): string {
+    return json_encode([
+      'data' => [
+        ['backupid' => 'old-id', 'source' => 'mariadb', 'created' => '2024-01-01 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
+        ['backupid' => 'latest-id', 'source' => 'mariadb', 'created' => '2024-01-02 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
+        ['backupid' => 'files-id', 'source' => 'nginx', 'created' => '2024-01-03 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
       ],
-      [
-        'cmd' => sprintf(
-          'ssh %s %s service=cli container=cli %s',
-          $ssh_opts_escaped,
-          escapeshellarg($ssh_user . '@' . $ssh_host),
-          escapeshellarg($remote_cmd)
-        ),
-        'result_code' => 0,
-      ],
-      [
-        'cmd' => sprintf(
-          'rsync -e %s %s %s',
-          escapeshellarg('ssh ' . $ssh_opts_string),
-          escapeshellarg($ssh_user . '@' . $ssh_host . ':/tmp/' . $remote_file),
-          escapeshellarg($db_dir . '/db.sql')
-        ),
-        'result_code' => 0,
-      ],
-    ]);
+    ]) ?: '';
+  }
 
-    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+  protected function configCmd(): string {
+    return "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'";
+  }
 
-    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
+  protected function lagoonCmd(string $subcommand, bool $with_ssh = TRUE): string {
+    $ssh = $with_ssh ? sprintf(" --ssh-key '%s'", self::$sshFile) : '';
+    return sprintf("'lagoon' --force --skip-update-check%s --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $ssh, $subcommand);
+  }
+
+  protected function mockCommandMissing(string $namespace = 'DrevOps\\VortexTooling'): void {
+    $this->registerMock('exec', $namespace, function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
+      $output = [];
+      $result_code = 1;
+      return '';
+    });
   }
 
 }

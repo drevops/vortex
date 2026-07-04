@@ -3,18 +3,28 @@
 
 /**
  * @file
- * Download DB dump from Lagoon environment.
+ * Download the latest database backup from a Lagoon environment.
  *
- * This script will create a database dump in the specified environment and
- * download it into specified directory.
+ * Wraps the provider-native 'lagoon' CLI: it lists the environment's scheduled
+ * backups, retrieves the latest database snapshot, waits for the asynchronous
+ * restore to complete and downloads the resulting dump. Because it relies on
+ * the CLI rather than a bespoke SSH + Drush dump, it runs both on a developer
+ * host and inside the hosting environment (where the CLI ships with the
+ * container image), enabling a non-production environment to pull the
+ * production database in-place.
  *
- * It does not rely on 'lagoon-cli', which makes it capable of
- * running on hosts without installed lagooncli.
+ * The retrieved artifact is the latest scheduled snapshot, so it can be up to
+ * as old as the environment's backup schedule (nightly by default). The Lagoon
+ * CLI has no primitive to create an on-demand snapshot.
  *
- * It requires using an SSH key added to one of the users in Lagoon who has
- * SSH access.
+ * The downloaded artifact is written as-is. Its format depends on the
+ * environment's backup configuration; validate against a live environment
+ * before assuming it is a plain SQL dump.
  *
- * IMPORTANT! This script runs outside the container on the host system.
+ * The Lagoon CLI must be available: install it on the host or use a container
+ * image that provides it. Authentication uses the SSH key on a host; set
+ * 'VORTEX_FETCH_DB_SSH_FILE' to 'false' to rely on the ambient Lagoon identity
+ * inside the hosting environment.
  */
 
 declare(strict_types=1);
@@ -28,38 +38,36 @@ require_once __DIR__ . '/helpers.php';
 // Database index suffix.
 $db_index = getenv_default('VORTEX_DB_INDEX', '');
 
-// Flag to download a fresh copy of the database.
-$fresh = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_FRESH', 'VORTEX_FETCH_DB_FRESH', ''])));
-
 // Lagoon project name.
 $lagoon_project = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_PROJECT', 'VORTEX_FETCH_DB_LAGOON_PROJECT', 'LAGOON_PROJECT'])));
 
-// The source environment branch for the database source.
+// The source environment to download the database from.
 $environment = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ENVIRONMENT', 'VORTEX_FETCH_DB_ENVIRONMENT', 'main'])));
 
-// Remote DB dump directory location.
-$remote_dir = '/tmp';
+// The Lagoon instance name to interact with.
+$instance = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_INSTANCE', 'VORTEX_FETCH_DB_LAGOON_INSTANCE', 'amazeeio'])));
 
-// Remote DB dump file name. Cached by the date suffix.
-$remote_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_REMOTE_FILE', 'VORTEX_FETCH_DB_LAGOON_REMOTE_FILE', 'db_' . date('Ymd') . '.sql'])));
+// The Lagoon instance GraphQL endpoint to interact with.
+$instance_graphql = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_INSTANCE_GRAPHQL', 'VORTEX_FETCH_DB_LAGOON_INSTANCE_GRAPHQL', 'https://api.lagoon.amazeeio.cloud/graphql'])));
 
-// Wildcard file name to cleanup previously created dump files.
-$remote_file_cleanup = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_REMOTE_FILE_CLEANUP', 'VORTEX_FETCH_DB_LAGOON_REMOTE_FILE_CLEANUP', 'db_*.sql'])));
-
-// SSH key fingerprint used to connect to a remote.
-$ssh_fingerprint = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FINGERPRINT', 'VORTEX_FETCH_DB_SSH_FINGERPRINT', ''])));
-
-// Default SSH file used if custom fingerprint is not provided.
-$ssh_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FILE', 'VORTEX_FETCH_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa'])));
-
-// The SSH host of the Lagoon environment.
+// The SSH host of the Lagoon instance.
 $ssh_host = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_SSH_HOST', 'VORTEX_FETCH_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud'])));
 
-// The SSH port of the Lagoon environment.
+// The SSH port of the Lagoon instance.
 $ssh_port = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_SSH_PORT', 'VORTEX_FETCH_DB_LAGOON_SSH_PORT', '32222'])));
 
-// The SSH user of the Lagoon environment.
-$ssh_user = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_SSH_USER', 'VORTEX_FETCH_DB_LAGOON_SSH_USER', $lagoon_project . '-' . $environment])));
+// SSH key file used to authenticate the CLI. Set to 'false' to rely on the
+// ambient Lagoon identity (e.g. inside the hosting environment).
+$ssh_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FILE', 'VORTEX_FETCH_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa'])));
+
+// Backup source to select among the environment's backups (e.g. 'mariadb').
+$backup_source = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_BACKUP_SOURCE', 'VORTEX_FETCH_DB_LAGOON_BACKUP_SOURCE', 'mariadb'])));
+
+// Number of status retrieval retries while waiting for the restore.
+$status_retries = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_STATUS_RETRIES', 'VORTEX_FETCH_DB_LAGOON_STATUS_RETRIES', '600'])));
+
+// Interval in seconds between restore status checks.
+$status_interval = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_STATUS_INTERVAL', 'VORTEX_FETCH_DB_LAGOON_STATUS_INTERVAL', '10'])));
 
 // Directory where DB dumps are stored on the host.
 $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DB_DIR', 'VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_LAGOON_DB_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
@@ -67,61 +75,92 @@ $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_i
 // Database dump file name on the host.
 $db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DB_FILE', 'VORTEX_FETCH_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_FETCH_DB_LAGOON_DB_FILE', 'VORTEX_FETCH_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
-// Name of the webroot directory with Drupal codebase.
-$webroot = getenv_default('WEBROOT', 'web');
-
 // -----------------------------------------------------------------------------
 
-command_must_exist('ssh');
-command_must_exist('rsync');
+info('Started database backup download from Lagoon.');
 
-info('Started database dump download from Lagoon.');
+$bin = lagoon_cli_require();
 
-// Setup SSH.
-putenv('VORTEX_SSH_PREFIX=FETCH_DB');
-passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
-
-$ssh_opts = [
-  '-o', 'UserKnownHostsFile=/dev/null',
-  '-o', 'StrictHostKeyChecking=no',
-  '-o', 'LogLevel=error',
-  '-o', 'IdentitiesOnly=yes',
-  '-p', $ssh_port,
-];
+// Authenticate the CLI. On a host the SSH key is loaded and passed to the CLI;
+// inside the hosting environment ('false') the ambient identity is used.
 if ($ssh_file !== 'false') {
-  $ssh_opts[] = '-i';
-  $ssh_opts[] = $ssh_file;
+  putenv('VORTEX_SSH_PREFIX=FETCH_DB');
+  passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
 }
 
-$ssh_target = $ssh_user . '@' . $ssh_host;
-$ssh_opts_escaped = implode(' ', array_map('escapeshellarg', $ssh_opts));
+task('Configuring Lagoon instance.');
+lagoon_config($bin, $instance, $instance_graphql, $ssh_host, $ssh_port);
+
+$ctx = [
+  'instance' => $instance,
+  'project' => $lagoon_project,
+  'ssh_key' => $ssh_file,
+];
 
 if (!is_dir($db_dir)) {
   task('Creating directory for database dumps.');
   mkdir($db_dir, 0755, TRUE);
 }
 
-if ($fresh === '1') {
-  note('Database dump refresh requested. Will create a new dump.');
+task(sprintf('Discovering "%s" backups for environment "%s".', $backup_source, $environment));
+$json = lagoon_exec($bin, sprintf('list backups --environment %s --output-json --pretty', escapeshellarg($environment)), $ctx);
+
+$data = json_decode($json, TRUE);
+$backups = (is_array($data) && isset($data['data']) && is_array($data['data'])) ? $data['data'] : [];
+
+$candidates = array_filter($backups, fn($backup): bool => is_array($backup) && ($backup['source'] ?? '') === $backup_source);
+
+if (count($candidates) === 0) {
+  fail('No "%s" backups found for environment "%s".', $backup_source, $environment);
 }
 
-// Build the remote SSH command.
-$remote_path = $remote_dir . '/' . $remote_file;
-$remote_cleanup_path = $remote_dir . '/' . $remote_file_cleanup;
-$remote_cmd = <<<BASH
-if [ ! -f "{$remote_path}" ] || [ "{$fresh}" = "1" ] ; then
-  [ -n "{$remote_file_cleanup}" ] && rm -f "{$remote_cleanup_path}" && echo "Removed previously created DB dumps."
-  echo "      > Creating a database dump {$remote_path}."
-  /app/vendor/bin/drush --root=./{$webroot} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "{$remote_path}"
-else
-  echo "      > Using existing dump {$remote_path}."
-fi
-BASH;
+// Pick the most recent backup by creation timestamp.
+usort($candidates, fn($a, $b): int => strcmp((string) ($b['created'] ?? ''), (string) ($a['created'] ?? '')));
+$backup = reset($candidates);
+$backup_id = (string) ($backup['backupid'] ?? '');
 
-task('Discovering or creating a database dump on Lagoon.');
-passthru_or_fail(sprintf('ssh %s %s service=cli container=cli %s', $ssh_opts_escaped, escapeshellarg($ssh_target), escapeshellarg($remote_cmd)), 'Failed to create database dump on Lagoon.');
+if ($backup_id === '') {
+  fail('Unable to determine the latest backup ID.');
+}
 
-task('Downloading a database dump.');
-passthru_or_fail(sprintf('rsync -e %s %s %s', escapeshellarg('ssh ' . implode(' ', $ssh_opts)), escapeshellarg($ssh_target . ':' . $remote_path), escapeshellarg($db_dir . '/' . $db_file)), 'Failed to download database dump from Lagoon.');
+note(sprintf('Selected backup "%s" created at "%s".', $backup_id, (string) ($backup['created'] ?? 'unknown')));
 
-pass('Finished database dump download from Lagoon.');
+// Trigger the asynchronous restore. A retrieval that is already in progress is
+// not an error - proceed to poll for its completion.
+task('Requesting backup retrieval.');
+$retrieve_code = 0;
+$retrieve_output = lagoon_exec($bin, sprintf('retrieve backup --environment %s --backup-id %s', escapeshellarg($environment), escapeshellarg($backup_id)), $ctx, $retrieve_code);
+if ($retrieve_code !== 0 && stripos($retrieve_output, 'already been created') === FALSE) {
+  fail('Failed to request backup retrieval: %s', $retrieve_output);
+}
+
+task('Waiting for the backup to be retrieved.');
+$download_url = '';
+for ($i = 1; $i <= $status_retries; $i++) {
+  $get_code = 0;
+  $get_output = lagoon_exec($bin, sprintf('get backup --environment %s --backup-id %s --output-json', escapeshellarg($environment), escapeshellarg($backup_id)), $ctx, $get_code);
+
+  // The CLI returns the signed URL once the restore is ready and exits with a
+  // non-zero code while it is still pending. Extract the URL from either the
+  // JSON result or plain output.
+  if ($get_code === 0 && preg_match('#https?://[^\s"\\\\]+#', $get_output, $matches) === 1) {
+    $download_url = $matches[0];
+    break;
+  }
+
+  sleep($status_interval);
+}
+
+if ($download_url === '') {
+  fail('Timed out waiting for the backup to be retrieved.');
+}
+
+task('Downloading the database backup.');
+$dest = $db_dir . '/' . $db_file;
+$response = request($download_url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => 600]);
+if (!$response['ok']) {
+  @unlink($dest);
+  fail('Failed to download the database backup from Lagoon: %s', $response['error'] ?? 'Unknown error');
+}
+
+pass('Finished database backup download from Lagoon.');

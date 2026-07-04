@@ -31,7 +31,6 @@ class DeployLagoonTest extends UnitTestCase {
       'VORTEX_SSH_FINGERPRINT' => '',
       // Boolean-based variables.
       'VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED' => '0',
-      'VORTEX_LAGOONCLI_FORCE_INSTALL' => '0',
     ]);
   }
 
@@ -362,6 +361,8 @@ class DeployLagoonTest extends UnitTestCase {
   }
 
   public function testSshSetupFailure(): void {
+    $this->createFakeLagoonBinary();
+
     $this->mockPassthru([
       'cmd' => $this->getSetupSshPath(),
       'output' => 'SSH setup failed',
@@ -582,148 +583,15 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
-  public function testLagoonCliDownloadFailure(): void {
-    $this->envSet('VORTEX_LAGOONCLI_FORCE_INSTALL', '1');
-    $this->envSet('VORTEX_LAGOONCLI_PATH', self::$tmp);
+  public function testMissingLagoonCli(): void {
+    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
+    $exec->expects($this->any())->willReturnCallback(function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
+      $output = [];
+      $result_code = 1;
+      return '';
+    });
 
-    $this->mockPassthru([
-      'cmd' => $this->getSetupSshPath(),
-      'output' => 'SSH setup complete',
-      'result_code' => 0,
-    ]);
-
-    $platform = strtolower(php_uname('s'));
-    $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
-    $download_url = sprintf(
-      'https://github.com/uselagoon/lagoon-cli/releases/download/v0.32.0/lagoon-cli-v0.32.0-%s-%s',
-      $platform,
-      $arch
-    );
-
-    $this->mockRequest(
-      $download_url,
-      ['method' => 'GET'],
-      ['status' => 404, 'ok' => FALSE, 'body' => '', 'error' => 'Not Found']
-    );
-
-    $this->runScriptError('src/vortex-deploy-lagoon', 'Failed to download Lagoon CLI from');
-  }
-
-  public function testLagoonCliInstallationCreatesDirectory(): void {
-    $this->envSet('VORTEX_LAGOONCLI_FORCE_INSTALL', '1');
-    // Use a path that doesn't exist yet.
-    $cli_path = self::$tmp . '/lagoon_cli_dir';
-    $this->envSet('VORTEX_LAGOONCLI_PATH', $cli_path);
-
-    $lagoon_bin = $cli_path . '/lagoon';
-    $this->setLagoonGlobals($lagoon_bin);
-
-    $this->mockQuit(0);
-
-    $this->expectException(QuitSuccessException::class);
-
-    $this->mockPassthru([
-      'cmd' => $this->getSetupSshPath(),
-      'output' => 'SSH setup complete',
-      'result_code' => 0,
-    ]);
-
-    $platform = strtolower(php_uname('s'));
-    $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
-    $download_url = sprintf(
-      'https://github.com/uselagoon/lagoon-cli/releases/download/v0.32.0/lagoon-cli-v0.32.0-%s-%s',
-      $platform,
-      $arch
-    );
-
-    $this->mockRequest(
-      $download_url,
-      ['method' => 'GET'],
-      ['status' => 200, 'ok' => TRUE, 'body' => '']
-    );
-
-    $this->mockPassthru([
-      'cmd' => sprintf("'%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $lagoon_bin),
-      'output' => 'Config added',
-      'result_code' => 0,
-    ]);
-
-    $this->mockPassthru([
-      'cmd' => $this->getLagoonCommandWithPath($lagoon_bin, 'list environments --output-json --pretty'),
-      'output' => '{"data":[{"name":"main","deploytype":"branch"}]}',
-      'result_code' => 0,
-    ]);
-
-    $this->mockPassthru([
-      'cmd' => $this->getLagoonCommandWithPath($lagoon_bin, "deploy branch --branch 'develop'"),
-      'output' => 'Deploy queued',
-      'result_code' => 0,
-    ]);
-
-    $output = $this->runScript('src/vortex-deploy-lagoon');
-
-    $this->assertStringContainsString('Installing Lagoon CLI.', $output);
-    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
-
-    // Verify directory was created.
-    $this->assertDirectoryExists($cli_path);
-  }
-
-  public function testLagoonCliInstallation(): void {
-    $this->envSet('VORTEX_LAGOONCLI_FORCE_INSTALL', '1');
-    $this->envSet('VORTEX_LAGOONCLI_PATH', self::$tmp);
-
-    $lagoon_bin = self::$tmp . '/lagoon';
-    $this->setLagoonGlobals($lagoon_bin);
-
-    $this->mockQuit(0);
-
-    $this->expectException(QuitSuccessException::class);
-
-    $this->mockPassthru([
-      'cmd' => $this->getSetupSshPath(),
-      'output' => 'SSH setup complete',
-      'result_code' => 0,
-    ]);
-
-    $platform = strtolower(php_uname('s'));
-    $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
-    $download_url = sprintf(
-      'https://github.com/uselagoon/lagoon-cli/releases/download/v0.32.0/lagoon-cli-v0.32.0-%s-%s',
-      $platform,
-      $arch
-    );
-
-    $this->mockRequest(
-      $download_url,
-      ['method' => 'GET'],
-      ['status' => 200, 'ok' => TRUE, 'body' => '']
-    );
-
-    $this->mockPassthru([
-      'cmd' => sprintf("'%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $lagoon_bin),
-      'output' => 'Config added',
-      'result_code' => 0,
-    ]);
-
-    $this->mockPassthru([
-      'cmd' => $this->getLagoonCommandWithPath($lagoon_bin, 'list environments --output-json --pretty'),
-      'output' => '{"data":[{"name":"main","deploytype":"branch"}]}',
-      'result_code' => 0,
-    ]);
-
-    $this->mockPassthru([
-      'cmd' => $this->getLagoonCommandWithPath($lagoon_bin, "deploy branch --branch 'develop'"),
-      'output' => 'Deploy queued',
-      'result_code' => 0,
-    ]);
-
-    $output = $this->runScript('src/vortex-deploy-lagoon');
-
-    $this->assertStringContainsString('Installing Lagoon CLI.', $output);
-    $this->assertStringContainsString('Downloading Lagoon CLI from ' . $download_url . '.', $output);
-    $this->assertStringContainsString(sprintf('Installing Lagoon CLI to %s.', $lagoon_bin), $output);
-    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
+    $this->runScriptError('src/vortex-deploy-lagoon', "Command 'lagoon' is not available.");
   }
 
   protected function getSetupSshPath(): string {
@@ -741,16 +609,6 @@ class DeployLagoonTest extends UnitTestCase {
 
   protected function getLagoonConfigAddCommand(): string {
     return "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'";
-  }
-
-  protected function getLagoonCommandWithPath(string $lagoon_bin, string $subcommand): string {
-    $ssh_file = self::$tmp . '/.ssh/id_rsa';
-    return sprintf(
-      "'%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'test-project' %s 2>&1",
-      $lagoon_bin,
-      $ssh_file,
-      $subcommand
-    );
   }
 
   protected function createFakeLagoonBinary(): void {
