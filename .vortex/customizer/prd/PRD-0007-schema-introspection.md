@@ -1,6 +1,6 @@
 # PRD-0007 - Schema introspection & agent surfaces
 
-**Status:** draft · **Prototype:** no · **Depends on:** 0001, 0006, 0010 · **Blocks:** -
+**Status:** done · **Prototype:** no · **Depends on:** 0001, 0006, 0010 · **Blocks:** -
 
 ## Context
 
@@ -10,15 +10,15 @@ installer's `--schema` / `--validate` / `--agent-help`.
 
 ## Requirements
 
-- [ ] `--schema`: JSON of every question (id, type, label, description, options, default, required, `when`/`depends_on`, `derive`) assembled from config + handlers.
-- [ ] `--validate <json>`: validate an answer set (types, options, required, conditionals) with actionable errors.
-- [ ] `--agent-help`: instructions for driving the customizer non-interactively.
-- [ ] Stable schema shape, compatible with the installer's `SchemaGenerator` so existing tooling keeps working.
+- [x] `--schema`: JSON of every question (id, type, label, description, options, default, required, `when`/`depends_on`, `derive`) assembled from config + handlers.
+- [x] `--validate <json>`: validate an answer set (types, options, required, conditionals) with actionable errors.
+- [x] `--agent-help`: instructions for driving the customizer non-interactively.
+- [x] Stable schema shape, compatible with the installer's `SchemaGenerator` so existing tooling keeps working.
 
 ## Acceptance criteria
 
-- [ ] `--schema` lists every question with correct attributes; round-trip tested.
-- [ ] `--validate` accepts valid sets and rejects each invalid class with a clear message; tested.
+- [x] `--schema` lists every question with correct attributes; round-trip tested.
+- [x] `--validate` accepts valid sets and rejects each invalid class with a clear message; tested.
 
 ## Installer references
 
