@@ -1,0 +1,24 @@
+##
+# Configuration file for PHPStan static code checking, see https://phpstan.org .
+#
+
+parameters:
+
+  level: 9
+
+  paths:
+    - src
+    - tests/phpunit
+
+  excludePaths:
+    - vendor/*
+    - node_modules/*
+
+  ignoreErrors:
+    -
+      # Since tests and data providers do not have to have parameter docblocks,
+      # it is not possible to specify the type of the parameter, so we ignore
+      # this error.
+      message: '#.*no value type specified in iterable type array.#'
+      path: tests/phpunit/*
+      reportUnmatched: false

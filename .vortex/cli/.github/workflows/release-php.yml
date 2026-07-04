@@ -1,0 +1,65 @@
+name: Release PHP
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release-php:
+    name: Release PHP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: 8.3
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Set release version
+        env:
+          INPUTS_VERSION: ${{ github.event.inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          version="${INPUTS_VERSION:-${REF_NAME}}"
+          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "Release version: $version"
+          sed -i "s/\"vortex-cli-version\": \"development\"/\"vortex-cli-version\": \"${version}\"/g" box.json
+
+      - name: Build PHAR
+        run: composer build
+
+      - name: Test PHAR
+        run: |
+          ./.build/vortex.phar --version
+          ./.build/vortex.phar || exit 1
+
+      - name: Create Release
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          files: |
+            ./.build/vortex.phar

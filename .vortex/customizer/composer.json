@@ -1,0 +1,86 @@
+{
+    "name": "drevops/customizer",
+    "description": "Provides customizer functionality.",
+    "license": "GPL-2.0-or-later",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "customizer@drevops.com",
+            "homepage": "https://drevops.com",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://github.com/drevops/customizer",
+    "support": {
+        "issues": "https://github.com/drevops/customizer/issues",
+        "source": "https://github.com/drevops/customizer"
+    },
+    "require": {
+        "php": ">=8.2",
+        "symfony/console": "^7.4.13"
+    },
+    "require-dev": {
+        "alexskrypnyk/phpunit-helpers": "^0.16.0",
+        "bamarni/composer-bin-plugin": "^1.9.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+        "drevops/phpcs-standard": "^0.7",
+        "drupal/coder": "^9.0.1",
+        "ergebnis/composer-normalize": "^2.52.0",
+        "mikey179/vfsstream": "^1.6.12",
+        "opis/closure": "^4.5.0",
+        "phpstan/phpstan": "^2.2.2",
+        "phpunit/phpunit": "^11.5.55",
+        "rector/rector": "^2.5.1"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\Customizer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\Customizer\\Tests\\": "tests/phpunit"
+        },
+        "classmap": [
+            "tests/phpunit"
+        ]
+    },
+    "bin": [
+        "customizer"
+    ],
+    "config": {
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "audit": {
+            "abandoned": "report",
+            "block-insecure": true
+        },
+        "discard-changes": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "build": [
+            "@composer bin box require --dev humbug/box",
+            "box validate",
+            "box compile"
+        ],
+        "lint": [
+            "phpcs",
+            "phpstan",
+            "rector --dry-run"
+        ],
+        "lint-fix": [
+            "rector",
+            "phpcbf"
+        ],
+        "reset": "rm -Rf vendor vendor-bin composer.lock",
+        "test": "phpunit --no-coverage",
+        "test-coverage": "phpunit"
+    }
+}
