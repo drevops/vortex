@@ -111,8 +111,30 @@ class Deriver {
       'upper' => strtoupper($value),
       'machine' => $this->machine($value),
       'host' => $this->host($value),
+      'abbreviation' => $this->abbreviation($value),
       default => $value,
     };
+  }
+
+  /**
+   * Abbreviate a value to the initials of its underscore-separated words.
+   *
+   * @param string $value
+   *   The value.
+   *
+   * @return string
+   *   The abbreviation (up to four characters).
+   */
+  protected function abbreviation(string $value): string {
+    $letters = '';
+
+    foreach (explode('_', $this->machine($value)) as $part) {
+      if ($part !== '') {
+        $letters .= $part[0];
+      }
+    }
+
+    return substr($letters, 0, 4);
   }
 
   /**
