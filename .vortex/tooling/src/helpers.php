@@ -439,7 +439,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
     fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
   }
 
-  return $output ?: '';
+  return $output === FALSE ? '' : $output;
 }
 
 /**

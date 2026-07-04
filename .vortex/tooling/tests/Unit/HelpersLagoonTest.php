@@ -156,6 +156,21 @@ class HelpersLagoonTest extends UnitTestCase {
     $this->assertSame('no download file found', $result);
   }
 
+  public function testExecPreservesZeroOutput(): void {
+    $this->mockPassthru([
+      'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1",
+      'output' => '0',
+      'result_code' => 0,
+    ]);
+
+    $result = \DrevOps\VortexTooling\lagoon_exec('lagoon', 'whoami', [
+      'instance' => 'amazeeio',
+      'project' => 'myproject',
+    ]);
+
+    $this->assertSame('0', $result);
+  }
+
   public function testExecHardFailure(): void {
     $this->mockPassthru([
       'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' 2>&1",
