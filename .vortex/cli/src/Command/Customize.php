@@ -6,9 +6,12 @@ namespace DrevOps\VortexCli\Command;
 
 use DrevOps\Customizer\Config\Config;
 use DrevOps\Customizer\Config\ConfigLoader;
+use DrevOps\Customizer\Config\Field;
+use DrevOps\Customizer\Config\FieldType;
 use DrevOps\Customizer\Engine\Engine;
 use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
+use DrevOps\Customizer\Handler\HandlerInterface;
 use DrevOps\Customizer\Handler\HandlerRegistry;
 use DrevOps\Customizer\Resolver\InputResolver;
 use DrevOps\Customizer\Schema\AgentHelp;
@@ -18,7 +21,6 @@ use DrevOps\Customizer\Tui\PanelController;
 use DrevOps\Customizer\Tui\PanelRenderer;
 use DrevOps\Customizer\Tui\Terminal;
 use DrevOps\Customizer\Tui\Theme;
-use DrevOps\VortexCli\Utils\File;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -44,6 +46,60 @@ class Customize extends Command {
    * The prefix for per-question environment variable overrides.
    */
   protected const ENV_PREFIX = 'VORTEX_';
+
+  /**
+   * The version stamped into placeholders when the app version is unset.
+   */
+  protected const VERSION = '__VERSION__';
+
+  /**
+   * The order in which processors apply, mirroring the installer.
+   *
+   * Reverse of the collection order so specific string replacements run before
+   * generic ones, with the '.env' carry first and internal cleanup last.
+   */
+  protected const PROCESSOR_ORDER = [
+    'dotenv',
+    'webroot',
+    'ai_code_instructions',
+    'preserve_docs_project',
+    'label_merge_conflicts_pr',
+    'assign_author_pr',
+    'code_coverage_provider',
+    'dependency_updates_provider',
+    'visual_regression',
+    'ci_provider',
+    'migration_image',
+    'migration_fetch_source',
+    'migration',
+    'database_image',
+    'database_fetch_source',
+    'provision_type',
+    'notification_channels',
+    'deploy_types',
+    'hosting_provider',
+    'tools',
+    'services',
+    'timezone',
+    'version_scheme',
+    'code_provider',
+    'modules',
+    'starter',
+    'profile_custom',
+    'profile',
+    'domain',
+    'hosting_project_name',
+    'custom_modules',
+    'module_prefix',
+    'frontend_build',
+    'theme_custom',
+    'theme',
+    'org_machine_name',
+    'machine_name',
+    'org',
+    'name',
+    'internal',
+  ];
 
   /**
    * {@inheritdoc}
@@ -87,7 +143,7 @@ class Customize extends Command {
 
     $registry = new HandlerRegistry([static::HANDLER_NAMESPACE]);
     $engine = new Engine($config, $registry);
-    $context = new Context($this->stringOption($input, 'dir'), [], (bool) $input->getOption('update'));
+    $context = new Context($this->stringOption($input, 'dir'), [], (bool) $input->getOption('update'), $this->version());
     $prompts = $this->stringOption($input, 'prompts');
 
     if (!$input->isInteractive() || $prompts !== '') {
@@ -124,9 +180,10 @@ class Customize extends Command {
   /**
    * Apply the collected answers to the project directory.
    *
-   * Handlers process in reverse question order so specific replacements run
-   * before generic ones (matching the installer), then the queued file tasks
-   * are flushed once.
+   * Processors run in a fixed order (the '.env' carry first, internal cleanup
+   * and the task flush last), so specific string replacements run before
+   * generic ones. Only active fields (present in the answers) process; the
+   * internal processors always run.
    *
    * @param \DrevOps\Customizer\Config\Config $config
    *   The configuration.
@@ -138,15 +195,42 @@ class Customize extends Command {
    *   The run context.
    */
   protected function apply(Config $config, HandlerRegistry $handlers, array $answers, Context $context): void {
-    $applied = new Context($context->directory, $answers, $context->update);
+    $applied = new Context($context->directory, $answers, $context->update, $context->version);
 
-    foreach (array_reverse($config->fields()) as $field) {
-      if (array_key_exists($field->id, $answers)) {
-        $handlers->get($field->id)?->process($field, $answers[$field->id], $applied);
-      }
+    $fields = [];
+    foreach ($config->fields() as $field) {
+      $fields[$field->id] = $field;
     }
 
-    File::runDirectoryTasks($context->directory);
+    $placeholder = new Field('', '', '', FieldType::Text, NULL);
+
+    foreach (static::PROCESSOR_ORDER as $id) {
+      $handler = $handlers->get($id);
+
+      if (!$handler instanceof HandlerInterface) {
+        continue;
+      }
+
+      $is_internal = !isset($fields[$id]);
+
+      if (!$is_internal && !array_key_exists($id, $answers)) {
+        continue;
+      }
+
+      $handler->process($fields[$id] ?? $placeholder, $answers[$id] ?? NULL, $applied);
+    }
+  }
+
+  /**
+   * Resolve the version string used to stamp version placeholders.
+   *
+   * @return string
+   *   The application version, or the placeholder when it is unset.
+   */
+  protected function version(): string {
+    $version = (string) $this->getApplication()?->getVersion();
+
+    return $version === '' || $version === 'UNKNOWN' ? static::VERSION : $version;
   }
 
   /**
