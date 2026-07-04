@@ -453,7 +453,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
  *   Path to the downloaded artifact, replaced in place with the dump.
  */
 function lagoon_extract_backup(string $file): void {
-  if (@file_get_contents($file, FALSE, NULL, 0, 2) !== "\x1f\x8b") {
+  if (!is_readable($file) || file_get_contents($file, FALSE, NULL, 0, 2) !== "\x1f\x8b") {
     return;
   }
 
