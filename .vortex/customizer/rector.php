@@ -71,8 +71,6 @@ return RectorConfig::configure()
     // Dependencies.
     '*/vendor/*',
     '*/node_modules/*',
-    // Throwaway UX prototype - not production code, excluded from linting.
-    '*/playground/*',
   ])
   ->withFileExtensions([
     'php',
