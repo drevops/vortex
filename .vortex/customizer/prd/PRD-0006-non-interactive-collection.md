@@ -1,6 +1,6 @@
 # PRD-0006 - Non-interactive & scripted collection
 
-**Status:** draft · **Prototype:** partial (headless `--keys` hook) · **Depends on:** 0001, 0002, 0003, 0004, 0010 · **Blocks:** 0007
+**Status:** done · **Prototype:** partial (headless `--keys` hook) · **Depends on:** 0001, 0002, 0003, 0004, 0010 · **Blocks:** 0007
 
 ## Context
 
@@ -10,17 +10,17 @@ non-interactive path with a defined precedence.
 
 ## Requirements
 
-- [ ] `--no-interaction`: resolve every question to its default/derived/discovered value without prompting.
-- [ ] `--config` / `--prompts <json|file>`: answer overrides keyed by question id (highest-precedence default).
-- [ ] Per-question env-var overrides with a documented naming scheme; env wins.
-- [ ] A fixed precedence: `--prompts` > env > discovered > derived > handler/static default.
-- [ ] The non-interactive path never blocks on input; safe in CI.
+- [x] `--no-interaction`: resolve every question to its default/derived/discovered value without prompting.
+- [x] `--config` / `--prompts <json|file>`: answer overrides keyed by question id (highest-precedence default).
+- [x] Per-question env-var overrides with a documented naming scheme; env wins.
+- [x] A fixed precedence: `--prompts` > env > discovered > derived > handler/static default.
+- [x] The non-interactive path never blocks on input; safe in CI.
 
 ## Acceptance criteria
 
-- [ ] `--no-interaction` yields a complete answer set from defaults; tested.
-- [ ] `--prompts` JSON and env overrides apply at the correct precedence; tested.
-- [ ] Runs headless with no TTY; tested.
+- [x] `--no-interaction` yields a complete answer set from defaults; tested.
+- [x] `--prompts` JSON and env overrides apply at the correct precedence; tested.
+- [x] Runs headless with no TTY; tested.
 
 ## Installer references
 

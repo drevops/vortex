@@ -79,8 +79,7 @@ class Engine {
    *   The collected answers of the active fields, keyed by field id.
    */
   public function run(array $inputs, Context $context): array {
-    $fields = [];
-    $this->collectFields($this->config->panels, $fields);
+    $fields = $this->config->fields();
 
     $values = [];
     $sources = [];
@@ -343,24 +342,6 @@ class Engine {
     }
 
     return $to;
-  }
-
-  /**
-   * Flatten fields across the panel tree, in declaration order.
-   *
-   * @param \DrevOps\Customizer\Config\Panel[] $panels
-   *   The panels to walk.
-   * @param \DrevOps\Customizer\Config\Field[] $fields
-   *   Accumulator, populated in place.
-   */
-  protected function collectFields(array $panels, array &$fields): void {
-    foreach ($panels as $panel) {
-      foreach ($panel->fields as $field) {
-        $fields[] = $field;
-      }
-
-      $this->collectFields($panel->panels, $fields);
-    }
   }
 
 }
