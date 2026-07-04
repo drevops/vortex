@@ -28,6 +28,8 @@ final class ProcessTest extends TestCase {
     parent::setUp();
     $this->dir = dirname(__DIR__, 3) . '/.artifacts/tmp/process-test-' . getmypid();
     (new Filesystem())->mkdir($this->dir);
+    // Processing assumes a .env exists (the template ships one).
+    file_put_contents($this->dir . '/.env', '');
   }
 
   protected function tearDown(): void {
@@ -46,6 +48,23 @@ final class ProcessTest extends TestCase {
     $this->assertSame('Acme Site acme_site acme-site AcmeSite Acme Site Org acme_site_org acme-site.com', $result);
     $this->assertFileExists($this->dir . '/acme_site/keep.txt');
     $this->assertDirectoryDoesNotExist($this->dir . '/your_site');
+  }
+
+  public function testSimpleSectionsApply(): void {
+    file_put_contents($this->dir . '/.env', "EXISTING=1\n");
+    file_put_contents($this->dir . '/AGENTS.md', 'x');
+    file_put_contents($this->dir . '/config.txt', "keep\n#;< VERSION_RELEASE_SCHEME_SEMVER\nsemver-only\n#;> VERSION_RELEASE_SCHEME_SEMVER\n#;< VERSION_RELEASE_SCHEME_CALVER\ncalver-only\n#;> VERSION_RELEASE_SCHEME_CALVER\n");
+
+    $this->apply('{"name":"Acme","ai_code_instructions":false}');
+
+    $env = (string) file_get_contents($this->dir . '/.env');
+    $this->assertStringContainsString('VORTEX_RELEASE_VERSION_SCHEME=calver', $env);
+    $this->assertStringContainsString('VORTEX_PROVISION_TYPE=database', $env);
+    $this->assertFileDoesNotExist($this->dir . '/AGENTS.md');
+
+    $config = (string) file_get_contents($this->dir . '/config.txt');
+    $this->assertStringContainsString('calver-only', $config);
+    $this->assertStringNotContainsString('semver-only', $config);
   }
 
   /**
