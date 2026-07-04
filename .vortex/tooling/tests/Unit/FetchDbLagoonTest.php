@@ -64,7 +64,7 @@ class FetchDbLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Started database backup download from Lagoon.', $output);
-    $this->assertStringContainsString('Discovering "mariadb" backups for environment "main".', $output);
+    $this->assertStringContainsString('Discovering "database" backups for environment "main".', $output);
     $this->assertStringContainsString('Selected backup "latest-id"', $output);
     $this->assertStringContainsString('Downloading the database backup.', $output);
     $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
@@ -135,11 +135,11 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
-      // Only a files backup exists, no matching 'mariadb' source.
+      // Only a files backup exists, no matching 'database' source.
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"files-id","source":"nginx","created":"2024-01-03 00:00:00"}]}', 'result_code' => 0],
     ]);
 
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'No "mariadb" backups found for environment "main".');
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'No "database" backups found for environment "main".');
   }
 
   public function testEmptyBackupIdFails(): void {
@@ -149,7 +149,7 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"","source":"mariadb","created":"2024-01-01 00:00:00"}]}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"","source":"database","created":"2024-01-01 00:00:00"}]}', 'result_code' => 0],
     ]);
 
     $this->runScriptError('src/vortex-fetch-db-lagoon', 'Unable to determine the latest backup ID.');
@@ -248,8 +248,8 @@ class FetchDbLagoonTest extends UnitTestCase {
   protected function backupsJson(): string {
     return json_encode([
       'data' => [
-        ['backupid' => 'old-id', 'source' => 'mariadb', 'created' => '2024-01-01 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
-        ['backupid' => 'latest-id', 'source' => 'mariadb', 'created' => '2024-01-02 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
+        ['backupid' => 'old-id', 'source' => 'database', 'created' => '2024-01-01 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
+        ['backupid' => 'latest-id', 'source' => 'database', 'created' => '2024-01-02 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
         ['backupid' => 'files-id', 'source' => 'nginx', 'created' => '2024-01-03 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
       ],
     ]) ?: '';

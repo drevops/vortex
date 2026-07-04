@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversFunction('DrevOps\VortexTooling\lagoon_cli_require')]
 #[CoversFunction('DrevOps\VortexTooling\lagoon_config')]
 #[CoversFunction('DrevOps\VortexTooling\lagoon_exec')]
+#[CoversFunction('DrevOps\VortexTooling\lagoon_extract_backup')]
 #[Group('helpers')]
 #[RunTestsInSeparateProcesses]
 class HelpersLagoonTest extends UnitTestCase {
@@ -197,6 +198,31 @@ class HelpersLagoonTest extends UnitTestCase {
       $output = ob_get_clean();
       $this->assertStringContainsString('Lagoon CLI command "list backups --environment \'main\'" failed with exit code 2', (string) $output);
     }
+  }
+
+  public function testExtractBackupGzip(): void {
+    mkdir(self::$tmp . '/archive-src', 0755, TRUE);
+    file_put_contents(self::$tmp . '/archive-src/dump.sql', 'SELECT 1;');
+
+    $file = self::$tmp . '/db.sql';
+    exec(sprintf('tar -czf %s -C %s dump.sql', escapeshellarg($file), escapeshellarg(self::$tmp . '/archive-src')));
+
+    $output = $this->captureOutput(function () use ($file): void {
+      \DrevOps\VortexTooling\lagoon_extract_backup($file);
+    });
+
+    $this->assertStringContainsString('Extracting the database backup.', $output);
+    $this->assertSame('SELECT 1;', file_get_contents($file));
+    $this->assertFileDoesNotExist($file . '.tar.gz');
+  }
+
+  public function testExtractBackupNonGzipLeavesFileUntouched(): void {
+    $file = self::$tmp . '/db.sql';
+    file_put_contents($file, 'plain sql content');
+
+    \DrevOps\VortexTooling\lagoon_extract_backup($file);
+
+    $this->assertSame('plain sql content', file_get_contents($file));
   }
 
 }

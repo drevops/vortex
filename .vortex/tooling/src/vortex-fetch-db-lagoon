@@ -17,9 +17,8 @@
  * as old as the environment's backup schedule (nightly by default). The Lagoon
  * CLI has no primitive to create an on-demand snapshot.
  *
- * The downloaded artifact is written as-is. Its format depends on the
- * environment's backup configuration; validate against a live environment
- * before assuming it is a plain SQL dump.
+ * A Lagoon backup is delivered as a gzipped tar containing a single database
+ * dump, which is extracted to the target file after download.
  *
  * The Lagoon CLI must be available: install it on the host or use a container
  * image that provides it. Authentication uses the SSH key on a host; set
@@ -60,8 +59,9 @@ $ssh_port = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db
 // ambient Lagoon identity (e.g. inside the hosting environment).
 $ssh_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FILE', 'VORTEX_FETCH_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa'])));
 
-// Backup source to select among the environment's backups (e.g. 'mariadb').
-$backup_source = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_BACKUP_SOURCE', 'VORTEX_FETCH_DB_LAGOON_BACKUP_SOURCE', 'mariadb'])));
+// Backup source to select among the environment's backups. This is the name of
+// the backed-up service - Vortex names its database service "database".
+$backup_source = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_BACKUP_SOURCE', 'VORTEX_FETCH_DB_LAGOON_BACKUP_SOURCE', 'database'])));
 
 // Number of status retrieval retries while waiting for the restore.
 $status_retries = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_STATUS_RETRIES', 'VORTEX_FETCH_DB_LAGOON_STATUS_RETRIES', '600'])));
@@ -162,5 +162,7 @@ if (!$response['ok']) {
   @unlink($dest);
   fail('Failed to download the database backup from Lagoon: %s', $response['error'] ?? 'Unknown error');
 }
+
+lagoon_extract_backup($dest);
 
 pass('Finished database backup download from Lagoon.');

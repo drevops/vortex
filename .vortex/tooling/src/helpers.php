@@ -443,6 +443,30 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
 }
 
 /**
+ * Extract a downloaded Lagoon backup artifact in place.
+ *
+ * Lagoon delivers a k8up backup as a gzipped tar containing a single database
+ * dump. When the downloaded file is gzip-compressed, its contents are extracted
+ * back into the same path; a file that is not compressed is left untouched.
+ *
+ * @param string $file
+ *   Path to the downloaded artifact, replaced in place with the dump.
+ */
+function lagoon_extract_backup(string $file): void {
+  if (@file_get_contents($file, FALSE, NULL, 0, 2) !== "\x1f\x8b") {
+    return;
+  }
+
+  task('Extracting the database backup.');
+  command_must_exist('tar');
+
+  $archive = $file . '.tar.gz';
+  rename($file, $archive);
+  passthru_or_fail(sprintf('tar -xzOf %s > %s', escapeshellarg($archive), escapeshellarg($file)), 'Failed to extract the database backup.');
+  unlink($archive);
+}
+
+/**
  * Recursively copy a directory.
  *
  * @param string $src
