@@ -67,7 +67,8 @@ class Install extends Command {
       ->addOption('uri', 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional ref after "#".')
       ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.')
       ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.', '')
-      ->addOption('no-cleanup', NULL, InputOption::VALUE_NONE, 'Do not remove the installer after installation.');
+      ->addOption('no-cleanup', NULL, InputOption::VALUE_NONE, 'Do not remove the installer after installation.')
+      ->addOption('build', 'b', InputOption::VALUE_NONE, 'Run the site build after installation.');
   }
 
   /**
