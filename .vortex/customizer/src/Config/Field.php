@@ -34,6 +34,9 @@ final readonly class Field {
    *   The raw conditional-visibility rule, evaluated by the engine.
    * @param array<array-key,mixed>|null $derive
    *   The raw derive rule (template + transform), evaluated by the engine.
+   * @param array<array-key,mixed>|null $discover
+   *   The raw discovery rule (dotenv / json / exists / scan), evaluated by the
+   *   engine in update mode.
    */
   public function __construct(
     public string $id,
@@ -46,6 +49,7 @@ final readonly class Field {
     public bool $machine = FALSE,
     public ?array $when = NULL,
     public ?array $derive = NULL,
+    public ?array $discover = NULL,
   ) {
   }
 

@@ -78,7 +78,7 @@ Status: `draft` (written) -> `approved` (you sign off) -> `in-progress` -> `done
 | [0002](PRD-0002-field-widgets.md) | Field widgets + validation/transform | yes | done |
 | [0003](PRD-0003-conditional-visibility.md) | Conditional visibility & post-submit fix-ups | partial | done |
 | [0004](PRD-0004-derived-values-and-overrides.md) | Derived values & sticky overrides | yes | done |
-| [0005](PRD-0005-discovery.md) | Discovery / environment auto-detection | no | draft |
+| [0005](PRD-0005-discovery.md) | Discovery / environment auto-detection | no | done |
 | [0006](PRD-0006-non-interactive-collection.md) | Non-interactive & scripted collection | partial | draft |
 | [0007](PRD-0007-schema-introspection.md) | Schema introspection & agent surfaces | no | draft |
 | [0008](PRD-0008-tui-rendering-and-theming.md) | TUI rendering, navigation & theming | yes | draft |

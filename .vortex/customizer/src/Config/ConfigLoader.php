@@ -161,6 +161,7 @@ class ConfigLoader {
         (bool) ($item['machine'] ?? FALSE),
         isset($item['when']) && is_array($item['when']) ? $item['when'] : NULL,
         isset($item['derive']) && is_array($item['derive']) ? $item['derive'] : NULL,
+        isset($item['discover']) && is_array($item['discover']) ? $item['discover'] : NULL,
       );
     }
 

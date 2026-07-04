@@ -1,6 +1,6 @@
 # PRD-0005 - Discovery / environment auto-detection
 
-**Status:** draft · **Prototype:** no · **Depends on:** 0001, 0004, 0010 · **Blocks:** 0006
+**Status:** done · **Prototype:** no · **Depends on:** 0001, 0004, 0010 · **Blocks:** 0006
 
 ## Context
 
@@ -12,17 +12,17 @@ placeholder `auto`/update badge exists).
 
 ## Requirements
 
-- [ ] Discovery is a method on the handler contract (`discover()`, PRD-0010); the customizer provides the *mechanism* that invokes it and applies the result - never the project-specific rules.
-- [ ] Optional config-declared discovery shortcuts (dotenv key, JSON path, file/dir exists, directory scan) for simple cases and future reusable default handlers.
-- [ ] Detected values seed the field default (below a `--prompts` override, above a derived value or static default).
-- [ ] An update-mode flag that enables discovery; fresh installs discover nothing.
-- [ ] A `detected` provenance badge, distinct from `auto` (derived), `override`, and `edited`.
+- [x] Discovery is a method on the handler contract (`discover()`, PRD-0010); the customizer provides the *mechanism* that invokes it and applies the result - never the project-specific rules.
+- [x] Optional config-declared discovery shortcuts (dotenv key, JSON path, file/dir exists, directory scan) for simple cases and future reusable default handlers.
+- [x] Detected values seed the field default (below a `--prompts` override, above a derived value or static default).
+- [x] An update-mode flag that enables discovery; fresh installs discover nothing.
+- [x] A `detected` provenance badge, distinct from `auto` (derived), `override`, and `edited`.
 
 ## Acceptance criteria
 
-- [ ] Against a fixture project, discoverable fields are pre-filled and badged `detected`; tested.
-- [ ] On a clean directory, discovery returns nothing (fresh install); tested.
-- [ ] Precedence holds: `--prompts` > discovered > derived > static default; tested.
+- [x] Against a fixture project, discoverable fields are pre-filled and badged `detected`; tested.
+- [x] On a clean directory, discovery returns nothing (fresh install); tested.
+- [x] Precedence holds: `--prompts` > discovered > derived > static default; tested.
 
 ## Installer references
 
