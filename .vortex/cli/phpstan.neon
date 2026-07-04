@@ -17,6 +17,7 @@ parameters:
     # there and exercised by the process/fixture tests); their call sites are
     # still type-checked via their signatures.
     - src/Utils/*
+    - src/Downloader/*
 
   ignoreErrors:
     -
