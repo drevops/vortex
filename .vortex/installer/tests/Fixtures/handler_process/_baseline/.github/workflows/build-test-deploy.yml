@@ -57,12 +57,6 @@ defaults:
   run:
     shell: bash
 
-# Workaround for the Actions runner creating /root/.docker/config.json
-# with permissions that prevent the container from reading it.
-# https://github.com/actions/runner/issues/863
-env:
-  DOCKER_CONFIG: /tmp/.docker
-
 permissions:
   contents: read # Minimal default for all jobs; jobs that need more override below.
 
@@ -72,25 +66,26 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
-    container:
-      # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:__VERSION__
-      env:
-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
-        TZ: ${{ vars.TZ || 'UTC' }}
-        TERM: xterm-256color
-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+    env:
+      PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+      VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+      VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+      TZ: ${{ vars.TZ || 'UTC' }}
+      TERM: xterm-256color
+      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
           persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -188,36 +183,37 @@ jobs:
         instance: [0, 1]
       fail-fast: false
 
-    container:
-      # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:__VERSION__
-      env:
-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
-        TZ: ${{ vars.TZ || 'UTC' }}
-        TERM: xterm-256color
-        # Disable strict host key checking for SSH connections.
-        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
-        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
-        # How often to refresh the cache of the DB dump. Refer to `date` command.
-        VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
-        # Use previous database caches on this branch as a fallback if the above cache
-        # does not match (for example, the cache is available only from the previous
-        # day). If "no" is set, the cache will be rebuilt from scratch.
-        VORTEX_CI_DB_CACHE_FALLBACK: "yes"
-        # Which branch to use as a source of DB caches.
-        VORTEX_CI_DB_CACHE_BRANCH: "develop"
+    env:
+      PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+      VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+      VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+      TZ: ${{ vars.TZ || 'UTC' }}
+      TERM: xterm-256color
+      # Disable strict host key checking for SSH connections.
+      VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+      VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+      # How often to refresh the cache of the DB dump. Refer to `date` command.
+      VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d
+      # Use previous database caches on this branch as a fallback if the above cache
+      # does not match (for example, the cache is available only from the previous
+      # day). If "no" is set, the cache will be rebuilt from scratch.
+      VORTEX_CI_DB_CACHE_FALLBACK: "yes"
+      # Which branch to use as a source of DB caches.
+      VORTEX_CI_DB_CACHE_BRANCH: "develop"
 
     steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
           persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -446,28 +442,29 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !inputs.deploy_target && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
-    container:
-      # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:__VERSION__
-      env:
-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
-        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
-        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
-        TZ: ${{ vars.TZ || 'UTC' }}
-        TERM: xterm-256color
-        # Disable strict host key checking for SSH connections.
-        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
-        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+    env:
+      PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+      VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+      VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+      TZ: ${{ vars.TZ || 'UTC' }}
+      TERM: xterm-256color
+      # Disable strict host key checking for SSH connections.
+      VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+      VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
           persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -492,19 +489,13 @@ jobs:
     needs: [test, lint, build]
     if: ${{ !cancelled() && (inputs.deploy_target || (success() && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
 
-    container:
-      # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:__VERSION__
-      env:
-        TZ: ${{ vars.TZ || 'UTC' }}
-        TERM: xterm-256color
-        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+    env:
+      TZ: ${{ vars.TZ || 'UTC' }}
+      TERM: xterm-256color
+      VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
       - name: Resolve deploy target
         if: ${{ inputs.deploy_target }}
         env:
@@ -529,6 +520,13 @@ jobs:
           # to allow using the custom credentials to push to a remote repo.
           persist-credentials: false
           ref: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Fix Git ownership permissions
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"

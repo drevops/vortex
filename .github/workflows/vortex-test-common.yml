@@ -28,18 +28,14 @@ jobs:
     permissions:
       contents: read # Read repository contents; coverage is uploaded to external Codecov.
 
-    container:
-      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
-      env:
-        # Prevent GitHub overriding the Docker config.
-        DOCKER_CONFIG: /root/.docker
-        VORTEX_DOCTOR_CHECK_MINIMAL: 1
-        TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-        TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
-        TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
-        TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
-        VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
-        VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
+    env:
+      VORTEX_DOCTOR_CHECK_MINIMAL: 1
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
+      TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
+      TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
+      VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
+      VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
 
     steps:
       - name: Checkout code
@@ -47,6 +43,13 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Adjust git config to allow running git-related tests
         run: git config --global safe.directory '*'
@@ -81,6 +84,15 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: .vortex/tests
 
+      - name: Set up shell linters
+        run: |
+          curl -fsSL -o /usr/local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64
+          chmod +x /usr/local/bin/shfmt
+          shfmt --version
+          curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz | tar -xJ -C "${RUNNER_TEMP}"
+          mv "${RUNNER_TEMP}/shellcheck-v0.11.0/shellcheck" /usr/local/bin/shellcheck
+          shellcheck --version
+
       - name: Lint code
         run: |
           ./tests/lint.scripts.sh
@@ -106,19 +118,15 @@ jobs:
       matrix:
         batch: [0, 1, 2, 3, 4, 5]
 
-    container:
-      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
-      env:
-        # Prevent GitHub overriding the Docker config.
-        DOCKER_CONFIG: /root/.docker
-        VORTEX_DOCTOR_CHECK_MINIMAL: 1
-        TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-        TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
-        TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
-        TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
-        VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
-        VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
-        TEST_NODE_INDEX: ${{ matrix.batch }}
+    env:
+      VORTEX_DOCTOR_CHECK_MINIMAL: 1
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_PACKAGE_TOKEN: ${{ secrets.TEST_PACKAGE_TOKEN }}
+      TEST_VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_USER }}
+      TEST_VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.TEST_VORTEX_CONTAINER_REGISTRY_PASS }}
+      VORTEX_DEV_VOLUMES_SKIP_MOUNT: 1
+      VORTEX_DEV_TEST_COVERAGE_DIR: /tmp/.vortex-coverage-html
+      TEST_NODE_INDEX: ${{ matrix.batch }}
 
     steps:
       - name: Checkout code
@@ -126,6 +134,13 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Adjust git config to allow running git-related tests
         run: git config --global safe.directory '*'
@@ -218,6 +233,13 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
 
       - name: Install Vortex tooling
         run: ./scripts/vortex-tooling.sh

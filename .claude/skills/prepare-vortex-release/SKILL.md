@@ -83,7 +83,9 @@ Work through each checklist item from the release process doc:
      authoritative check, since new pin spots have been added over time.
 5. **Theme dependencies** - Run `yarn upgrade` in `web/themes/custom/your_site_theme/`.
    Use yarn, NOT npm.
-6. **CI runner** - Check if `drevops/ci-runner` is at the latest version.
+6. **CI runner PHP** - Ensure the CI runner PHP matches `config.platform.php`
+   (see item 3): the `cimg/php` tag in `.circleci/config.yml` and the `setup-php`
+   `php-version` in the GitHub Actions workflows.
 7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>` (CalVer).
    Update it in `.circleci/config.yml`,
    `.circleci/vortex-test-common.yml`, and `.github/workflows/build-test-deploy.yml`:

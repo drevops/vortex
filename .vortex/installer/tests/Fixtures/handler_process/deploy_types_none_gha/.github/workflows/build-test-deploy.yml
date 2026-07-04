@@ -1,4 +1,4 @@
-@@ -437,130 +437,3 @@
+@@ -433,132 +433,3 @@
          timeout-minutes: 120 # Cancel the action after 120 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -11,28 +11,29 @@
 -    runs-on: ubuntu-latest
 -    if: ${{ !inputs.deploy_target && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 -
--    container:
--      # https://hub.docker.com/r/drevops/ci-runner
--      image: drevops/ci-runner:__VERSION__
--      env:
--        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
--        VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
--        VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
--        TZ: ${{ vars.TZ || 'UTC' }}
--        TERM: xterm-256color
--        # Disable strict host key checking for SSH connections.
--        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
--        VORTEX_SSH_REMOVE_ALL_KEYS: "1"
--        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+-    env:
+-      PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+-      VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+-      VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+-      TZ: ${{ vars.TZ || 'UTC' }}
+-      TERM: xterm-256color
+-      # Disable strict host key checking for SSH connections.
+-      VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+-      VORTEX_SSH_REMOVE_ALL_KEYS: "1"
+-      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 -
 -    steps:
--      - name: Preserve $HOME set in the container
--        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
--
 -      - name: Check out code
 -        uses: actions/checkout@__HASH__ # __VERSION__
 -        with:
 -          persist-credentials: false
+-
+-      - name: Set up PHP
+-        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+-        with:
+-          php-version: '8.4'
+-          tools: composer
+-          coverage: none
 -
 -      - name: Fix Git ownership permissions
 -        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -57,19 +58,13 @@
 -    needs: [test, lint, build]
 -    if: ${{ !cancelled() && (inputs.deploy_target || (success() && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
 -
--    container:
--      # https://hub.docker.com/r/drevops/ci-runner
--      image: drevops/ci-runner:__VERSION__
--      env:
--        TZ: ${{ vars.TZ || 'UTC' }}
--        TERM: xterm-256color
--        VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
--        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+-    env:
+-      TZ: ${{ vars.TZ || 'UTC' }}
+-      TERM: xterm-256color
+-      VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
+-      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 -
 -    steps:
--      - name: Preserve $HOME set in the container
--        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
--
 -      - name: Resolve deploy target
 -        if: ${{ inputs.deploy_target }}
 -        env:
@@ -94,6 +89,13 @@
 -          # to allow using the custom credentials to push to a remote repo.
 -          persist-credentials: false
 -          ref: ${{ env.DEPLOY_BRANCH || github.head_ref || github.ref_name }}
+-
+-      - name: Set up PHP
+-        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+-        with:
+-          php-version: '8.4'
+-          tools: composer
+-          coverage: none
 -
 -      - name: Fix Git ownership permissions
 -        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"

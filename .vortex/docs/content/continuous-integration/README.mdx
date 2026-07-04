@@ -13,9 +13,9 @@ The workflow configuration is identical for both continuous integration
 providers. You would need to choose one of them and follow the setup
 instructions.
 
-The continuous integration pipeline consists of multiple jobs executed in a
-[`drevops/ci-runner`](https://github.com/drevops/ci-runner) container to ensure
-consistency across runs.
+The continuous integration pipeline consists of multiple jobs executed on the
+CI provider's standard environment - a CircleCI convenience image or a
+GitHub-hosted runner - with the required tooling installed at job time.
 
 ## Workflow structure
 
@@ -184,25 +184,6 @@ containers:
 
 To get verbose output when troubleshooting build failures, enable debug mode
 by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
-
-### Update CI runner image
-
-The CI jobs run inside the [`drevops/ci-runner`](https://github.com/drevops/ci-runner)
-container - a Docker image specifically designed for CI job execution. It
-provides a consistent, reproducible environment with 25+ pre-installed tools:
-
-- **PHP & Node.js** - PHP 8.4, Node.js, Composer, npm, Yarn
-- **Docker tools** - Docker, Docker Compose, Docker Buildx
-- **Code quality** - ShellCheck, shfmt, Bats testing framework
-- **Utilities** - Git, curl, rsync, jq, and more
-
-Using this image ensures all CI runs have identical tooling, eliminating
-environment inconsistencies between local development and CI. It also massively
-speeds up builds by avoiding repetitive installation of common tools.
-
-To update to a newer version, change the image tag in your CI configuration
-file. The image follows [CalVer](https://calver.org/) versioning (e.g., `26.2.0`) with
-monthly releases.
 
 ### Ignore tool failures
 
