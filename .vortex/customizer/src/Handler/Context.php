@@ -20,11 +20,14 @@ final readonly class Context {
    *   The collected answers, keyed by field id.
    * @param bool $update
    *   Whether the run targets an existing project (enables discovery).
+   * @param string $version
+   *   The version string used to stamp version placeholders.
    */
   public function __construct(
     public string $directory = '',
     public array $answers = [],
     public bool $update = FALSE,
+    public string $version = '',
   ) {
   }
 
