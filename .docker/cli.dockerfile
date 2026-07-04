@@ -71,9 +71,16 @@ RUN arch="$(uname -m)" && \
       aarch64 | arm64) arch=arm64 ;; \
       *) echo "Unsupported architecture: ${arch}" && exit 1 ;; \
     esac && \
-    curl -fsSL --retry 3 --retry-delay 2 --max-time 60 -o /usr/local/bin/lagoon "https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}/lagoon-cli-${VORTEX_LAGOONCLI_VERSION}-linux-${arch}" && \
-    test -s /usr/local/bin/lagoon && \
-    chmod +x /usr/local/bin/lagoon
+    base="https://github.com/uselagoon/lagoon-cli/releases/download/${VORTEX_LAGOONCLI_VERSION}" && \
+    asset="lagoon-cli-${VORTEX_LAGOONCLI_VERSION}-linux-${arch}" && \
+    curl -fsSL --retry 3 --retry-delay 2 --max-time 60 -o /tmp/lagoon "${base}/${asset}" && \
+    curl -fsSL --retry 3 --retry-delay 2 --max-time 60 -o /tmp/lagoon-checksums.txt "${base}/checksums.txt" && \
+    expected="$(awk -v a="${asset}" '$2 == a { print $1 }' /tmp/lagoon-checksums.txt)" && \
+    actual="$(sha256sum /tmp/lagoon)" && \
+    [ -n "${expected}" ] && [ "${expected}" = "${actual%% *}" ] && \
+    chmod +x /tmp/lagoon && \
+    mv /tmp/lagoon /usr/local/bin/lagoon && \
+    rm /tmp/lagoon-checksums.txt
 #;> HOSTING_LAGOON
 
 # Add patches and scripts.

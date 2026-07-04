@@ -206,9 +206,9 @@ class FetchDbLagoonTest extends UnitTestCase {
     // No vortex-setup-ssh call and no --ssh-key flag in the CLI commands.
     $this->mockPassthruMultiple([
       ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty", FALSE), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'", FALSE), 'output' => 'restore created', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json", FALSE), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmdNoSsh("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmdNoSsh("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmdNoSsh("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
 
     $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
@@ -259,9 +259,12 @@ class FetchDbLagoonTest extends UnitTestCase {
     return "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'";
   }
 
-  protected function lagoonCmd(string $subcommand, bool $with_ssh = TRUE): string {
-    $ssh = $with_ssh ? sprintf(" --ssh-key '%s'", self::$sshFile) : '';
-    return sprintf("'lagoon' --force --skip-update-check%s --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $ssh, $subcommand);
+  protected function lagoonCmd(string $subcommand): string {
+    return sprintf("'lagoon' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' %s 2>&1", self::$sshFile, $subcommand);
+  }
+
+  protected function lagoonCmdNoSsh(string $subcommand): string {
+    return sprintf("'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $subcommand);
   }
 
   protected function mockCommandMissing(string $namespace = 'DrevOps\\VortexTooling'): void {

@@ -800,6 +800,11 @@ trait MockTrait {
    * exec() here keeps command_must_exist() checks independent of the host
    * environment (the CI runner has no pygmy/ahoy, for example).
    *
+   * A test can simulate specific commands as absent while all others are
+   * reported present by setting the 'VORTEX_TEST_COMMAND_MISSING' env variable
+   * to a comma-separated list of command names. This allows exercising a
+   * single "tool missing" branch without disturbing the other lookups.
+   *
    * @param string $namespace
    *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
    */
@@ -812,6 +817,14 @@ trait MockTrait {
         // @codeCoverageIgnoreStart
         throw new \RuntimeException(sprintf('Unexpected exec() command in mockCommandExists(): "%s".', $command));
         // @codeCoverageIgnoreEnd
+      }
+
+      $missing = array_filter(array_map(trim(...), explode(',', (string) getenv('VORTEX_TEST_COMMAND_MISSING'))));
+      if (in_array($matches[1], $missing, TRUE)) {
+        $output = [];
+        $result_code = 1;
+
+        return '';
       }
 
       $output = ['/usr/local/bin/' . preg_replace('/[^a-z0-9]/i', '', $matches[1])];
