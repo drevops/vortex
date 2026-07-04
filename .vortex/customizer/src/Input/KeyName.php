@@ -25,5 +25,7 @@ enum KeyName {
   case End;
   case PageUp;
   case PageDown;
+  case MouseWheelUp;
+  case MouseWheelDown;
 
 }

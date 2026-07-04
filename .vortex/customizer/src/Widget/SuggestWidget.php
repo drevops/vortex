@@ -68,6 +68,13 @@ class SuggestWidget extends AbstractWidget {
       return;
     }
 
+    if ($key->is(KeyName::Space)) {
+      $this->buffer .= ' ';
+      $this->highlight = -1;
+
+      return;
+    }
+
     if ($key->isChar()) {
       $this->buffer .= $key->char ?? '';
       $this->highlight = -1;

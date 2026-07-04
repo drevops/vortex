@@ -81,7 +81,7 @@ Status: `draft` (written) -> `approved` (you sign off) -> `in-progress` -> `done
 | [0005](PRD-0005-discovery.md) | Discovery / environment auto-detection | no | done |
 | [0006](PRD-0006-non-interactive-collection.md) | Non-interactive & scripted collection | partial | done |
 | [0007](PRD-0007-schema-introspection.md) | Schema introspection & agent surfaces | no | done |
-| [0008](PRD-0008-tui-rendering-and-theming.md) | TUI rendering, navigation & theming | yes | draft |
+| [0008](PRD-0008-tui-rendering-and-theming.md) | TUI rendering, navigation & theming | yes | done |
 | [0009](PRD-0009-answers-model-and-output.md) | Collected-answers model & output contract | partial | done |
 
 **0001 + 0010 are foundational** (the config model and the handler abstraction);

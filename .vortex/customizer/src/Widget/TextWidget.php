@@ -66,11 +66,26 @@ class TextWidget extends AbstractWidget {
       return;
     }
 
-    if ($key->isChar()) {
-      $char = $key->char ?? '';
-      $this->buffer = substr($this->buffer, 0, $this->cursor) . $char . substr($this->buffer, $this->cursor);
-      $this->cursor += strlen($char);
+    if ($key->is(KeyName::Space)) {
+      $this->insert(' ');
+
+      return;
     }
+
+    if ($key->isChar()) {
+      $this->insert($key->char ?? '');
+    }
+  }
+
+  /**
+   * Insert text at the cursor.
+   *
+   * @param string $char
+   *   The text to insert.
+   */
+  protected function insert(string $char): void {
+    $this->buffer = substr($this->buffer, 0, $this->cursor) . $char . substr($this->buffer, $this->cursor);
+    $this->cursor += strlen($char);
   }
 
   /**
