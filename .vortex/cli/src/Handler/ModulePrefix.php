@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Handler\AbstractHandler;
+use DrevOps\Customizer\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
+use DrevOps\VortexCli\Utils\File;
 
 /**
  * Handler for the "module_prefix" question.
@@ -26,6 +29,41 @@ class ModulePrefix extends AbstractHandler {
    */
   public function transform(Field $field, mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(Field $field, mixed $value, Context $context): void {
+    $prefix = is_string($value) ? $value : '';
+    $webroot = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
+
+    File::replaceContentAsync([
+      'ys_demo' => $prefix . '_demo',
+      'ys-demo' => Converter::kebab($prefix) . '-demo',
+      'ys_base' => $prefix . '_base',
+      'ys-base' => Converter::kebab($prefix) . '-base',
+      'ys_search' => $prefix . '_search',
+      'ys-search' => Converter::kebab($prefix) . '-search',
+      'YsDemo' => Converter::pascal($prefix) . 'Demo',
+      'YsBase' => Converter::pascal($prefix) . 'Base',
+      'YsSearch' => Converter::pascal($prefix) . 'Search',
+      'YSBASE' => Converter::cobol($prefix),
+      'YSSEARCH' => Converter::cobol($prefix),
+    ]);
+
+    $modules = $context->directory . sprintf('/%s/modules/custom', $webroot);
+
+    File::renameInDir($modules, 'ys_demo', $prefix . '_demo');
+    File::renameInDir($modules, 'ys-demo', Converter::kebab($prefix) . '-demo');
+    File::renameInDir($modules, 'ys_base', $prefix . '_base');
+    File::renameInDir($modules, 'ys-base', Converter::kebab($prefix) . '-base');
+    File::renameInDir($modules, 'ys_search', $prefix . '_search');
+    File::renameInDir($modules, 'ys-search', Converter::kebab($prefix) . '-search');
+    File::renameInDir($modules, 'YsDemo', Converter::pascal($prefix) . 'Demo');
+    File::renameInDir($modules, 'YsBase', Converter::pascal($prefix) . 'Base');
+    File::renameInDir($modules, 'YsSearch', Converter::pascal($prefix) . 'Search');
+    File::renameInDir($context->directory . sprintf('/%s/sites/default/includes', $webroot), 'ys_base', $prefix . '_base');
   }
 
 }
