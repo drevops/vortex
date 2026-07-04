@@ -17,6 +17,9 @@
     <file>src</file>
     <file>tests/phpunit</file>
 
+    <!-- Relocated fixtures are template files, not standalone PHP. -->
+    <exclude-pattern>tests/phpunit/Fixtures/*</exclude-pattern>
+
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>

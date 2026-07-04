@@ -16,6 +16,7 @@
     <testsuites>
         <testsuite name="default">
             <directory>tests/phpunit</directory>
+            <exclude>tests/phpunit/Fixtures</exclude>
         </testsuite>
     </testsuites>
     <source restrictNotices="true"

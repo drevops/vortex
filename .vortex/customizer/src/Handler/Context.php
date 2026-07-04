@@ -22,12 +22,15 @@ final readonly class Context {
    *   Whether the run targets an existing project (enables discovery).
    * @param string $version
    *   The version string used to stamp version placeholders.
+   * @param string $destination
+   *   The final destination directory, used to carry existing project state.
    */
   public function __construct(
     public string $directory = '',
     public array $answers = [],
     public bool $update = FALSE,
     public string $version = '',
+    public string $destination = '',
   ) {
   }
 

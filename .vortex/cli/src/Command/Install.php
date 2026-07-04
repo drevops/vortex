@@ -66,7 +66,7 @@ class Install extends Command {
       ->addOption('root', NULL, InputOption::VALUE_REQUIRED, 'Root directory for resolving relative paths.')
       ->addOption('uri', 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional ref after "#".')
       ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.')
-      ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.', '')
+      ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.')
       ->addOption('no-cleanup', NULL, InputOption::VALUE_NONE, 'Do not remove the installer after installation.')
       ->addOption('build', 'b', InputOption::VALUE_NONE, 'Run the site build after installation.');
   }
@@ -111,7 +111,7 @@ class Install extends Command {
     $inputs = (new InputResolver(static::ENV_PREFIX))->resolve($config_model->fields(), $prompts, getenv());
 
     try {
-      $answers = $engine->collect($inputs, new Context($dst, [], $update, $version));
+      $answers = $engine->collect($inputs, new Context($dst, [], $update, $version, $dst));
     }
     catch (EngineException $engine_exception) {
       $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -119,7 +119,7 @@ class Install extends Command {
       return Command::FAILURE;
     }
 
-    (new Processor())->apply($config_model, $registry, $answers, new Context($tmp, $answers, $update, $version));
+    (new Processor())->apply($config_model, $registry, $answers, new Context($tmp, $answers, $update, $version, $dst));
 
     $file_manager = new FileManager($config);
     $file_manager->prepareDestination();

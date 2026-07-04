@@ -47,6 +47,7 @@
         "drevops/phpcs-standard": "^0.7",
         "drupal/coder": "^9.0.1",
         "ergebnis/composer-normalize": "^2.52.0",
+        "laravel/serializable-closure": "^2.0.13",
         "mikey179/vfsstream": "^1.6.12",
         "opis/closure": "^4.5.0",
         "phpstan/phpstan": "^2.2.2",

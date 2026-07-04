@@ -144,7 +144,7 @@ class Customize extends Command {
    *   The run context.
    */
   protected function apply(Config $config, HandlerRegistry $handlers, array $answers, Context $context): void {
-    $applied = new Context($context->directory, $answers, $context->update, $context->version);
+    $applied = new Context($context->directory, $answers, $context->update, $context->version, $context->directory);
 
     (new Processor())->apply($config, $handlers, $answers, $applied);
   }

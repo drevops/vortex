@@ -51,6 +51,8 @@ return RectorConfig::configure()
     DeclareStrictTypesRector::class,
   ])
   ->withSkip([
+    // Relocated fixtures are template files, not standalone PHP.
+    __DIR__ . '/tests/phpunit/Fixtures',
     // Rules added by Rector's rule sets.
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,

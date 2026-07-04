@@ -7,6 +7,7 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Handler\AbstractHandler;
 use DrevOps\Customizer\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 
 /**
@@ -18,6 +19,13 @@ use DrevOps\VortexCli\Utils\File;
  * @package DrevOps\VortexCli\Handler
  */
 class Name extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(Field $field, Context $context): mixed {
+    return Converter::label(basename($context->directory));
+  }
 
   /**
    * {@inheritdoc}

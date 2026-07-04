@@ -152,7 +152,7 @@ class Engine {
   public function run(array $inputs, Context $context): array {
     $answers = $this->collect($inputs, $context);
 
-    $applied = new Context($context->directory, $answers, $context->update, $context->version);
+    $applied = new Context($context->directory, $answers, $context->update, $context->version, $context->destination);
     foreach ($this->config->fields() as $field) {
       if ($this->lastActive[$field->id] ?? FALSE) {
         $this->handlers->get($field->id)?->process($field, $answers[$field->id], $applied);

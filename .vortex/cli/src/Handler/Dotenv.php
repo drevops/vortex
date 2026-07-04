@@ -20,13 +20,15 @@ class Dotenv extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(Field $field, mixed $value, Context $context): void {
-    $env_file = $context->directory . '/.env';
+    $env_file = $context->destination . '/.env';
 
-    if (is_readable($env_file)) {
-      $variables = Env::parseDotenv($env_file);
-      foreach ($variables as $name => $variable_value) {
-        Env::writeValueDotenv($name, $variable_value, $env_file);
-      }
+    if ($context->destination === '' || $context->destination === $context->directory || !is_readable($env_file)) {
+      return;
+    }
+
+    $variables = Env::parseDotenv($env_file);
+    foreach ($variables as $name => $variable_value) {
+      Env::writeValueDotenv($name, $variable_value, $context->directory . '/.env');
     }
   }
 
