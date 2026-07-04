@@ -209,6 +209,13 @@ class Engine {
       }
     }
 
+    if ($handler instanceof HandlerInterface) {
+      $dynamic = $handler->default($field, $context);
+      if ($dynamic !== NULL) {
+        return [$dynamic, 'default'];
+      }
+    }
+
     return [$field->default, 'default'];
   }
 

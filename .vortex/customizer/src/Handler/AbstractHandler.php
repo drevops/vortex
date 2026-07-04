@@ -16,6 +16,13 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * {@inheritdoc}
    */
+  public function default(Field $field, Context $context): mixed {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function discover(Field $field, Context $context): mixed {
     return NULL;
   }

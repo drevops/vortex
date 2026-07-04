@@ -17,6 +17,23 @@ use DrevOps\Customizer\Config\Field;
 interface HandlerInterface {
 
   /**
+   * Provide a dynamic default computed from the run context.
+   *
+   * Runs when no input, environment or discovered value is available, before
+   * the static declared default. Return NULL to fall back to the declared
+   * default.
+   *
+   * @param \DrevOps\Customizer\Config\Field $field
+   *   The field.
+   * @param \DrevOps\Customizer\Handler\Context $context
+   *   The run context (directory, answers, update flag).
+   *
+   * @return mixed
+   *   The dynamic default value, or NULL to use the declared default.
+   */
+  public function default(Field $field, Context $context): mixed;
+
+  /**
    * Discover a value from the project/environment (update mode).
    *
    * @param \DrevOps\Customizer\Config\Field $field

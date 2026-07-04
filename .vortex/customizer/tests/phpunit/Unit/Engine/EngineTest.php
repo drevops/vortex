@@ -52,6 +52,22 @@ final class EngineTest extends TestCase {
     $this->assertSame('discovered!', $engine->answers()->value('spy'));
   }
 
+  public function testDynamicDefaultFromHandler(): void {
+    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'defaulter']]]]);
+
+    $answers = $engine->run([], new Context('proj', [], FALSE));
+
+    $this->assertSame('dynamic-proj', $answers['defaulter']);
+  }
+
+  public function testDynamicDefaultOverriddenByInput(): void {
+    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'defaulter']]]]);
+
+    $answers = $engine->run(['defaulter' => 'given'], new Context('proj', [], FALSE));
+
+    $this->assertSame('given', $answers['defaulter']);
+  }
+
   public function testSuppliedInputWins(): void {
     $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'spy']]]]);
 
