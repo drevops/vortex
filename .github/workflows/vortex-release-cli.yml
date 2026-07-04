@@ -1,4 +1,10 @@
-name: Release PHP
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+#
+# Builds and releases the 'drevops/vortex-cli' PHAR (via Box) from '.vortex/cli'.
+# The CLI is packaged and released from this monorepo, so its release workflow is
+# promoted to the repository root (unlike the customizer, which will move to its
+# own repository and keeps its release workflow under '.vortex/customizer/.github').
+name: Vortex - Release CLI
 
 on:
   push:
@@ -14,9 +20,13 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  release-php:
-    name: Release PHP
+  vortex-release-cli:
+    name: Release CLI PHAR
     runs-on: ubuntu-latest
 
     steps:
@@ -25,19 +35,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
-          php-version: 8.3
+          php-version: '8.3'
 
       - name: Install dependencies
-        run: composer install
+        run: composer install --no-interaction --no-progress
+        working-directory: .vortex/cli
 
       - name: Set release version
         env:
@@ -45,21 +50,24 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
         run: |
           version="${INPUTS_VERSION:-${REF_NAME}}"
-          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
-          echo "Release version: $version"
+          echo "RELEASE_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "Release version: ${version}"
           sed -i "s/\"vortex-cli-version\": \"development\"/\"vortex-cli-version\": \"${version}\"/g" box.json
+        working-directory: .vortex/cli
 
       - name: Build PHAR
         run: composer build
+        working-directory: .vortex/cli
 
       - name: Test PHAR
         run: |
           ./.build/vortex.phar --version
           ./.build/vortex.phar || exit 1
+        working-directory: .vortex/cli
 
       - name: Create Release
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3
         with:
           tag_name: ${{ env.RELEASE_VERSION }}
           files: |
-            ./.build/vortex.phar
+            .vortex/cli/.build/vortex.phar

@@ -22,7 +22,6 @@
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.16.0",
-        "bamarni/composer-bin-plugin": "^1.9.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/phpcs-standard": "^0.7",
         "drupal/coder": "^9.0.1",
@@ -53,7 +52,6 @@
     ],
     "config": {
         "allow-plugins": {
-            "bamarni/composer-bin-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true
         },
@@ -65,11 +63,6 @@
         "sort-packages": true
     },
     "scripts": {
-        "build": [
-            "@composer bin box require --dev humbug/box",
-            "box validate",
-            "box compile"
-        ],
         "lint": [
             "phpcs",
             "phpstan",
@@ -79,7 +72,7 @@
             "rector",
             "phpcbf"
         ],
-        "reset": "rm -Rf vendor vendor-bin composer.lock",
+        "reset": "rm -Rf vendor composer.lock",
         "test": "phpunit --no-coverage",
         "test-coverage": "phpunit"
     }
