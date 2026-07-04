@@ -92,19 +92,8 @@ class Engine {
     $values = [];
     $sources = [];
     foreach ($fields as $field) {
-      $handler = $this->handlers->get($field->id);
-      [$value, $source] = $this->resolveInitial($field, $handler, $inputs, $context);
+      [$value, $source] = $this->resolveInitial($field, $this->handlers->get($field->id), $inputs, $context);
       $sources[$field->id] = $source;
-
-      if ($handler instanceof HandlerInterface) {
-        $error = $handler->validate($field, $value);
-        if ($error !== NULL) {
-          throw new EngineException(sprintf('Invalid value for field "%s": %s', $field->id, $error));
-        }
-
-        $value = $handler->transform($field, $value);
-      }
-
       $values[$field->id] = $value;
     }
 
@@ -118,6 +107,23 @@ class Engine {
     }
 
     [$active, $values] = $this->stabilize($fields, $values, $derive_rules, $pinned);
+
+    foreach ($fields as $field) {
+      if (!($active[$field->id] ?? FALSE)) {
+        continue;
+      }
+
+      $handler = $this->handlers->get($field->id);
+      if ($handler instanceof HandlerInterface) {
+        $error = $handler->validate($field, $values[$field->id]);
+        if ($error !== NULL) {
+          throw new EngineException(sprintf('Invalid value for field "%s": %s', $field->id, $error));
+        }
+
+        $values[$field->id] = $handler->transform($field, $values[$field->id]);
+      }
+    }
+
     $this->lastProvenance = $this->provenanceFor($fields, $sources, $active);
 
     $answers = $this->activeAnswers($fields, $values, $active);
