@@ -79,7 +79,22 @@ class FunctionalTestCase extends UnitTestCase {
       $this->processTearDown();
     }
 
-    parent::tearDown();
+    // 'docker compose cp' in syncToHost() writes root-owned files to the
+    // host. On a non-root CI runner these block the workspace removal below,
+    // so relax their permissions with elevated privileges where available
+    // ('sudo -n' is a no-op when already root or when sudo needs a password).
+    $workspace_arg = escapeshellarg(static::$workspace);
+    $chmod = sprintf('sudo -n chmod -R a+rwX %s', $workspace_arg);
+    shell_exec($chmod . ' > /dev/null 2>&1');
+
+    try {
+      parent::tearDown();
+    }
+    catch (\Throwable $exception) {
+      // The runner is ephemeral, so a residual temp workspace is harmless;
+      // never fail a passing test on cleanup.
+      $this->logNote('Cleanup incomplete: ' . $exception->getMessage());
+    }
   }
 
   protected function collectSutArtifacts(bool $test_failed): void {
