@@ -3,6 +3,7 @@
     "no-build-and-image": 0,
     "services-alphabetical-order": 0,
     "no-unbound-port-interfaces": 0,
+    "no-duplicate-exported-ports": 0,
     "require-project-name-field": 0,
     "service-keys-order": [
       1,
