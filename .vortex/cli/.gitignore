@@ -4,7 +4,6 @@
 /.build
 /.logs
 /.phpunit.cache
-/composer.lock
 /vendor
 /vendor-bin
 
