@@ -74,7 +74,7 @@ Status: `draft` (written) -> `approved` (you sign off) -> `in-progress` -> `done
 | PRD | Title | Prototype | Status |
 |-----|-------|-----------|--------|
 | [0001](PRD-0001-config-schema-and-panel-model.md) | Config schema & panel/field model | yes | done |
-| [0010](PRD-0010-handler-model-and-autodiscovery.md) | Handler model, registry & name-based auto-discovery | no | draft |
+| [0010](PRD-0010-handler-model-and-autodiscovery.md) | Handler model, registry & name-based auto-discovery | no | done |
 | [0002](PRD-0002-field-widgets.md) | Field widgets + validation/transform | yes | draft |
 | [0003](PRD-0003-conditional-visibility.md) | Conditional visibility & post-submit fix-ups | partial | draft |
 | [0004](PRD-0004-derived-values-and-overrides.md) | Derived values & sticky overrides | yes | draft |
