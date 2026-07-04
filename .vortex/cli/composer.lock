@@ -4,8 +4,90 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1b79ebec22087bc295c277a345126eaf",
+    "content-hash": "4d7f5edf01f84bacc932e9f08828064f",
     "packages": [
+        {
+            "name": "drevops/customizer",
+            "version": "1.0.0-alpha1",
+            "dist": {
+                "type": "path",
+                "url": "../customizer",
+                "reference": "429d88d1364d29ed24bff69cb112370b45947108"
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/console": "^7.4.13"
+            },
+            "require-dev": {
+                "alexskrypnyk/phpunit-helpers": "^0.16.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "drevops/phpcs-standard": "^0.7",
+                "drupal/coder": "^9.0.1",
+                "ergebnis/composer-normalize": "^2.52.0",
+                "mikey179/vfsstream": "^1.6.12",
+                "opis/closure": "^4.5.0",
+                "phpstan/phpstan": "^2.2.2",
+                "phpunit/phpunit": "^11.5.55",
+                "rector/rector": "^2.5.1"
+            },
+            "bin": [
+                "customizer"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DrevOps\\Customizer\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "DrevOps\\Customizer\\Tests\\": "tests/phpunit"
+                },
+                "classmap": [
+                    "tests/phpunit"
+                ]
+            },
+            "scripts": {
+                "lint": [
+                    "phpcs",
+                    "phpstan",
+                    "rector --dry-run"
+                ],
+                "lint-fix": [
+                    "rector",
+                    "phpcbf"
+                ],
+                "reset": [
+                    "rm -Rf vendor composer.lock"
+                ],
+                "test": [
+                    "phpunit --no-coverage"
+                ],
+                "test-coverage": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Skrypnyk",
+                    "email": "customizer@drevops.com",
+                    "homepage": "https://drevops.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Provides customizer functionality.",
+            "homepage": "https://github.com/drevops/customizer",
+            "support": {
+                "issues": "https://github.com/drevops/customizer/issues",
+                "source": "https://github.com/drevops/customizer"
+            },
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "psr/container",
             "version": "2.0.2",
@@ -4314,7 +4396,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "drevops/customizer": 15
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -1,0 +1,30 @@
+title: 'Vortex'
+subject: 'your project'
+panels:
+  - id: general
+    title: 'General'
+    description: 'Project identity.'
+    fields:
+      - id: name
+        label: 'Site name'
+        description: 'The human-readable site name.'
+        required: true
+      - id: machine_name
+        label: 'Machine name'
+        description: 'Derived from the site name.'
+        derive:
+          template: '{{name}}'
+          transform: machine
+  - id: drupal
+    title: 'Drupal'
+    description: 'Drupal build options.'
+    fields:
+      - id: profile
+        label: 'Install profile'
+        description: 'The Drupal installation profile.'
+        type: select
+        default: standard
+        options:
+          - { value: standard, label: 'Standard' }
+          - { value: minimal, label: 'Minimal' }
+          - { value: demo_umami, label: 'Demo: Umami' }
