@@ -21,6 +21,7 @@ use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
+use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
@@ -62,6 +63,8 @@ return RectorConfig::configure()
     NewlineBetweenClassLikeStmtsRector::class,
     RemoveAlwaysTrueIfConditionRector::class,
     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
+    // Conflicts with Drupal's snake_case parameter naming (enforced by PHPCS).
+    RenameParamToMatchTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
