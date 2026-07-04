@@ -1,6 +1,6 @@
 # PRD-0009 - Collected-answers model & output contract
 
-**Status:** draft · **Prototype:** partial · **Depends on:** 0001, 0006, 0007, 0010 · **Blocks:** -
+**Status:** done · **Prototype:** partial · **Depends on:** 0001, 0006, 0007, 0010 · **Blocks:** -
 
 ## Context
 
@@ -10,16 +10,16 @@ defines that contract.
 
 ## Requirements
 
-- [ ] An answers model keyed by question id, typed per field, carrying provenance (default / derived / override / detected / edited).
-- [ ] A human summary grouped by panel (review screen + post-run output).
-- [ ] Machine output: emit the final answer set as JSON.
-- [ ] Only active (conditional-passing) questions are included.
-- [ ] A stable contract: question ids + value types are the interface handlers and callers depend on.
+- [x] An answers model keyed by question id, typed per field, carrying provenance (default / derived / override / detected / edited).
+- [x] A human summary grouped by panel (review screen + post-run output).
+- [x] Machine output: emit the final answer set as JSON.
+- [x] Only active (conditional-passing) questions are included.
+- [x] A stable contract: question ids + value types are the interface handlers and callers depend on.
 
 ## Acceptance criteria
 
-- [ ] After a run, the emitted set contains every active question with the correct type + provenance; tested.
-- [ ] The JSON output validates against the schema (PRD-0007); tested.
+- [x] After a run, the emitted set contains every active question with the correct type + provenance; tested.
+- [x] The JSON output validates against the schema (PRD-0007); tested.
 
 ## Installer references
 

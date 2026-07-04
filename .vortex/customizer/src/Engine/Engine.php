@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Customizer\Engine;
 
+use DrevOps\Customizer\Answers\Answers;
 use DrevOps\Customizer\Condition\ConditionEvaluator;
 use DrevOps\Customizer\Config\Config;
 use DrevOps\Customizer\Config\Field;
@@ -49,6 +50,13 @@ class Engine {
    * @var array<string,string>
    */
   protected array $lastProvenance = [];
+
+  /**
+   * The active answers from the most recent run().
+   *
+   * @var array<string,mixed>
+   */
+  protected array $lastAnswers = [];
 
   /**
    * Construct an engine.
@@ -113,6 +121,7 @@ class Engine {
     $this->lastProvenance = $this->provenanceFor($fields, $sources, $active);
 
     $answers = $this->activeAnswers($fields, $values, $active);
+    $this->lastAnswers = $answers;
     $applied = new Context($context->directory, $answers, $context->update);
     foreach ($fields as $field) {
       if ($active[$field->id] ?? FALSE) {
@@ -131,6 +140,16 @@ class Engine {
    */
   public function provenance(): array {
     return $this->lastProvenance;
+  }
+
+  /**
+   * The collected answers of the most recent run() as an Answers model.
+   *
+   * @return \DrevOps\Customizer\Answers\Answers
+   *   The answer set with values and provenance.
+   */
+  public function answers(): Answers {
+    return new Answers($this->lastAnswers, $this->lastProvenance);
   }
 
   /**
