@@ -42,6 +42,16 @@ final class EngineTest extends TestCase {
     $this->assertSame(['discover', 'validate', 'transform', 'process:spy,plain'], Spy::$calls);
   }
 
+  public function testCollectSkipsProcess(): void {
+    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'spy']]]]);
+
+    $engine->collect([], new Context('project', [], TRUE));
+
+    // collect() runs discover/validate/transform but never process().
+    $this->assertSame(['discover', 'validate', 'transform'], Spy::$calls);
+    $this->assertSame('discovered!', $engine->answers()->value('spy'));
+  }
+
   public function testSuppliedInputWins(): void {
     $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'spy']]]]);
 

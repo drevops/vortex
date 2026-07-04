@@ -59,6 +59,13 @@ class Engine {
   protected array $lastAnswers = [];
 
   /**
+   * The active map of each field from the most recent collect().
+   *
+   * @var array<string,bool>
+   */
+  protected array $lastActive = [];
+
+  /**
    * Construct an engine.
    *
    * @param \DrevOps\Customizer\Config\Config $config
@@ -76,7 +83,7 @@ class Engine {
   }
 
   /**
-   * Run the lifecycle for all fields and return the collected answers.
+   * Collect answers without applying them (no process() side effects).
    *
    * @param array<string,mixed> $inputs
    *   Pre-supplied values keyed by field id (from flags, env, prompts, ...).
@@ -86,7 +93,7 @@ class Engine {
    * @return array<string,mixed>
    *   The collected answers of the active fields, keyed by field id.
    */
-  public function run(array $inputs, Context $context): array {
+  public function collect(array $inputs, Context $context): array {
     $fields = $this->config->fields();
 
     $values = [];
@@ -124,13 +131,30 @@ class Engine {
       }
     }
 
+    $this->lastActive = $active;
     $this->lastProvenance = $this->provenanceFor($fields, $sources, $active);
+    $this->lastAnswers = $this->activeAnswers($fields, $values, $active);
 
-    $answers = $this->activeAnswers($fields, $values, $active);
-    $this->lastAnswers = $answers;
+    return $this->lastAnswers;
+  }
+
+  /**
+   * Collect answers and apply them via each active handler's process().
+   *
+   * @param array<string,mixed> $inputs
+   *   Pre-supplied values keyed by field id (from flags, env, prompts, ...).
+   * @param \DrevOps\Customizer\Handler\Context $context
+   *   The run context (destination directory, update flag).
+   *
+   * @return array<string,mixed>
+   *   The collected answers of the active fields, keyed by field id.
+   */
+  public function run(array $inputs, Context $context): array {
+    $answers = $this->collect($inputs, $context);
+
     $applied = new Context($context->directory, $answers, $context->update);
-    foreach ($fields as $field) {
-      if ($active[$field->id] ?? FALSE) {
+    foreach ($this->config->fields() as $field) {
+      if ($this->lastActive[$field->id] ?? FALSE) {
         $this->handlers->get($field->id)?->process($field, $answers[$field->id], $applied);
       }
     }
