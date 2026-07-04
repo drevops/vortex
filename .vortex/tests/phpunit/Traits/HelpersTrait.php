@@ -34,6 +34,12 @@ trait HelpersTrait {
     $paths = array_filter(is_array($paths) ? $paths : [$paths]);
     if (empty($paths)) {
       $this->logNote('Syncing all files from container to host');
+      // Drupal hardens 'web/sites/default' to read-only during provisioning,
+      // so 'docker compose cp' cannot overwrite files there as the non-root
+      // CI user and aborts before copying the rest of the tree. Relax the
+      // permissions in the container first.
+      $relax_cmd = 'docker compose exec -T cli chmod -R u+w /app/web/sites';
+      shell_exec($relax_cmd . ' > /dev/null 2>&1');
       shell_exec('docker compose cp -L cli:/app/. . > /dev/null 2>&1');
       return;
     }
