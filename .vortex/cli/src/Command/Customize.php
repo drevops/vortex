@@ -91,7 +91,7 @@ class Customize extends Command {
       $inputs = (new InputResolver(static::ENV_PREFIX))->resolve($config->fields(), $prompts, getenv());
 
       try {
-        $engine->run($inputs, $context);
+        $engine->collect($inputs, $context);
       }
       catch (EngineException $engine_exception) {
         $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -105,7 +105,7 @@ class Customize extends Command {
     }
 
     // @codeCoverageIgnoreStart
-    $engine->run([], $context);
+    $engine->collect([], $context);
     $controller = new PanelController($config, new PanelRenderer(new Theme('green')), $engine->answers()->values, $engine->answers()->provenance);
     $answers = $controller->run(new Terminal());
     $output->writeln($answers->toJson());

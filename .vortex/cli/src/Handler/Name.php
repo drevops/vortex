@@ -6,6 +6,8 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Handler\AbstractHandler;
+use DrevOps\Customizer\Handler\Context;
+use DrevOps\VortexCli\Utils\File;
 
 /**
  * Handler for the "name" question, auto-discovered by the customizer engine.
@@ -29,6 +31,13 @@ class Name extends AbstractHandler {
    */
   public function transform(Field $field, mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(Field $field, mixed $value, Context $context): void {
+    File::replaceContentAsync('YOURSITE', is_string($value) ? $value : '');
   }
 
 }
