@@ -1,4 +1,4 @@
-@@ -282,11 +282,17 @@
+@@ -278,11 +278,17 @@
        - name: Export DB after fetch
          run: |
            if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi

@@ -1,4 +1,4 @@
-@@ -260,6 +260,15 @@
+@@ -256,6 +256,15 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
@@ -14,7 +14,7 @@
        # On the first build of the day (cache miss), fetch a fresh DB dump.
        # On subsequent builds, the restored cache already contains the dump and
        # the fetch script skips itself, leaving no semaphore file behind.
-@@ -269,6 +278,9 @@
+@@ -265,6 +274,9 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -24,7 +24,7 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
-@@ -309,6 +321,10 @@
+@@ -305,6 +317,10 @@
            if [ -f .data/db.sql ]; then
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
