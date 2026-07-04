@@ -56,9 +56,19 @@ in the Installation guide and select **Lagoon**.
 
 ### Fetch database
 
-Fetch a database backup from your Lagoon environment for local development
-or CI builds:
+Download the latest scheduled database backup from your Lagoon environment
+for local development or CI builds:
 
 ```shell
 ahoy fetch-db
 ```
+
+This wraps the provider-native
+[Lagoon CLI](https://github.com/uselagoon/lagoon-cli), which must be
+available. Install it on a developer host; inside the Lagoon environment it
+ships with the container image, so the same command can pull the production
+database into a non-production environment without a round-trip through a
+developer machine.
+
+The download uses the latest scheduled backup, so its data can be as old as
+your environment's backup schedule (nightly by default).
