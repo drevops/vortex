@@ -23,6 +23,7 @@ use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
+use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
@@ -62,12 +63,16 @@ return RectorConfig::configure()
     NewlineBetweenClassLikeStmtsRector::class,
     RemoveAlwaysTrueIfConditionRector::class,
     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
+    // Conflicts with Drupal's snake_case parameter naming (enforced by PHPCS).
+    RenameParamToMatchTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     // Dependencies.
     '*/vendor/*',
     '*/node_modules/*',
+    // Throwaway UX prototype - not production code, excluded from linting.
+    '*/playground/*',
   ])
   ->withFileExtensions([
     'php',
