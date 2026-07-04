@@ -99,7 +99,8 @@ class Engine {
     $values = [];
     $sources = [];
     foreach ($fields as $field) {
-      [$value, $source] = $this->resolveInitial($field, $this->handlers->get($field->id), $inputs, $context);
+      $resolved = new Context($context->directory, $values, $context->update, $context->version, $context->destination);
+      [$value, $source] = $this->resolveInitial($field, $this->handlers->get($field->id), $inputs, $resolved);
       $sources[$field->id] = $source;
       $values[$field->id] = $value;
     }

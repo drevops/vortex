@@ -19,6 +19,19 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function default(Field $field, Context $context): mixed {
+    $hosting = $context->answers['hosting_provider'] ?? NULL;
+
+    if ($hosting === NULL) {
+      return NULL;
+    }
+
+    return $hosting === 'acquia' ? 'docroot' : 'web';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function validate(Field $field, mixed $value): ?string {
     return is_string($value) && Validate::isDirname($value) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
   }

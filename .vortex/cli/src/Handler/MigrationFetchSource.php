@@ -20,6 +20,17 @@ class MigrationFetchSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public function default(Field $field, Context $context): mixed {
+    return match ($context->answers['hosting_provider'] ?? NULL) {
+      'acquia' => 'acquia',
+      'lagoon' => 'lagoon',
+      default => 'url',
+    };
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function process(Field $field, mixed $value, Context $context): void {
     $source = NULL;
 

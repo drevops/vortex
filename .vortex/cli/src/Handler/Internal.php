@@ -28,7 +28,7 @@ class Internal extends AbstractHandler {
 
     $version = $context->version;
 
-    $this->processDemoMode($context->answers, $t);
+    $this->processDemoMode($context->answers, $context->destination);
 
     // Replace version placeholders.
     File::replaceContentAsync([

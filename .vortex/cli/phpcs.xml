@@ -20,6 +20,11 @@
     <!-- Relocated fixtures are template files, not standalone PHP. -->
     <exclude-pattern>tests/phpunit/Fixtures/*</exclude-pattern>
 
+    <!-- Relocated snapshot tests carry scenario data, not documentation. -->
+    <rule ref="Drupal.Commenting.ClassComment.Missing">
+        <exclude-pattern>tests/phpunit/Functional/Handlers/*</exclude-pattern>
+    </rule>
+
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>

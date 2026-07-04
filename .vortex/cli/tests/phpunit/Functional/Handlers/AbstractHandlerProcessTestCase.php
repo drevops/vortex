@@ -17,6 +17,7 @@ use DrevOps\VortexCli\Command\Install;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\Strings;
 use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -135,6 +136,32 @@ abstract class AbstractHandlerProcessTestCase extends UnitTestCase {
     Env::put(Config::IS_DEMO_DB_FETCH_SKIP, '1');
 
     $this->applicationRun($args);
+  }
+
+  protected function assertSutContains(string|array $needles): void {
+    $needles = is_array($needles) ? $needles : [$needles];
+
+    foreach ($needles as $needle) {
+      if (Strings::isRegex($needle)) {
+        $this->assertDirectoryContainsString(static::$sut, $needle, ['scripts/vortex']);
+      }
+      else {
+        $this->assertDirectoryContainsWord(static::$sut, $needle, ['scripts/vortex']);
+      }
+    }
+  }
+
+  protected function assertSutNotContains(string|array $needles): void {
+    $needles = is_array($needles) ? $needles : [$needles];
+
+    foreach ($needles as $needle) {
+      if (Strings::isRegex($needle)) {
+        $this->assertDirectoryNotContainsString(static::$sut, $needle, ['scripts/vortex']);
+      }
+      else {
+        $this->assertDirectoryNotContainsWord(static::$sut, $needle, ['scripts/vortex']);
+      }
+    }
   }
 
   protected function replaceVersions(string $dir): void {
