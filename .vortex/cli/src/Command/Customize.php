@@ -131,7 +131,7 @@ EOT;
 
     // @codeCoverageIgnoreStart
     $engine->collect([], $context);
-    $controller = new PanelController($config, new Theme('dark'), $engine->answers()->values, $engine->answers()->provenance, static::BANNER, $this->version());
+    $controller = new PanelController($config, Theme::create('dark'), $engine->answers()->values, $engine->answers()->provenance, static::BANNER, $this->version());
     $answers = $controller->run(new Terminal());
     $output->writeln($answers->toJson());
 

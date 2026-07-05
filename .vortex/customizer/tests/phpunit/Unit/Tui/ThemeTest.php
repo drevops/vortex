@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Customizer\Tests\Unit\Tui;
 
+use DrevOps\Customizer\Tui\DarkTheme;
+use DrevOps\Customizer\Tui\LightTheme;
 use DrevOps\Customizer\Tui\Theme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -11,73 +13,75 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the theme.
+ * Tests the theme base, its concrete themes and the registry.
  */
 #[CoversClass(Theme::class)]
+#[CoversClass(DarkTheme::class)]
+#[CoversClass(LightTheme::class)]
 #[Group('tui')]
 final class ThemeTest extends TestCase {
 
-  public function testStyle(): void {
-    $theme = new Theme('dark');
+  #[DataProvider('dataProviderCreate')]
+  public function testCreate(string $name, string $class, string $role, string $expected): void {
+    $theme = Theme::create($name);
 
-    $this->assertSame('1;36', $theme->sgr('title'));
-    $this->assertSame("\033[1;36mT\033[0m", $theme->style('title', 'T'));
-    $this->assertTrue($theme->hasColor());
+    $this->assertSame($theme::class, $class);
+    $this->assertSame($expected, $theme->sgr($role));
   }
 
-  #[DataProvider('dataProviderPresets')]
-  public function testPresets(string $preset, string $role, string $expected): void {
-    $this->assertSame($expected, (new Theme($preset))->sgr($role));
+  public static function dataProviderCreate(): \Iterator {
+    yield 'dark' => ['dark', DarkTheme::class, 'value', '32'];
+    yield 'light' => ['light', LightTheme::class, 'value', '34'];
+    yield 'light indicator' => ['light', LightTheme::class, 'indicator', '35'];
+    yield 'default is dark' => ['default', DarkTheme::class, 'title', '1;36'];
+    yield 'unknown is dark' => ['bogus', DarkTheme::class, 'title', '1;36'];
   }
 
-  public static function dataProviderPresets(): \Iterator {
-    yield 'dark value' => ['dark', 'value', '32'];
-    yield 'dark title' => ['dark', 'title', '1;36'];
-    yield 'light value' => ['light', 'value', '34'];
-    yield 'light indicator' => ['light', 'indicator', '35'];
-    yield 'default aliases dark' => ['default', 'title', '1;36'];
-    yield 'unknown falls back to dark' => ['bogus', 'title', '1;36'];
+  public function testRegister(): void {
+    Theme::register('mylight', LightTheme::class);
+
+    $this->assertInstanceOf(LightTheme::class, Theme::create('mylight'));
   }
 
-  public function testStyleOverride(): void {
-    $this->assertSame('35', (new Theme('dark', ['styles' => ['value' => '35']]))->sgr('value'));
+  public function testCustomSubclass(): void {
+    $theme = new class() extends Theme {
+
+      protected function defineStyles(): array {
+        return ['title' => '95'];
+      }
+
+      protected function defineGlyphs(): array {
+        return ['marker' => '»'];
+      }
+
+    };
+
+    $this->assertSame('95', $theme->sgr('title'));
+    $this->assertSame('»', $theme->glyph('marker'));
   }
 
   public function testGlyphs(): void {
-    $theme = new Theme('dark');
+    $theme = new DarkTheme();
 
     $this->assertSame('❯', $theme->glyph('marker'));
     $this->assertSame('▲', $theme->glyph('indicator_up'));
-    $this->assertSame('▼', $theme->glyph('indicator_down'));
     $this->assertSame('', $theme->glyph('nope'));
   }
 
-  public function testGlyphOverride(): void {
-    $this->assertSame('>', (new Theme('dark', ['glyphs' => ['marker' => '>']]))->glyph('marker'));
-  }
+  public function testStyleAndColor(): void {
+    $theme = new DarkTheme();
 
-  public function testRegisterCustomPreset(): void {
-    Theme::register('brand', ['styles' => ['value' => '95'], 'glyphs' => ['marker' => '»']]);
-
-    $theme = new Theme('brand');
-
-    $this->assertSame('95', $theme->sgr('value'));
-    $this->assertSame('»', $theme->glyph('marker'));
-    // Omitted tokens fall back to the dark theme.
-    $this->assertSame('1;36', $theme->sgr('title'));
-    $this->assertSame('▲', $theme->glyph('indicator_up'));
+    $this->assertSame("\033[1;36mT\033[0m", $theme->style('title', 'T'));
+    $this->assertTrue($theme->hasColor());
+    $this->assertSame('', $theme->sgr('nope'));
   }
 
   public function testNoColor(): void {
-    $theme = new Theme('dark', [], FALSE);
+    $theme = new DarkTheme(FALSE);
 
     $this->assertSame('', $theme->sgr('title'));
     $this->assertSame('T', $theme->style('title', 'T'));
     $this->assertFalse($theme->hasColor());
-  }
-
-  public function testUnknownRole(): void {
-    $this->assertSame('', (new Theme('dark'))->sgr('nope'));
   }
 
 }

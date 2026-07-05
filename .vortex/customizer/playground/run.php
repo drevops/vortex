@@ -66,7 +66,7 @@ try {
     // Interactive: seed the panel TUI with the resolved defaults, then run it.
     $engine->collect([], $context);
     $theme = array_key_exists('theme', $options) && is_string($options['theme']) ? $options['theme'] : 'dark';
-    $controller = new PanelController($config, new Theme($theme), $engine->answers()->values, $engine->answers()->provenance, $banner, '1.0.0');
+    $controller = new PanelController($config, Theme::create($theme), $engine->answers()->values, $engine->answers()->provenance, $banner, '1.0.0');
     $answers = $controller->run(new Terminal());
   }
 }

@@ -9,7 +9,7 @@ use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
 use DrevOps\Customizer\Tui\Ansi;
 use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Customizer\Tui\DarkTheme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -139,7 +139,7 @@ final class PanelControllerTest extends TestCase {
         ['id' => 'drupal', 'title' => 'Drupal', 'fields' => [['id' => 'profile', 'label' => 'Profile']]],
       ],
     ]);
-    $theme = new Theme('default', [], FALSE, 40);
+    $theme = new DarkTheme(FALSE, 40);
 
     return new PanelController($config, $theme, ['name' => 'Acme', 'debug' => FALSE, 'profile' => 'standard'], []);
   }

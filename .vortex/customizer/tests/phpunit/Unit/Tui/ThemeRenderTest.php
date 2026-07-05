@@ -9,6 +9,7 @@ use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Config\FieldType;
 use DrevOps\Customizer\Config\Panel;
 use DrevOps\Customizer\Tui\Ansi;
+use DrevOps\Customizer\Tui\DarkTheme;
 use DrevOps\Customizer\Tui\Navigator;
 use DrevOps\Customizer\Tui\Theme;
 use DrevOps\Customizer\Tui\Viewport;
@@ -67,6 +68,19 @@ final class ThemeRenderTest extends TestCase {
     $this->assertStringContainsString('❯ B', Ansi::strip($lines[2]));
   }
 
+  public function testBodyIncludesSubPanels(): void {
+    $panel = new Panel('p', 'P', '', [new Field('a', 'A', '', FieldType::Text, '')], [
+      new Panel('sub', 'Sub', 'sub desc'),
+    ]);
+
+    [$lines, $cursor_line] = $this->theme()->body($panel, new Answers(), 1);
+
+    // The cursor is on the sub-panel (index 1, after the single field).
+    $this->assertSame(1, $cursor_line);
+    $this->assertStringContainsString('❯ Sub', Ansi::strip($lines[1]));
+    $this->assertStringContainsString('sub desc', Ansi::strip($lines[2]));
+  }
+
   public function testFrameShowsIndicatorsAndWindow(): void {
     $body = array_map(static fn(int $i): string => 'line' . $i, range(0, 9));
 
@@ -104,8 +118,8 @@ final class ThemeRenderTest extends TestCase {
   /**
    * A colourless theme of fixed width for stable assertions.
    */
-  protected function theme(): Theme {
-    return new Theme('default', [], FALSE, 40);
+  protected function theme(): DarkTheme {
+    return new DarkTheme(FALSE, 40);
   }
 
 }

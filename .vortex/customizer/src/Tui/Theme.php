@@ -9,75 +9,115 @@ use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Config\Panel;
 
 /**
- * The single visual authority for the TUI.
+ * Abstract visual authority for the TUI - one self-contained class per theme.
  *
  * A theme owns the entire visual representation: the palette (per-role SGR
  * styles), the glyphs (marker, scroll indicators, separators), and how every
  * element is composed (field rows, sub-panel rows, descriptions, breadcrumb,
- * the scrolled frame and the start banner). The config only references a theme
- * by name.
+ * the scrolled frame and the start banner).
  *
- * Two ways to make a theme:
- * - Fast, data-only: call {@see Theme::register()} with a palette and/or glyph
- *   map, then select it by name. Omitted tokens fall back to the dark theme.
- * - Full control: subclass and override any render* method to change layout,
- *   spacing or composition - not just colours and glyphs.
+ * To make a theme, subclass this and define its palette in defineStyles() and,
+ * optionally, its glyphs in defineGlyphs(); override any render*
+ * method for full control over layout. Register the class under a name with
+ * {@see register()} so the config can select it - the config only ever
+ * references a theme name.
  *
  * @package DrevOps\Customizer\Tui
  */
-class Theme {
+abstract class Theme {
 
   /**
-   * The role => SGR style map.
+   * The role => SGR style map, resolved once from defineStyles().
    *
    * @var array<string,string>
    */
   protected array $styles;
 
   /**
-   * The name => glyph map.
+   * The name => glyph map, resolved once from defineGlyphs().
    *
    * @var array<string,string>
    */
   protected array $glyphs;
 
   /**
-   * Consumer-registered custom presets, keyed by name.
+   * The name => theme-class registry.
    *
-   * @var array<string,array{styles?:array<string,string>,glyphs?:array<string,string>}>
+   * @var array<string,class-string<\DrevOps\Customizer\Tui\Theme>>
    */
-  protected static array $custom = [];
-
-  /**
-   * Register a custom theme preset that consumers can select by name.
-   *
-   * @param string $name
-   *   The preset name.
-   * @param array{styles?:array<string,string>,glyphs?:array<string,string>} $preset
-   *   The preset with optional 'styles' (role => SGR) and 'glyphs' (name =>
-   *   character) maps. Omitted tokens fall back to the dark theme.
-   */
-  public static function register(string $name, array $preset): void {
-    static::$custom[$name] = $preset;
-  }
+  protected static array $registry = [
+    'dark' => DarkTheme::class,
+    'light' => LightTheme::class,
+  ];
 
   /**
    * Construct a theme.
    *
-   * @param string $preset
-   *   The preset name ("dark", "light" or a registered name; "default" is an
-   *   alias for "dark").
-   * @param array{styles?:array<string,string>,glyphs?:array<string,string>} $overrides
-   *   Per-token overrides with optional 'styles' and 'glyphs' maps.
    * @param bool $color
    *   Whether colour is enabled.
    * @param int $width
    *   The frame width used for right-aligned badges.
    */
-  public function __construct(string $preset = 'default', array $overrides = [], protected bool $color = TRUE, protected int $width = 76) {
-    $resolved = static::preset($preset);
-    $this->styles = array_merge($resolved['styles'], $overrides['styles'] ?? []);
-    $this->glyphs = array_merge($resolved['glyphs'], $overrides['glyphs'] ?? []);
+  public function __construct(protected bool $color = TRUE, protected int $width = 76) {
+    $this->styles = $this->defineStyles();
+    $this->glyphs = $this->defineGlyphs();
+  }
+
+  /**
+   * The role => SGR palette for this theme.
+   *
+   * @return array<string,string>
+   *   The palette, keyed by role.
+   */
+  abstract protected function defineStyles(): array;
+
+  /**
+   * The name => glyph map for this theme (override to change the glyphs).
+   *
+   * @return array<string,string>
+   *   The glyphs, keyed by name.
+   */
+  protected function defineGlyphs(): array {
+    return [
+      'marker' => '❯',
+      'indicator_up' => '▲',
+      'indicator_down' => '▼',
+      'separator' => '›',
+      'arrow' => '›',
+    ];
+  }
+
+  /**
+   * Register a theme class under a name so a config can select it.
+   *
+   * @param string $name
+   *   The theme name.
+   * @param class-string<\DrevOps\Customizer\Tui\Theme> $class
+   *   The theme class.
+   */
+  public static function register(string $name, string $class): void {
+    static::$registry[$name] = $class;
+  }
+
+  /**
+   * Create a theme by name.
+   *
+   * @param string $name
+   *   The theme name ("dark", "light", a registered name, or "default" for
+   *   dark). An unknown name falls back to dark.
+   * @param bool $color
+   *   Whether colour is enabled.
+   * @param int $width
+   *   The frame width.
+   *
+   * @return \DrevOps\Customizer\Tui\Theme
+   *   The theme instance.
+   */
+  public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76): Theme {
+    $name = $name === 'default' ? 'dark' : $name;
+    $class = static::$registry[$name] ?? DarkTheme::class;
+
+    return new $class($color, $width);
   }
 
   /**
@@ -348,75 +388,6 @@ class Theme {
     }
 
     return is_scalar($value) ? (string) $value : '';
-  }
-
-  /**
-   * The resolved preset (styles + glyphs) for a name (falls back to dark).
-   *
-   * @param string $name
-   *   The preset name.
-   *
-   * @return array{styles:array<string,string>,glyphs:array<string,string>}
-   *   The resolved styles and glyphs, with any missing tokens filled from dark.
-   */
-  public static function preset(string $name): array {
-    $glyphs = [
-      'marker' => '❯',
-      'indicator_up' => '▲',
-      'indicator_down' => '▼',
-      'separator' => '›',
-      'arrow' => '›',
-    ];
-
-    $presets = [
-      // Dark terminal theme (the default): bright foregrounds on a dark ground.
-      'dark' => [
-        'styles' => [
-          'title' => '1;36',
-          'breadcrumb' => '2',
-          'label' => '',
-          'value' => '32',
-          'description' => '2',
-          'marker' => '1;36',
-          'badge' => '7',
-          'cursor' => '1;7',
-          'footer' => '2',
-          'indicator' => '1;33',
-        ],
-        'glyphs' => $glyphs,
-      ],
-      // Light terminal theme: darker, higher-contrast foregrounds (bright
-      // cyan/yellow wash out on a light background).
-      'light' => [
-        'styles' => [
-          'title' => '1;34',
-          'breadcrumb' => '2',
-          'label' => '',
-          'value' => '34',
-          'description' => '2',
-          'marker' => '1;34',
-          'badge' => '7',
-          'cursor' => '1;7',
-          'footer' => '2',
-          'indicator' => '35',
-        ],
-        'glyphs' => $glyphs,
-      ],
-    ];
-
-    // Consumer-registered presets extend or override the built-ins.
-    $all = array_merge($presets, static::$custom);
-
-    // "default" is an alias for the dark theme.
-    $name = $name === 'default' ? 'dark' : $name;
-    $preset = $all[$name] ?? $presets['dark'];
-
-    // Registered presets may omit styles or glyphs; missing tokens fall back
-    // to the dark theme so every token resolves.
-    return [
-      'styles' => ($preset['styles'] ?? []) + $presets['dark']['styles'],
-      'glyphs' => ($preset['glyphs'] ?? []) + $presets['dark']['glyphs'],
-    ];
   }
 
 }

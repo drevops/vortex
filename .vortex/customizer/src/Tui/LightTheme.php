@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\Customizer\Tui;
+
+/**
+ * A theme for light terminals: darker, higher-contrast foregrounds.
+ *
+ * Bright cyan and yellow wash out on a light background, so the palette leans
+ * on blue and magenta instead.
+ *
+ * @package DrevOps\Customizer\Tui
+ */
+class LightTheme extends Theme {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineStyles(): array {
+    return [
+      'title' => '1;34',
+      'breadcrumb' => '2',
+      'label' => '',
+      'value' => '34',
+      'description' => '2',
+      'marker' => '1;34',
+      'badge' => '7',
+      'cursor' => '1;7',
+      'footer' => '2',
+      'indicator' => '35',
+    ];
+  }
+
+}
