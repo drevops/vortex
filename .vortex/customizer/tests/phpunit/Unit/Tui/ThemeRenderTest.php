@@ -115,6 +115,14 @@ final class ThemeRenderTest extends TestCase {
     $this->assertSame(2, $this->theme()->itemCount($panel));
   }
 
+  public function testStatusLineIsThemed(): void {
+    $line = (new DarkTheme())->statusLine();
+
+    // Themed with the footer role (dim) and composed from arrow glyphs.
+    $this->assertStringContainsString("\033[2m", $line);
+    $this->assertStringContainsString('↑/↓ move', Ansi::strip($line));
+  }
+
   /**
    * A colourless theme of fixed width for stable assertions.
    */

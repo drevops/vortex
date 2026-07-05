@@ -229,7 +229,7 @@ class PanelController {
 
     $this->offset = $viewport->offset;
     $header = [$this->theme->breadcrumbLine($this->navigator)];
-    $footer = ['↑/↓ move · ↵ open · esc back'];
+    $footer = [$this->theme->statusLine()];
 
     return $this->theme->frame($header, $body, $footer, $viewport, $height);
   }

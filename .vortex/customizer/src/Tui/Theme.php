@@ -84,6 +84,10 @@ abstract class Theme {
       'indicator_down' => '▼',
       'separator' => '›',
       'arrow' => '›',
+      'arrow_up' => '↑',
+      'arrow_down' => '↓',
+      'enter' => '↵',
+      'dot' => '·',
     ];
   }
 
@@ -360,6 +364,19 @@ abstract class Theme {
     }
 
     return implode("\n", $lines);
+  }
+
+  /**
+   * Render the status line shown at the foot of a panel.
+   *
+   * @return string
+   *   The themed status line (hint text and arrow glyphs).
+   */
+  public function statusLine(): string {
+    $dot = ' ' . $this->glyph('dot') . ' ';
+    $hint = $this->glyph('arrow_up') . '/' . $this->glyph('arrow_down') . ' move' . $dot . $this->glyph('enter') . ' select' . $dot . 'esc back';
+
+    return $this->style('footer', $hint);
   }
 
   /**
