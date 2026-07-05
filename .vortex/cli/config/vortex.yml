@@ -14,22 +14,29 @@ panels:
         label: 'Site machine name'
         description: 'We will use this name for the project directory and in the code.'
         required: true
-        derive: { template: '{{name}}', transform: machine }
+        derive:
+          template: '{{name}}'
+          transform: machine
       - id: org
         label: 'Organization name'
         description: 'We will use this name in the project and documentation.'
         required: true
-        derive: { template: '{{name}} Org' }
+        derive:
+          template: '{{name}} Org'
       - id: org_machine_name
         label: 'Organization machine name'
         description: 'We will use this name in the code.'
         required: true
-        derive: { template: '{{org}}', transform: machine }
+        derive:
+          template: '{{org}}'
+          transform: machine
       - id: domain
         label: 'Public domain'
         description: 'Domain name without protocol and trailing slash.'
         required: true
-        derive: { template: '{{machine_name}}.com', transform: host }
+        derive:
+          template: '{{machine_name}}.com'
+          transform: host
 
   - id: drupal
     title: 'Drupal'
@@ -59,7 +66,9 @@ panels:
         label: 'Custom profile machine name'
         description: 'The machine name of your custom profile.'
         required: true
-        when: { field: profile, eq: custom }
+        when:
+          field: profile
+          eq: custom
       - id: modules
         label: 'Modules'
         description: 'Optional contributed modules to include.'
@@ -88,7 +97,9 @@ panels:
         label: 'Custom modules prefix'
         description: 'We will use this name in custom modules.'
         required: true
-        derive: { template: '{{machine_name}}', transform: initials }
+        derive:
+          template: '{{machine_name}}'
+          transform: initials
       - id: custom_modules
         label: 'Custom modules'
         description: 'Which scaffolded custom modules to keep.'
@@ -113,14 +124,20 @@ panels:
         label: 'Custom theme machine name'
         description: 'We will use this name as a custom theme name.'
         required: true
-        when: { field: theme, eq: custom }
-        derive: { template: '{{machine_name}}', transform: machine }
+        when:
+          field: theme
+          eq: custom
+        derive:
+          template: '{{machine_name}}'
+          transform: machine
       - id: frontend_build
         label: 'Build front-end assets in the container?'
         description: 'Disable to build theme assets on the host or as part of deployment.'
         type: confirm
         default: true
-        when: { field: theme, eq: custom }
+        when:
+          field: theme
+          eq: custom
 
   - id: code_repository
     title: 'Code repository'
@@ -217,8 +234,11 @@ panels:
         label: 'Hosting project name'
         description: 'Name as found in the hosting configuration; usually the site machine name.'
         required: true
-        when: { field: hosting_provider, in: [lagoon, acquia] }
-        derive: { template: '{{machine_name}}' }
+        when:
+          field: hosting_provider
+          in: [lagoon, acquia]
+        derive:
+          template: '{{machine_name}}'
       - id: webroot
         label: 'Custom web root directory'
         description: 'The directory where the web server serves the site.'
@@ -256,7 +276,9 @@ panels:
         description: 'Where the database dump is fetched from.'
         type: select
         default: url
-        when: { field: provision_type, eq: database }
+        when:
+          field: provision_type
+          eq: database
         options:
           - { value: url, label: 'URL download' }
           - { value: ftp, label: 'FTP download' }
@@ -268,8 +290,12 @@ panels:
       - id: database_image
         label: 'Database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
-        when: { field: database_fetch_source, eq: container_registry }
-        derive: { template: '{{org_machine_name}}/{{machine_name}}-data:latest', transform: lower }
+        when:
+          field: database_fetch_source
+          eq: container_registry
+        derive:
+          template: '{{org_machine_name}}/{{machine_name}}-data:latest'
+          transform: lower
       - id: migration
         label: 'Use a second database for migrations?'
         description: 'Adds a second database service for Drupal migrations.'
@@ -280,7 +306,9 @@ panels:
         description: 'Where the migration database dump is fetched from.'
         type: select
         default: url
-        when: { field: migration, eq: true }
+        when:
+          field: migration
+          eq: true
         options:
           - { value: url, label: 'URL download' }
           - { value: ftp, label: 'FTP download' }
@@ -291,8 +319,12 @@ panels:
       - id: migration_image
         label: 'Migration database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
-        when: { field: migration_fetch_source, eq: container_registry }
-        derive: { template: '{{org_machine_name}}/{{machine_name}}-data-migration:latest', transform: lower }
+        when:
+          field: migration_fetch_source
+          eq: container_registry
+        derive:
+          template: '{{org_machine_name}}/{{machine_name}}-data-migration:latest'
+          transform: lower
 
   - id: notifications
     title: 'Notifications'
