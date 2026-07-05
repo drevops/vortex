@@ -126,7 +126,7 @@ class PanelRenderer {
    *   The row.
    */
   public function panelLine(Panel $panel, bool $selected): string {
-    return $this->marker($selected) . ' ' . $this->theme->style('label', $panel->title) . ' ' . $this->theme->style('description', '›');
+    return $this->marker($selected) . ' ' . $this->theme->style('label', $panel->title) . ' ' . $this->theme->style('description', $this->theme->glyph('arrow'));
   }
 
   /**
@@ -152,7 +152,7 @@ class PanelRenderer {
    *   The breadcrumb line.
    */
   public function breadcrumbLine(Navigator $navigator): string {
-    return $this->theme->style('breadcrumb', implode(' › ', $navigator->breadcrumb()));
+    return $this->theme->style('breadcrumb', implode(' ' . $this->theme->glyph('separator') . ' ', $navigator->breadcrumb()));
   }
 
   /**
@@ -177,16 +177,42 @@ class PanelRenderer {
 
     $lines = $header;
     if ($viewport->has_above) {
-      $lines[] = $this->theme->style('indicator', '  ▲');
+      $lines[] = $this->theme->style('indicator', '  ' . $this->theme->glyph('indicator_up'));
     }
 
     $lines = array_merge($lines, $visible);
 
     if ($viewport->has_below) {
-      $lines[] = $this->theme->style('indicator', '  ▼');
+      $lines[] = $this->theme->style('indicator', '  ' . $this->theme->glyph('indicator_down'));
     }
 
     return implode("\n", array_merge($lines, $footer));
+  }
+
+  /**
+   * Compose a start banner: the logo above an optional version line.
+   *
+   * @param string $logo
+   *   The banner logo (may be multi-line).
+   * @param string $version
+   *   The version string, shown dimmed below the logo when non-empty.
+   *
+   * @return string
+   *   The composed banner.
+   */
+  public function banner(string $logo, string $version): string {
+    $lines = [];
+
+    foreach (explode("\n", $logo) as $line) {
+      $lines[] = $this->theme->style('title', $line);
+    }
+
+    if ($version !== '') {
+      $lines[] = '';
+      $lines[] = $this->theme->style('footer', 'Version: ' . $version);
+    }
+
+    return implode("\n", $lines);
   }
 
   /**
@@ -199,7 +225,7 @@ class PanelRenderer {
    *   The marker.
    */
   protected function marker(bool $selected): string {
-    return $selected ? $this->theme->style('marker', '❯') : ' ';
+    return $selected ? $this->theme->style('marker', $this->theme->glyph('marker')) : ' ';
   }
 
   /**

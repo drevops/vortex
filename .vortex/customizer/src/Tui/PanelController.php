@@ -83,12 +83,18 @@ class PanelController {
    *   The initial answer values (typically the engine's resolved answers).
    * @param array<string,string> $provenance
    *   The initial provenance.
+   * @param string $banner
+   *   An optional start banner (logo) shown before the interactive loop.
+   * @param string $version
+   *   An optional version string shown below the banner.
    */
   public function __construct(
     protected Config $config,
     protected PanelRenderer $renderer,
     protected array $values = [],
     protected array $provenance = [],
+    protected string $banner = '',
+    protected string $version = '',
   ) {
     $this->widgets = new WidgetFactory();
     $this->scroller = new Scroller();
@@ -146,6 +152,11 @@ class PanelController {
     $terminal->setup();
 
     try {
+      if ($this->banner !== '') {
+        $terminal->render($this->renderer->banner($this->banner, $this->version) . "\n\nPress any key to continue...");
+        $terminal->read();
+      }
+
       while (!$this->done) {
         $terminal->render($this->frame(15));
         foreach ($parser->parse($terminal->read()) as $key) {
