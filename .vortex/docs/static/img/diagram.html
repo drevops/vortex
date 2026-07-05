@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Vortex diagram</title>
+<!--
+  Source of record for the Vortex hero diagram, exported to the sibling
+  files diagram-dark.png and diagram-light.png in this same folder.
+
+  Design canvas: 1440 x 900. To regenerate the PNGs, open this file in a
+  browser and screenshot the page at 2x (2880 x 1800):
+    - dark  : open diagram.html
+    - light : open diagram.html#light   (append #light to the URL)
+  Keep both PNGs in sync with this file after any edit.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* Font stacks mirror .vortex/docs/src/css/custom.css Infima --ifm-font-family-* tokens. */
+  :root { --fd: 'Sora', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; --fb: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; --fm: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+  html, body { background: #0e131c; }
+
+  .stage { position: relative; width: 1440px; height: 900px; overflow: hidden; font-family: var(--fb); color: var(--ink); background: var(--page); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+  .head { position: absolute; top: 56px; left: 0; width: 100%; text-align: center; z-index: 4; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 11px; margin-bottom: 16px; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brandcol); }
+  .eyebrow .mark { width: 28px; height: 28px; display: block; }
+  .head h1 { font-family: var(--fd); font-weight: 700; font-size: 48px; line-height: 1.04; letter-spacing: -0.02em; color: var(--ink); }
+  .head h1 .g { color: var(--brandcol); }
+  .head .lead { margin: 16px auto 0; max-width: 920px; font-size: 18px; line-height: 1.5; color: var(--ink2); }
+  .head .lead b { color: var(--ink); font-weight: 700; }
+
+  .card { position: absolute; top: 306px; width: 298px; height: 346px; z-index: 2; overflow: hidden; padding: 28px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--cardshadow); }
+  .tile { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--brandcol) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brandcol) 30%, transparent); margin-bottom: 22px; }
+  .tile svg { width: 27px; height: 27px; color: var(--brandcol); }
+  .card h3 { font-family: var(--fd); font-weight: 700; font-size: 23px; line-height: 1.12; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 13px; }
+  .card p { font-size: 15.5px; line-height: 1.5; color: var(--body); text-wrap: balance; }
+  .card .tag { position: absolute; left: 28px; right: 28px; bottom: 26px; font-family: var(--fm); font-size: 11px; letter-spacing: 0.05em; color: var(--brandcol); border-top: 1px solid var(--subline); padding-top: 14px; white-space: nowrap; }
+  .c1 { left: 70px; } .c2 { left: 404px; } .c3 { left: 738px; } .c4 { left: 1072px; }
+
+  .trust { position: absolute; left: 70px; top: 700px; width: 1300px; height: 70px; z-index: 2; display: flex; align-items: center; justify-content: space-around; padding: 0 30px; border-radius: 16px; background: color-mix(in srgb, var(--brandcol) 5%, transparent); border: 1px solid var(--line); }
+  .trust .item { display: inline-flex; align-items: center; gap: 10px; font-size: 15.5px; font-weight: 600; color: var(--ink2); }
+  .trust .item svg { width: 19px; height: 19px; color: var(--brandcol); flex: none; }
+  .trust .sep { width: 1px; height: 26px; background: var(--line); }
+
+  .foot { position: absolute; bottom: 40px; left: 0; width: 100%; text-align: center; font-size: 16px; font-weight: 600; color: var(--muted); }
+  .foot b { color: var(--ink); font-weight: 700; }
+  .wm { position: absolute; right: 44px; bottom: 38px; font-family: var(--fm); font-size: 13px; color: var(--faint); }
+
+  /* ---- dark (default) ---- */
+  .stage {
+    --page: #0e131c; --surface: #161d29; --line: #273140; --ink: #e9eef6; --ink2: #cdd6e4; --muted: #93a1b6; --faint: #6b788d; --body: #bcc8da;
+    --brandcol: #7f9cff; --wire: #3a4658; --knock: #161d29; --subline: rgba(255,255,255,0.07);
+    --cardshadow: 0 1px 0 rgba(255,255,255,0.03), 0 18px 40px -30px rgba(0,0,0,0.7);
+  }
+  /* ---- light ---- */
+  .stage.light {
+    --page: #f7f9fc; --surface: #ffffff; --line: #e6ebf2; --ink: #0e1a2d; --ink2: #22324c; --muted: #5a6a80; --faint: #93a1b5; --body: #47566a;
+    --brandcol: #1e4bb3; --wire: #c2ccdb; --knock: #ffffff; --subline: #eef2f7;
+    --cardshadow: 0 1px 2px rgba(20,40,75,0.05), 0 12px 28px -22px rgba(20,40,75,0.22);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="head">
+    <div class="eyebrow"><svg class="mark" viewBox="0 0 599 595" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M299.6 559.84C229.4 559.84 163.4 532.5 113.76 482.86C64.12 433.22 36.78 367.22 36.78 297.02C36.78 226.82 64.12 160.82 113.76 111.18C163.4 61.54 229.4 34.2 299.6 34.2C369.8 34.2 435.8 61.54 485.44 111.18C535.08 160.82 562.42 226.82 562.42 297.02C562.42 367.22 535.08 433.22 485.44 482.86C435.8 532.5 369.8 559.84 299.6 559.84ZM299.6 72.98C176.07 72.98 75.56 173.48 75.56 297.02C75.56 420.56 176.06 521.06 299.6 521.06C423.13 521.06 523.64 420.56 523.64 297.02C523.64 173.49 423.14 72.98 299.6 72.98Z" fill="#65ACBC"/><path d="M202.04 214.07C36.52 355.89 204.6 566.67 383.4 485.29C190.07 500.5 130.21 299.82 202.04 214.07Z" fill="#65ACBC"/><path d="M370.59 175.54C209.89 28.29 20.86 220.5 123.16 388.21C84.8 198.11 276.82 114.55 370.59 175.54Z" fill="#65ACBC"/><path d="M385.71 389.03C562.56 261.63 412.8 37.46 227.79 103.53C421.72 104.62 464.49 309.62 385.71 389.03Z" fill="#65ACBC"/><path d="M232.76 417.21C397.83 559.55 580.98 361.73 473.67 197.18C517.74 386.04 328.33 475.35 232.76 417.21Z" fill="#65ACBC"/><path d="M338.569 251.91C336.748 242.134 333.395 233.013 329.307 223.949C322.244 208.301 313.253 193.824 302.848 180.096C301.657 178.513 300.659 177.886 299.651 178.017C299.07 178.101 298.585 178.494 298.275 178.963C266.865 226.973 204.327 244.063 203 315.915C203.136 321.683 203.891 327.508 205.403 333.351C211.371 356.471 224.595 374.769 245.164 388.019C250.899 391.259 256.964 393.928 263.145 396.054C263.29 394.247 262.206 393.357 261.382 392.374C259.173 389.714 256.625 387.251 254.774 384.377C246.83 372.025 243.352 358.915 246.142 344.138C248.148 333.473 254.368 325.691 262.37 319.426C272.243 311.71 283.966 307.019 296.512 304.369C304.931 302.599 313.602 301.222 321.004 296.568C334.587 288.028 341.669 268.513 338.559 251.91H338.569Z" fill="#0678BE"/><path d="M397.59 314.604V314.651C397.474 318.406 397.154 322.189 396.699 326C393.822 338.679 389.723 350.506 382.573 361.303C358.759 397.271 315.268 409.051 290.883 395.604C290.447 395.37 290.011 395.117 289.575 394.855C276.854 387.326 268.813 376.483 268.26 361.837C267.66 345.805 276.418 335.027 291.067 328.388C299.195 324.708 307.944 322.9 316.654 321.112C327.282 318.911 337.019 314.847 345.002 307.758C355.175 298.741 361.298 287.541 361.995 273.982C362.848 257.416 356.793 242.78 348.683 228.743C347.812 227.226 347.143 225.615 346.717 223.93C346.717 223.92 346.717 223.911 346.717 223.902C372.652 246.966 396.37 270.311 397.6 314.594L397.59 314.604Z" fill="#53B0EB"/></svg><span>One foundation for every project</span></div>
+    <h1>Install once. <span class="g">Stay current for years.</span></h1>
+    <div class="lead">A tested, actively maintained Drupal template that gives your whole team<br /><b>one production-ready foundation for every project</b> - so your engineers get straight to building.</div>
+  </div>
+
+  <div class="card c1">
+    <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9.5" r="6.2"/><path d="M8.4 14.6 6.8 21.5l5.2-2.8 5.2 2.8-1.6-6.9"/><path d="M9.4 9.5l1.9 1.9L15 7.7"/></svg></div>
+    <h3>Standardize every Drupal project</h3>
+    <p>The same tools, commands, and workflows on every project, so anyone can move between them without missing a beat.</p>
+    <div class="tag">ONE STACK · EVERY PROJECT</div>
+  </div>
+  <div class="card c2">
+    <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></div>
+    <h3>Set up in minutes</h3>
+    <p>Start from a battle-tested foundation - containers, CI, hosting, and tooling - refined across hundreds of real Drupal projects.</p>
+    <div class="tag">PRODUCTION-READY DAY ONE</div>
+  </div>
+  <div class="card c3">
+    <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M3 11V9a4 4 0 0 1 4-4h13"/><path d="M7 22l-3-3 3-3"/><path d="M21 13v2a4 4 0 0 1-4 4H4"/></svg></div>
+    <h3>Effortless upgrades</h3>
+    <p>Monthly releases keep Drupal, PHP, and tooling current, long after launch.</p>
+    <div class="tag">MONTHLY RELEASES</div>
+  </div>
+  <div class="card c4">
+    <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5A2 2 0 0 1 7 3h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a2 2 0 0 0-2 2V4.5z"/><path d="M5 19.5A2 2 0 0 1 7 18h12"/><path d="M9 7.5h6M9 11h6"/></svg></div>
+    <h3>Centralized documentation</h3>
+    <p>One place your whole team turns to for answers, plus a scaffold for your project's own docs.</p>
+    <div class="tag">REFERENCE · ONBOARDING</div>
+  </div>
+
+  <div class="trust">
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>AI-agent ready</div>
+    <div class="sep"></div>
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free &amp; open source</div>
+    <div class="sep"></div>
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>A tested toolchain</div>
+    <div class="sep"></div>
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>A new release every month</div>
+  </div>
+
+  <div class="foot">Set up once, standardized across your portfolio, and <b>kept current for the life of every project.</b></div>
+  <div class="wm">vortextemplate.com</div>
+</div>
+<script>if((location.search+location.hash).indexOf('light')>-1){document.querySelector('.stage').classList.add('light');}</script>
+</body>
+</html>
