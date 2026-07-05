@@ -77,8 +77,8 @@ class PanelController {
    *
    * @param \DrevOps\Customizer\Config\Config $config
    *   The configuration.
-   * @param \DrevOps\Customizer\Tui\PanelRenderer $renderer
-   *   The panel renderer.
+   * @param \DrevOps\Customizer\Tui\Theme $theme
+   *   The theme (the visual authority for rendering).
    * @param array<string,mixed> $values
    *   The initial answer values (typically the engine's resolved answers).
    * @param array<string,string> $provenance
@@ -90,7 +90,7 @@ class PanelController {
    */
   public function __construct(
     protected Config $config,
-    protected PanelRenderer $renderer,
+    protected Theme $theme,
     protected array $values = [],
     protected array $provenance = [],
     protected string $banner = '',
@@ -153,7 +153,7 @@ class PanelController {
 
     try {
       if ($this->banner !== '') {
-        $terminal->render($this->renderer->banner($this->banner, $this->version) . "\n\nPress any key to continue...");
+        $terminal->render($this->theme->banner($this->banner, $this->version) . "\n\nPress any key to continue...");
         $terminal->read();
       }
 
@@ -216,7 +216,7 @@ class PanelController {
       return ($this->editing instanceof Field ? $this->editing->label : '') . "\n" . $this->editor->view();
     }
 
-    [$body, $cursor_line] = $this->renderer->body($this->navigator->current(), $this->answers(), $this->cursor);
+    [$body, $cursor_line] = $this->theme->body($this->navigator->current(), $this->answers(), $this->cursor);
     $total = count($body);
 
     if ($this->followCursor) {
@@ -228,10 +228,10 @@ class PanelController {
     }
 
     $this->offset = $viewport->offset;
-    $header = [$this->renderer->breadcrumbLine($this->navigator)];
+    $header = [$this->theme->breadcrumbLine($this->navigator)];
     $footer = ['↑/↓ move · ↵ open · esc back'];
 
-    return $this->renderer->frame($header, $body, $footer, $viewport, $height);
+    return $this->theme->frame($header, $body, $footer, $viewport, $height);
   }
 
   /**
@@ -285,7 +285,7 @@ class PanelController {
     }
 
     $this->followCursor = TRUE;
-    $count = $this->renderer->itemCount($this->navigator->current());
+    $count = $this->theme->itemCount($this->navigator->current());
 
     if ($key->is(KeyName::Up)) {
       $this->cursor = max(0, $this->cursor - 1);

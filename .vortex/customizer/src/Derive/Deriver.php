@@ -70,7 +70,7 @@ class Deriver {
    */
   protected function compute(array $rule, array $values): string {
     $template = isset($rule['template']) && is_scalar($rule['template']) ? (string) $rule['template'] : '';
-    $interpolated = $this->interpolate($template, $values);
+    $interpolated = trim($this->interpolate($template, $values));
     $transform = isset($rule['transform']) && is_scalar($rule['transform']) ? (string) $rule['transform'] : '';
 
     return $transform === '' ? $interpolated : Transform::apply($interpolated, $transform);

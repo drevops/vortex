@@ -15,7 +15,6 @@ use DrevOps\Customizer\Schema\AgentHelp;
 use DrevOps\Customizer\Schema\SchemaGenerator;
 use DrevOps\Customizer\Schema\SchemaValidator;
 use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Tui\PanelRenderer;
 use DrevOps\Customizer\Tui\Terminal;
 use DrevOps\Customizer\Tui\Theme;
 use DrevOps\VortexCli\Processor;
@@ -132,7 +131,7 @@ EOT;
 
     // @codeCoverageIgnoreStart
     $engine->collect([], $context);
-    $controller = new PanelController($config, new PanelRenderer(new Theme('dark')), $engine->answers()->values, $engine->answers()->provenance, static::BANNER, $this->version());
+    $controller = new PanelController($config, new Theme('dark'), $engine->answers()->values, $engine->answers()->provenance, static::BANNER, $this->version());
     $answers = $controller->run(new Terminal());
     $output->writeln($answers->toJson());
 

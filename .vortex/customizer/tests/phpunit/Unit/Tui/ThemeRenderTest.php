@@ -10,7 +10,6 @@ use DrevOps\Customizer\Config\FieldType;
 use DrevOps\Customizer\Config\Panel;
 use DrevOps\Customizer\Tui\Ansi;
 use DrevOps\Customizer\Tui\Navigator;
-use DrevOps\Customizer\Tui\PanelRenderer;
 use DrevOps\Customizer\Tui\Theme;
 use DrevOps\Customizer\Tui\Viewport;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,14 +17,14 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the panel renderer via headless frame probes.
+ * Tests the theme's rendering via headless frame probes.
  */
-#[CoversClass(PanelRenderer::class)]
+#[CoversClass(Theme::class)]
 #[Group('tui')]
-final class PanelRendererTest extends TestCase {
+final class ThemeRenderTest extends TestCase {
 
   public function testFieldLineSelectedRightAlignsBadge(): void {
-    $line = $this->renderer()->fieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'edited']), TRUE);
+    $line = $this->theme()->fieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'edited']), TRUE);
 
     $this->assertStringContainsString('❯ Name  Acme', Ansi::strip($line));
     $this->assertStringContainsString('edited', Ansi::strip($line));
@@ -33,14 +32,24 @@ final class PanelRendererTest extends TestCase {
   }
 
   public function testFieldLineDefaultHasNoBadge(): void {
-    $line = $this->renderer()->fieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'default']), FALSE);
+    $line = $this->theme()->fieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'default']), FALSE);
 
     $this->assertStringNotContainsString('default', $line);
     $this->assertStringContainsString('Name  Acme', Ansi::strip($line));
   }
 
+  public function testFieldLineRendersValues(): void {
+    $theme = $this->theme();
+
+    $bool = Ansi::strip($theme->fieldLine(new Field('b', 'B', '', FieldType::Confirm, FALSE), new Answers(['b' => TRUE], ['b' => 'default']), FALSE));
+    $this->assertStringContainsString('B  yes', $bool);
+
+    $list = Ansi::strip($theme->fieldLine(new Field('m', 'M', '', FieldType::MultiSelect, []), new Answers(['m' => ['a', 'b']], ['m' => 'default']), FALSE));
+    $this->assertStringContainsString('M  a, b', $list);
+  }
+
   public function testPanelLineShowsDrillIndicator(): void {
-    $line = Ansi::strip($this->renderer()->panelLine(new Panel('adv', 'Advanced', ''), TRUE));
+    $line = Ansi::strip($this->theme()->panelLine(new Panel('adv', 'Advanced', ''), TRUE));
 
     $this->assertStringContainsString('❯ Advanced', $line);
     $this->assertStringContainsString('›', $line);
@@ -52,7 +61,7 @@ final class PanelRendererTest extends TestCase {
       new Field('b', 'B', '', FieldType::Text, ''),
     ]);
 
-    [$lines, $cursor_line] = $this->renderer()->body($panel, new Answers(), 1);
+    [$lines, $cursor_line] = $this->theme()->body($panel, new Answers(), 1);
 
     $this->assertSame(2, $cursor_line);
     $this->assertStringContainsString('❯ B', Ansi::strip($lines[2]));
@@ -61,7 +70,7 @@ final class PanelRendererTest extends TestCase {
   public function testFrameShowsIndicatorsAndWindow(): void {
     $body = array_map(static fn(int $i): string => 'line' . $i, range(0, 9));
 
-    $frame = $this->renderer()->frame(['HEAD'], $body, ['FOOT'], new Viewport(3, TRUE, TRUE), 4);
+    $frame = $this->theme()->frame(['HEAD'], $body, ['FOOT'], new Viewport(3, TRUE, TRUE), 4);
 
     $this->assertStringContainsString('▲', $frame);
     $this->assertStringContainsString('▼', $frame);
@@ -74,14 +83,29 @@ final class PanelRendererTest extends TestCase {
   public function testBreadcrumbLine(): void {
     $navigator = new Navigator(new Panel('hub', 'Hub', '', [], [new Panel('d', 'Drupal', '')]));
 
-    $this->assertSame('Hub', Ansi::strip($this->renderer()->breadcrumbLine($navigator)));
+    $this->assertSame('Hub', Ansi::strip($this->theme()->breadcrumbLine($navigator)));
+  }
+
+  public function testBanner(): void {
+    $banner = Ansi::strip($this->theme()->banner("LOGO\nline", '1.2.3'));
+
+    $this->assertStringContainsString('LOGO', $banner);
+    $this->assertStringContainsString('Version: 1.2.3', $banner);
+
+    $this->assertStringNotContainsString('Version', Ansi::strip($this->theme()->banner('LOGO', '')));
+  }
+
+  public function testItemCount(): void {
+    $panel = new Panel('p', 'P', '', [new Field('a', 'A', '', FieldType::Text, '')], [new Panel('s', 'S', '')]);
+
+    $this->assertSame(2, $this->theme()->itemCount($panel));
   }
 
   /**
-   * A colourless renderer of fixed width for stable assertions.
+   * A colourless theme of fixed width for stable assertions.
    */
-  protected function renderer(): PanelRenderer {
-    return new PanelRenderer(new Theme('default', [], FALSE), 40);
+  protected function theme(): Theme {
+    return new Theme('default', [], FALSE, 40);
   }
 
 }
