@@ -64,6 +64,23 @@ final class EngineConditionalTest extends TestCase {
     $this->assertSame(['a' => 'x'], $engine->run([], new Context()));
   }
 
+  public function testMultiFieldConditional(): void {
+    // A when can depend on any number of fields via all / any / not.
+    $engine = $this->engine([
+      'panels' => [['id' => 'p', 'fields' => [
+        ['id' => 'a', 'default' => 'x'],
+        ['id' => 'b', 'default' => 'y'],
+        ['id' => 'c', 'default' => 'z', 'when' => ['all' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]]],
+      ]]],
+    ]);
+
+    // Both conditions hold: c is active.
+    $this->assertArrayHasKey('c', $engine->run([], new Context()));
+
+    // One condition fails: c is gated out.
+    $this->assertArrayNotHasKey('c', $engine->run(['b' => 'other'], new Context()));
+  }
+
   public function testMergeCustomFixup(): void {
     $engine = $this->engine([
       'panels' => [['id' => 'p', 'fields' => [

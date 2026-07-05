@@ -73,6 +73,20 @@ panels:
         default: 'php:8.4-cli'
         when: { field: features, contains: docker }
 
+      # A multi-field conditional: conditions compose with all / any / not, so a
+      # field can depend on any number of others. This one is shown only when
+      # docker is selected AND the package is an application.
+      - id: docker_compose
+        label: 'Generate a docker-compose.yml?'
+        type: confirm
+        default: true
+        when:
+          all:
+            - field: features
+              contains: docker
+            - field: type
+              eq: application
+
       # An autocomplete with free-text fallback.
       - id: php_version
         label: 'PHP version'
