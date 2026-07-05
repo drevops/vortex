@@ -66,10 +66,11 @@ class Discovery {
     }
 
     $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    // @codeCoverageIgnoreStart
     if ($lines === FALSE) {
       return NULL;
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($lines as $line) {
       $line = trim($line);
       if ($line === '') {
@@ -117,10 +118,11 @@ class Discovery {
     }
 
     $contents = file_get_contents($full);
+    // @codeCoverageIgnoreStart
     if ($contents === FALSE) {
       return NULL;
     }
-
+    // @codeCoverageIgnoreEnd
     $data = json_decode($contents, TRUE);
 
     return is_array($data) ? $this->traverse($data, $path) : NULL;
@@ -189,10 +191,11 @@ class Discovery {
     }
 
     $entries = scandir($full);
+    // @codeCoverageIgnoreStart
     if ($entries === FALSE) {
       return [];
     }
-
+    // @codeCoverageIgnoreEnd
     $out = [];
     foreach ($entries as $entry) {
       if ($entry === '.') {

@@ -40,6 +40,12 @@ final class WidgetFactoryTest extends TestCase {
     $this->assertSame('Acme', $widget->value());
   }
 
+  public function testMultiselectWithNonArrayValueHasNoDefaults(): void {
+    $widget = (new WidgetFactory())->create($this->fieldWithOptions(FieldType::MultiSelect), 'notalist');
+
+    $this->assertSame([], $widget->value());
+  }
+
   /**
    * A field of the given type.
    *

@@ -81,4 +81,12 @@ final class TextWidgetTest extends TestCase {
     $this->assertNull($value);
   }
 
+  public function testSpaceInsertsSpace(): void {
+    $widget = new TextWidget();
+
+    $value = WidgetRunner::run($widget, ArrayKeyStream::of(Key::char('a'), Key::named(KeyName::Space), Key::char('b'), Key::named(KeyName::Enter)));
+
+    $this->assertSame('a b', $value);
+  }
+
 }

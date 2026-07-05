@@ -53,6 +53,8 @@ final class ConditionDescriberTest extends TestCase {
     yield 'any' => [['any' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]], 'a is x or b is y'];
     yield 'not' => [['not' => ['field' => 'a', 'eq' => 'x']], 'not (a is x)'];
     yield 'no field' => [['eq' => 'x'], 'value is x'];
+    yield 'all not a list' => [['all' => 'x'], ''];
+    yield 'in not a list' => [['field' => 'a', 'in' => 'x'], 'a is one of '];
   }
 
 }

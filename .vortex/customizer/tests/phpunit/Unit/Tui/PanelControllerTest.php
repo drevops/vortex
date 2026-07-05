@@ -93,6 +93,16 @@ final class PanelControllerTest extends TestCase {
     $this->assertStringContainsString('Demo', $controller->frame(4));
   }
 
+  public function testMouseWheelUpScrollsBackWithoutMovingCursor(): void {
+    $controller = $this->controller();
+
+    $controller->handle(Key::named(KeyName::MouseWheelDown));
+    $controller->handle(Key::named(KeyName::MouseWheelUp));
+
+    $this->assertSame(0, $controller->cursor());
+    $this->assertStringContainsString('Demo', $controller->frame(4));
+  }
+
   public function testFrameShowsSelectionAndValue(): void {
     $controller = $this->controller();
     $controller->handle(Key::named(KeyName::Enter));

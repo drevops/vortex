@@ -78,6 +78,20 @@ final class SchemaGeneratorTest extends TestCase {
     $this->assertSame($expected, (new SchemaGenerator($config))->generate());
   }
 
+  public function testDependsOnCollectsNestedFieldRefs(): void {
+    $config = (new ConfigLoader())->fromArray([
+      'panels' => [['id' => 'p', 'fields' => [
+        ['id' => 'a', 'type' => 'text'],
+        ['id' => 'b', 'type' => 'text'],
+        ['id' => 'c', 'type' => 'text', 'when' => ['all' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]]],
+      ]]],
+    ]);
+
+    $json = (string) json_encode((new SchemaGenerator($config))->generate());
+
+    $this->assertStringContainsString('"depends_on":["a","b"]', $json);
+  }
+
   public function testRoundTripsThroughJson(): void {
     $config = (new ConfigLoader())->fromArray([
       'panels' => [['id' => 'p', 'fields' => [['id' => 'x', 'type' => 'confirm', 'default' => TRUE]]]],

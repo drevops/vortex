@@ -54,4 +54,12 @@ final class ConfirmWidgetTest extends TestCase {
     $this->assertTrue($widget->isComplete());
   }
 
+  public function testCancel(): void {
+    $widget = new ConfirmWidget(FALSE);
+
+    $widget->handle(Key::named(KeyName::Escape));
+
+    $this->assertTrue($widget->isCancelled());
+  }
+
 }

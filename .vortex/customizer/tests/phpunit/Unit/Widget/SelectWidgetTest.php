@@ -55,4 +55,12 @@ final class SelectWidgetTest extends TestCase {
     $this->assertSame('b', $widget->value());
   }
 
+  public function testCancel(): void {
+    $widget = new SelectWidget(['a' => 'A', 'b' => 'B']);
+
+    $widget->handle(Key::named(KeyName::Escape));
+
+    $this->assertTrue($widget->isCancelled());
+  }
+
 }

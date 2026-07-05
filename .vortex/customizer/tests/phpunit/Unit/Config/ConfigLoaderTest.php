@@ -102,6 +102,34 @@ final class ConfigLoaderTest extends TestCase {
     yield 'unknown type' => [['panels' => [['id' => 'p', 'fields' => [['id' => 'f', 'type' => 'bogus']]]]], 'unknown type'];
     yield 'bad option' => [['panels' => [['id' => 'p', 'fields' => [['id' => 'f', 'type' => 'select', 'options' => [['label' => 'x']]]]]]], 'must be a mapping with a "value"'];
     yield 'duplicate id' => [['panels' => [['id' => 'p', 'fields' => [['id' => 'dup'], ['id' => 'dup']]]]], 'Duplicate field id'];
+    yield 'panels not a list' => [['panels' => 'x'], 'must be a list of panels'];
+    yield 'fields not a list' => [['panels' => [['id' => 'p', 'fields' => 'x']]], 'must be a list'];
+    yield 'options not a list' => [['panels' => [['id' => 'p', 'fields' => [['id' => 'f', 'type' => 'select', 'options' => 'x']]]]], 'must be a list'];
+    yield 'unknown transform' => [['panels' => [['id' => 'p', 'fields' => [['id' => 'f', 'derive' => ['template' => '{{x}}', 'transform' => 'bogus']]]]]], 'unknown derive transform'];
+  }
+
+  public function testFixups(): void {
+    // A non-array fixups value is ignored; only array items are kept.
+    $ignored = (new ConfigLoader())->fromArray(['fixups' => 'notalist', 'panels' => []]);
+    $this->assertSame([], $ignored->fixups);
+
+    $config = (new ConfigLoader())->fromArray([
+      'fixups' => [['when' => ['field' => 'a', 'eq' => 'b']], 'skip-me'],
+      'panels' => [],
+    ]);
+    $this->assertCount(1, $config->fixups);
+  }
+
+  public function testLoadMissingFileThrows(): void {
+    $this->expectException(ConfigException::class);
+    $this->expectExceptionMessage('Config file not found');
+    (new ConfigLoader())->loadFiles([__DIR__ . '/../../Fixtures/config/nope.yml']);
+  }
+
+  public function testLoadNonMappingFileThrows(): void {
+    $this->expectException(ConfigException::class);
+    $this->expectExceptionMessage('is not a mapping');
+    (new ConfigLoader())->loadFiles([__DIR__ . '/../../Fixtures/config/scalar.yml']);
   }
 
 }

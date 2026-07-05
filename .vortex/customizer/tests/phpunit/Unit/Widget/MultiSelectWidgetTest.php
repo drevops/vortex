@@ -78,4 +78,49 @@ final class MultiSelectWidgetTest extends TestCase {
     $this->assertSame([], $widget->value());
   }
 
+  public function testCancel(): void {
+    $widget = new MultiSelectWidget(['a' => 'A', 'b' => 'B']);
+
+    WidgetRunner::run($widget, ArrayKeyStream::of(Key::named(KeyName::Escape)));
+
+    $this->assertTrue($widget->isCancelled());
+  }
+
+  public function testUpMovesCursorBack(): void {
+    $widget = new MultiSelectWidget(['a' => 'A', 'b' => 'B']);
+
+    $value = WidgetRunner::run($widget, ArrayKeyStream::of(
+      Key::named(KeyName::Down),
+      Key::named(KeyName::Up),
+      Key::named(KeyName::Space),
+      Key::named(KeyName::Enter),
+    ));
+
+    $this->assertSame(['a'], $value);
+  }
+
+  public function testToggleOffDeselects(): void {
+    $widget = new MultiSelectWidget(['a' => 'A', 'b' => 'B'], ['b']);
+
+    $value = WidgetRunner::run($widget, ArrayKeyStream::of(
+      Key::named(KeyName::Down),
+      Key::named(KeyName::Space),
+      Key::named(KeyName::Enter),
+    ));
+
+    $this->assertSame([], $value);
+  }
+
+  public function testToggleWithNoMatchesIsNoop(): void {
+    $widget = new MultiSelectWidget(['a' => 'Apple']);
+
+    $widget->handle(Key::char('z'));
+    $value = WidgetRunner::run($widget, ArrayKeyStream::of(
+      Key::named(KeyName::Space),
+      Key::named(KeyName::Enter),
+    ));
+
+    $this->assertSame([], $value);
+  }
+
 }

@@ -242,7 +242,9 @@ class PanelController {
    */
   protected function handleEditing(Key $key): void {
     if (!$this->editor instanceof WidgetInterface || !$this->editing instanceof Field) {
+      // @codeCoverageIgnoreStart
       return;
+      // @codeCoverageIgnoreEnd
     }
 
     $this->editor->handle($key);

@@ -65,6 +65,7 @@ final class ConditionEvaluatorTest extends TestCase {
     yield 'not false' => [['not' => ['field' => 'a', 'eq' => 'x']], ['a' => 'x'], FALSE];
     yield 'not non-array operand' => [['not' => 'bogus'], [], TRUE];
     yield 'nested composite' => [['all' => [['field' => 'a', 'eq' => 'x'], ['any' => [['field' => 'b', 'eq' => '1'], ['field' => 'b', 'eq' => '2']]]]], ['a' => 'x', 'b' => '2'], TRUE];
+    yield 'all non-array operand is vacuously true' => [['all' => 'x'], [], TRUE];
   }
 
 }

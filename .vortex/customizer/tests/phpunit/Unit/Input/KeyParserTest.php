@@ -82,6 +82,8 @@ final class KeyParserTest extends TestCase {
     yield 'mouse wheel down' => ["\033[<65;10;5M", ['MouseWheelDown']];
     yield 'mouse other ignored' => ["\033[<0;1;1M", []];
     yield 'combo' => ["a\033[Bb", ['char:a', 'Down', 'char:b']];
+    yield 'incomplete csi degrades' => ["\033[1", ['Escape', 'char:[', 'char:1']];
+    yield 'incomplete mouse degrades' => ["\033[<1", ['Escape', 'char:[', 'char:<', 'char:1']];
   }
 
 }

@@ -25,11 +25,15 @@ final class DiscoveryTest extends TestCase {
   protected function setUp(): void {
     parent::setUp();
     vfsStream::setup('project', NULL, [
-      '.env' => "# comment\nDRUPAL_PROFILE=standard\nSITE_NAME=\"Acme Site\"\nEMPTY=\n",
+      '.env' => "# comment\n   \nNOEQUALS\nDRUPAL_PROFILE=standard\nSITE_NAME=\"Acme Site\"\nEMPTY=\n",
       'composer.json' => '{"name": "acme/site", "extra": {"drupal": {"webroot": "web"}}}',
       'web' => [
         'sites' => ['default' => ['settings.php' => '<?php']],
         'modules' => ['custom' => ['alpha' => ['alpha.info.yml' => ''], 'beta' => ['beta.info.yml' => '']]],
+      ],
+      'mixed' => [
+        'afile.txt' => 'x',
+        'adir' => ['keep' => ''],
       ],
     ]);
     $this->dir = vfsStream::url('project');
@@ -65,6 +69,23 @@ final class DiscoveryTest extends TestCase {
 
     $this->assertSame(['alpha', 'beta'], $discovery->detect(['scan' => ['dir' => 'web/modules/custom', 'type' => 'dir']], $this->dir));
     $this->assertSame([], $discovery->detect(['scan' => ['dir' => 'web/nope']], $this->dir));
+  }
+
+  public function testJsonWithoutFileOrPathReturnsNull(): void {
+    $discovery = new Discovery();
+
+    // No "file": nothing to read.
+    $this->assertNull($discovery->detect(['json' => ['path' => 'name']], $this->dir));
+    // No "path": nothing to traverse to.
+    $this->assertNull($discovery->detect(['json' => ['file' => 'composer.json']], $this->dir));
+  }
+
+  public function testScanFiltersByType(): void {
+    $discovery = new Discovery();
+
+    // type=dir skips the file; type=file skips the directory.
+    $this->assertSame(['adir'], $discovery->detect(['scan' => ['dir' => 'mixed', 'type' => 'dir']], $this->dir));
+    $this->assertSame(['afile.txt'], $discovery->detect(['scan' => ['dir' => 'mixed', 'type' => 'file']], $this->dir));
   }
 
   public function testUnknownRuleReturnsNull(): void {

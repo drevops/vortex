@@ -54,4 +54,15 @@ final class SummaryFormatterTest extends TestCase {
     $this->assertStringNotContainsString('Gone', $summary);
   }
 
+  public function testFormatsListValues(): void {
+    $config = (new ConfigLoader())->fromArray([
+      'panels' => [['id' => 'p', 'title' => 'P', 'fields' => [['id' => 'mods', 'label' => 'Mods', 'type' => 'multiselect']]]],
+    ]);
+    $answers = new Answers(['mods' => ['a', 'b']], ['mods' => 'edited']);
+
+    $summary = (new SummaryFormatter())->format($config, $answers);
+
+    $this->assertStringContainsString('Mods: a, b', $summary);
+  }
+
 }

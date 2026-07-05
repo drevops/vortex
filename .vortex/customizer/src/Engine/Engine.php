@@ -289,7 +289,9 @@ class Engine {
       $values = $next_values;
     }
 
+    // @codeCoverageIgnoreStart
     return [$active, $values];
+    // @codeCoverageIgnoreEnd
   }
 
   /**

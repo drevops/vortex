@@ -52,6 +52,18 @@ final class EngineConditionalTest extends TestCase {
     $this->assertSame('none', $engine->run(['provision' => 'profile'], new Context())['database_source']);
   }
 
+  public function testFixupWithoutTargetIsSkipped(): void {
+    $engine = $this->engine([
+      'panels' => [['id' => 'p', 'fields' => [['id' => 'a', 'default' => 'x']]]],
+      'fixups' => [
+        // The "when" matches but there is no "set" target: the rule is ignored.
+        ['when' => ['field' => 'a', 'eq' => 'x']],
+      ],
+    ]);
+
+    $this->assertSame(['a' => 'x'], $engine->run([], new Context()));
+  }
+
   public function testMergeCustomFixup(): void {
     $engine = $this->engine([
       'panels' => [['id' => 'p', 'fields' => [

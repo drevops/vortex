@@ -67,4 +67,21 @@ final class SuggestWidgetTest extends TestCase {
     $this->assertSame('a', $widget->value());
   }
 
+  public function testCancel(): void {
+    $widget = new SuggestWidget(['x', 'y']);
+
+    $widget->handle(Key::named(KeyName::Escape));
+
+    $this->assertTrue($widget->isCancelled());
+  }
+
+  public function testSpaceAppendsToBuffer(): void {
+    $widget = new SuggestWidget(['x', 'y']);
+
+    $widget->handle(Key::char('a'));
+    $widget->handle(Key::named(KeyName::Space));
+
+    $this->assertSame('a ', $widget->value());
+  }
+
 }

@@ -59,6 +59,12 @@ final class SchemaValidatorTest extends TestCase {
     $this->assertContains('Question "mods" contains an invalid option "z".', $errors);
   }
 
+  public function testMultiselectWrongType(): void {
+    $errors = (new SchemaValidator($this->config()))->validate(['name' => 'Acme', 'mods' => 'notalist']);
+
+    $this->assertContains('Question "mods" must be a list.', $errors);
+  }
+
   public function testUnknownQuestion(): void {
     $errors = (new SchemaValidator($this->config()))->validate(['name' => 'Acme', 'bogus' => 'x']);
 
