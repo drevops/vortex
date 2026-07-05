@@ -18,6 +18,7 @@
     },
     "require": {
         "php": ">=8.2",
+        "alexskrypnyk/str2name": "^1.4.1",
         "symfony/console": "^7.4.13"
     },
     "require-dev": {

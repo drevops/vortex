@@ -88,7 +88,7 @@ panels:
         label: 'Custom modules prefix'
         description: 'We will use this name in custom modules.'
         required: true
-        derive: { template: '{{machine_name}}', transform: abbreviation }
+        derive: { template: '{{machine_name}}', transform: initials }
       - id: custom_modules
         label: 'Custom modules'
         description: 'Which scaffolded custom modules to keep.'

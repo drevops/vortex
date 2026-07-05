@@ -83,8 +83,10 @@ final class DeriverTest extends TestCase {
     yield 'upper' => ['upper', 'HeLLo', 'HELLO'];
     yield 'machine' => ['machine', 'My Site! 2', 'my_site_2'];
     yield 'host' => ['host', 'My_Site.Com', 'my-site.com'];
-    yield 'abbreviation' => ['abbreviation', 'My Awesome Site', 'mas'];
-    yield 'abbreviation capped' => ['abbreviation', 'a b c d e', 'abcd'];
+    yield 'kebab (str2name)' => ['kebab', 'My Site', 'my-site'];
+    yield 'pascal (str2name)' => ['pascal', 'my_site', 'MySite'];
+    yield 'initials' => ['initials', 'My Awesome Site', 'mas'];
+    yield 'initials capped' => ['initials', 'a b c d e', 'abcd'];
     yield 'none' => ['', 'As Is', 'As Is'];
     yield 'unknown passthrough' => ['bogus', 'As Is', 'As Is'];
   }

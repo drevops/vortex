@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Customizer\Config;
 
+use DrevOps\Customizer\Derive\Transform;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -150,6 +151,14 @@ class ConfigLoader {
         throw new ConfigException(sprintf('Field "%s" has an unknown type "%s".', $id, $this->toString($item['type'] ?? '')));
       }
 
+      $derive = isset($item['derive']) && is_array($item['derive']) ? $item['derive'] : NULL;
+      if ($derive !== NULL && isset($derive['transform'])) {
+        $transform = $this->toString($derive['transform']);
+        if ($transform !== '' && !Transform::supports($transform)) {
+          throw new ConfigException(sprintf('Field "%s" uses an unknown derive transform "%s".', $id, $transform));
+        }
+      }
+
       $fields[] = new Field(
         $id,
         $this->toString($item['label'] ?? $id),
@@ -160,7 +169,7 @@ class ConfigLoader {
         (bool) ($item['required'] ?? FALSE),
         (bool) ($item['machine'] ?? FALSE),
         isset($item['when']) && is_array($item['when']) ? $item['when'] : NULL,
-        isset($item['derive']) && is_array($item['derive']) ? $item['derive'] : NULL,
+        $derive,
         isset($item['discover']) && is_array($item['discover']) ? $item['discover'] : NULL,
       );
     }

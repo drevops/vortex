@@ -9,7 +9,8 @@ namespace DrevOps\Customizer\Derive;
  *
  * A derive rule is `{template, transform?}`, where the template contains
  * `{{field}}` tokens interpolated from the current values and the optional
- * transform normalizes the result (`machine` / `host` / `lower` / `upper`).
+ * transform normalizes the result via {@see Transform} (any str2name
+ * conversion, or one of host / lower / upper / abbreviation).
  * Derived values are recomputed to a fixpoint so chains settle, and fields the
  * user has pinned (overridden) are left untouched.
  *
@@ -72,7 +73,7 @@ class Deriver {
     $interpolated = $this->interpolate($template, $values);
     $transform = isset($rule['transform']) && is_scalar($rule['transform']) ? (string) $rule['transform'] : '';
 
-    return $transform === '' ? $interpolated : $this->applyTransform($interpolated, $transform);
+    return $transform === '' ? $interpolated : Transform::apply($interpolated, $transform);
   }
 
   /**
@@ -92,79 +93,6 @@ class Deriver {
 
       return is_scalar($value) ? (string) $value : '';
     }, $template);
-  }
-
-  /**
-   * Apply a named value transform.
-   *
-   * @param string $value
-   *   The value.
-   * @param string $name
-   *   The transform name (machine / host / lower / upper).
-   *
-   * @return string
-   *   The transformed value.
-   */
-  protected function applyTransform(string $value, string $name): string {
-    return match ($name) {
-      'lower' => strtolower($value),
-      'upper' => strtoupper($value),
-      'machine' => $this->machine($value),
-      'host' => $this->host($value),
-      'abbreviation' => $this->abbreviation($value),
-      default => $value,
-    };
-  }
-
-  /**
-   * Abbreviate a value to the initials of its underscore-separated words.
-   *
-   * @param string $value
-   *   The value.
-   *
-   * @return string
-   *   The abbreviation (up to four characters).
-   */
-  protected function abbreviation(string $value): string {
-    $letters = '';
-
-    foreach (explode('_', $this->machine($value)) as $part) {
-      if ($part !== '') {
-        $letters .= $part[0];
-      }
-    }
-
-    return substr($letters, 0, 4);
-  }
-
-  /**
-   * Normalize a value to a machine name (lowercase, underscore-separated).
-   *
-   * @param string $value
-   *   The value.
-   *
-   * @return string
-   *   The machine name.
-   */
-  protected function machine(string $value): string {
-    $out = preg_replace('/[^a-z0-9]+/', '_', strtolower($value)) ?? '';
-
-    return trim($out, '_');
-  }
-
-  /**
-   * Normalize a value to a hostname (lowercase, hyphen-separated, dots kept).
-   *
-   * @param string $value
-   *   The value.
-   *
-   * @return string
-   *   The hostname.
-   */
-  protected function host(string $value): string {
-    $out = preg_replace('/[^a-z0-9.]+/', '-', strtolower($value)) ?? '';
-
-    return trim($out, '-.');
   }
 
 }
