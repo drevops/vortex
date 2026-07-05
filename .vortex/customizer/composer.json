@@ -42,7 +42,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\Customizer\\Tests\\": "tests/phpunit"
+            "DrevOps\\Customizer\\Tests\\": "tests/phpunit",
+            "Playground\\": "playground/"
         },
         "classmap": [
             "tests/phpunit"
