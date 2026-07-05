@@ -10,6 +10,7 @@ description: Use when regenerating the customizer architecture diagrams under do
 - `architecture.puml` - layered component architecture
 - `dataflow-collect.puml` - the headless collection lifecycle (a sequence diagram)
 - `dataflow-tui.puml` - the interactive panel-TUI loop (a sequence diagram)
+- `README.md` - a narrative walkthrough that explains how the customizer is set up and how it runs, embedding the rendered SVGs as supporting visuals (not a bare index)
 
 All content is derived from the source under `src/` (the packages are the `src/` subdirectories; the lifecycle is what `Engine::collect()` and `PanelController::run()` do), never from design docs. If the docs and the code disagree, the code wins.
 
@@ -66,6 +67,10 @@ Eng --> Caller: <return>
 deactivate Eng
 @enduml
 ```
+
+## Task C - keep the walkthrough current
+
+`docs/architecture/README.md` is a walkthrough, not an index: it walks the reader through describing a config, attaching handlers, the headless collection lifecycle and the interactive TUI, embedding `architecture.svg`, `dataflow-collect.svg` and `dataflow-tui.svg` at the points they support. After any structural change (a new package, a changed lifecycle step, a new diagram), update the prose so it still matches `src/`, and embed any new SVG where it supports the narrative. Always regenerate the SVGs (Task A) in the same pass so the visuals and the prose agree.
 
 ## Conventions
 
