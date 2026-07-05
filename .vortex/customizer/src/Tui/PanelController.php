@@ -181,6 +181,9 @@ class PanelController {
     }
     finally {
       $terminal->restore();
+      if ($this->config->clearOnExit) {
+        $terminal->clear();
+      }
     }
 
     return $this->answers();
@@ -236,12 +239,11 @@ class PanelController {
 
     if ($this->config->buttons) {
       $base = $this->theme->itemCount($panel);
-      $start = count($body);
-      $body[] = $this->theme->buttonLine('Submit', $this->cursor === $base);
-      $body[] = $this->theme->buttonLine('Cancel', $this->cursor === $base + 1);
+      $selected = $this->cursor >= $base ? $this->cursor - $base : -1;
       if ($this->cursor >= $base) {
-        $cursor_line = $start + ($this->cursor - $base);
+        $cursor_line = count($body);
       }
+      $body[] = $this->theme->buttonBar([$this->config->submitLabel, $this->config->cancelLabel], $selected);
     }
 
     $total = count($body);

@@ -49,13 +49,21 @@ class ConfigLoader {
     $seen = [];
     $panels = $this->buildPanels($data['panels'] ?? [], $seen);
 
+    $buttons = $data['buttons'] ?? TRUE;
+    $show_buttons = is_array($buttons) ? TRUE : (bool) $buttons;
+    $submit_label = is_array($buttons) ? $this->toString($buttons['submit'] ?? 'Submit') : 'Submit';
+    $cancel_label = is_array($buttons) ? $this->toString($buttons['cancel'] ?? 'Cancel') : 'Cancel';
+
     return new Config(
       $this->toString($data['title'] ?? 'Customizer'),
       $this->toString($data['subject'] ?? ''),
       $panels,
       $this->buildFixups($data['fixups'] ?? []),
       $this->toString($data['theme'] ?? ''),
-      (bool) ($data['buttons'] ?? TRUE),
+      $show_buttons,
+      $submit_label,
+      $cancel_label,
+      (bool) ($data['clear_on_exit'] ?? TRUE),
     );
   }
 

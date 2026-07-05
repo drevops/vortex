@@ -62,6 +62,13 @@ class Terminal {
   }
 
   /**
+   * Clear the screen.
+   */
+  public function clear(): void {
+    $this->write(TerminalControl::clear());
+  }
+
+  /**
    * Enter the full-screen raw-input mode.
    */
   public function setup(): void {

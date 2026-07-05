@@ -33,4 +33,18 @@ final class TerminalTest extends TestCase {
     $this->assertStringContainsString("\033[2J", $contents);
   }
 
+  public function testClear(): void {
+    $stream = fopen('php://memory', 'rw');
+    $this->assertIsResource($stream);
+
+    $terminal = new Terminal($stream);
+    $terminal->clear();
+
+    rewind($stream);
+    $contents = (string) stream_get_contents($stream);
+    fclose($stream);
+
+    $this->assertStringContainsString("\033[2J", $contents);
+  }
+
 }

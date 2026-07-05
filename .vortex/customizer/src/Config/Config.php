@@ -26,6 +26,12 @@ final readonly class Config {
    *   The theme name or class for the interactive TUI (empty for the default).
    * @param bool $buttons
    *   Whether the interactive TUI shows submit and cancel buttons.
+   * @param string $submitLabel
+   *   The label of the submit button.
+   * @param string $cancelLabel
+   *   The label of the cancel button.
+   * @param bool $clearOnExit
+   *   Whether to clear the screen when the interactive TUI exits.
    */
   public function __construct(
     public string $title,
@@ -34,6 +40,9 @@ final readonly class Config {
     public array $fixups = [],
     public string $theme = '',
     public bool $buttons = TRUE,
+    public string $submitLabel = 'Submit',
+    public string $cancelLabel = 'Cancel',
+    public bool $clearOnExit = TRUE,
   ) {
   }
 

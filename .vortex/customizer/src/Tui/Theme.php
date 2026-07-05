@@ -380,20 +380,25 @@ abstract class Theme {
   }
 
   /**
-   * Render a submit/cancel button row.
+   * Render a row of inline submit/cancel buttons.
    *
-   * @param string $label
-   *   The button label.
-   * @param bool $selected
-   *   Whether the button is selected.
+   * @param list<string> $labels
+   *   The button labels, in order.
+   * @param int $selected
+   *   The index of the selected button, or -1 for none.
    *
    * @return string
-   *   The themed button row.
+   *   The themed button row with the buttons side by side.
    */
-  public function buttonLine(string $label, bool $selected): string {
-    $text = '[ ' . $label . ' ]';
+  public function buttonBar(array $labels, int $selected): string {
+    $parts = [];
 
-    return $this->marker($selected) . ' ' . ($selected ? $this->style('cursor', $text) : $this->style('value', $text));
+    foreach ($labels as $index => $label) {
+      $text = '[ ' . $label . ' ]';
+      $parts[] = $index === $selected ? $this->style('cursor', $text) : $this->style('value', $text);
+    }
+
+    return '  ' . implode('  ', $parts);
   }
 
   /**

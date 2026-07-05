@@ -120,9 +120,21 @@ final class ConfigLoaderTest extends TestCase {
     $this->assertCount(1, $config->fixups);
   }
 
-  public function testButtonsDefaultOnAndOptOut(): void {
-    $this->assertTrue((new ConfigLoader())->fromArray(['panels' => []])->buttons);
-    $this->assertFalse((new ConfigLoader())->fromArray(['buttons' => FALSE, 'panels' => []])->buttons);
+  public function testButtonsAndClearOnExit(): void {
+    $default = (new ConfigLoader())->fromArray(['panels' => []]);
+    $this->assertTrue($default->buttons);
+    $this->assertSame('Submit', $default->submitLabel);
+    $this->assertSame('Cancel', $default->cancelLabel);
+    $this->assertTrue($default->clearOnExit);
+
+    $off = (new ConfigLoader())->fromArray(['buttons' => FALSE, 'clear_on_exit' => FALSE, 'panels' => []]);
+    $this->assertFalse($off->buttons);
+    $this->assertFalse($off->clearOnExit);
+
+    $custom = (new ConfigLoader())->fromArray(['buttons' => ['submit' => 'Finish', 'cancel' => 'Abort'], 'panels' => []]);
+    $this->assertTrue($custom->buttons);
+    $this->assertSame('Finish', $custom->submitLabel);
+    $this->assertSame('Abort', $custom->cancelLabel);
   }
 
   public function testLoadMissingFileThrows(): void {

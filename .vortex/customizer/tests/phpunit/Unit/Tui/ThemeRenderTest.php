@@ -123,15 +123,17 @@ final class ThemeRenderTest extends TestCase {
     $this->assertStringContainsString('↑/↓ move', Ansi::strip($line));
   }
 
-  public function testButtonLine(): void {
-    $theme = $this->theme();
+  public function testButtonBar(): void {
+    $bar = (new DarkTheme())->buttonBar(['Submit', 'Cancel'], 0);
 
-    $selected = Ansi::strip($theme->buttonLine('Submit', TRUE));
-    $this->assertStringContainsString('❯ [ Submit ]', $selected);
+    // Both buttons render inline on one row.
+    $this->assertStringContainsString('[ Submit ]', Ansi::strip($bar));
+    $this->assertStringContainsString('[ Cancel ]', Ansi::strip($bar));
+    // The selected button (index 0) uses the cursor style (bold reverse).
+    $this->assertStringContainsString("\033[1;7m[ Submit ]", $bar);
 
-    $unselected = Ansi::strip($theme->buttonLine('Cancel', FALSE));
-    $this->assertStringContainsString('[ Cancel ]', $unselected);
-    $this->assertStringNotContainsString('❯', $unselected);
+    // With none selected, nothing is cursor-styled.
+    $this->assertStringNotContainsString("\033[1;7m", (new DarkTheme())->buttonBar(['Submit', 'Cancel'], -1));
   }
 
   /**

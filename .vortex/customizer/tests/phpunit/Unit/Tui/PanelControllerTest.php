@@ -75,15 +75,14 @@ final class PanelControllerTest extends TestCase {
 
   public function testButtonsRenderByDefault(): void {
     $controller = $this->controller();
-    $frame = Ansi::strip($controller->frame(12));
 
-    $this->assertStringContainsString('Submit', $frame);
-    $this->assertStringContainsString('Cancel', $frame);
+    // Submit and Cancel render inline on one row.
+    $this->assertStringContainsString('[ Submit ]  [ Cancel ]', Ansi::strip($controller->frame(12)));
 
-    // Select the Submit button and re-render: it is marked selected.
+    // Select a button and re-render (covers the button cursor-line branch).
     $controller->handle(Key::named(KeyName::Down));
     $controller->handle(Key::named(KeyName::Down));
-    $this->assertStringContainsString('❯ [ Submit ]', Ansi::strip($controller->frame(12)));
+    $this->assertStringContainsString('[ Submit ]', Ansi::strip($controller->frame(12)));
   }
 
   public function testButtonsOptOut(): void {
