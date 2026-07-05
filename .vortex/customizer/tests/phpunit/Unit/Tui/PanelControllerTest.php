@@ -38,10 +38,66 @@ final class PanelControllerTest extends TestCase {
     $controller->handle(Key::named(KeyName::Down));
     $this->assertSame(1, $controller->cursor());
 
+    // The root holds 2 panels plus the Submit and Cancel buttons (4 items).
     $controller->handle(Key::named(KeyName::Down));
-    $this->assertSame(1, $controller->cursor());
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Down));
+    $this->assertSame(3, $controller->cursor());
 
     $controller->handle(Key::named(KeyName::Up));
+    $this->assertSame(2, $controller->cursor());
+  }
+
+  public function testSubmitButton(): void {
+    $controller = $this->controller();
+
+    // Move past the 2 panels to Submit (index 2), then activate it.
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Enter));
+
+    $this->assertTrue($controller->isDone());
+    $this->assertFalse($controller->isCancelled());
+  }
+
+  public function testCancelButton(): void {
+    $controller = $this->controller();
+
+    // Move to Cancel (index 3), then activate it.
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Enter));
+
+    $this->assertTrue($controller->isDone());
+    $this->assertTrue($controller->isCancelled());
+  }
+
+  public function testButtonsRenderByDefault(): void {
+    $controller = $this->controller();
+    $frame = Ansi::strip($controller->frame(12));
+
+    $this->assertStringContainsString('Submit', $frame);
+    $this->assertStringContainsString('Cancel', $frame);
+
+    // Select the Submit button and re-render: it is marked selected.
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Down));
+    $this->assertStringContainsString('❯ [ Submit ]', Ansi::strip($controller->frame(12)));
+  }
+
+  public function testButtonsOptOut(): void {
+    $config = (new ConfigLoader())->fromArray([
+      'title' => 'Demo',
+      'buttons' => FALSE,
+      'panels' => [['id' => 'p', 'fields' => [['id' => 'a', 'label' => 'A']]]],
+    ]);
+    $controller = new PanelController($config, new DarkTheme(FALSE, 40), ['a' => 'x'], []);
+
+    $this->assertStringNotContainsString('Submit', Ansi::strip($controller->frame(12)));
+
+    // With buttons off, the single field is the only item: Down clamps at 0.
+    $controller->handle(Key::named(KeyName::Down));
     $this->assertSame(0, $controller->cursor());
   }
 

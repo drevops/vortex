@@ -73,6 +73,11 @@ class PanelController {
   protected bool $done = FALSE;
 
   /**
+   * Whether the user cancelled via the cancel button.
+   */
+  protected bool $cancelled = FALSE;
+
+  /**
    * Construct a controller.
    *
    * @param \DrevOps\Customizer\Config\Config $config
@@ -135,6 +140,16 @@ class PanelController {
    */
   public function isDone(): bool {
     return $this->done;
+  }
+
+  /**
+   * Whether the user cancelled.
+   *
+   * @return bool
+   *   TRUE when the user activated the cancel button.
+   */
+  public function isCancelled(): bool {
+    return $this->cancelled;
   }
 
   /**
@@ -216,7 +231,19 @@ class PanelController {
       return ($this->editing instanceof Field ? $this->editing->label : '') . "\n" . $this->editor->view();
     }
 
-    [$body, $cursor_line] = $this->theme->body($this->navigator->current(), $this->answers(), $this->cursor);
+    $panel = $this->navigator->current();
+    [$body, $cursor_line] = $this->theme->body($panel, $this->answers(), $this->cursor);
+
+    if ($this->config->buttons) {
+      $base = $this->theme->itemCount($panel);
+      $start = count($body);
+      $body[] = $this->theme->buttonLine('Submit', $this->cursor === $base);
+      $body[] = $this->theme->buttonLine('Cancel', $this->cursor === $base + 1);
+      if ($this->cursor >= $base) {
+        $cursor_line = $start + ($this->cursor - $base);
+      }
+    }
+
     $total = count($body);
 
     if ($this->followCursor) {
@@ -287,7 +314,7 @@ class PanelController {
     }
 
     $this->followCursor = TRUE;
-    $count = $this->theme->itemCount($this->navigator->current());
+    $count = $this->theme->itemCount($this->navigator->current()) + ($this->config->buttons ? 2 : 0);
 
     if ($key->is(KeyName::Up)) {
       $this->cursor = max(0, $this->cursor - 1);
@@ -322,7 +349,24 @@ class PanelController {
     if ($subpanel instanceof Panel) {
       $this->navigator->enter($subpanel);
       $this->cursor = 0;
+
+      return;
     }
+
+    if ($this->config->buttons) {
+      $this->activateButton($this->cursor - $field_count - count($panel->panels));
+    }
+  }
+
+  /**
+   * Activate a submit (0) or cancel (1) button: finish, recording a cancel.
+   *
+   * @param int $index
+   *   The button index.
+   */
+  protected function activateButton(int $index): void {
+    $this->done = TRUE;
+    $this->cancelled = $index === 1;
   }
 
   /**

@@ -91,6 +91,8 @@ panels:
 
 Field keys: `id`, `label`, `description`, `type`, `default`, `required`, `options`, `when` (conditional visibility), `derive` (computed value) and `discover` (detect from the directory). A `derive` transform is any str2name conversion (`machine`, `kebab`, `pascal`, ...) plus `host`, `lower`, `upper` and `initials`.
 
+Top-level keys tune the interactive TUI: `theme` names a theme (see [Themes](#themes)), and the panel shows **Submit** and **Cancel** buttons by default - set `buttons: false` to hide them.
+
 ## Handlers
 
 A field needs a handler only when it requires behaviour beyond a static value. Handlers are auto-discovered: field id `machine_name` resolves to class `MachineName` in a registered namespace.

@@ -24,6 +24,8 @@ final readonly class Config {
    *   Raw post-submit fix-up rules, evaluated by the engine.
    * @param string $theme
    *   The theme name or class for the interactive TUI (empty for the default).
+   * @param bool $buttons
+   *   Whether the interactive TUI shows submit and cancel buttons.
    */
   public function __construct(
     public string $title,
@@ -31,6 +33,7 @@ final readonly class Config {
     public array $panels = [],
     public array $fixups = [],
     public string $theme = '',
+    public bool $buttons = TRUE,
   ) {
   }
 

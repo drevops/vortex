@@ -55,6 +55,7 @@ class ConfigLoader {
       $panels,
       $this->buildFixups($data['fixups'] ?? []),
       $this->toString($data['theme'] ?? ''),
+      (bool) ($data['buttons'] ?? TRUE),
     );
   }
 

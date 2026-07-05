@@ -120,6 +120,11 @@ final class ConfigLoaderTest extends TestCase {
     $this->assertCount(1, $config->fixups);
   }
 
+  public function testButtonsDefaultOnAndOptOut(): void {
+    $this->assertTrue((new ConfigLoader())->fromArray(['panels' => []])->buttons);
+    $this->assertFalse((new ConfigLoader())->fromArray(['buttons' => FALSE, 'panels' => []])->buttons);
+  }
+
   public function testLoadMissingFileThrows(): void {
     $this->expectException(ConfigException::class);
     $this->expectExceptionMessage('Config file not found');

@@ -380,6 +380,23 @@ abstract class Theme {
   }
 
   /**
+   * Render a submit/cancel button row.
+   *
+   * @param string $label
+   *   The button label.
+   * @param bool $selected
+   *   Whether the button is selected.
+   *
+   * @return string
+   *   The themed button row.
+   */
+  public function buttonLine(string $label, bool $selected): string {
+    $text = '[ ' . $label . ' ]';
+
+    return $this->marker($selected) . ' ' . ($selected ? $this->style('cursor', $text) : $this->style('value', $text));
+  }
+
+  /**
    * The selection marker.
    *
    * @param bool $selected

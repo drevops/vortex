@@ -123,6 +123,17 @@ final class ThemeRenderTest extends TestCase {
     $this->assertStringContainsString('↑/↓ move', Ansi::strip($line));
   }
 
+  public function testButtonLine(): void {
+    $theme = $this->theme();
+
+    $selected = Ansi::strip($theme->buttonLine('Submit', TRUE));
+    $this->assertStringContainsString('❯ [ Submit ]', $selected);
+
+    $unselected = Ansi::strip($theme->buttonLine('Cancel', FALSE));
+    $this->assertStringContainsString('[ Cancel ]', $unselected);
+    $this->assertStringNotContainsString('❯', $unselected);
+  }
+
   /**
    * A colourless theme of fixed width for stable assertions.
    */
