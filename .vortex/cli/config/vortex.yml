@@ -48,9 +48,12 @@ panels:
         type: select
         default: load_demodb
         options:
-          - { value: install_profile_core, label: 'Drupal, installed from profile' }
-          - { value: install_profile_drupalcms, label: 'Drupal CMS, installed from profile' }
-          - { value: load_demodb, label: 'Drupal, loaded from the demo database' }
+          - value: install_profile_core
+            label: 'Drupal, installed from profile'
+          - value: install_profile_drupalcms
+            label: 'Drupal CMS, installed from profile'
+          - value: load_demodb
+            label: 'Drupal, loaded from the demo database'
       - id: profile
         label: 'Profile'
         description: 'The Drupal installation profile the site is built on.'
@@ -58,10 +61,14 @@ panels:
         default: standard
         required: true
         options:
-          - { value: standard, label: 'Standard' }
-          - { value: minimal, label: 'Minimal' }
-          - { value: demo_umami, label: 'Demo Umami' }
-          - { value: custom, label: 'Custom (next prompt)' }
+          - value: standard
+            label: 'Standard'
+          - value: minimal
+            label: 'Minimal'
+          - value: demo_umami
+            label: 'Demo Umami'
+          - value: custom
+            label: 'Custom (next prompt)'
       - id: profile_custom
         label: 'Custom profile machine name'
         description: 'The machine name of your custom profile.'
@@ -73,26 +80,62 @@ panels:
         label: 'Modules'
         description: 'Optional contributed modules to include.'
         type: multiselect
-        default: [admin_toolbar, coffee, config_split, config_update, devel, drupal_helpers, environment_indicator, generated_content, pathauto, redirect, reroute_email, robotstxt, sdc_devel, seckit, shield, stage_file_proxy, testmode, xmlsitemap]
+        default:
+          - admin_toolbar
+          - coffee
+          - config_split
+          - config_update
+          - devel
+          - drupal_helpers
+          - environment_indicator
+          - generated_content
+          - pathauto
+          - redirect
+          - reroute_email
+          - robotstxt
+          - sdc_devel
+          - seckit
+          - shield
+          - stage_file_proxy
+          - testmode
+          - xmlsitemap
         options:
-          - { value: admin_toolbar, label: 'Admin toolbar' }
-          - { value: coffee, label: 'Coffee' }
-          - { value: config_split, label: 'Config split' }
-          - { value: config_update, label: 'Config update' }
-          - { value: devel, label: 'Devel' }
-          - { value: drupal_helpers, label: 'Drupal helpers' }
-          - { value: environment_indicator, label: 'Environment indicator' }
-          - { value: generated_content, label: 'Generated content' }
-          - { value: pathauto, label: 'Pathauto' }
-          - { value: redirect, label: 'Redirect' }
-          - { value: reroute_email, label: 'Reroute email' }
-          - { value: robotstxt, label: 'Robots.txt' }
-          - { value: sdc_devel, label: 'SDC Devel' }
-          - { value: seckit, label: 'Seckit' }
-          - { value: shield, label: 'Shield' }
-          - { value: stage_file_proxy, label: 'Stage file proxy' }
-          - { value: testmode, label: 'Testmode' }
-          - { value: xmlsitemap, label: 'XML Sitemap' }
+          - value: admin_toolbar
+            label: 'Admin toolbar'
+          - value: coffee
+            label: 'Coffee'
+          - value: config_split
+            label: 'Config split'
+          - value: config_update
+            label: 'Config update'
+          - value: devel
+            label: 'Devel'
+          - value: drupal_helpers
+            label: 'Drupal helpers'
+          - value: environment_indicator
+            label: 'Environment indicator'
+          - value: generated_content
+            label: 'Generated content'
+          - value: pathauto
+            label: 'Pathauto'
+          - value: redirect
+            label: 'Redirect'
+          - value: reroute_email
+            label: 'Reroute email'
+          - value: robotstxt
+            label: 'Robots.txt'
+          - value: sdc_devel
+            label: 'SDC Devel'
+          - value: seckit
+            label: 'Seckit'
+          - value: shield
+            label: 'Shield'
+          - value: stage_file_proxy
+            label: 'Stage file proxy'
+          - value: testmode
+            label: 'Testmode'
+          - value: xmlsitemap
+            label: 'XML Sitemap'
       - id: module_prefix
         label: 'Custom modules prefix'
         description: 'We will use this name in custom modules.'
@@ -104,11 +147,17 @@ panels:
         label: 'Custom modules'
         description: 'Which scaffolded custom modules to keep.'
         type: multiselect
-        default: [base, search, demo]
+        default:
+          - base
+          - search
+          - demo
         options:
-          - { value: base, label: 'Base - starter module with utilities and test scaffolding' }
-          - { value: search, label: 'Search - custom Solr search integration' }
-          - { value: demo, label: 'Demo - counter block and example tests to demonstrate tooling' }
+          - value: base
+            label: 'Base - starter module with utilities and test scaffolding'
+          - value: search
+            label: 'Search - custom Solr search integration'
+          - value: demo
+            label: 'Demo - counter block and example tests to demonstrate tooling'
       - id: theme
         label: 'Theme'
         description: 'The base theme for the site front-end.'
@@ -116,10 +165,14 @@ panels:
         default: custom
         required: true
         options:
-          - { value: olivero, label: 'Olivero' }
-          - { value: claro, label: 'Claro' }
-          - { value: stark, label: 'Stark' }
-          - { value: custom, label: 'Custom (next prompt)' }
+          - value: olivero
+            label: 'Olivero'
+          - value: claro
+            label: 'Claro'
+          - value: stark
+            label: 'Stark'
+          - value: custom
+            label: 'Custom (next prompt)'
       - id: theme_custom
         label: 'Custom theme machine name'
         description: 'We will use this name as a custom theme name.'
@@ -149,17 +202,22 @@ panels:
         type: select
         default: github
         options:
-          - { value: github, label: 'GitHub' }
-          - { value: other, label: 'Other' }
+          - value: github
+            label: 'GitHub'
+          - value: other
+            label: 'Other'
       - id: version_scheme
         label: 'Release versioning scheme'
         description: 'CalVer (year.month.patch) or SemVer (major.minor.patch).'
         type: select
         default: calver
         options:
-          - { value: calver, label: 'Calendar Versioning (CalVer)' }
-          - { value: semver, label: 'Semantic Versioning (SemVer)' }
-          - { value: other, label: 'Other' }
+          - value: calver
+            label: 'Calendar Versioning (CalVer)'
+          - value: semver
+            label: 'Semantic Versioning (SemVer)'
+          - value: other
+            label: 'Other'
 
   - id: environment
     title: 'Environment'
@@ -171,49 +229,71 @@ panels:
         type: suggest
         default: UTC
         options:
-          - { value: UTC }
-          - { value: 'Africa/Johannesburg' }
-          - { value: 'America/Chicago' }
-          - { value: 'America/Los_Angeles' }
-          - { value: 'America/New_York' }
-          - { value: 'America/Sao_Paulo' }
-          - { value: 'America/Toronto' }
-          - { value: 'Asia/Dubai' }
-          - { value: 'Asia/Hong_Kong' }
-          - { value: 'Asia/Kolkata' }
-          - { value: 'Asia/Singapore' }
-          - { value: 'Asia/Tokyo' }
-          - { value: 'Australia/Melbourne' }
-          - { value: 'Australia/Sydney' }
-          - { value: 'Europe/Amsterdam' }
-          - { value: 'Europe/Berlin' }
-          - { value: 'Europe/London' }
-          - { value: 'Europe/Madrid' }
-          - { value: 'Europe/Paris' }
-          - { value: 'Pacific/Auckland' }
+          - value: UTC
+          - value: 'Africa/Johannesburg'
+          - value: 'America/Chicago'
+          - value: 'America/Los_Angeles'
+          - value: 'America/New_York'
+          - value: 'America/Sao_Paulo'
+          - value: 'America/Toronto'
+          - value: 'Asia/Dubai'
+          - value: 'Asia/Hong_Kong'
+          - value: 'Asia/Kolkata'
+          - value: 'Asia/Singapore'
+          - value: 'Asia/Tokyo'
+          - value: 'Australia/Melbourne'
+          - value: 'Australia/Sydney'
+          - value: 'Europe/Amsterdam'
+          - value: 'Europe/Berlin'
+          - value: 'Europe/London'
+          - value: 'Europe/Madrid'
+          - value: 'Europe/Paris'
+          - value: 'Pacific/Auckland'
       - id: services
         label: 'Services'
         description: 'Optional Docker services to include.'
         type: multiselect
-        default: [clamav, redis, solr]
+        default:
+          - clamav
+          - redis
+          - solr
         options:
-          - { value: clamav, label: 'ClamAV' }
-          - { value: solr, label: 'Solr' }
-          - { value: redis, label: 'Redis' }
+          - value: clamav
+            label: 'ClamAV'
+          - value: solr
+            label: 'Solr'
+          - value: redis
+            label: 'Redis'
       - id: tools
         label: 'Development tools'
         description: 'Linting and testing tools to keep.'
         type: multiselect
-        default: [behat, eslint, jest, phpcs, phpstan, phpunit, rector, stylelint]
+        default:
+          - behat
+          - eslint
+          - jest
+          - phpcs
+          - phpstan
+          - phpunit
+          - rector
+          - stylelint
         options:
-          - { value: phpcs, label: 'PHP CodeSniffer' }
-          - { value: phpstan, label: 'PHPStan' }
-          - { value: rector, label: 'Rector' }
-          - { value: eslint, label: 'ESLint' }
-          - { value: stylelint, label: 'Stylelint' }
-          - { value: phpunit, label: 'PHPUnit' }
-          - { value: behat, label: 'Behat' }
-          - { value: jest, label: 'Jest' }
+          - value: phpcs
+            label: 'PHP CodeSniffer'
+          - value: phpstan
+            label: 'PHPStan'
+          - value: rector
+            label: 'Rector'
+          - value: eslint
+            label: 'ESLint'
+          - value: stylelint
+            label: 'Stylelint'
+          - value: phpunit
+            label: 'PHPUnit'
+          - value: behat
+            label: 'Behat'
+          - value: jest
+            label: 'Jest'
 
   - id: hosting
     title: 'Hosting'
@@ -226,17 +306,23 @@ panels:
         default: none
         required: true
         options:
-          - { value: acquia, label: 'Acquia Cloud' }
-          - { value: lagoon, label: 'Lagoon' }
-          - { value: other, label: 'Other' }
-          - { value: none, label: 'None' }
+          - value: acquia
+            label: 'Acquia Cloud'
+          - value: lagoon
+            label: 'Lagoon'
+          - value: other
+            label: 'Other'
+          - value: none
+            label: 'None'
       - id: hosting_project_name
         label: 'Hosting project name'
         description: 'Name as found in the hosting configuration; usually the site machine name.'
         required: true
         when:
           field: hosting_provider
-          in: [lagoon, acquia]
+          in:
+            - lagoon
+            - acquia
         derive:
           template: '{{machine_name}}'
       - id: webroot
@@ -253,11 +339,15 @@ panels:
         label: 'Deployment types'
         description: 'One or more deployment mechanisms.'
         type: multiselect
-        default: [webhook]
+        default:
+          - webhook
         options:
-          - { value: artifact, label: 'Code artifact' }
-          - { value: lagoon, label: 'Lagoon webhook' }
-          - { value: webhook, label: 'Custom webhook' }
+          - value: artifact
+            label: 'Code artifact'
+          - value: lagoon
+            label: 'Lagoon webhook'
+          - value: webhook
+            label: 'Custom webhook'
 
   - id: workflow
     title: 'Workflow'
@@ -269,8 +359,10 @@ panels:
         type: select
         default: database
         options:
-          - { value: database, label: 'Import from database dump' }
-          - { value: profile, label: 'Install from profile' }
+          - value: database
+            label: 'Import from database dump'
+          - value: profile
+            label: 'Install from profile'
       - id: database_fetch_source
         label: 'Database source'
         description: 'Where the database dump is fetched from.'
@@ -280,13 +372,20 @@ panels:
           field: provision_type
           eq: database
         options:
-          - { value: url, label: 'URL download' }
-          - { value: ftp, label: 'FTP download' }
-          - { value: acquia, label: 'Acquia backup' }
-          - { value: lagoon, label: 'Lagoon environment' }
-          - { value: container_registry, label: 'Container registry' }
-          - { value: s3, label: 'S3 bucket' }
-          - { value: none, label: 'None' }
+          - value: url
+            label: 'URL download'
+          - value: ftp
+            label: 'FTP download'
+          - value: acquia
+            label: 'Acquia backup'
+          - value: lagoon
+            label: 'Lagoon environment'
+          - value: container_registry
+            label: 'Container registry'
+          - value: s3
+            label: 'S3 bucket'
+          - value: none
+            label: 'None'
       - id: database_image
         label: 'Database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
@@ -310,12 +409,18 @@ panels:
           field: migration
           eq: true
         options:
-          - { value: url, label: 'URL download' }
-          - { value: ftp, label: 'FTP download' }
-          - { value: acquia, label: 'Acquia backup' }
-          - { value: lagoon, label: 'Lagoon environment' }
-          - { value: container_registry, label: 'Container registry' }
-          - { value: s3, label: 'S3 bucket' }
+          - value: url
+            label: 'URL download'
+          - value: ftp
+            label: 'FTP download'
+          - value: acquia
+            label: 'Acquia backup'
+          - value: lagoon
+            label: 'Lagoon environment'
+          - value: container_registry
+            label: 'Container registry'
+          - value: s3
+            label: 'S3 bucket'
       - id: migration_image
         label: 'Migration database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
@@ -334,14 +439,21 @@ panels:
         label: 'Notification channels'
         description: 'One or more notification channels.'
         type: multiselect
-        default: [email]
+        default:
+          - email
         options:
-          - { value: email, label: 'Email' }
-          - { value: github, label: 'GitHub' }
-          - { value: jira, label: 'JIRA' }
-          - { value: newrelic, label: 'New Relic' }
-          - { value: slack, label: 'Slack' }
-          - { value: webhook, label: 'Webhook' }
+          - value: email
+            label: 'Email'
+          - value: github
+            label: 'GitHub'
+          - value: jira
+            label: 'JIRA'
+          - value: newrelic
+            label: 'New Relic'
+          - value: slack
+            label: 'Slack'
+          - value: webhook
+            label: 'Webhook'
 
   - id: continuous_integration
     title: 'Continuous Integration'
@@ -353,9 +465,12 @@ panels:
         type: select
         default: gha
         options:
-          - { value: gha, label: 'GitHub Actions' }
-          - { value: circleci, label: 'CircleCI' }
-          - { value: none, label: 'None' }
+          - value: gha
+            label: 'GitHub Actions'
+          - value: circleci
+            label: 'CircleCI'
+          - value: none
+            label: 'None'
       - id: visual_regression
         label: 'Visual regression testing with Diffy?'
         description: 'Requires a Diffy account.'
@@ -372,17 +487,22 @@ panels:
         type: select
         default: renovatebot_app
         options:
-          - { value: renovatebot_app, label: 'Renovate GitHub app' }
-          - { value: renovatebot_ci, label: 'Renovate self-hosted in CI' }
-          - { value: none, label: 'None' }
+          - value: renovatebot_app
+            label: 'Renovate GitHub app'
+          - value: renovatebot_ci
+            label: 'Renovate self-hosted in CI'
+          - value: none
+            label: 'None'
       - id: code_coverage_provider
         label: 'Code coverage provider'
         description: 'The code coverage provider.'
         type: select
         default: none
         options:
-          - { value: codecov, label: 'Codecov' }
-          - { value: none, label: 'None' }
+          - value: codecov
+            label: 'Codecov'
+          - value: none
+            label: 'None'
       - id: assign_author_pr
         label: 'Auto-assign the author to their PR?'
         description: 'Helps to keep the PRs organized.'
