@@ -102,9 +102,14 @@ abstract class Theme {
   /**
    * Create a theme by name.
    *
+   * Lowest friction first: a fully-qualified theme class name is instantiated
+   * directly, so a config can point at a consumer's own theme class with no
+   * registration. Otherwise the name is looked up in the registry ("dark",
+   * "light", "default", or a name passed to {@see register()}), falling back
+   * to dark.
+   *
    * @param string $name
-   *   The theme name ("dark", "light", a registered name, or "default" for
-   *   dark). An unknown name falls back to dark.
+   *   A theme class name, a registered name, or "default" for dark.
    * @param bool $color
    *   Whether colour is enabled.
    * @param int $width
@@ -115,7 +120,8 @@ abstract class Theme {
    */
   public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76): Theme {
     $name = $name === 'default' ? 'dark' : $name;
-    $class = static::$registry[$name] ?? DarkTheme::class;
+
+    $class = static::$registry[$name] ?? (is_subclass_of($name, self::class) ? $name : DarkTheme::class);
 
     return new $class($color, $width);
   }

@@ -1,14 +1,6 @@
-# Playground configuration for the customizer.
-#
-# A small "package scaffolder" that exercises most customizer features:
-# every widget type, conditional visibility (when), derived values with
-# str2name transforms, and a custom auto-discovered handler.
-#
-# Try it:
-#   composer install
-#   php playground/run.php                       # interactive TUI
-#   php playground/run.php --prompts='{"name":"My Widget"}'   # non-interactive
-#   php playground/run.php --schema              # print the JSON schema
+# A "package scaffolder" that exercises most customizer features: every widget
+# type, conditional visibility (when), derived values with str2name transforms,
+# and a custom auto-discovered handler (see Name.php).
 title: 'Package scaffolder'
 
 panels:

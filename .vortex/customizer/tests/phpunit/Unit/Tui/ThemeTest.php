@@ -43,6 +43,11 @@ final class ThemeTest extends TestCase {
     $this->assertInstanceOf(LightTheme::class, Theme::create('mylight'));
   }
 
+  public function testCreateFromClassName(): void {
+    // A theme class name resolves directly, without registration.
+    $this->assertInstanceOf(LightTheme::class, Theme::create(LightTheme::class));
+  }
+
   public function testCustomSubclass(): void {
     $theme = new class() extends Theme {
 

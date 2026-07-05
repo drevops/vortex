@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Playground\Handler;
+namespace Playground\Scaffolder;
 
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Handler\AbstractHandler;

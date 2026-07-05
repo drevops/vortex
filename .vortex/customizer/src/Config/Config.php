@@ -22,12 +22,15 @@ final readonly class Config {
    *   The top-level panels.
    * @param array<int,array<array-key,mixed>> $fixups
    *   Raw post-submit fix-up rules, evaluated by the engine.
+   * @param string $theme
+   *   The theme name or class for the interactive TUI (empty for the default).
    */
   public function __construct(
     public string $title,
     public string $subject,
     public array $panels = [],
     public array $fixups = [],
+    public string $theme = '',
   ) {
   }
 

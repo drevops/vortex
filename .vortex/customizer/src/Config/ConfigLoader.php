@@ -54,6 +54,7 @@ class ConfigLoader {
       $this->toString($data['subject'] ?? ''),
       $panels,
       $this->buildFixups($data['fixups'] ?? []),
+      $this->toString($data['theme'] ?? ''),
     );
   }
 
