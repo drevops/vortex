@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Custom theme example: register a theme class and drive the TUI with it.
+ * Custom theme example: the config names a theme class; run it via the facade.
  *
  * Usage:
  *   php 2-custom-theme/run.php                       # interactive, ocean theme
@@ -11,15 +11,8 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Engine\Engine;
+use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\EngineException;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Resolver\InputResolver;
-use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Tui\Terminal;
-use DrevOps\Customizer\Tui\Theme;
 
 require __DIR__ . '/../../vendor/autoload.php';
 // The require makes the class loadable; config.yml names it directly, so no
@@ -28,9 +21,7 @@ require __DIR__ . '/OceanTheme.php';
 
 $options = getopt('', ['prompts::']);
 
-$config = (new ConfigLoader())->loadFiles([__DIR__ . '/config.yml']);
-$engine = new Engine($config, new HandlerRegistry());
-$context = new Context((string) getcwd());
+$customizer = Customizer::fromFiles([__DIR__ . '/config.yml']);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
 $banner = <<<'EOT'
@@ -39,14 +30,11 @@ EOT;
 
 try {
   if ($prompts !== '' || stream_isatty(STDIN) === FALSE) {
-    $inputs = (new InputResolver('OCEAN_'))->resolve($config->fields(), $prompts, getenv());
-    $engine->collect($inputs, $context);
-    $answers = $engine->answers();
+    $answers = $customizer->collect($prompts);
   }
   else {
-    $engine->collect([], $context);
-    $controller = new PanelController($config, Theme::create($config->theme), $engine->answers()->values, $engine->answers()->provenance, $banner, '1.0.0');
-    $answers = $controller->run(new Terminal());
+    // The theme comes from the config: theme: '\Playground\CustomTheme\OceanTheme'.
+    $answers = $customizer->run(banner: $banner, version: '1.0.0');
   }
 }
 catch (EngineException $exception) {

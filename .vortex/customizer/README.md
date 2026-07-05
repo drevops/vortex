@@ -40,24 +40,21 @@ It powers the [Vortex](https://www.vortextemplate.com) project installer, but kn
 
 ## Quick start
 
+The `Customizer` facade is the one class you need - it wires the config loader, engine, resolver, schema tools and TUI for you:
+
 ```php
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Engine\Engine;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Resolver\InputResolver;
+use DrevOps\Customizer\Customizer;
 
-$config = (new ConfigLoader())->loadFiles(['config.yml']);
-$engine = new Engine($config, new HandlerRegistry(['App\\Handler']));
+$customizer = Customizer::fromFiles(['config.yml'], ['App\\Handler']);
 
-// Headless: resolve answers from a JSON payload, then collect.
-$inputs = (new InputResolver('APP_'))->resolve($config->fields(), '{"name":"Ada"}', getenv());
-$engine->collect($inputs, new Context(getcwd()));
+// Headless: collect answers from a JSON payload (and the environment).
+echo $customizer->collect('{"name":"Ada"}')->toJson();
 
-echo $engine->answers()->toJson();
+// Interactive: drive the panel TUI instead.
+$answers = $customizer->run();
 ```
 
-For the interactive TUI, seed a `PanelController` with the engine's resolved answers and run it against a `Terminal`. See [`playground/`](playground) for complete, runnable examples of both.
+It also exposes `schema()`, `agentHelp()` and `validate()`, and - when you want finer control - the internals via `config()`, `engine()` and `registry()`. See [`playground/`](playground) for complete, runnable examples.
 
 ## Configuration
 
