@@ -1,0 +1,80 @@
+@startuml
+' drevops/customizer - component architecture.
+' Packages mirror the src/ subdirectories; arrows show the main dependencies.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam componentStyle rectangle
+title drevops/customizer - component architecture
+
+package "Configuration" #E3F2FD {
+  [ConfigLoader]
+  [Config]
+  [Panel]
+  [Field]
+}
+
+package "Core" #FFF3E0 {
+  [Engine]
+}
+
+package "Resolution" #E8F5E9 {
+  [InputResolver]
+  [Discovery]
+  [Deriver]
+  [Transform]
+  [ConditionEvaluator]
+}
+
+package "Handlers" #F3E5F5 {
+  [HandlerRegistry]
+  interface HandlerInterface
+  [AbstractHandler]
+  [Context]
+}
+
+package "Output" #ECEFF1 {
+  [Answers]
+  [SchemaGenerator]
+  [SchemaValidator]
+}
+
+package "Interactive TUI" #FFEBEE {
+  [PanelController]
+  [Theme]
+  [WidgetFactory]
+  interface WidgetInterface
+  [Navigator]
+  [Terminal]
+  [KeyParser]
+}
+
+[ConfigLoader] --> [Config]
+[Config] *-- [Panel]
+[Panel] *-- [Field]
+
+[Engine] --> [Config]
+[Engine] --> [InputResolver]
+[Engine] --> [Discovery]
+[Engine] --> [Deriver]
+[Deriver] --> [Transform]
+[Engine] --> [ConditionEvaluator]
+[Engine] --> [HandlerRegistry]
+[HandlerRegistry] --> HandlerInterface
+[AbstractHandler] ..|> HandlerInterface
+[Engine] --> [Answers]
+
+[SchemaGenerator] --> [Config]
+[SchemaValidator] --> [Config]
+
+[PanelController] --> [Config]
+[PanelController] --> [Theme]
+[PanelController] --> [WidgetFactory]
+[WidgetFactory] --> WidgetInterface
+[PanelController] --> [Navigator]
+[PanelController] --> [Terminal]
+[PanelController] --> [KeyParser]
+[PanelController] --> [Answers]
+@enduml
