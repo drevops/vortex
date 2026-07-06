@@ -1,7 +1,10 @@
 title: 'Vortex'
 subject: 'your project'
 
-banner: |-
+# Literal block with a fixed 2-space indent (|2-): the content nests 2 spaces
+# under "banner:" like ordinary YAML, and any indent beyond those 2 spaces shows
+# verbatim in the CLI. Plain "|-" would instead strip the whole shared indent.
+banner: |2-
 
     ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
     ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
