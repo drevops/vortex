@@ -17,7 +17,7 @@ use DrevOps\Customizer\Schema\SchemaValidator;
 use DrevOps\Customizer\Tui\PanelController;
 use DrevOps\Customizer\Tui\Terminal;
 use DrevOps\Customizer\Tui\Theme;
-use DrevOps\VortexCli\Processor;
+use DrevOps\Customizer\Process\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -142,10 +142,10 @@ EOT;
   /**
    * Apply the collected answers to the project directory.
    *
-   * Processors run in a fixed order (the '.env' carry first, internal cleanup
-   * and the task flush last), so specific string replacements run before
-   * generic ones. Only active fields (present in the answers) process; the
-   * internal processors always run.
+   * The order is config-driven: fields process in ascending weight (ties in
+   * reverse declaration order), interleaved with the config's declared
+   * processors. Only active fields (present in the answers) process; the
+   * declared processors always run.
    *
    * @param \DrevOps\Customizer\Config\Config $config
    *   The configuration.

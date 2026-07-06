@@ -137,6 +137,18 @@ final class ConfigLoaderTest extends TestCase {
     $this->assertSame('Abort', $custom->cancelLabel);
   }
 
+  public function testProcessors(): void {
+    // A non-array processors value yields none.
+    $this->assertSame([], (new ConfigLoader())->fromArray(['processors' => 'x', 'panels' => []])->processors);
+
+    // Only array items with an "id" are kept; the rest are ignored.
+    $config = (new ConfigLoader())->fromArray([
+      'processors' => [['id' => 'dotenv', 'weight' => -10], 'skip', ['weight' => 5]],
+      'panels' => [],
+    ]);
+    $this->assertSame([['id' => 'dotenv', 'weight' => -10]], $config->processors);
+  }
+
   public function testLoadMissingFileThrows(): void {
     $this->expectException(ConfigException::class);
     $this->expectExceptionMessage('Config file not found');

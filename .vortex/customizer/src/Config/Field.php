@@ -37,6 +37,10 @@ final readonly class Field {
    * @param array<array-key,mixed>|null $discover
    *   The raw discovery rule (dotenv / json / exists / scan), evaluated by the
    *   engine in update mode.
+   * @param int $weight
+   *   The processing weight: lower runs earlier. Fields of equal weight process
+   *   in reverse declaration order, so specific replacements run before generic
+   *   ones without any weights at all.
    */
   public function __construct(
     public string $id,
@@ -50,6 +54,7 @@ final readonly class Field {
     public ?array $when = NULL,
     public ?array $derive = NULL,
     public ?array $discover = NULL,
+    public int $weight = 0,
   ) {
   }
 

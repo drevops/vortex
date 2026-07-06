@@ -7,6 +7,7 @@ namespace DrevOps\Customizer\Tests\Unit;
 use DrevOps\Customizer\Config\ConfigLoader;
 use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\Engine;
+use DrevOps\Customizer\Handler\Context;
 use DrevOps\Customizer\Handler\HandlerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -44,6 +45,14 @@ final class CustomizerTest extends TestCase {
   public function testValidate(): void {
     $this->assertSame([], $this->customizer()->validate(['name' => 'Acme']));
     $this->assertNotSame([], $this->customizer()->validate(['bogus' => 'x']));
+  }
+
+  public function testProcess(): void {
+    // No handler namespaces are registered, so process() runs without error
+    // and applies nothing.
+    $this->customizer()->process(['name' => 'Acme'], new Context('dir'));
+
+    $this->addToAssertionCount(1);
   }
 
   public function testAccessors(): void {

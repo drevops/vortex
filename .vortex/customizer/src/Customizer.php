@@ -10,6 +10,7 @@ use DrevOps\Customizer\Config\ConfigLoader;
 use DrevOps\Customizer\Engine\Engine;
 use DrevOps\Customizer\Handler\Context;
 use DrevOps\Customizer\Handler\HandlerRegistry;
+use DrevOps\Customizer\Process\Processor;
 use DrevOps\Customizer\Resolver\InputResolver;
 use DrevOps\Customizer\Schema\AgentHelp;
 use DrevOps\Customizer\Schema\SchemaGenerator;
@@ -130,6 +131,21 @@ final class Customizer {
 
     return $controller->run($terminal ?? new Terminal());
     // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Apply the collected answers to the target project via the handlers.
+   *
+   * Runs each field's handler process() in the config-driven order (field
+   * weights plus any declared processors).
+   *
+   * @param array<string,mixed> $answers
+   *   The collected answers.
+   * @param \DrevOps\Customizer\Handler\Context $context
+   *   The run context (its directory is the target project).
+   */
+  public function process(array $answers, Context $context): void {
+    (new Processor())->apply($this->config, $this->registry, $answers, $context);
   }
 
   /**

@@ -12,7 +12,7 @@ use DrevOps\Customizer\Handler\HandlerRegistry;
 use DrevOps\Customizer\Resolver\InputResolver;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
-use DrevOps\VortexCli\Processor;
+use DrevOps\Customizer\Process\Processor;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\FileManager;
 use DrevOps\VortexCli\Utils\OptionsResolver;

@@ -1,16 +1,27 @@
 title: 'Vortex'
 subject: 'your project'
 
+# Field-less processors that bookend field processing: carry the ".env" first,
+# run internal cleanup and global content transforms last. Fields in between
+# process in reverse declaration order (specific replacements before generic).
+processors:
+  - id: dotenv
+    weight: -1000
+  - id: internal
+    weight: 1000
+
 panels:
   - id: general
     title: 'General information'
     description: 'Project name, organization and public domain.'
     fields:
       - id: name
+        weight: 380
         label: 'Site name'
         description: 'We will use this name in the project and documentation.'
         required: true
       - id: machine_name
+        weight: 360
         label: 'Site machine name'
         description: 'We will use this name for the project directory and in the code.'
         required: true
@@ -18,12 +29,14 @@ panels:
           template: '{{name}}'
           transform: machine
       - id: org
+        weight: 370
         label: 'Organization name'
         description: 'We will use this name in the project and documentation.'
         required: true
         derive:
           template: '{{name}} Org'
       - id: org_machine_name
+        weight: 350
         label: 'Organization machine name'
         description: 'We will use this name in the code.'
         required: true
@@ -31,6 +44,7 @@ panels:
           template: '{{org}}'
           transform: machine
       - id: domain
+        weight: 280
         label: 'Public domain'
         description: 'Domain name without protocol and trailing slash.'
         required: true
@@ -43,6 +57,7 @@ panels:
     description: 'Install profile, modules, theme and front-end build.'
     fields:
       - id: starter
+        weight: 250
         label: 'How would you like your site to be created on the first run?'
         description: 'Applies only on the first run of the installer.'
         type: select
@@ -55,6 +70,7 @@ panels:
           - value: load_demodb
             label: 'Drupal, loaded from the demo database'
       - id: profile
+        weight: 270
         label: 'Profile'
         description: 'The Drupal installation profile the site is built on.'
         type: select
@@ -70,6 +86,7 @@ panels:
           - value: custom
             label: 'Custom (next prompt)'
       - id: profile_custom
+        weight: 260
         label: 'Custom profile machine name'
         description: 'The machine name of your custom profile.'
         required: true
@@ -77,6 +94,7 @@ panels:
           field: profile
           eq: custom
       - id: modules
+        weight: 240
         label: 'Modules'
         description: 'Optional contributed modules to include.'
         type: multiselect
@@ -137,6 +155,7 @@ panels:
           - value: xmlsitemap
             label: 'XML Sitemap'
       - id: module_prefix
+        weight: 310
         label: 'Custom modules prefix'
         description: 'We will use this name in custom modules.'
         required: true
@@ -144,6 +163,7 @@ panels:
           template: '{{machine_name}}'
           transform: initials
       - id: custom_modules
+        weight: 300
         label: 'Custom modules'
         description: 'Which scaffolded custom modules to keep.'
         type: multiselect
@@ -159,6 +179,7 @@ panels:
           - value: demo
             label: 'Demo - counter block and example tests to demonstrate tooling'
       - id: theme
+        weight: 340
         label: 'Theme'
         description: 'The base theme for the site front-end.'
         type: select
@@ -174,6 +195,7 @@ panels:
           - value: custom
             label: 'Custom (next prompt)'
       - id: theme_custom
+        weight: 330
         label: 'Custom theme machine name'
         description: 'We will use this name as a custom theme name.'
         required: true
@@ -184,6 +206,7 @@ panels:
           template: '{{machine_name}}'
           transform: machine
       - id: frontend_build
+        weight: 320
         label: 'Build front-end assets in the container?'
         description: 'Disable to build theme assets on the host or as part of deployment.'
         type: confirm
@@ -197,6 +220,7 @@ panels:
     description: 'Where the code lives and how releases are versioned.'
     fields:
       - id: code_provider
+        weight: 230
         label: 'Repository provider'
         description: 'Vortex offers full automation with GitHub; support for other providers is limited.'
         type: select
@@ -207,6 +231,7 @@ panels:
           - value: other
             label: 'Other'
       - id: version_scheme
+        weight: 220
         label: 'Release versioning scheme'
         description: 'CalVer (year.month.patch) or SemVer (major.minor.patch).'
         type: select
@@ -224,6 +249,7 @@ panels:
     description: 'Timezone, Docker services and developer tooling.'
     fields:
       - id: timezone
+        weight: 210
         label: 'Timezone'
         description: 'Start typing to select the timezone for your project.'
         type: suggest
@@ -250,6 +276,7 @@ panels:
           - value: 'Europe/Paris'
           - value: 'Pacific/Auckland'
       - id: services
+        weight: 200
         label: 'Services'
         description: 'Optional Docker services to include.'
         type: multiselect
@@ -265,6 +292,7 @@ panels:
           - value: redis
             label: 'Redis'
       - id: tools
+        weight: 190
         label: 'Development tools'
         description: 'Linting and testing tools to keep.'
         type: multiselect
@@ -300,6 +328,7 @@ panels:
     description: 'Target hosting provider and project name.'
     fields:
       - id: hosting_provider
+        weight: 180
         label: 'Hosting provider'
         description: 'The hosting provider for the project.'
         type: select
@@ -315,6 +344,7 @@ panels:
           - value: none
             label: 'None'
       - id: hosting_project_name
+        weight: 290
         label: 'Hosting project name'
         description: 'Name as found in the hosting configuration; usually the site machine name.'
         required: true
@@ -326,6 +356,7 @@ panels:
         derive:
           template: '{{machine_name}}'
       - id: webroot
+        weight: 10
         label: 'Custom web root directory'
         description: 'The directory where the web server serves the site.'
         default: web
@@ -336,6 +367,7 @@ panels:
     description: 'How code is shipped to the hosting environment.'
     fields:
       - id: deploy_types
+        weight: 170
         label: 'Deployment types'
         description: 'One or more deployment mechanisms.'
         type: multiselect
@@ -354,6 +386,7 @@ panels:
     description: 'Provisioning method and database source.'
     fields:
       - id: provision_type
+        weight: 150
         label: 'Provision type'
         description: 'How the site is provisioned: from a database dump or installed from a profile.'
         type: select
@@ -364,6 +397,7 @@ panels:
           - value: profile
             label: 'Install from profile'
       - id: database_fetch_source
+        weight: 140
         label: 'Database source'
         description: 'Where the database dump is fetched from.'
         type: select
@@ -387,6 +421,7 @@ panels:
           - value: none
             label: 'None'
       - id: database_image
+        weight: 130
         label: 'Database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
         when:
@@ -396,11 +431,13 @@ panels:
           template: '{{org_machine_name}}/{{machine_name}}-data:latest'
           transform: lower
       - id: migration
+        weight: 120
         label: 'Use a second database for migrations?'
         description: 'Adds a second database service for Drupal migrations.'
         type: confirm
         default: false
       - id: migration_fetch_source
+        weight: 110
         label: 'Migration database source'
         description: 'Where the migration database dump is fetched from.'
         type: select
@@ -422,6 +459,7 @@ panels:
           - value: s3
             label: 'S3 bucket'
       - id: migration_image
+        weight: 100
         label: 'Migration database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
         when:
@@ -436,6 +474,7 @@ panels:
     description: 'Where build and deployment notifications are sent.'
     fields:
       - id: notification_channels
+        weight: 160
         label: 'Notification channels'
         description: 'One or more notification channels.'
         type: multiselect
@@ -460,6 +499,7 @@ panels:
     description: 'CI provider and visual regression testing.'
     fields:
       - id: ci_provider
+        weight: 90
         label: 'Continuous Integration provider'
         description: 'The CI provider for the project.'
         type: select
@@ -472,6 +512,7 @@ panels:
           - value: none
             label: 'None'
       - id: visual_regression
+        weight: 80
         label: 'Visual regression testing with Diffy?'
         description: 'Requires a Diffy account.'
         type: confirm
@@ -482,6 +523,7 @@ panels:
     description: 'Dependency updates, coverage and PR automation.'
     fields:
       - id: dependency_updates_provider
+        weight: 70
         label: 'Dependency updates provider'
         description: 'The dependency updates provider.'
         type: select
@@ -494,6 +536,7 @@ panels:
           - value: none
             label: 'None'
       - id: code_coverage_provider
+        weight: 60
         label: 'Code coverage provider'
         description: 'The code coverage provider.'
         type: select
@@ -504,11 +547,13 @@ panels:
           - value: none
             label: 'None'
       - id: assign_author_pr
+        weight: 50
         label: 'Auto-assign the author to their PR?'
         description: 'Helps to keep the PRs organized.'
         type: confirm
         default: true
       - id: label_merge_conflicts_pr
+        weight: 40
         label: 'Auto-add a CONFLICT label to a PR when conflicts occur?'
         description: 'Helps to quickly identify PRs that need attention.'
         type: confirm
@@ -519,6 +564,7 @@ panels:
     description: 'Whether project documentation is kept.'
     fields:
       - id: preserve_docs_project
+        weight: 30
         label: 'Preserve project documentation?'
         description: 'Helps to maintain the project documentation within the repository.'
         type: confirm
@@ -529,6 +575,7 @@ panels:
     description: 'Whether AI agent instructions are included.'
     fields:
       - id: ai_code_instructions
+        weight: 20
         label: 'Provide AI agent instructions?'
         description: 'Provides AI coding agents with better context about the project.'
         type: confirm

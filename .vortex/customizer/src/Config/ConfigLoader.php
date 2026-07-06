@@ -64,6 +64,7 @@ class ConfigLoader {
       $submit_label,
       $cancel_label,
       (bool) ($data['clear_on_exit'] ?? TRUE),
+      $this->buildProcessors($data['processors'] ?? []),
     );
   }
 
@@ -181,10 +182,35 @@ class ConfigLoader {
         isset($item['when']) && is_array($item['when']) ? $item['when'] : NULL,
         $derive,
         isset($item['discover']) && is_array($item['discover']) ? $item['discover'] : NULL,
+        $this->toInt($item['weight'] ?? 0),
       );
     }
 
     return $fields;
+  }
+
+  /**
+   * Build the list of field-less processors from decoded data.
+   *
+   * @param mixed $items
+   *   The decoded processors list.
+   *
+   * @return array<int,array{id:string,weight:int}>
+   *   The processors, each an id and a weight.
+   */
+  protected function buildProcessors(mixed $items): array {
+    if (!is_array($items)) {
+      return [];
+    }
+
+    $processors = [];
+    foreach ($items as $item) {
+      if (is_array($item) && isset($item['id'])) {
+        $processors[] = ['id' => $this->toString($item['id']), 'weight' => $this->toInt($item['weight'] ?? 0)];
+      }
+    }
+
+    return $processors;
   }
 
   /**
@@ -239,6 +265,16 @@ class ConfigLoader {
    */
   protected function toString(mixed $value): string {
     return is_scalar($value) ? (string) $value : '';
+  }
+
+  /**
+   * Coerce a decoded scalar value to an int (non-scalars become zero).
+   *
+   * @param mixed $value
+   *   The decoded value.
+   */
+  protected function toInt(mixed $value): int {
+    return is_scalar($value) ? (int) $value : 0;
   }
 
 }
