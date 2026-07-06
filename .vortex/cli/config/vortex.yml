@@ -2,16 +2,16 @@ title: 'Vortex'
 subject: 'your project'
 
 banner: |-
-  __      ______  _____ _______ ________   __
-  \ \    / / __ \|  __ \__   __|  ____\ \ / /
-   \ \  / / |  | | |__) | | |  | |__   \ V /
-    \ \/ /| |  | |  _  /  | |  |  __|   > <
-     \  / | |__| | | \ \  | |  | |____ / . \
-      \/   \____/|_|  \_\ |_|  |______/_/ \_\
+  ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
+  ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
+  ██║   ██║██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
+  ╚██╗ ██╔╝██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
+   ╚████╔╝ ╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
+    ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 
-            Drupal project template
+                Drupal project template
 
-                             by DrevOps
+                                           by DrevOps
 
 # Field-less processors that bookend field processing: carry the ".env" first,
 # run internal cleanup and global content transforms last. Fields in between
