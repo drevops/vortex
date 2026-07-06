@@ -94,6 +94,19 @@ final class CustomizeTest extends TestCase {
     $this->assertStringContainsString('valid machine name', $tester->getDisplay());
   }
 
+  public function testResolvesDirectoryForDefaultName(): void {
+    // A "--dir" ending in "/." must resolve to an absolute path so the default
+    // site name derives from the real directory basename, not from ".".
+    $tester = $this->tester();
+
+    $exit = $tester->execute(['--prompts' => '{}', '--dir' => dirname(__DIR__, 3) . '/.'], ['interactive' => FALSE]);
+
+    $this->assertSame(Command::SUCCESS, $exit);
+    $data = json_decode(trim($tester->getDisplay()), TRUE);
+    $this->assertIsArray($data);
+    $this->assertSame('cli', $data['machine_name']);
+  }
+
   public function testSchema(): void {
     $tester = $this->tester();
     $tester->execute(['--schema' => TRUE], ['interactive' => FALSE]);

@@ -78,7 +78,12 @@ class Customize extends Command {
       return $this->validateAnswers($customizer, $validate, $output);
     }
 
+    // Resolve to an absolute path so a relative "." does not reach basename()
+    // literally downstream, which would derive a bogus default site name.
     $dir = $this->stringOption($input, 'dir');
+    $resolved = realpath($dir);
+    $dir = $resolved !== FALSE ? $resolved : $dir;
+
     $update = (bool) $input->getOption('update');
     $prompts = $this->stringOption($input, 'prompts');
 
