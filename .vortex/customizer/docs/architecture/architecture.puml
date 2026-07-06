@@ -18,6 +18,7 @@ package "Configuration" #E3F2FD {
 
 package "Core" #FFF3E0 {
   [Engine]
+  [Processor]
 }
 
 package "Resolution" #E8F5E9 {
@@ -65,6 +66,7 @@ package "Interactive TUI" #FFEBEE {
 [HandlerRegistry] --> HandlerInterface
 [AbstractHandler] ..|> HandlerInterface
 [Engine] --> [Answers]
+[Processor] --> HandlerInterface
 
 [SchemaGenerator] --> [Config]
 [SchemaValidator] --> [Config]

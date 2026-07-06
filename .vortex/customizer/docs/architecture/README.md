@@ -45,6 +45,10 @@ For interactive use, `PanelController::run()` seeds itself with the engine's res
 
 Each turn it asks the **Theme** to compose a frame (the theme owns colours, glyphs and layout), computes the visible window with the `Navigator` and `Scroller`, and renders it to the `Terminal`. A key press is parsed by `KeyParser`; the controller either moves the cursor / drills into a sub-panel, or opens a widget to edit a field. Editing writes the new value back and marks it "edited". When the user finishes, it returns the same `Answers` object the headless path produces.
 
+## Step 5 - apply the answers (optional)
+
+Collecting produces answers; a consumer that scaffolds a project acts on them. `Processor::apply()` runs each field's handler `process()` in a config-driven order - fields sort by `weight` (ties in reverse declaration order), interleaved with any field-less `processors` declared on the config (for example an ".env" carry first, a cleanup last). Only active fields process, and the order lives entirely in the config, never in code.
+
 ## Regenerating this document
 
 The diagrams are PlantUML (`.puml`) rendered to `.svg`. After editing a source, re-render and keep this walkthrough in step with any structural change:
