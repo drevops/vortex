@@ -2,14 +2,16 @@ title: 'Vortex'
 subject: 'your project'
 
 banner: |-
-  ▗▖  ▗▖ ▗▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖
-  ▐▌  ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▐▌    ▝▚▞▘
-  ▐▌  ▐▌▐▌ ▐▌▐▛▀▚▖ █  ▐▛▀▀▘  ▐▌
-   ▝▚▞▘ ▝▚▄▞▘▐▌ ▐▌ █  ▐▙▄▄▖▗▞▘▝▚▖
+  db    db  .d88b.  d8888b. d888888b d88888b db    db
+  88    88 .8P  Y8. 88  `8D `~~88~~' 88'     `8b  d8'
+  Y8    8P 88    88 88oobY'    88    88ooooo  `8bd8'
+  `8b  d8' 88    88 88`8b      88    88~~~~~  .dPYb.
+   `8bd8'  `8b  d8' 88 `88.    88    88.     .8P  Y8.
+     YP     `Y88P'  88   YD    YP    Y88888P YP    YP
 
-     Drupal project template
+                Drupal project template
 
-                       by DrevOps
+                                  by DrevOps
 
 # Field-less processors that bookend field processing: carry the ".env" first,
 # run internal cleanup and global content transforms last. Fields in between
