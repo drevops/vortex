@@ -199,6 +199,9 @@ EOF
   export VORTEX_DB_INDEX="2"
   export VORTEX_FETCH_DB2_SOURCE="url"
   export VORTEX_FETCH_DB2_PROCEED="1"
+  # Set the per-index file name explicitly so the fixture name matches the
+  # resolved dump file rather than relying on the fixture .env default.
+  export VORTEX_FETCH_DB2_FILE="db2.sql"
   export VORTEX_DB_DIR="custom_data"
 
   run .vortex/tooling/src/vortex-fetch-db
