@@ -53,13 +53,13 @@ VORTEX_FETCH_DB_ACQUIA_DB_NAME="${!_v:-}"
 _v="VORTEX_FETCH_DB${_db_index}_ACQUIA_DB_DIR"
 _vs="VORTEX_FETCH_DB${_db_index}_DIR"
 _vss="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_ACQUIA_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
+VORTEX_FETCH_DB_ACQUIA_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
 
 # Database dump file name.
 _v="VORTEX_FETCH_DB${_db_index}_ACQUIA_DB_FILE"
 _vs="VORTEX_FETCH_DB${_db_index}_FILE"
 _vss="VORTEX_DB${_db_index}_FILE"
-VORTEX_FETCH_DB_ACQUIA_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
+VORTEX_FETCH_DB_ACQUIA_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
 
 # Flag to fetch a fresh copy of the database by triggering a new backup.
 _v="VORTEX_FETCH_DB${_db_index}_FRESH"

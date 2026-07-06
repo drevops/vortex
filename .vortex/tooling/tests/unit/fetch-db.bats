@@ -184,6 +184,59 @@ EOF
   popd >/dev/null
 }
 
+@test "fetch-db: Resolve indexed dir from plain VORTEX_DB_DIR fallback" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # The migration DB (index 2) has a per-index file name (db2.sql) but no
+  # per-index directory, so the non-indexed VORTEX_DB_DIR must act as the base
+  # directory. An existing dump placed there should be discovered.
+  mkdir -p custom_data
+  touch custom_data/db2.sql
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_FETCH_DB2_SOURCE="url"
+  export VORTEX_FETCH_DB2_PROCEED="1"
+  export VORTEX_DB_DIR="custom_data"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  # The router resolved the indexed dump directory to custom_data via the
+  # plain VORTEX_DB_DIR fallback and found the existing dump there.
+  assert_output_contains "Found existing database dump file(s)."
+  assert_output_contains "Using existing database dump file(s)."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Resolve indexed file name from plain VORTEX_DB_FILE fallback" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # An index with no per-index file override (unlike index 2, which the fixture
+  # sets to db2.sql) must fall back to the non-indexed VORTEX_DB_FILE for the
+  # dump file name. An existing dump with that name should be discovered.
+  mkdir -p .data
+  touch .data/custom.sql
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_DB_INDEX="3"
+  export VORTEX_FETCH_DB3_SOURCE="url"
+  export VORTEX_FETCH_DB3_PROCEED="1"
+  export VORTEX_DB_FILE="custom.sql"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  # The router resolved the indexed dump file name to custom.sql via the
+  # plain VORTEX_DB_FILE fallback and found the existing dump.
+  assert_output_contains "Found existing database dump file(s)."
+
+  popd >/dev/null
+}
+
 @test "fetch-db: Existing database file handling" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

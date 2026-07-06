@@ -24,13 +24,13 @@ VORTEX_FETCH_DB_URL="${!_v:-}"
 _v="VORTEX_FETCH_DB${_db_index}_URL_DB_DIR"
 _vs="VORTEX_FETCH_DB${_db_index}_DIR"
 _vss="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_URL_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
+VORTEX_FETCH_DB_URL_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
 
 # Database dump file name.
 _v="VORTEX_FETCH_DB${_db_index}_URL_DB_FILE"
 _vs="VORTEX_FETCH_DB${_db_index}_FILE"
 _vss="VORTEX_DB${_db_index}_FILE"
-VORTEX_FETCH_DB_URL_DB_FILE="${!_v:-${!_vs:-${!_vss:-db.sql}}}"
+VORTEX_FETCH_DB_URL_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
 
 # Password for unzipping password-protected zip files.
 _v="VORTEX_FETCH_DB${_db_index}_UNZIP_PASSWORD"

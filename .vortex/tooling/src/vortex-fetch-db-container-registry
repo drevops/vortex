@@ -38,7 +38,7 @@ VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="${!_v:-${VORTEX_CONTAINER_REGISTRY_PASS
 _v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_DB_DIR"
 _vs="VORTEX_FETCH_DB${_db_index}_DIR"
 _vss="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR="${!_v:-${!_vs:-${!_vss:-./.data}}}"
+VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
 
 # The base container image used as a fallback when the archive does not exist.
 _v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_IMAGE_BASE"
