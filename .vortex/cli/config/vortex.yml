@@ -32,48 +32,47 @@ panels:
     description: 'Project name, organization and public domain.'
     fields:
       - id: name
-        weight: 380
         label: 'Site name'
         description: 'We will use this name in the project and documentation.'
         required: true
+        weight: 380
       - id: machine_name
-        weight: 360
         label: 'Site machine name'
         description: 'We will use this name for the project directory and in the code.'
         required: true
         derive:
           template: '{{name}}'
           transform: machine
+        weight: 360
       - id: org
-        weight: 370
         label: 'Organization name'
         description: 'We will use this name in the project and documentation.'
         required: true
         derive:
           template: '{{name}} Org'
+        weight: 370
       - id: org_machine_name
-        weight: 350
         label: 'Organization machine name'
         description: 'We will use this name in the code.'
         required: true
         derive:
           template: '{{org}}'
           transform: machine
+        weight: 350
       - id: domain
-        weight: 280
         label: 'Public domain'
         description: 'Domain name without protocol and trailing slash.'
         required: true
         derive:
           template: '{{machine_name}}.com'
           transform: host
+        weight: 280
 
   - id: drupal
     title: 'Drupal'
     description: 'Install profile, modules, theme and front-end build.'
     fields:
       - id: starter
-        weight: 250
         label: 'How would you like your site to be created on the first run?'
         description: 'Applies only on the first run of the installer.'
         type: select
@@ -85,8 +84,8 @@ panels:
             label: 'Drupal CMS, installed from profile'
           - value: load_demodb
             label: 'Drupal, loaded from the demo database'
+        weight: 250
       - id: profile
-        weight: 270
         label: 'Profile'
         description: 'The Drupal installation profile the site is built on.'
         type: select
@@ -101,16 +100,16 @@ panels:
             label: 'Demo Umami'
           - value: custom
             label: 'Custom (next prompt)'
+        weight: 270
       - id: profile_custom
-        weight: 260
         label: 'Custom profile machine name'
         description: 'The machine name of your custom profile.'
         required: true
         when:
           field: profile
           eq: custom
+        weight: 260
       - id: modules
-        weight: 240
         label: 'Modules'
         description: 'Optional contributed modules to include.'
         type: multiselect
@@ -170,16 +169,16 @@ panels:
             label: 'Testmode'
           - value: xmlsitemap
             label: 'XML Sitemap'
+        weight: 240
       - id: module_prefix
-        weight: 310
         label: 'Custom modules prefix'
         description: 'We will use this name in custom modules.'
         required: true
         derive:
           template: '{{machine_name}}'
           transform: initials
+        weight: 310
       - id: custom_modules
-        weight: 300
         label: 'Custom modules'
         description: 'Which scaffolded custom modules to keep.'
         type: multiselect
@@ -194,8 +193,8 @@ panels:
             label: 'Search - custom Solr search integration'
           - value: demo
             label: 'Demo - counter block and example tests to demonstrate tooling'
+        weight: 300
       - id: theme
-        weight: 340
         label: 'Theme'
         description: 'The base theme for the site front-end.'
         type: select
@@ -210,8 +209,8 @@ panels:
             label: 'Stark'
           - value: custom
             label: 'Custom (next prompt)'
+        weight: 340
       - id: theme_custom
-        weight: 330
         label: 'Custom theme machine name'
         description: 'We will use this name as a custom theme name.'
         required: true
@@ -221,8 +220,8 @@ panels:
         derive:
           template: '{{machine_name}}'
           transform: machine
+        weight: 330
       - id: frontend_build
-        weight: 320
         label: 'Build front-end assets in the container?'
         description: 'Disable to build theme assets on the host or as part of deployment.'
         type: confirm
@@ -230,13 +229,13 @@ panels:
         when:
           field: theme
           eq: custom
+        weight: 320
 
   - id: code_repository
     title: 'Code repository'
     description: 'Where the code lives and how releases are versioned.'
     fields:
       - id: code_provider
-        weight: 230
         label: 'Repository provider'
         description: 'Vortex offers full automation with GitHub; support for other providers is limited.'
         type: select
@@ -246,8 +245,8 @@ panels:
             label: 'GitHub'
           - value: other
             label: 'Other'
+        weight: 230
       - id: version_scheme
-        weight: 220
         label: 'Release versioning scheme'
         description: 'CalVer (year.month.patch) or SemVer (major.minor.patch).'
         type: select
@@ -259,13 +258,13 @@ panels:
             label: 'Semantic Versioning (SemVer)'
           - value: other
             label: 'Other'
+        weight: 220
 
   - id: environment
     title: 'Environment'
     description: 'Timezone, Docker services and developer tooling.'
     fields:
       - id: timezone
-        weight: 210
         label: 'Timezone'
         description: 'Start typing to select the timezone for your project.'
         type: suggest
@@ -291,8 +290,8 @@ panels:
           - value: 'Europe/Madrid'
           - value: 'Europe/Paris'
           - value: 'Pacific/Auckland'
+        weight: 210
       - id: services
-        weight: 200
         label: 'Services'
         description: 'Optional Docker services to include.'
         type: multiselect
@@ -307,8 +306,8 @@ panels:
             label: 'Solr'
           - value: redis
             label: 'Redis'
+        weight: 200
       - id: tools
-        weight: 190
         label: 'Development tools'
         description: 'Linting and testing tools to keep.'
         type: multiselect
@@ -338,13 +337,13 @@ panels:
             label: 'Behat'
           - value: jest
             label: 'Jest'
+        weight: 190
 
   - id: hosting
     title: 'Hosting'
     description: 'Target hosting provider and project name.'
     fields:
       - id: hosting_provider
-        weight: 180
         label: 'Hosting provider'
         description: 'The hosting provider for the project.'
         type: select
@@ -359,8 +358,8 @@ panels:
             label: 'Other'
           - value: none
             label: 'None'
+        weight: 180
       - id: hosting_project_name
-        weight: 290
         label: 'Hosting project name'
         description: 'Name as found in the hosting configuration; usually the site machine name.'
         required: true
@@ -371,19 +370,19 @@ panels:
             - acquia
         derive:
           template: '{{machine_name}}'
+        weight: 290
       - id: webroot
-        weight: 10
         label: 'Custom web root directory'
         description: 'The directory where the web server serves the site.'
         default: web
         required: true
+        weight: 10
 
   - id: deployment
     title: 'Deployment'
     description: 'How code is shipped to the hosting environment.'
     fields:
       - id: deploy_types
-        weight: 170
         label: 'Deployment types'
         description: 'One or more deployment mechanisms.'
         type: multiselect
@@ -396,13 +395,13 @@ panels:
             label: 'Lagoon webhook'
           - value: webhook
             label: 'Custom webhook'
+        weight: 170
 
   - id: workflow
     title: 'Workflow'
     description: 'Provisioning method and database source.'
     fields:
       - id: provision_type
-        weight: 150
         label: 'Provision type'
         description: 'How the site is provisioned: from a database dump or installed from a profile.'
         type: select
@@ -412,8 +411,8 @@ panels:
             label: 'Import from database dump'
           - value: profile
             label: 'Install from profile'
+        weight: 150
       - id: database_fetch_source
-        weight: 140
         label: 'Database source'
         description: 'Where the database dump is fetched from.'
         type: select
@@ -436,8 +435,8 @@ panels:
             label: 'S3 bucket'
           - value: none
             label: 'None'
+        weight: 140
       - id: database_image
-        weight: 130
         label: 'Database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
         when:
@@ -446,14 +445,14 @@ panels:
         derive:
           template: '{{org_machine_name}}/{{machine_name}}-data:latest'
           transform: lower
+        weight: 130
       - id: migration
-        weight: 120
         label: 'Use a second database for migrations?'
         description: 'Adds a second database service for Drupal migrations.'
         type: confirm
         default: false
+        weight: 120
       - id: migration_fetch_source
-        weight: 110
         label: 'Migration database source'
         description: 'Where the migration database dump is fetched from.'
         type: select
@@ -474,8 +473,8 @@ panels:
             label: 'Container registry'
           - value: s3
             label: 'S3 bucket'
+        weight: 110
       - id: migration_image
-        weight: 100
         label: 'Migration database container image name and tag'
         description: 'Use the "latest" tag for the latest version.'
         when:
@@ -484,13 +483,13 @@ panels:
         derive:
           template: '{{org_machine_name}}/{{machine_name}}-data-migration:latest'
           transform: lower
+        weight: 100
 
   - id: notifications
     title: 'Notifications'
     description: 'Where build and deployment notifications are sent.'
     fields:
       - id: notification_channels
-        weight: 160
         label: 'Notification channels'
         description: 'One or more notification channels.'
         type: multiselect
@@ -509,13 +508,13 @@ panels:
             label: 'Slack'
           - value: webhook
             label: 'Webhook'
+        weight: 160
 
   - id: continuous_integration
     title: 'Continuous Integration'
     description: 'CI provider and visual regression testing.'
     fields:
       - id: ci_provider
-        weight: 90
         label: 'Continuous Integration provider'
         description: 'The CI provider for the project.'
         type: select
@@ -527,19 +526,19 @@ panels:
             label: 'CircleCI'
           - value: none
             label: 'None'
+        weight: 90
       - id: visual_regression
-        weight: 80
         label: 'Visual regression testing with Diffy?'
         description: 'Requires a Diffy account.'
         type: confirm
         default: false
+        weight: 80
 
   - id: automations
     title: 'Automations'
     description: 'Dependency updates, coverage and PR automation.'
     fields:
       - id: dependency_updates_provider
-        weight: 70
         label: 'Dependency updates provider'
         description: 'The dependency updates provider.'
         type: select
@@ -551,8 +550,8 @@ panels:
             label: 'Renovate self-hosted in CI'
           - value: none
             label: 'None'
+        weight: 70
       - id: code_coverage_provider
-        weight: 60
         label: 'Code coverage provider'
         description: 'The code coverage provider.'
         type: select
@@ -562,37 +561,38 @@ panels:
             label: 'Codecov'
           - value: none
             label: 'None'
+        weight: 60
       - id: assign_author_pr
-        weight: 50
         label: 'Auto-assign the author to their PR?'
         description: 'Helps to keep the PRs organized.'
         type: confirm
         default: true
+        weight: 50
       - id: label_merge_conflicts_pr
-        weight: 40
         label: 'Auto-add a CONFLICT label to a PR when conflicts occur?'
         description: 'Helps to quickly identify PRs that need attention.'
         type: confirm
         default: true
+        weight: 40
 
   - id: documentation
     title: 'Documentation'
     description: 'Whether project documentation is kept.'
     fields:
       - id: preserve_docs_project
-        weight: 30
         label: 'Preserve project documentation?'
         description: 'Helps to maintain the project documentation within the repository.'
         type: confirm
         default: true
+        weight: 30
 
   - id: ai
     title: 'AI'
     description: 'Whether AI agent instructions are included.'
     fields:
       - id: ai_code_instructions
-        weight: 20
         label: 'Provide AI agent instructions?'
         description: 'Provides AI coding agents with better context about the project.'
         type: confirm
         default: true
+        weight: 20
