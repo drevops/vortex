@@ -117,15 +117,17 @@ final class Customizer {
     // @codeCoverageIgnoreStart
     $this->engine->collect([], $this->context($directory, FALSE, $version));
 
-    // The theme comes from the argument, then the config, then dark.
+    // The theme comes from the argument, then the config, then dark; the banner
+    // from the argument, then the config.
     $theme_name = $theme !== '' ? $theme : ($this->config->theme !== '' ? $this->config->theme : 'dark');
+    $banner_text = $banner !== '' ? $banner : $this->config->banner;
 
     $controller = new PanelController(
       $this->config,
       Theme::create($theme_name),
       $this->engine->answers()->values,
       $this->engine->answers()->provenance,
-      $banner,
+      $banner_text,
       $version,
     );
 

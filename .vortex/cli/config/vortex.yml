@@ -1,6 +1,16 @@
 title: 'Vortex'
 subject: 'your project'
 
+banner: |-
+  ▗▖  ▗▖ ▗▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖
+  ▐▌  ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▐▌    ▝▚▞▘
+  ▐▌  ▐▌▐▌ ▐▌▐▛▀▚▖ █  ▐▛▀▀▘  ▐▌
+   ▝▚▞▘ ▝▚▄▞▘▐▌ ▐▌ █  ▐▙▄▄▖▗▞▘▝▚▖
+
+     Drupal project template
+
+                       by DrevOps
+
 # Field-less processors that bookend field processing: carry the ".env" first,
 # run internal cleanup and global content transforms last. Fields in between
 # process in reverse declaration order (specific replacements before generic).

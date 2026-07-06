@@ -60,6 +60,7 @@ class ConfigLoader {
       $panels,
       $this->buildFixups($data['fixups'] ?? []),
       $this->toString($data['theme'] ?? ''),
+      $this->toString($data['banner'] ?? ''),
       $show_buttons,
       $submit_label,
       $cancel_label,

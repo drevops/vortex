@@ -24,6 +24,8 @@ final readonly class Config {
    *   Raw post-submit fix-up rules, evaluated by the engine.
    * @param string $theme
    *   The theme name or class for the interactive TUI (empty for the default).
+   * @param string $banner
+   *   The start banner (logo) shown before the interactive TUI (optional).
    * @param bool $buttons
    *   Whether the interactive TUI shows submit and cancel buttons.
    * @param string $submitLabel
@@ -43,6 +45,7 @@ final readonly class Config {
     public array $panels = [],
     public array $fixups = [],
     public string $theme = '',
+    public string $banner = '',
     public bool $buttons = TRUE,
     public string $submitLabel = 'Submit',
     public string $cancelLabel = 'Cancel',

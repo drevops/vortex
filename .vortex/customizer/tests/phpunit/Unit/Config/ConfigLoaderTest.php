@@ -137,6 +137,11 @@ final class ConfigLoaderTest extends TestCase {
     $this->assertSame('Abort', $custom->cancelLabel);
   }
 
+  public function testBanner(): void {
+    $this->assertSame('', (new ConfigLoader())->fromArray(['panels' => []])->banner);
+    $this->assertSame("a\nb", (new ConfigLoader())->fromArray(['banner' => "a\nb", 'panels' => []])->banner);
+  }
+
   public function testProcessors(): void {
     // A non-array processors value yields none.
     $this->assertSame([], (new ConfigLoader())->fromArray(['processors' => 'x', 'panels' => []])->processors);

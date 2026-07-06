@@ -50,20 +50,6 @@ class Customize extends Command {
   protected const VERSION = '__VERSION__';
 
   /**
-   * The Vortex logo shown as the interactive start banner.
-   */
-  protected const BANNER = <<<'EOT'
-▗▖  ▗▖ ▗▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖
-▐▌  ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▐▌    ▝▚▞▘
-▐▌  ▐▌▐▌ ▐▌▐▛▀▚▖ █  ▐▛▀▀▘  ▐▌
- ▝▚▞▘ ▝▚▄▞▘▐▌ ▐▌ █  ▐▙▄▄▖▗▞▘▝▚▖
-
-   Drupal project template
-
-                     by DrevOps
-EOT;
-
-  /**
    * {@inheritdoc}
    */
   protected function configure(): void {
@@ -131,7 +117,7 @@ EOT;
 
     // @codeCoverageIgnoreStart
     $engine->collect([], $context);
-    $controller = new PanelController($config, Theme::create('dark'), $engine->answers()->values, $engine->answers()->provenance, static::BANNER, $this->version());
+    $controller = new PanelController($config, Theme::create('dark'), $engine->answers()->values, $engine->answers()->provenance, $config->banner, $this->version());
     $answers = $controller->run(new Terminal());
     $output->writeln($answers->toJson());
 
