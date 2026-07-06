@@ -4,20 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Engine\Engine;
+use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Resolver\InputResolver;
-use DrevOps\Customizer\Schema\AgentHelp;
-use DrevOps\Customizer\Schema\SchemaGenerator;
-use DrevOps\Customizer\Schema\SchemaValidator;
-use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Tui\Terminal;
-use DrevOps\Customizer\Tui\Theme;
-use DrevOps\Customizer\Process\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -70,35 +59,32 @@ class Customize extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $config = (new ConfigLoader())->loadFiles([$this->configPath($input)]);
+    $customizer = Customizer::fromFiles([$this->configPath($input)], [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     if ($input->getOption('schema')) {
-      $output->writeln((string) json_encode((new SchemaGenerator($config))->generate()));
+      $output->writeln((string) json_encode($customizer->schema()));
 
       return Command::SUCCESS;
     }
 
     if ($input->getOption('agent-help')) {
-      $output->writeln((new AgentHelp($config, static::ENV_PREFIX))->generate());
+      $output->writeln($customizer->agentHelp());
 
       return Command::SUCCESS;
     }
 
     $validate = $this->stringOption($input, 'validate');
     if ($validate !== '') {
-      return $this->validateAnswers($config, $validate, $output);
+      return $this->validateAnswers($customizer, $validate, $output);
     }
 
-    $registry = new HandlerRegistry([static::HANDLER_NAMESPACE]);
-    $engine = new Engine($config, $registry);
-    $context = new Context($this->stringOption($input, 'dir'), [], (bool) $input->getOption('update'), $this->version());
+    $dir = $this->stringOption($input, 'dir');
+    $update = (bool) $input->getOption('update');
     $prompts = $this->stringOption($input, 'prompts');
 
     if (!$input->isInteractive() || $prompts !== '') {
-      $inputs = (new InputResolver(static::ENV_PREFIX))->resolve($config->fields(), $prompts, getenv());
-
       try {
-        $answers = $engine->collect($inputs, $context);
+        $answers = $customizer->collect($prompts, $dir, $update, $this->version());
       }
       catch (EngineException $engine_exception) {
         $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -107,45 +93,20 @@ class Customize extends Command {
       }
 
       if ($input->getOption('apply')) {
-        $this->apply($config, $registry, $answers, $context);
+        $customizer->process($answers->values, new Context($dir, $answers->values, $update, $this->version(), $dir));
       }
 
-      $output->writeln($engine->answers()->toJson());
+      $output->writeln($answers->toJson());
 
       return Command::SUCCESS;
     }
 
     // @codeCoverageIgnoreStart
-    $engine->collect([], $context);
-    $controller = new PanelController($config, Theme::create('dark'), $engine->answers()->values, $engine->answers()->provenance, $config->banner, $this->version());
-    $answers = $controller->run(new Terminal());
+    $answers = $customizer->run('', '', $this->version(), $dir);
     $output->writeln($answers->toJson());
 
     return Command::SUCCESS;
     // @codeCoverageIgnoreEnd
-  }
-
-  /**
-   * Apply the collected answers to the project directory.
-   *
-   * The order is config-driven: fields process in ascending weight (ties in
-   * reverse declaration order), interleaved with the config's declared
-   * processors. Only active fields (present in the answers) process; the
-   * declared processors always run.
-   *
-   * @param \DrevOps\Customizer\Config\Config $config
-   *   The configuration.
-   * @param \DrevOps\Customizer\Handler\HandlerRegistry $handlers
-   *   The handler registry.
-   * @param array<string,mixed> $answers
-   *   The collected answers.
-   * @param \DrevOps\Customizer\Handler\Context $context
-   *   The run context.
-   */
-  protected function apply(Config $config, HandlerRegistry $handlers, array $answers, Context $context): void {
-    $applied = new Context($context->directory, $answers, $context->update, $context->version, $context->directory);
-
-    (new Processor())->apply($config, $handlers, $answers, $applied);
   }
 
   /**
@@ -163,8 +124,8 @@ class Customize extends Command {
   /**
    * Validate a JSON answer set against the schema.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
-   *   The configuration.
+   * @param \DrevOps\Customizer\Customizer $customizer
+   *   The customizer.
    * @param string $json
    *   The answer set as JSON.
    * @param \Symfony\Component\Console\Output\OutputInterface $output
@@ -173,7 +134,7 @@ class Customize extends Command {
    * @return int
    *   The exit code.
    */
-  protected function validateAnswers(Config $config, string $json, OutputInterface $output): int {
+  protected function validateAnswers(Customizer $customizer, string $json, OutputInterface $output): int {
     $decoded = json_decode($json, TRUE);
     $answers = [];
     if (is_array($decoded)) {
@@ -182,7 +143,7 @@ class Customize extends Command {
       }
     }
 
-    $errors = (new SchemaValidator($config))->validate($answers);
+    $errors = $customizer->validate($answers);
     foreach ($errors as $error) {
       $output->writeln('<error>' . $error . '</error>');
     }

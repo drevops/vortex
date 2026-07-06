@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Engine\Engine;
+use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Resolver\InputResolver;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
-use DrevOps\Customizer\Process\Processor;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\FileManager;
 use DrevOps\VortexCli\Utils\OptionsResolver;
@@ -102,16 +98,13 @@ class Install extends Command {
 
     $config->set(Config::VERSION, $version);
 
-    $config_model = (new ConfigLoader())->loadFiles([$this->configPath()]);
-    $registry = new HandlerRegistry([static::HANDLER_NAMESPACE]);
-    $engine = new Engine($config_model, $registry);
+    $customizer = Customizer::fromFiles([$this->configPath()], [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';
-    $inputs = (new InputResolver(static::ENV_PREFIX))->resolve($config_model->fields(), $prompts, getenv());
 
     try {
-      $answers = $engine->collect($inputs, new Context($dst, [], $update, $version, $dst));
+      $answers = $customizer->collect($prompts, $dst, $update, $version);
     }
     catch (EngineException $engine_exception) {
       $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -119,7 +112,7 @@ class Install extends Command {
       return Command::FAILURE;
     }
 
-    (new Processor())->apply($config_model, $registry, $answers, new Context($tmp, $answers, $update, $version, $dst));
+    $customizer->process($answers->values, new Context($tmp, $answers->values, $update, $version, $dst));
 
     $file_manager = new FileManager($config);
     $file_manager->prepareDestination();
