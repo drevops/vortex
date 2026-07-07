@@ -446,7 +446,9 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
  *
  * Registering the instance in a throwaway file, and pointing every CLI command
  * at it, keeps a developer's default '~/.lagoon.yml' untouched - an instance of
- * the same name there is neither read nor overwritten.
+ * the same name there is neither read nor overwritten. The file name is
+ * suffixed with the process ID so concurrent runs sharing the same cache
+ * directory do not truncate each other's config.
  *
  * @return string
  *   Path to the config file; its parent directory is created if missing.
@@ -458,7 +460,7 @@ function lagoon_config_file(): string {
     mkdir($dir, 0755, TRUE);
   }
 
-  return $dir . '/lagoon-cli.yml';
+  return $dir . '/lagoon-cli-' . getmypid() . '.yml';
 }
 
 /**
@@ -484,6 +486,20 @@ function lagoon_config(string $bin, string $config_file, string $instance, strin
   file_put_contents($config_file, "lagoons: {}\n");
 
   passthru_or_fail(sprintf('%s --config-file %s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($bin), escapeshellarg($config_file), escapeshellarg($instance), escapeshellarg($graphql), escapeshellarg($hostname), escapeshellarg($port)), 'Failed to add Lagoon instance configuration.');
+}
+
+/**
+ * Print the Lagoon CLI version to make a run observable.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param string $config_file
+ *   The isolated config file to run against.
+ */
+function lagoon_print_version(string $bin, string $config_file): void {
+  task('Checking Lagoon CLI version.');
+  passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
+  pass('Checked Lagoon CLI version.');
 }
 
 /**

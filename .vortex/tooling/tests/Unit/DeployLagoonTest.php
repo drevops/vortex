@@ -718,12 +718,8 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
-  protected function getConfigFile(): string {
-    return self::$tmp . '/lagoon-cli.yml';
-  }
-
   protected function getVersionCommand(): string {
-    return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->getConfigFile());
+    return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->lagoonConfigFile());
   }
 
   protected function getSetupSshPath(): string {
@@ -734,14 +730,14 @@ class DeployLagoonTest extends UnitTestCase {
     $ssh_file = self::$tmp . '/.ssh/id_rsa';
     return sprintf(
       "'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'test-project' %s 2>&1",
-      $this->getConfigFile(),
+      $this->lagoonConfigFile(),
       $ssh_file,
       $subcommand
     );
   }
 
   protected function getLagoonConfigAddCommand(): string {
-    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->getConfigFile());
+    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->lagoonConfigFile());
   }
 
   protected function createFakeLagoonBinary(): void {
@@ -769,7 +765,7 @@ class DeployLagoonTest extends UnitTestCase {
     $GLOBALS['lagoon_bin'] = $lagoon_bin;
     $GLOBALS['lagoon_instance'] = 'amazeeio';
     $GLOBALS['lagoon_project'] = 'test-project';
-    $GLOBALS['lagoon_config_file'] = self::$tmp . '/lagoon-cli.yml';
+    $GLOBALS['lagoon_config_file'] = $this->lagoonConfigFile();
     $GLOBALS['ssh_file'] = self::$tmp . '/.ssh/id_rsa';
     $GLOBALS['deploy_lagoon_fail_when_env_limit_exceeded'] = FALSE;
   }

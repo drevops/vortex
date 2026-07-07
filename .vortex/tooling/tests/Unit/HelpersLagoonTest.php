@@ -166,7 +166,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testConfigSuccess(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $config_file),
       'output' => '',
@@ -183,7 +183,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testConfigFailure(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $config_file),
       'output' => '',
@@ -207,7 +207,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecWithSshKey(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '/home/user/.ssh/id_rsa' --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' --output-json --pretty 2>&1", $config_file),
       'output' => '{"data":[]}',
@@ -225,7 +225,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecWithoutSshKey(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1", $config_file),
       'output' => 'authenticated',
@@ -242,7 +242,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecSshKeyFalseOmitsIdentity(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1", $config_file),
       'output' => 'authenticated',
@@ -260,7 +260,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecSoftFailureCapturesExitCode(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' get backup --environment 'main' --backup-id 'abc' --output-json 2>&1", $config_file),
       'output' => 'no download file found',
@@ -279,7 +279,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecPreservesZeroOutput(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1", $config_file),
       'output' => '0',
@@ -296,7 +296,7 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecHardFailure(): void {
-    $config_file = $this->configFile();
+    $config_file = $this->lagoonConfigFile();
     $this->mockPassthru([
       'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' 2>&1", $config_file),
       'output' => 'boom',
@@ -321,10 +321,6 @@ class HelpersLagoonTest extends UnitTestCase {
       $output = ob_get_clean();
       $this->assertStringContainsString('Lagoon CLI command "list backups --environment \'main\'" failed with exit code 2', (string) $output);
     }
-  }
-
-  protected function configFile(): string {
-    return self::$tmp . '/lagoon-cli.yml';
   }
 
   /**

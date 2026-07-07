@@ -279,9 +279,7 @@ $ctx = [
 ];
 
 // Surface the CLI version and authenticated identity so the run is observable.
-task('Checking Lagoon CLI version.');
-passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
-pass('Checked Lagoon CLI version.');
+lagoon_print_version($bin, $config_file);
 
 task('Checking Lagoon authenticated identity.');
 echo lagoon_exec($bin, 'whoami', $ctx);

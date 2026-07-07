@@ -379,24 +379,20 @@ class FetchDbLagoonTest extends UnitTestCase {
     return gmdate('Y-m-d H:i:s', time() - 200000);
   }
 
-  protected function configFile(): string {
-    return self::$tmp . '/lagoon-cli.yml';
-  }
-
   protected function configCmd(): string {
-    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->configFile());
+    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->lagoonConfigFile());
   }
 
   protected function versionCmd(): string {
-    return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->configFile());
+    return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->lagoonConfigFile());
   }
 
   protected function lagoonCmd(string $subcommand): string {
-    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->configFile(), self::$sshFile, $subcommand);
+    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->lagoonConfigFile(), self::$sshFile, $subcommand);
   }
 
   protected function lagoonCmdNoSsh(string $subcommand): string {
-    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->configFile(), $subcommand);
+    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->lagoonConfigFile(), $subcommand);
   }
 
   protected function rawSub(string $id): string {
