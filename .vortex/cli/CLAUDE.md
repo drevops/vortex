@@ -5,7 +5,7 @@ repository.
 
 ## Project Overview
 
-The Vortex CLI is a thin Symfony Console application. It ships the customizer
+The Vortex CLI is a thin Symfony Console application. It ships the TUI form
 configuration (the questions and their panel structure) plus concrete handler
 classes that extend the generic `drevops/tui` engine and carry the
 project-specific behaviour. Keep this package as thin as possible: reusable,
@@ -121,8 +121,8 @@ Tests should use PHPUnit 11 features:
 
 ## CI/CD
 
-The CLI and customizer are tested together by the monorepo's
-`.github/workflows/vortex-test-cli.yml` workflow (the `customizer` job runs
+The CLI and the TUI form package are tested together by the monorepo's
+`.github/workflows/vortex-test-cli.yml` workflow (the `tui` job runs
 first, then the `cli` job). The CLI PHAR is released from the monorepo root via
 `.github/workflows/vortex-release-cli.yml`.
 
