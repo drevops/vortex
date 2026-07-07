@@ -239,7 +239,7 @@ class PanelController {
     $panel = $this->navigator->current();
     [$body, $cursor_line] = $this->theme->body($panel, $this->answers(), $this->cursor);
 
-    if ($this->config->buttons) {
+    if ($this->buttonsVisible()) {
       $base = $this->theme->itemCount($panel);
       $selected = $this->cursor >= $base ? $this->cursor - $base : -1;
       if ($this->cursor >= $base) {
@@ -318,7 +318,7 @@ class PanelController {
     }
 
     $this->followCursor = TRUE;
-    $count = $this->theme->itemCount($this->navigator->current()) + ($this->config->buttons ? 2 : 0);
+    $count = $this->theme->itemCount($this->navigator->current()) + ($this->buttonsVisible() ? 2 : 0);
 
     if ($key->is(KeyName::Up)) {
       $this->cursor = max(0, $this->cursor - 1);
@@ -357,9 +357,22 @@ class PanelController {
       return;
     }
 
-    if ($this->config->buttons) {
+    if ($this->buttonsVisible()) {
       $this->activateButton($this->cursor - $field_count - count($panel->panels));
     }
+  }
+
+  /**
+   * Whether the submit/cancel buttons are shown on the current panel.
+   *
+   * They live on the root panel only, so sub-panels are not cluttered with
+   * global actions.
+   *
+   * @return bool
+   *   TRUE when buttons are enabled and the navigator is at the root panel.
+   */
+  protected function buttonsVisible(): bool {
+    return $this->config->buttons && $this->navigator->isRoot();
   }
 
   /**

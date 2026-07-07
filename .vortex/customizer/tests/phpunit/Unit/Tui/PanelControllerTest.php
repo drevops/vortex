@@ -100,6 +100,23 @@ final class PanelControllerTest extends TestCase {
     $this->assertSame(0, $controller->cursor());
   }
 
+  public function testButtonsOnlyOnRoot(): void {
+    $controller = $this->controller();
+
+    // The root panel shows the buttons.
+    $this->assertStringContainsString('[ Submit ]', Ansi::strip($controller->frame(12)));
+
+    // Drilling into a sub-panel hides them.
+    $controller->handle(Key::named(KeyName::Enter));
+    $sub = Ansi::strip($controller->frame(12));
+    $this->assertStringNotContainsString('Submit', $sub);
+    $this->assertStringNotContainsString('Cancel', $sub);
+
+    // Popping back to the root shows them again.
+    $controller->handle(Key::named(KeyName::Escape));
+    $this->assertStringContainsString('[ Submit ]', Ansi::strip($controller->frame(12)));
+  }
+
   public function testEditFieldReturnsWithValue(): void {
     $controller = $this->controller();
     $controller->handle(Key::named(KeyName::Enter));
