@@ -223,8 +223,9 @@ else {
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Waiting for deployment to be queued.');
-        sleep(10);
+        task_progress('Waiting for deployment to be queued.', function (): void {
+          sleep_progress(10);
+        });
         pass('Waited for the deployment to be queued.');
 
         task('Removing a database import override flag for the current deployment.');
@@ -267,8 +268,9 @@ else {
       $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Waiting for deployment to be queued.');
-        sleep(10);
+        task_progress('Waiting for deployment to be queued.', function (): void {
+          sleep_progress(10);
+        });
         pass('Waited for the deployment to be queued.');
 
         task('Removing a database import override flag for the current deployment.');

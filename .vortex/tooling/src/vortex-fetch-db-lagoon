@@ -159,8 +159,12 @@ function lagoon_create_dump_task(string $bin, array $ctx, string $environment): 
  *   Number of status checks before timing out.
  * @param int $interval
  *   Seconds to wait between status checks.
+ *
+ * @return string
+ *   The terminal status: 'complete', a failure status ('failed', 'cancelled'
+ *   or 'error'), or 'timeout' when it never completed within the retries.
  */
-function lagoon_wait_dump_task(string $bin, array $ctx, string $task_id, int $retries, int $interval): void {
+function lagoon_wait_dump_task(string $bin, array $ctx, string $task_id, int $retries, int $interval): string {
   for ($i = 1; $i <= $retries; $i++) {
     $json = lagoon_exec($bin, sprintf('get task-by-id --id %s --output-json', escapeshellarg($task_id)), $ctx);
 
@@ -168,20 +172,17 @@ function lagoon_wait_dump_task(string $bin, array $ctx, string $task_id, int $re
     $status = (is_array($data) && isset($data['data'][0]['status'])) ? (string) $data['data'][0]['status'] : '';
 
     if ($status === 'complete') {
-      return;
+      return 'complete';
     }
 
     if (in_array($status, ['failed', 'cancelled', 'error'], TRUE)) {
-      fail('Database dump task "%s" %s.', $task_id, $status);
+      return $status;
     }
 
-    for ($second = 0; $second < $interval; $second++) {
-      sleep(1);
-      progress_dot();
-    }
+    sleep_progress($interval);
   }
 
-  fail('Timed out waiting for the database dump task "%s".', $task_id);
+  return 'timeout';
 }
 
 /**
@@ -323,9 +324,13 @@ if (!$reused) {
   $task_id = lagoon_create_dump_task($bin, $ctx, $environment);
   pass(sprintf('Requested database dump task "%s".', $task_id));
 
-  task_progress('Waiting for the database dump to complete.', function () use ($bin, $ctx, $task_id, $status_retries, $status_interval): void {
-    lagoon_wait_dump_task($bin, $ctx, $task_id, $status_retries, $status_interval);
-  });
+  $status = task_progress('Waiting for the database dump to complete.', fn(): string => lagoon_wait_dump_task($bin, $ctx, $task_id, $status_retries, $status_interval));
+  if ($status === 'timeout') {
+    fail('Timed out waiting for the database dump task "%s".', $task_id);
+  }
+  if ($status !== 'complete') {
+    fail('Database dump task "%s" %s.', $task_id, $status);
+  }
   pass('Database dump completed.');
 
   $download_url = lagoon_dump_task_url($bin, $ctx, $task_id);

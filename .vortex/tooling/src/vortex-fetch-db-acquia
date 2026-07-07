@@ -253,10 +253,7 @@ function acquia_wait_for_backup(string $bin, array $ctx, string $env_id, string 
   $elapsed = 0;
 
   while ($elapsed < $max_wait) {
-    for ($second = 0; $second < $interval; $second++) {
-      sleep(1);
-      progress_dot();
-    }
+    sleep_progress($interval);
     $elapsed += $interval;
 
     if (acquia_latest_backup_id(acli_exec($bin, sprintf('api:environments:database-backup-list %s %s', escapeshellarg($env_id), escapeshellarg($db_name)), $ctx)) !== '') {
@@ -397,6 +394,8 @@ else {
   }
 
   @unlink($file_name_compressed);
+
+  pass('Expanded the database dump.');
 }
 
 task(sprintf('Renaming "%s" to "%s/%s".', $file_name, $db_dir, $db_file));

@@ -110,7 +110,7 @@ function acquia_api_poll_notification(string $key, string $secret, string $notif
   $token = acquia_api_get_token($key, $secret);
 
   for ($i = 1; $i <= $retries; $i++) {
-    sleep($interval);
+    sleep_progress($interval);
 
     $response = request_get($notification_url, acquia_api_headers($token));
 
@@ -137,15 +137,19 @@ info('Started database copying between environments in Acquia.');
 
 task('Retrieving authentication token.');
 $token = acquia_api_get_token($acquia_key, $acquia_secret);
+pass('Retrieved authentication token.');
 
 task(sprintf('Retrieving %s application UUID.', $app_name));
 $app_uuid = acquia_api_get_app_uuid($token, $app_name);
+pass('Retrieved the application UUID.');
 
 task('Retrieving source environment ID.');
 $src_env_id = acquia_api_get_env_id($token, $app_uuid, $src_env);
+pass('Retrieved source environment ID.');
 
 task('Retrieving destination environment ID.');
 $dst_env_id = acquia_api_get_env_id($token, $app_uuid, $dst_env);
+pass('Retrieved destination environment ID.');
 
 task(sprintf('Copying DB from %s to %s environment.', $src_env, $dst_env));
 $copy_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/databases', $dst_env_id), json_encode(['source' => $src_env_id, 'name' => $db_name]), array_merge(acquia_api_headers($token), ['Content-Type: application/json']));
@@ -161,12 +165,14 @@ if ($notification_url === '') {
   fail('Unable to get notification URL for DB copy operation.');
 }
 
-$task_completed = acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval);
+pass('Requested the database copy.');
+
+$task_completed = task_progress('Waiting for the database copy to complete.', fn(): bool => acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval));
 
 if (!$task_completed) {
   fail(sprintf('Unable to copy DB from %s to %s environment.', $src_env, $dst_env));
 }
 
-note(sprintf('Copied DB from %s to %s environment.', $src_env, $dst_env));
+pass(sprintf('Copied DB from %s to %s environment.', $src_env, $dst_env));
 
 pass('Finished database copying between environments in Acquia.');

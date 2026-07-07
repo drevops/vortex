@@ -271,7 +271,7 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
 
     $output = $this->runScript('src/vortex-task-purge-cache-acquia');
 
-    $this->assertStringContainsString('Unable to find domains to purge cache for dev environment.', $output);
+    $this->assertStringContainsString('No domains to purge cache for dev environment.', $output);
     $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
   }
 

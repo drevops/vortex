@@ -248,13 +248,16 @@ function fail_no_exit(string $format, ...$args): void {
  *   Whatever $operation returns.
  */
 function task_progress(string $message, callable $operation): mixed {
-  echo term_supports_color() ? "\033[34m[TASK] " . $message . "\033[0m" : '[TASK] ' . $message;
+  $color = term_supports_color();
+  // Leave the colour open so the progress dots inherit the task colour; it is
+  // closed together with the trailing newline once the operation returns.
+  echo $color ? "\033[34m[TASK] " . $message : '[TASK] ' . $message;
 
   try {
     return $operation();
   }
   finally {
-    echo PHP_EOL;
+    echo ($color ? "\033[0m" : '') . PHP_EOL;
   }
 }
 
@@ -267,6 +270,22 @@ function task_progress(string $message, callable $operation): mixed {
 function progress_dot(): void {
   echo '.';
   flush();
+}
+
+/**
+ * Sleep for a number of seconds, emitting a progress dot every second.
+ *
+ * Use inside a task_progress() operation so a fixed wait or a status-poll
+ * interval keeps the task line ticking rather than appearing to hang.
+ *
+ * @param int $seconds
+ *   The number of seconds to wait.
+ */
+function sleep_progress(int $seconds): void {
+  for ($second = 0; $second < $seconds; $second++) {
+    sleep(1);
+    progress_dot();
+  }
 }
 
 /**

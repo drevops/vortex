@@ -56,12 +56,15 @@ passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escap
 sleep(5);
 
 passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('UNLOCK TABLES;')), 'Failed to unlock tables for service %s.', $service_name);
+pass('Locked and unlocked tables before upgrade.');
 
 task('Running forced service upgrade.');
 passthru_or_fail(sprintf('docker compose exec -T %s sh -c %s', $service_escaped, escapeshellarg('mariadb-upgrade --force || mariadb-upgrade --force')), 'Failed to run service upgrade for %s.', $service_name);
+pass('Ran the forced service upgrade.');
 
 task('Locking tables after upgrade.');
 passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables after upgrade for service %s.', $service_name);
+pass('Locked tables after upgrade.');
 
 task(sprintf('Committing exported container image with name %s.', $new_image));
 $iid = trim((string) shell_exec(sprintf('docker commit %s %s', escapeshellarg($cid), escapeshellarg($new_image))));
@@ -69,7 +72,7 @@ if ($iid === '') {
   fail('Failed to commit container image %s.', $new_image);
 }
 $iid = str_starts_with($iid, 'sha256:') ? substr($iid, 7) : $iid;
-note(sprintf('Committed exported container image with id %s.', $iid));
+pass(sprintf('Committed exported container image with id %s.', $iid));
 
 // Create directory to store database dump.
 if (!is_dir($image_dir)) {
@@ -91,7 +94,7 @@ passthru_or_fail(sprintf('docker save -o %s %s', escapeshellarg($archive), escap
 
 // Check that file was saved and output saved dump file name.
 if (file_exists($archive) && filesize($archive) > 0) {
-  note(sprintf('Exported database image saved to archive file %s.', $archive));
+  pass(sprintf('Exported database image saved to archive file %s.', $archive));
 }
 else {
   fail(sprintf('Unable to save database image archive file %s.', $archive));
