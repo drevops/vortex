@@ -56,8 +56,8 @@ in the Installation guide and select **Lagoon**.
 
 ### Fetch database
 
-Download the latest scheduled database backup from your Lagoon environment
-for local development or CI builds:
+Download a current database dump from your Lagoon environment for local
+development or CI builds:
 
 ```shell
 ahoy fetch-db
@@ -81,5 +81,13 @@ The instance is registered in an isolated, per-run config file rather than your
 default `~/.lagoon.yml`, so any Lagoon configuration you already have locally is
 left untouched.
 
-The download uses the latest scheduled backup, so its data can be as old as
-your environment's backup schedule (nightly by default).
+The dump is created on demand with Lagoon's built-in `drush-sqldump` task, so it
+reflects the current state of the source database. To avoid re-dumping on every
+run, a recent completed dump is reused when its artifact can still be
+downloaded, within 24 hours by default (overridable with
+`VORTEX_FETCH_DB_LAGOON_REUSE_MAX_AGE`, in seconds). Creating a fresh dump is
+always the fallback when no reusable dump is available. Force a new dump with:
+
+```shell
+ahoy fetch-db --fresh
+```

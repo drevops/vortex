@@ -34,174 +34,14 @@ class FetchDbLagoonTest extends UnitTestCase {
       'VORTEX_FETCH_DB_LAGOON_DB_FILE' => 'db.sql',
       'VORTEX_LAGOONCLI_PATH' => self::$tmp,
     ]);
+
+    mkdir(self::$tmp . '/data', 0755, TRUE);
   }
 
   public function testMissingProject(): void {
     $this->envUnset('VORTEX_FETCH_DB_LAGOON_PROJECT');
 
     $this->runScriptError('src/vortex-fetch-db-lagoon', 'Missing required value for VORTEX_FETCH_DB_LAGOON_PROJECT, LAGOON_PROJECT');
-  }
-
-  public function testSuccess(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
-    ]);
-
-    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
-
-    $output = $this->runScript('src/vortex-fetch-db-lagoon');
-
-    $this->assertStringContainsString('Started database backup download from Lagoon.', $output);
-    $this->assertStringContainsString('Configured Lagoon instance.', $output);
-    $this->assertStringContainsString('Discovering "database" backups for environment "main".', $output);
-    $this->assertStringContainsString('Selected backup "latest-id"', $output);
-    $this->assertStringContainsString('Requested backup retrieval.', $output);
-    $this->assertStringContainsString('Downloading the database backup.', $output);
-    $this->assertStringContainsString('Downloaded the database backup.', $output);
-    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
-  }
-
-  public function testSuccessAfterPolling(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-    $this->mockSleep();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
-      // First poll: not ready yet.
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'no download file found, status of backups restoration is pending', 'result_code' => 1],
-      // Second poll: ready.
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
-    ]);
-
-    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
-
-    $output = $this->runScript('src/vortex-fetch-db-lagoon');
-
-    $this->assertStringContainsString('Waiting for the backup to be retrieved.', $output);
-    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
-  }
-
-  public function testRetrieveAlreadyExistsIsNonFatal(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      // Restore already requested previously - non-zero but non-fatal.
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'Error: graphql: Error adding restore. Restore already exists.', 'result_code' => 1],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
-    ]);
-
-    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
-
-    $output = $this->runScript('src/vortex-fetch-db-lagoon');
-
-    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
-  }
-
-  public function testRetrieveFailure(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'permission denied', 'result_code' => 1],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to request backup retrieval');
-  }
-
-  public function testNoBackupsFound(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      // Only a files backup exists, no matching 'database' source.
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"files-id","source":"nginx","created":"2024-01-03 00:00:00"}]}', 'result_code' => 0],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'No "database" backups found for environment "main".');
-  }
-
-  public function testEmptyBackupIdFails(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"","source":"database","created":"2024-01-01 00:00:00"}]}', 'result_code' => 0],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Unable to determine the latest backup ID.');
-  }
-
-  public function testPollTimeout(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->envSet('VORTEX_FETCH_DB_LAGOON_STATUS_RETRIES', '2');
-    $this->mockCommandExists();
-    $this->mockSleep();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'pending', 'result_code' => 1],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'pending', 'result_code' => 1],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Timed out waiting for the backup to be retrieved.');
-  }
-
-  public function testDownloadFailure(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-    $this->mockCommandExists();
-
-    $this->mockPassthruMultiple([
-      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
-      ['cmd' => $this->configCmd(), 'result_code' => 0],
-      ['cmd' => $this->versionCmd(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
-    ]);
-
-    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 500, 'ok' => FALSE, 'body' => '', 'error' => 'Server error']);
-
-    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to download the database backup from Lagoon');
   }
 
   public function testSetupSshFails(): void {
@@ -212,8 +52,248 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to setup SSH.');
   }
 
+  public function testReuseRecentDump(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('461715', $this->recentTs())]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461715')), 'output' => $this->filesJson('https://storage.example.com/reuse.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/reuse.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('REUSED SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('Looking for a recent database dump to reuse.', $output);
+    $this->assertStringContainsString('Reused the database dump from task "461715".', $output);
+    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'REUSED SQL DUMP');
+  }
+
+  public function testFreshWhenNoReusableDump(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      // No dump tasks exist yet.
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728},"result":"success"}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/fresh.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('FRESH SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('No reusable database dump; a fresh one will be created.', $output);
+    $this->assertStringContainsString('Requested database dump task "461728".', $output);
+    $this->assertStringContainsString('Database dump completed.', $output);
+    $this->assertStringContainsString('Downloaded the database dump.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'FRESH SQL DUMP');
+  }
+
+  public function testFreshFlagSkipsReuse(): void {
+    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
+    $this->mockCommandExists();
+
+    // No 'list tasks' call: the reuse lookup is skipped entirely.
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/fresh.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('FRESH SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('Fresh dump requested; skipping reuse of a previous dump.', $output);
+    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
+  }
+
+  public function testStaleDumpIsNotReused(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      // The only dump is older than the reuse window.
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('111', $this->staleTs())]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/fresh.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('FRESH SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('No reusable database dump; a fresh one will be created.', $output);
+    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
+  }
+
+  public function testReuseWithoutFileFallsBackToFresh(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('461715', $this->recentTs())]), 'result_code' => 0],
+      // The recent dump has no downloadable artifact (purged).
+      ['cmd' => $this->lagoonCmd($this->rawSub('461715')), 'output' => $this->noFilesJson(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/fresh.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('FRESH SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('No reusable database dump; a fresh one will be created.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'FRESH SQL DUMP');
+  }
+
+  public function testReuseDownloadFailureFallsBackToFresh(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('461715', $this->recentTs())]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461715')), 'output' => $this->filesJson('https://storage.example.com/reuse.sql.gz'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequestMultiple([
+      // The reused artifact is gone at download time.
+      ['url' => 'https://storage.example.com/reuse.sql.gz', 'method' => 'GET', 'response' => ['status' => 404, 'ok' => FALSE, 'body' => '', 'error' => 'Not Found']],
+      ['url' => 'https://storage.example.com/fresh.sql.gz', 'method' => 'GET', 'response' => ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('FRESH SQL DUMP')]],
+    ]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('No reusable database dump; a fresh one will be created.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'FRESH SQL DUMP');
+  }
+
+  public function testFreshPollsUntilComplete(): void {
+    $this->mockCommandExists();
+    $this->mockSleep();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      // Still running on the first poll, complete on the second.
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'running'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/fresh.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('FRESH SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('Waiting for the database dump to complete.', $output);
+    $this->assertStringContainsString('Database dump completed.', $output);
+  }
+
+  public function testDumpTaskFailure(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'failed'), 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Database dump task "461728" failed.');
+  }
+
+  public function testPollTimeout(): void {
+    $this->envSet('VORTEX_FETCH_DB_LAGOON_STATUS_RETRIES', '2');
+    $this->mockCommandExists();
+    $this->mockSleep();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'running'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'running'), 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Timed out waiting for the database dump task "461728".');
+  }
+
+  public function testNoDownloadableFile(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->noFilesJson(), 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'The database dump task "461728" produced no downloadable file.');
+  }
+
+  public function testDownloadFailure(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("run drush-sqldump --environment 'main' --output-json"), 'output' => '{"data":{"id":461728}}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("get task-by-id --id '461728' --output-json"), 'output' => $this->taskStatusJson('461728', 'complete'), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461728')), 'output' => $this->filesJson('https://storage.example.com/fresh.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/fresh.sql.gz', ['method' => 'GET'], ['status' => 500, 'ok' => FALSE, 'body' => '', 'error' => 'Server error']);
+
+    $this->runScriptError('src/vortex-fetch-db-lagoon', 'Failed to download the database dump from Lagoon.');
+  }
+
   public function testInContainerSkipsSsh(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
     $this->envSet('VORTEX_FETCH_DB_SSH_FILE', 'false');
     $this->mockCommandExists();
 
@@ -222,16 +302,15 @@ class FetchDbLagoonTest extends UnitTestCase {
       ['cmd' => $this->configCmd(), 'result_code' => 0],
       ['cmd' => $this->versionCmd(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmdNoSsh('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmdNoSsh("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmdNoSsh("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmdNoSsh("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmdNoSsh("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('461715', $this->recentTs())]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmdNoSsh($this->rawSub('461715')), 'output' => $this->filesJson('https://storage.example.com/reuse.sql.gz'), 'result_code' => 0],
     ]);
 
-    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
+    $this->mockRequest('https://storage.example.com/reuse.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('REUSED SQL DUMP')]);
 
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
-    $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
+    $this->assertStringContainsString('Finished database dump download from Lagoon.', $output);
   }
 
   public function testDirectoryCreation(): void {
@@ -244,12 +323,11 @@ class FetchDbLagoonTest extends UnitTestCase {
       ['cmd' => $this->configCmd(), 'result_code' => 0],
       ['cmd' => $this->versionCmd(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
-      ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('461715', $this->recentTs())]), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd($this->rawSub('461715')), 'output' => $this->filesJson('https://storage.example.com/reuse.sql.gz'), 'result_code' => 0],
     ]);
 
-    $this->mockRequest('https://storage.example.com/backup-latest.sql', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
+    $this->mockRequest('https://storage.example.com/reuse.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('REUSED SQL DUMP')]);
 
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
@@ -258,19 +336,47 @@ class FetchDbLagoonTest extends UnitTestCase {
   }
 
   /**
-   * Builds a backups listing fixture.
+   * Builds a completed dump task entry.
    *
-   * Contains two DB backups (the latest is selected) and a non-matching files
-   * backup that must be filtered out.
+   * @return array<string, string>
+   *   A task record as returned by 'lagoon list tasks'.
    */
-  protected function backupsJson(): string {
-    return json_encode([
-      'data' => [
-        ['backupid' => 'old-id', 'source' => 'database', 'created' => '2024-01-01 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
-        ['backupid' => 'latest-id', 'source' => 'database', 'created' => '2024-01-02 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
-        ['backupid' => 'files-id', 'source' => 'nginx', 'created' => '2024-01-03 00:00:00', 'restored' => 'false', 'restorestatus' => ''],
-      ],
-    ]) ?: '';
+  protected function dumpTask(string $id, string $created): array {
+    return ['id' => $id, 'name' => 'Drush sql-dump', 'status' => 'complete', 'created' => $created];
+  }
+
+  /**
+   * Encodes a 'list tasks' JSON response.
+   *
+   * @param array<int, array<string, string>> $tasks
+   *   The task records to include.
+   */
+  protected function tasksJson(array $tasks): string {
+    return json_encode(['data' => $tasks]) ?: '';
+  }
+
+  protected function taskStatusJson(string $id, string $status): string {
+    return json_encode(['data' => [['id' => $id, 'status' => $status]]]) ?: '';
+  }
+
+  protected function filesJson(string $url): string {
+    return json_encode(['taskById' => ['files' => [['download' => $url]]]]) ?: '';
+  }
+
+  protected function noFilesJson(): string {
+    return json_encode(['taskById' => ['files' => []]]) ?: '';
+  }
+
+  protected function gzipBody(string $content): string {
+    return gzencode($content) ?: '';
+  }
+
+  protected function recentTs(): string {
+    return gmdate('Y-m-d H:i:s', time() - 3600);
+  }
+
+  protected function staleTs(): string {
+    return gmdate('Y-m-d H:i:s', time() - 200000);
   }
 
   protected function configFile(): string {
@@ -291,6 +397,10 @@ class FetchDbLagoonTest extends UnitTestCase {
 
   protected function lagoonCmdNoSsh(string $subcommand): string {
     return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->configFile(), $subcommand);
+  }
+
+  protected function rawSub(string $id): string {
+    return sprintf("raw --raw 'query{taskById(id:%s){files{download}}}'", $id);
   }
 
 }
