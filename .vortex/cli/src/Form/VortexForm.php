@@ -36,6 +36,14 @@ final class VortexForm {
 BANNER;
 
   /**
+   * The field-less processors that bookend field processing.
+   */
+  public const PROCESSORS = [
+    ['id' => 'dotenv', 'weight' => -1000],
+    ['id' => 'internal', 'weight' => 1000],
+  ];
+
+  /**
    * Build the Vortex customizer configuration.
    *
    * @return \DrevOps\Customizer\Config\Config
@@ -44,8 +52,6 @@ BANNER;
   public static function create(): Config {
     return Form::create('Vortex', 'your project')
       ->banner(self::BANNER)
-      ->processor('dotenv', -1000)
-      ->processor('internal', 1000)
       ->panel('general', 'General information', function (PanelBuilder $p): void {
         $p->description('Project name, organization and public domain.');
         $p->text('name', 'Site name')->description('We will use this name in the project and documentation.')->required()->weight(380);

@@ -9,6 +9,7 @@ use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\FileManager;
@@ -113,7 +114,7 @@ class Install extends Command {
       return Command::FAILURE;
     }
 
-    $customizer->process($answers->values, new Context($tmp, $answers->values, $update, $version, $dst));
+    (new Processor())->apply($customizer->config(), $customizer->registry(), $answers->values, new Context($tmp, $answers->values, $update, $version, $dst), VortexForm::PROCESSORS);
 
     $file_manager = new FileManager($config);
     $file_manager->prepareDestination();

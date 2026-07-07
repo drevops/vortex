@@ -8,6 +8,7 @@ use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
 use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -98,7 +99,7 @@ class Customize extends Command {
       }
 
       if ($input->getOption('apply')) {
-        $customizer->process($answers->values, new Context($dir, $answers->values, $update, $this->version(), $dir));
+        (new Processor())->apply($customizer->config(), $customizer->registry(), $answers->values, new Context($dir, $answers->values, $update, $this->version(), $dir), VortexForm::PROCESSORS);
       }
 
       $output->writeln($answers->toJson());
