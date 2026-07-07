@@ -37,9 +37,11 @@ echo "=== Lagoon database download runner ===\n\n";
 
 $project = getenv('VORTEX_FETCH_DB_LAGOON_PROJECT') ?: getenv('LAGOON_PROJECT');
 if ($project === FALSE || $project === '') {
-  fwrite(STDERR, "Set LAGOON_PROJECT (or VORTEX_FETCH_DB_LAGOON_PROJECT) to the Lagoon project name.\n");
-  fwrite(STDERR, "Example: LAGOON_PROJECT=drevops-website ./playground/fetch-db-lagoon.php\n");
-  exit(1);
+  // Nothing to download without a target project, so an unconfigured run (no
+  // env vars set) is a no-op rather than a failure.
+  echo "Skipping: set LAGOON_PROJECT (or VORTEX_FETCH_DB_LAGOON_PROJECT) to a Lagoon\n";
+  echo "project to run, e.g. LAGOON_PROJECT=drevops-website ./playground/fetch-db-lagoon.php\n";
+  exit(0);
 }
 
 // Keep all scratch under the gitignored '.artifacts/tmp' at the repo root.
