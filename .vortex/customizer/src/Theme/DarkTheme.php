@@ -9,7 +9,7 @@ namespace DrevOps\Customizer\Theme;
  *
  * @package DrevOps\Customizer\Theme
  */
-class DarkTheme extends Theme {
+class DarkTheme extends AbstractTheme {
 
   /**
    * {@inheritdoc}

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\ThemeInterface;
 
 /**
  * A single interactive field collector driven one key at a time.
@@ -51,12 +51,12 @@ interface WidgetInterface {
   /**
    * A rendering of the current state, using the theme's glyphs.
    *
-   * @param \DrevOps\Customizer\Theme\Theme $theme
+   * @param \DrevOps\Customizer\Theme\ThemeInterface $theme
    *   The theme supplying Unicode or ASCII glyphs.
    *
    * @return string
    *   The rendered view.
    */
-  public function view(Theme $theme): string;
+  public function view(ThemeInterface $theme): string;
 
 }

@@ -28,7 +28,7 @@ use DrevOps\Customizer\Tui\Viewport;
  *
  * @package DrevOps\Customizer\Theme
  */
-abstract class Theme {
+abstract class AbstractTheme implements ThemeInterface {
 
   /**
    * The role => SGR style map, resolved once from defineStyles().
@@ -47,7 +47,7 @@ abstract class Theme {
   /**
    * The name => theme-class registry.
    *
-   * @var array<string,class-string<\DrevOps\Customizer\Theme\Theme>>
+   * @var array<string,class-string<\DrevOps\Customizer\Theme\AbstractTheme>>
    */
   protected static array $registry = [
     'dark' => DarkTheme::class,
@@ -94,7 +94,7 @@ abstract class Theme {
    *
    * @param string $name
    *   The theme name.
-   * @param class-string<\DrevOps\Customizer\Theme\Theme> $class
+   * @param class-string<\DrevOps\Customizer\Theme\AbstractTheme> $class
    *   The theme class.
    */
   public static function register(string $name, string $class): void {
@@ -119,10 +119,10 @@ abstract class Theme {
    * @param bool $unicode
    *   Whether Unicode glyphs are used (FALSE falls back to ASCII).
    *
-   * @return \DrevOps\Customizer\Theme\Theme
+   * @return \DrevOps\Customizer\Theme\AbstractTheme
    *   The theme instance.
    */
-  public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76, bool $unicode = TRUE): Theme {
+  public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76, bool $unicode = TRUE): AbstractTheme {
     $name = $name === 'default' ? 'dark' : $name;
 
     $class = static::$registry[$name] ?? (is_subclass_of($name, self::class) ? $name : DarkTheme::class);

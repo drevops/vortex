@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\ThemeInterface;
 
 /**
  * A yes/no toggle.
@@ -94,7 +94,7 @@ class ConfirmWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(Theme $theme): string {
+  public function view(ThemeInterface $theme): string {
     $on = $theme->glyph('radio_on');
     $off = $theme->glyph('radio_off');
 

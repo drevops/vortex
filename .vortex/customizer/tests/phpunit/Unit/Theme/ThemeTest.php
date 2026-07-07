@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Tests\Unit\Theme;
 
 use DrevOps\Customizer\Theme\DarkTheme;
 use DrevOps\Customizer\Theme\LightTheme;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\AbstractTheme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests the theme base, its concrete themes and the registry.
  */
-#[CoversClass(Theme::class)]
+#[CoversClass(AbstractTheme::class)]
 #[CoversClass(DarkTheme::class)]
 #[CoversClass(LightTheme::class)]
 #[Group('tui')]
@@ -23,7 +23,7 @@ final class ThemeTest extends TestCase {
 
   #[DataProvider('dataProviderCreate')]
   public function testCreate(string $name, string $class, string $role, string $expected): void {
-    $theme = Theme::create($name);
+    $theme = AbstractTheme::create($name);
 
     $this->assertSame($theme::class, $class);
     $this->assertSame($expected, $theme->sgr($role));
@@ -38,18 +38,18 @@ final class ThemeTest extends TestCase {
   }
 
   public function testRegister(): void {
-    Theme::register('mylight', LightTheme::class);
+    AbstractTheme::register('mylight', LightTheme::class);
 
-    $this->assertInstanceOf(LightTheme::class, Theme::create('mylight'));
+    $this->assertInstanceOf(LightTheme::class, AbstractTheme::create('mylight'));
   }
 
   public function testCreateFromClassName(): void {
     // A theme class name resolves directly, without registration.
-    $this->assertInstanceOf(LightTheme::class, Theme::create(LightTheme::class));
+    $this->assertInstanceOf(LightTheme::class, AbstractTheme::create(LightTheme::class));
   }
 
   public function testCustomSubclass(): void {
-    $theme = new class() extends Theme {
+    $theme = new class() extends AbstractTheme {
 
       protected function defineStyles(): array {
         return ['title' => '95'];
@@ -107,8 +107,8 @@ final class ThemeTest extends TestCase {
   }
 
   public function testCreatePassesUnicode(): void {
-    $this->assertFalse(Theme::create('dark', TRUE, 76, FALSE)->hasUnicode());
-    $this->assertTrue(Theme::create('dark')->hasUnicode());
+    $this->assertFalse(AbstractTheme::create('dark', TRUE, 76, FALSE)->hasUnicode());
+    $this->assertTrue(AbstractTheme::create('dark')->hasUnicode());
   }
 
   #[DataProvider('dataProviderDetectUnicode')]
@@ -120,7 +120,7 @@ final class ThemeTest extends TestCase {
     }
 
     try {
-      $this->assertSame($expected, Theme::detectUnicode());
+      $this->assertSame($expected, AbstractTheme::detectUnicode());
     }
     finally {
       foreach ($restore as $var => $value) {
@@ -144,7 +144,7 @@ final class ThemeTest extends TestCase {
     is_string($term) ? putenv('TERM=' . $term) : putenv('TERM');
 
     try {
-      $this->assertSame($expected, Theme::detectColor());
+      $this->assertSame($expected, AbstractTheme::detectColor());
     }
     finally {
       foreach ($restore as $var => $value) {

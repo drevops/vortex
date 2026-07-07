@@ -12,7 +12,7 @@ namespace DrevOps\Customizer\Theme;
  *
  * @package DrevOps\Customizer\Theme
  */
-class LightTheme extends Theme {
+class LightTheme extends AbstractTheme {
 
   /**
    * {@inheritdoc}

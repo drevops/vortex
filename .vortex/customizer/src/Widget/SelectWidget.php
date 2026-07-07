@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\ThemeInterface;
 
 /**
  * A single-choice radio list.
@@ -81,7 +81,7 @@ class SelectWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(Theme $theme): string {
+  public function view(ThemeInterface $theme): string {
     $lines = [];
 
     foreach ($this->values as $index => $value) {

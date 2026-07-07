@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\ThemeInterface;
 
 /**
  * Single-line text input with a movable cursor.
@@ -109,7 +109,7 @@ class TextWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(Theme $theme): string {
+  public function view(ThemeInterface $theme): string {
     $line = substr($this->buffer, 0, $this->cursor) . $theme->glyph('caret') . substr($this->buffer, $this->cursor);
 
     return $this->error === NULL ? $line : $line . "\n" . $this->error;

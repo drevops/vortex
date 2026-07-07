@@ -11,7 +11,7 @@ use DrevOps\Customizer\Config\Panel;
 use DrevOps\Customizer\Tui\Ansi;
 use DrevOps\Customizer\Theme\DarkTheme;
 use DrevOps\Customizer\Tui\Navigator;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\AbstractTheme;
 use DrevOps\Customizer\Tui\Viewport;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests the theme's rendering via headless frame probes.
  */
-#[CoversClass(Theme::class)]
+#[CoversClass(AbstractTheme::class)]
 #[Group('tui')]
 final class ThemeRenderTest extends TestCase {
 

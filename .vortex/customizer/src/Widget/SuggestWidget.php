@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\ThemeInterface;
 
 /**
  * An autocomplete text input filtering a fixed option set.
@@ -114,7 +114,7 @@ class SuggestWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(Theme $theme): string {
+  public function view(ThemeInterface $theme): string {
     $lines = [$this->buffer . $theme->glyph('caret')];
 
     foreach ($this->matches() as $index => $value) {

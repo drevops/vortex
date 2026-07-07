@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\ThemeInterface;
 
 /**
  * A checkbox list with type-to-filter and select-all/none.
@@ -182,7 +182,7 @@ class MultiSelectWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(Theme $theme): string {
+  public function view(ThemeInterface $theme): string {
     $lines = [];
 
     foreach ($this->visible() as $index => $value) {
