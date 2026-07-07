@@ -3,18 +3,21 @@
 
 /**
  * @file
- * Download DB dump from Lagoon environment.
+ * Download a database dump from a Lagoon environment.
  *
- * This script will create a database dump in the specified environment and
- * download it into specified directory.
+ * Wraps the provider-native 'lagoon' CLI. It creates a fresh database dump with
+ * the built-in 'drush-sqldump' task, waits for the task to complete, downloads
+ * the uploaded artifact and decompresses it. To avoid re-dumping the source
+ * database on every run, a recent completed dump task is reused when one is
+ * available and its artifact can still be downloaded; set 'VORTEX_FETCH_DB_FRESH'
+ * to '1' to always create a new dump.
  *
- * It does not rely on 'lagoon-cli', which makes it capable of
- * running on hosts without installed lagooncli.
+ * Because it relies on the CLI rather than a bespoke SSH + Drush pipeline, it
+ * runs both on a developer host and inside the hosting environment, enabling a
+ * non-production environment to pull the production database in-place.
  *
- * It requires using an SSH key added to one of the users in Lagoon who has
- * SSH access.
- *
- * IMPORTANT! This script runs outside the container on the host system.
+ * Authentication uses the SSH key on a host; set 'VORTEX_FETCH_DB_SSH_FILE' to
+ * 'false' to rely on the ambient Lagoon identity inside the hosting environment.
  */
 
 declare(strict_types=1);
@@ -28,38 +31,42 @@ require_once __DIR__ . '/helpers.php';
 // Database index suffix.
 $db_index = getenv_default('VORTEX_DB_INDEX', '');
 
-// Flag to download a fresh copy of the database.
-$fresh = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_FRESH', 'VORTEX_FETCH_DB_FRESH', ''])));
-
 // Lagoon project name.
 $lagoon_project = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_PROJECT', 'VORTEX_FETCH_DB_LAGOON_PROJECT', 'LAGOON_PROJECT'])));
 
-// The source environment branch for the database source.
+// The source environment to download the database from.
 $environment = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ENVIRONMENT', 'VORTEX_FETCH_DB_ENVIRONMENT', 'main'])));
 
-// Remote DB dump directory location.
-$remote_dir = '/tmp';
+// The Lagoon instance name to interact with.
+$instance = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_INSTANCE', 'VORTEX_FETCH_DB_LAGOON_INSTANCE', 'amazeeio'])));
 
-// Remote DB dump file name. Cached by the date suffix.
-$remote_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_REMOTE_FILE', 'VORTEX_FETCH_DB_LAGOON_REMOTE_FILE', 'db_' . date('Ymd') . '.sql'])));
+// The Lagoon instance GraphQL endpoint to interact with.
+$instance_graphql = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_INSTANCE_GRAPHQL', 'VORTEX_FETCH_DB_LAGOON_INSTANCE_GRAPHQL', 'https://api.lagoon.amazeeio.cloud/graphql'])));
 
-// Wildcard file name to cleanup previously created dump files.
-$remote_file_cleanup = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_REMOTE_FILE_CLEANUP', 'VORTEX_FETCH_DB_LAGOON_REMOTE_FILE_CLEANUP', 'db_*.sql'])));
-
-// SSH key fingerprint used to connect to a remote.
-$ssh_fingerprint = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FINGERPRINT', 'VORTEX_FETCH_DB_SSH_FINGERPRINT', ''])));
-
-// Default SSH file used if custom fingerprint is not provided.
-$ssh_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FILE', 'VORTEX_FETCH_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa'])));
-
-// The SSH host of the Lagoon environment.
+// The SSH host of the Lagoon instance.
 $ssh_host = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_SSH_HOST', 'VORTEX_FETCH_DB_LAGOON_SSH_HOST', 'ssh.lagoon.amazeeio.cloud'])));
 
-// The SSH port of the Lagoon environment.
+// The SSH port of the Lagoon instance.
 $ssh_port = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_SSH_PORT', 'VORTEX_FETCH_DB_LAGOON_SSH_PORT', '32222'])));
 
-// The SSH user of the Lagoon environment.
-$ssh_user = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_SSH_USER', 'VORTEX_FETCH_DB_LAGOON_SSH_USER', $lagoon_project . '-' . $environment])));
+// SSH key file used to authenticate the CLI. Set to 'false' to rely on the
+// ambient Lagoon identity (e.g. inside the hosting environment).
+$ssh_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_SSH_FILE', 'VORTEX_FETCH_DB_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa'])));
+
+// Force a new dump instead of reusing a recent one.
+$fresh = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_FRESH', 'VORTEX_FETCH_DB_FRESH', ''])));
+
+// Maximum age in seconds of a previous dump task whose artifact may be reused.
+$reuse_max_age = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_REUSE_MAX_AGE', 'VORTEX_FETCH_DB_LAGOON_REUSE_MAX_AGE', '86400'])));
+
+// Number of status checks while waiting for the dump task to complete.
+$status_retries = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_STATUS_RETRIES', 'VORTEX_FETCH_DB_LAGOON_STATUS_RETRIES', '600'])));
+
+// Interval in seconds between dump task status checks.
+$status_interval = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_STATUS_INTERVAL', 'VORTEX_FETCH_DB_LAGOON_STATUS_INTERVAL', '10'])));
+
+// Timeout in seconds for the dump download.
+$download_timeout = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DOWNLOAD_TIMEOUT', 'VORTEX_FETCH_DB_LAGOON_DOWNLOAD_TIMEOUT', '600'])));
 
 // Directory where DB dumps are stored on the host.
 $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DB_DIR', 'VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_LAGOON_DB_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
@@ -67,61 +74,266 @@ $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_i
 // Database dump file name on the host.
 $db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DB_FILE', 'VORTEX_FETCH_DB' . $db_index . '_FILE', 'VORTEX_DB' . $db_index . '_FILE', 'VORTEX_FETCH_DB_LAGOON_DB_FILE', 'VORTEX_FETCH_DB_FILE', 'VORTEX_DB_FILE', 'db.sql'])));
 
-// Name of the webroot directory with Drupal codebase.
-$webroot = getenv_default('WEBROOT', 'web');
-
 // -----------------------------------------------------------------------------
 
-command_must_exist('ssh');
-command_must_exist('rsync');
+// Name of the built-in Lagoon task that produces a database dump.
+const LAGOON_DUMP_TASK_NAME = 'Drush sql-dump';
+
+/**
+ * Find the newest reusable database dump task.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param array{instance: string, project: string, config_file: string, ssh_key?: string} $ctx
+ *   Execution context passed to the CLI.
+ * @param string $environment
+ *   The environment to inspect.
+ * @param int $max_age
+ *   Maximum age in seconds of a completed dump task that may be reused.
+ *
+ * @return string
+ *   The ID of the most recent completed dump task created within the reuse
+ *   window, or an empty string when there is none.
+ */
+function lagoon_reusable_dump_task(string $bin, array $ctx, string $environment, int $max_age): string {
+  $json = lagoon_exec($bin, sprintf('list tasks --environment %s --output-json', escapeshellarg($environment)), $ctx);
+
+  $data = json_decode($json, TRUE);
+  $tasks = (is_array($data) && isset($data['data']) && is_array($data['data'])) ? $data['data'] : [];
+
+  $candidates = array_filter($tasks, fn($task): bool => is_array($task) && ($task['name'] ?? '') === LAGOON_DUMP_TASK_NAME && ($task['status'] ?? '') === 'complete');
+
+  // Pick the most recent completed dump by creation timestamp.
+  usort($candidates, fn($a, $b): int => strcmp((string) ($b['created'] ?? ''), (string) ($a['created'] ?? '')));
+
+  $latest = reset($candidates);
+  if (!is_array($latest)) {
+    return '';
+  }
+
+  // API timestamps are UTC; reuse only within the freshness window.
+  $created = strtotime(((string) ($latest['created'] ?? '')) . ' UTC');
+  if ($created === FALSE || (time() - $created) > $max_age) {
+    return '';
+  }
+
+  return (string) ($latest['id'] ?? '');
+}
+
+/**
+ * Trigger a fresh database dump task.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param array{instance: string, project: string, config_file: string, ssh_key?: string} $ctx
+ *   Execution context passed to the CLI.
+ * @param string $environment
+ *   The environment to dump.
+ *
+ * @return string
+ *   The ID of the created dump task.
+ */
+function lagoon_create_dump_task(string $bin, array $ctx, string $environment): string {
+  $json = lagoon_exec($bin, sprintf('run drush-sqldump --environment %s --output-json', escapeshellarg($environment)), $ctx);
+
+  $data = json_decode($json, TRUE);
+  $id = (is_array($data) && isset($data['data']['id'])) ? (string) $data['data']['id'] : '';
+
+  if ($id === '') {
+    fail('Failed to trigger a database dump task.');
+  }
+
+  return $id;
+}
+
+/**
+ * Wait for a dump task to reach a terminal state.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param array{instance: string, project: string, config_file: string, ssh_key?: string} $ctx
+ *   Execution context passed to the CLI.
+ * @param string $task_id
+ *   The task ID to poll.
+ * @param int $retries
+ *   Number of status checks before timing out.
+ * @param int $interval
+ *   Seconds to wait between status checks.
+ */
+function lagoon_wait_dump_task(string $bin, array $ctx, string $task_id, int $retries, int $interval): void {
+  for ($i = 1; $i <= $retries; $i++) {
+    $json = lagoon_exec($bin, sprintf('get task-by-id --id %s --output-json', escapeshellarg($task_id)), $ctx);
+
+    $data = json_decode($json, TRUE);
+    $status = (is_array($data) && isset($data['data'][0]['status'])) ? (string) $data['data'][0]['status'] : '';
+
+    if ($status === 'complete') {
+      return;
+    }
+
+    if (in_array($status, ['failed', 'cancelled', 'error'], TRUE)) {
+      fail('Database dump task "%s" %s.', $task_id, $status);
+    }
+
+    sleep($interval);
+  }
+
+  fail('Timed out waiting for the database dump task "%s".', $task_id);
+}
+
+/**
+ * Get the signed download URL for a dump task's uploaded artifact.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param array{instance: string, project: string, config_file: string, ssh_key?: string} $ctx
+ *   Execution context passed to the CLI.
+ * @param string $task_id
+ *   The task ID to query.
+ *
+ * @return string
+ *   The signed download URL, or an empty string when the task has no
+ *   downloadable file (e.g. its artifact was purged).
+ */
+function lagoon_dump_task_url(string $bin, array $ctx, string $task_id): string {
+  $query = sprintf('query{taskById(id:%s){files{download}}}', $task_id);
+  $json = lagoon_exec($bin, sprintf('raw --raw %s', escapeshellarg($query)), $ctx);
+
+  $data = json_decode($json, TRUE);
+  // 'lagoon raw' returns the GraphQL result unwrapped ({"taskById":...}); also
+  // tolerate a "data" envelope in case a CLI version wraps the response.
+  $root = (is_array($data) && isset($data['data']) && is_array($data['data'])) ? $data['data'] : $data;
+
+  return (is_array($root) && isset($root['taskById']['files'][0]['download'])) ? (string) $root['taskById']['files'][0]['download'] : '';
+}
+
+/**
+ * Download and decompress a dump task's gzipped SQL artifact.
+ *
+ * The 'drush-sqldump' artifact is a plain gzip ('.sql.gz'), expanded with the
+ * zlib stream wrapper. Returns FALSE on any failure - a missing or expired
+ * artifact, a non-gzip payload or a decompression error - so a reused dump can
+ * fall back to creating a fresh one instead of aborting the run.
+ *
+ * @param string $url
+ *   The signed download URL.
+ * @param string $dest
+ *   Path to write the decompressed dump to.
+ * @param int $timeout
+ *   Download timeout in seconds.
+ *
+ * @return bool
+ *   TRUE when a non-empty dump was written to $dest.
+ */
+function lagoon_download_dump(string $url, string $dest, int $timeout): bool {
+  $archive = $dest . '.gz';
+
+  $response = request($url, ['method' => 'GET', 'save_to' => $archive, 'timeout' => $timeout]);
+  $valid_gzip = $response['ok'] && is_file($archive) && file_get_contents($archive, FALSE, NULL, 0, 2) === "\x1f\x8b";
+
+  if (!$valid_gzip) {
+    if (is_file($archive)) {
+      unlink($archive);
+    }
+
+    return FALSE;
+  }
+
+  $in = fopen('compress.zlib://' . $archive, 'rb');
+  $out = $in !== FALSE ? fopen($dest, 'wb') : FALSE;
+
+  $bytes = ($in !== FALSE && $out !== FALSE) ? stream_copy_to_stream($in, $out) : FALSE;
+
+  if ($in !== FALSE) {
+    fclose($in);
+  }
+
+  if ($out !== FALSE) {
+    fclose($out);
+  }
+
+  unlink($archive);
+
+  return $bytes !== FALSE && $bytes > 0;
+}
 
 info('Started database dump download from Lagoon.');
 
-// Setup SSH.
-putenv('VORTEX_SSH_PREFIX=FETCH_DB');
-passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+$bin = lagoon_cli_resolve();
 
-$ssh_opts = [
-  '-o', 'UserKnownHostsFile=/dev/null',
-  '-o', 'StrictHostKeyChecking=no',
-  '-o', 'LogLevel=error',
-  '-o', 'IdentitiesOnly=yes',
-  '-p', $ssh_port,
-];
+// Authenticate the CLI. On a host the SSH key is loaded and passed to the CLI;
+// inside the hosting environment ('false') the ambient identity is used.
 if ($ssh_file !== 'false') {
-  $ssh_opts[] = '-i';
-  $ssh_opts[] = $ssh_file;
+  putenv('VORTEX_SSH_PREFIX=FETCH_DB');
+  passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
 }
 
-$ssh_target = $ssh_user . '@' . $ssh_host;
-$ssh_opts_escaped = implode(' ', array_map('escapeshellarg', $ssh_opts));
+$config_file = lagoon_config_file();
+
+task('Configuring Lagoon instance.');
+lagoon_config($bin, $config_file, $instance, $instance_graphql, $ssh_host, $ssh_port);
+pass('Configured Lagoon instance.');
+
+$ctx = [
+  'instance' => $instance,
+  'project' => $lagoon_project,
+  'config_file' => $config_file,
+  'ssh_key' => $ssh_file,
+];
+
+// Surface the CLI version and authenticated identity so the run is observable.
+lagoon_print_version($bin, $config_file);
+
+task('Checking Lagoon authenticated identity.');
+echo lagoon_exec($bin, 'whoami', $ctx);
+pass('Checked Lagoon authenticated identity.');
 
 if (!is_dir($db_dir)) {
   task('Creating directory for database dumps.');
   mkdir($db_dir, 0755, TRUE);
+  pass('Created directory for database dumps.');
 }
 
+$dest = $db_dir . '/' . $db_file;
+
+// Reuse a recent dump when possible; a fresh dump is always the fallback.
+$reused = FALSE;
 if ($fresh === '1') {
-  note('Database dump refresh requested. Will create a new dump.');
+  note('Fresh dump requested; skipping reuse of a previous dump.');
+}
+else {
+  task('Looking for a recent database dump to reuse.');
+  $reuse_id = lagoon_reusable_dump_task($bin, $ctx, $environment, $reuse_max_age);
+  $reuse_url = $reuse_id === '' ? '' : lagoon_dump_task_url($bin, $ctx, $reuse_id);
+  $reused = $reuse_url !== '' && lagoon_download_dump($reuse_url, $dest, $download_timeout);
+
+  if ($reused) {
+    pass(sprintf('Reused the database dump from task "%s".', $reuse_id));
+  }
+  else {
+    pass('No reusable database dump; a fresh one will be created.');
+  }
 }
 
-// Build the remote SSH command.
-$remote_path = $remote_dir . '/' . $remote_file;
-$remote_cleanup_path = $remote_dir . '/' . $remote_file_cleanup;
-$remote_cmd = <<<BASH
-if [ ! -f "{$remote_path}" ] || [ "{$fresh}" = "1" ] ; then
-  [ -n "{$remote_file_cleanup}" ] && rm -f "{$remote_cleanup_path}" && echo "Removed previously created DB dumps."
-  echo "      > Creating a database dump {$remote_path}."
-  /app/vendor/bin/drush --root=./{$webroot} sql:dump --structure-tables-key=common --structure-tables-list=ban,event_log_track,flood,login_security_track,purge_queue,queue,webform_submission,webform_submission_data,webform_submission_log,watchdog,cache* --extra-dump='--disable-ssl --no-tablespaces' > "{$remote_path}"
-else
-  echo "      > Using existing dump {$remote_path}."
-fi
-BASH;
+if (!$reused) {
+  task('Requesting a fresh database dump.');
+  $task_id = lagoon_create_dump_task($bin, $ctx, $environment);
+  pass(sprintf('Requested database dump task "%s".', $task_id));
 
-task('Discovering or creating a database dump on Lagoon.');
-passthru_or_fail(sprintf('ssh %s %s service=cli container=cli %s', $ssh_opts_escaped, escapeshellarg($ssh_target), escapeshellarg($remote_cmd)), 'Failed to create database dump on Lagoon.');
+  task('Waiting for the database dump to complete.');
+  lagoon_wait_dump_task($bin, $ctx, $task_id, $status_retries, $status_interval);
+  pass('Database dump completed.');
 
-task('Downloading a database dump.');
-passthru_or_fail(sprintf('rsync -e %s %s %s', escapeshellarg('ssh ' . implode(' ', $ssh_opts)), escapeshellarg($ssh_target . ':' . $remote_path), escapeshellarg($db_dir . '/' . $db_file)), 'Failed to download database dump from Lagoon.');
+  $download_url = lagoon_dump_task_url($bin, $ctx, $task_id);
+  if ($download_url === '') {
+    fail('The database dump task "%s" produced no downloadable file.', $task_id);
+  }
+
+  task('Downloading the database dump.');
+  if (!lagoon_download_dump($download_url, $dest, $download_timeout)) {
+    fail('Failed to download the database dump from Lagoon.');
+  }
+  pass('Downloaded the database dump.');
+}
 
 pass('Finished database dump download from Lagoon.');

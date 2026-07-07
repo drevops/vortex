@@ -456,6 +456,7 @@ trait MockTrait {
     // Track state across all request function calls.
     $current_url = NULL;
     $current_method = NULL;
+    $current_save_fh = NULL;
 
     // Initialize the mocks array for request.
     $this->mocks['request'] = [];
@@ -477,9 +478,12 @@ trait MockTrait {
     // Mock curl_setopt_array - extracts method from options.
     $this->mocks['request']['curl_setopt_array'] = $this->getFunctionMock($namespace, 'curl_setopt_array');
     $this->mocks['request']['curl_setopt_array']->expects($this->any())
-      ->willReturnCallback(function ($ch, $options) use (&$current_method): bool {
+      ->willReturnCallback(function ($ch, $options) use (&$current_method, &$current_save_fh): bool {
         if (isset($options[CURLOPT_CUSTOMREQUEST])) {
           $current_method = $options[CURLOPT_CUSTOMREQUEST];
+        }
+        if (isset($options[CURLOPT_FILE])) {
+          $current_save_fh = $options[CURLOPT_FILE];
         }
         return TRUE;
       });
@@ -488,7 +492,7 @@ trait MockTrait {
     $this->mocks['request']['curl_exec'] = $this->getFunctionMock($namespace, 'curl_exec');
     $this->mocks['request']['curl_exec']->expects($this->any())
       // @phpstan-ignore-next-line
-      ->willReturnCallback(function () use (&$current_url, &$current_method): string|false {
+      ->willReturnCallback(function () use (&$current_url, &$current_method, &$current_save_fh): string|false {
         $total_responses = count($this->mockResponses['request']);
 
         // Note: This check is unreachable in normal flow since curl_init()
@@ -505,6 +509,7 @@ trait MockTrait {
         // Capture current values before incrementing/resetting.
         $url_to_validate = $current_url;
         $method_to_validate = $current_method;
+        $save_fh_to_write = $current_save_fh;
 
         // Increment index and reset state NOW, before validation.
         // This ensures the mock is marked as "consumed" even if validation
@@ -512,6 +517,7 @@ trait MockTrait {
         $this->mockIndices['request']++;
         $current_url = NULL;
         $current_method = NULL;
+        $current_save_fh = NULL;
 
         // Validate response structure.
         if (!isset($mock['url'])) {
@@ -528,6 +534,12 @@ trait MockTrait {
         // Validate method if specified.
         if (isset($mock['method']) && $mock['method'] !== $method_to_validate) {
           throw new \RuntimeException(sprintf('request made with unexpected method. Expected "%s", got "%s".', $mock['method'], $method_to_validate ?? 'GET'));
+        }
+
+        // When the request streams to a file (save_to), write the mocked body
+        // to that handle so file downloads are testable with real content.
+        if (is_resource($save_fh_to_write)) {
+          fwrite($save_fh_to_write, (string) $mock['response']['body']);
         }
 
         // Response is already normalized with defaults.
@@ -800,6 +812,11 @@ trait MockTrait {
    * exec() here keeps command_must_exist() checks independent of the host
    * environment (the CI runner has no pygmy/ahoy, for example).
    *
+   * A test can simulate specific commands as absent while all others are
+   * reported present by setting the 'VORTEX_TEST_COMMAND_MISSING' env variable
+   * to a comma-separated list of command names. This allows exercising a
+   * single "tool missing" branch without disturbing the other lookups.
+   *
    * @param string $namespace
    *   Namespace to mock the function in (defaults to DrevOps\VortexTooling).
    */
@@ -814,11 +831,33 @@ trait MockTrait {
         // @codeCoverageIgnoreEnd
       }
 
+      $missing = array_filter(array_map(trim(...), explode(',', (string) getenv('VORTEX_TEST_COMMAND_MISSING'))));
+      if (in_array($matches[1], $missing, TRUE)) {
+        $output = [];
+        $result_code = 1;
+
+        return '';
+      }
+
       $output = ['/usr/local/bin/' . preg_replace('/[^a-z0-9]/i', '', $matches[1])];
       $result_code = 0;
 
       return $output[0];
     });
+  }
+
+  /**
+   * Mark commands as absent for the mockCommandExists() lookup.
+   *
+   * A readable wrapper over the 'VORTEX_TEST_COMMAND_MISSING' env variable that
+   * mockCommandExists() consults, so a test reads as "this command is missing"
+   * instead of exposing the underlying variable.
+   *
+   * @param string ...$commands
+   *   Command names that command_path() should report as not found.
+   */
+  protected function mockCommandMissing(string ...$commands): void {
+    static::envSet('VORTEX_TEST_COMMAND_MISSING', implode(',', $commands));
   }
 
 }

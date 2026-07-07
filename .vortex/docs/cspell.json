@@ -86,6 +86,7 @@
         "shellvar",
         "simpletest",
         "solrcore",
+        "sqldump",
         "testmode",
         "standardise",
         "toml",

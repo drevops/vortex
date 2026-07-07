@@ -6,12 +6,13 @@ sidebar_position: 4
 # Lagoon deployment
 
 Lagoon deployment triggers a deployment on the [Lagoon](https://lagoon.sh/)
-hosting platform by calling its webhook URL.
+hosting platform using the
+[Lagoon CLI](https://github.com/uselagoon/lagoon-cli).
 
 ## How it works
 
 When `lagoon` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-calls the Lagoon webhook URL to trigger a deployment. Lagoon then:
+uses the Lagoon CLI to trigger a deployment. Lagoon then:
 
 1. Pulls the latest code from your repository
 2. Builds container images using your `docker-compose.yml`
@@ -45,7 +46,10 @@ calls the Lagoon webhook URL to trigger a deployment. Lagoon then:
    LAGOON_PROJECT=your-project-name
    ```
 
-3. Ensure your CI has the Lagoon SSH key configured for authentication.
+3. Ensure your CI has the Lagoon SSH key configured for authentication. The
+   [Lagoon CLI](https://github.com/uselagoon/lagoon-cli) is used on the deploy
+   runner; if it is not already on the `PATH`, **Vortex** downloads a pinned
+   release into a cache directory automatically.
 
 ## Post-deployment automation
 

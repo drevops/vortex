@@ -69,15 +69,6 @@ $ssh_file = getenv_default('VORTEX_DEPLOY_LAGOON_SSH_FILE', 'VORTEX_DEPLOY_SSH_F
 // Flag to control failure behavior when Lagoon environment limits are exceeded.
 $deploy_lagoon_fail_when_env_limit_exceeded = getenv_default('VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED', FALSE);
 
-// Location of the Lagoon CLI binary.
-$lagooncli_path = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_PATH', 'VORTEX_LAGOONCLI_PATH', sys_get_temp_dir());
-
-// Flag to force the installation of Lagoon CLI.
-$lagooncli_force_install = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL', 'VORTEX_LAGOONCLI_FORCE_INSTALL', FALSE);
-
-// Lagoon CLI version to use.
-$lagooncli_version = getenv_default('VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION', 'VORTEX_LAGOONCLI_VERSION', 'v0.32.0');
-
 // -----------------------------------------------------------------------------
 
 info('Started Lagoon deployment.');
@@ -92,14 +83,12 @@ if ($deploy_mode === 'tag') {
 // Track exit status to return at the end.
 $exit_code = 0;
 
-// Lagoon CLI binary path - defaults to 'lagoon' in PATH, overridden
-// if downloaded.
-$lagoon_bin = 'lagoon';
-
 // Check required values.
 if (empty($deploy_branch) && empty($deploy_pr)) {
   fail('Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
 }
+
+$lagoon_bin = lagoon_cli_resolve();
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
@@ -107,36 +96,18 @@ putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
 !empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
 passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 
-// Install Lagoon CLI if needed.
-if (!command_path('lagoon') || !empty($lagooncli_force_install)) {
-  task('Installing Lagoon CLI.');
-
-  $platform = strtolower(php_uname('s'));
-  $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
-
-  $download_url = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s/lagoon-cli-%s-%s-%s', $lagooncli_version, $lagooncli_version, $platform, $arch);
-
-  $lagoon_binary_path = $lagooncli_path . '/lagoon';
-
-  if (!is_dir($lagooncli_path)) {
-    mkdir($lagooncli_path, 0755, TRUE);
-  }
-
-  note(sprintf('Downloading Lagoon CLI from %s.', $download_url));
-  $response = request($download_url, ['method' => 'GET', 'save_to' => $lagoon_binary_path, 'timeout' => 60]);
-  if (!$response['ok']) {
-    fail('Failed to download Lagoon CLI from %s: %s', $download_url, $response['error'] ?? 'Unknown error');
-  }
-
-  note(sprintf('Installing Lagoon CLI to %s.', $lagoon_binary_path));
-  chmod($lagoon_binary_path, 0755);
-
-  // Override the default binary path with the downloaded one.
-  $lagoon_bin = $lagoon_binary_path;
-}
+$lagoon_config_file = lagoon_config_file();
 
 task('Configuring Lagoon instance.');
-passthru_or_fail(sprintf('%s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($lagoon_bin), escapeshellarg($lagoon_instance), escapeshellarg($lagoon_instance_graphql), escapeshellarg($lagoon_instance_hostname), escapeshellarg($lagoon_instance_port)));
+lagoon_config($lagoon_bin, $lagoon_config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
+pass('Configured Lagoon instance.');
+
+// Surface the CLI version and authenticated identity so the run is observable.
+lagoon_print_version($lagoon_bin, $lagoon_config_file);
+
+task('Checking Lagoon authenticated identity.');
+echo lagoon_run_cli('whoami');
+pass('Checked Lagoon authenticated identity.');
 
 /**
  * Run Lagoon CLI command.
@@ -152,25 +123,16 @@ passthru_or_fail(sprintf('%s config add --force --lagoon %s --graphql %s --hostn
  */
 function lagoon_run_cli(string $subcommand, ?int &$subcommand_exit_code = NULL): string {
   // phpcs:ignore Drupal.NamingConventions.ValidGlobal.GlobalUnderScore
-  global $ssh_file, $lagoon_instance, $lagoon_project, $lagoon_bin;
+  global $ssh_file, $lagoon_instance, $lagoon_project, $lagoon_bin, $lagoon_config_file;
 
-  $cmd = sprintf('%s --force --skip-update-check --ssh-key %s --lagoon %s --project %s %s 2>&1', escapeshellarg($lagoon_bin), escapeshellarg($ssh_file), escapeshellarg($lagoon_instance), escapeshellarg($lagoon_project), $subcommand);
+  $ctx = [
+    'instance' => (string) $lagoon_instance,
+    'project' => (string) $lagoon_project,
+    'config_file' => (string) $lagoon_config_file,
+    'ssh_key' => (string) $ssh_file,
+  ];
 
-  $subcommand_exit_code_provided = TRUE;
-  if (is_null($subcommand_exit_code)) {
-    $subcommand_exit_code = 0;
-    $subcommand_exit_code_provided = FALSE;
-  }
-
-  ob_start();
-  passthru($cmd, $subcommand_exit_code);
-  $subcommand_output = ob_get_clean();
-
-  if (!$subcommand_exit_code_provided && $subcommand_exit_code !== 0) {
-    fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $subcommand_exit_code, $subcommand_output);
-  }
-
-  return $subcommand_output ?: '';
+  return lagoon_exec((string) $lagoon_bin, $subcommand, $ctx, $subcommand_exit_code);
 }
 
 /**
@@ -185,17 +147,17 @@ function lagoon_get_existing_environments(bool $is_branch): array {
   $names = [];
 
   $data = json_decode($json, TRUE);
-  if (!is_array($data) || !isset($data['data']) || !is_array($data['data'])) {
-    return $names;
-  }
-
-  foreach ($data['data'] as $env) {
-    if (isset($env['deploytype']) && str_contains($env['deploytype'], $deploy_type)) {
-      if (isset($env['name'])) {
-        $names[] = $env['name'];
+  if (is_array($data) && isset($data['data']) && is_array($data['data'])) {
+    foreach ($data['data'] as $env) {
+      if (isset($env['deploytype']) && str_contains($env['deploytype'], $deploy_type)) {
+        if (isset($env['name'])) {
+          $names[] = $env['name'];
+        }
       }
     }
   }
+
+  pass(sprintf('Discovered %d existing %s environment(s).', count($names), $deploy_type));
 
   return $names;
 }
@@ -230,6 +192,7 @@ function lagoon_handle_environment_limit_exceeded(string $output, int $exit_code
 if ($deploy_action === 'destroy') {
   task(sprintf('Destroying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch));
   lagoon_run_cli(sprintf('delete environment --environment %s', escapeshellarg($deploy_branch)));
+  pass('Destroyed the environment.');
 }
 else {
   if (!empty($deploy_pr)) {
@@ -246,10 +209,12 @@ else {
       // @todo Review and remove this workaround as the issue is fixed.
       task('Setting a database overwrite flag to 0.');
       lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
+      pass('Set the database overwrite flag to 0.');
 
       if ($deploy_action === 'deploy_override_db') {
         task('Adding a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_pr_full)));
+        pass('Added the database import override flag.');
       }
 
       task(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr));
@@ -260,8 +225,11 @@ else {
       if ($deploy_action === 'deploy_override_db') {
         task('Waiting for deployment to be queued.');
         sleep(10);
+        pass('Waited for the deployment to be queued.');
+
         task('Removing a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
+        pass('Removed the database import override flag.');
       }
     }
     // Fresh deployment.
@@ -285,10 +253,12 @@ else {
       // @todo Review and remove this workaround as the issue is fixed.
       task('Setting a database overwrite flag to 0.');
       lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
+      pass('Set the database overwrite flag to 0.');
 
       if ($deploy_action === 'deploy_override_db') {
         task('Adding a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_branch)));
+        pass('Added the database import override flag.');
       }
 
       task(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch));
@@ -299,8 +269,11 @@ else {
       if ($deploy_action === 'deploy_override_db') {
         task('Waiting for deployment to be queued.');
         sleep(10);
+        pass('Waited for the deployment to be queued.');
+
         task('Removing a database import override flag for the current deployment.');
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
+        pass('Removed the database import override flag.');
       }
     }
     // Fresh deployment.

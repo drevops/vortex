@@ -153,4 +153,14 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     return ob_get_clean() ?: '';
   }
 
+  /**
+   * Path to the isolated Lagoon CLI config file used in command assertions.
+   *
+   * Mirrors lagoon_config_file(): the file lives under VORTEX_LAGOONCLI_PATH
+   * (set to self::$tmp in Lagoon tests) and is suffixed with the process ID.
+   */
+  protected function lagoonConfigFile(): string {
+    return self::$tmp . '/lagoon-cli-' . getmypid() . '.yml';
+  }
+
 }

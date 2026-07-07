@@ -361,6 +361,195 @@ function drush(string $command, ?int &$exit_code = NULL): string {
 }
 
 /**
+ * Resolve the Lagoon CLI binary, installing it on demand.
+ *
+ * Prefers a 'lagoon' already available on PATH. Otherwise reuses a binary
+ * previously downloaded to the cache directory, or downloads and verifies it
+ * there once. This lets the same scripts run inside a hosting environment where
+ * the CLI is not pre-installed, without re-downloading on every invocation.
+ *
+ * @return string
+ *   Path to the Lagoon CLI binary.
+ */
+function lagoon_cli_resolve(): string {
+  if (command_path('lagoon')) {
+    note('Using the Lagoon CLI found on PATH.');
+    return 'lagoon';
+  }
+
+  $dir = (string) getenv_default('VORTEX_LAGOONCLI_PATH', '.artifacts/tmp');
+  $version = getenv_default('VORTEX_LAGOONCLI_VERSION', 'v0.32.0');
+  $bin = $dir . '/lagoon';
+
+  if (is_executable($bin)) {
+    note('Reusing the Lagoon CLI previously downloaded to "%s".', $bin);
+    return $bin;
+  }
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  $platform = strtolower(php_uname('s'));
+  $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
+  $base = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s', $version);
+  $asset = sprintf('lagoon-cli-%s-%s-%s', $version, $platform, $arch);
+
+  task('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin);
+  $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
+  if (!$response['ok']) {
+    @unlink($bin);
+    fail('Failed to download the Lagoon CLI from "%s": %s', $base . '/' . $asset, $response['error'] ?? 'Unknown error');
+  }
+
+  lagoon_cli_verify_checksum($bin, $base, $asset);
+
+  chmod($bin, 0755);
+
+  return $bin;
+}
+
+/**
+ * Verify a downloaded Lagoon CLI binary against the published checksums.
+ *
+ * @param string $bin
+ *   Path to the downloaded binary; removed on a verification failure.
+ * @param string $base
+ *   Base release download URL.
+ * @param string $asset
+ *   Asset file name to look up in the checksums file.
+ */
+function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): void {
+  $response = request($base . '/checksums.txt', ['method' => 'GET', 'timeout' => 30]);
+  if (!$response['ok']) {
+    @unlink($bin);
+    fail('Failed to download the Lagoon CLI checksums from "%s".', $base . '/checksums.txt');
+  }
+
+  $expected = '';
+  foreach (explode("\n", (string) $response['body']) as $line) {
+    $parts = preg_split('/\s+/', trim($line)) ?: [];
+    if (count($parts) === 2 && $parts[1] === $asset) {
+      $expected = $parts[0];
+      break;
+    }
+  }
+
+  if ($expected === '' || !hash_equals($expected, (string) hash_file('sha256', $bin))) {
+    @unlink($bin);
+    fail('Lagoon CLI checksum verification failed for "%s".', $asset);
+  }
+}
+
+/**
+ * Path to an ephemeral Lagoon CLI config file scoped to a single script run.
+ *
+ * Registering the instance in a throwaway file, and pointing every CLI command
+ * at it, keeps a developer's default '~/.lagoon.yml' untouched - an instance of
+ * the same name there is neither read nor overwritten. The file name is
+ * suffixed with the process ID so concurrent runs sharing the same cache
+ * directory do not truncate each other's config.
+ *
+ * @return string
+ *   Path to the config file; its parent directory is created if missing.
+ */
+function lagoon_config_file(): string {
+  $dir = (string) getenv_default('VORTEX_LAGOONCLI_PATH', '.artifacts/tmp');
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  return $dir . '/lagoon-cli-' . getmypid() . '.yml';
+}
+
+/**
+ * Register a Lagoon CLI instance into an isolated config file.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param string $config_file
+ *   The config file to write the instance into, kept separate from the default
+ *   '~/.lagoon.yml'.
+ * @param string $instance
+ *   The Lagoon instance name.
+ * @param string $graphql
+ *   The Lagoon instance GraphQL endpoint.
+ * @param string $hostname
+ *   The Lagoon instance SSH hostname.
+ * @param string $port
+ *   The Lagoon instance SSH port.
+ */
+function lagoon_config(string $bin, string $config_file, string $instance, string $graphql, string $hostname, string $port): void {
+  // Seed a minimal valid config: 'config add' panics on an empty (nil-map)
+  // file, and starting each run from a clean instance list keeps it isolated.
+  file_put_contents($config_file, "lagoons: {}\n");
+
+  passthru_or_fail(sprintf('%s --config-file %s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($bin), escapeshellarg($config_file), escapeshellarg($instance), escapeshellarg($graphql), escapeshellarg($hostname), escapeshellarg($port)), 'Failed to add Lagoon instance configuration.');
+}
+
+/**
+ * Print the Lagoon CLI version to make a run observable.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param string $config_file
+ *   The isolated config file to run against.
+ */
+function lagoon_print_version(string $bin, string $config_file): void {
+  task('Checking Lagoon CLI version.');
+  passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
+  pass('Checked Lagoon CLI version.');
+}
+
+/**
+ * Run a Lagoon CLI subcommand and capture its output.
+ *
+ * The isolated config file and common authentication flags (instance, project
+ * and, on a host, the SSH key) are threaded from the context; command-specific
+ * flags (environment, backup id, output format) are provided by the caller in
+ * the subcommand.
+ *
+ * @param string $bin
+ *   The Lagoon CLI binary.
+ * @param string $subcommand
+ *   The subcommand with its command-specific flags.
+ * @param array{instance: string, project: string, config_file: string, ssh_key?: string} $ctx
+ *   Execution context. The isolated config file is always applied; the SSH key
+ *   flag is omitted when 'ssh_key' is empty or 'false' (e.g. inside the hosting
+ *   environment where identity is implicit).
+ * @param int|null $exit_code
+ *   (optional) Variable to capture the exit code. Pass an initialised variable
+ *   (e.g. `$exit_code = 0`) to suppress the automatic fail() on non-zero exit.
+ *
+ * @param-out int $exit_code
+ *
+ * @return string
+ *   The captured command output.
+ */
+function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code = NULL): string {
+  $ssh_key = $ctx['ssh_key'] ?? '';
+  $ssh_key_flag = (!empty($ssh_key) && $ssh_key !== 'false') ? ' --ssh-key ' . escapeshellarg($ssh_key) : '';
+
+  $cmd = sprintf('%s --config-file %s --force --skip-update-check%s --lagoon %s --project %s %s 2>&1', escapeshellarg($bin), escapeshellarg($ctx['config_file']), $ssh_key_flag, escapeshellarg($ctx['instance']), escapeshellarg($ctx['project']), $subcommand);
+
+  $exit_code_provided = $exit_code !== NULL;
+  if (!$exit_code_provided) {
+    $exit_code = 0;
+  }
+
+  ob_start();
+  passthru($cmd, $exit_code);
+  $output = ob_get_clean();
+
+  if (!$exit_code_provided && $exit_code !== 0) {
+    fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+  }
+
+  return $output === FALSE ? '' : $output;
+}
+
+/**
  * Recursively copy a directory.
  *
  * @param string $src
