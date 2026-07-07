@@ -216,7 +216,7 @@ if (!ctype_digit((string) $comment_id)) {
 pass('Posted comment with ID %s.', $comment_id);
 
 if (!empty($jira_transition)) {
-  task('Discovering transition ID for %s', $jira_transition);
+  task(sprintf('Discovering transition ID for %s', $jira_transition));
   $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
   $response = request_get($url, [
     'Authorization: Basic ' . $token,
@@ -262,7 +262,7 @@ if (!empty($jira_transition)) {
 if (!empty($jira_assignee_email)) {
   task('Assigning issue to ' . $jira_assignee_email);
 
-  task('Discovering assignee user ID for %s', $jira_assignee_email);
+  task(sprintf('Discovering assignee user ID for %s', $jira_assignee_email));
   $url = sprintf('%s/rest/api/3/user/assignable/search?query=%s&issueKey=%s', $jira_endpoint, urlencode($jira_assignee_email), urlencode($jira_issue));
   $response = request_get($url, [
     'Authorization: Basic ' . $token,

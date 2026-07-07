@@ -181,7 +181,7 @@ note('User             : ' . $newrelic_user);
 note('Endpoint         : ' . $newrelic_endpoint);
 note('Description      : ' . $newrelic_description);
 
-task('Creating a deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid);
+task(sprintf('Creating a deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid));
 
 $payload_data = [
   'deployment' => [

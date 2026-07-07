@@ -232,7 +232,7 @@ function lagoon_dump_task_url(string $bin, array $ctx, string $task_id): string 
 function lagoon_download_dump(string $url, string $dest, int $timeout): bool {
   $archive = $dest . '.gz';
 
-  $response = request($url, ['method' => 'GET', 'save_to' => $archive, 'timeout' => $timeout, 'progress' => TRUE]);
+  $response = request($url, ['method' => 'GET', 'save_to' => $archive, 'timeout' => $timeout, 'on_progress' => progress_dot(...)]);
   $valid_gzip = $response['ok'] && is_file($archive) && file_get_contents($archive, FALSE, NULL, 0, 2) === "\x1f\x8b";
 
   if (!$valid_gzip) {

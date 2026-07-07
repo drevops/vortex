@@ -126,7 +126,7 @@ if ($notify_event === 'pre_deployment') {
 else {
   $env_url = getenv_required('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-  task('Finding latest deployment for ref %s', $notify_branch);
+  task(sprintf('Finding latest deployment for ref %s', $notify_branch));
 
   $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $github_repository, urlencode($notify_branch));
   $response = request_get($url, [

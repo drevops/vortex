@@ -52,9 +52,10 @@ class HelpersFormatterTest extends UnitTestCase {
     return [
       // Note - does not use term_supports_color, always plain output.
       'note' => ['note', NULL, "       Test message arg\n"],
-      // Task - blue (34m).
-      'task, no color' => ['task', FALSE, "[TASK] Test message arg\n"],
-      'task, with color' => ['task', TRUE, "\033[34m[TASK] Test message arg\033[0m\n"],
+      // Task - blue (34m). Announces only (no body), so the message is printed
+      // verbatim and the extra argument is the ignored done message.
+      'task, no color' => ['task', FALSE, "[TASK] Test message %s\n"],
+      'task, with color' => ['task', TRUE, "\033[34m[TASK] Test message %s\033[0m\n"],
       // Info - cyan (36m).
       'info, no color' => ['info', FALSE, "[INFO] Test message arg\n"],
       'info, with color' => ['info', TRUE, "\033[36m[INFO] Test message arg\033[0m\n"],

@@ -176,17 +176,55 @@ function note(string $format, ...$args): void {
 }
 
 /**
- * Output a task message.
+ * Announce a task, or run its body and report the outcome.
  *
- * @param string $format
- *   Format string for sprintf().
- * @param bool|float|int|string|null ...$args
- *   Arguments for sprintf().
+ * With only a message, announces the task - a caller then follows with its own
+ * pass()/fail(). With a done message and a body, it runs the body under a live
+ * [TASK] line (the body may emit progress dots via progress_dot()/
+ * sleep_progress() while it works), then reports [ OK ] with the done message.
+ * The body signals failure by throwing: the thrown message is reported as
+ * [FAIL] and the script exits with an error. This keeps each task's intent,
+ * work and outcome in one place and guarantees every task ends with a status.
+ *
+ * @param string $doing
+ *   The present-tense task message, e.g. 'Downloading the backup.'.
+ * @param string|\Closure|null $done
+ *   The success message reported when a body completes. A closure receives the
+ *   body's return value and produces the message, for outcomes known only once
+ *   the work is done.
+ * @param callable|null $body
+ *   The work to perform; throw to fail the task with the thrown message.
+ *
+ * @return mixed
+ *   Whatever the body returns, or NULL when announcing only.
  */
-function task(string $format, ...$args): void {
-  echo term_supports_color() ?
-    "\033[34m[TASK] " . sprintf($format, ...$args) . "\033[0m\n" :
-    sprintf('[TASK] %s%s', sprintf($format, ...$args), PHP_EOL);
+function task(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL): mixed {
+  $color = term_supports_color();
+
+  if ($body === NULL) {
+    echo $color ? "\033[34m[TASK] " . $doing . "\033[0m" . PHP_EOL : '[TASK] ' . $doing . PHP_EOL;
+
+    return NULL;
+  }
+
+  echo $color ? "\033[34m[TASK] " . $doing : '[TASK] ' . $doing;
+
+  try {
+    $result = $body();
+    echo ($color ? "\033[0m" : '') . PHP_EOL;
+    pass('%s', $done instanceof \Closure ? (string) $done($result) : (string) $done);
+
+    return $result;
+  }
+  catch (\Throwable $e) {
+    echo ($color ? "\033[0m" : '') . PHP_EOL;
+    fail('%s', $e->getMessage());
+  }
+
+  // @codeCoverageIgnoreStart
+  // Unreachable: fail() above terminates the script.
+  return NULL;
+  // @codeCoverageIgnoreEnd
 }
 
 /**
@@ -452,7 +490,7 @@ function lagoon_cli_resolve(): string {
   $base = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s', $version);
   $asset = sprintf('lagoon-cli-%s-%s-%s', $version, $platform, $arch);
 
-  task('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin);
+  task(sprintf('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin));
   $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
   if (!$response['ok']) {
     @unlink($bin);
@@ -639,7 +677,7 @@ function acli_resolve(): string {
 
   $url = sprintf('https://github.com/acquia/cli/releases/download/%s/acli.phar', $version);
 
-  task('Downloading the Acquia CLI "%s" to "%s".', $version, $bin);
+  task(sprintf('Downloading the Acquia CLI "%s" to "%s".', $version, $bin));
   $response = request($url, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
   if (!$response['ok']) {
     @unlink($bin);
@@ -986,16 +1024,18 @@ function request(string $url, array $options = []): array {
       unset($opts[CURLOPT_RETURNTRANSFER]);
     }
 
-    // Emit a progress dot roughly once per second while the transfer runs.
-    if (!empty($options['progress'])) {
+    // Report transfer progress to the caller's callback about once a second.
+    // The callback owns any output; request() stays output-agnostic.
+    if (isset($options['on_progress']) && is_callable($options['on_progress'])) {
+      $on_progress = $options['on_progress'];
       $opts[CURLOPT_NOPROGRESS] = FALSE;
-      $opts[CURLOPT_XFERINFOFUNCTION] = static function (mixed $ch, int $dltotal, int $dlnow, int $ultotal, int $ulnow): int {
+      $opts[CURLOPT_XFERINFOFUNCTION] = static function (mixed $ch, int $dltotal, int $dlnow, int $ultotal, int $ulnow) use ($on_progress): int {
         // @codeCoverageIgnoreStart
         static $last = 0;
         $now = time();
 
         if ($dlnow > 0 && $now !== $last) {
-          progress_dot();
+          $on_progress();
           $last = $now;
         }
 

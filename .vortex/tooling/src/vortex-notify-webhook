@@ -110,7 +110,7 @@ note('Headers            : ' . $webhook_headers);
 note('Expected Status    : ' . $webhook_expected_status);
 note('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
 
-task('Sending webhook notification to %s', $webhook_domain);
+task(sprintf('Sending webhook notification to %s', $webhook_domain));
 
 // Send webhook notification.
 $response = request($webhook_url, [
