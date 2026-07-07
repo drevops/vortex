@@ -14,19 +14,18 @@ The actions live on the screen (rather than as wizard steps) precisely so more c
 |---|---|---|
 | `vortex` | No operation given: auto-detect and route (see below). | the one screen, in the detected mode |
 | `vortex install [<dir>]` | Materialize a fresh project into an empty directory. | the one screen, fresh answers, version = latest |
-| `vortex customize` | Reconfigure the current project on its current version. | the one screen, pre-filled, version locked |
+| `vortex configure` | Configure the current project on its current version. | the one screen, pre-filled, version locked |
 | `vortex update [--to <version>]` | Move the current project to another template version. | the one screen, version selector focused |
 | `vortex doctor` | Read-only environment and project health checks. | plain output, no screen |
-| `vortex apply` | Optional, later: non-interactive materialize from the saved manifest (for CI). | no screen |
 
-`install`, `customize`, and `update` are the same operation under three names - they differ only by their inputs (see State model). They exist as explicit verbs for muscle memory and scripting; a person rarely needs them because bare `vortex` picks the right one.
+`install`, `configure`, and `update` are the same operation under three names - they differ only by their inputs (see State model). They exist as explicit verbs for muscle memory and scripting; a person rarely needs them because bare `vortex` picks the right one.
 
 ## Routing when no operation is given
 
 Running `vortex` with no operation resolves the target repository (the current directory, or `--path <dir>`) and routes automatically:
 
 - **Empty directory / no Vortex manifest** -> `install`. Opens the one screen straight away with fresh answers. No preamble, no menu - it just starts.
-- **Existing Vortex project** (manifest present) -> opens the one screen pre-filled from the manifest, with the current version shown in the header. Leaving the version as-is and submitting is a **reconfigure**; changing the version via the inline selector and submitting is an **update**. Reconfigure-vs-update is therefore the version control on the one screen, not a separate menu.
+- **Existing Vortex project** (manifest present) -> opens the one screen pre-filled from the manifest, with the current version shown in the header. Leaving the version as-is and submitting is a **configure**; changing the version via the inline selector and submitting is an **update**. Configure-vs-update is therefore the version control on the one screen, not a separate menu.
 
 Calling an operation explicitly skips detection and opens the one screen already in that mode (e.g. `vortex update` opens with the version selector focused; `--to 1.40` preselects the target).
 
@@ -46,7 +45,7 @@ Calling an operation explicitly skips detection and opens the one screen already
        ↑↓ move · enter open · type to edit
 ```
 
-- **Header** - banner plus the Vortex version. For an existing project the version is the current one and is changeable inline; that inline change is what turns a reconfigure into an update. For a fresh project it defaults to latest and is not prominent.
+- **Header** - banner plus the Vortex version. For an existing project the version is the current one and is changeable inline; that inline change is what turns a configure into an update. For a fresh project it defaults to latest and is not prominent.
 - **Body** - the customizer question panels (already built).
 - **Actions** - `Submit` / `Cancel` today, with room for more buttons on the same screen later.
 - **After submit** - a processing pass (fetch template, apply answers, write files) then a completion summary with the file count and next steps. Printed after the screen closes; not a separate interactive screen.
@@ -56,7 +55,7 @@ Calling an operation explicitly skips detection and opens the one screen already
 | Situation | Name | Inputs |
 |---|---|---|
 | Empty directory | install | version = latest, fresh answers |
-| Existing project, version unchanged | customize | version = current, answers reloaded and tweaked |
+| Existing project, version unchanged | configure | version = current, answers reloaded and tweaked |
 | Existing project, version changed | update | version = newly picked, answers reloaded and tweaked |
 
 All three are the same core: `materialize(template@version, answers) -> write files -> review via git`. Writing over the repo only touches template-managed files; the user reviews with `git diff` and commits what they want.
