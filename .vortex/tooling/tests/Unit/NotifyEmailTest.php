@@ -57,6 +57,17 @@ class NotifyEmailTest extends UnitTestCase {
     $this->assertStringContainsString('Finished email notification', $output);
   }
 
+  public function testFailedNotification(): void {
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => $this->defaultMessageMatcher(),
+      'result' => FALSE,
+    ]);
+
+    $this->runScriptError('src/vortex-notify-email', 'Failed to send email notification via mail().');
+  }
+
   public function testSuccessfulNotificationMultipleRecipients(): void {
     $this->envSet('VORTEX_NOTIFY_EMAIL_RECIPIENTS', 'to1@example.com|Jane Doe, to2@example.com|John Doe');
 

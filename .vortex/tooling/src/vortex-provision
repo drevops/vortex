@@ -543,7 +543,9 @@ task('Enabling site modules.', 'Enabled site modules.', function () use ($webroo
   drush('pm:install deploy_steps');
   $module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
   foreach ($module_paths as $module_path) {
-    drush('pm:install ' . escapeshellarg(basename((string) $module_path)));
+    $module_name = basename((string) $module_path);
+    drush('pm:install ' . escapeshellarg($module_name));
+    note('Installed module %s.', $module_name);
   }
 });
 echo PHP_EOL;

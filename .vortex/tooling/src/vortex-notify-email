@@ -204,12 +204,14 @@ task(
     // Send a single message addressed to all TO recipients at once.
     $to_combined = implode(', ', $to_list);
 
+    if (!mail($to_combined, $email_subject, $email_message, $headers)) {
+      throw new \RuntimeException('Failed to send email notification via mail().');
+    }
+
     $sent = [];
-    if (mail($to_combined, $email_subject, $email_message, $headers)) {
-      foreach ($to_list as $to) {
-        // Extract just the email address from formatted string for tracking.
-        $sent[] = preg_match('/<(.+?)>/', $to, $matches) ? $matches[1] : $to;
-      }
+    foreach ($to_list as $to) {
+      // Extract just the email address from formatted string for tracking.
+      $sent[] = preg_match('/<(.+?)>/', $to, $matches) ? $matches[1] : $to;
     }
 
     return $sent;

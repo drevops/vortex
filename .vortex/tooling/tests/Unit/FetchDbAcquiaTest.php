@@ -406,12 +406,8 @@ class FetchDbAcquiaTest extends UnitTestCase {
     ];
   }
 
-  protected function acliHome(): string {
-    return self::$tmp . '/acli-home-' . getmypid();
-  }
-
   protected function acliCmd(string $subcommand): string {
-    return sprintf('ACLI_HOME=%s ACLI_KEY=%s ACLI_SECRET=%s ACLI_NO_TELEMETRY=1 %s %s --no-interaction 2>&1', escapeshellarg($this->acliHome()), escapeshellarg('test-key'), escapeshellarg('test-secret'), escapeshellarg('acli'), $subcommand);
+    return sprintf('%s %s --no-interaction 2>&1', escapeshellarg('acli'), $subcommand);
   }
 
   protected function versionCmd(): string {

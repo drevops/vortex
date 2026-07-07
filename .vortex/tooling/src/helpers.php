@@ -706,6 +706,31 @@ function acli_home(): string {
 
   if (!is_dir($home)) {
     mkdir($home, 0755, TRUE);
+    // The isolated home caches acli's token and state; remove it when the run
+    // ends so no credentials linger on disk afterwards.
+    register_shutdown_function(static function () use ($home): void {
+      // @codeCoverageIgnoreStart
+      if (!is_dir($home)) {
+        return;
+      }
+
+      $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($home, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+      foreach ($items as $item) {
+        if (!$item instanceof \SplFileInfo) {
+          continue;
+        }
+
+        if ($item->isDir()) {
+          rmdir($item->getPathname());
+        }
+        else {
+          unlink($item->getPathname());
+        }
+      }
+
+      rmdir($home);
+      // @codeCoverageIgnoreEnd
+    });
   }
 
   return $home;
@@ -735,8 +760,14 @@ function acli_home(): string {
  *   The captured command output.
  */
 function acli_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code = NULL): string {
-  $env = sprintf('ACLI_HOME=%s ACLI_KEY=%s ACLI_SECRET=%s ACLI_NO_TELEMETRY=1', escapeshellarg($ctx['home']), escapeshellarg($ctx['key']), escapeshellarg($ctx['secret']));
-  $cmd = sprintf('%s %s %s --no-interaction 2>&1', $env, escapeshellarg($bin), $subcommand);
+  // Pass credentials through the process environment rather than the command
+  // line, so they are never exposed in the process list (e.g. `ps`).
+  putenv('ACLI_HOME=' . $ctx['home']);
+  putenv('ACLI_KEY=' . $ctx['key']);
+  putenv('ACLI_SECRET=' . $ctx['secret']);
+  putenv('ACLI_NO_TELEMETRY=1');
+
+  $cmd = sprintf('%s %s --no-interaction 2>&1', escapeshellarg($bin), $subcommand);
 
   $exit_code_provided = $exit_code !== NULL;
   if (!$exit_code_provided) {

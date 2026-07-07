@@ -130,7 +130,7 @@ class HelpersAcquiaTest extends UnitTestCase {
   public function testExecSuccess(): void {
     $ctx = ['home' => self::$tmp . '/home', 'key' => 'k', 'secret' => 's'];
     $this->mockPassthru([
-      'cmd' => $this->acliExecCmd($ctx, 'api:applications:list'),
+      'cmd' => $this->acliExecCmd('api:applications:list'),
       'output' => '{"_embedded":{"items":[]}}',
       'result_code' => 0,
     ]);
@@ -143,7 +143,7 @@ class HelpersAcquiaTest extends UnitTestCase {
   public function testExecSoftFailureCapturesExitCode(): void {
     $ctx = ['home' => self::$tmp . '/home', 'key' => 'k', 'secret' => 's'];
     $this->mockPassthru([
-      'cmd' => $this->acliExecCmd($ctx, 'api:applications:list'),
+      'cmd' => $this->acliExecCmd('api:applications:list'),
       'output' => 'not authenticated',
       'result_code' => 3,
     ]);
@@ -158,7 +158,7 @@ class HelpersAcquiaTest extends UnitTestCase {
   public function testExecPreservesZeroOutput(): void {
     $ctx = ['home' => self::$tmp . '/home', 'key' => 'k', 'secret' => 's'];
     $this->mockPassthru([
-      'cmd' => $this->acliExecCmd($ctx, '--version'),
+      'cmd' => $this->acliExecCmd('--version'),
       'output' => '0',
       'result_code' => 0,
     ]);
@@ -171,7 +171,7 @@ class HelpersAcquiaTest extends UnitTestCase {
   public function testExecHardFailure(): void {
     $ctx = ['home' => self::$tmp . '/home', 'key' => 'k', 'secret' => 's'];
     $this->mockPassthru([
-      'cmd' => $this->acliExecCmd($ctx, 'api:applications:list'),
+      'cmd' => $this->acliExecCmd('api:applications:list'),
       'output' => 'boom',
       'result_code' => 2,
     ]);
@@ -195,13 +195,11 @@ class HelpersAcquiaTest extends UnitTestCase {
   /**
    * Builds the expected shell command produced by acli_exec().
    *
-   * @param array{home: string, key: string, secret: string} $ctx
-   *   The execution context threaded into the environment prefix.
    * @param string $subcommand
    *   The subcommand with its command-specific arguments.
    */
-  protected function acliExecCmd(array $ctx, string $subcommand): string {
-    return sprintf('ACLI_HOME=%s ACLI_KEY=%s ACLI_SECRET=%s ACLI_NO_TELEMETRY=1 %s %s --no-interaction 2>&1', escapeshellarg($ctx['home']), escapeshellarg($ctx['key']), escapeshellarg($ctx['secret']), escapeshellarg('acli'), $subcommand);
+  protected function acliExecCmd(string $subcommand): string {
+    return sprintf('%s %s --no-interaction 2>&1', escapeshellarg('acli'), $subcommand);
   }
 
 }

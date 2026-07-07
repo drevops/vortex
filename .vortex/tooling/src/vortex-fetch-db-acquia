@@ -250,6 +250,9 @@ function acquia_backup_download_url(string $json): string {
  *   TRUE when a completed backup appeared within the wait window.
  */
 function acquia_wait_for_backup(string $bin, array $ctx, string $env_id, string $db_name, int $max_wait, int $interval): bool {
+  // Guard against a misconfigured non-positive interval that would never let
+  // $elapsed advance, spinning the poll loop and hammering the API.
+  $interval = max(1, $interval);
   $elapsed = 0;
 
   while ($elapsed < $max_wait) {

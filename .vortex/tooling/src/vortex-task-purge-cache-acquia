@@ -238,7 +238,7 @@ foreach ($domain_list as $domain) {
     $purge_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/domains/actions/clear-varnish', $env_id), json_encode(['domains' => [$domain]]), array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
 
     if (!$purge_response['ok']) {
-      return 'error:' . ($purge_response['error'] ?? 'HTTP ' . $purge_response['status']);
+      return 'error:' . ($purge_response['error'] ?? 'HTTP ' . ($purge_response['status'] ?? 'unknown'));
     }
 
     $purge_data = json_decode((string) $purge_response['body'], TRUE);
