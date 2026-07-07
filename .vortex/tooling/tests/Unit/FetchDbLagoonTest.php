@@ -93,7 +93,7 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
   }
 
-  public function testRetrieveAlreadyCreatedIsNonFatal(): void {
+  public function testRetrieveAlreadyExistsIsNonFatal(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
     $this->mockCommandExists();
 
@@ -103,8 +103,8 @@ class FetchDbLagoonTest extends UnitTestCase {
       ['cmd' => $this->versionCmd(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
-      // Retrieval already triggered previously - non-zero but non-fatal.
-      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'retrieval for latest-id has already been created', 'result_code' => 1],
+      // Restore already requested previously - non-zero but non-fatal.
+      ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'Error: graphql: Error adding restore. Restore already exists.', 'result_code' => 1],
       ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
     ]);
 

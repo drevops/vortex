@@ -162,12 +162,12 @@ if ($backup_id === '') {
 
 note(sprintf('Selected backup "%s" created at "%s".', $backup_id, (string) ($backup['created'] ?? 'unknown')));
 
-// Trigger the asynchronous restore. A retrieval that is already in progress is
-// not an error - proceed to poll for its completion.
+// Trigger the asynchronous restore. A restore already requested for this backup
+// is not an error ("Restore already exists") - proceed to poll for it.
 task('Requesting backup retrieval.');
 $retrieve_code = 0;
 $retrieve_output = lagoon_exec($bin, sprintf('retrieve backup --environment %s --backup-id %s', escapeshellarg($environment), escapeshellarg($backup_id)), $ctx, $retrieve_code);
-if ($retrieve_code !== 0 && stripos($retrieve_output, 'already been created') === FALSE) {
+if ($retrieve_code !== 0 && stripos($retrieve_output, 'already exists') === FALSE) {
   fail('Failed to request backup retrieval: %s', $retrieve_output);
 }
 
