@@ -35,15 +35,19 @@ interface ThemeInterface {
   public function style(string $role, string $text): string;
 
   /**
-   * The SGR parameters for a role.
+   * The raw ANSI style codes for a role.
+   *
+   * The numbers that go inside an escape sequence to colour or emphasise text -
+   * for example "1;36" (bold cyan) for the "title" role. Prefer style(), which
+   * wraps text in these; this returns the raw codes for callers that need them.
    *
    * @param string $role
-   *   The role name.
+   *   The role name (e.g. "title", "value", "description").
    *
    * @return string
-   *   The SGR parameters (empty when colour is off or the role is unknown).
+   *   The ANSI codes (empty when colour is off or the role is unknown).
    */
-  public function sgr(string $role): string;
+  public function styleCodes(string $role): string;
 
   /**
    * The glyph for a decorative element.
@@ -96,7 +100,7 @@ interface ThemeInterface {
    * @return array{list<string>,int}
    *   The body lines and the selected item's first line index.
    */
-  public function body(Panel $panel, Answers $answers, int $cursor): array;
+  public function renderBody(Panel $panel, Answers $answers, int $cursor): array;
 
   /**
    * Render a field row.
@@ -111,7 +115,7 @@ interface ThemeInterface {
    * @return string
    *   The row.
    */
-  public function fieldLine(Field $field, Answers $answers, bool $selected): string;
+  public function renderFieldLine(Field $field, Answers $answers, bool $selected): string;
 
   /**
    * Render a sub-panel row.
@@ -124,7 +128,7 @@ interface ThemeInterface {
    * @return string
    *   The row.
    */
-  public function panelLine(Panel $panel, bool $selected): string;
+  public function renderPanelLine(Panel $panel, bool $selected): string;
 
   /**
    * Render a description row.
@@ -135,10 +139,10 @@ interface ThemeInterface {
    * @return string
    *   The row.
    */
-  public function descriptionLine(string $description): string;
+  public function renderDescriptionLine(string $description): string;
 
   /**
-   * A one-line summary of a sub-panel's active field values, for the hub.
+   * Summarize a sub-panel's active field values into one line, for the hub.
    *
    * @param \DrevOps\Customizer\Config\Panel $panel
    *   The sub-panel.
@@ -148,7 +152,7 @@ interface ThemeInterface {
    * @return string
    *   The summary, or an empty string when the panel has no active fields.
    */
-  public function panelSummary(Panel $panel, Answers $answers): string;
+  public function summarizePanel(Panel $panel, Answers $answers): string;
 
   /**
    * Render a sub-panel value-summary row.
@@ -159,7 +163,7 @@ interface ThemeInterface {
    * @return string
    *   The row.
    */
-  public function summaryLine(string $summary): string;
+  public function renderSummaryLine(string $summary): string;
 
   /**
    * Render a breadcrumb line for the navigator.
@@ -170,7 +174,7 @@ interface ThemeInterface {
    * @return string
    *   The breadcrumb line.
    */
-  public function breadcrumbLine(Navigator $navigator): string;
+  public function renderBreadcrumbLine(Navigator $navigator): string;
 
   /**
    * Compose a frame: pinned header, scrolled body with indicators, footer.
@@ -189,7 +193,7 @@ interface ThemeInterface {
    * @return string
    *   The composed frame.
    */
-  public function frame(array $header, array $body, array $footer, Viewport $viewport, int $height): string;
+  public function renderFrame(array $header, array $body, array $footer, Viewport $viewport, int $height): string;
 
   /**
    * Compose a start banner: the logo above an optional version line.
@@ -202,7 +206,7 @@ interface ThemeInterface {
    * @return string
    *   The composed banner.
    */
-  public function banner(string $logo, string $version): string;
+  public function renderBanner(string $logo, string $version): string;
 
   /**
    * Render the status line shown at the foot of a panel.
@@ -210,7 +214,7 @@ interface ThemeInterface {
    * @return string
    *   The themed status line.
    */
-  public function statusLine(): string;
+  public function renderStatusLine(): string;
 
   /**
    * Render a row of inline submit/cancel buttons.
@@ -223,6 +227,6 @@ interface ThemeInterface {
    * @return string
    *   The button row.
    */
-  public function buttonBar(array $labels, int $selected): string;
+  public function renderButtonBar(array $labels, int $selected): string;
 
 }

@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 final class ThemeRenderTest extends TestCase {
 
   public function testFieldLineSelectedRightAlignsBadge(): void {
-    $line = $this->theme()->fieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'edited']), TRUE);
+    $line = $this->theme()->renderFieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'edited']), TRUE);
 
     $this->assertStringContainsString('❯ Name  Acme', Ansi::strip($line));
     $this->assertStringContainsString('edited', Ansi::strip($line));
@@ -33,7 +33,7 @@ final class ThemeRenderTest extends TestCase {
   }
 
   public function testFieldLineDefaultHasNoBadge(): void {
-    $line = $this->theme()->fieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'default']), FALSE);
+    $line = $this->theme()->renderFieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'default']), FALSE);
 
     $this->assertStringNotContainsString('default', $line);
     $this->assertStringContainsString('Name  Acme', Ansi::strip($line));
@@ -42,15 +42,15 @@ final class ThemeRenderTest extends TestCase {
   public function testFieldLineRendersValues(): void {
     $theme = $this->theme();
 
-    $bool = Ansi::strip($theme->fieldLine(new Field('b', 'B', '', FieldType::Confirm, FALSE), new Answers(['b' => TRUE], ['b' => 'default']), FALSE));
+    $bool = Ansi::strip($theme->renderFieldLine(new Field('b', 'B', '', FieldType::Confirm, FALSE), new Answers(['b' => TRUE], ['b' => 'default']), FALSE));
     $this->assertStringContainsString('B  yes', $bool);
 
-    $list = Ansi::strip($theme->fieldLine(new Field('m', 'M', '', FieldType::MultiSelect, []), new Answers(['m' => ['a', 'b']], ['m' => 'default']), FALSE));
+    $list = Ansi::strip($theme->renderFieldLine(new Field('m', 'M', '', FieldType::MultiSelect, []), new Answers(['m' => ['a', 'b']], ['m' => 'default']), FALSE));
     $this->assertStringContainsString('M  a, b', $list);
   }
 
   public function testPanelLineShowsDrillIndicator(): void {
-    $line = Ansi::strip($this->theme()->panelLine(new Panel('adv', 'Advanced', ''), TRUE));
+    $line = Ansi::strip($this->theme()->renderPanelLine(new Panel('adv', 'Advanced', ''), TRUE));
 
     $this->assertStringContainsString('❯ Advanced', $line);
     $this->assertStringContainsString('›', $line);
@@ -62,7 +62,7 @@ final class ThemeRenderTest extends TestCase {
       new Field('b', 'B', '', FieldType::Text, ''),
     ]);
 
-    [$lines, $cursor_line] = $this->theme()->body($panel, new Answers(), 1);
+    [$lines, $cursor_line] = $this->theme()->renderBody($panel, new Answers(), 1);
 
     $this->assertSame(2, $cursor_line);
     $this->assertStringContainsString('❯ B', Ansi::strip($lines[2]));
@@ -73,7 +73,7 @@ final class ThemeRenderTest extends TestCase {
       new Panel('sub', 'Sub', 'sub desc'),
     ]);
 
-    [$lines, $cursor_line] = $this->theme()->body($panel, new Answers(), 1);
+    [$lines, $cursor_line] = $this->theme()->renderBody($panel, new Answers(), 1);
 
     // The cursor is on the sub-panel (index 1, after the single field).
     $this->assertSame(1, $cursor_line);
@@ -86,7 +86,7 @@ final class ThemeRenderTest extends TestCase {
       new Panel('general', 'General', 'the general panel', [new Field('name', 'Name', '', FieldType::Text, '')]),
     ]);
 
-    [$lines] = $this->theme()->body($hub, new Answers(['name' => 'Acme'], []), 0);
+    [$lines] = $this->theme()->renderBody($hub, new Answers(['name' => 'Acme'], []), 0);
 
     // The hub shows the sub-panel's title, description and value summary.
     $body = Ansi::strip(implode("\n", $lines));
@@ -108,11 +108,11 @@ final class ThemeRenderTest extends TestCase {
 
     // "gated" is skipped (no answer), the multiselect condenses to a count, and
     // only the first four active values appear ("Delta" is dropped).
-    $this->assertSame('Acme · Beta · 4 selected · Gamma', $this->theme()->panelSummary($panel, $answers));
+    $this->assertSame('Acme · Beta · 4 selected · Gamma', $this->theme()->summarizePanel($panel, $answers));
   }
 
   public function testSummaryLineClipsToWidth(): void {
-    $line = Ansi::strip($this->theme()->summaryLine(str_repeat('x', 100)));
+    $line = Ansi::strip($this->theme()->renderSummaryLine(str_repeat('x', 100)));
 
     $this->assertLessThanOrEqual(40, mb_strlen($line));
     $this->assertStringContainsString('…', $line);
@@ -121,7 +121,7 @@ final class ThemeRenderTest extends TestCase {
   public function testFrameShowsIndicatorsAndWindow(): void {
     $body = array_map(static fn(int $i): string => 'line' . $i, range(0, 9));
 
-    $frame = $this->theme()->frame(['HEAD'], $body, ['FOOT'], new Viewport(3, TRUE, TRUE), 4);
+    $frame = $this->theme()->renderFrame(['HEAD'], $body, ['FOOT'], new Viewport(3, TRUE, TRUE), 4);
 
     $this->assertStringContainsString('▲', $frame);
     $this->assertStringContainsString('▼', $frame);
@@ -134,16 +134,16 @@ final class ThemeRenderTest extends TestCase {
   public function testBreadcrumbLine(): void {
     $navigator = new Navigator(new Panel('hub', 'Hub', '', [], [new Panel('d', 'Drupal', '')]));
 
-    $this->assertSame('Hub', Ansi::strip($this->theme()->breadcrumbLine($navigator)));
+    $this->assertSame('Hub', Ansi::strip($this->theme()->renderBreadcrumbLine($navigator)));
   }
 
   public function testBanner(): void {
-    $banner = Ansi::strip($this->theme()->banner("LOGO\nline", '1.2.3'));
+    $banner = Ansi::strip($this->theme()->renderBanner("LOGO\nline", '1.2.3'));
 
     $this->assertStringContainsString('LOGO', $banner);
     $this->assertStringContainsString('Version: 1.2.3', $banner);
 
-    $this->assertStringNotContainsString('Version', Ansi::strip($this->theme()->banner('LOGO', '')));
+    $this->assertStringNotContainsString('Version', Ansi::strip($this->theme()->renderBanner('LOGO', '')));
   }
 
   public function testItemCount(): void {
@@ -153,7 +153,7 @@ final class ThemeRenderTest extends TestCase {
   }
 
   public function testStatusLineIsThemed(): void {
-    $line = (new DarkTheme())->statusLine();
+    $line = (new DarkTheme())->renderStatusLine();
 
     // Themed with the footer role (dim) and composed from arrow glyphs.
     $this->assertStringContainsString("\033[2m", $line);
@@ -161,7 +161,7 @@ final class ThemeRenderTest extends TestCase {
   }
 
   public function testButtonBar(): void {
-    $bar = (new DarkTheme())->buttonBar(['Submit', 'Cancel'], 0);
+    $bar = (new DarkTheme())->renderButtonBar(['Submit', 'Cancel'], 0);
 
     // Both buttons render inline on one row.
     $this->assertStringContainsString('[ Submit ]', Ansi::strip($bar));
@@ -170,7 +170,7 @@ final class ThemeRenderTest extends TestCase {
     $this->assertStringContainsString("\033[1;7m[ Submit ]", $bar);
 
     // With none selected, nothing is cursor-styled.
-    $this->assertStringNotContainsString("\033[1;7m", (new DarkTheme())->buttonBar(['Submit', 'Cancel'], -1));
+    $this->assertStringNotContainsString("\033[1;7m", (new DarkTheme())->renderButtonBar(['Submit', 'Cancel'], -1));
   }
 
   /**

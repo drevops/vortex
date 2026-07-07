@@ -169,7 +169,7 @@ class PanelController {
 
     try {
       if ($this->banner !== '') {
-        $terminal->render($this->theme->banner($this->banner, $this->version) . "\n\nPress any key to continue...");
+        $terminal->render($this->theme->renderBanner($this->banner, $this->version) . "\n\nPress any key to continue...");
         $terminal->read();
       }
 
@@ -238,7 +238,7 @@ class PanelController {
     }
 
     $panel = $this->navigator->current();
-    [$body, $cursor_line] = $this->theme->body($panel, $this->answers(), $this->cursor);
+    [$body, $cursor_line] = $this->theme->renderBody($panel, $this->answers(), $this->cursor);
 
     if ($this->buttonsVisible()) {
       $base = $this->theme->itemCount($panel);
@@ -246,7 +246,7 @@ class PanelController {
       if ($this->cursor >= $base) {
         $cursor_line = count($body);
       }
-      $body[] = $this->theme->buttonBar([$this->config->submitLabel, $this->config->cancelLabel], $selected);
+      $body[] = $this->theme->renderButtonBar([$this->config->submitLabel, $this->config->cancelLabel], $selected);
     }
 
     $total = count($body);
@@ -260,10 +260,10 @@ class PanelController {
     }
 
     $this->offset = $viewport->offset;
-    $header = [$this->theme->breadcrumbLine($this->navigator)];
-    $footer = [$this->theme->statusLine()];
+    $header = [$this->theme->renderBreadcrumbLine($this->navigator)];
+    $footer = [$this->theme->renderStatusLine()];
 
-    return $this->theme->frame($header, $body, $footer, $viewport, $height);
+    return $this->theme->renderFrame($header, $body, $footer, $viewport, $height);
   }
 
   /**

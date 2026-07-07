@@ -26,7 +26,7 @@ final class ThemeTest extends TestCase {
     $theme = AbstractTheme::create($name);
 
     $this->assertSame($theme::class, $class);
-    $this->assertSame($expected, $theme->sgr($role));
+    $this->assertSame($expected, $theme->styleCodes($role));
   }
 
   public static function dataProviderCreate(): \Iterator {
@@ -61,7 +61,7 @@ final class ThemeTest extends TestCase {
 
     };
 
-    $this->assertSame('95', $theme->sgr('title'));
+    $this->assertSame('95', $theme->styleCodes('title'));
     $this->assertSame('»', $theme->glyph('marker'));
   }
 
@@ -78,13 +78,13 @@ final class ThemeTest extends TestCase {
 
     $this->assertSame("\033[1;36mT\033[0m", $theme->style('title', 'T'));
     $this->assertTrue($theme->hasColor());
-    $this->assertSame('', $theme->sgr('nope'));
+    $this->assertSame('', $theme->styleCodes('nope'));
   }
 
   public function testNoColor(): void {
     $theme = new DarkTheme(FALSE);
 
-    $this->assertSame('', $theme->sgr('title'));
+    $this->assertSame('', $theme->styleCodes('title'));
     $this->assertSame('T', $theme->style('title', 'T'));
     $this->assertFalse($theme->hasColor());
   }

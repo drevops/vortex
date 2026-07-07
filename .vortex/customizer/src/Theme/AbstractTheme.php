@@ -15,8 +15,8 @@ use DrevOps\Customizer\Tui\Viewport;
 /**
  * Abstract visual authority for the TUI - one self-contained class per theme.
  *
- * A theme owns the entire visual representation: the palette (per-role SGR
- * styles), the glyphs (marker, scroll indicators, separators), and how every
+ * A theme owns the entire visual representation: the palette (per-role style
+ * codes), the glyphs (marker, scroll indicators, separators), and how every
  * element is composed (field rows, sub-panel rows, descriptions, breadcrumb,
  * the scrolled frame and the start banner).
  *
@@ -31,7 +31,7 @@ use DrevOps\Customizer\Tui\Viewport;
 abstract class AbstractTheme implements ThemeInterface {
 
   /**
-   * The role => SGR style map, resolved once from defineStyles().
+   * The role => style-code map, resolved once from defineStyles().
    *
    * @var array<string,string>
    */
@@ -70,7 +70,7 @@ abstract class AbstractTheme implements ThemeInterface {
   }
 
   /**
-   * The role => SGR palette for this theme.
+   * The role => style-code palette for this theme.
    *
    * @return array<string,string>
    *   The palette, keyed by role.
@@ -178,19 +178,23 @@ abstract class AbstractTheme implements ThemeInterface {
    *   The styled text (plain when colour is disabled).
    */
   public function style(string $role, string $text): string {
-    return Ansi::style($text, $this->sgr($role));
+    return Ansi::style($text, $this->styleCodes($role));
   }
 
   /**
-   * The SGR parameters for a role.
+   * The raw ANSI style codes for a role.
+   *
+   * The numbers that go inside an escape sequence to colour or emphasise text -
+   * for example "1;36" (bold cyan) for the "title" role. Prefer style(), which
+   * wraps text in these; this returns the raw codes for callers that need them.
    *
    * @param string $role
-   *   The role name.
+   *   The role name (e.g. "title", "value", "description").
    *
    * @return string
-   *   The SGR parameters (empty when colour is disabled or unknown).
+   *   The ANSI codes (empty when colour is off or the role is unknown).
    */
-  public function sgr(string $role): string {
+  public function styleCodes(string $role): string {
     return $this->color ? ($this->styles[$role] ?? '') : '';
   }
 
@@ -253,7 +257,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return array{list<string>,int}
    *   The body lines and the selected item's first line index.
    */
-  public function body(Panel $panel, Answers $answers, int $cursor): array {
+  public function renderBody(Panel $panel, Answers $answers, int $cursor): array {
     $lines = [];
     $cursor_line = 0;
     $index = 0;
@@ -263,9 +267,9 @@ abstract class AbstractTheme implements ThemeInterface {
         $cursor_line = count($lines);
       }
 
-      $lines[] = $this->fieldLine($field, $answers, $index === $cursor);
+      $lines[] = $this->renderFieldLine($field, $answers, $index === $cursor);
       if ($field->description !== '') {
-        $lines[] = $this->descriptionLine($field->description);
+        $lines[] = $this->renderDescriptionLine($field->description);
       }
 
       $index++;
@@ -276,14 +280,14 @@ abstract class AbstractTheme implements ThemeInterface {
         $cursor_line = count($lines);
       }
 
-      $lines[] = $this->panelLine($subpanel, $index === $cursor);
+      $lines[] = $this->renderPanelLine($subpanel, $index === $cursor);
       if ($subpanel->description !== '') {
-        $lines[] = $this->descriptionLine($subpanel->description);
+        $lines[] = $this->renderDescriptionLine($subpanel->description);
       }
 
-      $summary = $this->panelSummary($subpanel, $answers);
+      $summary = $this->summarizePanel($subpanel, $answers);
       if ($summary !== '') {
-        $lines[] = $this->summaryLine($summary);
+        $lines[] = $this->renderSummaryLine($summary);
       }
 
       $index++;
@@ -305,7 +309,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The row.
    */
-  public function fieldLine(Field $field, Answers $answers, bool $selected): string {
+  public function renderFieldLine(Field $field, Answers $answers, bool $selected): string {
     $left = $this->marker($selected) . ' ' . $this->style('label', $field->label) . '  ' . $this->style('value', $this->renderValue($answers->value($field->id)));
 
     $provenance = $answers->provenanceOf($field->id);
@@ -327,7 +331,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The row.
    */
-  public function panelLine(Panel $panel, bool $selected): string {
+  public function renderPanelLine(Panel $panel, bool $selected): string {
     return $this->marker($selected) . ' ' . $this->style('label', $panel->title) . ' ' . $this->style('description', $this->glyph('arrow'));
   }
 
@@ -340,12 +344,12 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The row.
    */
-  public function descriptionLine(string $description): string {
+  public function renderDescriptionLine(string $description): string {
     return '    ' . $this->style('description', $description);
   }
 
   /**
-   * A one-line summary of a sub-panel's active field values, for the hub.
+   * Summarize a sub-panel's active field values into one line, for the hub.
    *
    * Lets the hub show what is configured in each panel without drilling in.
    *
@@ -357,7 +361,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The summary, or an empty string when the panel has no active fields.
    */
-  public function panelSummary(Panel $panel, Answers $answers): string {
+  public function summarizePanel(Panel $panel, Answers $answers): string {
     $parts = [];
 
     foreach ($panel->fields as $field) {
@@ -385,7 +389,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The row.
    */
-  public function summaryLine(string $summary): string {
+  public function renderSummaryLine(string $summary): string {
     $max = max(1, $this->width - 4);
     $clipped = mb_strlen($summary) > $max ? mb_substr($summary, 0, $max - 1) . '…' : $summary;
 
@@ -401,7 +405,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The breadcrumb line.
    */
-  public function breadcrumbLine(Navigator $navigator): string {
+  public function renderBreadcrumbLine(Navigator $navigator): string {
     return $this->style('breadcrumb', implode(' ' . $this->glyph('separator') . ' ', $navigator->breadcrumb()));
   }
 
@@ -422,7 +426,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The composed frame.
    */
-  public function frame(array $header, array $body, array $footer, Viewport $viewport, int $height): string {
+  public function renderFrame(array $header, array $body, array $footer, Viewport $viewport, int $height): string {
     $visible = (new Scroller())->slice($body, $viewport->offset, $height);
 
     $lines = $header;
@@ -450,7 +454,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The composed banner.
    */
-  public function banner(string $logo, string $version): string {
+  public function renderBanner(string $logo, string $version): string {
     $lines = [];
 
     foreach (explode("\n", $logo) as $line) {
@@ -471,7 +475,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The themed status line (hint text and arrow glyphs).
    */
-  public function statusLine(): string {
+  public function renderStatusLine(): string {
     $dot = ' ' . $this->glyph('dot') . ' ';
     $hint = $this->glyph('arrow_up') . '/' . $this->glyph('arrow_down') . ' move' . $dot . $this->glyph('enter') . ' select' . $dot . 'esc back';
 
@@ -489,7 +493,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @return string
    *   The themed button row with the buttons side by side.
    */
-  public function buttonBar(array $labels, int $selected): string {
+  public function renderButtonBar(array $labels, int $selected): string {
     $parts = [];
 
     foreach ($labels as $index => $label) {
