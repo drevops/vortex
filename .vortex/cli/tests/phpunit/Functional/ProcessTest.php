@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Tests\Functional;
 
-use DrevOps\VortexCli\Command\Customize;
+use DrevOps\VortexCli\Command\ConfigureCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * Tests the collection -> apply pipeline (reverse-order process + flush).
  */
-#[CoversClass(Customize::class)]
+#[CoversClass(ConfigureCommand::class)]
 #[Group('process')]
 final class ProcessTest extends TestCase {
 
@@ -68,15 +68,15 @@ final class ProcessTest extends TestCase {
   }
 
   /**
-   * Run the customize command with --apply on the working directory.
+   * Run the configure command with --apply on the working directory.
    *
    * @param string $prompts
    *   The answers as JSON.
    */
   protected function apply(string $prompts): void {
     $application = new Application();
-    $application->add(new Customize());
-    $tester = new CommandTester($application->find('customize'));
+    $application->add(new ConfigureCommand());
+    $tester = new CommandTester($application->find('configure'));
 
     $tester->execute(['--prompts' => $prompts, '--apply' => TRUE, '--dir' => $this->dir], ['interactive' => FALSE]);
   }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Tests\Functional;
 
-use DrevOps\VortexCli\Command\Customize;
+use DrevOps\VortexCli\Command\ConfigureCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -13,11 +13,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * Tests the Customize command end to end.
+ * Tests the Configure command end to end.
  */
-#[CoversClass(Customize::class)]
+#[CoversClass(ConfigureCommand::class)]
 #[Group('command')]
-final class CustomizeTest extends TestCase {
+final class ConfigureTest extends TestCase {
 
   public function testNonInteractive(): void {
     $data = $this->collect(['--prompts' => '{"name":"Acme Site","profile":"minimal"}']);
@@ -168,13 +168,13 @@ final class CustomizeTest extends TestCase {
   }
 
   /**
-   * Build a tester for the Customize command.
+   * Build a tester for the Configure command.
    */
   protected function tester(): CommandTester {
     $application = new Application();
-    $application->add(new Customize());
+    $application->add(new ConfigureCommand());
 
-    return new CommandTester($application->find('customize'));
+    return new CommandTester($application->find('configure'));
   }
 
 }

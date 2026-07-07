@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Customizes the project by driving the generic customizer engine.
+ * Configures the project by driving the generic customizer engine.
  *
  * The CLI stays thin: it ships the configuration (the PHP `VortexForm`) and the
  * handler classes (auto-discovered by question id), then delegates collection,
@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package DrevOps\VortexCli\Command
  */
-class Customize extends Command {
+class ConfigureCommand extends Command {
 
   /**
    * The namespace the engine searches for handler classes.
@@ -45,8 +45,8 @@ class Customize extends Command {
    */
   protected function configure(): void {
     $this
-      ->setName('customize')
-      ->setDescription('Customize the project by answering questions.')
+      ->setName('configure')
+      ->setDescription('Configure the project by answering questions.')
       ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.', '')
       ->addOption('dir', 'd', InputOption::VALUE_REQUIRED, 'The project directory.', '.')
       ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an existing project (enable discovery).')
