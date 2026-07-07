@@ -9,7 +9,7 @@ use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
 use DrevOps\Customizer\Tui\Ansi;
 use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Tui\DarkTheme;
+use DrevOps\Customizer\Theme\DarkTheme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

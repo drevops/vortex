@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Customizer\Theme\Theme;
 
 /**
  * A single interactive field collector driven one key at a time.
@@ -51,7 +51,7 @@ interface WidgetInterface {
   /**
    * A rendering of the current state, using the theme's glyphs.
    *
-   * @param \DrevOps\Customizer\Tui\Theme $theme
+   * @param \DrevOps\Customizer\Theme\Theme $theme
    *   The theme supplying Unicode or ASCII glyphs.
    *
    * @return string

@@ -11,6 +11,7 @@ use DrevOps\Customizer\Config\Panel;
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
 use DrevOps\Customizer\Input\KeyParser;
+use DrevOps\Customizer\Theme\Theme;
 use DrevOps\Customizer\Widget\WidgetFactory;
 use DrevOps\Customizer\Widget\WidgetInterface;
 
@@ -82,7 +83,7 @@ class PanelController {
    *
    * @param \DrevOps\Customizer\Config\Config $config
    *   The configuration.
-   * @param \DrevOps\Customizer\Tui\Theme $theme
+   * @param \DrevOps\Customizer\Theme\Theme $theme
    *   The theme (the visual authority for rendering).
    * @param array<string,mixed> $values
    *   The initial answer values (typically the engine's resolved answers).

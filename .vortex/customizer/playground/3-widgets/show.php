@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Tui\DarkTheme;
+use DrevOps\Customizer\Theme\DarkTheme;
 use DrevOps\Customizer\Widget\ConfirmWidget;
 use DrevOps\Customizer\Widget\MultiSelectWidget;
 use DrevOps\Customizer\Widget\SelectWidget;

@@ -6,7 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Customizer\Theme\Theme;
 
 /**
  * A single-choice radio list.

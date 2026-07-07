@@ -7,7 +7,7 @@ namespace DrevOps\Customizer\Tests\Unit\Widget;
 use DrevOps\Customizer\Input\ArrayKeyStream;
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Tui\DarkTheme;
+use DrevOps\Customizer\Theme\DarkTheme;
 use DrevOps\Customizer\Widget\AbstractWidget;
 use DrevOps\Customizer\Widget\MultiSelectWidget;
 use DrevOps\Customizer\Widget\WidgetRunner;

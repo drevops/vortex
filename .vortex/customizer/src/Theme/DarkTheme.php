@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Customizer\Theme;
 
 /**
  * The default theme for dark terminals: bright foregrounds on a dark ground.
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Customizer\Theme
  */
 class DarkTheme extends Theme {
 

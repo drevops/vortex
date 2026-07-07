@@ -17,7 +17,7 @@
 declare(strict_types=1);
 
 use DrevOps\Customizer\Input\KeyParser;
-use DrevOps\Customizer\Tui\DarkTheme;
+use DrevOps\Customizer\Theme\DarkTheme;
 use DrevOps\Customizer\Tui\Terminal;
 use DrevOps\Customizer\Widget\WidgetInterface;
 

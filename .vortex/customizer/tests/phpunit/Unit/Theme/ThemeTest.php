@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Tui;
+namespace DrevOps\Customizer\Tests\Unit\Theme;
 
-use DrevOps\Customizer\Tui\DarkTheme;
-use DrevOps\Customizer\Tui\LightTheme;
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Customizer\Theme\DarkTheme;
+use DrevOps\Customizer\Theme\LightTheme;
+use DrevOps\Customizer\Theme\Theme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;

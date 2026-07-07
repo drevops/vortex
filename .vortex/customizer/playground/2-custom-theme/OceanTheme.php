@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Playground\CustomTheme;
 
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Customizer\Theme\Theme;
 
 /**
  * A self-contained custom theme: bright blues and cyans with rounded glyphs.

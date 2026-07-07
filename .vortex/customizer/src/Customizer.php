@@ -17,7 +17,7 @@ use DrevOps\Customizer\Schema\SchemaGenerator;
 use DrevOps\Customizer\Schema\SchemaValidator;
 use DrevOps\Customizer\Tui\PanelController;
 use DrevOps\Customizer\Tui\Terminal;
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Customizer\Theme\Theme;
 
 /**
  * The one-class entry point for building and running a customizer.

@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Customizer\Theme;
 
 use DrevOps\Customizer\Answers\Answers;
 use DrevOps\Customizer\Config\Field;
 use DrevOps\Customizer\Config\Panel;
+use DrevOps\Customizer\Tui\Ansi;
+use DrevOps\Customizer\Tui\Navigator;
+use DrevOps\Customizer\Tui\Scroller;
+use DrevOps\Customizer\Tui\Viewport;
 
 /**
  * Abstract visual authority for the TUI - one self-contained class per theme.
@@ -22,7 +26,7 @@ use DrevOps\Customizer\Config\Panel;
  * {@see register()} so the config can select it - the config only ever
  * references a theme name.
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Customizer\Theme
  */
 abstract class Theme {
 
@@ -43,7 +47,7 @@ abstract class Theme {
   /**
    * The name => theme-class registry.
    *
-   * @var array<string,class-string<\DrevOps\Customizer\Tui\Theme>>
+   * @var array<string,class-string<\DrevOps\Customizer\Theme\Theme>>
    */
   protected static array $registry = [
     'dark' => DarkTheme::class,
@@ -128,7 +132,7 @@ abstract class Theme {
    *
    * @param string $name
    *   The theme name.
-   * @param class-string<\DrevOps\Customizer\Tui\Theme> $class
+   * @param class-string<\DrevOps\Customizer\Theme\Theme> $class
    *   The theme class.
    */
   public static function register(string $name, string $class): void {
@@ -153,7 +157,7 @@ abstract class Theme {
    * @param bool $unicode
    *   Whether Unicode glyphs are used (FALSE falls back to ASCII).
    *
-   * @return \DrevOps\Customizer\Tui\Theme
+   * @return \DrevOps\Customizer\Theme\Theme
    *   The theme instance.
    */
   public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76, bool $unicode = TRUE): Theme {
