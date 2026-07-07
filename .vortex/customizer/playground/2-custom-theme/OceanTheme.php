@@ -100,8 +100,8 @@ class OceanTheme extends DarkTheme {
   /**
    * {@inheritdoc}
    */
-  public function renderDescriptionLine(string $description): string {
-    return '    ' . $this->style('description', $this->glyph('dot') . ' ' . $description);
+  public function renderDescriptionLine(string $description, bool $selected): string {
+    return '    ' . $this->styleSelected('description', $this->glyph('dot') . ' ' . $description, $selected);
   }
 
   /**
@@ -121,8 +121,8 @@ class OceanTheme extends DarkTheme {
   /**
    * {@inheritdoc}
    */
-  public function renderSummaryLine(string $summary): string {
-    return '    ' . $this->style('description', $this->glyph('arrow') . ' ' . $summary);
+  public function renderSummaryLine(string $summary, bool $selected): string {
+    return '    ' . $this->styleSelected('description', $this->glyph('arrow') . ' ' . $summary, $selected);
   }
 
   /**

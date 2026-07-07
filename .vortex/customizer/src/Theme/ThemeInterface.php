@@ -135,11 +135,13 @@ interface ThemeInterface {
    *
    * @param string $description
    *   The description.
+   * @param bool $selected
+   *   Whether the row's item is selected.
    *
    * @return string
    *   The row.
    */
-  public function renderDescriptionLine(string $description): string;
+  public function renderDescriptionLine(string $description, bool $selected): string;
 
   /**
    * Summarize a sub-panel's active field values into one line, for the hub.
@@ -159,11 +161,13 @@ interface ThemeInterface {
    *
    * @param string $summary
    *   The summary text.
+   * @param bool $selected
+   *   Whether the row's item is selected.
    *
    * @return string
    *   The row.
    */
-  public function renderSummaryLine(string $summary): string;
+  public function renderSummaryLine(string $summary, bool $selected): string;
 
   /**
    * Render a breadcrumb line for the navigator.

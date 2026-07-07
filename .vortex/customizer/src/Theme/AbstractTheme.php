@@ -199,6 +199,35 @@ abstract class AbstractTheme implements ThemeInterface {
   }
 
   /**
+   * Style text for a role, emphasised (bold) when its item is selected.
+   *
+   * Keeps the role's colour but makes the whole selected item bold, dropping
+   * any existing bold or faint so the emphasis is clean.
+   *
+   * @param string $role
+   *   The role name.
+   * @param string $text
+   *   The text.
+   * @param bool $selected
+   *   Whether the item is the selected (cursor) one.
+   *
+   * @return string
+   *   The styled text, made bold when selected.
+   */
+  protected function styleSelected(string $role, string $text, bool $selected): string {
+    $codes = $this->styleCodes($role);
+
+    if ($selected && $this->color) {
+      $drop = ['', '1', '2'];
+      $parts = array_values(array_filter(explode(';', $codes), static fn(string $part): bool => !in_array($part, $drop, TRUE)));
+      array_unshift($parts, '1');
+      $codes = implode(';', $parts);
+    }
+
+    return Ansi::style($text, $codes);
+  }
+
+  /**
    * The glyph for a decorative element.
    *
    * @param string $name
@@ -269,7 +298,7 @@ abstract class AbstractTheme implements ThemeInterface {
 
       $lines[] = $this->renderFieldLine($field, $answers, $index === $cursor);
       if ($field->description !== '') {
-        $lines[] = $this->renderDescriptionLine($field->description);
+        $lines[] = $this->renderDescriptionLine($field->description, $index === $cursor);
       }
 
       $index++;
@@ -282,12 +311,12 @@ abstract class AbstractTheme implements ThemeInterface {
 
       $lines[] = $this->renderPanelLine($subpanel, $index === $cursor);
       if ($subpanel->description !== '') {
-        $lines[] = $this->renderDescriptionLine($subpanel->description);
+        $lines[] = $this->renderDescriptionLine($subpanel->description, $index === $cursor);
       }
 
       $summary = $this->summarizePanel($subpanel, $answers);
       if ($summary !== '') {
-        $lines[] = $this->renderSummaryLine($summary);
+        $lines[] = $this->renderSummaryLine($summary, $index === $cursor);
       }
 
       $index++;
@@ -310,14 +339,14 @@ abstract class AbstractTheme implements ThemeInterface {
    *   The row.
    */
   public function renderFieldLine(Field $field, Answers $answers, bool $selected): string {
-    $left = $this->marker($selected) . ' ' . $this->style('label', $field->label) . '  ' . $this->style('value', $this->renderValue($answers->value($field->id)));
+    $left = $this->marker($selected) . ' ' . $this->styleSelected('label', $field->label, $selected) . '  ' . $this->styleSelected('value', $this->renderValue($answers->value($field->id)), $selected);
 
     $provenance = $answers->provenanceOf($field->id);
     if ($provenance === 'default') {
       return $left;
     }
 
-    return Ansi::alignRight($left, $this->style('badge', ' ' . $provenance . ' '), $this->width);
+    return Ansi::alignRight($left, $this->styleSelected('badge', ' ' . $provenance . ' ', $selected), $this->width);
   }
 
   /**
@@ -332,7 +361,7 @@ abstract class AbstractTheme implements ThemeInterface {
    *   The row.
    */
   public function renderPanelLine(Panel $panel, bool $selected): string {
-    return $this->marker($selected) . ' ' . $this->style('label', $panel->title) . ' ' . $this->style('description', $this->glyph('arrow'));
+    return $this->marker($selected) . ' ' . $this->styleSelected('label', $panel->title, $selected) . ' ' . $this->styleSelected('description', $this->glyph('arrow'), $selected);
   }
 
   /**
@@ -340,12 +369,14 @@ abstract class AbstractTheme implements ThemeInterface {
    *
    * @param string $description
    *   The description.
+   * @param bool $selected
+   *   Whether the row's item is selected.
    *
    * @return string
    *   The row.
    */
-  public function renderDescriptionLine(string $description): string {
-    return '    ' . $this->style('description', $description);
+  public function renderDescriptionLine(string $description, bool $selected): string {
+    return '    ' . $this->styleSelected('description', $description, $selected);
   }
 
   /**
@@ -385,15 +416,17 @@ abstract class AbstractTheme implements ThemeInterface {
    *
    * @param string $summary
    *   The summary text.
+   * @param bool $selected
+   *   Whether the row's item is selected.
    *
    * @return string
    *   The row.
    */
-  public function renderSummaryLine(string $summary): string {
+  public function renderSummaryLine(string $summary, bool $selected): string {
     $max = max(1, $this->width - 4);
     $clipped = mb_strlen($summary) > $max ? mb_substr($summary, 0, $max - 1) . '…' : $summary;
 
-    return '    ' . $this->style('value', $clipped);
+    return '    ' . $this->styleSelected('value', $clipped, $selected);
   }
 
   /**

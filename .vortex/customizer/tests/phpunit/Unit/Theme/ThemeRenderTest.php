@@ -112,10 +112,25 @@ final class ThemeRenderTest extends TestCase {
   }
 
   public function testSummaryLineClipsToWidth(): void {
-    $line = Ansi::strip($this->theme()->renderSummaryLine(str_repeat('x', 100)));
+    $line = Ansi::strip($this->theme()->renderSummaryLine(str_repeat('x', 100), FALSE));
 
     $this->assertLessThanOrEqual(40, mb_strlen($line));
     $this->assertStringContainsString('…', $line);
+  }
+
+  public function testSelectedItemIsBold(): void {
+    $theme = new DarkTheme(TRUE, 40);
+    $field = new Field('name', 'Name', '', FieldType::Text, '');
+    $answers = new Answers(['name' => 'Acme'], ['name' => 'default']);
+
+    // The selected row is bold (SGR 1); a non-selected row is not.
+    $this->assertStringContainsString("\033[1", $theme->renderFieldLine($field, $answers, TRUE));
+    $this->assertStringNotContainsString("\033[1", $theme->renderFieldLine($field, $answers, FALSE));
+
+    // The selected item's description and summary rows are bold too.
+    $this->assertStringContainsString("\033[1", $theme->renderDescriptionLine('help', TRUE));
+    $this->assertStringNotContainsString("\033[1", $theme->renderDescriptionLine('help', FALSE));
+    $this->assertStringContainsString("\033[1", $theme->renderSummaryLine('sum', TRUE));
   }
 
   public function testFrameShowsIndicatorsAndWindow(): void {
