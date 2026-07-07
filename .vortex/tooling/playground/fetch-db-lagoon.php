@@ -12,6 +12,10 @@
  *
  * Usage:
  *   LAGOON_PROJECT=drevops-website ./playground/fetch-db-lagoon.php
+ *   LAGOON_PROJECT=drevops-website ./playground/fetch-db-lagoon.php --fresh
+ *
+ * Pass '--fresh' (or set VORTEX_FETCH_DB_FRESH=1) to force a new dump instead
+ * of reusing a recent one.
  *
  * Optional overrides (defaults in brackets):
  *   VORTEX_FETCH_DB_ENVIRONMENT      [main]      Source environment.
@@ -47,6 +51,9 @@ if ($project === FALSE || $project === '') {
 // Keep all scratch under the gitignored '.artifacts/tmp' at the repo root.
 $scratch = dirname(__DIR__, 3) . '/.artifacts/tmp/playground-lagoon';
 
+// Force a new dump with the '--fresh' flag or VORTEX_FETCH_DB_FRESH=1.
+$fresh = in_array('--fresh', (array) ($_SERVER['argv'] ?? []), TRUE) || getenv('VORTEX_FETCH_DB_FRESH') === '1';
+
 // Playground-scoped defaults; every value is overridable via the environment.
 $config = [
   'VORTEX_FETCH_DB_LAGOON_PROJECT' => (string) $project,
@@ -56,6 +63,7 @@ $config = [
   'VORTEX_FETCH_DB_LAGOON_DB_DIR' => getenv('VORTEX_FETCH_DB_LAGOON_DB_DIR') ?: $scratch,
   'VORTEX_FETCH_DB_LAGOON_DB_FILE' => getenv('VORTEX_FETCH_DB_LAGOON_DB_FILE') ?: 'db.sql',
   'VORTEX_LAGOONCLI_PATH' => getenv('VORTEX_LAGOONCLI_PATH') ?: $scratch,
+  'VORTEX_FETCH_DB_FRESH' => $fresh ? '1' : '',
 ];
 
 foreach ($config as $name => $value) {
@@ -68,7 +76,8 @@ echo "  Instance:     " . $config['VORTEX_FETCH_DB_LAGOON_INSTANCE'] . "\n";
 echo "  Environment:  " . $config['VORTEX_FETCH_DB_ENVIRONMENT'] . "\n";
 echo "  SSH file:     " . $config['VORTEX_FETCH_DB_SSH_FILE'] . " ('false' = ambient identity)\n";
 echo "  Download dir: " . $config['VORTEX_FETCH_DB_LAGOON_DB_DIR'] . "\n";
-echo "  CLI cache:    " . $config['VORTEX_LAGOONCLI_PATH'] . "\n\n";
+echo "  CLI cache:    " . $config['VORTEX_LAGOONCLI_PATH'] . "\n";
+echo "  Fresh dump:   " . ($fresh ? 'yes' : 'no (reuse a recent dump if available)') . "\n\n";
 
 $dest = $config['VORTEX_FETCH_DB_LAGOON_DB_DIR'] . '/' . $config['VORTEX_FETCH_DB_LAGOON_DB_FILE'];
 if (is_file($dest)) {
