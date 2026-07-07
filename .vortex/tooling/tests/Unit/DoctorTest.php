@@ -199,27 +199,6 @@ class DoctorTest extends UnitTestCase {
         ],
       ],
 
-      'lagoon tool present when db source is lagoon' => [
-        ['VORTEX_DOCTOR_CHECK_TOOLS' => '1', 'VORTEX_FETCH_DB_SOURCE' => 'lagoon'],
-        [],
-        [
-          '* [INFO] Checking project requirements.',
-          '* [ OK ] All required tools are present.',
-          '* [ OK ] All required checks have passed.',
-          '! [FAIL]',
-        ],
-      ],
-
-      'lagoon tool missing when db source is lagoon' => [
-        ['VORTEX_DOCTOR_CHECK_TOOLS' => '1', 'VORTEX_FETCH_DB_SOURCE' => 'lagoon', 'VORTEX_TEST_COMMAND_MISSING' => 'lagoon'],
-        [],
-        [
-          "* [FAIL] Command 'lagoon' is not available.",
-          '! [ OK ] All required tools are present.',
-        ],
-        TRUE,
-      ],
-
       'containers all running' => [
         ['VORTEX_DOCTOR_CHECK_CONTAINERS' => '1'],
         $containers_running(),

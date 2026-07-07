@@ -14,10 +14,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
-#[CoversFunction('DrevOps\VortexTooling\lagoon_cli_require')]
+#[CoversFunction('DrevOps\VortexTooling\lagoon_cli_resolve')]
+#[CoversFunction('DrevOps\VortexTooling\lagoon_cli_verify_checksum')]
 #[CoversFunction('DrevOps\VortexTooling\lagoon_config')]
 #[CoversFunction('DrevOps\VortexTooling\lagoon_exec')]
-#[CoversFunction('DrevOps\VortexTooling\lagoon_extract_backup')]
 #[Group('helpers')]
 #[RunTestsInSeparateProcesses]
 class HelpersLagoonTest extends UnitTestCase {
@@ -28,25 +28,82 @@ class HelpersLagoonTest extends UnitTestCase {
     require_once __DIR__ . '/../../src/helpers.php';
   }
 
-  public function testCliRequirePresent(): void {
+  public function testResolveUsesPath(): void {
     $this->mockCommandExists();
 
-    $this->assertSame('lagoon', \DrevOps\VortexTooling\lagoon_cli_require());
+    $result = '';
+    $output = $this->captureOutput(function () use (&$result): void {
+      $result = \DrevOps\VortexTooling\lagoon_cli_resolve();
+    });
+
+    $this->assertSame('lagoon', $result);
+    $this->assertStringContainsString('Using the Lagoon CLI found on PATH.', $output);
   }
 
-  public function testCliRequireAbsent(): void {
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec->expects($this->any())->willReturnCallback(function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
-      $output = [];
-      $result_code = 1;
-      return '';
+  public function testResolveReusesCached(): void {
+    $this->mockCommandExists();
+    $dir = self::$tmp . '/cli';
+    mkdir($dir, 0755, TRUE);
+    $bin = $dir . '/lagoon';
+    file_put_contents($bin, "#!/bin/sh\n");
+    chmod($bin, 0755);
+    $this->envSetMultiple([
+      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
+      'VORTEX_LAGOONCLI_PATH' => $dir,
+    ]);
+
+    $result = '';
+    $output = $this->captureOutput(function () use (&$result): void {
+      $result = \DrevOps\VortexTooling\lagoon_cli_resolve();
     });
+
+    $this->assertSame($bin, $result);
+    $this->assertStringContainsString('Reusing the Lagoon CLI', $output);
+  }
+
+  public function testResolveDownloads(): void {
+    $this->mockCommandExists();
+    $dir = self::$tmp . '/cli';
+    $this->envSetMultiple([
+      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
+      'VORTEX_LAGOONCLI_PATH' => $dir,
+      'VORTEX_LAGOONCLI_VERSION' => 'v0.32.0',
+    ]);
+
+    [$base, $asset] = $this->releaseUrl();
+    // A mocked download saves an empty file, so verify against the empty hash.
+    $sha = hash('sha256', '');
+
+    $this->mockRequestMultiple([
+      ['url' => $base . '/' . $asset, 'method' => 'GET', 'response' => ['status' => 200, 'ok' => TRUE, 'body' => '']],
+      ['url' => $base . '/checksums.txt', 'method' => 'GET', 'response' => ['status' => 200, 'ok' => TRUE, 'body' => $sha . '  ' . $asset]],
+    ]);
+
+    $result = '';
+    $output = $this->captureOutput(function () use (&$result): void {
+      $result = \DrevOps\VortexTooling\lagoon_cli_resolve();
+    });
+
+    $this->assertSame($dir . '/lagoon', $result);
+    $this->assertStringContainsString('Downloading the Lagoon CLI', $output);
+    $this->assertFileExists($dir . '/lagoon');
+  }
+
+  public function testResolveDownloadFails(): void {
+    $this->mockCommandExists();
+    $this->envSetMultiple([
+      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
+      'VORTEX_LAGOONCLI_PATH' => self::$tmp . '/cli',
+    ]);
+
+    [$base, $asset] = $this->releaseUrl();
+    $this->mockRequest($base . '/' . $asset, ['method' => 'GET'], ['status' => 404, 'ok' => FALSE, 'body' => '', 'error' => 'Not Found']);
 
     $this->mockQuit(1);
 
     ob_start();
     try {
-      \DrevOps\VortexTooling\lagoon_cli_require();
+      \DrevOps\VortexTooling\lagoon_cli_resolve();
       $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
@@ -54,7 +111,65 @@ class HelpersLagoonTest extends UnitTestCase {
     }
     finally {
       $output = ob_get_clean();
-      $this->assertStringContainsString("Command 'lagoon' is not available.", (string) $output);
+      $this->assertStringContainsString('Failed to download the Lagoon CLI', (string) $output);
+    }
+  }
+
+  public function testResolveChecksumMismatch(): void {
+    $this->mockCommandExists();
+    $this->envSetMultiple([
+      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
+      'VORTEX_LAGOONCLI_PATH' => self::$tmp . '/cli',
+    ]);
+
+    [$base, $asset] = $this->releaseUrl();
+    $this->mockRequestMultiple([
+      ['url' => $base . '/' . $asset, 'method' => 'GET', 'response' => ['status' => 200, 'ok' => TRUE, 'body' => '']],
+      ['url' => $base . '/checksums.txt', 'method' => 'GET', 'response' => ['status' => 200, 'ok' => TRUE, 'body' => 'deadbeef  ' . $asset]],
+    ]);
+
+    $this->mockQuit(1);
+
+    ob_start();
+    try {
+      \DrevOps\VortexTooling\lagoon_cli_resolve();
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertEquals(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertStringContainsString('Lagoon CLI checksum verification failed', (string) $output);
+    }
+  }
+
+  public function testResolveChecksumDownloadFails(): void {
+    $this->mockCommandExists();
+    $this->envSetMultiple([
+      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
+      'VORTEX_LAGOONCLI_PATH' => self::$tmp . '/cli',
+    ]);
+
+    [$base, $asset] = $this->releaseUrl();
+    $this->mockRequestMultiple([
+      ['url' => $base . '/' . $asset, 'method' => 'GET', 'response' => ['status' => 200, 'ok' => TRUE, 'body' => '']],
+      ['url' => $base . '/checksums.txt', 'method' => 'GET', 'response' => ['status' => 500, 'ok' => FALSE, 'body' => '', 'error' => 'Server error']],
+    ]);
+
+    $this->mockQuit(1);
+
+    ob_start();
+    try {
+      \DrevOps\VortexTooling\lagoon_cli_resolve();
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertEquals(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertStringContainsString('Failed to download the Lagoon CLI checksums', (string) $output);
     }
   }
 
@@ -200,29 +315,20 @@ class HelpersLagoonTest extends UnitTestCase {
     }
   }
 
-  public function testExtractBackupGzip(): void {
-    mkdir(self::$tmp . '/archive-src', 0755, TRUE);
-    file_put_contents(self::$tmp . '/archive-src/dump.sql', 'SELECT 1;');
+  /**
+   * Builds the release base URL and asset name for the current platform.
+   *
+   * @return array{0: string, 1: string}
+   *   The base URL and the asset file name.
+   */
+  protected function releaseUrl(): array {
+    $platform = strtolower(php_uname('s'));
+    $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
 
-    $file = self::$tmp . '/db.sql';
-    exec(sprintf('tar -czf %s -C %s dump.sql', escapeshellarg($file), escapeshellarg(self::$tmp . '/archive-src')));
-
-    $output = $this->captureOutput(function () use ($file): void {
-      \DrevOps\VortexTooling\lagoon_extract_backup($file);
-    });
-
-    $this->assertStringContainsString('Extracting the database backup.', $output);
-    $this->assertSame('SELECT 1;', file_get_contents($file));
-    $this->assertFileDoesNotExist($file . '.tar.gz');
-  }
-
-  public function testExtractBackupNonGzipLeavesFileUntouched(): void {
-    $file = self::$tmp . '/db.sql';
-    file_put_contents($file, 'plain sql content');
-
-    \DrevOps\VortexTooling\lagoon_extract_backup($file);
-
-    $this->assertSame('plain sql content', file_get_contents($file));
+    return [
+      'https://github.com/uselagoon/lagoon-cli/releases/download/v0.32.0',
+      sprintf('lagoon-cli-v0.32.0-%s-%s', $platform, $arch),
+    ];
   }
 
 }

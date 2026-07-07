@@ -109,9 +109,6 @@ if ($check_tools === '1') {
   if (!command_path('ahoy')) {
     fail('Please install Ahoy (https://ahoy-cli.readthedocs.io/).');
   }
-  if (getenv_default('VORTEX_FETCH_DB_SOURCE', '') === 'lagoon') {
-    lagoon_cli_require();
-  }
   pass('All required tools are present.');
 }
 

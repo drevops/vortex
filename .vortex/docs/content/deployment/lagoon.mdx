@@ -46,9 +46,10 @@ uses the Lagoon CLI to trigger a deployment. Lagoon then:
    LAGOON_PROJECT=your-project-name
    ```
 
-3. Ensure your CI has the Lagoon SSH key configured for authentication and the
-   [Lagoon CLI](https://github.com/uselagoon/lagoon-cli) available on the deploy
-   runner.
+3. Ensure your CI has the Lagoon SSH key configured for authentication. The
+   [Lagoon CLI](https://github.com/uselagoon/lagoon-cli) is used on the deploy
+   runner; if it is not already on the `PATH`, **Vortex** downloads a pinned
+   release into a cache directory automatically.
 
 ## Post-deployment automation
 

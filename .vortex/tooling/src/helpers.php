@@ -361,22 +361,84 @@ function drush(string $command, ?int &$exit_code = NULL): string {
 }
 
 /**
- * Require the Lagoon CLI to be available.
+ * Resolve the Lagoon CLI binary, installing it on demand.
  *
- * Vortex wraps the provider-native Lagoon CLI rather than reimplementing its
- * behaviour, so the CLI must be present. On a developer host it is installed by
- * the developer; inside the hosting environment it ships with the container
- * image.
+ * Prefers a 'lagoon' already available on PATH. Otherwise reuses a binary
+ * previously downloaded to the cache directory, or downloads and verifies it
+ * there once. This lets the same scripts run inside a hosting environment where
+ * the CLI is not pre-installed, without re-downloading on every invocation.
  *
  * @return string
- *   The Lagoon CLI binary name.
+ *   Path to the Lagoon CLI binary.
  */
-function lagoon_cli_require(): string {
-  if (!command_path('lagoon')) {
-    fail("Command 'lagoon' is not available. Install the Lagoon CLI (https://github.com/uselagoon/lagoon-cli) or use a container image that provides it.");
+function lagoon_cli_resolve(): string {
+  if (command_path('lagoon')) {
+    note('Using the Lagoon CLI found on PATH.');
+    return 'lagoon';
   }
 
-  return 'lagoon';
+  $dir = (string) getenv_default('VORTEX_LAGOONCLI_PATH', '.artifacts/tmp');
+  $version = getenv_default('VORTEX_LAGOONCLI_VERSION', 'v0.32.0');
+  $bin = $dir . '/lagoon';
+
+  if (is_executable($bin)) {
+    note('Reusing the Lagoon CLI previously downloaded to "%s".', $bin);
+    return $bin;
+  }
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  $platform = strtolower(php_uname('s'));
+  $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
+  $base = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s', $version);
+  $asset = sprintf('lagoon-cli-%s-%s-%s', $version, $platform, $arch);
+
+  task('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin);
+  $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
+  if (!$response['ok']) {
+    @unlink($bin);
+    fail('Failed to download the Lagoon CLI from "%s": %s', $base . '/' . $asset, $response['error'] ?? 'Unknown error');
+  }
+
+  lagoon_cli_verify_checksum($bin, $base, $asset);
+
+  chmod($bin, 0755);
+
+  return $bin;
+}
+
+/**
+ * Verify a downloaded Lagoon CLI binary against the published checksums.
+ *
+ * @param string $bin
+ *   Path to the downloaded binary; removed on a verification failure.
+ * @param string $base
+ *   Base release download URL.
+ * @param string $asset
+ *   Asset file name to look up in the checksums file.
+ */
+function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): void {
+  $response = request($base . '/checksums.txt', ['method' => 'GET', 'timeout' => 30]);
+  if (!$response['ok']) {
+    @unlink($bin);
+    fail('Failed to download the Lagoon CLI checksums from "%s".', $base . '/checksums.txt');
+  }
+
+  $expected = '';
+  foreach (explode("\n", (string) $response['body']) as $line) {
+    $parts = preg_split('/\s+/', trim($line)) ?: [];
+    if (count($parts) === 2 && $parts[1] === $asset) {
+      $expected = $parts[0];
+      break;
+    }
+  }
+
+  if ($expected === '' || !hash_equals($expected, (string) hash_file('sha256', $bin))) {
+    @unlink($bin);
+    fail('Lagoon CLI checksum verification failed for "%s".', $asset);
+  }
 }
 
 /**
@@ -440,30 +502,6 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
   }
 
   return $output === FALSE ? '' : $output;
-}
-
-/**
- * Extract a downloaded Lagoon backup artifact in place.
- *
- * Lagoon delivers a k8up backup as a gzipped tar containing a single database
- * dump. When the downloaded file is gzip-compressed, its contents are extracted
- * back into the same path; a file that is not compressed is left untouched.
- *
- * @param string $file
- *   Path to the downloaded artifact, replaced in place with the dump.
- */
-function lagoon_extract_backup(string $file): void {
-  if (!is_readable($file) || file_get_contents($file, FALSE, NULL, 0, 2) !== "\x1f\x8b") {
-    return;
-  }
-
-  task('Extracting the database backup.');
-  command_must_exist('tar');
-
-  $archive = $file . '.tar.gz';
-  rename($file, $archive);
-  passthru_or_fail(sprintf('tar -xzOf %s > %s', escapeshellarg($archive), escapeshellarg($file)), 'Failed to extract the database backup.');
-  unlink($archive);
 }
 
 /**

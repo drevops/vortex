@@ -41,12 +41,6 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->runScriptError('src/vortex-fetch-db-lagoon', 'Missing required value for VORTEX_FETCH_DB_LAGOON_PROJECT, LAGOON_PROJECT');
   }
 
-  public function testMissingLagoonCli(): void {
-    $this->mockCommandMissing();
-
-    $this->runScriptError('src/vortex-fetch-db-lagoon', "Command 'lagoon' is not available.");
-  }
-
   public function testSuccess(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
     $this->mockCommandExists();
@@ -54,6 +48,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
@@ -78,6 +74,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
       // First poll: not ready yet.
@@ -101,6 +99,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       // Retrieval already triggered previously - non-zero but non-fatal.
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'retrieval for latest-id has already been created', 'result_code' => 1],
@@ -121,6 +121,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'permission denied', 'result_code' => 1],
     ]);
@@ -135,6 +137,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       // Only a files backup exists, no matching 'database' source.
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"files-id","source":"nginx","created":"2024-01-03 00:00:00"}]}', 'result_code' => 0],
     ]);
@@ -149,6 +153,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => '{"data":[{"backupid":"","source":"database","created":"2024-01-01 00:00:00"}]}', 'result_code' => 0],
     ]);
 
@@ -164,6 +170,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => 'pending', 'result_code' => 1],
@@ -180,6 +188,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
@@ -206,6 +216,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     // No vortex-setup-ssh call and no --ssh-key flag in the CLI commands.
     $this->mockPassthruMultiple([
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmdNoSsh('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmdNoSsh("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmdNoSsh("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
       ['cmd' => $this->lagoonCmdNoSsh("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
@@ -226,6 +238,8 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->mockPassthruMultiple([
       ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
       ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("list backups --environment 'main' --output-json --pretty"), 'output' => $this->backupsJson(), 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("retrieve backup --environment 'main' --backup-id 'latest-id'"), 'output' => 'restore created', 'result_code' => 0],
       ['cmd' => $this->lagoonCmd("get backup --environment 'main' --backup-id 'latest-id' --output-json"), 'output' => '{"result":"https://storage.example.com/backup-latest.sql"}', 'result_code' => 0],
@@ -259,20 +273,16 @@ class FetchDbLagoonTest extends UnitTestCase {
     return "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'";
   }
 
+  protected function versionCmd(): string {
+    return "'lagoon' --version 2>&1";
+  }
+
   protected function lagoonCmd(string $subcommand): string {
     return sprintf("'lagoon' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' %s 2>&1", self::$sshFile, $subcommand);
   }
 
   protected function lagoonCmdNoSsh(string $subcommand): string {
     return sprintf("'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $subcommand);
-  }
-
-  protected function mockCommandMissing(string $namespace = 'DrevOps\\VortexTooling'): void {
-    $this->registerMock('exec', $namespace, function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
-      $output = [];
-      $result_code = 1;
-      return '';
-    });
   }
 
 }

@@ -88,7 +88,7 @@ if (empty($deploy_branch) && empty($deploy_pr)) {
   fail('Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
 }
 
-$lagoon_bin = lagoon_cli_require();
+$lagoon_bin = lagoon_cli_resolve();
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
@@ -98,6 +98,12 @@ passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 
 task('Configuring Lagoon instance.');
 lagoon_config($lagoon_bin, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
+
+// Surface the CLI version and authenticated identity so the run is observable.
+task('Lagoon CLI version.');
+passthru(sprintf('%s --version 2>&1', escapeshellarg($lagoon_bin)));
+task('Lagoon authenticated identity.');
+echo lagoon_run_cli('whoami');
 
 /**
  * Run Lagoon CLI command.

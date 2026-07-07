@@ -64,11 +64,14 @@ ahoy fetch-db
 ```
 
 This wraps the provider-native
-[Lagoon CLI](https://github.com/uselagoon/lagoon-cli), which must be
-available. Install it on a developer host; inside the Lagoon environment it
-ships with the container image, so the same command can pull the production
-database into a non-production environment without a round-trip through a
-developer machine.
+[Lagoon CLI](https://github.com/uselagoon/lagoon-cli). If a `lagoon` binary is
+already on your `PATH`, **Vortex** uses it as-is. Otherwise it downloads a
+pinned release into a cache directory (`.artifacts/tmp` by default, overridable
+with `VORTEX_LAGOONCLI_PATH`) and reuses that copy on later runs, so nothing
+needs to be pre-installed. This works the same on a developer host and inside
+the Lagoon environment, letting the same command pull the production database
+into a non-production environment without a round-trip through a developer
+machine.
 
 The download uses the latest scheduled backup, so its data can be as old as
 your environment's backup schedule (nightly by default).

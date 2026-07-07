@@ -72,6 +72,18 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
       'cmd' => $this->getLagoonCommand("delete environment --environment 'develop'"),
       'output' => 'Environment deleted',
       'result_code' => 0,
@@ -100,6 +112,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -139,6 +163,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -185,6 +221,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -251,6 +299,18 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
       'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
       'output' => '{"data":[{"name":"pr-456","deploytype":"pullrequest"}]}',
       'result_code' => 0,
@@ -291,6 +351,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -337,6 +409,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -416,6 +500,18 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
       'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
       'output' => 'Error: Failed to list environments',
       'result_code' => 2,
@@ -447,6 +543,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -497,6 +605,18 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
       'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
       'output' => '{"data":[{"name":"main","deploytype":"branch"}]}',
       'result_code' => 0,
@@ -536,6 +656,18 @@ class DeployLagoonTest extends UnitTestCase {
     $this->mockPassthru([
       'cmd' => $this->getLagoonConfigAddCommand(),
       'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
       'result_code' => 0,
     ]);
 
@@ -583,15 +715,8 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
-  public function testMissingLagoonCli(): void {
-    $exec = $this->getFunctionMock('DrevOps\\VortexTooling', 'exec');
-    $exec->expects($this->any())->willReturnCallback(function (string $command, mixed &$output = NULL, mixed &$result_code = NULL): string {
-      $output = [];
-      $result_code = 1;
-      return '';
-    });
-
-    $this->runScriptError('src/vortex-deploy-lagoon', "Command 'lagoon' is not available.");
+  protected function getVersionCommand(): string {
+    return "'lagoon' --version 2>&1";
   }
 
   protected function getSetupSshPath(): string {

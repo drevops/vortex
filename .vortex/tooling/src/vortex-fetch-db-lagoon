@@ -77,9 +77,33 @@ $db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Extract a downloaded Lagoon backup artifact in place.
+ *
+ * Lagoon delivers a k8up backup as a gzipped tar containing a single database
+ * dump. When the downloaded file is gzip-compressed, its contents are extracted
+ * back into the same path; a file that is not compressed is left untouched.
+ *
+ * @param string $file
+ *   Path to the downloaded artifact, replaced in place with the dump.
+ */
+function lagoon_extract_backup(string $file): void {
+  if (!is_readable($file) || file_get_contents($file, FALSE, NULL, 0, 2) !== "\x1f\x8b") {
+    return;
+  }
+
+  task('Extracting the database backup.');
+  command_must_exist('tar');
+
+  $archive = $file . '.tar.gz';
+  rename($file, $archive);
+  passthru_or_fail(sprintf('tar -xzOf %s > %s', escapeshellarg($archive), escapeshellarg($file)), 'Failed to extract the database backup.');
+  unlink($archive);
+}
+
 info('Started database backup download from Lagoon.');
 
-$bin = lagoon_cli_require();
+$bin = lagoon_cli_resolve();
 
 // Authenticate the CLI. On a host the SSH key is loaded and passed to the CLI;
 // inside the hosting environment ('false') the ambient identity is used.
@@ -96,6 +120,12 @@ $ctx = [
   'project' => $lagoon_project,
   'ssh_key' => $ssh_file,
 ];
+
+// Surface the CLI version and authenticated identity so the run is observable.
+task('Lagoon CLI version.');
+passthru(sprintf('%s --version 2>&1', escapeshellarg($bin)));
+task('Lagoon authenticated identity.');
+echo lagoon_exec($bin, 'whoami', $ctx);
 
 if (!is_dir($db_dir)) {
   task('Creating directory for database dumps.');
