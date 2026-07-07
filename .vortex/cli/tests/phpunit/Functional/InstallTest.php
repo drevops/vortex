@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Tests\Functional;
 
+use DrevOps\VortexCli\Command\AbstractInstallCommand;
 use DrevOps\VortexCli\Command\Install;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -17,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * Tests the end-to-end install: download the local template, customize, copy.
  */
 #[CoversClass(Install::class)]
+#[CoversClass(AbstractInstallCommand::class)]
 #[Group('install')]
 final class InstallTest extends TestCase {
 

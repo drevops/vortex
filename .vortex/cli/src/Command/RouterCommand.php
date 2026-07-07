@@ -4,22 +4,27 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
+use DrevOps\VortexCli\Utils\File;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * The default command: routes a bare `vortex` invocation by directory state.
+ * The default command: routes a bare `vortex` invocation by project state.
  *
- * With no explicit sub-command, an empty directory is treated as a fresh
- * project (install) and an existing one is reconfigured (configure). A saved
- * per-project manifest will later refine this into a proper install / configure
- * / update decision; for now the directory's emptiness is the signal.
+ * With no explicit sub-command, a directory that already holds a Vortex project
+ * - detected from its README badge, the same signal the installer uses to spot
+ * an existing project - is reconfigured; anything else is a fresh install.
  *
  * @package DrevOps\VortexCli\Command
  */
 class RouterCommand extends Command {
+
+  /**
+   * The directory to route on (defaults to the working directory).
+   */
+  protected ?string $directory = NULL;
 
   /**
    * {@inheritdoc}
@@ -45,11 +50,11 @@ class RouterCommand extends Command {
       // @codeCoverageIgnoreEnd
     }
 
-    return $application->find($this->target((string) getcwd()))->run($input, $output);
+    return $application->find($this->target($this->directory()))->run($input, $output);
   }
 
   /**
-   * The command name an empty vs existing directory routes to.
+   * The command name a directory routes to.
    *
    * @param string $directory
    *   The target directory.
@@ -58,28 +63,52 @@ class RouterCommand extends Command {
    *   The command name to run.
    */
   public function target(string $directory): string {
-    return $this->isEmpty($directory) ? 'install' : 'configure';
+    return $this->isVortexProject($directory) ? 'configure' : 'install';
   }
 
   /**
-   * Whether a directory has no non-hidden entries.
+   * Set the directory to route on.
+   *
+   * @param string $directory
+   *   The directory.
+   */
+  public function setDirectory(string $directory): void {
+    $this->directory = $directory;
+  }
+
+  /**
+   * The directory to route on.
+   *
+   * @return string
+   *   The set directory, or the current working directory.
+   */
+  protected function directory(): string {
+    return $this->directory ?? $this->currentDirectory();
+  }
+
+  /**
+   * The current working directory.
+   *
+   * @return string
+   *   The working directory.
+   */
+  protected function currentDirectory(): string {
+    // @codeCoverageIgnoreStart
+    return (string) getcwd();
+    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Whether a directory holds an existing Vortex project.
    *
    * @param string $directory
    *   The directory to inspect.
    *
    * @return bool
-   *   TRUE when the directory is missing or holds only hidden entries.
+   *   TRUE when the directory's README carries the Vortex badge.
    */
-  protected function isEmpty(string $directory): bool {
-    $entries = is_dir($directory) ? (scandir($directory) ?: []) : [];
-
-    foreach ($entries as $entry) {
-      if ($entry !== '.' && $entry !== '..' && !str_starts_with($entry, '.')) {
-        return FALSE;
-      }
-    }
-
-    return TRUE;
+  protected function isVortexProject(string $directory): bool {
+    return File::contains($directory . '/README.md', '/badge\/Vortex-/');
   }
 
 }

@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Tests the default router command.
@@ -20,21 +21,41 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[Group('command')]
 final class RouterTest extends TestCase {
 
+  /**
+   * The directory routed on during the test.
+   */
+  protected string $sut;
+
+  protected function setUp(): void {
+    parent::setUp();
+    $this->sut = dirname(__DIR__, 3) . '/.artifacts/tmp/router-test-' . getmypid();
+    (new Filesystem())->mkdir($this->sut);
+  }
+
+  protected function tearDown(): void {
+    (new Filesystem())->remove($this->sut);
+    parent::tearDown();
+  }
+
   public function testTargets(): void {
     $router = new RouterCommand();
 
-    // An empty (or missing) directory routes to install.
-    $this->assertSame('install', $router->target('/no/such/directory'));
+    // A directory without a Vortex README routes to install.
+    $this->assertSame('install', $router->target($this->sut));
 
-    // An existing, populated directory routes to configure.
-    $this->assertSame('configure', $router->target(dirname(__DIR__, 3)));
+    // A Vortex project - its README carries the badge - routes to configure.
+    (new Filesystem())->dumpFile($this->sut . '/README.md', "[![Vortex](https://img.shields.io/badge/Vortex-x-blue)]()\n");
+    $this->assertSame('configure', $router->target($this->sut));
   }
 
   public function testDelegatesToConfigure(): void {
-    // The working directory (the CLI package) is populated, so the router
-    // delegates to configure, which collects and prints the answers as JSON.
+    (new Filesystem())->dumpFile($this->sut . '/README.md', "[![Vortex](https://img.shields.io/badge/Vortex-x-blue)]()\n");
+
+    $router = new RouterCommand();
+    $router->setDirectory($this->sut);
+
     $application = new Application();
-    $application->add(new RouterCommand());
+    $application->add($router);
     $application->add(new ConfigureCommand());
 
     $tester = new CommandTester($application->find('route'));

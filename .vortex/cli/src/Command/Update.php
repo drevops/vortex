@@ -4,42 +4,22 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Tui\Tui;
-use DrevOps\Tui\Engine\EngineException;
-use DrevOps\Tui\Handler\Context;
-use DrevOps\VortexCli\Form\VortexForm;
-use DrevOps\VortexCli\Process\Processor;
-use Symfony\Component\Console\Command\Command;
+use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Updates the project to a template version, re-applying the saved answers.
+ * Updates an existing project to a template version, re-applying saved answers.
  *
- * Update always runs in update mode: it discovers the project's existing
- * answers, re-collects them (letting you change any) and re-applies. Choosing a
- * target template version to download - the "--to" selector - reuses the same
- * download machinery as the Install command and is wired in separately.
+ * A thin facade over the shared install flow: it points the download at the
+ * "--to" version (falling back to an explicit "--uri") and defers to
+ * doInstall(), which detects the existing project from its destination and
+ * collects in update mode so saved answers pre-fill the form.
  *
  * @package DrevOps\VortexCli\Command
  */
-class Update extends Command {
-
-  /**
-   * The namespace the engine searches for handler classes.
-   */
-  protected const HANDLER_NAMESPACE = 'DrevOps\\VortexCli\\Handler';
-
-  /**
-   * The prefix for per-question environment variable overrides.
-   */
-  protected const ENV_PREFIX = 'VORTEX_';
-
-  /**
-   * The version stamped into placeholders when the app version is unset.
-   */
-  protected const VERSION = '__VERSION__';
+class Update extends AbstractInstallCommand {
 
   /**
    * {@inheritdoc}
@@ -47,71 +27,45 @@ class Update extends Command {
   protected function configure(): void {
     $this
       ->setName('update')
-      ->setDescription('Update the project to a template version, re-applying your answers.')
-      ->addOption('to', NULL, InputOption::VALUE_REQUIRED, 'The target template version to update to.', '')
-      ->addOption('dir', 'd', InputOption::VALUE_REQUIRED, 'The project directory.', '.')
-      ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.', '')
-      ->addOption('apply', 'a', InputOption::VALUE_NONE, 'Apply the collected answers to the project directory.');
+      ->setDescription('Update the project to a template version, re-applying your answers.');
+
+    $this->addCommonOptions();
+    $this->addOption('to', NULL, InputOption::VALUE_REQUIRED, 'The target template version to update to.');
   }
 
   /**
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $customizer = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
-
-    $dir = $this->stringOption($input, 'dir');
-    $resolved = realpath($dir);
-    $dir = $resolved !== FALSE ? $resolved : $dir;
-
-    $prompts = $this->stringOption($input, 'prompts');
-
-    try {
-      // Update always enables discovery so existing answers pre-fill the form.
-      $answers = $customizer->collect($prompts, $dir, TRUE, $this->version());
-    }
-    catch (EngineException $engine_exception) {
-      $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
-
-      return Command::FAILURE;
+    $uri = $this->targetUri($input->getOption('to'), $input->getOption('uri'));
+    if ($uri !== NULL) {
+      $input->setOption('uri', $uri);
     }
 
-    if ($input->getOption('apply')) {
-      (new Processor())->apply($customizer->config(), $customizer->registry(), $answers->values, new Context($dir, $answers->values, TRUE, $this->version(), $dir), VortexForm::PROCESSORS);
-    }
-
-    $output->writeln($answers->toJson());
-
-    return Command::SUCCESS;
+    return $this->doInstall($input, $output);
   }
 
   /**
-   * Resolve the version string used to stamp version placeholders.
+   * Resolve the repository URI to download, preferring an explicit URI.
    *
-   * @return string
-   *   The application version, or the placeholder when it is unset.
+   * @param mixed $to
+   *   The "--to" target version, if any.
+   * @param mixed $uri
+   *   The explicit "--uri", if any.
+   *
+   * @return string|null
+   *   The URI to download, or NULL to leave resolution at its default.
    */
-  protected function version(): string {
-    $version = (string) $this->getApplication()?->getVersion();
+  public function targetUri(mixed $to, mixed $uri): ?string {
+    if (is_string($uri) && $uri !== '') {
+      return $uri;
+    }
 
-    return $version === '' || $version === 'UNKNOWN' ? static::VERSION : $version;
-  }
+    if (is_string($to) && $to !== '') {
+      return RepositoryDownloader::DEFAULT_REPO . '#' . $to;
+    }
 
-  /**
-   * Read a string option, defaulting to empty.
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *   The input.
-   * @param string $name
-   *   The option name.
-   *
-   * @return string
-   *   The option value.
-   */
-  protected function stringOption(InputInterface $input, string $name): string {
-    $value = $input->getOption($name);
-
-    return is_string($value) ? $value : '';
+    return NULL;
   }
 
 }
