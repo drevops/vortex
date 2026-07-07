@@ -74,6 +74,27 @@ class FetchDbLagoonTest extends UnitTestCase {
     $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'REUSED SQL DUMP');
   }
 
+  public function testReuseWithWrappedRawEnvelope(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => self::$srcDir . '/vortex-setup-ssh', 'result_code' => 0],
+      ['cmd' => $this->configCmd(), 'result_code' => 0],
+      ['cmd' => $this->versionCmd(), 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd('whoami'), 'output' => 'tester', 'result_code' => 0],
+      ['cmd' => $this->lagoonCmd("list tasks --environment 'main' --output-json"), 'output' => $this->tasksJson([$this->dumpTask('461715', $this->recentTs())]), 'result_code' => 0],
+      // A CLI variant that wraps the raw response in a "data" envelope.
+      ['cmd' => $this->lagoonCmd($this->rawSub('461715')), 'output' => $this->filesJsonWrapped('https://storage.example.com/reuse.sql.gz'), 'result_code' => 0],
+    ]);
+
+    $this->mockRequest('https://storage.example.com/reuse.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('REUSED SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-lagoon');
+
+    $this->assertStringContainsString('Reused the database dump from task "461715".', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'REUSED SQL DUMP');
+  }
+
   public function testFreshWhenNoReusableDump(): void {
     $this->mockCommandExists();
 
@@ -361,6 +382,10 @@ class FetchDbLagoonTest extends UnitTestCase {
 
   protected function filesJson(string $url): string {
     return json_encode(['taskById' => ['files' => [['download' => $url]]]]) ?: '';
+  }
+
+  protected function filesJsonWrapped(string $url): string {
+    return json_encode(['data' => ['taskById' => ['files' => [['download' => $url]]]]]) ?: '';
   }
 
   protected function noFilesJson(): string {

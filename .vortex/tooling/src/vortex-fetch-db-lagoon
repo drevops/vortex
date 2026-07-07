@@ -200,8 +200,11 @@ function lagoon_dump_task_url(string $bin, array $ctx, string $task_id): string 
   $json = lagoon_exec($bin, sprintf('raw --raw %s', escapeshellarg($query)), $ctx);
 
   $data = json_decode($json, TRUE);
+  // 'lagoon raw' returns the GraphQL result unwrapped ({"taskById":...}); also
+  // tolerate a "data" envelope in case a CLI version wraps the response.
+  $root = (is_array($data) && isset($data['data']) && is_array($data['data'])) ? $data['data'] : $data;
 
-  return (is_array($data) && isset($data['taskById']['files'][0]['download'])) ? (string) $data['taskById']['files'][0]['download'] : '';
+  return (is_array($root) && isset($root['taskById']['files'][0]['download'])) ? (string) $root['taskById']['files'][0]['download'] : '';
 }
 
 /**
