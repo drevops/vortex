@@ -36,6 +36,16 @@ composer install
   php playground/2-custom-theme/run.php
   ```
 
+- **[`3-widgets/`](3-widgets)** - a static showcase rendering every widget
+  (Text, Select, MultiSelect, Confirm, Suggest) side by side in Unicode and
+  textual (ASCII) glyph modes. Widgets pull their glyphs from the theme, so the
+  same widget adapts to the terminal: Unicode is auto-detected from the locale
+  (prompty-style), ASCII is the fallback.
+
+  ```bash
+  php playground/3-widgets/run.php
+  ```
+
 ## How a config picks a theme
 
 Three ways, lowest friction first:
