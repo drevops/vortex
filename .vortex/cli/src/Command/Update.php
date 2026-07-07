@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Form\VortexForm;
@@ -58,7 +58,7 @@ class Update extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $customizer = new Customizer(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $customizer = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     $dir = $this->stringOption($input, 'dir');
     $resolved = realpath($dir);

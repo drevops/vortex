@@ -4,7 +4,7 @@
  * @file
  * The smallest runner: load a config, collect answers, print the JSON result.
  *
- * The Customizer facade wires the engine internally - there are no handlers, so
+ * The Tui facade wires the engine internally - there are no handlers, so
  * the engine's defaults do everything.
  *
  * Usage:
@@ -12,8 +12,6 @@
  */
 
 declare(strict_types=1);
-
-use DrevOps\Tui\Customizer;
 
 require __DIR__ . '/../../vendor/autoload.php';
 

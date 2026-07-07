@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Form\VortexForm;
@@ -60,7 +60,7 @@ class ConfigureCommand extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $customizer = new Customizer(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $customizer = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     if ($input->getOption('schema')) {
       $output->writeln((string) json_encode($customizer->schema()));
@@ -130,7 +130,7 @@ class ConfigureCommand extends Command {
   /**
    * Validate a JSON answer set against the schema.
    *
-   * @param \DrevOps\Tui\Customizer $customizer
+   * @param \DrevOps\Tui\Tui $customizer
    *   The customizer.
    * @param string $json
    *   The answer set as JSON.
@@ -140,7 +140,7 @@ class ConfigureCommand extends Command {
    * @return int
    *   The exit code.
    */
-  protected function validateAnswers(Customizer $customizer, string $json, OutputInterface $output): int {
+  protected function validateAnswers(Tui $customizer, string $json, OutputInterface $output): int {
     $decoded = json_decode($json, TRUE);
     $answers = [];
     if (is_array($decoded)) {

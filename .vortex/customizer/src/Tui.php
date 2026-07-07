@@ -28,7 +28,7 @@ use DrevOps\Tui\Theme\AbstractTheme;
  *
  * @package DrevOps\Tui
  */
-final class Customizer {
+final class Tui {
 
   /**
    * The handler registry.

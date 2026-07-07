@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Downloader\Downloader;
@@ -100,7 +100,7 @@ class Install extends Command {
 
     $config->set(Config::VERSION, $version);
 
-    $customizer = new Customizer(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $customizer = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';

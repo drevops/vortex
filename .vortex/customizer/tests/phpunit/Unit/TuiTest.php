@@ -6,7 +6,7 @@ namespace DrevOps\Tui\Tests\Unit;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
-use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\HandlerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -14,11 +14,11 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the Customizer facade.
+ * Tests the Tui facade.
  */
-#[CoversClass(Customizer::class)]
+#[CoversClass(Tui::class)]
 #[Group('customizer')]
-final class CustomizerTest extends TestCase {
+final class TuiTest extends TestCase {
 
   public function testCollect(): void {
     $answers = $this->customizer()->collect('{"name":"Acme"}', 'dir', FALSE, '1.0');
@@ -52,7 +52,7 @@ final class CustomizerTest extends TestCase {
   /**
    * A customizer over a small in-memory config.
    */
-  protected function customizer(): Customizer {
+  protected function customizer(): Tui {
     $config = Form::create('Demo')
       ->panel('p', 'p', function (PanelBuilder $panel): void {
         $panel->text('name')->required();
@@ -60,7 +60,7 @@ final class CustomizerTest extends TestCase {
       })
       ->build();
 
-    return new Customizer($config, [], 'TEST_');
+    return new Tui($config, [], 'TEST_');
   }
 
 }

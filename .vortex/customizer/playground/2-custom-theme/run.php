@@ -10,8 +10,6 @@
  */
 
 declare(strict_types=1);
-
-use DrevOps\Tui\Customizer;
 use DrevOps\Tui\Engine\EngineException;
 
 require __DIR__ . '/../../vendor/autoload.php';
