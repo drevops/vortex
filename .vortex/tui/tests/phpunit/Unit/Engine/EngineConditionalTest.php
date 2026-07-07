@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -20,12 +22,14 @@ use PHPUnit\Framework\TestCase;
 final class EngineConditionalTest extends TestCase {
 
   public function testInactiveFieldExcluded(): void {
-    $engine = $this->engine([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'theme', 'default' => 'olivero'],
-        ['id' => 'custom_theme', 'default' => 'mytheme', 'when' => ['field' => 'theme', 'eq' => 'custom']],
-      ]]],
-    ]);
+    $engine = $this->engine(
+      Form::create('T')
+        ->panel('p', 'p', function (PanelBuilder $p): void {
+          $p->text('theme')->default('olivero');
+          $p->text('custom_theme')->default('mytheme')->when(['field' => 'theme', 'eq' => 'custom']);
+        })
+        ->build()
+    );
 
     $answers = $engine->run([], new Context());
     $this->assertArrayHasKey('theme', $answers);
@@ -37,15 +41,15 @@ final class EngineConditionalTest extends TestCase {
   }
 
   public function testForceFixupAutoResolves(): void {
-    $engine = $this->engine([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'provision', 'default' => 'database'],
-        ['id' => 'database_source', 'default' => 'url'],
-      ]]],
-      'fixups' => [
-        ['when' => ['field' => 'provision', 'eq' => 'profile'], 'set' => 'database_source', 'to' => 'none'],
-      ],
-    ]);
+    $engine = $this->engine(
+      Form::create('T')
+        ->panel('p', 'p', function (PanelBuilder $p): void {
+          $p->text('provision')->default('database');
+          $p->text('database_source')->default('url');
+        })
+        ->fixup(['when' => ['field' => 'provision', 'eq' => 'profile'], 'set' => 'database_source', 'to' => 'none'])
+        ->build()
+    );
 
     $this->assertSame('url', $engine->run([], new Context())['database_source']);
     // No input for database_source: the fix-up resolves it without prompting.
@@ -53,26 +57,30 @@ final class EngineConditionalTest extends TestCase {
   }
 
   public function testFixupWithoutTargetIsSkipped(): void {
-    $engine = $this->engine([
-      'panels' => [['id' => 'p', 'fields' => [['id' => 'a', 'default' => 'x']]]],
-      'fixups' => [
+    $engine = $this->engine(
+      Form::create('T')
+        ->panel('p', 'p', function (PanelBuilder $p): void {
+          $p->text('a')->default('x');
+        })
         // The "when" matches but there is no "set" target: the rule is ignored.
-        ['when' => ['field' => 'a', 'eq' => 'x']],
-      ],
-    ]);
+        ->fixup(['when' => ['field' => 'a', 'eq' => 'x']])
+        ->build()
+    );
 
     $this->assertSame(['a' => 'x'], $engine->run([], new Context()));
   }
 
   public function testMultiFieldConditional(): void {
     // A when can depend on any number of fields via all / any / not.
-    $engine = $this->engine([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'a', 'default' => 'x'],
-        ['id' => 'b', 'default' => 'y'],
-        ['id' => 'c', 'default' => 'z', 'when' => ['all' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]]],
-      ]]],
-    ]);
+    $engine = $this->engine(
+      Form::create('T')
+        ->panel('p', 'p', function (PanelBuilder $p): void {
+          $p->text('a')->default('x');
+          $p->text('b')->default('y');
+          $p->text('c')->default('z')->when(['all' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]]);
+        })
+        ->build()
+    );
 
     // Both conditions hold: c is active.
     $this->assertArrayHasKey('c', $engine->run([], new Context()));
@@ -82,42 +90,42 @@ final class EngineConditionalTest extends TestCase {
   }
 
   public function testMergeCustomFixup(): void {
-    $engine = $this->engine([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'profile', 'default' => 'standard'],
-        ['id' => 'profile_custom', 'default' => ''],
-      ]]],
-      'fixups' => [
-        ['when' => ['field' => 'profile', 'eq' => 'custom'], 'set' => 'profile', 'to' => ['field' => 'profile_custom']],
-      ],
-    ]);
+    $engine = $this->engine(
+      Form::create('T')
+        ->panel('p', 'p', function (PanelBuilder $p): void {
+          $p->text('profile')->default('standard');
+          $p->text('profile_custom')->default('');
+        })
+        ->fixup(['when' => ['field' => 'profile', 'eq' => 'custom'], 'set' => 'profile', 'to' => ['field' => 'profile_custom']])
+        ->build()
+    );
 
     $answers = $engine->run(['profile' => 'custom', 'profile_custom' => 'my_profile'], new Context());
     $this->assertSame('my_profile', $answers['profile']);
   }
 
   public function testCascadingDeactivation(): void {
-    $engine = $this->engine([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'a', 'default' => 'x'],
-        ['id' => 'b', 'default' => 'y', 'when' => ['field' => 'a', 'eq' => 'x']],
-        ['id' => 'c', 'default' => 'z', 'when' => ['field' => 'b', 'eq' => 'y']],
-      ]]],
-    ]);
+    $engine = $this->engine(
+      Form::create('T')
+        ->panel('p', 'p', function (PanelBuilder $p): void {
+          $p->text('a')->default('x');
+          $p->text('b')->default('y')->when(['field' => 'a', 'eq' => 'x']);
+          $p->text('c')->default('z')->when(['field' => 'b', 'eq' => 'y']);
+        })
+        ->build()
+    );
 
     $this->assertSame(['a' => 'x', 'b' => 'y', 'c' => 'z'], $engine->run([], new Context()));
     $this->assertSame(['a' => 'off'], $engine->run(['a' => 'off'], new Context()));
   }
 
   /**
-   * Build an engine over decoded config data with no handlers.
+   * Build an engine over the given config with no handlers.
    *
-   * @param array<string,mixed> $data
-   *   The decoded configuration.
+   * @param \DrevOps\Tui\Config\Config $config
+   *   The configuration.
    */
-  protected function engine(array $data): Engine {
-    $config = (new ConfigLoader())->fromArray($data);
-
+  protected function engine(Config $config): Engine {
     return new Engine($config, new HandlerRegistry());
   }
 

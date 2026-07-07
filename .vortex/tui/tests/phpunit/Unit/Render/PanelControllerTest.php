@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Render;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Input\Key;
 use DrevOps\Tui\Input\KeyName;
 use DrevOps\Tui\Render\Ansi;
@@ -86,11 +87,12 @@ final class PanelControllerTest extends TestCase {
   }
 
   public function testButtonsOptOut(): void {
-    $config = (new ConfigLoader())->fromArray([
-      'title' => 'Demo',
-      'buttons' => FALSE,
-      'panels' => [['id' => 'p', 'fields' => [['id' => 'a', 'label' => 'A']]]],
-    ]);
+    $config = Form::create('Demo')
+      ->buttons(FALSE)
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('a', 'A');
+      })
+      ->build();
     $controller = new PanelController($config, new DarkTheme(FALSE, 40), ['a' => 'x'], []);
 
     $this->assertStringNotContainsString('Submit', Ansi::strip($controller->frame(12)));
@@ -257,17 +259,17 @@ final class PanelControllerTest extends TestCase {
    * A controller over a two-panel config seeded with answers.
    */
   protected function controller(): PanelController {
-    $config = (new ConfigLoader())->fromArray([
-      'title' => 'Demo',
-      'panels' => [
-        ['id' => 'general', 'title' => 'General', 'fields' => [
-          ['id' => 'name', 'label' => 'Name'],
-        ], 'panels' => [
-          ['id' => 'adv', 'title' => 'Advanced', 'fields' => [['id' => 'debug', 'label' => 'Debug', 'type' => 'confirm']]],
-        ]],
-        ['id' => 'drupal', 'title' => 'Drupal', 'fields' => [['id' => 'profile', 'label' => 'Profile']]],
-      ],
-    ]);
+    $config = Form::create('Demo')
+      ->panel('general', 'General', function (PanelBuilder $p): void {
+        $p->text('name', 'Name');
+        $p->panel('adv', 'Advanced', function (PanelBuilder $sp): void {
+          $sp->confirm('debug', 'Debug');
+        });
+      })
+      ->panel('drupal', 'Drupal', function (PanelBuilder $p): void {
+        $p->text('profile', 'Profile');
+      })
+      ->build();
     $theme = new DarkTheme(FALSE, 40);
 
     return new PanelController($config, $theme, ['name' => 'Acme', 'debug' => FALSE, 'profile' => 'standard'], []);

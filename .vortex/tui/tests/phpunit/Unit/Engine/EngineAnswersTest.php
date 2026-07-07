@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -21,13 +22,13 @@ use PHPUnit\Framework\TestCase;
 final class EngineAnswersTest extends TestCase {
 
   public function testAnswersModelReflectsRun(): void {
-    $config = (new ConfigLoader())->fromArray([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'name', 'default' => ''],
-        ['id' => 'machine', 'default' => '', 'derive' => ['template' => '{{name}}', 'transform' => 'machine']],
-        ['id' => 'gone', 'default' => 'x', 'when' => ['field' => 'name', 'eq' => 'never']],
-      ]]],
-    ]);
+    $config = Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('name')->default('');
+        $p->text('machine')->default('')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+        $p->text('gone')->default('x')->when(['field' => 'name', 'eq' => 'never']);
+      })
+      ->build();
     $engine = new Engine($config, new HandlerRegistry());
 
     $engine->run(['name' => 'Acme Site'], new Context());
@@ -41,12 +42,12 @@ final class EngineAnswersTest extends TestCase {
   }
 
   public function testEmittedSetValidatesAgainstSchema(): void {
-    $config = (new ConfigLoader())->fromArray([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'name', 'type' => 'text', 'required' => TRUE, 'default' => 'Acme'],
-        ['id' => 'profile', 'type' => 'select', 'default' => 'standard', 'options' => [['value' => 'standard'], ['value' => 'minimal']]],
-      ]]],
-    ]);
+    $config = Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('name')->required()->default('Acme');
+        $p->select('profile')->default('standard')->option('standard')->option('minimal');
+      })
+      ->build();
     $engine = new Engine($config, new HandlerRegistry());
 
     $engine->run([], new Context());

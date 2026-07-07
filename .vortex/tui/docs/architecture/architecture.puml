@@ -9,8 +9,11 @@ skinparam shadowing false
 skinparam componentStyle rectangle
 title drevops/customizer - component architecture
 
+package "Builder" #F0F4C3 {
+  [Form]
+}
+
 package "Configuration" #E3F2FD {
-  [ConfigLoader]
   [Config]
   [Panel]
   [Field]
@@ -52,7 +55,7 @@ package "Interactive TUI" #FFEBEE {
   [KeyParser]
 }
 
-[ConfigLoader] --> [Config]
+[Form] --> [Config]
 [Config] *-- [Panel]
 [Panel] *-- [Field]
 

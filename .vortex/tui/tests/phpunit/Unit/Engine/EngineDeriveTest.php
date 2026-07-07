@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -58,13 +59,13 @@ final class EngineDeriveTest extends TestCase {
    * Build an engine with a name -> machine -> domain derivation chain.
    */
   protected function engine(): Engine {
-    $config = (new ConfigLoader())->fromArray([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'name', 'default' => ''],
-        ['id' => 'machine', 'default' => '', 'derive' => ['template' => '{{name}}', 'transform' => 'machine']],
-        ['id' => 'domain', 'default' => '', 'derive' => ['template' => '{{machine}}.com', 'transform' => 'host']],
-      ]]],
-    ]);
+    $config = Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('name')->default('');
+        $p->text('machine')->default('')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+        $p->text('domain')->default('')->derive(['template' => '{{machine}}.com', 'transform' => 'host']);
+      })
+      ->build();
 
     return new Engine($config, new HandlerRegistry());
   }

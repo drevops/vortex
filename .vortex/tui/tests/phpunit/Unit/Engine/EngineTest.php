@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Handler\Context;
@@ -28,9 +29,10 @@ final class EngineTest extends TestCase {
   }
 
   public function testDiscoversInUpdateMode(): void {
-    $engine = $this->engine([
-      ['id' => 'p', 'fields' => [['id' => 'spy'], ['id' => 'plain']]],
-    ]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('spy');
+      $p->text('plain');
+    });
 
     $answers = $engine->run([], new Context('project', [], TRUE));
 
@@ -43,7 +45,9 @@ final class EngineTest extends TestCase {
   }
 
   public function testCollectSkipsProcess(): void {
-    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'spy']]]]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('spy');
+    });
 
     $engine->collect([], new Context('project', [], TRUE));
 
@@ -53,7 +57,9 @@ final class EngineTest extends TestCase {
   }
 
   public function testDynamicDefaultFromHandler(): void {
-    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'defaulter']]]]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('defaulter');
+    });
 
     $answers = $engine->run([], new Context('proj', [], FALSE));
 
@@ -61,7 +67,9 @@ final class EngineTest extends TestCase {
   }
 
   public function testDynamicDefaultOverriddenByInput(): void {
-    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'defaulter']]]]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('defaulter');
+    });
 
     $answers = $engine->run(['defaulter' => 'given'], new Context('proj', [], FALSE));
 
@@ -69,7 +77,9 @@ final class EngineTest extends TestCase {
   }
 
   public function testSuppliedInputWins(): void {
-    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'spy']]]]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('spy');
+    });
 
     $answers = $engine->run(['spy' => 'given'], new Context('project', [], TRUE));
 
@@ -79,7 +89,9 @@ final class EngineTest extends TestCase {
   }
 
   public function testDefaultUsedWithoutUpdate(): void {
-    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'spy', 'default' => 'seed']]]]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('spy')->default('seed');
+    });
 
     $answers = $engine->run([], new Context('project', [], FALSE));
 
@@ -89,7 +101,9 @@ final class EngineTest extends TestCase {
   }
 
   public function testInvalidValueThrows(): void {
-    $engine = $this->engine([['id' => 'p', 'fields' => [['id' => 'machine_name']]]]);
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('machine_name');
+    });
 
     $this->expectException(EngineException::class);
     $this->expectExceptionMessage('Invalid value for field "machine_name"');
@@ -98,13 +112,13 @@ final class EngineTest extends TestCase {
   }
 
   /**
-   * Build an engine over the given panels wired to the fixture handlers.
+   * Build an engine over a single panel wired to the fixture handlers.
    *
-   * @param array<int,array<string,mixed>> $panels
-   *   The panels to configure.
+   * @param \Closure $build
+   *   The callback receiving the panel builder to declare its fields.
    */
-  protected function engine(array $panels): Engine {
-    $config = (new ConfigLoader())->fromArray(['panels' => $panels]);
+  protected function engine(\Closure $build): Engine {
+    $config = Form::create('T')->panel('p', 'p', $build)->build();
     $registry = new HandlerRegistry(['DrevOps\\Tui\\Tests\\Fixtures\\Handler']);
 
     return new Engine($config, $registry);

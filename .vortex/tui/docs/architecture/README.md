@@ -10,13 +10,13 @@ At the centre is the **Engine**. Everything else is either something you hand it
 
 Read it in three bands:
 
-- **Left - what you provide.** A YAML **Config** (parsed by `ConfigLoader` into `Config` -> `Panel` -> `Field`) and, optionally, **Handlers** (classes that carry behaviour). Together these declare the questions and how each one behaves.
+- **Left - what you provide.** A **Config** (assembled by the fluent `Form` builder into `Config` -> `Panel` -> `Field`) and, optionally, **Handlers** (classes that carry behaviour). Together these declare the questions and how each one behaves.
 - **Middle - the Engine and its helpers.** The Engine drives collection, leaning on `InputResolver` (read a payload), `Discovery` (detect from the directory), `Deriver` + `Transform` (compute values), and `ConditionEvaluator` (decide what is shown).
 - **Right - what comes out, and how it is shown.** `Answers` (plus a `SchemaGenerator` / `SchemaValidator` for agents and forms), and the **interactive TUI** - `PanelController` composing a `Theme`, widgets, a `Navigator` and a `Terminal`.
 
 ## Step 1 - describe the questions
 
-You write a YAML config: panels holding fields. A field has an `id`, a `type` (text, select, multiselect, suggest, confirm) and optional rules - `default`, `required`, `options`, `when` (show it only when a condition holds), `derive` (compute it from other fields) and `discover` (detect it from the target directory). `ConfigLoader` reads the file, validates it, and builds the immutable `Config` model. Nothing runs yet; this is pure description.
+You declare the questions in PHP with the fluent `Form` builder: panels holding fields. A field has an `id`, a `type` (text, select, multiselect, suggest, confirm) and optional rules - `default`, `required`, `options`, `when` (show it only when a condition holds), `derive` (compute it from other fields) and `discover` (detect it from the target directory). The builder validates the declaration - rejecting duplicate field ids - and builds the immutable `Config` model. Nothing runs yet; this is pure description.
 
 ## Step 2 - attach behaviour where you need it
 

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Schema;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Schema\AgentHelp;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -18,10 +19,12 @@ use PHPUnit\Framework\TestCase;
 final class AgentHelpTest extends TestCase {
 
   public function testGenerate(): void {
-    $config = (new ConfigLoader())->fromArray(['panels' => [['id' => 'p', 'fields' => [
-      ['id' => 'name', 'type' => 'text', 'label' => 'Site name', 'required' => TRUE],
-      ['id' => 'agree', 'type' => 'confirm', 'label' => 'Agree'],
-    ]]]]);
+    $config = Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('name', 'Site name')->required();
+        $p->confirm('agree', 'Agree');
+      })
+      ->build();
 
     $help = (new AgentHelp($config, 'VORTEX_'))->generate();
 
@@ -34,7 +37,11 @@ final class AgentHelpTest extends TestCase {
   }
 
   public function testNoEnvPrefixOmitsEnvLine(): void {
-    $config = (new ConfigLoader())->fromArray(['panels' => [['id' => 'p', 'fields' => [['id' => 'x', 'type' => 'text']]]]]);
+    $config = Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('x');
+      })
+      ->build();
 
     $help = (new AgentHelp($config))->generate();
 

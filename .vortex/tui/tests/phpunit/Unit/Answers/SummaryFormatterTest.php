@@ -6,7 +6,8 @@ namespace DrevOps\Tui\Tests\Unit\Answers;
 
 use DrevOps\Tui\Answers\Answers;
 use DrevOps\Tui\Answers\SummaryFormatter;
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -19,20 +20,21 @@ use PHPUnit\Framework\TestCase;
 final class SummaryFormatterTest extends TestCase {
 
   public function testFormatsGroupedByPanel(): void {
-    $config = (new ConfigLoader())->fromArray([
-      'panels' => [
-        ['id' => 'general', 'title' => 'General', 'fields' => [
-          ['id' => 'name', 'label' => 'Name'],
-          ['id' => 'machine', 'label' => 'Machine', 'derive' => ['template' => '{{name}}']],
-        ]],
-        ['id' => 'drupal', 'title' => 'Drupal', 'fields' => [
-          ['id' => 'profile', 'label' => 'Profile'],
-        ], 'panels' => [
-          ['id' => 'adv', 'title' => 'Advanced', 'fields' => [['id' => 'debug', 'label' => 'Debug', 'type' => 'confirm']]],
-        ]],
-        ['id' => 'empty', 'title' => 'Empty', 'fields' => [['id' => 'gone', 'label' => 'Gone', 'when' => ['field' => 'name', 'eq' => 'never']]]],
-      ],
-    ]);
+    $config = Form::create('T')
+      ->panel('general', 'General', function (PanelBuilder $p): void {
+        $p->text('name', 'Name');
+        $p->text('machine', 'Machine')->derive(['template' => '{{name}}']);
+      })
+      ->panel('drupal', 'Drupal', function (PanelBuilder $p): void {
+        $p->text('profile', 'Profile');
+        $p->panel('adv', 'Advanced', function (PanelBuilder $sp): void {
+          $sp->confirm('debug', 'Debug');
+        });
+      })
+      ->panel('empty', 'Empty', function (PanelBuilder $p): void {
+        $p->text('gone', 'Gone')->when(['field' => 'name', 'eq' => 'never']);
+      })
+      ->build();
     $answers = new Answers(
       ['name' => 'Acme', 'machine' => 'acme', 'profile' => 'standard', 'debug' => TRUE],
       ['name' => 'edited', 'machine' => 'derived', 'profile' => 'default', 'debug' => 'edited'],
@@ -55,9 +57,11 @@ final class SummaryFormatterTest extends TestCase {
   }
 
   public function testFormatsListValues(): void {
-    $config = (new ConfigLoader())->fromArray([
-      'panels' => [['id' => 'p', 'title' => 'P', 'fields' => [['id' => 'mods', 'label' => 'Mods', 'type' => 'multiselect']]]],
-    ]);
+    $config = Form::create('T')
+      ->panel('p', 'P', function (PanelBuilder $p): void {
+        $p->multiselect('mods', 'Mods');
+      })
+      ->build();
     $answers = new Answers(['mods' => ['a', 'b']], ['mods' => 'edited']);
 
     $summary = (new SummaryFormatter())->format($config, $answers);

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
-use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -26,12 +27,12 @@ final class EngineNonInteractiveTest extends TestCase {
     vfsStream::setup('proj', NULL, ['.env' => "DETECTED=from_env\n"]);
     $dir = vfsStream::url('proj');
 
-    $config = (new ConfigLoader())->fromArray([
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'src', 'default' => 'seed'],
-        ['id' => 'target', 'type' => 'text', 'default' => 'static', 'derive' => ['template' => 'd-{{src}}'], 'discover' => ['dotenv' => 'DETECTED']],
-      ]]],
-    ]);
+    $config = Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('src')->default('seed');
+        $p->text('target')->default('static')->derive(['template' => 'd-{{src}}'])->discover(['dotenv' => 'DETECTED']);
+      })
+      ->build();
     $resolver = new InputResolver('VORTEX_');
     $engine = new Engine($config, new HandlerRegistry());
 

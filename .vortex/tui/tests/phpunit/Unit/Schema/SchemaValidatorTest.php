@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Schema;
 
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Config;
-use DrevOps\Tui\Config\ConfigLoader;
 use DrevOps\Tui\Schema\SchemaValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -82,13 +83,15 @@ final class SchemaValidatorTest extends TestCase {
    * Build a config exercising every validation branch.
    */
   protected function config(): Config {
-    return (new ConfigLoader())->fromArray(['panels' => [['id' => 'p', 'fields' => [
-      ['id' => 'name', 'type' => 'text', 'required' => TRUE],
-      ['id' => 'profile', 'type' => 'select', 'options' => [['value' => 'standard'], ['value' => 'minimal']]],
-      ['id' => 'agree', 'type' => 'confirm'],
-      ['id' => 'mods', 'type' => 'multiselect', 'options' => [['value' => 'a'], ['value' => 'b']]],
-      ['id' => 'custom', 'type' => 'text', 'required' => TRUE, 'when' => ['field' => 'profile', 'eq' => 'custom']],
-    ]]]]);
+    return Form::create('T')
+      ->panel('p', 'p', function (PanelBuilder $p): void {
+        $p->text('name')->required();
+        $p->select('profile')->option('standard')->option('minimal');
+        $p->confirm('agree');
+        $p->multiselect('mods')->option('a')->option('b');
+        $p->text('custom')->required()->when(['field' => 'profile', 'eq' => 'custom']);
+      })
+      ->build();
   }
 
 }
