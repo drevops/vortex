@@ -73,5 +73,9 @@ the Lagoon environment, letting the same command pull the production database
 into a non-production environment without a round-trip through a developer
 machine.
 
+When running inside the Lagoon environment, set `VORTEX_FETCH_DB_SSH_FILE=false`
+to skip SSH key setup and use the ambient Lagoon identity instead of a developer
+SSH key.
+
 The download uses the latest scheduled backup, so its data can be as old as
 your environment's backup schedule (nightly by default).

@@ -69,6 +69,10 @@ $status_retries = (int) getenv_default(...array_values(array_unique(['VORTEX_FET
 // Interval in seconds between restore status checks.
 $status_interval = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_STATUS_INTERVAL', 'VORTEX_FETCH_DB_LAGOON_STATUS_INTERVAL', '10'])));
 
+// Timeout in seconds for the backup download. A large production dump over a
+// slow link can exceed the default, so it is tunable independently.
+$download_timeout = (int) getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DOWNLOAD_TIMEOUT', 'VORTEX_FETCH_DB_LAGOON_DOWNLOAD_TIMEOUT', '600'])));
+
 // Directory where DB dumps are stored on the host.
 $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_LAGOON_DB_DIR', 'VORTEX_FETCH_DB' . $db_index . '_DIR', 'VORTEX_DB' . $db_index . '_DIR', 'VORTEX_FETCH_DB_LAGOON_DB_DIR', 'VORTEX_FETCH_DB_DIR', 'VORTEX_DB_DIR', './.data'])));
 
@@ -187,7 +191,7 @@ if ($download_url === '') {
 
 task('Downloading the database backup.');
 $dest = $db_dir . '/' . $db_file;
-$response = request($download_url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => 600]);
+$response = request($download_url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => $download_timeout]);
 if (!$response['ok']) {
   @unlink($dest);
   fail('Failed to download the database backup from Lagoon: %s', $response['error'] ?? 'Unknown error');
