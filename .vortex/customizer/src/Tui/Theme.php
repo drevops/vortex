@@ -235,6 +235,11 @@ abstract class Theme {
         $lines[] = $this->descriptionLine($subpanel->description);
       }
 
+      $summary = $this->panelSummary($subpanel, $answers);
+      if ($summary !== '') {
+        $lines[] = $this->summaryLine($summary);
+      }
+
       $index++;
     }
 
@@ -291,6 +296,54 @@ abstract class Theme {
    */
   public function descriptionLine(string $description): string {
     return '    ' . $this->style('description', $description);
+  }
+
+  /**
+   * A one-line summary of a sub-panel's active field values, for the hub.
+   *
+   * Lets the hub show what is configured in each panel without drilling in.
+   *
+   * @param \DrevOps\Customizer\Config\Panel $panel
+   *   The sub-panel.
+   * @param \DrevOps\Customizer\Answers\Answers $answers
+   *   The current answers.
+   *
+   * @return string
+   *   The summary, or an empty string when the panel has no active fields.
+   */
+  public function panelSummary(Panel $panel, Answers $answers): string {
+    $parts = [];
+
+    foreach ($panel->fields as $field) {
+      if (!$answers->has($field->id)) {
+        continue;
+      }
+
+      $value = $answers->value($field->id);
+      $parts[] = is_array($value) && count($value) > 3 ? count($value) . ' selected' : $this->renderValue($value);
+
+      if (count($parts) >= 4) {
+        break;
+      }
+    }
+
+    return implode(' ' . $this->glyph('dot') . ' ', $parts);
+  }
+
+  /**
+   * Render a sub-panel value-summary row.
+   *
+   * @param string $summary
+   *   The summary text.
+   *
+   * @return string
+   *   The row.
+   */
+  public function summaryLine(string $summary): string {
+    $max = max(1, $this->width - 4);
+    $clipped = mb_strlen($summary) > $max ? mb_substr($summary, 0, $max - 1) . '…' : $summary;
+
+    return '    ' . $this->style('value', $clipped);
   }
 
   /**

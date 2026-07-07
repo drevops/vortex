@@ -175,6 +175,14 @@ final class PanelControllerTest extends TestCase {
     $this->assertStringContainsString('Demo', $controller->frame(4));
   }
 
+  public function testHubShowsPanelValueSummary(): void {
+    $controller = $this->controller();
+
+    // At the root hub (before drilling in), each sub-panel shows a one-line
+    // summary of its field values - here the "General" panel's name.
+    $this->assertStringContainsString('Acme', Ansi::strip($controller->frame(20)));
+  }
+
   public function testFrameShowsSelectionAndValue(): void {
     $controller = $this->controller();
     $controller->handle(Key::named(KeyName::Enter));

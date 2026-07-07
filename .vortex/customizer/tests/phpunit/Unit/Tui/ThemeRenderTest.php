@@ -81,6 +81,43 @@ final class ThemeRenderTest extends TestCase {
     $this->assertStringContainsString('sub desc', Ansi::strip($lines[2]));
   }
 
+  public function testBodyIncludesPanelSummary(): void {
+    $hub = new Panel('hub', 'Hub', '', [], [
+      new Panel('general', 'General', 'the general panel', [new Field('name', 'Name', '', FieldType::Text, '')]),
+    ]);
+
+    [$lines] = $this->theme()->body($hub, new Answers(['name' => 'Acme'], []), 0);
+
+    // The hub shows the sub-panel's title, description and value summary.
+    $body = Ansi::strip(implode("\n", $lines));
+    $this->assertStringContainsString('General', $body);
+    $this->assertStringContainsString('the general panel', $body);
+    $this->assertStringContainsString('Acme', $body);
+  }
+
+  public function testPanelSummaryJoinsActiveValues(): void {
+    $panel = new Panel('p', 'P', '', [
+      new Field('a', 'A', '', FieldType::Text, ''),
+      new Field('b', 'B', '', FieldType::Text, ''),
+      new Field('gated', 'Gated', '', FieldType::Text, ''),
+      new Field('m', 'M', '', FieldType::MultiSelect, []),
+      new Field('c', 'C', '', FieldType::Text, ''),
+      new Field('d', 'D', '', FieldType::Text, ''),
+    ]);
+    $answers = new Answers(['a' => 'Acme', 'b' => 'Beta', 'm' => ['w', 'x', 'y', 'z'], 'c' => 'Gamma', 'd' => 'Delta'], []);
+
+    // "gated" is skipped (no answer), the multiselect condenses to a count, and
+    // only the first four active values appear ("Delta" is dropped).
+    $this->assertSame('Acme · Beta · 4 selected · Gamma', $this->theme()->panelSummary($panel, $answers));
+  }
+
+  public function testSummaryLineClipsToWidth(): void {
+    $line = Ansi::strip($this->theme()->summaryLine(str_repeat('x', 100)));
+
+    $this->assertLessThanOrEqual(40, mb_strlen($line));
+    $this->assertStringContainsString('…', $line);
+  }
+
   public function testFrameShowsIndicatorsAndWindow(): void {
     $body = array_map(static fn(int $i): string => 'line' . $i, range(0, 9));
 
