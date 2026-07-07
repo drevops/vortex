@@ -61,9 +61,12 @@ class FetchDbLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/vortex-fetch-db-lagoon');
 
     $this->assertStringContainsString('Started database backup download from Lagoon.', $output);
+    $this->assertStringContainsString('Configured Lagoon instance.', $output);
     $this->assertStringContainsString('Discovering "database" backups for environment "main".', $output);
     $this->assertStringContainsString('Selected backup "latest-id"', $output);
+    $this->assertStringContainsString('Requested backup retrieval.', $output);
     $this->assertStringContainsString('Downloading the database backup.', $output);
+    $this->assertStringContainsString('Downloaded the database backup.', $output);
     $this->assertStringContainsString('Finished database backup download from Lagoon.', $output);
   }
 

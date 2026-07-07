@@ -103,6 +103,7 @@ function lagoon_extract_backup(string $file): void {
   rename($file, $archive);
   passthru_or_fail(sprintf('tar -xzOf %s > %s', escapeshellarg($archive), escapeshellarg($file)), 'Failed to extract the database backup.');
   unlink($archive);
+  pass('Extracted the database backup.');
 }
 
 info('Started database backup download from Lagoon.');
@@ -120,6 +121,7 @@ $config_file = lagoon_config_file();
 
 task('Configuring Lagoon instance.');
 lagoon_config($bin, $config_file, $instance, $instance_graphql, $ssh_host, $ssh_port);
+pass('Configured Lagoon instance.');
 
 $ctx = [
   'instance' => $instance,
@@ -129,14 +131,18 @@ $ctx = [
 ];
 
 // Surface the CLI version and authenticated identity so the run is observable.
-task('Lagoon CLI version.');
+task('Checking Lagoon CLI version.');
 passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
-task('Lagoon authenticated identity.');
+pass('Checked Lagoon CLI version.');
+
+task('Checking Lagoon authenticated identity.');
 echo lagoon_exec($bin, 'whoami', $ctx);
+pass('Checked Lagoon authenticated identity.');
 
 if (!is_dir($db_dir)) {
   task('Creating directory for database dumps.');
   mkdir($db_dir, 0755, TRUE);
+  pass('Created directory for database dumps.');
 }
 
 task(sprintf('Discovering "%s" backups for environment "%s".', $backup_source, $environment));
@@ -160,7 +166,7 @@ if ($backup_id === '') {
   fail('Unable to determine the latest backup ID.');
 }
 
-note(sprintf('Selected backup "%s" created at "%s".', $backup_id, (string) ($backup['created'] ?? 'unknown')));
+pass(sprintf('Selected backup "%s" created at "%s".', $backup_id, (string) ($backup['created'] ?? 'unknown')));
 
 // Trigger the asynchronous restore. A restore already requested for this backup
 // is not an error ("Restore already exists") - proceed to poll for it.
@@ -170,6 +176,7 @@ $retrieve_output = lagoon_exec($bin, sprintf('retrieve backup --environment %s -
 if ($retrieve_code !== 0 && stripos($retrieve_output, 'already exists') === FALSE) {
   fail('Failed to request backup retrieval: %s', $retrieve_output);
 }
+pass('Requested backup retrieval.');
 
 task('Waiting for the backup to be retrieved.');
 $download_url = '';
@@ -191,6 +198,7 @@ for ($i = 1; $i <= $status_retries; $i++) {
 if ($download_url === '') {
   fail('Timed out waiting for the backup to be retrieved.');
 }
+pass('Backup retrieved.');
 
 task('Downloading the database backup.');
 $dest = $db_dir . '/' . $db_file;
@@ -199,6 +207,7 @@ if (!$response['ok']) {
   @unlink($dest);
   fail('Failed to download the database backup from Lagoon: %s', $response['error'] ?? 'Unknown error');
 }
+pass('Downloaded the database backup.');
 
 lagoon_extract_backup($dest);
 

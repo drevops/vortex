@@ -143,7 +143,9 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Started Lagoon deployment.', $output);
+    $this->assertStringContainsString('Configured Lagoon instance.', $output);
     $this->assertStringContainsString('Discovering existing environments for branch deployments.', $output);
+    $this->assertStringContainsString('Discovered 1 existing branch environment(s).', $output);
     $this->assertStringContainsString('Deploying environment: project test-project, branch: develop.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
