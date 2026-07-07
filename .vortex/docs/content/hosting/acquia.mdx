@@ -97,6 +97,11 @@ Authentication uses your Acquia Cloud API key and secret from `.env` and
 home directory rather than your global `~/.acquia` configuration, so any Acquia
 credentials you already have locally are left untouched.
 
+The source application is auto-discovered from those credentials. When they
+expose more than one application, set `VORTEX_FETCH_DB_ACQUIA_APP_NAME` to pick
+one - it matches an application by its name, hosting id (for example
+`prod:<name>`), machine name or uuid.
+
 By default the latest existing backup is downloaded. Force a new backup and wait
 for it to complete with:
 

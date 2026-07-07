@@ -33,8 +33,10 @@ $acquia_key = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . 
 // Acquia Cloud API secret.
 $acquia_secret = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_SECRET', 'VORTEX_FETCH_DB_ACQUIA_SECRET', 'VORTEX_ACQUIA_SECRET'])));
 
-// Application name. Used to discover the application UUID.
-$app_name = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_APP_NAME', 'VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME'])));
+// Optional application hint. When empty, the application is auto-discovered as
+// long as the credentials expose exactly one. When set, it matches an
+// application by uuid, name, hosting id or hosting machine name.
+$app_name = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ACQUIA_APP_NAME', 'VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'VORTEX_ACQUIA_APP_NAME', ''])));
 
 // Source environment name to download the database from.
 $environment = getenv_required(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_ENVIRONMENT', 'VORTEX_FETCH_DB_ENVIRONMENT'])));
@@ -77,7 +79,7 @@ function acquia_find_item(string $json, string $name): array {
   $items = acquia_items($json);
 
   foreach ($items as $item) {
-    if (is_array($item) && ($item['name'] ?? '') === $name) {
+    if (is_array($item) && strcasecmp((string) ($item['name'] ?? ''), $name) === 0) {
       return $item;
     }
   }
@@ -115,13 +117,90 @@ function acquia_items(string $json): array {
  *   The newest completed backup id, or an empty string when there is none.
  */
 function acquia_latest_backup_id(string $json): string {
-  $backups = array_filter(acquia_items($json), fn($backup): bool => is_array($backup) && ($backup['id'] ?? '') !== '' && ($backup['completedAt'] ?? $backup['completed'] ?? '') !== '');
+  $backups = array_filter(acquia_items($json), fn($backup): bool => is_array($backup) && ($backup['id'] ?? '') !== '' && ($backup['completed_at'] ?? '') !== '');
 
-  usort($backups, fn($a, $b): int => strcmp((string) ($b['completedAt'] ?? $b['startedAt'] ?? ''), (string) ($a['completedAt'] ?? $a['startedAt'] ?? '')));
+  usort($backups, fn($a, $b): int => strcmp((string) ($b['completed_at'] ?? $b['started_at'] ?? ''), (string) ($a['completed_at'] ?? $a['started_at'] ?? '')));
 
   $latest = reset($backups);
 
   return is_array($latest) ? (string) ($latest['id'] ?? '') : '';
+}
+
+/**
+ * Select an Acquia application by hint, or auto-discover the only one.
+ *
+ * When a hint is given it matches an application by uuid, name, hosting id, or
+ * hosting machine name (the segment after the ':' in a 'prod:machine' id), all
+ * case-insensitively. When no hint is given, the single accessible application
+ * is returned; an empty array is returned when the choice is ambiguous.
+ *
+ * @param array<int, mixed> $apps
+ *   The applications from an 'api:applications:list' response.
+ * @param string $hint
+ *   The optional application hint.
+ *
+ * @return array<string, mixed>
+ *   The selected application, or an empty array when none is selected.
+ */
+function acquia_select_app(array $apps, string $hint): array {
+  if ($hint === '') {
+    return count($apps) === 1 && isset($apps[0]) && is_array($apps[0]) ? $apps[0] : [];
+  }
+
+  foreach ($apps as $app) {
+    if (is_array($app) && acquia_app_matches($app, $hint)) {
+      return $app;
+    }
+  }
+
+  return [];
+}
+
+/**
+ * Whether an application matches a hint across its identifying fields.
+ *
+ * @param array<string, mixed> $app
+ *   An application record.
+ * @param string $hint
+ *   The hint to match.
+ *
+ * @return bool
+ *   TRUE when the hint matches the uuid, name, hosting id or machine name.
+ */
+function acquia_app_matches(array $app, string $hint): bool {
+  $hosting = strtolower((string) ($app['hosting']['id'] ?? ''));
+  // The hosting id looks like 'prod:machinename'; accept the bare machine name.
+  $machine = str_contains($hosting, ':') ? substr($hosting, (int) strrpos($hosting, ':') + 1) : $hosting;
+
+  $candidates = [
+    strtolower((string) ($app['uuid'] ?? '')),
+    strtolower((string) ($app['name'] ?? '')),
+    $hosting,
+    $machine,
+  ];
+
+  return in_array(strtolower($hint), array_filter($candidates), TRUE);
+}
+
+/**
+ * Human-readable labels for a list of applications, for disambiguation errors.
+ *
+ * @param array<int, mixed> $apps
+ *   The applications from an 'api:applications:list' response.
+ *
+ * @return string
+ *   A comma-separated list of 'name (hosting id)' labels.
+ */
+function acquia_app_labels(array $apps): string {
+  $labels = [];
+
+  foreach ($apps as $app) {
+    if (is_array($app)) {
+      $labels[] = sprintf('%s (%s)', $app['name'] ?? '?', $app['hosting']['id'] ?? ($app['uuid'] ?? '?'));
+    }
+  }
+
+  return $labels === [] ? '(none)' : implode(', ', $labels);
 }
 
 /**
@@ -173,13 +252,17 @@ if (!is_dir($db_dir)) {
   pass('Created directory for database dumps.');
 }
 
-task(sprintf('Discovering the "%s" application.', $app_name));
-$app = acquia_find_item(acli_exec($bin, 'api:applications:list', $ctx), $app_name);
-$app_uuid = (string) ($app['uuid'] ?? '');
-if ($app_uuid === '') {
-  fail('Unable to find the Acquia application "%s".', $app_name);
+task($app_name === '' ? 'Auto-discovering the Acquia application.' : sprintf('Discovering the "%s" application.', $app_name));
+$apps = acquia_items(acli_exec($bin, 'api:applications:list', $ctx));
+$app = acquia_select_app($apps, $app_name);
+if ($app === []) {
+  if ($app_name !== '') {
+    fail('Unable to find an Acquia application matching "%s". Accessible applications: %s', $app_name, acquia_app_labels($apps));
+  }
+  fail('Unable to auto-discover a single Acquia application (found %d). Set VORTEX_FETCH_DB_ACQUIA_APP_NAME to one of: %s', count($apps), acquia_app_labels($apps));
 }
-pass(sprintf('Found application "%s".', $app_uuid));
+$app_uuid = (string) ($app['uuid'] ?? '');
+pass(sprintf('Using application "%s" (%s).', $app['name'] ?? $app_uuid, $app_uuid));
 
 task(sprintf('Discovering the "%s" environment.', $environment));
 $env = acquia_find_item(acli_exec($bin, sprintf('api:applications:environment-list %s', escapeshellarg($app_uuid)), $ctx), $environment);

@@ -44,13 +44,6 @@ class FetchDbAcquiaTest extends UnitTestCase {
     $this->runScriptError('src/vortex-fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_SECRET');
   }
 
-  public function testMissingAppName(): void {
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', '');
-    $this->envUnset('VORTEX_ACQUIA_APP_NAME');
-
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_APP_NAME');
-  }
-
   public function testMissingEnvironment(): void {
     $this->envSet('VORTEX_FETCH_DB_ENVIRONMENT', '');
 
@@ -63,7 +56,7 @@ class FetchDbAcquiaTest extends UnitTestCase {
     $this->runScriptError('src/vortex-fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_DB_NAME');
   }
 
-  public function testApplicationNotFound(): void {
+  public function testApplicationHintNotFound(): void {
     $this->mockCommandExists();
 
     $this->mockPassthruMultiple([
@@ -71,7 +64,87 @@ class FetchDbAcquiaTest extends UnitTestCase {
       ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([]), 'result_code' => 0],
     ]);
 
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to find the Acquia application "myapp".');
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to find an Acquia application matching "myapp".');
+  }
+
+  public function testAutoDiscoverSingleApplication(): void {
+    // With no hint and exactly one accessible application, it is auto-selected.
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', '');
+    $this->envUnset('VORTEX_ACQUIA_APP_NAME');
+
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql', 'SQL DUMP');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([['name' => 'NSWSES', 'uuid' => 'app-uuid-123', 'hosting' => ['id' => 'prod:nswses']]]), 'result_code' => 0],
+      ['cmd' => $this->envListCmd(), 'output' => $this->envsJson([['name' => 'prod', 'id' => 'env-id-prod']]), 'result_code' => 0],
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]);
+
+    $output = $this->runScript('src/vortex-fetch-db-acquia');
+
+    $this->assertStringContainsString('Auto-discovering the Acquia application.', $output);
+    $this->assertStringContainsString('Using application "NSWSES"', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+  }
+
+  public function testAutoDiscoverAmbiguousApplications(): void {
+    // With no hint and more than one application, the choice is ambiguous.
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', '');
+    $this->envUnset('VORTEX_ACQUIA_APP_NAME');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([['name' => 'One', 'uuid' => 'u1', 'hosting' => ['id' => 'prod:one']], ['name' => 'Two', 'uuid' => 'u2']]), 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to auto-discover a single Acquia application (found 2)');
+  }
+
+  public function testApplicationMatchedByMachineName(): void {
+    // The hint 'mymachine' matches only the hosting machine name.
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'mymachine');
+
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql', 'SQL DUMP');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([['name' => 'Human Label', 'uuid' => 'app-uuid-123', 'hosting' => ['id' => 'prod:mymachine']]]), 'result_code' => 0],
+      ['cmd' => $this->envListCmd(), 'output' => $this->envsJson([['name' => 'prod', 'id' => 'env-id-prod']]), 'result_code' => 0],
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]);
+
+    $output = $this->runScript('src/vortex-fetch-db-acquia');
+
+    $this->assertStringContainsString('Using application "Human Label"', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+  }
+
+  public function testApplicationMatchedByUuid(): void {
+    // The hint is the application uuid; the application carries no hosting id.
+    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'app-uuid-123');
+
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql', 'SQL DUMP');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([['name' => 'Human Label', 'uuid' => 'app-uuid-123']]), 'result_code' => 0],
+      ['cmd' => $this->envListCmd(), 'output' => $this->envsJson([['name' => 'prod', 'id' => 'env-id-prod']]), 'result_code' => 0],
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]);
+
+    $output = $this->runScript('src/vortex-fetch-db-acquia');
+
+    $this->assertStringContainsString('Using application "Human Label"', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
   }
 
   public function testEnvironmentNotFound(): void {
@@ -283,7 +356,7 @@ class FetchDbAcquiaTest extends UnitTestCase {
     $this->mockCommandExists();
 
     $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
-      ['cmd' => $this->backupListCmd(), 'output' => json_encode([['id' => '12345', 'completedAt' => '2026-07-07T00:00:00Z']]) ?: '', 'result_code' => 0],
+      ['cmd' => $this->backupListCmd(), 'output' => json_encode([['id' => '12345', 'completed_at' => '2026-07-07T00:00:00Z']]) ?: '', 'result_code' => 0],
     ]));
 
     $output = $this->runScript('src/vortex-fetch-db-acquia');
@@ -368,7 +441,7 @@ class FetchDbAcquiaTest extends UnitTestCase {
   /**
    * Encodes an application list response.
    *
-   * @param array<int, array<string, string>> $apps
+   * @param array<int, array<string, mixed>> $apps
    *   The application records.
    */
   protected function appsJson(array $apps): string {
@@ -392,7 +465,7 @@ class FetchDbAcquiaTest extends UnitTestCase {
    *   The completed backup ids.
    */
   protected function backupsJson(array $ids): string {
-    $items = array_map(fn(string $id): array => ['id' => $id, 'completedAt' => '2026-07-07T00:00:00Z'], $ids);
+    $items = array_map(fn(string $id): array => ['id' => $id, 'completed_at' => '2026-07-07T00:00:00Z'], $ids);
 
     return json_encode(['_embedded' => ['items' => $items]]) ?: '';
   }
