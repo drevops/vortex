@@ -44,7 +44,7 @@ plantuml -tsvg docs/architecture/*.puml
 
 ```plantuml
 @startuml
-' drevops/customizer - data flow for <flow>.
+' drevops/tui - data flow for <flow>.
 ' Traced from src/<entry class and method>.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain

@@ -1,6 +1,6 @@
 # This action is used for Vortex maintenance. It will not be used in the scaffolded project.
 #
-# Tests the standalone 'drevops/customizer' and 'drevops/vortex-cli' packages
+# Tests the standalone 'drevops/tui' and 'drevops/vortex-cli' packages
 # that live under '.vortex/'. Two jobs share this one workflow: 'customizer'
 # runs first, then 'cli' (which will depend on the customizer) runs only if the
 # customizer passed.
@@ -17,12 +17,12 @@ on:
       - feature/customizer-tui
     paths:
       - '.vortex/cli/**'
-      - '.vortex/customizer/**'
+      - '.vortex/tui/**'
       - '.github/workflows/vortex-test-cli.yml'
   pull_request:
     paths:
       - '.vortex/cli/**'
-      - '.vortex/customizer/**'
+      - '.vortex/tui/**'
       - '.github/workflows/vortex-test-cli.yml'
   workflow_dispatch:
 
@@ -31,8 +31,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  customizer:
-    name: Test customizer
+  tui:
+    name: Test tui
     runs-on: ubuntu-latest
 
     permissions:
@@ -54,19 +54,19 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress
-        working-directory: .vortex/customizer
+        working-directory: .vortex/tui
 
       - name: Check coding standards
         run: composer lint
-        working-directory: .vortex/customizer
+        working-directory: .vortex/tui
 
       - name: Run tests
         run: composer test
-        working-directory: .vortex/customizer
+        working-directory: .vortex/tui
 
   cli:
     name: Test CLI
-    needs: customizer
+    needs: tui
     runs-on: ubuntu-latest
 
     permissions:

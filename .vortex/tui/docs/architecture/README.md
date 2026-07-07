@@ -1,6 +1,6 @@
 # How the customizer works
 
-This is a walkthrough of the `drevops/customizer` engine - what you assemble to build a customizer, and what happens when it runs. The diagrams are rendered from the PlantUML sources in this directory by the [`render-customizer-diagrams`](../../.claude/skills/render-customizer-diagrams/SKILL.md) skill; everything below is derived from `src/`, so if the prose and the code disagree, the code wins.
+This is a walkthrough of the `drevops/tui` engine - what you assemble to build a customizer, and what happens when it runs. The diagrams are rendered from the PlantUML sources in this directory by the [`render-customizer-diagrams`](../../.claude/skills/render-customizer-diagrams/SKILL.md) skill; everything below is derived from `src/`, so if the prose and the code disagree, the code wins.
 
 ## The shape of it
 

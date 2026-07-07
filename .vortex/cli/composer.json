@@ -19,7 +19,7 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../customizer",
+            "url": "../tui",
             "options": {
                 "versions": {
                     "drevops/tui": "1.0.0-alpha1"

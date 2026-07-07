@@ -3,7 +3,7 @@
 # Builds and releases the 'drevops/vortex-cli' PHAR (via Box) from '.vortex/cli'.
 # The CLI is packaged and released from this monorepo, so its release workflow is
 # promoted to the repository root (unlike the customizer, which will move to its
-# own repository and keeps its release workflow under '.vortex/customizer/.github').
+# own repository and keeps its release workflow under '.vortex/tui/.github').
 name: Vortex - Release CLI
 
 on:

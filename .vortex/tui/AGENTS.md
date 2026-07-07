@@ -35,8 +35,8 @@ To add a Symfony Console command:
 
 ### Namespace Structure
 
-- Source code: `DrevOps\Customizer\`
-- Tests: `DrevOps\Customizer\Tests\`
+- Source code: `DrevOps\Tui\`
+- Tests: `DrevOps\Tui\Tests\`
 - Autoloading: PSR-4 via Composer
 
 ## Commands

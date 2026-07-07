@@ -1,6 +1,6 @@
 # Customizer playground
 
-Runnable, self-contained examples of the `drevops/customizer` engine. Each
+Runnable, self-contained examples of the `drevops/tui` engine. Each
 numbered directory is independent - copy one as a starting point.
 
 ```bash

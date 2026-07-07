@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff739ea2a0121cc71d2f5df1736fede3",
+    "content-hash": "be59d9847ccd490e91bb40b26db0a0d4",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -819,8 +819,8 @@
             "version": "1.0.0-alpha1",
             "dist": {
                 "type": "path",
-                "url": "../customizer",
-                "reference": "f8ac12dbe089734f057fc5aab09c2d0062adf1ef"
+                "url": "../tui",
+                "reference": "5f6c5a1f89f31dd5b274a0e565cc83b63e385804"
             },
             "require": {
                 "alexskrypnyk/str2name": "^1.4.1",
@@ -840,7 +840,7 @@
                 "rector/rector": "^2.5.1"
             },
             "bin": [
-                "customizer"
+                "tui"
             ],
             "type": "library",
             "autoload": {

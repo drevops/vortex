@@ -7,9 +7,9 @@ repository.
 
 The Vortex CLI is a thin Symfony Console application. It ships the customizer
 configuration (the questions and their panel structure) plus concrete handler
-classes that extend the generic `drevops/customizer` engine and carry the
+classes that extend the generic `drevops/tui` engine and carry the
 project-specific behaviour. Keep this package as thin as possible: reusable,
-project-agnostic logic belongs in `drevops/customizer`, not here.
+project-agnostic logic belongs in `drevops/tui`, not here.
 
 ## PHP Application Architecture
 
@@ -128,7 +128,7 @@ first, then the `cli` job). The CLI PHAR is released from the monorepo root via
 
 ## Committing the lock file
 
-Unlike the `drevops/customizer` library, this package is a distributable
+Unlike the `drevops/tui` library, this package is a distributable
 application built into a PHAR, so its `composer.lock` **is** committed to lock
 the exact dependency set the released binary is built from.
 

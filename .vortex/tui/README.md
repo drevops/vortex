@@ -7,12 +7,12 @@
 
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/github/issues/drevops/customizer.svg)](https://github.com/drevops/customizer/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/drevops/customizer.svg)](https://github.com/drevops/customizer/pulls)
-[![Test PHP](https://github.com/drevops/customizer/actions/workflows/test-php.yml/badge.svg)](https://github.com/drevops/customizer/actions/workflows/test-php.yml)
-[![codecov](https://codecov.io/gh/drevops/customizer/graph/badge.svg?token=7WEB1IXBYT)](https://codecov.io/gh/drevops/customizer)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/customizer)
-![LICENSE](https://img.shields.io/github/license/drevops/customizer)
+[![GitHub Issues](https://img.shields.io/github/issues/drevops/tui.svg)](https://github.com/drevops/tui/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/drevops/tui.svg)](https://github.com/drevops/tui/pulls)
+[![Test PHP](https://github.com/drevops/tui/actions/workflows/test-php.yml/badge.svg)](https://github.com/drevops/tui/actions/workflows/test-php.yml)
+[![codecov](https://codecov.io/gh/drevops/tui/graph/badge.svg?token=7WEB1IXBYT)](https://codecov.io/gh/drevops/tui)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/tui)
+![LICENSE](https://img.shields.io/github/license/drevops/tui)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
 </div>
@@ -36,14 +36,14 @@ It powers the [Vortex](https://www.vortextemplate.com) project installer, but kn
 
 ## Installation
 
-    composer require drevops/customizer
+    composer require drevops/tui
 
 ## Quick start
 
 The `Customizer` facade is the one class you need - it wires the config loader, engine, resolver, schema tools and TUI for you:
 
 ```php
-use DrevOps\Customizer\Customizer;
+use DrevOps\Tui\Customizer;
 
 $customizer = Customizer::fromFiles(['config.yml'], ['App\\Handler']);
 
@@ -100,9 +100,9 @@ A field needs a handler only when it requires behaviour beyond a static value. H
 ```php
 namespace App\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Handler\AbstractHandler;
-use DrevOps\Customizer\Handler\Context;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Handler\AbstractHandler;
+use DrevOps\Tui\Handler\Context;
 
 class Name extends AbstractHandler {
 
@@ -131,7 +131,7 @@ class Name extends AbstractHandler {
 A theme is a self-contained class that owns the entire visual representation - the palette, the glyphs (marker, scroll indicators, separators) and how every row is composed. Two are built in:
 
 ```php
-use DrevOps\Customizer\Tui\Theme;
+use DrevOps\Tui\Render\Theme;
 
 Theme::create('dark');   // the default
 Theme::create('light');  // for light terminals

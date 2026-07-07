@@ -49,7 +49,7 @@
         ]
     },
     "bin": [
-        "customizer"
+        "tui"
     ],
     "config": {
         "allow-plugins": {
