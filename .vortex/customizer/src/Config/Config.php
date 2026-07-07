@@ -38,6 +38,10 @@ final readonly class Config {
    *   Field-less processors that always run, each an id (resolved to a handler)
    *   and a weight. Used to bookend field processing (e.g. carry ".env" first,
    *   clean up last).
+   * @param bool|null $color
+   *   Force ANSI colour on/off in the interactive TUI; NULL auto-detects.
+   * @param bool|null $unicode
+   *   Force Unicode/ASCII glyphs in the interactive TUI; NULL auto-detects.
    */
   public function __construct(
     public string $title,
@@ -51,6 +55,8 @@ final readonly class Config {
     public string $cancelLabel = 'Cancel',
     public bool $clearOnExit = TRUE,
     public array $processors = [],
+    public ?bool $color = NULL,
+    public ?bool $unicode = NULL,
   ) {
   }
 

@@ -118,13 +118,16 @@ final class Customizer {
     $this->engine->collect([], $this->context($directory, FALSE, $version));
 
     // The theme comes from the argument, then the config, then dark; the banner
-    // from the argument, then the config.
+    // from the argument, then the config. Colour and Unicode come from the
+    // config when set, otherwise they are auto-detected from the environment.
     $theme_name = $theme !== '' ? $theme : ($this->config->theme !== '' ? $this->config->theme : 'dark');
     $banner_text = $banner !== '' ? $banner : $this->config->banner;
+    $color = $this->config->color ?? Theme::detectColor();
+    $unicode = $this->config->unicode ?? Theme::detectUnicode();
 
     $controller = new PanelController(
       $this->config,
-      Theme::create($theme_name),
+      Theme::create($theme_name, $color, 76, $unicode),
       $this->engine->answers()->values,
       $this->engine->answers()->provenance,
       $banner_text,

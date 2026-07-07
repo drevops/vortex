@@ -142,6 +142,18 @@ final class ConfigLoaderTest extends TestCase {
     $this->assertSame("a\nb", (new ConfigLoader())->fromArray(['banner' => "a\nb", 'panels' => []])->banner);
   }
 
+  public function testColorAndUnicode(): void {
+    // Absent keys stay NULL so the TUI auto-detects.
+    $default = (new ConfigLoader())->fromArray(['panels' => []]);
+    $this->assertNull($default->color);
+    $this->assertNull($default->unicode);
+
+    // Present keys force the mode.
+    $forced = (new ConfigLoader())->fromArray(['color' => FALSE, 'unicode' => TRUE, 'panels' => []]);
+    $this->assertFalse($forced->color);
+    $this->assertTrue($forced->unicode);
+  }
+
   public function testProcessors(): void {
     // A non-array processors value yields none.
     $this->assertSame([], (new ConfigLoader())->fromArray(['processors' => 'x', 'panels' => []])->processors);

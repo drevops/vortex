@@ -66,6 +66,8 @@ class ConfigLoader {
       $cancel_label,
       (bool) ($data['clear_on_exit'] ?? TRUE),
       $this->buildProcessors($data['processors'] ?? []),
+      $this->toNullableBool($data['color'] ?? NULL),
+      $this->toNullableBool($data['unicode'] ?? NULL),
     );
   }
 
@@ -276,6 +278,16 @@ class ConfigLoader {
    */
   protected function toInt(mixed $value): int {
     return is_scalar($value) ? (int) $value : 0;
+  }
+
+  /**
+   * Coerce a value to a nullable bool (NULL stays NULL, for "auto-detect").
+   *
+   * @param mixed $value
+   *   The decoded value.
+   */
+  protected function toNullableBool(mixed $value): ?bool {
+    return $value === NULL ? NULL : (bool) $value;
   }
 
 }
