@@ -117,6 +117,45 @@ final class PanelControllerTest extends TestCase {
     $this->assertStringContainsString('[ Submit ]', Ansi::strip($controller->frame(12)));
   }
 
+  public function testEditingFrameShowsStatusLine(): void {
+    $controller = $this->controller();
+    $controller->handle(Key::named(KeyName::Enter));
+    $controller->handle(Key::named(KeyName::Enter));
+    $this->assertTrue($controller->isEditing());
+
+    // The status-line hint stays visible while editing a field.
+    $this->assertStringContainsString('move', Ansi::strip($controller->frame(12)));
+  }
+
+  public function testButtonsNavigateWithLeftRight(): void {
+    $controller = $this->controller();
+
+    // Past the two sub-panels to Submit (index 2).
+    $controller->handle(Key::named(KeyName::Down));
+    $controller->handle(Key::named(KeyName::Down));
+    $this->assertSame(2, $controller->cursor());
+
+    // Right moves to Cancel, Left moves back to Submit.
+    $controller->handle(Key::named(KeyName::Right));
+    $this->assertSame(3, $controller->cursor());
+    $controller->handle(Key::named(KeyName::Left));
+    $this->assertSame(2, $controller->cursor());
+
+    // Left on the first button clamps.
+    $controller->handle(Key::named(KeyName::Left));
+    $this->assertSame(2, $controller->cursor());
+  }
+
+  public function testLeftRightIgnoredOffButtons(): void {
+    $controller = $this->controller();
+
+    // On a normal item, Left/Right do nothing.
+    $controller->handle(Key::named(KeyName::Right));
+    $this->assertSame(0, $controller->cursor());
+    $controller->handle(Key::named(KeyName::Left));
+    $this->assertSame(0, $controller->cursor());
+  }
+
   public function testEditFieldReturnsWithValue(): void {
     $controller = $this->controller();
     $controller->handle(Key::named(KeyName::Enter));

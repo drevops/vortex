@@ -234,7 +234,9 @@ class PanelController {
    */
   public function frame(int $height = 12): string {
     if ($this->editor instanceof WidgetInterface) {
-      return ($this->editing instanceof Field ? $this->editing->label : '') . "\n" . $this->editor->view($this->theme);
+      $label = $this->editing instanceof Field ? $this->editing->label : '';
+
+      return $label . "\n" . $this->editor->view($this->theme) . "\n\n" . $this->theme->renderStatusLine();
     }
 
     $panel = $this->navigator->current();
@@ -326,6 +328,13 @@ class PanelController {
     }
     elseif ($key->is(KeyName::Down)) {
       $this->cursor = min(max(0, $count - 1), $this->cursor + 1);
+    }
+    elseif ($key->is(KeyName::Left) || $key->is(KeyName::Right)) {
+      // The submit/cancel buttons are inline, so Left/Right moves between them.
+      $base = $this->theme->itemCount($this->navigator->current());
+      if ($this->buttonsVisible() && $this->cursor >= $base) {
+        $this->cursor = max($base, min($count - 1, $this->cursor + ($key->is(KeyName::Right) ? 1 : -1)));
+      }
     }
     elseif ($key->is(KeyName::Escape)) {
       if ($this->navigator->pop()) {
