@@ -54,13 +54,15 @@ abstract class Theme {
    * Construct a theme.
    *
    * @param bool $color
-   *   Whether colour is enabled.
+   *   Whether colour (ANSI) is enabled.
    * @param int $width
    *   The frame width used for right-aligned badges.
+   * @param bool $unicode
+   *   Whether Unicode glyphs are used; FALSE falls back to ASCII glyphs.
    */
-  public function __construct(protected bool $color = TRUE, protected int $width = 76) {
+  public function __construct(protected bool $color = TRUE, protected int $width = 76, protected bool $unicode = TRUE) {
     $this->styles = $this->defineStyles();
-    $this->glyphs = $this->defineGlyphs();
+    $this->glyphs = $this->unicode ? $this->defineGlyphs() : $this->defineAsciiGlyphs();
   }
 
   /**
@@ -88,6 +90,34 @@ abstract class Theme {
       'arrow_down' => '↓',
       'enter' => '↵',
       'dot' => '·',
+      'radio_on' => '●',
+      'radio_off' => '○',
+      'check_on' => '◼',
+      'check_off' => '◻',
+    ];
+  }
+
+  /**
+   * The ASCII fallback glyphs, used when Unicode is disabled.
+   *
+   * @return array<string,string>
+   *   The glyphs, keyed by name.
+   */
+  protected function defineAsciiGlyphs(): array {
+    return [
+      'marker' => '>',
+      'indicator_up' => '^',
+      'indicator_down' => 'v',
+      'separator' => '>',
+      'arrow' => '>',
+      'arrow_up' => '^',
+      'arrow_down' => 'v',
+      'enter' => '<',
+      'dot' => '*',
+      'radio_on' => '(*)',
+      'radio_off' => '( )',
+      'check_on' => '[x]',
+      'check_off' => '[ ]',
     ];
   }
 
@@ -118,16 +148,54 @@ abstract class Theme {
    *   Whether colour is enabled.
    * @param int $width
    *   The frame width.
+   * @param bool $unicode
+   *   Whether Unicode glyphs are used (FALSE falls back to ASCII).
    *
    * @return \DrevOps\Customizer\Tui\Theme
    *   The theme instance.
    */
-  public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76): Theme {
+  public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76, bool $unicode = TRUE): Theme {
     $name = $name === 'default' ? 'dark' : $name;
 
     $class = static::$registry[$name] ?? (is_subclass_of($name, self::class) ? $name : DarkTheme::class);
 
-    return new $class($color, $width);
+    return new $class($color, $width, $unicode);
+  }
+
+  /**
+   * Detect whether the environment advertises a Unicode-capable locale.
+   *
+   * Mirrors prompty: the first set of LC_ALL, LC_CTYPE or LANG decides, and a
+   * "UTF" locale enables Unicode. An unset locale falls back to ASCII.
+   *
+   * @return bool
+   *   TRUE when a UTF locale is advertised.
+   */
+  public static function detectUnicode(): bool {
+    foreach (['LC_ALL', 'LC_CTYPE', 'LANG'] as $var) {
+      $value = getenv($var);
+      if (is_string($value) && $value !== '') {
+        return stripos($value, 'utf') !== FALSE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Detect whether the environment supports ANSI colour.
+   *
+   * Honours the NO_COLOR convention and the "dumb" terminal.
+   *
+   * @return bool
+   *   TRUE unless NO_COLOR is set or TERM is "dumb".
+   */
+  public static function detectColor(): bool {
+    if (getenv('NO_COLOR') !== FALSE) {
+      return FALSE;
+    }
+
+    return getenv('TERM') !== 'dumb';
   }
 
   /**
@@ -179,6 +247,16 @@ abstract class Theme {
    */
   public function hasColor(): bool {
     return $this->color;
+  }
+
+  /**
+   * Whether Unicode glyphs are enabled.
+   *
+   * @return bool
+   *   TRUE when Unicode glyphs are used, FALSE for the ASCII fallback.
+   */
+  public function hasUnicode(): bool {
+    return $this->unicode;
   }
 
   /**

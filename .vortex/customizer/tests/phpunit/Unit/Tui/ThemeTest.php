@@ -89,4 +89,75 @@ final class ThemeTest extends TestCase {
     $this->assertFalse($theme->hasColor());
   }
 
+  public function testUnicodeGlyphs(): void {
+    $theme = new DarkTheme();
+
+    $this->assertTrue($theme->hasUnicode());
+    $this->assertSame('●', $theme->glyph('radio_on'));
+    $this->assertSame('◼', $theme->glyph('check_on'));
+  }
+
+  public function testAsciiGlyphs(): void {
+    $theme = new DarkTheme(TRUE, 76, FALSE);
+
+    $this->assertFalse($theme->hasUnicode());
+    $this->assertSame('>', $theme->glyph('marker'));
+    $this->assertSame('(*)', $theme->glyph('radio_on'));
+    $this->assertSame('[ ]', $theme->glyph('check_off'));
+  }
+
+  public function testCreatePassesUnicode(): void {
+    $this->assertFalse(Theme::create('dark', TRUE, 76, FALSE)->hasUnicode());
+    $this->assertTrue(Theme::create('dark')->hasUnicode());
+  }
+
+  #[DataProvider('dataProviderDetectUnicode')]
+  public function testDetectUnicode(?string $lc_all, ?string $lc_ctype, ?string $lang, bool $expected): void {
+    $restore = [];
+    foreach (['LC_ALL' => $lc_all, 'LC_CTYPE' => $lc_ctype, 'LANG' => $lang] as $var => $value) {
+      $restore[$var] = getenv($var);
+      is_string($value) ? putenv($var . '=' . $value) : putenv($var);
+    }
+
+    try {
+      $this->assertSame($expected, Theme::detectUnicode());
+    }
+    finally {
+      foreach ($restore as $var => $value) {
+        is_string($value) ? putenv($var . '=' . $value) : putenv($var);
+      }
+    }
+  }
+
+  public static function dataProviderDetectUnicode(): \Iterator {
+    yield 'utf lang' => [NULL, NULL, 'en_US.UTF-8', TRUE];
+    yield 'non-utf lang' => [NULL, NULL, 'C', FALSE];
+    yield 'lc_all wins over lang' => ['en_AU.UTF-8', NULL, 'C', TRUE];
+    yield 'lc_ctype checked before lang' => [NULL, 'POSIX', 'en_US.UTF-8', FALSE];
+    yield 'none set falls back to ascii' => [NULL, NULL, NULL, FALSE];
+  }
+
+  #[DataProvider('dataProviderDetectColor')]
+  public function testDetectColor(?string $no_color, ?string $term, bool $expected): void {
+    $restore = ['NO_COLOR' => getenv('NO_COLOR'), 'TERM' => getenv('TERM')];
+    is_string($no_color) ? putenv('NO_COLOR=' . $no_color) : putenv('NO_COLOR');
+    is_string($term) ? putenv('TERM=' . $term) : putenv('TERM');
+
+    try {
+      $this->assertSame($expected, Theme::detectColor());
+    }
+    finally {
+      foreach ($restore as $var => $value) {
+        is_string($value) ? putenv($var . '=' . $value) : putenv($var);
+      }
+    }
+  }
+
+  public static function dataProviderDetectColor(): \Iterator {
+    yield 'normal terminal' => [NULL, 'xterm-256color', TRUE];
+    yield 'no_color set' => ['1', 'xterm', FALSE];
+    yield 'dumb terminal' => [NULL, 'dumb', FALSE];
+    yield 'no_color empty still disables' => ['', 'xterm', FALSE];
+  }
+
 }
