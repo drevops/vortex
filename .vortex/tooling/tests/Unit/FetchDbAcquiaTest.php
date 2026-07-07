@@ -14,15 +14,20 @@ class FetchDbAcquiaTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_KEY', 'test-key');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_SECRET', 'test-secret');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_APP_NAME', 'myapp');
-    $this->envSet('VORTEX_FETCH_DB_ENVIRONMENT', 'prod');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_NAME', 'mydb');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_DIR', self::$tmp . '/data');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_FILE', 'db.sql');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL', '1');
-    $this->envSet('VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT', '3');
+    $this->envSetMultiple([
+      'VORTEX_FETCH_DB_ACQUIA_KEY' => 'test-key',
+      'VORTEX_FETCH_DB_ACQUIA_SECRET' => 'test-secret',
+      'VORTEX_FETCH_DB_ACQUIA_APP_NAME' => 'myapp',
+      'VORTEX_FETCH_DB_ENVIRONMENT' => 'prod',
+      'VORTEX_FETCH_DB_ACQUIA_DB_NAME' => 'mydb',
+      'VORTEX_FETCH_DB_ACQUIA_DB_DIR' => self::$tmp . '/data',
+      'VORTEX_FETCH_DB_ACQUIA_DB_FILE' => 'db.sql',
+      'VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL' => '1',
+      'VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT' => '3',
+      'VORTEX_ACLI_PATH' => self::$tmp,
+    ]);
+
+    mkdir(self::$tmp . '/data', 0755, TRUE);
   }
 
   public function testMissingKey(): void {
@@ -58,381 +63,346 @@ class FetchDbAcquiaTest extends UnitTestCase {
     $this->runScriptError('src/vortex-fetch-db-acquia', 'Missing required value for VORTEX_FETCH_DB_ACQUIA_DB_NAME');
   }
 
-  public function testCachedDecompressedFile(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
+  public function testApplicationNotFound(): void {
+    $this->mockCommandExists();
 
-    // Pre-create the decompressed file with backup_id=12345.
-    file_put_contents($db_dir . '/mydb_backup_12345.sql', 'SQL DUMP');
-
-    $this->mockRequestMultiple([
-      // Token.
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      // App UUID.
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      // Env ID.
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      // Backups list.
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
-      ],
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([]), 'result_code' => 0],
     ]);
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to find the Acquia application "myapp".');
+  }
+
+  public function testEnvironmentNotFound(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple([
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([['name' => 'myapp', 'uuid' => 'app-uuid-123']]), 'result_code' => 0],
+      ['cmd' => $this->envListCmd(), 'output' => $this->envsJson([]), 'result_code' => 0],
+    ]);
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to find the Acquia environment "prod".');
+  }
+
+  public function testNoBackups(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson([]), 'result_code' => 0],
+    ]));
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'No completed backups found for database "mydb" in environment "prod".');
+  }
+
+  public function testCachedDecompressedFile(): void {
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql', 'SQL DUMP');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]));
 
     $output = $this->runScript('src/vortex-fetch-db-acquia');
 
     $this->assertStringContainsString('Found existing cached DB file', $output);
-    $this->assertStringContainsString('Finished database dump download from Acquia.', $output);
-    // The file should be renamed to the final path.
-    $this->assertFileExists($db_dir . '/db.sql');
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+    $this->assertFileExists(self::$tmp . '/data/db.sql');
   }
 
   public function testCachedGzFile(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql.gz', $this->gzipBody('SQL DUMP FROM ACQUIA'));
 
-    // Pre-create the gz file with valid gzip content.
-    $gzipped = gzencode('SQL DUMP FROM ACQUIA');
-    file_put_contents($db_dir . '/mydb_backup_12345.sql.gz', $gzipped);
+    $this->mockCommandExists();
 
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
-      ],
-    ]);
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]));
 
     $output = $this->runScript('src/vortex-fetch-db-acquia');
 
     $this->assertStringContainsString('Found existing cached gzipped DB file', $output);
-    $this->assertStringContainsString('Expanding DB file', $output);
-    $this->assertStringContainsString('Finished database dump download from Acquia.', $output);
-    // Final renamed file should exist.
-    $this->assertFileExists($db_dir . '/db.sql');
-    $this->assertEquals('SQL DUMP FROM ACQUIA', file_get_contents($db_dir . '/db.sql'));
-    // Gz file should be cleaned up.
-    $this->assertFileDoesNotExist($db_dir . '/mydb_backup_12345.sql.gz');
+    $this->assertStringContainsString('Expanding', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'SQL DUMP FROM ACQUIA');
+    $this->assertFileDoesNotExist(self::$tmp . '/data/mydb_backup_12345.sql.gz');
+  }
+
+  public function testDownloadAndDecompress(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+      ['cmd' => $this->backupDownloadCmd('12345'), 'output' => $this->downloadJson('https://acquia-backup.s3.amazonaws.com/backup.sql.gz'), 'result_code' => 0],
+    ]));
+
+    $this->mockRequest('https://acquia-backup.s3.amazonaws.com/backup.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('DOWNLOADED SQL DUMP')]);
+
+    $output = $this->runScript('src/vortex-fetch-db-acquia');
+
+    $this->assertStringContainsString('Discovered the backup download URL.', $output);
+    $this->assertStringContainsString('Downloaded the database backup.', $output);
+    $this->assertStringContainsString('Expanding', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'DOWNLOADED SQL DUMP');
+  }
+
+  public function testDownloadUrlEmpty(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+      ['cmd' => $this->backupDownloadCmd('12345'), 'output' => '{}', 'result_code' => 0],
+    ]));
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to discover the download URL for backup "12345".');
   }
 
   public function testDownloadRequestFails(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
+    $this->mockCommandExists();
 
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
-      ],
-      // Backup download URL: 200 response with the URL in the JSON body.
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups/12345/actions/download',
-        'response' => ['body' => json_encode(['url' => 'https://acquia-backup.s3.amazonaws.com/backup.sql.gz'])],
-      ],
-      // Download request fails.
-      [
-        'url' => 'https://acquia-backup.s3.amazonaws.com/backup.sql.gz',
-        'method' => 'GET',
-        'response' => ['ok' => FALSE, 'status' => 500, 'body' => ''],
-      ],
-    ]);
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+      ['cmd' => $this->backupDownloadCmd('12345'), 'output' => $this->downloadJson('https://acquia-backup.s3.amazonaws.com/backup.sql.gz'), 'result_code' => 0],
+    ]));
 
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to download database mydb');
+    $this->mockRequest('https://acquia-backup.s3.amazonaws.com/backup.sql.gz', ['method' => 'GET'], ['status' => 500, 'ok' => FALSE, 'body' => '', 'error' => 'Server error']);
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to download database "mydb" backup "12345"');
+  }
+
+  public function testDownloadEmptyFile(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+      ['cmd' => $this->backupDownloadCmd('12345'), 'output' => $this->downloadJson('https://acquia-backup.s3.amazonaws.com/backup.sql.gz'), 'result_code' => 0],
+    ]));
+
+    $this->mockRequest('https://acquia-backup.s3.amazonaws.com/backup.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => '']);
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Downloaded file is empty or missing');
   }
 
   public function testInvalidGzip(): void {
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
-
-    // Pre-create an invalid gz file.
-    $invalid_gz = $db_dir . '/mydb_backup_12345.sql.gz';
+    $invalid_gz = self::$tmp . '/data/mydb_backup_12345.sql.gz';
     file_put_contents($invalid_gz, 'NOT VALID GZIP DATA');
 
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
-      ],
-    ]);
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]));
 
     $this->runScriptError('src/vortex-fetch-db-acquia', 'Downloaded file is not a valid gzip archive');
 
-    // Invalid file is left in place for inspection.
+    // The invalid file is left in place for inspection.
     $this->assertFileExists($invalid_gz);
   }
 
-  public function testNoBackups(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
+  public function testEmptyGzipDecompressesToNothing(): void {
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql.gz', $this->gzipBody(''));
 
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => []]])],
-      ],
-    ]);
+    $this->mockCommandExists();
 
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'No backups found for database');
-  }
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]));
 
-  public function testBackupUrlEmpty(): void {
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
-      ],
-      // Backup download URL: API responds with 200 but no URL in the body.
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups/12345/actions/download',
-        'response' => ['body' => json_encode([])],
-      ],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to discover backup URL');
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Downloaded file is not a valid gzip archive');
   }
 
   public function testFreshBackup(): void {
     $this->mockSleep();
     $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
 
-    $db_dir = self::$tmp . '/data';
-    mkdir($db_dir, 0755, TRUE);
+    file_put_contents(self::$tmp . '/data/mydb_backup_99999.sql.gz', $this->gzipBody('FRESH SQL DUMP'));
 
-    // Pre-create the gz file to test decompress path (skip download).
-    $gzipped = gzencode('FRESH SQL DUMP');
-    file_put_contents($db_dir . '/mydb_backup_99999.sql.gz', $gzipped);
+    $this->mockCommandExists();
 
-    $this->mockRequestMultiple([
-      // Token.
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      // App UUID.
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      // Env ID.
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      // Create backup.
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups',
-        'response' => ['body' => json_encode(['_links' => ['notification' => ['href' => 'https://cloud.acquia.com/api/notifications/backup-create']]])],
-      ],
-      // Backup creation polling: status completed.
-      [
-        'url' => 'https://cloud.acquia.com/api/notifications/backup-create',
-        'response' => ['body' => json_encode(['status' => 'completed'])],
-      ],
-      // List backups (after creation).
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '99999']]]])],
-      ],
-    ]);
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupCreateCmd(), 'output' => '', 'result_code' => 0],
+      // Poll: the new backup is already listed as completed.
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['99999']), 'result_code' => 0],
+      // Latest-backup lookup after the fresh block.
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['99999']), 'result_code' => 0],
+    ]));
 
     $output = $this->runScript('src/vortex-fetch-db-acquia');
 
-    $this->assertStringContainsString('Creating new database backup for mydb.', $output);
-    $this->assertStringContainsString('Backup completed successfully.', $output);
-    $this->assertStringContainsString('Expanding DB file', $output);
-    $this->assertStringContainsString('Finished database dump download from Acquia.', $output);
-    $this->assertFileExists($db_dir . '/db.sql');
-    $this->assertEquals('FRESH SQL DUMP', file_get_contents($db_dir . '/db.sql'));
+    $this->assertStringContainsString('Requested a new database backup.', $output);
+    $this->assertStringContainsString('Backup completed.', $output);
+    $this->assertStringContainsString('Expanding', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+    $this->assertStringEqualsFile(self::$tmp . '/data/db.sql', 'FRESH SQL DUMP');
   }
 
   public function testFreshBackupTimeout(): void {
     $this->mockSleep();
     $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
 
-    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->mockCommandExists();
 
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      // Create backup.
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups',
-        'response' => ['body' => json_encode(['_links' => ['notification' => ['href' => 'https://cloud.acquia.com/api/notifications/backup-create']]])],
-      ],
-      // Polling: in_progress for all iterations.
-      [
-        'url' => 'https://cloud.acquia.com/api/notifications/backup-create',
-        'response' => ['body' => json_encode(['status' => 'in_progress'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/notifications/backup-create',
-        'response' => ['body' => json_encode(['status' => 'in_progress'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/notifications/backup-create',
-        'response' => ['body' => json_encode(['status' => 'in_progress'])],
-      ],
-    ]);
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupCreateCmd(), 'output' => '', 'result_code' => 0],
+      // No completed backup ever appears within the max wait window.
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson([]), 'result_code' => 0],
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson([]), 'result_code' => 0],
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson([]), 'result_code' => 0],
+    ]));
 
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Backup creation timed out');
-  }
-
-  public function testFreshBackupFailed(): void {
-    $this->mockSleep();
-    $this->envSet('VORTEX_FETCH_DB_FRESH', '1');
-
-    mkdir(self::$tmp . '/data', 0755, TRUE);
-
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      // Create backup.
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups',
-        'response' => ['body' => json_encode(['_links' => ['notification' => ['href' => 'https://cloud.acquia.com/api/notifications/backup-create']]])],
-      ],
-      // Polling: failed.
-      [
-        'url' => 'https://cloud.acquia.com/api/notifications/backup-create',
-        'response' => ['body' => json_encode(['status' => 'failed'])],
-      ],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Backup creation failed');
-  }
-
-  public function testTokenError(): void {
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['ok' => FALSE, 'status' => 401, 'body' => ''],
-      ],
-    ]);
-
-    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to retrieve a token');
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Backup creation timed out after 3 seconds.');
   }
 
   public function testDirectoryCreation(): void {
-    // Don't pre-create directory - it should be auto-created.
     $db_dir = self::$tmp . '/new-data-dir';
     $this->envSet('VORTEX_FETCH_DB_ACQUIA_DB_DIR', $db_dir);
 
-    // Pre-create the decompressed file (need directory first).
-    mkdir($db_dir, 0755, TRUE);
-    file_put_contents($db_dir . '/mydb_backup_12345.sql', 'SQL DUMP');
+    $this->mockCommandExists();
 
-    $this->mockRequestMultiple([
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-prod']]]])],
-      ],
-      [
-        'url' => 'https://cloud.acquia.com/api/environments/env-id-prod/databases/mydb/backups?sort=created',
-        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => '12345']]]])],
-      ],
-    ]);
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+      ['cmd' => $this->backupDownloadCmd('12345'), 'output' => $this->downloadJson('https://acquia-backup.s3.amazonaws.com/backup.sql.gz'), 'result_code' => 0],
+    ]));
+
+    $this->mockRequest('https://acquia-backup.s3.amazonaws.com/backup.sql.gz', ['method' => 'GET'], ['status' => 200, 'ok' => TRUE, 'body' => $this->gzipBody('DOWNLOADED SQL DUMP')]);
 
     $output = $this->runScript('src/vortex-fetch-db-acquia');
 
+    $this->assertStringContainsString('Creating directory for database dumps.', $output);
     $this->assertTrue(is_dir($db_dir));
-    $this->assertStringContainsString('Finished database dump download from Acquia.', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+  }
+
+  public function testBareArrayBackupList(): void {
+    // Some CLI versions return a bare list instead of an '_embedded' envelope.
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql', 'SQL DUMP');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => json_encode([['id' => '12345', 'completedAt' => '2026-07-07T00:00:00Z']]) ?: '', 'result_code' => 0],
+    ]));
+
+    $output = $this->runScript('src/vortex-fetch-db-acquia');
+
+    $this->assertStringContainsString('Found existing cached DB file', $output);
+    $this->assertStringContainsString('Finished database backup download from Acquia.', $output);
+  }
+
+  public function testDownloadUrlMalformedResponse(): void {
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+      ['cmd' => $this->backupDownloadCmd('12345'), 'output' => 'not-json-at-all', 'result_code' => 0],
+    ]));
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to discover the download URL for backup "12345".');
+  }
+
+  public function testRenameFailure(): void {
+    // A cached decompressed dump goes straight to the rename step.
+    file_put_contents(self::$tmp . '/data/mydb_backup_12345.sql', 'SQL DUMP');
+    // Make the destination a non-empty directory so the rename cannot succeed.
+    mkdir(self::$tmp . '/data/db.sql', 0755, TRUE);
+    file_put_contents(self::$tmp . '/data/db.sql/blocker', 'x');
+
+    $this->mockCommandExists();
+
+    $this->mockPassthruMultiple(array_merge($this->discoveryMocks(), [
+      ['cmd' => $this->backupListCmd(), 'output' => $this->backupsJson(['12345']), 'result_code' => 0],
+    ]));
+
+    $this->runScriptError('src/vortex-fetch-db-acquia', 'Unable to rename file');
+  }
+
+  /**
+   * The version and application/environment discovery command mocks.
+   *
+   * @return array<int, array{cmd: string, output: string, result_code: int}>
+   *   The ordered passthru mocks shared by the discovery phase.
+   */
+  protected function discoveryMocks(): array {
+    return [
+      ['cmd' => $this->versionCmd(), 'output' => 'Acquia CLI 2.61.3', 'result_code' => 0],
+      ['cmd' => $this->appsListCmd(), 'output' => $this->appsJson([['name' => 'myapp', 'uuid' => 'app-uuid-123']]), 'result_code' => 0],
+      ['cmd' => $this->envListCmd(), 'output' => $this->envsJson([['name' => 'prod', 'id' => 'env-id-prod']]), 'result_code' => 0],
+    ];
+  }
+
+  protected function acliHome(): string {
+    return self::$tmp . '/acli-home-' . getmypid();
+  }
+
+  protected function acliCmd(string $subcommand): string {
+    return sprintf('ACLI_HOME=%s ACLI_KEY=%s ACLI_SECRET=%s ACLI_NO_TELEMETRY=1 %s %s --no-interaction 2>&1', escapeshellarg($this->acliHome()), escapeshellarg('test-key'), escapeshellarg('test-secret'), escapeshellarg('acli'), $subcommand);
+  }
+
+  protected function versionCmd(): string {
+    return $this->acliCmd('--version');
+  }
+
+  protected function appsListCmd(): string {
+    return $this->acliCmd('api:applications:list');
+  }
+
+  protected function envListCmd(string $uuid = 'app-uuid-123'): string {
+    return $this->acliCmd('api:applications:environment-list ' . escapeshellarg($uuid));
+  }
+
+  protected function backupCreateCmd(string $env = 'env-id-prod', string $db = 'mydb'): string {
+    return $this->acliCmd('api:environments:database-backup-create ' . escapeshellarg($env) . ' ' . escapeshellarg($db));
+  }
+
+  protected function backupListCmd(string $env = 'env-id-prod', string $db = 'mydb'): string {
+    return $this->acliCmd('api:environments:database-backup-list ' . escapeshellarg($env) . ' ' . escapeshellarg($db));
+  }
+
+  protected function backupDownloadCmd(string $id, string $env = 'env-id-prod', string $db = 'mydb'): string {
+    return $this->acliCmd('api:environments:database-backup-download ' . escapeshellarg($env) . ' ' . escapeshellarg($db) . ' ' . escapeshellarg($id));
+  }
+
+  /**
+   * Encodes an application list response.
+   *
+   * @param array<int, array<string, string>> $apps
+   *   The application records.
+   */
+  protected function appsJson(array $apps): string {
+    return json_encode(['_embedded' => ['items' => $apps]]) ?: '';
+  }
+
+  /**
+   * Encodes an environment list response.
+   *
+   * @param array<int, array<string, string>> $envs
+   *   The environment records.
+   */
+  protected function envsJson(array $envs): string {
+    return json_encode(['_embedded' => ['items' => $envs]]) ?: '';
+  }
+
+  /**
+   * Encodes a backup list response from completed backup ids.
+   *
+   * @param array<int, string> $ids
+   *   The completed backup ids.
+   */
+  protected function backupsJson(array $ids): string {
+    $items = array_map(fn(string $id): array => ['id' => $id, 'completedAt' => '2026-07-07T00:00:00Z'], $ids);
+
+    return json_encode(['_embedded' => ['items' => $items]]) ?: '';
+  }
+
+  protected function downloadJson(string $url): string {
+    return json_encode(['url' => $url]) ?: '';
+  }
+
+  protected function gzipBody(string $content): string {
+    return gzencode($content) ?: '';
   }
 
 }

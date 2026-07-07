@@ -550,6 +550,116 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
 }
 
 /**
+ * Resolve the Acquia CLI binary, installing it on demand.
+ *
+ * Prefers an 'acli' already available on PATH. Otherwise reuses a phar
+ * previously downloaded to the cache directory, or downloads it there once.
+ * This lets the same scripts run where acli is not pre-installed, without
+ * re-downloading on every invocation. The Acquia CLI ships as a
+ * platform-independent PHP phar, so there is no per-architecture asset.
+ *
+ * @return string
+ *   Path to the Acquia CLI binary.
+ */
+function acli_resolve(): string {
+  if (command_path('acli')) {
+    note('Using the Acquia CLI found on PATH.');
+    return 'acli';
+  }
+
+  $dir = (string) getenv_default('VORTEX_ACLI_PATH', '.artifacts/tmp');
+  $version = getenv_default('VORTEX_ACLI_VERSION', '2.61.3');
+  $bin = $dir . '/acli';
+
+  if (is_executable($bin)) {
+    note('Reusing the Acquia CLI previously downloaded to "%s".', $bin);
+    return $bin;
+  }
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  $url = sprintf('https://github.com/acquia/cli/releases/download/%s/acli.phar', $version);
+
+  task('Downloading the Acquia CLI "%s" to "%s".', $version, $bin);
+  $response = request($url, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
+  if (!$response['ok']) {
+    @unlink($bin);
+    fail('Failed to download the Acquia CLI from "%s": %s', $url, $response['error'] ?? 'Unknown error');
+  }
+
+  chmod($bin, 0755);
+
+  return $bin;
+}
+
+/**
+ * Path to an ephemeral Acquia CLI home directory scoped to a single run.
+ *
+ * Pointing 'ACLI_HOME' at a throwaway directory keeps acli's credentials,
+ * cached tokens and active-environment state out of a developer's global
+ * '~/.acquia' configuration. The directory name is suffixed with the process
+ * ID so concurrent runs sharing the cache directory do not clash.
+ *
+ * @return string
+ *   Path to the home directory; it is created if missing.
+ */
+function acli_home(): string {
+  $dir = (string) getenv_default('VORTEX_ACLI_PATH', '.artifacts/tmp');
+  $home = $dir . '/acli-home-' . getmypid();
+
+  if (!is_dir($home)) {
+    mkdir($home, 0755, TRUE);
+  }
+
+  return $home;
+}
+
+/**
+ * Run an Acquia CLI subcommand and capture its output.
+ *
+ * The isolated home directory and API credentials are threaded from the context
+ * so acli authenticates headlessly without touching the global '~/.acquia'
+ * configuration; command-specific arguments are provided by the caller in the
+ * subcommand.
+ *
+ * @param string $bin
+ *   The Acquia CLI binary.
+ * @param string $subcommand
+ *   The subcommand with its command-specific arguments.
+ * @param array{home: string, key: string, secret: string} $ctx
+ *   Execution context: the isolated ACLI_HOME and the API key and secret.
+ * @param int|null $exit_code
+ *   (optional) Variable to capture the exit code. Pass an initialised variable
+ *   (e.g. `$exit_code = 0`) to suppress the automatic fail() on non-zero exit.
+ *
+ * @param-out int $exit_code
+ *
+ * @return string
+ *   The captured command output.
+ */
+function acli_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code = NULL): string {
+  $env = sprintf('ACLI_HOME=%s ACLI_KEY=%s ACLI_SECRET=%s ACLI_NO_TELEMETRY=1', escapeshellarg($ctx['home']), escapeshellarg($ctx['key']), escapeshellarg($ctx['secret']));
+  $cmd = sprintf('%s %s %s --no-interaction 2>&1', $env, escapeshellarg($bin), $subcommand);
+
+  $exit_code_provided = $exit_code !== NULL;
+  if (!$exit_code_provided) {
+    $exit_code = 0;
+  }
+
+  ob_start();
+  passthru($cmd, $exit_code);
+  $output = ob_get_clean();
+
+  if (!$exit_code_provided && $exit_code !== 0) {
+    fail('Acquia CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+  }
+
+  return $output === FALSE ? '' : $output;
+}
+
+/**
  * Recursively copy a directory.
  *
  * @param string $src
