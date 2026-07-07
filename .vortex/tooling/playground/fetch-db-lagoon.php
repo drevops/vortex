@@ -76,8 +76,11 @@ if (is_file($dest)) {
 }
 
 echo "Running vortex-fetch-db-lagoon...\n\n";
-$exit_code = 0;
-passthru('php ' . escapeshellarg(__DIR__ . '/../src/vortex-fetch-db-lagoon'), $exit_code);
+// Inherit the real stdio streams so the script sees a TTY and keeps its colour
+// output; a piped subprocess (passthru) would disable colours.
+$descriptors = [0 => STDIN, 1 => STDOUT, 2 => STDERR];
+$process = proc_open('php ' . escapeshellarg(__DIR__ . '/../src/vortex-fetch-db-lagoon'), $descriptors, $pipes);
+$exit_code = is_resource($process) ? proc_close($process) : 1;
 
 echo "\n";
 echo "Exit code: " . $exit_code . "\n";
