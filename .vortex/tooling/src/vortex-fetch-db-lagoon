@@ -175,7 +175,10 @@ function lagoon_wait_dump_task(string $bin, array $ctx, string $task_id, int $re
       fail('Database dump task "%s" %s.', $task_id, $status);
     }
 
-    sleep($interval);
+    for ($second = 0; $second < $interval; $second++) {
+      sleep(1);
+      progress_dot();
+    }
   }
 
   fail('Timed out waiting for the database dump task "%s".', $task_id);
@@ -228,7 +231,7 @@ function lagoon_dump_task_url(string $bin, array $ctx, string $task_id): string 
 function lagoon_download_dump(string $url, string $dest, int $timeout): bool {
   $archive = $dest . '.gz';
 
-  $response = request($url, ['method' => 'GET', 'save_to' => $archive, 'timeout' => $timeout]);
+  $response = request($url, ['method' => 'GET', 'save_to' => $archive, 'timeout' => $timeout, 'progress' => TRUE]);
   $valid_gzip = $response['ok'] && is_file($archive) && file_get_contents($archive, FALSE, NULL, 0, 2) === "\x1f\x8b";
 
   if (!$valid_gzip) {
@@ -320,8 +323,9 @@ if (!$reused) {
   $task_id = lagoon_create_dump_task($bin, $ctx, $environment);
   pass(sprintf('Requested database dump task "%s".', $task_id));
 
-  task('Waiting for the database dump to complete.');
-  lagoon_wait_dump_task($bin, $ctx, $task_id, $status_retries, $status_interval);
+  task_progress('Waiting for the database dump to complete.', function () use ($bin, $ctx, $task_id, $status_retries, $status_interval): void {
+    lagoon_wait_dump_task($bin, $ctx, $task_id, $status_retries, $status_interval);
+  });
   pass('Database dump completed.');
 
   $download_url = lagoon_dump_task_url($bin, $ctx, $task_id);
@@ -329,8 +333,8 @@ if (!$reused) {
     fail('The database dump task "%s" produced no downloadable file.', $task_id);
   }
 
-  task('Downloading the database dump.');
-  if (!lagoon_download_dump($download_url, $dest, $download_timeout)) {
+  $downloaded = task_progress('Downloading the database dump.', fn(): bool => lagoon_download_dump($download_url, $dest, $download_timeout));
+  if (!$downloaded) {
     fail('Failed to download the database dump from Lagoon.');
   }
   pass('Downloaded the database dump.');

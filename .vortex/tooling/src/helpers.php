@@ -232,6 +232,44 @@ function fail_no_exit(string $format, ...$args): void {
 }
 
 /**
+ * Run an operation under a task line that stays open for progress dots.
+ *
+ * Prints the task line without a trailing newline, runs the operation - which
+ * emits its own progress dots while it works (see progress_dot()) - then closes
+ * the line. This keeps long-running steps such as downloads and status polling
+ * visibly alive instead of appearing to hang.
+ *
+ * @param string $message
+ *   The already-formatted task message.
+ * @param callable $operation
+ *   The work to run; its return value is passed through unchanged.
+ *
+ * @return mixed
+ *   Whatever $operation returns.
+ */
+function task_progress(string $message, callable $operation): mixed {
+  echo term_supports_color() ? "\033[34m[TASK] " . $message . "\033[0m" : '[TASK] ' . $message;
+
+  try {
+    return $operation();
+  }
+  finally {
+    echo PHP_EOL;
+  }
+}
+
+/**
+ * Emit a single progress dot for a long-running task and flush it immediately.
+ *
+ * Flushing matters during a blocking transfer so the dots appear as the work
+ * happens rather than all at once when the call returns.
+ */
+function progress_dot(): void {
+  echo '.';
+  flush();
+}
+
+/**
  * Output a failure message.
  *
  * @param string $format
@@ -927,6 +965,24 @@ function request(string $url, array $options = []): array {
       }
       $opts[CURLOPT_FILE] = $save_fh;
       unset($opts[CURLOPT_RETURNTRANSFER]);
+    }
+
+    // Emit a progress dot roughly once per second while the transfer runs.
+    if (!empty($options['progress'])) {
+      $opts[CURLOPT_NOPROGRESS] = FALSE;
+      $opts[CURLOPT_XFERINFOFUNCTION] = static function (mixed $ch, int $dltotal, int $dlnow, int $ultotal, int $ulnow): int {
+        // @codeCoverageIgnoreStart
+        static $last = 0;
+        $now = time();
+
+        if ($dlnow > 0 && $now !== $last) {
+          progress_dot();
+          $last = $now;
+        }
+
+        return 0;
+        // @codeCoverageIgnoreEnd
+      };
     }
 
     curl_setopt_array($ch, $opts);

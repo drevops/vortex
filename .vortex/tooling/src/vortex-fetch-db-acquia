@@ -230,6 +230,43 @@ function acquia_backup_download_url(string $json): string {
   return (string) ($data['_links']['download']['href'] ?? '');
 }
 
+/**
+ * Poll until a completed backup exists, emitting a progress dot each second.
+ *
+ * @param string $bin
+ *   The Acquia CLI binary.
+ * @param array{home: string, key: string, secret: string} $ctx
+ *   Execution context threaded to the CLI.
+ * @param string $env_id
+ *   The environment id to poll.
+ * @param string $db_name
+ *   The database name to poll.
+ * @param int $max_wait
+ *   Maximum time to wait, in seconds.
+ * @param int $interval
+ *   Seconds between backup status checks.
+ *
+ * @return bool
+ *   TRUE when a completed backup appeared within the wait window.
+ */
+function acquia_wait_for_backup(string $bin, array $ctx, string $env_id, string $db_name, int $max_wait, int $interval): bool {
+  $elapsed = 0;
+
+  while ($elapsed < $max_wait) {
+    for ($second = 0; $second < $interval; $second++) {
+      sleep(1);
+      progress_dot();
+    }
+    $elapsed += $interval;
+
+    if (acquia_latest_backup_id(acli_exec($bin, sprintf('api:environments:database-backup-list %s %s', escapeshellarg($env_id), escapeshellarg($db_name)), $ctx)) !== '') {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
 info('Started database backup download from Acquia.');
 
 $bin = acli_resolve();
@@ -278,21 +315,7 @@ if ($fresh === '1') {
   acli_exec($bin, sprintf('api:environments:database-backup-create %s %s', escapeshellarg($env_id), escapeshellarg($db_name)), $ctx);
   pass('Requested a new database backup.');
 
-  task('Waiting for the backup to complete.');
-  $elapsed = 0;
-  $completed = FALSE;
-  while ($elapsed < $backup_max_wait) {
-    sleep($backup_wait_interval);
-    $elapsed += $backup_wait_interval;
-
-    if (acquia_latest_backup_id(acli_exec($bin, sprintf('api:environments:database-backup-list %s %s', escapeshellarg($env_id), escapeshellarg($db_name)), $ctx)) !== '') {
-      $completed = TRUE;
-      break;
-    }
-
-    note(sprintf('Backup in progress (%ds elapsed).', $elapsed));
-  }
-
+  $completed = task_progress('Waiting for the backup to complete.', fn(): bool => acquia_wait_for_backup($bin, $ctx, $env_id, $db_name, $backup_max_wait, $backup_wait_interval));
   if (!$completed) {
     fail('Backup creation timed out after %d seconds.', $backup_max_wait);
   }
@@ -326,8 +349,7 @@ else {
     }
     pass('Discovered the backup download URL.');
 
-    task(sprintf('Downloading the backup into "%s".', $file_name_compressed));
-    $response = request($download_url, ['method' => 'GET', 'save_to' => $file_name_compressed, 'timeout' => 1800]);
+    $response = task_progress(sprintf('Downloading the backup into "%s".', $file_name_compressed), fn(): array => request($download_url, ['method' => 'GET', 'save_to' => $file_name_compressed, 'timeout' => 1800, 'progress' => TRUE]));
     if (!$response['ok']) {
       @unlink($file_name_compressed);
       fail('Unable to download database "%s" backup "%s": %s', $db_name, $backup_id, $response['error'] ?? 'Unknown error');
