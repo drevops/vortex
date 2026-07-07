@@ -135,17 +135,16 @@ if (file_exists($deploy_artifact_root . '/.gitignore.artifact')) {
   copy($deploy_artifact_root . '/.gitignore.artifact', $deploy_artifact_src . '/.gitignore.artifact');
 }
 
-task('Running artifact builder.');
-$git_artifact_args = [
-  escapeshellarg($git_artifact_bin),
-  escapeshellarg($deploy_git_remote),
-  '--root=' . escapeshellarg($deploy_artifact_root),
-  '--src=' . escapeshellarg($deploy_artifact_src),
-  '--branch=' . escapeshellarg($deploy_artifact_dst_branch),
-  '--gitignore=' . escapeshellarg($deploy_artifact_src . '/.gitignore.artifact'),
-  '--log=' . escapeshellarg($deploy_artifact_log),
-  '-vvv',
-];
-passthru_or_fail(implode(' ', $git_artifact_args));
-
-pass('Finished artifact deployment.');
+task('Running artifact builder.', 'Finished artifact deployment.', function () use ($git_artifact_bin, $deploy_git_remote, $deploy_artifact_root, $deploy_artifact_src, $deploy_artifact_dst_branch, $deploy_artifact_log): void {
+  $git_artifact_args = [
+    escapeshellarg($git_artifact_bin),
+    escapeshellarg($deploy_git_remote),
+    '--root=' . escapeshellarg($deploy_artifact_root),
+    '--src=' . escapeshellarg($deploy_artifact_src),
+    '--branch=' . escapeshellarg($deploy_artifact_dst_branch),
+    '--gitignore=' . escapeshellarg($deploy_artifact_src . '/.gitignore.artifact'),
+    '--log=' . escapeshellarg($deploy_artifact_log),
+    '-vvv',
+  ];
+  passthru_or_fail(implode(' ', $git_artifact_args));
+});

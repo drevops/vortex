@@ -110,19 +110,23 @@ note('Headers            : ' . $webhook_headers);
 note('Expected Status    : ' . $webhook_expected_status);
 note('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
 
-task(sprintf('Sending webhook notification to %s', $webhook_domain));
+task(
+  sprintf('Sending webhook notification to %s', $webhook_domain),
+  fn(int $status): string => sprintf('Webhook notification sent successfully with status %s.', $status),
+  function () use ($webhook_url, $webhook_method, $webhook_headers, $webhook_payload, $webhook_expected_status): int {
+    // Send webhook notification.
+    $response = request($webhook_url, [
+      'method' => $webhook_method,
+      'headers' => array_map(trim(...), explode('|', $webhook_headers)),
+      'body' => $webhook_payload,
+    ]);
 
-// Send webhook notification.
-$response = request($webhook_url, [
-  'method' => $webhook_method,
-  'headers' => array_map(trim(...), explode('|', $webhook_headers)),
-  'body' => $webhook_payload,
-]);
+    if ($response['status'] !== (int) $webhook_expected_status) {
+      throw new \RuntimeException(sprintf('Webhook notification failed. Expected status %s but got %s.', $webhook_expected_status, $response['status']));
+    }
 
-if ($response['status'] !== (int) $webhook_expected_status) {
-  fail('Webhook notification failed. Expected status %s but got %s.', $webhook_expected_status, $response['status']);
-}
-
-pass('Webhook notification sent successfully with status %s.', $response['status']);
+    return $response['status'];
+  },
+);
 
 pass('Finished webhook notification.');

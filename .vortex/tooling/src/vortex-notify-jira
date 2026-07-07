@@ -157,29 +157,28 @@ $jira_issue = $matches[2];
 
 pass('Found issue %s.', $jira_issue);
 
-task('Checking API access');
-
 $token = base64_encode(sprintf('%s:%s', $jira_user_email, $jira_api_token));
-$url = sprintf('%s/rest/api/3/myself', $jira_endpoint);
 
-$response = request_get($url, [
-  'Authorization: Basic ' . $token,
-  'Content-Type: application/json',
-]);
+task('Checking API access', fn(string $account_id): string => sprintf('Authenticated as user with account ID %s.', $account_id), function () use ($token, $jira_endpoint): string {
+  $url = sprintf('%s/rest/api/3/myself', $jira_endpoint);
 
-$account_id = 'error';
-if ($response['ok'] && $response['body']) {
-  $payload = json_decode((string) $response['body'], TRUE);
-  $account_id = $payload['accountId'] ?? 'error';
-}
+  $response = request_get($url, [
+    'Authorization: Basic ' . $token,
+    'Content-Type: application/json',
+  ]);
 
-if (strlen((string) $account_id) < 24) {
-  fail('Unable to authenticate');
-}
+  $account_id = 'error';
+  if ($response['ok'] && $response['body']) {
+    $payload = json_decode((string) $response['body'], TRUE);
+    $account_id = $payload['accountId'] ?? 'error';
+  }
 
-pass('Authenticated as user with account ID %s.', $account_id);
+  if (strlen((string) $account_id) < 24) {
+    throw new \RuntimeException('Unable to authenticate');
+  }
 
-task('Posting a comment');
+  return (string) $account_id;
+});
 
 $timestamp = date('d/m/Y H:i:s T');
 
@@ -196,113 +195,121 @@ note('User email     : ' . $jira_user_email);
 note('Transition     : ' . ($jira_transition ?: '<none>'));
 note('Assignee email : ' . ($jira_assignee_email ?: '<none>'));
 
-$payload_data = ['body' => $comment_body];
-$url = sprintf('%s/rest/api/3/issue/%s/comment', $jira_endpoint, $jira_issue);
-$response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
-  'Authorization: Basic ' . $token,
-  'Content-Type: application/json',
-]);
-
-$comment_id = 'error';
-if ($response['ok'] && $response['body']) {
-  $payload = json_decode((string) $response['body'], TRUE);
-  $comment_id = $payload['id'] ?? 'error';
-}
-
-if (!ctype_digit((string) $comment_id)) {
-  fail('Unable to create a comment');
-}
-
-pass('Posted comment with ID %s.', $comment_id);
-
-if (!empty($jira_transition)) {
-  task(sprintf('Discovering transition ID for %s', $jira_transition));
-  $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
-  $response = request_get($url, [
+task('Posting a comment', fn(string $id): string => sprintf('Posted comment with ID %s.', $id), function () use ($token, $jira_endpoint, $jira_issue, $comment_body): string {
+  $payload_data = ['body' => $comment_body];
+  $url = sprintf('%s/rest/api/3/issue/%s/comment', $jira_endpoint, $jira_issue);
+  $response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
     'Authorization: Basic ' . $token,
     'Content-Type: application/json',
   ]);
 
-  $transition_id = NULL;
+  $comment_id = 'error';
   if ($response['ok'] && $response['body']) {
     $payload = json_decode((string) $response['body'], TRUE);
-    if (isset($payload['transitions']) && is_array($payload['transitions'])) {
-      foreach ($payload['transitions'] as $t) {
-        if (isset($t['name']) && $t['name'] === $jira_transition) {
-          $transition_id = $t['id'] ?? NULL;
-          break;
+    $comment_id = $payload['id'] ?? 'error';
+  }
+
+  if (!ctype_digit((string) $comment_id)) {
+    throw new \RuntimeException('Unable to create a comment');
+  }
+
+  return (string) $comment_id;
+});
+
+if (!empty($jira_transition)) {
+  $transition_id = (string) task(
+    sprintf('Discovering transition ID for %s', $jira_transition),
+    fn(string $id): string => sprintf('Found transition ID %s', $id),
+    function () use ($token, $jira_endpoint, $jira_issue, $jira_transition): string {
+      $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
+      $response = request_get($url, [
+        'Authorization: Basic ' . $token,
+        'Content-Type: application/json',
+      ]);
+
+      $transition_id = NULL;
+      if ($response['ok'] && $response['body']) {
+        $payload = json_decode((string) $response['body'], TRUE);
+        if (isset($payload['transitions']) && is_array($payload['transitions'])) {
+          foreach ($payload['transitions'] as $t) {
+            if (isset($t['name']) && $t['name'] === $jira_transition) {
+              $transition_id = $t['id'] ?? NULL;
+              break;
+            }
+          }
         }
       }
+
+      if (!$transition_id || !ctype_digit((string) $transition_id)) {
+        throw new \RuntimeException('Unable to retrieve transition ID');
+      }
+
+      return (string) $transition_id;
+    },
+  );
+
+  task('Transitioning issue to ' . $jira_transition, sprintf('Transitioned issue to %s ', $jira_transition), function () use ($token, $jira_endpoint, $jira_issue, $transition_id, $jira_transition): void {
+    $payload_data = ['transition' => ['id' => $transition_id]];
+    $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
+    $response = request_post($url, json_encode($payload_data), [
+      'Authorization: Basic ' . $token,
+      'Content-Type: application/json',
+    ]);
+
+    // JIRA returns HTTP 204 on a successful transition.
+    if ($response['status'] !== 204) {
+      throw new \RuntimeException(sprintf('Unable to transition issue to %s. HTTP status: %s', $jira_transition, $response['status']));
     }
-  }
-
-  if (!$transition_id || !ctype_digit((string) $transition_id)) {
-    fail('Unable to retrieve transition ID');
-  }
-
-  pass('Found transition ID %s', $transition_id);
-
-  task('Transitioning issue to ' . $jira_transition);
-
-  $payload_data = ['transition' => ['id' => $transition_id]];
-  $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
-  $response = request_post($url, json_encode($payload_data), [
-    'Authorization: Basic ' . $token,
-    'Content-Type: application/json',
-  ]);
-
-  // JIRA returns HTTP 204 on a successful transition.
-  if ($response['status'] !== 204) {
-    fail('Unable to transition issue to %s. HTTP status: %s', $jira_transition, $response['status']);
-  }
-
-  pass('Transitioned issue to %s ', $jira_transition);
+  });
 }
 
 if (!empty($jira_assignee_email)) {
   task('Assigning issue to ' . $jira_assignee_email);
 
-  task(sprintf('Discovering assignee user ID for %s', $jira_assignee_email));
-  $url = sprintf('%s/rest/api/3/user/assignable/search?query=%s&issueKey=%s', $jira_endpoint, urlencode($jira_assignee_email), urlencode($jira_issue));
-  $response = request_get($url, [
-    'Authorization: Basic ' . $token,
-    'Content-Type: application/json',
-  ]);
+  $assignee_account_id = (string) task(
+    sprintf('Discovering assignee user ID for %s', $jira_assignee_email),
+    fn(string $id): string => sprintf('Found assignee account ID %s', $id),
+    function () use ($token, $jira_endpoint, $jira_issue, $jira_assignee_email): string {
+      $url = sprintf('%s/rest/api/3/user/assignable/search?query=%s&issueKey=%s', $jira_endpoint, urlencode($jira_assignee_email), urlencode($jira_issue));
+      $response = request_get($url, [
+        'Authorization: Basic ' . $token,
+        'Content-Type: application/json',
+      ]);
 
-  $assignee_account_id = NULL;
-  if ($response['ok'] && $response['body']) {
-    $payload = json_decode((string) $response['body'], TRUE);
-    if (is_array($payload) && !empty($payload)) {
-      $first = reset($payload);
-      $assignee_account_id = $first['accountId'] ?? NULL;
+      $assignee_account_id = NULL;
+      if ($response['ok'] && $response['body']) {
+        $payload = json_decode((string) $response['body'], TRUE);
+        if (is_array($payload) && !empty($payload)) {
+          $first = reset($payload);
+          $assignee_account_id = $first['accountId'] ?? NULL;
+        }
+      }
+
+      if (!$assignee_account_id || strlen((string) $assignee_account_id) < 24) {
+        throw new \RuntimeException('Unable to retrieve assignee account ID');
+      }
+
+      return (string) $assignee_account_id;
+    },
+  );
+
+  task('Assigning issue to user ID ' . $assignee_account_id, 'Assigned issue to ' . $jira_assignee_email, function () use ($token, $jira_endpoint, $jira_issue, $assignee_account_id, $jira_assignee_email): void {
+    $payload_data = ['accountId' => $assignee_account_id];
+    $url = sprintf('%s/rest/api/3/issue/%s/assignee', $jira_endpoint, $jira_issue);
+    $response = request($url, [
+      'method' => 'PUT',
+      'body' => json_encode($payload_data),
+      'headers' => [
+        'Authorization: Basic ' . $token,
+        'Content-Type: application/json',
+      ],
+    ]);
+
+    // JIRA returns HTTP 204 on a successful assignee update.
+    if ($response['status'] !== 204) {
+      throw new \RuntimeException(sprintf('Unable to assign issue to %s. HTTP status: %s', $jira_assignee_email, $response['status']));
     }
-  }
-
-  if (!$assignee_account_id || strlen((string) $assignee_account_id) < 24) {
-    fail('Unable to retrieve assignee account ID');
-  }
-
-  pass('Found assignee account ID %s', $assignee_account_id);
-
-  task('Assigning issue to user ID ' . $assignee_account_id);
-
-  $payload_data = ['accountId' => $assignee_account_id];
-  $url = sprintf('%s/rest/api/3/issue/%s/assignee', $jira_endpoint, $jira_issue);
-  $response = request($url, [
-    'method' => 'PUT',
-    'body' => json_encode($payload_data),
-    'headers' => [
-      'Authorization: Basic ' . $token,
-      'Content-Type: application/json',
-    ],
-  ]);
-
-  // JIRA returns HTTP 204 on a successful assignee update.
-  if ($response['status'] !== 204) {
-    fail('Unable to assign issue to %s. HTTP status: %s', $jira_assignee_email, $response['status']);
-  }
-
-  pass('Assigned issue to ' . $jira_assignee_email);
+  });
 }
 
 info('Finished JIRA notification.');

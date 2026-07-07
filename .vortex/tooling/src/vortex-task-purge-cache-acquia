@@ -181,39 +181,53 @@ function purge_acquia_api_poll_notification(string $key, string $secret, string 
 
 info('Started cache purging in Acquia.');
 
-task('Retrieving authentication token.');
-$token = purge_acquia_api_get_token($acquia_key, $acquia_secret);
-pass('Retrieved authentication token.');
+$token = (string) task(
+  'Retrieving authentication token.',
+  'Retrieved authentication token.',
+  fn(): string => purge_acquia_api_get_token($acquia_key, $acquia_secret),
+);
 
-task(sprintf('Retrieving %s application UUID.', $app_name));
-$app_uuid = purge_acquia_api_get_app_uuid($token, $app_name);
-pass('Retrieved the application UUID.');
+$app_uuid = (string) task(
+  sprintf('Retrieving %s application UUID.', $app_name),
+  'Retrieved the application UUID.',
+  fn(): string => purge_acquia_api_get_app_uuid($token, $app_name),
+);
 
-task('Retrieving environment ID.');
-$env_id = purge_acquia_api_get_env_id($token, $app_uuid, $target_env);
-pass('Retrieved environment ID.');
+$env_id = (string) task(
+  'Retrieving environment ID.',
+  'Retrieved environment ID.',
+  fn(): string => purge_acquia_api_get_env_id($token, $app_uuid, $target_env),
+);
 
-task('Compiling a list of domains.');
+$domain_list = task(
+  'Compiling a list of domains.',
+  fn(array $domain_list): string => sprintf('Compiled a list of %d domain(s).', count($domain_list)),
+  function () use ($domains_file, $target_env): array {
+    if (!file_exists($domains_file)) {
+      throw new \RuntimeException(sprintf('Domains file %s does not exist.', $domains_file));
+    }
 
-if (!file_exists($domains_file)) {
-  fail(sprintf('Domains file %s does not exist.', $domains_file));
+    $lines = file($domains_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $domain_list = [];
+    foreach ($lines as $line) {
+      $line = trim($line);
+      if ($line === '' || str_starts_with($line, '#')) {
+        continue;
+      }
+
+      $interpolated = purge_interpolate_domain($line, $target_env);
+      if ($interpolated !== NULL) {
+        $domain_list[] = $interpolated;
+      }
+    }
+
+    return $domain_list;
+  },
+);
+
+if (!is_array($domain_list)) {
+  $domain_list = [];
 }
-
-$lines = file($domains_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-$domain_list = [];
-foreach ($lines as $line) {
-  $line = trim($line);
-  if ($line === '' || str_starts_with($line, '#')) {
-    continue;
-  }
-
-  $interpolated = purge_interpolate_domain($line, $target_env);
-  if ($interpolated !== NULL) {
-    $domain_list[] = $interpolated;
-  }
-}
-
-pass(sprintf('Compiled a list of %d domain(s).', count($domain_list)));
 
 if ($domain_list === []) {
   note(sprintf('No domains to purge cache for %s environment.', $target_env));

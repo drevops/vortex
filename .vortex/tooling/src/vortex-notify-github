@@ -95,61 +95,69 @@ if ($notify_event === 'pre_deployment') {
   note('Environment Type: ' . $github_env_type);
   note('Event           : ' . $notify_event);
 
-  task('Creating deployment');
+  task(
+    'Creating deployment',
+    fn(string $deployment_id): string => sprintf('Created deployment with ID %s.', $deployment_id),
+    function () use ($notify_branch, $github_env_type, $github_repository, $github_token, $notify_event): string {
+      $payload_data = [
+        'ref' => $notify_branch,
+        'environment' => $github_env_type,
+        'auto_merge' => FALSE,
+        'required_contexts' => [],
+      ];
 
-  $payload_data = [
-    'ref' => $notify_branch,
-    'environment' => $github_env_type,
-    'auto_merge' => FALSE,
-    'required_contexts' => [],
-  ];
+      $url = sprintf('https://api.github.com/repos/%s/deployments', $github_repository);
+      $response = request_post($url, json_encode($payload_data), [
+        'Authorization: token ' . $github_token,
+        'Accept: application/vnd.github.v3+json',
+      ]);
 
-  $url = sprintf('https://api.github.com/repos/%s/deployments', $github_repository);
-  $response = request_post($url, json_encode($payload_data), [
-    'Authorization: token ' . $github_token,
-    'Accept: application/vnd.github.v3+json',
-  ]);
+      $deployment_id = NULL;
+      if ($response['ok'] && $response['body']) {
+        $payload = json_decode((string) $response['body'], TRUE);
+        $deployment_id = $payload['id'] ?? NULL;
+      }
 
-  $deployment_id = NULL;
-  if ($response['ok'] && $response['body']) {
-    $payload = json_decode((string) $response['body'], TRUE);
-    $deployment_id = $payload['id'] ?? NULL;
-  }
+      // Check deployment ID.
+      if (!deployment_id_is_valid($deployment_id)) {
+        throw new \RuntimeException(sprintf('Failed to get a deployment ID for a %s event. Payload: %s. Wait for GitHub checks to finish and try again.', $notify_event, $response['body'] ?: 'empty'));
+      }
 
-  // Check deployment ID.
-  if (!deployment_id_is_valid($deployment_id)) {
-    fail('Failed to get a deployment ID for a %s event. Payload: %s. Wait for GitHub checks to finish and try again.', $notify_event, $response['body'] ?: 'empty');
-  }
-
-  pass('Created deployment with ID %s.', $deployment_id);
+      return (string) $deployment_id;
+    },
+  );
 }
 else {
   $env_url = getenv_required('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-  task(sprintf('Finding latest deployment for ref %s', $notify_branch));
+  $deployment_id = (string) task(
+    sprintf('Finding latest deployment for ref %s', $notify_branch),
+    fn(string $deployment_id): string => sprintf('Found deployment with ID %s.', $deployment_id),
+    function () use ($github_repository, $notify_branch, $github_token): string {
+      $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $github_repository, urlencode($notify_branch));
+      $response = request_get($url, [
+        'Authorization: token ' . $github_token,
+        'Accept: application/vnd.github.v3+json',
+      ]);
 
-  $url = sprintf('https://api.github.com/repos/%s/deployments?ref=%s', $github_repository, urlencode($notify_branch));
-  $response = request_get($url, [
-    'Authorization: token ' . $github_token,
-    'Accept: application/vnd.github.v3+json',
-  ]);
+      // Get first (latest) deployment ID.
+      $deployment_id = NULL;
+      if ($response['ok'] && $response['body']) {
+        $payload = json_decode((string) $response['body'], TRUE);
+        if (is_array($payload) && !empty($payload)) {
+          $first = reset($payload);
+          $deployment_id = $first['id'] ?? NULL;
+        }
+      }
 
-  // Get first (latest) deployment ID.
-  $deployment_id = NULL;
-  if ($response['ok'] && $response['body']) {
-    $payload = json_decode((string) $response['body'], TRUE);
-    if (is_array($payload) && !empty($payload)) {
-      $first = reset($payload);
-      $deployment_id = $first['id'] ?? NULL;
-    }
-  }
+      // Check deployment ID.
+      if (!deployment_id_is_valid($deployment_id)) {
+        throw new \RuntimeException(sprintf('Failed to find a previous deployment for ref %s. Payload: %s', $notify_branch, $response['body'] ?: 'empty'));
+      }
 
-  // Check deployment ID.
-  if (!deployment_id_is_valid($deployment_id)) {
-    fail('Failed to find a previous deployment for ref %s. Payload: %s', $notify_branch, $response['body'] ?: 'empty');
-  }
-
-  pass('Found deployment with ID %s.', $deployment_id);
+      return (string) $deployment_id;
+    },
+  );
 
   note('GitHub post-deployment notification summary:');
   note('Repository         : ' . $github_repository);
@@ -159,30 +167,28 @@ else {
   note('Deployment ID      : ' . $deployment_id);
   note('Event              : ' . $notify_event);
 
-  task('Marking deployment as finished');
+  task('Marking deployment as finished', 'Marked deployment as finished.', function () use ($github_repository, $deployment_id, $env_url, $github_token): void {
+    $status_data = [
+      'state' => 'success',
+      'environment_url' => $env_url,
+    ];
 
-  $status_data = [
-    'state' => 'success',
-    'environment_url' => $env_url,
-  ];
+    $url = sprintf('https://api.github.com/repos/%s/deployments/%s/statuses', $github_repository, $deployment_id);
+    $response = request_post($url, json_encode($status_data), [
+      'Accept: application/vnd.github.v3+json',
+      'Authorization: token ' . $github_token,
+    ]);
 
-  $url = sprintf('https://api.github.com/repos/%s/deployments/%s/statuses', $github_repository, $deployment_id);
-  $response = request_post($url, json_encode($status_data), [
-    'Accept: application/vnd.github.v3+json',
-    'Authorization: token ' . $github_token,
-  ]);
+    $status = NULL;
+    if ($response['ok'] && $response['body']) {
+      $payload = json_decode((string) $response['body'], TRUE);
+      $status = $payload['state'] ?? NULL;
+    }
 
-  $status = NULL;
-  if ($response['ok'] && $response['body']) {
-    $payload = json_decode((string) $response['body'], TRUE);
-    $status = $payload['state'] ?? NULL;
-  }
-
-  if ($status !== 'success') {
-    fail('Previous deployment was found, but was unable to update the deployment status. Payload: %s', $response['body'] ?: 'empty');
-  }
-
-  pass('Marked deployment as finished.');
+    if ($status !== 'success') {
+      throw new \RuntimeException(sprintf('Previous deployment was found, but was unable to update the deployment status. Payload: %s', $response['body'] ?: 'empty'));
+    }
+  });
 }
 
 info('Finished GitHub notification for %s event.', $notify_event);

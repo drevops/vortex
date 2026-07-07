@@ -433,9 +433,9 @@ if ($provision_post_operations_skip === '1') {
 }
 
 if ($provision_use_maintenance_mode === '1') {
-  task('Enabling maintenance mode.');
-  drush('maint:set 1');
-  pass('Enabled maintenance mode.');
+  task('Enabling maintenance mode.', 'Enabled maintenance mode.', function (): void {
+    drush('maint:set 1');
+  });
   echo PHP_EOL;
 }
 
@@ -493,9 +493,9 @@ pass('Completed running database updates.');
 echo PHP_EOL;
 
 if ($provision_cache_rebuild_after_db_update_skip !== '1') {
-  task('Clearing cache after database updates.');
-  drush('cache:rebuild');
-  pass('Cache was cleared.');
+  task('Clearing cache after database updates.', 'Cache was cleared.', function (): void {
+    drush('cache:rebuild');
+  });
   echo PHP_EOL;
 }
 else {
@@ -505,15 +505,15 @@ else {
 
 // Import configuration if config files are present.
 if ($site_has_config_files) {
-  task('Importing configuration.');
-  drush('config:import');
-  pass('Completed configuration import.');
+  task('Importing configuration.', 'Completed configuration import.', function (): void {
+    drush('config:import');
+  });
   echo PHP_EOL;
 
   if ($provision_config_import_repeat === '1') {
-    task('Repeating configuration import.');
-    drush('config:import');
-    pass('Completed repeated configuration import.');
+    task('Repeating configuration import.', 'Completed repeated configuration import.', function (): void {
+      drush('config:import');
+    });
     echo PHP_EOL;
   }
 
@@ -523,34 +523,34 @@ if ($site_has_config_files) {
   // @see https://www.drupal.org/project/drupal/issues/3241439
   $pm_list_output = drush('pm:list --status=enabled', $pm_list_exit_code);
   if (str_contains($pm_list_output, 'config_split')) {
-    task('Importing config_split configuration.');
-    drush('config:import');
-    pass('Completed config_split configuration import.');
+    task('Importing config_split configuration.', 'Completed config_split configuration import.', function (): void {
+      drush('config:import');
+    });
     echo PHP_EOL;
   }
 }
 
-task('Rebuilding cache.');
-drush('cache:rebuild');
-pass('Cache was rebuilt.');
+task('Rebuilding cache.', 'Cache was rebuilt.', function (): void {
+  drush('cache:rebuild');
+});
 echo PHP_EOL;
 
 // Enable the deploy_steps runner and the always-on site modules before deploy
 // hooks, so their deploy step plugins and run-once deploy hooks run on this
 // provision. Site module names are project-specific (the installer renames
 // them), so resolve them by glob. Idempotent in every environment.
-task('Enabling site modules.');
-drush('pm:install deploy_steps');
-$module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
-foreach ($module_paths as $module_path) {
-  drush('pm:install ' . escapeshellarg(basename((string) $module_path)));
-}
-pass('Enabled site modules.');
+task('Enabling site modules.', 'Enabled site modules.', function () use ($webroot): void {
+  drush('pm:install deploy_steps');
+  $module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
+  foreach ($module_paths as $module_path) {
+    drush('pm:install ' . escapeshellarg(basename((string) $module_path)));
+  }
+});
 echo PHP_EOL;
 
-task('Running deployment hooks.');
-drush('deploy:hook');
-pass('Completed deployment hooks.');
+task('Running deployment hooks.', 'Completed deployment hooks.', function (): void {
+  drush('deploy:hook');
+});
 echo PHP_EOL;
 
 // Sanitize database.
@@ -569,9 +569,9 @@ else {
 }
 
 if ($provision_use_maintenance_mode === '1') {
-  task('Disabling maintenance mode.');
-  drush('maint:set 0');
-  pass('Disabled maintenance mode.');
+  task('Disabling maintenance mode.', 'Disabled maintenance mode.', function (): void {
+    drush('maint:set 0');
+  });
   echo PHP_EOL;
 }
 

@@ -152,16 +152,14 @@ note('Channel        : ' . ($slack_channel ?: '<default>'));
 note('Username       : ' . $slack_username);
 note('Event          : ' . $event_label);
 
-task('Sending notification to Slack');
+task('Sending notification to Slack', 'Slack notification sent successfully.', function () use ($slack_webhook, $payload): void {
+  $response = request_post($slack_webhook, $payload, [
+    'Content-Type: application/json',
+  ]);
 
-$response = request_post($slack_webhook, $payload, [
-  'Content-Type: application/json',
-]);
-
-if ($response['status'] !== 200) {
-  fail('Unable to send notification to Slack. HTTP status: %s', $response['status']);
-}
-
-pass('Slack notification sent successfully.');
+  if ($response['status'] !== 200) {
+    throw new \RuntimeException(sprintf('Unable to send notification to Slack. HTTP status: %s', $response['status']));
+  }
+});
 
 info('Finished Slack notification.');
