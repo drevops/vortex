@@ -173,7 +173,9 @@ class PanelController {
       }
 
       while (!$this->done) {
-        $terminal->render($this->frame(15));
+        // Fill the terminal, reserving four rows of chrome: the breadcrumb
+        // header, the status footer and the two scroll indicators.
+        $terminal->render($this->frame(max(3, $terminal->height() - 4)));
         foreach ($parser->parse($terminal->read()) as $key) {
           $this->handle($key);
         }

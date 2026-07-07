@@ -33,6 +33,10 @@ final class TerminalTest extends TestCase {
     $this->assertStringContainsString("\033[2J", $contents);
   }
 
+  public function testHeight(): void {
+    $this->assertGreaterThan(0, (new Terminal())->height());
+  }
+
   public function testClear(): void {
     $stream = fopen('php://memory', 'rw');
     $this->assertIsResource($stream);

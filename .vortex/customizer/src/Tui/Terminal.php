@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\Customizer\Tui;
 
+use Symfony\Component\Console\Terminal as ConsoleTerminal;
+
 /**
  * Thin terminal I/O: raw mode, alternate screen, mouse, render and restore.
  *
@@ -103,6 +105,16 @@ class Terminal {
 
     return $data === FALSE ? '' : $data;
     // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * The terminal height in rows.
+   *
+   * @return int
+   *   The number of rows available for rendering.
+   */
+  public function height(): int {
+    return (new ConsoleTerminal())->getHeight();
   }
 
   /**
