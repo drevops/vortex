@@ -116,18 +116,21 @@ if ($ssh_file !== 'false') {
   passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
 }
 
+$config_file = lagoon_config_file();
+
 task('Configuring Lagoon instance.');
-lagoon_config($bin, $instance, $instance_graphql, $ssh_host, $ssh_port);
+lagoon_config($bin, $config_file, $instance, $instance_graphql, $ssh_host, $ssh_port);
 
 $ctx = [
   'instance' => $instance,
   'project' => $lagoon_project,
+  'config_file' => $config_file,
   'ssh_key' => $ssh_file,
 ];
 
 // Surface the CLI version and authenticated identity so the run is observable.
 task('Lagoon CLI version.');
-passthru(sprintf('%s --version 2>&1', escapeshellarg($bin)));
+passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
 task('Lagoon authenticated identity.');
 echo lagoon_exec($bin, 'whoami', $ctx);
 

@@ -32,6 +32,7 @@ class FetchDbLagoonTest extends UnitTestCase {
       'VORTEX_FETCH_DB_SSH_FILE' => self::$sshFile,
       'VORTEX_FETCH_DB_LAGOON_DB_DIR' => self::$tmp . '/data',
       'VORTEX_FETCH_DB_LAGOON_DB_FILE' => 'db.sql',
+      'VORTEX_LAGOONCLI_PATH' => self::$tmp,
     ]);
   }
 
@@ -269,20 +270,24 @@ class FetchDbLagoonTest extends UnitTestCase {
     ]) ?: '';
   }
 
+  protected function configFile(): string {
+    return self::$tmp . '/lagoon-cli.yml';
+  }
+
   protected function configCmd(): string {
-    return "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'";
+    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->configFile());
   }
 
   protected function versionCmd(): string {
-    return "'lagoon' --version 2>&1";
+    return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->configFile());
   }
 
   protected function lagoonCmd(string $subcommand): string {
-    return sprintf("'lagoon' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' %s 2>&1", self::$sshFile, $subcommand);
+    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->configFile(), self::$sshFile, $subcommand);
   }
 
   protected function lagoonCmdNoSsh(string $subcommand): string {
-    return sprintf("'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $subcommand);
+    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' %s 2>&1", $this->configFile(), $subcommand);
   }
 
 }

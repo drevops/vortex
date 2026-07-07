@@ -442,10 +442,33 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
 }
 
 /**
- * Register a Lagoon CLI instance configuration.
+ * Path to an ephemeral Lagoon CLI config file scoped to a single script run.
+ *
+ * Registering the instance in a throwaway file, and pointing every CLI command
+ * at it, keeps a developer's default '~/.lagoon.yml' untouched - an instance of
+ * the same name there is neither read nor overwritten.
+ *
+ * @return string
+ *   Path to the config file; its parent directory is created if missing.
+ */
+function lagoon_config_file(): string {
+  $dir = (string) getenv_default('VORTEX_LAGOONCLI_PATH', '.artifacts/tmp');
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  return $dir . '/lagoon-cli.yml';
+}
+
+/**
+ * Register a Lagoon CLI instance into an isolated config file.
  *
  * @param string $bin
  *   The Lagoon CLI binary.
+ * @param string $config_file
+ *   The config file to write the instance into, kept separate from the default
+ *   '~/.lagoon.yml'.
  * @param string $instance
  *   The Lagoon instance name.
  * @param string $graphql
@@ -455,24 +478,30 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
  * @param string $port
  *   The Lagoon instance SSH port.
  */
-function lagoon_config(string $bin, string $instance, string $graphql, string $hostname, string $port): void {
-  passthru_or_fail(sprintf('%s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($bin), escapeshellarg($instance), escapeshellarg($graphql), escapeshellarg($hostname), escapeshellarg($port)), 'Failed to add Lagoon instance configuration.');
+function lagoon_config(string $bin, string $config_file, string $instance, string $graphql, string $hostname, string $port): void {
+  // Seed a minimal valid config: 'config add' panics on an empty (nil-map)
+  // file, and starting each run from a clean instance list keeps it isolated.
+  file_put_contents($config_file, "lagoons: {}\n");
+
+  passthru_or_fail(sprintf('%s --config-file %s config add --force --lagoon %s --graphql %s --hostname %s --port %s', escapeshellarg($bin), escapeshellarg($config_file), escapeshellarg($instance), escapeshellarg($graphql), escapeshellarg($hostname), escapeshellarg($port)), 'Failed to add Lagoon instance configuration.');
 }
 
 /**
  * Run a Lagoon CLI subcommand and capture its output.
  *
- * The common authentication flags (instance, project and, on a host, the SSH
- * key) are threaded from the context; command-specific flags (environment,
- * backup id, output format) are provided by the caller in the subcommand.
+ * The isolated config file and common authentication flags (instance, project
+ * and, on a host, the SSH key) are threaded from the context; command-specific
+ * flags (environment, backup id, output format) are provided by the caller in
+ * the subcommand.
  *
  * @param string $bin
  *   The Lagoon CLI binary.
  * @param string $subcommand
  *   The subcommand with its command-specific flags.
- * @param array{instance: string, project: string, ssh_key?: string} $ctx
- *   Execution context. The SSH key flag is omitted when 'ssh_key' is empty or
- *   'false' (e.g. inside the hosting environment where identity is implicit).
+ * @param array{instance: string, project: string, config_file: string, ssh_key?: string} $ctx
+ *   Execution context. The isolated config file is always applied; the SSH key
+ *   flag is omitted when 'ssh_key' is empty or 'false' (e.g. inside the hosting
+ *   environment where identity is implicit).
  * @param int|null $exit_code
  *   (optional) Variable to capture the exit code. Pass an initialised variable
  *   (e.g. `$exit_code = 0`) to suppress the automatic fail() on non-zero exit.
@@ -486,7 +515,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
   $ssh_key = $ctx['ssh_key'] ?? '';
   $ssh_key_flag = (!empty($ssh_key) && $ssh_key !== 'false') ? ' --ssh-key ' . escapeshellarg($ssh_key) : '';
 
-  $cmd = sprintf('%s --force --skip-update-check%s --lagoon %s --project %s %s 2>&1', escapeshellarg($bin), $ssh_key_flag, escapeshellarg($ctx['instance']), escapeshellarg($ctx['project']), $subcommand);
+  $cmd = sprintf('%s --config-file %s --force --skip-update-check%s --lagoon %s --project %s %s 2>&1', escapeshellarg($bin), escapeshellarg($ctx['config_file']), $ssh_key_flag, escapeshellarg($ctx['instance']), escapeshellarg($ctx['project']), $subcommand);
 
   $exit_code_provided = $exit_code !== NULL;
   if (!$exit_code_provided) {

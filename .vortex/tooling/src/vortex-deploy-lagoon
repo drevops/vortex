@@ -96,12 +96,14 @@ putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
 !empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
 passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 
+$lagoon_config_file = lagoon_config_file();
+
 task('Configuring Lagoon instance.');
-lagoon_config($lagoon_bin, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
+lagoon_config($lagoon_bin, $lagoon_config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
 
 // Surface the CLI version and authenticated identity so the run is observable.
 task('Lagoon CLI version.');
-passthru(sprintf('%s --version 2>&1', escapeshellarg($lagoon_bin)));
+passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($lagoon_bin), escapeshellarg($lagoon_config_file)));
 task('Lagoon authenticated identity.');
 echo lagoon_run_cli('whoami');
 
@@ -119,11 +121,12 @@ echo lagoon_run_cli('whoami');
  */
 function lagoon_run_cli(string $subcommand, ?int &$subcommand_exit_code = NULL): string {
   // phpcs:ignore Drupal.NamingConventions.ValidGlobal.GlobalUnderScore
-  global $ssh_file, $lagoon_instance, $lagoon_project, $lagoon_bin;
+  global $ssh_file, $lagoon_instance, $lagoon_project, $lagoon_bin, $lagoon_config_file;
 
   $ctx = [
     'instance' => (string) $lagoon_instance,
     'project' => (string) $lagoon_project,
+    'config_file' => (string) $lagoon_config_file,
     'ssh_key' => (string) $ssh_file,
   ];
 

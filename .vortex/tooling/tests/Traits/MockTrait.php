@@ -834,4 +834,18 @@ trait MockTrait {
     });
   }
 
+  /**
+   * Mark commands as absent for the mockCommandExists() lookup.
+   *
+   * A readable wrapper over the 'VORTEX_TEST_COMMAND_MISSING' env variable that
+   * mockCommandExists() consults, so a test reads as "this command is missing"
+   * instead of exposing the underlying variable.
+   *
+   * @param string ...$commands
+   *   Command names that command_path() should report as not found.
+   */
+  protected function mockCommandMissing(string ...$commands): void {
+    static::envSet('VORTEX_TEST_COMMAND_MISSING', implode(',', $commands));
+  }
+
 }

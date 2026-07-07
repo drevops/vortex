@@ -47,10 +47,8 @@ class HelpersLagoonTest extends UnitTestCase {
     $bin = $dir . '/lagoon';
     file_put_contents($bin, "#!/bin/sh\n");
     chmod($bin, 0755);
-    $this->envSetMultiple([
-      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
-      'VORTEX_LAGOONCLI_PATH' => $dir,
-    ]);
+    $this->mockCommandMissing('lagoon');
+    $this->envSet('VORTEX_LAGOONCLI_PATH', $dir);
 
     $result = '';
     $output = $this->captureOutput(function () use (&$result): void {
@@ -64,8 +62,8 @@ class HelpersLagoonTest extends UnitTestCase {
   public function testResolveDownloads(): void {
     $this->mockCommandExists();
     $dir = self::$tmp . '/cli';
+    $this->mockCommandMissing('lagoon');
     $this->envSetMultiple([
-      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
       'VORTEX_LAGOONCLI_PATH' => $dir,
       'VORTEX_LAGOONCLI_VERSION' => 'v0.32.0',
     ]);
@@ -91,10 +89,8 @@ class HelpersLagoonTest extends UnitTestCase {
 
   public function testResolveDownloadFails(): void {
     $this->mockCommandExists();
-    $this->envSetMultiple([
-      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
-      'VORTEX_LAGOONCLI_PATH' => self::$tmp . '/cli',
-    ]);
+    $this->mockCommandMissing('lagoon');
+    $this->envSet('VORTEX_LAGOONCLI_PATH', self::$tmp . '/cli');
 
     [$base, $asset] = $this->releaseUrl();
     $this->mockRequest($base . '/' . $asset, ['method' => 'GET'], ['status' => 404, 'ok' => FALSE, 'body' => '', 'error' => 'Not Found']);
@@ -117,10 +113,8 @@ class HelpersLagoonTest extends UnitTestCase {
 
   public function testResolveChecksumMismatch(): void {
     $this->mockCommandExists();
-    $this->envSetMultiple([
-      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
-      'VORTEX_LAGOONCLI_PATH' => self::$tmp . '/cli',
-    ]);
+    $this->mockCommandMissing('lagoon');
+    $this->envSet('VORTEX_LAGOONCLI_PATH', self::$tmp . '/cli');
 
     [$base, $asset] = $this->releaseUrl();
     $this->mockRequestMultiple([
@@ -146,10 +140,8 @@ class HelpersLagoonTest extends UnitTestCase {
 
   public function testResolveChecksumDownloadFails(): void {
     $this->mockCommandExists();
-    $this->envSetMultiple([
-      'VORTEX_TEST_COMMAND_MISSING' => 'lagoon',
-      'VORTEX_LAGOONCLI_PATH' => self::$tmp . '/cli',
-    ]);
+    $this->mockCommandMissing('lagoon');
+    $this->envSet('VORTEX_LAGOONCLI_PATH', self::$tmp . '/cli');
 
     [$base, $asset] = $this->releaseUrl();
     $this->mockRequestMultiple([
@@ -174,22 +166,26 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testConfigSuccess(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'",
+      'cmd' => sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $config_file),
       'output' => '',
       'result_code' => 0,
     ]);
 
-    $output = $this->captureOutput(function (): void {
-      \DrevOps\VortexTooling\lagoon_config('lagoon', 'amazeeio', 'https://api.lagoon.amazeeio.cloud/graphql', 'ssh.lagoon.amazeeio.cloud', '32222');
+    $output = $this->captureOutput(function () use ($config_file): void {
+      \DrevOps\VortexTooling\lagoon_config('lagoon', $config_file, 'amazeeio', 'https://api.lagoon.amazeeio.cloud/graphql', 'ssh.lagoon.amazeeio.cloud', '32222');
     });
 
     $this->assertSame('', $output);
+    // The isolated config file is seeded with a valid, empty instance map.
+    $this->assertStringEqualsFile($config_file, "lagoons: {}\n");
   }
 
   public function testConfigFailure(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'",
+      'cmd' => sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $config_file),
       'output' => '',
       'result_code' => 1,
     ]);
@@ -198,7 +194,7 @@ class HelpersLagoonTest extends UnitTestCase {
 
     ob_start();
     try {
-      \DrevOps\VortexTooling\lagoon_config('lagoon', 'amazeeio', 'https://api.lagoon.amazeeio.cloud/graphql', 'ssh.lagoon.amazeeio.cloud', '32222');
+      \DrevOps\VortexTooling\lagoon_config('lagoon', $config_file, 'amazeeio', 'https://api.lagoon.amazeeio.cloud/graphql', 'ssh.lagoon.amazeeio.cloud', '32222');
       $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
@@ -211,8 +207,9 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecWithSshKey(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' --force --skip-update-check --ssh-key '/home/user/.ssh/id_rsa' --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' --output-json --pretty 2>&1",
+      'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '/home/user/.ssh/id_rsa' --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' --output-json --pretty 2>&1", $config_file),
       'output' => '{"data":[]}',
       'result_code' => 0,
     ]);
@@ -220,6 +217,7 @@ class HelpersLagoonTest extends UnitTestCase {
     $result = \DrevOps\VortexTooling\lagoon_exec('lagoon', "list backups --environment 'main' --output-json --pretty", [
       'instance' => 'amazeeio',
       'project' => 'myproject',
+      'config_file' => $config_file,
       'ssh_key' => '/home/user/.ssh/id_rsa',
     ]);
 
@@ -227,8 +225,9 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecWithoutSshKey(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1",
+      'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1", $config_file),
       'output' => 'authenticated',
       'result_code' => 0,
     ]);
@@ -236,14 +235,16 @@ class HelpersLagoonTest extends UnitTestCase {
     $result = \DrevOps\VortexTooling\lagoon_exec('lagoon', 'whoami', [
       'instance' => 'amazeeio',
       'project' => 'myproject',
+      'config_file' => $config_file,
     ]);
 
     $this->assertSame('authenticated', $result);
   }
 
   public function testExecSshKeyFalseOmitsIdentity(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1",
+      'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1", $config_file),
       'output' => 'authenticated',
       'result_code' => 0,
     ]);
@@ -251,6 +252,7 @@ class HelpersLagoonTest extends UnitTestCase {
     $result = \DrevOps\VortexTooling\lagoon_exec('lagoon', 'whoami', [
       'instance' => 'amazeeio',
       'project' => 'myproject',
+      'config_file' => $config_file,
       'ssh_key' => 'false',
     ]);
 
@@ -258,8 +260,9 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecSoftFailureCapturesExitCode(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' get backup --environment 'main' --backup-id 'abc' --output-json 2>&1",
+      'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' get backup --environment 'main' --backup-id 'abc' --output-json 2>&1", $config_file),
       'output' => 'no download file found',
       'result_code' => 3,
     ]);
@@ -268,6 +271,7 @@ class HelpersLagoonTest extends UnitTestCase {
     $result = \DrevOps\VortexTooling\lagoon_exec('lagoon', "get backup --environment 'main' --backup-id 'abc' --output-json", [
       'instance' => 'amazeeio',
       'project' => 'myproject',
+      'config_file' => $config_file,
     ], $exit_code);
 
     $this->assertSame(3, $exit_code);
@@ -275,8 +279,9 @@ class HelpersLagoonTest extends UnitTestCase {
   }
 
   public function testExecPreservesZeroOutput(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1",
+      'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' whoami 2>&1", $config_file),
       'output' => '0',
       'result_code' => 0,
     ]);
@@ -284,14 +289,16 @@ class HelpersLagoonTest extends UnitTestCase {
     $result = \DrevOps\VortexTooling\lagoon_exec('lagoon', 'whoami', [
       'instance' => 'amazeeio',
       'project' => 'myproject',
+      'config_file' => $config_file,
     ]);
 
     $this->assertSame('0', $result);
   }
 
   public function testExecHardFailure(): void {
+    $config_file = $this->configFile();
     $this->mockPassthru([
-      'cmd' => "'lagoon' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' 2>&1",
+      'cmd' => sprintf("'lagoon' --config-file '%s' --force --skip-update-check --lagoon 'amazeeio' --project 'myproject' list backups --environment 'main' 2>&1", $config_file),
       'output' => 'boom',
       'result_code' => 2,
     ]);
@@ -303,6 +310,7 @@ class HelpersLagoonTest extends UnitTestCase {
       \DrevOps\VortexTooling\lagoon_exec('lagoon', "list backups --environment 'main'", [
         'instance' => 'amazeeio',
         'project' => 'myproject',
+        'config_file' => $config_file,
       ]);
       $this->fail('Expected QuitErrorException to be thrown.');
     }
@@ -313,6 +321,10 @@ class HelpersLagoonTest extends UnitTestCase {
       $output = ob_get_clean();
       $this->assertStringContainsString('Lagoon CLI command "list backups --environment \'main\'" failed with exit code 2', (string) $output);
     }
+  }
+
+  protected function configFile(): string {
+    return self::$tmp . '/lagoon-cli.yml';
   }
 
   /**

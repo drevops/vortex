@@ -24,6 +24,7 @@ class DeployLagoonTest extends UnitTestCase {
       'LAGOON_PROJECT' => 'test-project',
       'VORTEX_DEPLOY_BRANCH' => 'develop',
       'HOME' => self::$tmp,
+      'VORTEX_LAGOONCLI_PATH' => self::$tmp,
       // String-based variables.
       'VORTEX_DEPLOY_PR' => '',
       'VORTEX_DEPLOY_PR_HEAD' => '',
@@ -715,8 +716,12 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
+  protected function getConfigFile(): string {
+    return self::$tmp . '/lagoon-cli.yml';
+  }
+
   protected function getVersionCommand(): string {
-    return "'lagoon' --version 2>&1";
+    return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->getConfigFile());
   }
 
   protected function getSetupSshPath(): string {
@@ -726,14 +731,15 @@ class DeployLagoonTest extends UnitTestCase {
   protected function getLagoonCommand(string $subcommand): string {
     $ssh_file = self::$tmp . '/.ssh/id_rsa';
     return sprintf(
-      "'lagoon' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'test-project' %s 2>&1",
+      "'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'test-project' %s 2>&1",
+      $this->getConfigFile(),
       $ssh_file,
       $subcommand
     );
   }
 
   protected function getLagoonConfigAddCommand(): string {
-    return "'lagoon' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'";
+    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->getConfigFile());
   }
 
   protected function createFakeLagoonBinary(): void {
@@ -761,6 +767,7 @@ class DeployLagoonTest extends UnitTestCase {
     $GLOBALS['lagoon_bin'] = $lagoon_bin;
     $GLOBALS['lagoon_instance'] = 'amazeeio';
     $GLOBALS['lagoon_project'] = 'test-project';
+    $GLOBALS['lagoon_config_file'] = self::$tmp . '/lagoon-cli.yml';
     $GLOBALS['ssh_file'] = self::$tmp . '/.ssh/id_rsa';
     $GLOBALS['deploy_lagoon_fail_when_env_limit_exceeded'] = FALSE;
   }

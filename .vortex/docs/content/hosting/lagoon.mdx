@@ -77,5 +77,9 @@ When running inside the Lagoon environment, set `VORTEX_FETCH_DB_SSH_FILE=false`
 to skip SSH key setup and use the ambient Lagoon identity instead of a developer
 SSH key.
 
+The instance is registered in an isolated, per-run config file rather than your
+default `~/.lagoon.yml`, so any Lagoon configuration you already have locally is
+left untouched.
+
 The download uses the latest scheduled backup, so its data can be as old as
 your environment's backup schedule (nightly by default).
