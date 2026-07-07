@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Handler;
+namespace DrevOps\Tui\Handler;
 
-use DrevOps\Customizer\Config\Field;
+use DrevOps\Tui\Config\Field;
 
 /**
  * Base handler with no-op defaults; concrete handlers override as needed.
  *
- * @package DrevOps\Customizer\Handler
+ * @package DrevOps\Tui\Handler
  */
 abstract class AbstractHandler implements HandlerInterface {
 

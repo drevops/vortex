@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Builder;
+namespace DrevOps\Tui\Tests\Unit\Builder;
 
-use DrevOps\Customizer\Builder\FieldBuilder;
-use DrevOps\Customizer\Builder\Form;
-use DrevOps\Customizer\Builder\PanelBuilder;
-use DrevOps\Customizer\Config\ConfigException;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Config\ConfigException;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Answers;
+namespace DrevOps\Tui\Answers;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\Panel;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Panel;
 
 /**
  * Formats an answer set as a human summary grouped by panel.
@@ -13,16 +13,16 @@ use DrevOps\Customizer\Config\Panel;
  * Panels (and sub-panels) with no active answers are omitted; each value is
  * rendered readably and non-default answers carry a provenance badge.
  *
- * @package DrevOps\Customizer\Answers
+ * @package DrevOps\Tui\Answers
  */
 class SummaryFormatter {
 
   /**
    * Format the answers grouped by the configuration's panels.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration providing the panel structure.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The answer set.
    *
    * @return string
@@ -41,9 +41,9 @@ class SummaryFormatter {
   /**
    * Format a single panel and its sub-panels.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The panel.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The answer set.
    * @param int $depth
    *   The nesting depth.

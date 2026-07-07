@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Fixtures\Handler;
+namespace DrevOps\Tui\Tests\Fixtures\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Handler\AbstractHandler;
-use DrevOps\Customizer\Handler\Context;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Handler\AbstractHandler;
+use DrevOps\Tui\Handler\Context;
 
 /**
  * A fixture handler that provides a dynamic default from the context.

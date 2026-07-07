@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "886b539fb02991bca06962baef25b911",
+    "content-hash": "ff739ea2a0121cc71d2f5df1736fede3",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -815,12 +815,12 @@
             "time": "2025-11-10T07:24:07+00:00"
         },
         {
-            "name": "drevops/customizer",
+            "name": "drevops/tui",
             "version": "1.0.0-alpha1",
             "dist": {
                 "type": "path",
                 "url": "../customizer",
-                "reference": "cff23bff6e6ef1171a8835024241f8c9eb54174d"
+                "reference": "f8ac12dbe089734f057fc5aab09c2d0062adf1ef"
             },
             "require": {
                 "alexskrypnyk/str2name": "^1.4.1",
@@ -845,12 +845,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "DrevOps\\Customizer\\": "src/"
+                    "DrevOps\\Tui\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "DrevOps\\Customizer\\Tests\\": "tests/phpunit"
+                    "DrevOps\\Tui\\Tests\\": "tests/phpunit"
                 },
                 "classmap": [
                     "tests/phpunit"
@@ -887,7 +887,7 @@
                     "role": "Maintainer"
                 }
             ],
-            "description": "Provides customizer functionality.",
+            "description": "Provides terminal UI form-building functionality.",
             "homepage": "https://github.com/drevops/customizer",
             "support": {
                 "issues": "https://github.com/drevops/customizer/issues",
@@ -6564,7 +6564,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "drevops/customizer": 15
+        "drevops/tui": 15
     },
     "prefer-stable": true,
     "prefer-lowest": false,

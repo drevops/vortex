@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Widget;
+namespace DrevOps\Tui\Widget;
 
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\ThemeInterface;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
+use DrevOps\Tui\Theme\ThemeInterface;
 
 /**
  * A yes/no toggle.
  *
- * @package DrevOps\Customizer\Widget
+ * @package DrevOps\Tui\Widget
  */
 class ConfirmWidget extends AbstractWidget {
 
@@ -57,7 +57,7 @@ class ConfirmWidget extends AbstractWidget {
   /**
    * Whether the key toggles the choice.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key to test.
    *
    * @return bool

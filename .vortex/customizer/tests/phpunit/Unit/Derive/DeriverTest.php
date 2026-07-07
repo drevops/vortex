@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Derive;
+namespace DrevOps\Tui\Tests\Unit\Derive;
 
-use DrevOps\Customizer\Derive\Deriver;
+use DrevOps\Tui\Derive\Deriver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;

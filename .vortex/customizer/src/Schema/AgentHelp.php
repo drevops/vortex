@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Schema;
+namespace DrevOps\Tui\Schema;
 
-use DrevOps\Customizer\Config\Config;
+use DrevOps\Tui\Config\Config;
 
 /**
  * Produces instructions for driving the customizer non-interactively.
  *
- * @package DrevOps\Customizer\Schema
+ * @package DrevOps\Tui\Schema
  */
 class AgentHelp {
 
   /**
    * Construct the help generator.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration to describe.
    * @param string $env_prefix
    *   The prefix for per-question env variable names (e.g. "VORTEX_").

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Engine;
+namespace DrevOps\Tui\Engine;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Condition\ConditionEvaluator;
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Derive\Deriver;
-use DrevOps\Customizer\Discovery\Discovery;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerInterface;
-use DrevOps\Customizer\Handler\HandlerRegistry;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Condition\ConditionEvaluator;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Derive\Deriver;
+use DrevOps\Tui\Discovery\Discovery;
+use DrevOps\Tui\Handler\Context;
+use DrevOps\Tui\Handler\HandlerInterface;
+use DrevOps\Tui\Handler\HandlerRegistry;
 
 /**
  * Orchestrates the question lifecycle generically over a configuration.
@@ -25,7 +25,7 @@ use DrevOps\Customizer\Handler\HandlerRegistry;
  * derived > default. It never knows what any field means: all behaviour comes
  * from the handlers and config rules.
  *
- * @package DrevOps\Customizer\Engine
+ * @package DrevOps\Tui\Engine
  */
 class Engine {
 
@@ -68,9 +68,9 @@ class Engine {
   /**
    * Construct an engine.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration to run.
-   * @param \DrevOps\Customizer\Handler\HandlerRegistry $handlers
+   * @param \DrevOps\Tui\Handler\HandlerRegistry $handlers
    *   The registry resolving a field id to its handler.
    */
   public function __construct(
@@ -87,7 +87,7 @@ class Engine {
    *
    * @param array<string,mixed> $inputs
    *   Pre-supplied values keyed by field id (from flags, env, prompts, ...).
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context (destination directory, update flag).
    *
    * @return array<string,mixed>
@@ -144,7 +144,7 @@ class Engine {
    *
    * @param array<string,mixed> $inputs
    *   Pre-supplied values keyed by field id (from flags, env, prompts, ...).
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context (destination directory, update flag).
    *
    * @return array<string,mixed>
@@ -176,7 +176,7 @@ class Engine {
   /**
    * The collected answers of the most recent run() as an Answers model.
    *
-   * @return \DrevOps\Customizer\Answers\Answers
+   * @return \DrevOps\Tui\Answers\Answers
    *   The answer set with values and provenance.
    */
   public function answers(): Answers {
@@ -186,13 +186,13 @@ class Engine {
   /**
    * Resolve the initial value and its source for a field.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Customizer\Handler\HandlerInterface|null $handler
+   * @param \DrevOps\Tui\Handler\HandlerInterface|null $handler
    *   The resolved handler, if any.
    * @param array<string,mixed> $inputs
    *   Pre-supplied values keyed by field id.
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context.
    *
    * @return array{mixed,string}
@@ -223,11 +223,11 @@ class Engine {
   /**
    * Detect a value from the handler, then the config-declared shortcut.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Customizer\Handler\HandlerInterface|null $handler
+   * @param \DrevOps\Tui\Handler\HandlerInterface|null $handler
    *   The resolved handler, if any.
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context.
    *
    * @return mixed
@@ -251,7 +251,7 @@ class Engine {
   /**
    * Settle derived values, conditional activation and fix-ups to a fixpoint.
    *
-   * @param \DrevOps\Customizer\Config\Field[] $fields
+   * @param \DrevOps\Tui\Config\Field[] $fields
    *   The fields, in order.
    * @param array<string,mixed> $values
    *   The resolved values keyed by field id.
@@ -297,7 +297,7 @@ class Engine {
   /**
    * Compute the provenance of every active field.
    *
-   * @param \DrevOps\Customizer\Config\Field[] $fields
+   * @param \DrevOps\Tui\Config\Field[] $fields
    *   The fields, in order.
    * @param array<string,string> $sources
    *   The initial source per field id (input / detected / default).
@@ -330,7 +330,7 @@ class Engine {
   /**
    * Restrict values to the active fields, in field order.
    *
-   * @param \DrevOps\Customizer\Config\Field[] $fields
+   * @param \DrevOps\Tui\Config\Field[] $fields
    *   The fields, in order.
    * @param array<string,mixed> $values
    *   The resolved values.

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Theme;
+namespace DrevOps\Tui\Theme;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\Panel;
-use DrevOps\Customizer\Tui\Ansi;
-use DrevOps\Customizer\Tui\Navigator;
-use DrevOps\Customizer\Tui\Scroller;
-use DrevOps\Customizer\Tui\Viewport;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\Panel;
+use DrevOps\Tui\Render\Ansi;
+use DrevOps\Tui\Render\Navigator;
+use DrevOps\Tui\Render\Scroller;
+use DrevOps\Tui\Render\Viewport;
 
 /**
  * Abstract visual authority for the TUI - one self-contained class per theme.
@@ -26,7 +26,7 @@ use DrevOps\Customizer\Tui\Viewport;
  * {@see register()} so the config can select it - the config only ever
  * references a theme name.
  *
- * @package DrevOps\Customizer\Theme
+ * @package DrevOps\Tui\Theme
  */
 abstract class AbstractTheme implements ThemeInterface {
 
@@ -47,7 +47,7 @@ abstract class AbstractTheme implements ThemeInterface {
   /**
    * The name => theme-class registry.
    *
-   * @var array<string,class-string<\DrevOps\Customizer\Theme\AbstractTheme>>
+   * @var array<string,class-string<\DrevOps\Tui\Theme\AbstractTheme>>
    */
   protected static array $registry = [
     'dark' => DarkTheme::class,
@@ -94,7 +94,7 @@ abstract class AbstractTheme implements ThemeInterface {
    *
    * @param string $name
    *   The theme name.
-   * @param class-string<\DrevOps\Customizer\Theme\AbstractTheme> $class
+   * @param class-string<\DrevOps\Tui\Theme\AbstractTheme> $class
    *   The theme class.
    */
   public static function register(string $name, string $class): void {
@@ -119,7 +119,7 @@ abstract class AbstractTheme implements ThemeInterface {
    * @param bool $unicode
    *   Whether Unicode glyphs are used (FALSE falls back to ASCII).
    *
-   * @return \DrevOps\Customizer\Theme\AbstractTheme
+   * @return \DrevOps\Tui\Theme\AbstractTheme
    *   The theme instance.
    */
   public static function create(string $name = 'dark', bool $color = TRUE, int $width = 76, bool $unicode = TRUE): AbstractTheme {
@@ -263,7 +263,7 @@ abstract class AbstractTheme implements ThemeInterface {
   /**
    * The number of navigable items in a panel (fields + sub-panels).
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The panel.
    *
    * @return int
@@ -276,9 +276,9 @@ abstract class AbstractTheme implements ThemeInterface {
   /**
    * Build the body lines and the line index of the selected item.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The panel.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The current answers.
    * @param int $cursor
    *   The selected item index.
@@ -328,9 +328,9 @@ abstract class AbstractTheme implements ThemeInterface {
   /**
    * Render a field row.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The current answers.
    * @param bool $selected
    *   Whether the row is selected.
@@ -352,7 +352,7 @@ abstract class AbstractTheme implements ThemeInterface {
   /**
    * Render a sub-panel row.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The sub-panel.
    * @param bool $selected
    *   Whether the row is selected.
@@ -384,9 +384,9 @@ abstract class AbstractTheme implements ThemeInterface {
    *
    * Lets the hub show what is configured in each panel without drilling in.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The sub-panel.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The current answers.
    *
    * @return string
@@ -432,7 +432,7 @@ abstract class AbstractTheme implements ThemeInterface {
   /**
    * Render a breadcrumb line for the navigator.
    *
-   * @param \DrevOps\Customizer\Tui\Navigator $navigator
+   * @param \DrevOps\Tui\Render\Navigator $navigator
    *   The navigator.
    *
    * @return string
@@ -451,7 +451,7 @@ abstract class AbstractTheme implements ThemeInterface {
    *   The full body lines.
    * @param list<string> $footer
    *   The pinned footer lines.
-   * @param \DrevOps\Customizer\Tui\Viewport $viewport
+   * @param \DrevOps\Tui\Render\Viewport $viewport
    *   The computed viewport.
    * @param int $height
    *   The body viewport height.

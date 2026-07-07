@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Theme;
+namespace DrevOps\Tui\Theme;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\Panel;
-use DrevOps\Customizer\Tui\Navigator;
-use DrevOps\Customizer\Tui\Viewport;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\Panel;
+use DrevOps\Tui\Render\Navigator;
+use DrevOps\Tui\Render\Viewport;
 
 /**
  * The contract a theme fulfils: style and glyph resolution plus TUI rendering.
@@ -17,7 +17,7 @@ use DrevOps\Customizer\Tui\Viewport;
  * by extending AbstractTheme and defining a palette and a glyph set - to own
  * the colours, glyphs and how every element is composed.
  *
- * @package DrevOps\Customizer\Theme
+ * @package DrevOps\Tui\Theme
  */
 interface ThemeInterface {
 
@@ -79,7 +79,7 @@ interface ThemeInterface {
   /**
    * The number of navigable items in a panel (fields plus sub-panels).
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The panel.
    *
    * @return int
@@ -90,9 +90,9 @@ interface ThemeInterface {
   /**
    * Build the body lines and the line index of the selected item.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The panel.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The current answers.
    * @param int $cursor
    *   The selected item index.
@@ -105,9 +105,9 @@ interface ThemeInterface {
   /**
    * Render a field row.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The current answers.
    * @param bool $selected
    *   Whether the row is selected.
@@ -120,7 +120,7 @@ interface ThemeInterface {
   /**
    * Render a sub-panel row.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The sub-panel.
    * @param bool $selected
    *   Whether the row is selected.
@@ -146,9 +146,9 @@ interface ThemeInterface {
   /**
    * Summarize a sub-panel's active field values into one line, for the hub.
    *
-   * @param \DrevOps\Customizer\Config\Panel $panel
+   * @param \DrevOps\Tui\Config\Panel $panel
    *   The sub-panel.
-   * @param \DrevOps\Customizer\Answers\Answers $answers
+   * @param \DrevOps\Tui\Answers\Answers $answers
    *   The current answers.
    *
    * @return string
@@ -172,7 +172,7 @@ interface ThemeInterface {
   /**
    * Render a breadcrumb line for the navigator.
    *
-   * @param \DrevOps\Customizer\Tui\Navigator $navigator
+   * @param \DrevOps\Tui\Render\Navigator $navigator
    *   The navigator.
    *
    * @return string
@@ -189,7 +189,7 @@ interface ThemeInterface {
    *   The body lines.
    * @param list<string> $footer
    *   The footer lines.
-   * @param \DrevOps\Customizer\Tui\Viewport $viewport
+   * @param \DrevOps\Tui\Render\Viewport $viewport
    *   The viewport.
    * @param int $height
    *   The body viewport height.

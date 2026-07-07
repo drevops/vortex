@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Process;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerInterface;
-use DrevOps\Customizer\Handler\HandlerRegistry;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Handler\Context;
+use DrevOps\Tui\Handler\HandlerInterface;
+use DrevOps\Tui\Handler\HandlerRegistry;
 
 /**
  * Applies collected answers by running field handlers in a fixed order.
@@ -26,13 +26,13 @@ class Processor {
   /**
    * Apply the collected answers to the project directory.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration.
-   * @param \DrevOps\Customizer\Handler\HandlerRegistry $handlers
+   * @param \DrevOps\Tui\Handler\HandlerRegistry $handlers
    *   The handler registry.
    * @param array<string,mixed> $answers
    *   The collected answers.
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context.
    * @param array<int,array{id:string,weight:int}> $processors
    *   The field-less processors that always run, each an id and a weight.

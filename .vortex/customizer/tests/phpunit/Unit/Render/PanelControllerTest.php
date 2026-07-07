@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Tui;
+namespace DrevOps\Tui\Tests\Unit\Render;
 
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Tui\Ansi;
-use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Theme\DarkTheme;
+use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
+use DrevOps\Tui\Render\Ansi;
+use DrevOps\Tui\Render\PanelController;
+use DrevOps\Tui\Theme\DarkTheme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

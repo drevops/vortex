@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Config;
+namespace DrevOps\Tui\Config;
 
 /**
  * The root configuration model: title, subject and a tree of panels.
  *
- * @package DrevOps\Customizer\Config
+ * @package DrevOps\Tui\Config
  */
 final readonly class Config {
 
@@ -18,7 +18,7 @@ final readonly class Config {
    *   The application title.
    * @param string $subject
    *   The subject being configured (e.g. the project name).
-   * @param \DrevOps\Customizer\Config\Panel[] $panels
+   * @param \DrevOps\Tui\Config\Panel[] $panels
    *   The top-level panels.
    * @param array<int,array<array-key,mixed>> $fixups
    *   Raw post-submit fix-up rules, evaluated by the engine.
@@ -73,7 +73,7 @@ final readonly class Config {
   /**
    * All fields flattened across the panel tree, in declaration order.
    *
-   * @return \DrevOps\Customizer\Config\Field[]
+   * @return \DrevOps\Tui\Config\Field[]
    *   The fields.
    */
   public function fields(): array {
@@ -86,9 +86,9 @@ final readonly class Config {
   /**
    * Recursively flatten fields from panels into an accumulator.
    *
-   * @param \DrevOps\Customizer\Config\Panel[] $panels
+   * @param \DrevOps\Tui\Config\Panel[] $panels
    *   Panels to walk.
-   * @param \DrevOps\Customizer\Config\Field[] $fields
+   * @param \DrevOps\Tui\Config\Field[] $fields
    *   Accumulator, populated in place.
    */
   protected function collectFields(array $panels, array &$fields): void {
@@ -104,7 +104,7 @@ final readonly class Config {
   /**
    * Recursively search panels for a field by id.
    *
-   * @param \DrevOps\Customizer\Config\Panel[] $panels
+   * @param \DrevOps\Tui\Config\Panel[] $panels
    *   Panels to search.
    * @param string $id
    *   The field id to find.

@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Widget\ConfirmWidget;
+use DrevOps\Tui\Widget\ConfirmWidget;
 
 require __DIR__ . '/bootstrap.php';
 

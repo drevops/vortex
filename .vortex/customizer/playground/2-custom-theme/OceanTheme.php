@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Playground\CustomTheme;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\Panel;
-use DrevOps\Customizer\Theme\DarkTheme;
-use DrevOps\Customizer\Tui\Navigator;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\Panel;
+use DrevOps\Tui\Theme\DarkTheme;
+use DrevOps\Tui\Render\Navigator;
 
 /**
  * A custom theme that overrides as much as it sensibly can, to show the surface.

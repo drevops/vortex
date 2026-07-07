@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Handler;
+namespace DrevOps\Tui\Tests\Unit\Handler;
 
-use DrevOps\Customizer\Handler\HandlerInterface;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Handler\AbstractHandler;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerException;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Tests\Fixtures\Handler\MachineName;
+use DrevOps\Tui\Handler\HandlerInterface;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Handler\AbstractHandler;
+use DrevOps\Tui\Handler\Context;
+use DrevOps\Tui\Handler\HandlerException;
+use DrevOps\Tui\Handler\HandlerRegistry;
+use DrevOps\Tui\Tests\Fixtures\Handler\MachineName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -40,7 +40,7 @@ final class HandlerRegistryTest extends TestCase {
     $this->assertNotInstanceOf(HandlerInterface::class, $registry->get('machine_name'));
 
     // Surrounding backslashes are tolerated and normalized away.
-    $registry->addNamespace('\\DrevOps\\Customizer\\Tests\\Fixtures\\Handler\\');
+    $registry->addNamespace('\\DrevOps\\Tui\\Tests\\Fixtures\\Handler\\');
     $this->assertInstanceOf(MachineName::class, $registry->get('machine_name'));
   }
 
@@ -79,7 +79,7 @@ final class HandlerRegistryTest extends TestCase {
    * Build a registry scoped to the fixture handler namespace.
    */
   protected function registry(): HandlerRegistry {
-    return new HandlerRegistry(['DrevOps\\Customizer\\Tests\\Fixtures\\Handler']);
+    return new HandlerRegistry(['DrevOps\\Tui\\Tests\\Fixtures\\Handler']);
   }
 
 }

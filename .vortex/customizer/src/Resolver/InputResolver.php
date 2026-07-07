@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Resolver;
+namespace DrevOps\Tui\Resolver;
 
-use DrevOps\Customizer\Config\FieldType;
+use DrevOps\Tui\Config\FieldType;
 
 /**
  * Assembles the non-interactive input map from the external answer layers.
@@ -17,7 +17,7 @@ use DrevOps\Customizer\Config\FieldType;
  * strings, so they are coerced to the field's type; `--prompts` values are
  * already typed by JSON.
  *
- * @package DrevOps\Customizer\Resolver
+ * @package DrevOps\Tui\Resolver
  */
 class InputResolver {
 
@@ -33,7 +33,7 @@ class InputResolver {
   /**
    * Build the input map for the given fields.
    *
-   * @param \DrevOps\Customizer\Config\Field[] $fields
+   * @param \DrevOps\Tui\Config\Field[] $fields
    *   The fields to resolve inputs for.
    * @param string $prompts
    *   A `--prompts` JSON string, or a path to a JSON file, or empty.
@@ -78,7 +78,7 @@ class InputResolver {
    *
    * @param string $value
    *   The raw environment value.
-   * @param \DrevOps\Customizer\Config\FieldType $type
+   * @param \DrevOps\Tui\Config\FieldType $type
    *   The field type.
    *
    * @return mixed

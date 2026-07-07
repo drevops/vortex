@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Widget;
+namespace DrevOps\Tui\Widget;
 
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyStreamInterface;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyStreamInterface;
 
 /**
  * Drives a widget to completion from a key stream.
  *
- * @package DrevOps\Customizer\Widget
+ * @package DrevOps\Tui\Widget
  */
 final class WidgetRunner {
 
   /**
    * Feed keys to a widget until it completes or is cancelled.
    *
-   * @param \DrevOps\Customizer\Widget\WidgetInterface $widget
+   * @param \DrevOps\Tui\Widget\WidgetInterface $widget
    *   The widget to drive.
-   * @param \DrevOps\Customizer\Input\KeyStreamInterface $keys
+   * @param \DrevOps\Tui\Input\KeyStreamInterface $keys
    *   The key source.
    *
    * @return mixed

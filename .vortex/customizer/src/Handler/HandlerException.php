@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Handler;
+namespace DrevOps\Tui\Handler;
 
 /**
  * Thrown when a required handler cannot be resolved.
  *
- * @package DrevOps\Customizer\Handler
+ * @package DrevOps\Tui\Handler
  */
 class HandlerException extends \RuntimeException {
 

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Theme;
+namespace DrevOps\Tui\Tests\Unit\Theme;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Config\Panel;
-use DrevOps\Customizer\Tui\Ansi;
-use DrevOps\Customizer\Theme\DarkTheme;
-use DrevOps\Customizer\Tui\Navigator;
-use DrevOps\Customizer\Theme\AbstractTheme;
-use DrevOps\Customizer\Tui\Viewport;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Config\Panel;
+use DrevOps\Tui\Render\Ansi;
+use DrevOps\Tui\Theme\DarkTheme;
+use DrevOps\Tui\Render\Navigator;
+use DrevOps\Tui\Theme\AbstractTheme;
+use DrevOps\Tui\Render\Viewport;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

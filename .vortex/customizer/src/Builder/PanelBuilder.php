@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Builder;
+namespace DrevOps\Tui\Builder;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Config\Panel;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Config\Panel;
 
 /**
  * A fluent builder for a Panel and its fields and sub-panels.
  *
- * @package DrevOps\Customizer\Builder
+ * @package DrevOps\Tui\Builder
  */
 final class PanelBuilder {
 
@@ -23,14 +23,14 @@ final class PanelBuilder {
   /**
    * The field builders, in declaration order.
    *
-   * @var \DrevOps\Customizer\Builder\FieldBuilder[]
+   * @var \DrevOps\Tui\Builder\FieldBuilder[]
    */
   protected array $fields = [];
 
   /**
    * The nested panel builders, in declaration order.
    *
-   * @var \DrevOps\Customizer\Builder\PanelBuilder[]
+   * @var \DrevOps\Tui\Builder\PanelBuilder[]
    */
   protected array $panels = [];
 
@@ -68,7 +68,7 @@ final class PanelBuilder {
    * @param string $label
    *   The label (defaults to the id).
    *
-   * @return \DrevOps\Customizer\Builder\FieldBuilder
+   * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The field builder.
    */
   public function text(string $id, string $label = ''): FieldBuilder {
@@ -83,7 +83,7 @@ final class PanelBuilder {
    * @param string $label
    *   The label (defaults to the id).
    *
-   * @return \DrevOps\Customizer\Builder\FieldBuilder
+   * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The field builder.
    */
   public function select(string $id, string $label = ''): FieldBuilder {
@@ -98,7 +98,7 @@ final class PanelBuilder {
    * @param string $label
    *   The label (defaults to the id).
    *
-   * @return \DrevOps\Customizer\Builder\FieldBuilder
+   * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The field builder.
    */
   public function multiselect(string $id, string $label = ''): FieldBuilder {
@@ -113,7 +113,7 @@ final class PanelBuilder {
    * @param string $label
    *   The label (defaults to the id).
    *
-   * @return \DrevOps\Customizer\Builder\FieldBuilder
+   * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The field builder.
    */
   public function confirm(string $id, string $label = ''): FieldBuilder {
@@ -128,7 +128,7 @@ final class PanelBuilder {
    * @param string $label
    *   The label (defaults to the id).
    *
-   * @return \DrevOps\Customizer\Builder\FieldBuilder
+   * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The field builder.
    */
   public function suggest(string $id, string $label = ''): FieldBuilder {
@@ -159,7 +159,7 @@ final class PanelBuilder {
   /**
    * Build the immutable Panel.
    *
-   * @return \DrevOps\Customizer\Config\Panel
+   * @return \DrevOps\Tui\Config\Panel
    *   The panel.
    */
   public function build(): Panel {
@@ -179,10 +179,10 @@ final class PanelBuilder {
    *   The field id.
    * @param string $label
    *   The label (defaults to the id).
-   * @param \DrevOps\Customizer\Config\FieldType $type
+   * @param \DrevOps\Tui\Config\FieldType $type
    *   The widget type.
    *
-   * @return \DrevOps\Customizer\Builder\FieldBuilder
+   * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The field builder.
    */
   protected function field(string $id, string $label, FieldType $type): FieldBuilder {

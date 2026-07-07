@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Answers;
+namespace DrevOps\Tui\Answers;
 
 /**
  * The collected answer set: values plus provenance, keyed by question id.
@@ -12,7 +12,7 @@ namespace DrevOps\Customizer\Answers;
  * present. Provenance is one of default / detected / edited / derived /
  * override.
  *
- * @package DrevOps\Customizer\Answers
+ * @package DrevOps\Tui\Answers
  */
 final readonly class Answers {
 

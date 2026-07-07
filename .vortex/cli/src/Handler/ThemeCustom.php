@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Handler\AbstractHandler;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Handler\AbstractHandler;
 
 /**
  * Handler for the "theme_custom" question.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Tui\Render;
 
 /**
  * Pure terminal control sequences (alternate screen, cursor, mouse).
@@ -10,7 +10,7 @@ namespace DrevOps\Customizer\Tui;
  * Kept separate from I/O so the sequences are unit-testable; a Terminal writes
  * them to the real TTY.
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Tui\Render
  */
 final class TerminalControl {
 

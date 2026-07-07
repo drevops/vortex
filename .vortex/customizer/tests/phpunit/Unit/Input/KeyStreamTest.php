@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Input;
+namespace DrevOps\Tui\Tests\Unit\Input;
 
-use DrevOps\Customizer\Input\ArrayKeyStream;
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Tui\Input\ArrayKeyStream;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

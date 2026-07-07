@@ -16,13 +16,13 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Theme\DarkTheme;
-use DrevOps\Customizer\Widget\ConfirmWidget;
-use DrevOps\Customizer\Widget\MultiSelectWidget;
-use DrevOps\Customizer\Widget\SelectWidget;
-use DrevOps\Customizer\Widget\SuggestWidget;
-use DrevOps\Customizer\Widget\TextWidget;
-use DrevOps\Customizer\Widget\WidgetInterface;
+use DrevOps\Tui\Theme\DarkTheme;
+use DrevOps\Tui\Widget\ConfirmWidget;
+use DrevOps\Tui\Widget\MultiSelectWidget;
+use DrevOps\Tui\Widget\SelectWidget;
+use DrevOps\Tui\Widget\SuggestWidget;
+use DrevOps\Tui\Widget\TextWidget;
+use DrevOps\Tui\Widget\WidgetInterface;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -33,7 +33,7 @@ $ascii = new DarkTheme(FALSE, 76, FALSE);
 /**
  * The widgets to showcase, each built freshly (widgets are stateful).
  *
- * @var array<string,callable():\DrevOps\Customizer\Widget\WidgetInterface>
+ * @var array<string,callable():\DrevOps\Tui\Widget\WidgetInterface>
  */
 $widgets = [
   'Text' => static fn(): WidgetInterface => new TextWidget('Acme Site'),

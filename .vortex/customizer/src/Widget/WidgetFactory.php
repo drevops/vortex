@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Widget;
+namespace DrevOps\Tui\Widget;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 
 /**
  * Builds the widget for a field, seeded with the field's current value.
  *
- * @package DrevOps\Customizer\Widget
+ * @package DrevOps\Tui\Widget
  */
 class WidgetFactory {
 
   /**
    * Create a widget for a field.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
    * @param mixed $current
    *   The current value to seed the widget with.
    *
-   * @return \DrevOps\Customizer\Widget\WidgetInterface
+   * @return \DrevOps\Tui\Widget\WidgetInterface
    *   The widget.
    */
   public function create(Field $field, mixed $current): WidgetInterface {
@@ -40,7 +40,7 @@ class WidgetFactory {
   /**
    * The option value => label map for a field.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
    *
    * @return array<string,string>

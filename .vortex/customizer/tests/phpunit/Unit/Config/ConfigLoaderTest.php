@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Config;
+namespace DrevOps\Tui\Tests\Unit\Config;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\ConfigException;
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Config\Option;
-use DrevOps\Customizer\Config\Panel;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\ConfigException;
+use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Config\Option;
+use DrevOps\Tui\Config\Panel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;

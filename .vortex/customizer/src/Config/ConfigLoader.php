@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Config;
+namespace DrevOps\Tui\Config;
 
-use DrevOps\Customizer\Derive\Transform;
+use DrevOps\Tui\Derive\Transform;
 
 /**
  * Builds and validates a Config model from a decoded array.
  *
- * @package DrevOps\Customizer\Config
+ * @package DrevOps\Tui\Config
  */
 class ConfigLoader {
 
@@ -77,7 +77,7 @@ class ConfigLoader {
    * @param array<string,bool> $seen
    *   Field ids already seen, to detect duplicates across the tree.
    *
-   * @return \DrevOps\Customizer\Config\Panel[]
+   * @return \DrevOps\Tui\Config\Panel[]
    *   The built panels.
    */
   protected function buildPanels(mixed $items, array &$seen): array {
@@ -114,7 +114,7 @@ class ConfigLoader {
    * @param string $panel_id
    *   The owning panel id (for error messages).
    *
-   * @return \DrevOps\Customizer\Config\Field[]
+   * @return \DrevOps\Tui\Config\Field[]
    *   The built fields.
    */
   protected function buildFields(mixed $items, array &$seen, string $panel_id): array {
@@ -198,7 +198,7 @@ class ConfigLoader {
    * @param string $field_id
    *   The owning field id (for error messages).
    *
-   * @return array<string,\DrevOps\Customizer\Config\Option>
+   * @return array<string,\DrevOps\Tui\Config\Option>
    *   Options keyed by value.
    */
   protected function buildOptions(mixed $items, string $field_id): array {

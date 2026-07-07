@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Engine;
+namespace DrevOps\Tui\Tests\Unit\Engine;
 
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Engine\Engine;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Schema\SchemaValidator;
+use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Engine\Engine;
+use DrevOps\Tui\Handler\Context;
+use DrevOps\Tui\Handler\HandlerRegistry;
+use DrevOps\Tui\Schema\SchemaValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

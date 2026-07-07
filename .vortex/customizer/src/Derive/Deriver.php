@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Derive;
+namespace DrevOps\Tui\Derive;
 
 /**
  * Computes derived field values from templates and settles chains.
@@ -14,7 +14,7 @@ namespace DrevOps\Customizer\Derive;
  * Derived values are recomputed to a fixpoint so chains settle, and fields the
  * user has pinned (overridden) are left untouched.
  *
- * @package DrevOps\Customizer\Derive
+ * @package DrevOps\Tui\Derive
  */
 class Deriver {
 

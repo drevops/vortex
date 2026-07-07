@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Handler;
+namespace DrevOps\Tui\Tests\Unit\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Handler\AbstractHandler;
-use DrevOps\Customizer\Handler\Context;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Handler\AbstractHandler;
+use DrevOps\Tui\Handler\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

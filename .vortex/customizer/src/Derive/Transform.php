@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Derive;
+namespace DrevOps\Tui\Derive;
 
 use AlexSkrypnyk\Str2Name\Str2Name;
 
@@ -14,7 +14,7 @@ use AlexSkrypnyk\Str2Name\Str2Name;
  * transforms (host, lower, upper, abbreviation). A config derive rule names a
  * transform; the engine validates the name against supports().
  *
- * @package DrevOps\Customizer\Derive
+ * @package DrevOps\Tui\Derive
  */
 class Transform extends Str2Name {
 

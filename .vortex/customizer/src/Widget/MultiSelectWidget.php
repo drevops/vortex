@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Widget;
+namespace DrevOps\Tui\Widget;
 
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\ThemeInterface;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
+use DrevOps\Tui\Theme\ThemeInterface;
 
 /**
  * A checkbox list with type-to-filter and select-all/none.
@@ -14,7 +14,7 @@ use DrevOps\Customizer\Theme\ThemeInterface;
  * Printable characters narrow the list; Space toggles the highlighted option;
  * Right selects all visible options and Left deselects them.
  *
- * @package DrevOps\Customizer\Widget
+ * @package DrevOps\Tui\Widget
  */
 class MultiSelectWidget extends AbstractWidget {
 

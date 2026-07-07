@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Handler\AbstractHandler;
-use DrevOps\Customizer\Handler\Context;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Handler\AbstractHandler;
+use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 
 /**

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Theme;
+namespace DrevOps\Tui\Theme;
 
 /**
  * A theme for light terminals: darker, higher-contrast foregrounds.
@@ -10,7 +10,7 @@ namespace DrevOps\Customizer\Theme;
  * Bright cyan and yellow wash out on a light background, so the palette leans
  * on blue and magenta instead.
  *
- * @package DrevOps\Customizer\Theme
+ * @package DrevOps\Tui\Theme
  */
 class LightTheme extends AbstractTheme {
 

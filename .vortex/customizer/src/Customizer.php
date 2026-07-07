@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer;
+namespace DrevOps\Tui;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Engine\Engine;
-use DrevOps\Customizer\Handler\Context;
-use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Resolver\InputResolver;
-use DrevOps\Customizer\Schema\AgentHelp;
-use DrevOps\Customizer\Schema\SchemaGenerator;
-use DrevOps\Customizer\Schema\SchemaValidator;
-use DrevOps\Customizer\Tui\PanelController;
-use DrevOps\Customizer\Tui\Terminal;
-use DrevOps\Customizer\Theme\AbstractTheme;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Engine\Engine;
+use DrevOps\Tui\Handler\Context;
+use DrevOps\Tui\Handler\HandlerRegistry;
+use DrevOps\Tui\Resolver\InputResolver;
+use DrevOps\Tui\Schema\AgentHelp;
+use DrevOps\Tui\Schema\SchemaGenerator;
+use DrevOps\Tui\Schema\SchemaValidator;
+use DrevOps\Tui\Render\PanelController;
+use DrevOps\Tui\Render\Terminal;
+use DrevOps\Tui\Theme\AbstractTheme;
 
 /**
  * The one-class entry point for building and running a customizer.
@@ -26,7 +26,7 @@ use DrevOps\Customizer\Theme\AbstractTheme;
  * reachable via config(), engine() and registry() when a consumer does want
  * finer control.
  *
- * @package DrevOps\Customizer
+ * @package DrevOps\Tui
  */
 final class Customizer {
 
@@ -43,7 +43,7 @@ final class Customizer {
   /**
    * Construct a customizer.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration.
    * @param string[] $handler_namespaces
    *   Namespaces the engine searches for field handlers, in order.
@@ -67,7 +67,7 @@ final class Customizer {
    * @param string $version
    *   The version stamped into the context.
    *
-   * @return \DrevOps\Customizer\Answers\Answers
+   * @return \DrevOps\Tui\Answers\Answers
    *   The collected answers.
    */
   public function collect(string $prompts = '', string $directory = '', bool $update = FALSE, string $version = ''): Answers {
@@ -88,10 +88,10 @@ final class Customizer {
    *   An optional version shown below the banner and stamped into the context.
    * @param string $directory
    *   The target directory (defaults to the current working directory).
-   * @param \DrevOps\Customizer\Tui\Terminal|null $terminal
+   * @param \DrevOps\Tui\Render\Terminal|null $terminal
    *   The terminal to drive (defaults to a real one).
    *
-   * @return \DrevOps\Customizer\Answers\Answers
+   * @return \DrevOps\Tui\Answers\Answers
    *   The collected answers.
    */
   public function run(string $theme = '', string $banner = '', string $version = '', string $directory = '', ?Terminal $terminal = NULL): Answers {
@@ -155,7 +155,7 @@ final class Customizer {
   /**
    * The configuration.
    *
-   * @return \DrevOps\Customizer\Config\Config
+   * @return \DrevOps\Tui\Config\Config
    *   The configuration.
    */
   public function config(): Config {
@@ -165,7 +165,7 @@ final class Customizer {
   /**
    * The engine.
    *
-   * @return \DrevOps\Customizer\Engine\Engine
+   * @return \DrevOps\Tui\Engine\Engine
    *   The engine.
    */
   public function engine(): Engine {
@@ -175,7 +175,7 @@ final class Customizer {
   /**
    * The handler registry.
    *
-   * @return \DrevOps\Customizer\Handler\HandlerRegistry
+   * @return \DrevOps\Tui\Handler\HandlerRegistry
    *   The handler registry.
    */
   public function registry(): HandlerRegistry {
@@ -192,7 +192,7 @@ final class Customizer {
    * @param string $version
    *   The version stamped into the context.
    *
-   * @return \DrevOps\Customizer\Handler\Context
+   * @return \DrevOps\Tui\Handler\Context
    *   The context.
    */
   protected function context(string $directory, bool $update, string $version): Context {

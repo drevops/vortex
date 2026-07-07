@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Customizer;
+use DrevOps\Tui\Customizer;
 
 require __DIR__ . '/../../vendor/autoload.php';
 

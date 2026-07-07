@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Config;
+namespace DrevOps\Tui\Config;
 
 /**
  * The set of supported field (widget) types.
  *
- * @package DrevOps\Customizer\Config
+ * @package DrevOps\Tui\Config
  */
 enum FieldType: string {
 

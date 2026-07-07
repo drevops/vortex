@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Tui;
+namespace DrevOps\Tui\Tests\Unit\Render;
 
-use DrevOps\Customizer\Tui\Scroller;
-use DrevOps\Customizer\Tui\Viewport;
+use DrevOps\Tui\Render\Scroller;
+use DrevOps\Tui\Render\Viewport;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Discovery;
+namespace DrevOps\Tui\Tests\Unit\Discovery;
 
-use DrevOps\Customizer\Discovery\Discovery;
+use DrevOps\Tui\Discovery\Discovery;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;

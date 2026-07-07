@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Tui\Render;
 
 /**
  * Computes the visible window of a scrolling list.
@@ -11,7 +11,7 @@ namespace DrevOps\Customizer\Tui;
  * keeping it inside the viewport; `scroll()` moves the window without moving
  * the cursor (mouse wheel). Both clamp to the valid range and report ▲/▼.
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Tui\Render
  */
 class Scroller {
 
@@ -27,7 +27,7 @@ class Scroller {
    * @param int $offset
    *   The current first-visible-line index.
    *
-   * @return \DrevOps\Customizer\Tui\Viewport
+   * @return \DrevOps\Tui\Render\Viewport
    *   The computed viewport.
    */
   public function compute(int $total, int $height, int $cursor, int $offset): Viewport {

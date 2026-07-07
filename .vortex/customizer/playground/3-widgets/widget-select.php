@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Widget\SelectWidget;
+use DrevOps\Tui\Widget\SelectWidget;
 
 require __DIR__ . '/bootstrap.php';
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Condition;
+namespace DrevOps\Tui\Condition;
 
 /**
  * Evaluates a structured `when` condition against a set of answers.
@@ -11,7 +11,7 @@ namespace DrevOps\Customizer\Condition;
  * `field` reference and one operator (`eq` / `ne` / `in` / `contains`); a leaf
  * with no operator tests the referenced field for a truthy value.
  *
- * @package DrevOps\Customizer\Condition
+ * @package DrevOps\Tui\Condition
  */
 class ConditionEvaluator {
 

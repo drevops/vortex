@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Condition;
+namespace DrevOps\Tui\Tests\Unit\Condition;
 
-use DrevOps\Customizer\Condition\ConditionDescriber;
+use DrevOps\Tui\Condition\ConditionDescriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;

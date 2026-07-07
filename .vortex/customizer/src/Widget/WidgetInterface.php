@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Widget;
+namespace DrevOps\Tui\Widget;
 
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Theme\ThemeInterface;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Theme\ThemeInterface;
 
 /**
  * A single interactive field collector driven one key at a time.
  *
- * @package DrevOps\Customizer\Widget
+ * @package DrevOps\Tui\Widget
  */
 interface WidgetInterface {
 
   /**
    * Process one key press, mutating the widget state.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key to process.
    */
   public function handle(Key $key): void;
@@ -51,7 +51,7 @@ interface WidgetInterface {
   /**
    * A rendering of the current state, using the theme's glyphs.
    *
-   * @param \DrevOps\Customizer\Theme\ThemeInterface $theme
+   * @param \DrevOps\Tui\Theme\ThemeInterface $theme
    *   The theme supplying Unicode or ASCII glyphs.
    *
    * @return string

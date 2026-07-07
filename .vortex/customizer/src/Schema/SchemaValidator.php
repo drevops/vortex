@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Schema;
+namespace DrevOps\Tui\Schema;
 
-use DrevOps\Customizer\Condition\ConditionEvaluator;
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
+use DrevOps\Tui\Condition\ConditionEvaluator;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 
 /**
  * Validates an answer set against the configuration.
@@ -16,7 +16,7 @@ use DrevOps\Customizer\Config\FieldType;
  * questions whose `when` condition is not met by the answer set. Returns a
  * list of actionable error messages (empty when the set is valid).
  *
- * @package DrevOps\Customizer\Schema
+ * @package DrevOps\Tui\Schema
  */
 class SchemaValidator {
 
@@ -28,7 +28,7 @@ class SchemaValidator {
   /**
    * Construct a validator.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration to validate against.
    */
   public function __construct(protected Config $config) {
@@ -78,7 +78,7 @@ class SchemaValidator {
   /**
    * Validate a single value against its field.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
    * @param mixed $value
    *   The value.
@@ -101,7 +101,7 @@ class SchemaValidator {
   /**
    * Whether the value matches the field type.
    *
-   * @param \DrevOps\Customizer\Config\FieldType $type
+   * @param \DrevOps\Tui\Config\FieldType $type
    *   The field type.
    * @param mixed $value
    *   The value.
@@ -120,7 +120,7 @@ class SchemaValidator {
   /**
    * A human name for a field type.
    *
-   * @param \DrevOps\Customizer\Config\FieldType $type
+   * @param \DrevOps\Tui\Config\FieldType $type
    *   The field type.
    *
    * @return string
@@ -150,7 +150,7 @@ class SchemaValidator {
   /**
    * Check option membership for choice fields.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
    * @param mixed $value
    *   The value.

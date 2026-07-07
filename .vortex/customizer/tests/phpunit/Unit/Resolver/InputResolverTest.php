@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Resolver;
+namespace DrevOps\Tui\Tests\Unit\Resolver;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Resolver\InputResolver;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Resolver\InputResolver;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -78,7 +78,7 @@ final class InputResolverTest extends TestCase {
   /**
    * Build a text, confirm and multiselect field for resolution.
    *
-   * @return \DrevOps\Customizer\Config\Field[]
+   * @return \DrevOps\Tui\Config\Field[]
    *   The fields.
    */
   protected function fields(): array {

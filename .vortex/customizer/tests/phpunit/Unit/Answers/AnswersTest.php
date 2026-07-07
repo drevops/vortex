@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Answers;
+namespace DrevOps\Tui\Tests\Unit\Answers;
 
-use DrevOps\Customizer\Answers\Answers;
+use DrevOps\Tui\Answers\Answers;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

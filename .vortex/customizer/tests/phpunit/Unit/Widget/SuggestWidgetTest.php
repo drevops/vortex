@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Widget;
+namespace DrevOps\Tui\Tests\Unit\Widget;
 
-use DrevOps\Customizer\Input\ArrayKeyStream;
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Theme\DarkTheme;
-use DrevOps\Customizer\Widget\AbstractWidget;
-use DrevOps\Customizer\Widget\SuggestWidget;
-use DrevOps\Customizer\Widget\WidgetRunner;
+use DrevOps\Tui\Input\ArrayKeyStream;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
+use DrevOps\Tui\Theme\DarkTheme;
+use DrevOps\Tui\Widget\AbstractWidget;
+use DrevOps\Tui\Widget\SuggestWidget;
+use DrevOps\Tui\Widget\WidgetRunner;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

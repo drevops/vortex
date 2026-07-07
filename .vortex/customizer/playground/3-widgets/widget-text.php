@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Widget\TextWidget;
+use DrevOps\Tui\Widget\TextWidget;
 
 require __DIR__ . '/bootstrap.php';
 

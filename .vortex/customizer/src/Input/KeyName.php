@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Input;
+namespace DrevOps\Tui\Input;
 
 /**
  * Named special keys recognised by the widgets.
  *
- * @package DrevOps\Customizer\Input
+ * @package DrevOps\Tui\Input
  */
 enum KeyName {
 

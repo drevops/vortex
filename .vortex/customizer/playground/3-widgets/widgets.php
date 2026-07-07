@@ -12,11 +12,11 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Widget\ConfirmWidget;
-use DrevOps\Customizer\Widget\MultiSelectWidget;
-use DrevOps\Customizer\Widget\SelectWidget;
-use DrevOps\Customizer\Widget\SuggestWidget;
-use DrevOps\Customizer\Widget\TextWidget;
+use DrevOps\Tui\Widget\ConfirmWidget;
+use DrevOps\Tui\Widget\MultiSelectWidget;
+use DrevOps\Tui\Widget\SelectWidget;
+use DrevOps\Tui\Widget\SuggestWidget;
+use DrevOps\Tui\Widget\TextWidget;
 
 require __DIR__ . '/bootstrap.php';
 

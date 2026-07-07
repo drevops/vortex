@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Widget;
+namespace DrevOps\Tui\Widget;
 
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
 
 /**
  * Shared widget behaviour: accept/cancel, validation and transformation.
  *
- * @package DrevOps\Customizer\Widget
+ * @package DrevOps\Tui\Widget
  */
 abstract class AbstractWidget implements WidgetInterface {
 
@@ -88,7 +88,7 @@ abstract class AbstractWidget implements WidgetInterface {
   /**
    * Cancel the widget when the key is Escape.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key to test.
    *
    * @return bool

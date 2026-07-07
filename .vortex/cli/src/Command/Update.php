@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\Customizer\Customizer;
-use DrevOps\Customizer\Engine\EngineException;
-use DrevOps\Customizer\Handler\Context;
+use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Engine\EngineException;
+use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Process\Processor;
 use Symfony\Component\Console\Command\Command;

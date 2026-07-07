@@ -22,7 +22,7 @@
             "url": "../customizer",
             "options": {
                 "versions": {
-                    "drevops/customizer": "1.0.0-alpha1"
+                    "drevops/tui": "1.0.0-alpha1"
                 }
             }
         }
@@ -33,7 +33,7 @@
         "alexskrypnyk/str2name": "^1.4.1",
         "composer/composer": "^2.10.1",
         "czproject/git-php": "^4.6",
-        "drevops/customizer": "^1.0@alpha",
+        "drevops/tui": "^1.0@alpha",
         "guzzlehttp/guzzle": "^7.12.3",
         "nelexa/zip": "^4.0.2",
         "symfony/console": "^7.4.13",

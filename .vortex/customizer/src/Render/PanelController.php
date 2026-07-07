@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Tui\Render;
 
-use DrevOps\Customizer\Answers\Answers;
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\Panel;
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Input\KeyParser;
-use DrevOps\Customizer\Theme\ThemeInterface;
-use DrevOps\Customizer\Widget\WidgetFactory;
-use DrevOps\Customizer\Widget\WidgetInterface;
+use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\Panel;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
+use DrevOps\Tui\Input\KeyParser;
+use DrevOps\Tui\Theme\ThemeInterface;
+use DrevOps\Tui\Widget\WidgetFactory;
+use DrevOps\Tui\Widget\WidgetInterface;
 
 /**
  * The interactive state machine behind the panel TUI.
@@ -24,7 +24,7 @@ use DrevOps\Customizer\Widget\WidgetInterface;
  * press re-engages cursor-follow. Editing a field returns to the panel with
  * the new value shown and marked "edited".
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Tui\Render
  */
 class PanelController {
 
@@ -81,9 +81,9 @@ class PanelController {
   /**
    * Construct a controller.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration.
-   * @param \DrevOps\Customizer\Theme\ThemeInterface $theme
+   * @param \DrevOps\Tui\Theme\ThemeInterface $theme
    *   The theme (the visual authority for rendering).
    * @param array<string,mixed> $values
    *   The initial answer values (typically the engine's resolved answers).
@@ -110,7 +110,7 @@ class PanelController {
   /**
    * Process one key press.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key.
    */
   public function handle(Key $key): void {
@@ -156,10 +156,10 @@ class PanelController {
   /**
    * Run the interactive loop against a terminal until the user quits.
    *
-   * @param \DrevOps\Customizer\Tui\Terminal $terminal
+   * @param \DrevOps\Tui\Render\Terminal $terminal
    *   The terminal.
    *
-   * @return \DrevOps\Customizer\Answers\Answers
+   * @return \DrevOps\Tui\Answers\Answers
    *   The collected answers.
    */
   public function run(Terminal $terminal): Answers {
@@ -206,7 +206,7 @@ class PanelController {
   /**
    * The current panel.
    *
-   * @return \DrevOps\Customizer\Config\Panel
+   * @return \DrevOps\Tui\Config\Panel
    *   The current panel.
    */
   public function currentPanel(): Panel {
@@ -216,7 +216,7 @@ class PanelController {
   /**
    * The current answers.
    *
-   * @return \DrevOps\Customizer\Answers\Answers
+   * @return \DrevOps\Tui\Answers\Answers
    *   The answers.
    */
   public function answers(): Answers {
@@ -271,7 +271,7 @@ class PanelController {
   /**
    * Handle a key while editing a field.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key.
    */
   protected function handleEditing(Key $key): void {
@@ -296,7 +296,7 @@ class PanelController {
   /**
    * Handle a key while navigating a panel.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key.
    */
   protected function handleNavigation(Key $key): void {
@@ -399,7 +399,7 @@ class PanelController {
   /**
    * Open the editor for a field.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
    */
   protected function openEditor(Field $field): void {

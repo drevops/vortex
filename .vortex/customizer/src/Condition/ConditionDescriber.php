@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Condition;
+namespace DrevOps\Tui\Condition;
 
 /**
  * Renders a human-readable reason for a structured `when` condition.
  *
- * @package DrevOps\Customizer\Condition
+ * @package DrevOps\Tui\Condition
  */
 class ConditionDescriber {
 

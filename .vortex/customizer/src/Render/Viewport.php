@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Tui\Render;
 
 /**
  * The computed state of a scrolling viewport.
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Tui\Render
  */
 final readonly class Viewport {
 

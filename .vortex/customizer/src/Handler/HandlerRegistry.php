@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Handler;
+namespace DrevOps\Tui\Handler;
 
 /**
  * Resolves a field id to a consumer-provided handler by class name.
@@ -12,7 +12,7 @@ namespace DrevOps\Customizer\Handler;
  * namespaces, in order. Handlers are optional: a field with no handler uses
  * the engine's default behaviour.
  *
- * @package DrevOps\Customizer\Handler
+ * @package DrevOps\Tui\Handler
  */
 class HandlerRegistry {
 
@@ -26,7 +26,7 @@ class HandlerRegistry {
   /**
    * Resolved handlers, keyed by field id (NULL means "none registered").
    *
-   * @var array<string,\DrevOps\Customizer\Handler\HandlerInterface|null>
+   * @var array<string,\DrevOps\Tui\Handler\HandlerInterface|null>
    */
   protected array $cache = [];
 

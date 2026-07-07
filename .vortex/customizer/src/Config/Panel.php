@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Config;
+namespace DrevOps\Tui\Config;
 
 /**
  * A panel: an ordered group of fields and nested sub-panels.
  *
- * @package DrevOps\Customizer\Config
+ * @package DrevOps\Tui\Config
  */
 final readonly class Panel {
 
@@ -20,9 +20,9 @@ final readonly class Panel {
    *   The panel title.
    * @param string $description
    *   The panel description.
-   * @param \DrevOps\Customizer\Config\Field[] $fields
+   * @param \DrevOps\Tui\Config\Field[] $fields
    *   Ordered fields in this panel.
-   * @param \DrevOps\Customizer\Config\Panel[] $panels
+   * @param \DrevOps\Tui\Config\Panel[] $panels
    *   Ordered nested sub-panels.
    */
   public function __construct(

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Input;
+namespace DrevOps\Tui\Tests\Unit\Input;
 
-use DrevOps\Customizer\Input\Key;
-use DrevOps\Customizer\Input\KeyName;
-use DrevOps\Customizer\Input\KeyParser;
+use DrevOps\Tui\Input\Key;
+use DrevOps\Tui\Input\KeyName;
+use DrevOps\Tui\Input\KeyParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -37,7 +37,7 @@ final class KeyParserTest extends TestCase {
   /**
    * Describe a key for assertion.
    *
-   * @param \DrevOps\Customizer\Input\Key $key
+   * @param \DrevOps\Tui\Input\Key $key
    *   The key.
    *
    * @return string

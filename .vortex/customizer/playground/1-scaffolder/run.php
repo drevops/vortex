@@ -12,8 +12,8 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Customizer;
-use DrevOps\Customizer\Engine\EngineException;
+use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Engine\EngineException;
 
 require __DIR__ . '/../../vendor/autoload.php';
 // A require, not autoload: the handler namespace lives inside this example.

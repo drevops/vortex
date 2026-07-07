@@ -1,6 +1,6 @@
 {
-    "name": "drevops/customizer",
-    "description": "Provides customizer functionality.",
+    "name": "drevops/tui",
+    "description": "Provides terminal UI form-building functionality.",
     "license": "GPL-2.0-or-later",
     "type": "library",
     "authors": [
@@ -37,12 +37,12 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "DrevOps\\Customizer\\": "src/"
+            "DrevOps\\Tui\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\Customizer\\Tests\\": "tests/phpunit"
+            "DrevOps\\Tui\\Tests\\": "tests/phpunit"
         },
         "classmap": [
             "tests/phpunit"

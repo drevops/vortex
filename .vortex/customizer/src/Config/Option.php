@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Config;
+namespace DrevOps\Tui\Config;
 
 /**
  * A single selectable option for a select, multiselect or suggest field.
  *
- * @package DrevOps\Customizer\Config
+ * @package DrevOps\Tui\Config
  */
 final readonly class Option {
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Tests\Unit\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\VortexCli\Handler\Name;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;

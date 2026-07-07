@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Input;
+namespace DrevOps\Tui\Input;
 
 /**
  * A single key press: either a named special key or a printable character.
  *
- * @package DrevOps\Customizer\Input
+ * @package DrevOps\Tui\Input
  */
 final readonly class Key {
 
   /**
    * Construct a key.
    *
-   * @param \DrevOps\Customizer\Input\KeyName|null $name
+   * @param \DrevOps\Tui\Input\KeyName|null $name
    *   The named special key, or NULL for a printable character.
    * @param string|null $char
    *   The printable character, or NULL for a named key.
@@ -28,7 +28,7 @@ final readonly class Key {
   /**
    * Create a named special key.
    *
-   * @param \DrevOps\Customizer\Input\KeyName $name
+   * @param \DrevOps\Tui\Input\KeyName $name
    *   The key name.
    */
   public static function named(KeyName $name): self {
@@ -55,7 +55,7 @@ final readonly class Key {
   /**
    * Whether this key is the given named key.
    *
-   * @param \DrevOps\Customizer\Input\KeyName $name
+   * @param \DrevOps\Tui\Input\KeyName $name
    *   The name to compare.
    */
   public function is(KeyName $name): bool {

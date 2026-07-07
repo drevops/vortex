@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tui;
+namespace DrevOps\Tui\Render;
 
 use Symfony\Component\Console\Terminal as ConsoleTerminal;
 
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Terminal as ConsoleTerminal;
  * The raw-mode toggling and input reading touch the real TTY and are excluded
  * from coverage; the output writing is stream-injectable and testable.
  *
- * @package DrevOps\Customizer\Tui
+ * @package DrevOps\Tui\Render
  */
 class Terminal {
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Discovery;
+namespace DrevOps\Tui\Discovery;
 
 /**
  * Evaluates config-declared discovery shortcuts against a project directory.
@@ -13,7 +13,7 @@ namespace DrevOps\Customizer\Discovery;
  * These cover the simple cases without a project-specific handler; anything
  * richer belongs in a handler's discover().
  *
- * @package DrevOps\Customizer\Discovery
+ * @package DrevOps\Tui\Discovery
  */
 class Discovery {
 

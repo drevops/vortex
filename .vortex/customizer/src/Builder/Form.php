@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Builder;
+namespace DrevOps\Tui\Builder;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\ConfigException;
-use DrevOps\Customizer\Config\Panel;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\ConfigException;
+use DrevOps\Tui\Config\Panel;
 
 /**
  * A fluent builder for the Config model, declared in PHP instead of YAML.
  *
- * @package DrevOps\Customizer\Builder
+ * @package DrevOps\Tui\Builder
  */
 final class Form {
 
@@ -72,7 +72,7 @@ final class Form {
   /**
    * The top-level panel builders, in declaration order.
    *
-   * @var \DrevOps\Customizer\Builder\PanelBuilder[]
+   * @var \DrevOps\Tui\Builder\PanelBuilder[]
    */
   protected array $panels = [];
 
@@ -254,7 +254,7 @@ final class Form {
   /**
    * Build the immutable Config model.
    *
-   * @return \DrevOps\Customizer\Config\Config
+   * @return \DrevOps\Tui\Config\Config
    *   The config.
    */
   public function build(): Config {
@@ -284,7 +284,7 @@ final class Form {
   /**
    * Assert that every field id is unique across the panel tree.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The built config.
    */
   protected function assertUniqueFieldIds(Config $config): void {

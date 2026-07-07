@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Fixtures\Handler;
+namespace DrevOps\Tui\Tests\Fixtures\Handler;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Handler\AbstractHandler;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Handler\AbstractHandler;
 
 /**
  * Test fixture: a handler auto-discovered for the "machine_name" field.
  *
- * @package DrevOps\Customizer\Tests\Fixtures\Handler
+ * @package DrevOps\Tui\Tests\Fixtures\Handler
  */
 class MachineName extends AbstractHandler {
 

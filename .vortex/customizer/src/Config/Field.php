@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Config;
+namespace DrevOps\Tui\Config;
 
 /**
  * A single question in the configuration model.
  *
- * @package DrevOps\Customizer\Config
+ * @package DrevOps\Tui\Config
  */
 final readonly class Field {
 
@@ -20,11 +20,11 @@ final readonly class Field {
    *   The human-readable label.
    * @param string $description
    *   The help text.
-   * @param \DrevOps\Customizer\Config\FieldType $type
+   * @param \DrevOps\Tui\Config\FieldType $type
    *   The widget type.
    * @param mixed $default
    *   The declared default value.
-   * @param array<string,\DrevOps\Customizer\Config\Option> $options
+   * @param array<string,\DrevOps\Tui\Config\Option> $options
    *   Options for choice-based fields, keyed by option value.
    * @param bool $required
    *   Whether a value is required.

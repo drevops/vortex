@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Tui;
+namespace DrevOps\Tui\Tests\Unit\Render;
 
-use DrevOps\Customizer\Config\Panel;
-use DrevOps\Customizer\Tui\Navigator;
+use DrevOps\Tui\Config\Panel;
+use DrevOps\Tui\Render\Navigator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

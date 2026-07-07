@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Builder;
+namespace DrevOps\Tui\Builder;
 
-use DrevOps\Customizer\Config\Field;
-use DrevOps\Customizer\Config\FieldType;
-use DrevOps\Customizer\Config\Option;
+use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Config\Option;
 
 /**
  * A fluent builder for a single Field.
  *
- * @package DrevOps\Customizer\Builder
+ * @package DrevOps\Tui\Builder
  */
 final class FieldBuilder {
 
@@ -33,7 +33,7 @@ final class FieldBuilder {
   /**
    * The options, keyed by value.
    *
-   * @var array<string,\DrevOps\Customizer\Config\Option>
+   * @var array<string,\DrevOps\Tui\Config\Option>
    */
   protected array $options = [];
 
@@ -80,7 +80,7 @@ final class FieldBuilder {
    *   The unique field id.
    * @param string $label
    *   The human-readable label.
-   * @param \DrevOps\Customizer\Config\FieldType $fieldType
+   * @param \DrevOps\Tui\Config\FieldType $fieldType
    *   The widget type.
    */
   public function __construct(protected string $id, protected string $label, protected FieldType $fieldType) {
@@ -246,7 +246,7 @@ final class FieldBuilder {
   /**
    * Build the immutable Field.
    *
-   * @return \DrevOps\Customizer\Config\Field
+   * @return \DrevOps\Tui\Config\Field
    *   The field.
    */
   public function build(): Field {
@@ -269,7 +269,7 @@ final class FieldBuilder {
   /**
    * The engine default for a field type when none is declared.
    *
-   * @param \DrevOps\Customizer\Config\FieldType $type
+   * @param \DrevOps\Tui\Config\FieldType $type
    *   The field type.
    *
    * @return mixed

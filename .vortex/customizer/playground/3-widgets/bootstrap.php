@@ -16,10 +16,10 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Input\KeyParser;
-use DrevOps\Customizer\Theme\DarkTheme;
-use DrevOps\Customizer\Tui\Terminal;
-use DrevOps\Customizer\Widget\WidgetInterface;
+use DrevOps\Tui\Input\KeyParser;
+use DrevOps\Tui\Theme\DarkTheme;
+use DrevOps\Tui\Render\Terminal;
+use DrevOps\Tui\Widget\WidgetInterface;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -29,7 +29,7 @@ $theme = new DarkTheme(!isset($opts['no-ansi']), 76, !isset($opts['no-unicode'])
 /**
  * Drive a widget to completion against the real terminal, then print the value.
  *
- * @var callable(\DrevOps\Customizer\Widget\WidgetInterface,string):void $interact
+ * @var callable(\DrevOps\Tui\Widget\WidgetInterface,string):void $interact
  */
 $interact = static function (WidgetInterface $widget, string $label) use ($theme): void {
   $terminal = new Terminal();

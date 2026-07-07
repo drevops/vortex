@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Handler;
+namespace DrevOps\Tui\Handler;
 
 /**
  * The run context passed to handler discover() and process().
  *
- * @package DrevOps\Customizer\Handler
+ * @package DrevOps\Tui\Handler
  */
 final readonly class Context {
 

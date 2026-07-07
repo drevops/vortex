@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit\Schema;
+namespace DrevOps\Tui\Tests\Unit\Schema;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\ConfigLoader;
-use DrevOps\Customizer\Schema\SchemaValidator;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\ConfigLoader;
+use DrevOps\Tui\Schema\SchemaValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Handler;
+namespace DrevOps\Tui\Handler;
 
-use DrevOps\Customizer\Config\Field;
+use DrevOps\Tui\Config\Field;
 
 /**
  * The contract a consumer's handler implements to provide field behaviour.
@@ -12,7 +12,7 @@ use DrevOps\Customizer\Config\Field;
  * Metadata (label, options, default, ...) comes from the configuration; a
  * handler adds project-specific behaviour and is auto-discovered by name.
  *
- * @package DrevOps\Customizer\Handler
+ * @package DrevOps\Tui\Handler
  */
 interface HandlerInterface {
 
@@ -23,9 +23,9 @@ interface HandlerInterface {
    * the static declared default. Return NULL to fall back to the declared
    * default.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context (directory, answers, update flag).
    *
    * @return mixed
@@ -36,9 +36,9 @@ interface HandlerInterface {
   /**
    * Discover a value from the project/environment (update mode).
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field being discovered.
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context (directory, answers, update flag).
    *
    * @return mixed
@@ -49,7 +49,7 @@ interface HandlerInterface {
   /**
    * Validate a collected value.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field being validated.
    * @param mixed $value
    *   The value to validate.
@@ -62,7 +62,7 @@ interface HandlerInterface {
   /**
    * Transform an accepted value before it is stored.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field being transformed.
    * @param mixed $value
    *   The accepted value.
@@ -75,11 +75,11 @@ interface HandlerInterface {
   /**
    * Apply the collected answer (project-specific side effects).
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field being processed.
    * @param mixed $value
    *   The final value.
-   * @param \DrevOps\Customizer\Handler\Context $context
+   * @param \DrevOps\Tui\Handler\Context $context
    *   The run context.
    */
   public function process(Field $field, mixed $value, Context $context): void;

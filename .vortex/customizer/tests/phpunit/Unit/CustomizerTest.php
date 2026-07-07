@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Tests\Unit;
+namespace DrevOps\Tui\Tests\Unit;
 
-use DrevOps\Customizer\Builder\Form;
-use DrevOps\Customizer\Builder\PanelBuilder;
-use DrevOps\Customizer\Customizer;
-use DrevOps\Customizer\Engine\Engine;
-use DrevOps\Customizer\Handler\HandlerRegistry;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Engine\Engine;
+use DrevOps\Tui\Handler\HandlerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

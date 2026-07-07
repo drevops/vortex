@@ -11,8 +11,8 @@
 
 declare(strict_types=1);
 
-use DrevOps\Customizer\Customizer;
-use DrevOps\Customizer\Engine\EngineException;
+use DrevOps\Tui\Customizer;
+use DrevOps\Tui\Engine\EngineException;
 
 require __DIR__ . '/../../vendor/autoload.php';
 // The require makes the class loadable; config.yml names it directly, so no

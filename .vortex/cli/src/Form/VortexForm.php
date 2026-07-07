@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Form;
 
-use DrevOps\Customizer\Builder\Form;
-use DrevOps\Customizer\Builder\PanelBuilder;
-use DrevOps\Customizer\Config\Config;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Config\Config;
 
 /**
  * The Vortex customizer form, declared in PHP.
@@ -46,7 +46,7 @@ BANNER;
   /**
    * Build the Vortex customizer configuration.
    *
-   * @return \DrevOps\Customizer\Config\Config
+   * @return \DrevOps\Tui\Config\Config
    *   The configuration.
    */
   public static function create(): Config {

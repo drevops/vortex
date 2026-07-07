@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Customizer\Schema;
+namespace DrevOps\Tui\Schema;
 
-use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\Field;
+use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Field;
 
 /**
  * Generates a machine-readable schema of every configured question.
@@ -15,14 +15,14 @@ use DrevOps\Customizer\Config\Field;
  * entry with the customizer's native `when`, `derive` and `discover` rules, so
  * existing tooling keeps working while richer rules are available.
  *
- * @package DrevOps\Customizer\Schema
+ * @package DrevOps\Tui\Schema
  */
 class SchemaGenerator {
 
   /**
    * Construct a generator.
    *
-   * @param \DrevOps\Customizer\Config\Config $config
+   * @param \DrevOps\Tui\Config\Config $config
    *   The configuration to describe.
    */
   public function __construct(protected Config $config) {
@@ -59,7 +59,7 @@ class SchemaGenerator {
   /**
    * Describe a field's options.
    *
-   * @param \DrevOps\Customizer\Config\Field $field
+   * @param \DrevOps\Tui\Config\Field $field
    *   The field.
    *
    * @return array<int,array<string,string>>
