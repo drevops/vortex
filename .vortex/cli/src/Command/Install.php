@@ -8,6 +8,7 @@ use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
 use DrevOps\VortexCli\Downloader\Downloader;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\FileManager;
@@ -98,7 +99,7 @@ class Install extends Command {
 
     $config->set(Config::VERSION, $version);
 
-    $customizer = Customizer::fromFiles([$this->configPath()], [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $customizer = new Customizer(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';
@@ -120,16 +121,6 @@ class Install extends Command {
     $file_manager->prepareDemo($this->getFileDownloader());
 
     return Command::SUCCESS;
-  }
-
-  /**
-   * The path to the configuration YAML.
-   *
-   * @return string
-   *   The absolute path to the configuration file.
-   */
-  protected function configPath(): string {
-    return __DIR__ . '/../../config/vortex.yml';
   }
 
   /**

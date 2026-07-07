@@ -7,6 +7,7 @@ namespace DrevOps\VortexCli\Command;
 use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\EngineException;
 use DrevOps\Customizer\Handler\Context;
+use DrevOps\VortexCli\Form\VortexForm;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Customizes the project by driving the generic customizer engine.
  *
- * The CLI stays thin: it ships the configuration (`config/vortex.yml`) and the
+ * The CLI stays thin: it ships the configuration (the PHP `VortexForm`) and the
  * handler classes (auto-discovered by question id), then delegates collection,
  * conditionals, derivation, discovery and rendering to `drevops/customizer`.
  *
@@ -45,7 +46,6 @@ class Customize extends Command {
     $this
       ->setName('customize')
       ->setDescription('Customize the project by answering questions.')
-      ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Path to the configuration YAML.')
       ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.', '')
       ->addOption('dir', 'd', InputOption::VALUE_REQUIRED, 'The project directory.', '.')
       ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an existing project (enable discovery).')
@@ -59,7 +59,7 @@ class Customize extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $customizer = Customizer::fromFiles([$this->configPath($input)], [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $customizer = new Customizer(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     if ($input->getOption('schema')) {
       $output->writeln((string) json_encode($customizer->schema()));
@@ -160,21 +160,6 @@ class Customize extends Command {
     }
 
     return Command::FAILURE;
-  }
-
-  /**
-   * Resolve the configuration path (defaults to the bundled config).
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *   The input.
-   *
-   * @return string
-   *   The configuration path.
-   */
-  protected function configPath(InputInterface $input): string {
-    $path = $this->stringOption($input, 'config');
-
-    return $path !== '' ? $path : __DIR__ . '/../../config/vortex.yml';
   }
 
   /**
