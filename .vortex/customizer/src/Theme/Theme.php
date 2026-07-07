@@ -38,9 +38,9 @@ abstract class Theme {
   protected array $styles;
 
   /**
-   * The name => glyph map, resolved once from defineGlyphs().
+   * The name => [unicode, ascii] glyph pair map, from defineGlyphs().
    *
-   * @var array<string,string>
+   * @var array<string,array{0:string,1:string}>
    */
   protected array $glyphs;
 
@@ -66,7 +66,7 @@ abstract class Theme {
    */
   public function __construct(protected bool $color = TRUE, protected int $width = 76, protected bool $unicode = TRUE) {
     $this->styles = $this->defineStyles();
-    $this->glyphs = $this->unicode ? $this->defineGlyphs() : $this->defineAsciiGlyphs();
+    $this->glyphs = $this->defineGlyphs();
   }
 
   /**
@@ -78,54 +78,16 @@ abstract class Theme {
   abstract protected function defineStyles(): array;
 
   /**
-   * The name => glyph map for this theme (override to change the glyphs).
+   * The name => [unicode, ascii] glyph pair map for this theme.
    *
-   * @return array<string,string>
-   *   The glyphs, keyed by name.
-   */
-  protected function defineGlyphs(): array {
-    return [
-      'marker' => '❯',
-      'indicator_up' => '▲',
-      'indicator_down' => '▼',
-      'separator' => '›',
-      'arrow' => '›',
-      'arrow_up' => '↑',
-      'arrow_down' => '↓',
-      'enter' => '↵',
-      'dot' => '·',
-      'radio_on' => '●',
-      'radio_off' => '○',
-      'check_on' => '◼',
-      'check_off' => '◻',
-      'caret' => '│',
-    ];
-  }
-
-  /**
-   * The ASCII fallback glyphs, used when Unicode is disabled.
+   * Every glyph is defined here as a pair - the Unicode form and its ASCII
+   * fallback - so a theme is a complete, self-contained definition. Clone a
+   * concrete theme and override what you want - nothing comes from a base.
    *
-   * @return array<string,string>
-   *   The glyphs, keyed by name.
+   * @return array<string,array{0:string,1:string}>
+   *   The glyphs, keyed by name, each a [unicode, ascii] pair.
    */
-  protected function defineAsciiGlyphs(): array {
-    return [
-      'marker' => '>',
-      'indicator_up' => '^',
-      'indicator_down' => 'v',
-      'separator' => '>',
-      'arrow' => '>',
-      'arrow_up' => '^',
-      'arrow_down' => 'v',
-      'enter' => '<',
-      'dot' => '*',
-      'radio_on' => '(*)',
-      'radio_off' => '( )',
-      'check_on' => '[x]',
-      'check_off' => '[ ]',
-      'caret' => '|',
-    ];
-  }
+  abstract protected function defineGlyphs(): array;
 
   /**
    * Register a theme class under a name so a config can select it.
@@ -242,7 +204,7 @@ abstract class Theme {
    *   The glyph character (empty when unknown).
    */
   public function glyph(string $name): string {
-    return $this->glyphs[$name] ?? '';
+    return $this->glyphs[$name][$this->unicode ? 0 : 1] ?? '';
   }
 
   /**

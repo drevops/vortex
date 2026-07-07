@@ -29,4 +29,26 @@ class DarkTheme extends Theme {
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineGlyphs(): array {
+    return [
+      'marker' => ['❯', '>'],
+      'indicator_up' => ['▲', '^'],
+      'indicator_down' => ['▼', 'v'],
+      'separator' => ['›', '>'],
+      'arrow' => ['›', '>'],
+      'arrow_up' => ['↑', '^'],
+      'arrow_down' => ['↓', 'v'],
+      'enter' => ['↵', '<'],
+      'dot' => ['·', '*'],
+      'radio_on' => ['●', '(*)'],
+      'radio_off' => ['○', '( )'],
+      'check_on' => ['◼', '[x]'],
+      'check_off' => ['◻', '[ ]'],
+      'caret' => ['│', '|'],
+    ];
+  }
+
 }

@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Playground\CustomTheme;
 
-use DrevOps\Customizer\Theme\Theme;
+use DrevOps\Customizer\Theme\DarkTheme;
 
 /**
- * A self-contained custom theme: bright blues and cyans with rounded glyphs.
+ * A custom theme: bright blues and cyans over the dark theme's glyphs.
  *
- * A consumer theme is just a class that defines its palette and, optionally,
- * its glyphs. Register it under a name with Theme::register() to select it by
- * name, exactly like the built-in dark and light themes.
+ * The lowest-friction way to make a theme is to clone a shipped one - extend it
+ * and override only what differs. Here that is just the palette; the glyphs are
+ * inherited from DarkTheme. Register it under a name with Theme::register() to
+ * select it by name, exactly like the built-in dark and light themes, or point
+ * a config's `theme:` key straight at this class.
  */
-class OceanTheme extends Theme {
+class OceanTheme extends DarkTheme {
 
   /**
    * {@inheritdoc}
@@ -30,19 +32,6 @@ class OceanTheme extends Theme {
       'cursor' => '1;7',
       'footer' => '2;36',
       'indicator' => '1;96',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function defineGlyphs(): array {
-    return [
-      'marker' => '➤',
-      'indicator_up' => '△',
-      'indicator_down' => '▽',
-      'separator' => '/',
-      'arrow' => '»',
     ];
   }
 

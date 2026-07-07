@@ -56,7 +56,7 @@ final class ThemeTest extends TestCase {
       }
 
       protected function defineGlyphs(): array {
-        return ['marker' => '»'];
+        return ['marker' => ['»', '>']];
       }
 
     };
