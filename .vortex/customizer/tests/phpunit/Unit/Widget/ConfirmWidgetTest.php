@@ -7,6 +7,7 @@ namespace DrevOps\Customizer\Tests\Unit\Widget;
 use DrevOps\Customizer\Input\ArrayKeyStream;
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Customizer\Tui\DarkTheme;
 use DrevOps\Customizer\Widget\AbstractWidget;
 use DrevOps\Customizer\Widget\ConfirmWidget;
 use DrevOps\Customizer\Widget\WidgetRunner;
@@ -25,11 +26,11 @@ final class ConfirmWidgetTest extends TestCase {
   public function testDefaultAndToggle(): void {
     $widget = new ConfirmWidget(FALSE);
     $this->assertFalse($widget->value());
-    $this->assertStringContainsString('[No]', $widget->view());
+    $this->assertStringContainsString('● No', $widget->view(new DarkTheme()));
 
     $widget->handle(Key::named(KeyName::Space));
     $this->assertTrue($widget->value());
-    $this->assertStringContainsString('[Yes]', $widget->view());
+    $this->assertStringContainsString('● Yes', $widget->view(new DarkTheme()));
   }
 
   public function testCharYesNo(): void {

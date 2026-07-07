@@ -7,6 +7,7 @@ namespace DrevOps\Customizer\Tests\Unit\Widget;
 use DrevOps\Customizer\Input\ArrayKeyStream;
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Customizer\Tui\DarkTheme;
 use DrevOps\Customizer\Widget\AbstractWidget;
 use DrevOps\Customizer\Widget\MultiSelectWidget;
 use DrevOps\Customizer\Widget\WidgetRunner;
@@ -49,8 +50,8 @@ final class MultiSelectWidgetTest extends TestCase {
     $widget->handle(Key::char('b'));
     $widget->handle(Key::char('a'));
     $widget->handle(Key::char('n'));
-    $this->assertStringContainsString('Banana', $widget->view());
-    $this->assertStringNotContainsString('Apple', $widget->view());
+    $this->assertStringContainsString('Banana', $widget->view(new DarkTheme()));
+    $this->assertStringNotContainsString('Apple', $widget->view(new DarkTheme()));
 
     $widget->handle(Key::named(KeyName::Space));
     $value = WidgetRunner::run($widget, ArrayKeyStream::of(Key::named(KeyName::Enter)));
@@ -62,10 +63,10 @@ final class MultiSelectWidgetTest extends TestCase {
     $widget = new MultiSelectWidget(['apple' => 'Apple', 'banana' => 'Banana']);
 
     $widget->handle(Key::char('b'));
-    $this->assertStringNotContainsString('Apple', $widget->view());
+    $this->assertStringNotContainsString('Apple', $widget->view(new DarkTheme()));
 
     $widget->handle(Key::named(KeyName::Backspace));
-    $this->assertStringContainsString('Apple', $widget->view());
+    $this->assertStringContainsString('Apple', $widget->view(new DarkTheme()));
   }
 
   public function testSelectAllAndNone(): void {

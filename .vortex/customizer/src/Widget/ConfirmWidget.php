@@ -6,6 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Customizer\Tui\Theme;
 
 /**
  * A yes/no toggle.
@@ -93,8 +94,11 @@ class ConfirmWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(): string {
-    return $this->current ? '[Yes]  No' : ' Yes  [No]';
+  public function view(Theme $theme): string {
+    $on = $theme->glyph('radio_on');
+    $off = $theme->glyph('radio_off');
+
+    return $this->current ? $on . ' Yes  ' . $off . ' No' : $off . ' Yes  ' . $on . ' No';
   }
 
 }

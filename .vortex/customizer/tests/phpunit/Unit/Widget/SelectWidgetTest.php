@@ -7,6 +7,7 @@ namespace DrevOps\Customizer\Tests\Unit\Widget;
 use DrevOps\Customizer\Input\ArrayKeyStream;
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Customizer\Tui\DarkTheme;
 use DrevOps\Customizer\Widget\AbstractWidget;
 use DrevOps\Customizer\Widget\SelectWidget;
 use DrevOps\Customizer\Widget\WidgetRunner;
@@ -33,7 +34,7 @@ final class SelectWidgetTest extends TestCase {
     ));
 
     $this->assertSame('b', $value);
-    $this->assertStringContainsString('(*)', $widget->view());
+    $this->assertStringContainsString('●', $widget->view(new DarkTheme()));
   }
 
   public function testDefaultHighlight(): void {

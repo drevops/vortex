@@ -6,6 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Customizer\Tui\Theme;
 
 /**
  * A single-choice radio list.
@@ -80,11 +81,11 @@ class SelectWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(): string {
+  public function view(Theme $theme): string {
     $lines = [];
 
     foreach ($this->values as $index => $value) {
-      $marker = $index === $this->cursor ? '(*)' : '( )';
+      $marker = $index === $this->cursor ? $theme->glyph('radio_on') : $theme->glyph('radio_off');
       $lines[] = $marker . ' ' . ($this->labels[$value] ?? $value);
     }
 

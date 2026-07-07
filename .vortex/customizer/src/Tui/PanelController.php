@@ -233,7 +233,7 @@ class PanelController {
    */
   public function frame(int $height = 12): string {
     if ($this->editor instanceof WidgetInterface) {
-      return ($this->editing instanceof Field ? $this->editing->label : '') . "\n" . $this->editor->view();
+      return ($this->editing instanceof Field ? $this->editing->label : '') . "\n" . $this->editor->view($this->theme);
     }
 
     $panel = $this->navigator->current();

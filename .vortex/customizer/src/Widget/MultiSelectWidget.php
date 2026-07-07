@@ -6,6 +6,7 @@ namespace DrevOps\Customizer\Widget;
 
 use DrevOps\Customizer\Input\Key;
 use DrevOps\Customizer\Input\KeyName;
+use DrevOps\Customizer\Tui\Theme;
 
 /**
  * A checkbox list with type-to-filter and select-all/none.
@@ -181,12 +182,12 @@ class MultiSelectWidget extends AbstractWidget {
   /**
    * {@inheritdoc}
    */
-  public function view(): string {
+  public function view(Theme $theme): string {
     $lines = [];
 
     foreach ($this->visible() as $index => $value) {
-      $box = isset($this->selected[$value]) ? '[x]' : '[ ]';
-      $marker = $index === $this->cursor ? '>' : ' ';
+      $box = isset($this->selected[$value]) ? $theme->glyph('check_on') : $theme->glyph('check_off');
+      $marker = $index === $this->cursor ? $theme->glyph('marker') : ' ';
       $lines[] = $marker . ' ' . $box . ' ' . ($this->labels[$value] ?? $value);
     }
 

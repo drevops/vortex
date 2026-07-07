@@ -94,6 +94,7 @@ abstract class Theme {
       'radio_off' => '○',
       'check_on' => '◼',
       'check_off' => '◻',
+      'caret' => '│',
     ];
   }
 
@@ -118,6 +119,7 @@ abstract class Theme {
       'radio_off' => '( )',
       'check_on' => '[x]',
       'check_off' => '[ ]',
+      'caret' => '|',
     ];
   }
 
