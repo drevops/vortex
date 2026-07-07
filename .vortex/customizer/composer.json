@@ -19,8 +19,7 @@
     "require": {
         "php": ">=8.2",
         "alexskrypnyk/str2name": "^1.4.1",
-        "symfony/console": "^7.4.13",
-        "symfony/yaml": "^7.4.13"
+        "symfony/console": "^7.4.13"
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.16.0",

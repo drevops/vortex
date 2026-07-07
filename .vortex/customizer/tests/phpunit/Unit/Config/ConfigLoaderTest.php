@@ -27,8 +27,22 @@ use PHPUnit\Framework\TestCase;
 #[Group('config')]
 final class ConfigLoaderTest extends TestCase {
 
-  public function testLoadValidFile(): void {
-    $config = (new ConfigLoader())->loadFiles([__DIR__ . '/../../Fixtures/config/valid.yml']);
+  public function testBuildsNestedConfig(): void {
+    $config = (new ConfigLoader())->fromArray([
+      'title' => 'Demo',
+      'subject' => 'Acme',
+      'panels' => [
+        ['id' => 'general', 'fields' => [
+          ['id' => 'name', 'type' => 'text', 'default' => 'Acme', 'required' => TRUE],
+          ['id' => 'email', 'type' => 'text'],
+        ]],
+        ['id' => 'drupal', 'fields' => [
+          ['id' => 'profile', 'type' => 'select', 'options' => [['value' => 'standard', 'label' => 'Standard']]],
+        ], 'panels' => [
+          ['id' => 'advanced', 'fields' => [['id' => 'theme_debug', 'type' => 'confirm']]],
+        ]],
+      ],
+    ]);
 
     $this->assertSame('Demo', $config->title);
     $this->assertSame('Acme', $config->subject);
@@ -57,6 +71,7 @@ final class ConfigLoaderTest extends TestCase {
     // field() resolves nested fields across sub-panels.
     $this->assertSame('theme_debug', $config->field('theme_debug')?->id);
     $this->assertNotInstanceOf(Field::class, $config->field('nope'));
+    $this->assertCount(4, $config->fields());
   }
 
   public function testTypeDefaults(): void {
@@ -164,18 +179,6 @@ final class ConfigLoaderTest extends TestCase {
       'panels' => [],
     ]);
     $this->assertSame([['id' => 'dotenv', 'weight' => -10]], $config->processors);
-  }
-
-  public function testLoadMissingFileThrows(): void {
-    $this->expectException(ConfigException::class);
-    $this->expectExceptionMessage('Config file not found');
-    (new ConfigLoader())->loadFiles([__DIR__ . '/../../Fixtures/config/nope.yml']);
-  }
-
-  public function testLoadNonMappingFileThrows(): void {
-    $this->expectException(ConfigException::class);
-    $this->expectExceptionMessage('is not a mapping');
-    (new ConfigLoader())->loadFiles([__DIR__ . '/../../Fixtures/config/scalar.yml']);
   }
 
 }

@@ -8,7 +8,8 @@ use DrevOps\Customizer\Builder\FieldBuilder;
 use DrevOps\Customizer\Builder\Form;
 use DrevOps\Customizer\Builder\PanelBuilder;
 use DrevOps\Customizer\Config\ConfigException;
-use DrevOps\Customizer\Config\ConfigLoader;
+use DrevOps\Customizer\Config\Field;
+use DrevOps\Customizer\Config\FieldType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -22,8 +23,8 @@ use PHPUnit\Framework\TestCase;
 #[Group('config')]
 final class FormTest extends TestCase {
 
-  public function testBuilderMatchesLoader(): void {
-    $built = Form::create('Vortex', 'the project')
+  public function testBuildsExpectedConfig(): void {
+    $config = Form::create('Vortex', 'the project')
       ->theme('dark')
       ->banner('LOGO')
       ->buttons(TRUE, 'Install', 'Quit')
@@ -47,38 +48,60 @@ final class FormTest extends TestCase {
       })
       ->build();
 
-    $loaded = (new ConfigLoader())->fromArray([
-      'title' => 'Vortex',
-      'subject' => 'the project',
-      'theme' => 'dark',
-      'banner' => 'LOGO',
-      'buttons' => ['submit' => 'Install', 'cancel' => 'Quit'],
-      'clear_on_exit' => FALSE,
-      'color' => TRUE,
-      'unicode' => FALSE,
-      'processors' => [['id' => 'dotenv', 'weight' => -1000], ['id' => 'internal', 'weight' => 1000]],
-      'fixups' => [['when' => ['x' => 'y'], 'set' => ['a' => 'b']]],
-      'panels' => [
-        [
-          'id' => 'general',
-          'title' => 'General',
-          'description' => 'General settings.',
-          'fields' => [
-            ['id' => 'name', 'label' => 'Site name', 'description' => 'The name.', 'type' => 'text', 'required' => TRUE, 'weight' => 10, 'default' => 'Acme'],
-            ['id' => 'machine_name', 'label' => 'Machine name', 'type' => 'text', 'machine' => TRUE, 'derive' => ['template' => '{{ name }}']],
-            ['id' => 'profile', 'label' => 'Profile', 'type' => 'select', 'default' => 'standard', 'options' => [['value' => 'standard', 'label' => 'Standard'], ['value' => 'minimal', 'label' => 'Minimal']]],
-            ['id' => 'services', 'label' => 'Services', 'type' => 'multiselect', 'options' => [['value' => 'solr', 'label' => 'Solr', 'description' => 'Search'], ['value' => 'redis', 'label' => 'Redis']]],
-            ['id' => 'docs', 'label' => 'Keep docs?', 'type' => 'confirm', 'default' => TRUE, 'when' => ['profile' => 'standard']],
-            ['id' => 'timezone', 'label' => 'Timezone', 'type' => 'suggest', 'discover' => ['type' => 'dotenv', 'name' => 'TZ']],
-          ],
-          'panels' => [
-            ['id' => 'advanced', 'title' => 'Advanced', 'fields' => [['id' => 'webroot', 'label' => 'Web root', 'type' => 'text', 'default' => 'web']]],
-          ],
-        ],
-      ],
-    ]);
+    $this->assertSame('Vortex', $config->title);
+    $this->assertSame('the project', $config->subject);
+    $this->assertSame('dark', $config->theme);
+    $this->assertSame('LOGO', $config->banner);
+    $this->assertTrue($config->buttons);
+    $this->assertSame('Install', $config->submitLabel);
+    $this->assertSame('Quit', $config->cancelLabel);
+    $this->assertFalse($config->clearOnExit);
+    $this->assertTrue($config->color);
+    $this->assertFalse($config->unicode);
+    $this->assertSame([['id' => 'dotenv', 'weight' => -1000], ['id' => 'internal', 'weight' => 1000]], $config->processors);
+    $this->assertSame([['when' => ['x' => 'y'], 'set' => ['a' => 'b']]], $config->fixups);
+    $this->assertSame('General settings.', $config->panels[0]->description);
 
-    $this->assertEquals($loaded, $built);
+    $name = $config->field('name');
+    $this->assertInstanceOf(Field::class, $name);
+    $this->assertSame('Site name', $name->label);
+    $this->assertSame('The name.', $name->description);
+    $this->assertSame(FieldType::Text, $name->type);
+    $this->assertSame('Acme', $name->default);
+    $this->assertTrue($name->required);
+    $this->assertSame(10, $name->weight);
+
+    $machine = $config->field('machine_name');
+    $this->assertInstanceOf(Field::class, $machine);
+    $this->assertTrue($machine->machine);
+    $this->assertSame(['template' => '{{ name }}'], $machine->derive);
+
+    $profile = $config->field('profile');
+    $this->assertInstanceOf(Field::class, $profile);
+    $this->assertSame(FieldType::Select, $profile->type);
+    $this->assertSame('standard', $profile->default);
+    $this->assertSame('Standard', $profile->option('standard')?->label);
+
+    $services = $config->field('services');
+    $this->assertInstanceOf(Field::class, $services);
+    $this->assertSame(FieldType::MultiSelect, $services->type);
+    $this->assertSame('Search', $services->option('solr')?->description);
+
+    $docs = $config->field('docs');
+    $this->assertInstanceOf(Field::class, $docs);
+    $this->assertSame(FieldType::Confirm, $docs->type);
+    $this->assertTrue($docs->default);
+    $this->assertSame(['profile' => 'standard'], $docs->when);
+
+    $timezone = $config->field('timezone');
+    $this->assertInstanceOf(Field::class, $timezone);
+    $this->assertSame(FieldType::Suggest, $timezone->type);
+    $this->assertSame(['type' => 'dotenv', 'name' => 'TZ'], $timezone->discover);
+
+    $webroot = $config->field('webroot');
+    $this->assertInstanceOf(Field::class, $webroot);
+    $this->assertSame('web', $webroot->default);
+    $this->assertSame('Advanced', $config->panels[0]->panels[0]->title);
   }
 
   public function testDefaultsAndFallbacks(): void {

@@ -37,7 +37,8 @@
         "guzzlehttp/guzzle": "^7.12.3",
         "nelexa/zip": "^4.0.2",
         "symfony/console": "^7.4.13",
-        "symfony/filesystem": "^7.4.11"
+        "symfony/filesystem": "^7.4.11",
+        "symfony/yaml": "^7.4.13"
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.16.0",

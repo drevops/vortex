@@ -5,39 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\Customizer\Config;
 
 use DrevOps\Customizer\Derive\Transform;
-use Symfony\Component\Yaml\Yaml;
 
 /**
- * Loads and validates YAML configuration into the Config model.
+ * Builds and validates a Config model from a decoded array.
  *
  * @package DrevOps\Customizer\Config
  */
 class ConfigLoader {
-
-  /**
-   * Load and normalize a config from one or more YAML files (later wins).
-   *
-   * @param string[] $paths
-   *   Paths to YAML files, merged in order.
-   */
-  public function loadFiles(array $paths): Config {
-    $data = [];
-
-    foreach ($paths as $path) {
-      if (!is_file($path)) {
-        throw new ConfigException(sprintf('Config file not found: %s', $path));
-      }
-
-      $parsed = Yaml::parseFile($path);
-      if (!is_array($parsed)) {
-        throw new ConfigException(sprintf('Config file is not a mapping: %s', $path));
-      }
-
-      $data = array_replace_recursive($data, $parsed);
-    }
-
-    return $this->fromArray($data);
-  }
 
   /**
    * Build a Config from a decoded array.

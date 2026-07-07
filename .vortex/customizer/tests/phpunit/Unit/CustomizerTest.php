@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\Customizer\Tests\Unit;
 
-use DrevOps\Customizer\Config\ConfigLoader;
+use DrevOps\Customizer\Builder\Form;
+use DrevOps\Customizer\Builder\PanelBuilder;
 use DrevOps\Customizer\Customizer;
 use DrevOps\Customizer\Engine\Engine;
-use DrevOps\Customizer\Handler\Context;
 use DrevOps\Customizer\Handler\HandlerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -28,12 +28,6 @@ final class CustomizerTest extends TestCase {
     $this->assertSame('acme', $answers->value('machine'));
   }
 
-  public function testFromFilesLoadsConfig(): void {
-    $customizer = Customizer::fromFiles([__DIR__ . '/../Fixtures/config/valid.yml']);
-
-    $this->assertSame('Demo', $customizer->config()->title);
-  }
-
   public function testSchema(): void {
     $this->assertArrayHasKey('prompts', $this->customizer()->schema());
   }
@@ -45,14 +39,6 @@ final class CustomizerTest extends TestCase {
   public function testValidate(): void {
     $this->assertSame([], $this->customizer()->validate(['name' => 'Acme']));
     $this->assertNotSame([], $this->customizer()->validate(['bogus' => 'x']));
-  }
-
-  public function testProcess(): void {
-    // No handler namespaces are registered, so process() runs without error
-    // and applies nothing.
-    $this->customizer()->process(['name' => 'Acme'], new Context('dir'));
-
-    $this->addToAssertionCount(1);
   }
 
   public function testAccessors(): void {
@@ -67,13 +53,12 @@ final class CustomizerTest extends TestCase {
    * A customizer over a small in-memory config.
    */
   protected function customizer(): Customizer {
-    $config = (new ConfigLoader())->fromArray([
-      'title' => 'Demo',
-      'panels' => [['id' => 'p', 'fields' => [
-        ['id' => 'name', 'type' => 'text', 'required' => TRUE],
-        ['id' => 'machine', 'type' => 'text', 'derive' => ['template' => '{{name}}', 'transform' => 'machine']],
-      ]]],
-    ]);
+    $config = Form::create('Demo')
+      ->panel('p', 'p', function (PanelBuilder $panel): void {
+        $panel->text('name')->required();
+        $panel->text('machine')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+      })
+      ->build();
 
     return new Customizer($config, [], 'TEST_');
   }

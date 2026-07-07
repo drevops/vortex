@@ -6,11 +6,9 @@ namespace DrevOps\Customizer;
 
 use DrevOps\Customizer\Answers\Answers;
 use DrevOps\Customizer\Config\Config;
-use DrevOps\Customizer\Config\ConfigLoader;
 use DrevOps\Customizer\Engine\Engine;
 use DrevOps\Customizer\Handler\Context;
 use DrevOps\Customizer\Handler\HandlerRegistry;
-use DrevOps\Customizer\Process\Processor;
 use DrevOps\Customizer\Resolver\InputResolver;
 use DrevOps\Customizer\Schema\AgentHelp;
 use DrevOps\Customizer\Schema\SchemaGenerator;
@@ -55,23 +53,6 @@ final class Customizer {
   public function __construct(protected Config $config, array $handler_namespaces = [], protected string $envPrefix = 'CUSTOMIZER_') {
     $this->registry = new HandlerRegistry($handler_namespaces);
     $this->engine = new Engine($this->config, $this->registry);
-  }
-
-  /**
-   * Build a customizer from one or more YAML config files (later wins).
-   *
-   * @param string[] $paths
-   *   Paths to YAML config files, merged in order.
-   * @param string[] $handler_namespaces
-   *   Namespaces the engine searches for field handlers, in order.
-   * @param string $env_prefix
-   *   The env-variable prefix for per-question overrides.
-   *
-   * @return self
-   *   The customizer.
-   */
-  public static function fromFiles(array $paths, array $handler_namespaces = [], string $env_prefix = 'CUSTOMIZER_'): self {
-    return new self((new ConfigLoader())->loadFiles($paths), $handler_namespaces, $env_prefix);
   }
 
   /**
@@ -136,21 +117,6 @@ final class Customizer {
 
     return $controller->run($terminal ?? new Terminal());
     // @codeCoverageIgnoreEnd
-  }
-
-  /**
-   * Apply the collected answers to the target project via the handlers.
-   *
-   * Runs each field's handler process() in the config-driven order (field
-   * weights plus any declared processors).
-   *
-   * @param array<string,mixed> $answers
-   *   The collected answers.
-   * @param \DrevOps\Customizer\Handler\Context $context
-   *   The run context (its directory is the target project).
-   */
-  public function process(array $answers, Context $context): void {
-    (new Processor())->apply($this->config, $this->registry, $answers, $context);
   }
 
   /**

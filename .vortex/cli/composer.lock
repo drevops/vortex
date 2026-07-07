@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e56dd8d13817a1ba77f5552f710799da",
+    "content-hash": "886b539fb02991bca06962baef25b911",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -820,13 +820,12 @@
             "dist": {
                 "type": "path",
                 "url": "../customizer",
-                "reference": "ba6d065184a5b94d536034de753f7f3f6f9467ae"
+                "reference": "cff23bff6e6ef1171a8835024241f8c9eb54174d"
             },
             "require": {
                 "alexskrypnyk/str2name": "^1.4.1",
                 "php": ">=8.2",
-                "symfony/console": "^7.4.13",
-                "symfony/yaml": "^7.4.13"
+                "symfony/console": "^7.4.13"
             },
             "require-dev": {
                 "alexskrypnyk/phpunit-helpers": "^0.16.0",
