@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
@@ -38,8 +39,8 @@ final class EngineAnswersTest extends TestCase {
 
     $this->assertSame('Acme Site', $answers->value('name'));
     $this->assertSame('acme_site', $answers->value('machine'));
-    $this->assertSame('edited', $answers->provenanceOf('name'));
-    $this->assertSame('derived', $answers->provenanceOf('machine'));
+    $this->assertSame(Provenance::Edited, $answers->provenanceOf('name'));
+    $this->assertSame(Provenance::Derived, $answers->provenanceOf('machine'));
     $this->assertFalse($answers->has('gone'));
   }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Engine;
 
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\Field;
@@ -37,7 +38,7 @@ class Engine {
   /**
    * The provenance of each active field from the most recent collect().
    *
-   * @var array<string,string>
+   * @var array<string,\DrevOps\Tui\Answers\Provenance>
    */
   protected array $lastProvenance = [];
 
@@ -91,7 +92,7 @@ class Engine {
     foreach ($fields as $field) {
       if ($field->derive !== NULL) {
         $derive_rules[$field->id] = $field->derive;
-        $pinned[$field->id] = in_array($sources[$field->id] ?? '', ['input', 'detected'], TRUE);
+        $pinned[$field->id] = in_array($sources[$field->id] ?? Source::Default, [Source::Input, Source::Detected], TRUE);
       }
     }
 
@@ -105,7 +106,7 @@ class Engine {
       // Only supplied inputs pass through the guards: defaults, discovered
       // and derived values are the configuration's own. Transform first so
       // validation sees the normalized value.
-      if (($sources[$field->id] ?? '') !== 'input') {
+      if (($sources[$field->id] ?? Source::Default) !== Source::Input) {
         continue;
       }
 
@@ -126,8 +127,8 @@ class Engine {
   /**
    * The provenance of each active field from the most recent collect().
    *
-   * @return array<string,string>
-   *   One of default / detected / edited / derived / override, keyed by id.
+   * @return array<string,\DrevOps\Tui\Answers\Provenance>
+   *   The provenance keyed by field id.
    */
   public function provenance(): array {
     return $this->lastProvenance;
@@ -153,26 +154,26 @@ class Engine {
    * @param \DrevOps\Tui\Handler\Context $context
    *   The run context.
    *
-   * @return array{mixed,string}
-   *   The resolved value and its source (input / detected / default).
+   * @return array{mixed,\DrevOps\Tui\Engine\Source}
+   *   The resolved value and its source.
    */
   protected function resolveInitial(Field $field, array $inputs, Context $context): array {
     if (array_key_exists($field->id, $inputs)) {
-      return [$inputs[$field->id], 'input'];
+      return [$inputs[$field->id], Source::Input];
     }
 
     if ($context->update) {
       $detected = $this->discoverValue($field, $context);
       if ($detected !== NULL) {
-        return [$detected, 'detected'];
+        return [$detected, Source::Detected];
       }
     }
 
     if ($field->default instanceof \Closure) {
-      return [($field->default)($context), 'default'];
+      return [($field->default)($context), Source::Default];
     }
 
-    return [$field->default, 'default'];
+    return [$field->default, Source::Default];
   }
 
   /**
@@ -288,12 +289,12 @@ class Engine {
    *
    * @param \DrevOps\Tui\Config\Field[] $fields
    *   The fields, in order.
-   * @param array<string,string> $sources
-   *   The initial source per field id (input / detected / default).
+   * @param array<string,\DrevOps\Tui\Engine\Source> $sources
+   *   The initial source per field id.
    * @param array<string,bool> $active
    *   The active map.
    *
-   * @return array<string,string>
+   * @return array<string,\DrevOps\Tui\Answers\Provenance>
    *   The provenance of each active field.
    */
   protected function provenanceFor(array $fields, array $sources, array $active): array {
@@ -303,13 +304,13 @@ class Engine {
         continue;
       }
 
-      $source = $sources[$field->id] ?? 'default';
+      $source = $sources[$field->id] ?? Source::Default;
       $provenance[$field->id] = match (TRUE) {
-        $source === 'detected' => 'detected',
-        $field->derive !== NULL && $source === 'input' => 'override',
-        $field->derive !== NULL => 'derived',
-        $source === 'input' => 'edited',
-        default => 'default',
+        $source === Source::Detected => Provenance::Detected,
+        $field->derive !== NULL && $source === Source::Input => Provenance::Override,
+        $field->derive !== NULL => Provenance::Derived,
+        $source === Source::Input => Provenance::Edited,
+        default => Provenance::Default,
       };
     }
 

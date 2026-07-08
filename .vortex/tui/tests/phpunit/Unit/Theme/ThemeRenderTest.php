@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Tests\Unit\Theme;
 
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Config\Panel;
@@ -25,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 final class ThemeRenderTest extends TestCase {
 
   public function testFieldLineSelectedRightAlignsBadge(): void {
-    $line = $this->theme()->renderFieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'edited']), TRUE);
+    $line = $this->theme()->renderFieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => Provenance::Edited]), TRUE);
 
     $this->assertStringContainsString('❯ Name  Acme', Ansi::strip($line));
     $this->assertStringContainsString('edited', Ansi::strip($line));
@@ -33,7 +34,7 @@ final class ThemeRenderTest extends TestCase {
   }
 
   public function testFieldLineDefaultHasNoBadge(): void {
-    $line = $this->theme()->renderFieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => 'default']), FALSE);
+    $line = $this->theme()->renderFieldLine(new Field('name', 'Name', '', FieldType::Text, ''), new Answers(['name' => 'Acme'], ['name' => Provenance::Default]), FALSE);
 
     $this->assertStringNotContainsString('default', $line);
     $this->assertStringContainsString('Name  Acme', Ansi::strip($line));
@@ -42,23 +43,23 @@ final class ThemeRenderTest extends TestCase {
   public function testFieldLineRendersValues(): void {
     $theme = $this->theme();
 
-    $bool = Ansi::strip($theme->renderFieldLine(new Field('b', 'B', '', FieldType::Confirm, FALSE), new Answers(['b' => TRUE], ['b' => 'default']), FALSE));
+    $bool = Ansi::strip($theme->renderFieldLine(new Field('b', 'B', '', FieldType::Confirm, FALSE), new Answers(['b' => TRUE], ['b' => Provenance::Default]), FALSE));
     $this->assertStringContainsString('B  yes', $bool);
 
-    $list = Ansi::strip($theme->renderFieldLine(new Field('m', 'M', '', FieldType::MultiSelect, []), new Answers(['m' => ['a', 'b']], ['m' => 'default']), FALSE));
+    $list = Ansi::strip($theme->renderFieldLine(new Field('m', 'M', '', FieldType::MultiSelect, []), new Answers(['m' => ['a', 'b']], ['m' => Provenance::Default]), FALSE));
     $this->assertStringContainsString('M  a, b', $list);
   }
 
   public function testFieldLineMasksPasswordValue(): void {
     $field = new Field('token', 'Token', '', FieldType::Password, '');
 
-    $line = Ansi::strip($this->theme()->renderFieldLine($field, new Answers(['token' => 's3cret-long'], ['token' => 'edited']), FALSE));
+    $line = Ansi::strip($this->theme()->renderFieldLine($field, new Answers(['token' => 's3cret-long'], ['token' => Provenance::Edited]), FALSE));
 
     $this->assertStringNotContainsString('s3cret-long', $line);
     // The mask has a fixed length so it does not leak the value's length.
     $this->assertStringContainsString('Token  ••••••••', $line);
 
-    $empty = Ansi::strip($this->theme()->renderFieldLine($field, new Answers(['token' => ''], ['token' => 'default']), FALSE));
+    $empty = Ansi::strip($this->theme()->renderFieldLine($field, new Answers(['token' => ''], ['token' => Provenance::Default]), FALSE));
     $this->assertStringNotContainsString('•', $empty);
   }
 
@@ -134,7 +135,7 @@ final class ThemeRenderTest extends TestCase {
   public function testSelectedItemIsBold(): void {
     $theme = new DarkTheme(TRUE, 40);
     $field = new Field('name', 'Name', '', FieldType::Text, '');
-    $answers = new Answers(['name' => 'Acme'], ['name' => 'default']);
+    $answers = new Answers(['name' => 'Acme'], ['name' => Provenance::Default]);
 
     // The selected row is bold (SGR 1); a non-selected row is not.
     $this->assertStringContainsString("\033[1", $theme->renderFieldLine($field, $answers, TRUE));

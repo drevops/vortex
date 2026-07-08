@@ -104,6 +104,13 @@ composer install
 - All files must end with a newline character
 - Local variables/method arguments: `snake_case`
 - Method names/class properties: `camelCase`
+- **Never model a closed set of values as string literals.** Any value that is
+  one-of-a-fixed-set (a kind, a state, a mode, a source) is a backed or pure
+  enum, and every property, parameter and return that carries it is typed with
+  the enum - existing examples: `FieldType`, `Provenance`, `Source`,
+  `KeyName`. String literals for such values are forbidden in source and in
+  tests alike; use the enum case (and its `->value` only at a rendering or
+  serialization boundary).
 
 ## Testing Patterns
 

@@ -24,8 +24,8 @@ final readonly class Answer {
    *   The question id.
    * @param mixed $value
    *   The answer value.
-   * @param string $provenance
-   *   One of default / detected / edited / derived / override.
+   * @param \DrevOps\Tui\Answers\Provenance $provenance
+   *   How the value came to be.
    * @param string $label
    *   The question's human-readable label.
    * @param \DrevOps\Tui\Config\FieldType $type
@@ -38,7 +38,7 @@ final readonly class Answer {
   public function __construct(
     public string $id,
     public mixed $value,
-    public string $provenance = 'default',
+    public Provenance $provenance = Provenance::Default,
     public string $label = '',
     public FieldType $type = FieldType::Text,
     public int $weight = 0,

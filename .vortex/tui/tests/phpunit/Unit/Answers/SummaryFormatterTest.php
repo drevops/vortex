@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Tests\Unit\Answers;
 
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Answers\SummaryFormatter;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
@@ -40,7 +41,7 @@ final class SummaryFormatterTest extends TestCase {
     $answers = Answers::forConfig(
       $config,
       ['name' => 'Acme', 'machine' => 'acme', 'profile' => 'standard', 'debug' => TRUE],
-      ['name' => 'edited', 'machine' => 'derived', 'profile' => 'default', 'debug' => 'edited'],
+      ['name' => Provenance::Edited, 'machine' => Provenance::Derived, 'profile' => Provenance::Default, 'debug' => Provenance::Edited],
     );
 
     $summary = (new SummaryFormatter())->format($answers);
@@ -67,7 +68,7 @@ final class SummaryFormatterTest extends TestCase {
         $p->multiselect('mods', 'Mods');
       })
       ->build();
-    $answers = Answers::forConfig($config, ['mods' => ['a', 'b']], ['mods' => 'edited']);
+    $answers = Answers::forConfig($config, ['mods' => ['a', 'b']], ['mods' => Provenance::Edited]);
 
     $summary = (new SummaryFormatter())->format($answers);
 
@@ -81,7 +82,7 @@ final class SummaryFormatterTest extends TestCase {
         $p->password('unset', 'Unset');
       })
       ->build();
-    $answers = Answers::forConfig($config, ['token' => 's3cret-long', 'unset' => ''], ['token' => 'edited', 'unset' => 'default']);
+    $answers = Answers::forConfig($config, ['token' => 's3cret-long', 'unset' => ''], ['token' => Provenance::Edited, 'unset' => Provenance::Default]);
 
     $summary = (new SummaryFormatter())->format($answers);
 
@@ -93,7 +94,7 @@ final class SummaryFormatterTest extends TestCase {
 
   public function testBareAnswersFormatEmpty(): void {
     // An answer set assembled without a configuration carries no snapshots.
-    $this->assertSame('', (new SummaryFormatter())->format(new Answers(['name' => 'Acme'], ['name' => 'edited'])));
+    $this->assertSame('', (new SummaryFormatter())->format(new Answers(['name' => 'Acme'], ['name' => Provenance::Edited])));
   }
 
 }

@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Tests\Unit\Answers;
 
 use DrevOps\Tui\Answers\Answer;
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\FieldType;
@@ -22,14 +23,14 @@ use PHPUnit\Framework\TestCase;
 final class AnswersTest extends TestCase {
 
   public function testAccessors(): void {
-    $answers = new Answers(['name' => 'Acme', 'agree' => TRUE], ['name' => 'edited', 'agree' => 'default']);
+    $answers = new Answers(['name' => 'Acme', 'agree' => TRUE], ['name' => Provenance::Edited, 'agree' => Provenance::Default]);
 
     $this->assertTrue($answers->has('name'));
     $this->assertFalse($answers->has('nope'));
     $this->assertSame('Acme', $answers->value('name'));
     $this->assertNull($answers->value('nope'));
-    $this->assertSame('edited', $answers->provenanceOf('name'));
-    $this->assertSame('default', $answers->provenanceOf('missing'));
+    $this->assertSame(Provenance::Edited, $answers->provenanceOf('name'));
+    $this->assertSame(Provenance::Default, $answers->provenanceOf('missing'));
     $this->assertSame(['name' => 'Acme', 'agree' => TRUE], $answers->values);
   }
 
@@ -43,7 +44,7 @@ final class AnswersTest extends TestCase {
     $answers = new Answers();
 
     $this->assertSame([], $answers->values);
-    $this->assertSame('default', $answers->provenanceOf('x'));
+    $this->assertSame(Provenance::Default, $answers->provenanceOf('x'));
     $this->assertNull($answers->item('x'));
     $this->assertSame('', $answers->toSummary());
   }
@@ -59,7 +60,7 @@ final class AnswersTest extends TestCase {
       })
       ->build();
 
-    $answers = Answers::forConfig($config, ['name' => 'Acme', 'debug' => TRUE], ['name' => 'edited']);
+    $answers = Answers::forConfig($config, ['name' => 'Acme', 'debug' => TRUE], ['name' => Provenance::Edited]);
 
     // Snapshots exist only for active questions, in form order.
     $this->assertSame(['name', 'debug'], array_keys($answers->items));
@@ -67,7 +68,7 @@ final class AnswersTest extends TestCase {
     $name = $answers->item('name');
     $this->assertInstanceOf(Answer::class, $name);
     $this->assertSame('Acme', $name->value);
-    $this->assertSame('edited', $name->provenance);
+    $this->assertSame(Provenance::Edited, $name->provenance);
     $this->assertSame('Site name', $name->label);
     $this->assertSame(FieldType::Text, $name->type);
     $this->assertSame(10, $name->weight);
@@ -75,7 +76,7 @@ final class AnswersTest extends TestCase {
 
     $debug = $answers->item('debug');
     $this->assertInstanceOf(Answer::class, $debug);
-    $this->assertSame('default', $debug->provenance);
+    $this->assertSame(Provenance::Default, $debug->provenance);
     $this->assertSame(FieldType::Confirm, $debug->type);
     $this->assertSame(['General', 'Advanced'], $debug->panels);
   }
@@ -87,7 +88,7 @@ final class AnswersTest extends TestCase {
       })
       ->build();
 
-    $summary = Answers::forConfig($config, ['name' => 'Acme'], ['name' => 'edited'])->toSummary();
+    $summary = Answers::forConfig($config, ['name' => 'Acme'], ['name' => Provenance::Edited])->toSummary();
 
     $this->assertStringContainsString('P', $summary);
     $this->assertStringContainsString('Name: Acme (edited)', $summary);

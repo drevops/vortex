@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Engine\Engine;
@@ -35,7 +36,7 @@ final class EngineDeclaredBehaviourTest extends TestCase {
     $answers = $engine->collect([], new Context('some/project'));
 
     $this->assertSame('from-project', $answers['name']);
-    $this->assertSame('default', $engine->provenance()['name']);
+    $this->assertSame(Provenance::Default, $engine->provenance()['name']);
   }
 
   public function testDeclaredDefaultOverriddenByInput(): void {
@@ -74,7 +75,7 @@ final class EngineDeclaredBehaviourTest extends TestCase {
     $answers = $engine->collect([], new Context('some/project', [], TRUE));
 
     $this->assertSame('seen-project', $answers['name']);
-    $this->assertSame('detected', $engine->provenance()['name']);
+    $this->assertSame(Provenance::Detected, $engine->provenance()['name']);
   }
 
   public function testDeclarationWinsOverHandler(): void {

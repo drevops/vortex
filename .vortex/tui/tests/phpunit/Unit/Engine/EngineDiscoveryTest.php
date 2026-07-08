@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Derive\Derive;
@@ -48,8 +49,8 @@ final class EngineDiscoveryTest extends TestCase {
 
     $this->assertSame('minimal', $answers['profile']);
     $this->assertSame('acme/site', $answers['name']);
-    $this->assertSame('detected', $engine->provenance()['profile']);
-    $this->assertSame('detected', $engine->provenance()['name']);
+    $this->assertSame(Provenance::Detected, $engine->provenance()['profile']);
+    $this->assertSame(Provenance::Detected, $engine->provenance()['name']);
   }
 
   public function testFreshInstallDiscoversNothing(): void {
@@ -60,7 +61,7 @@ final class EngineDiscoveryTest extends TestCase {
     $answers = $engine->collect([], new Context($this->dir, [], FALSE));
 
     $this->assertSame('standard', $answers['profile']);
-    $this->assertSame('default', $engine->provenance()['profile']);
+    $this->assertSame(Provenance::Default, $engine->provenance()['profile']);
   }
 
   public function testInputWinsOverDetected(): void {
@@ -71,7 +72,7 @@ final class EngineDiscoveryTest extends TestCase {
     $answers = $engine->collect(['profile' => 'demo'], new Context($this->dir, [], TRUE));
 
     $this->assertSame('demo', $answers['profile']);
-    $this->assertSame('edited', $engine->provenance()['profile']);
+    $this->assertSame(Provenance::Edited, $engine->provenance()['profile']);
   }
 
   public function testDetectedWinsOverDerived(): void {
@@ -83,7 +84,7 @@ final class EngineDiscoveryTest extends TestCase {
     $answers = $engine->collect([], new Context($this->dir, [], TRUE));
 
     $this->assertSame('from_env', $answers['profile']);
-    $this->assertSame('detected', $engine->provenance()['profile']);
+    $this->assertSame(Provenance::Detected, $engine->provenance()['profile']);
   }
 
   /**

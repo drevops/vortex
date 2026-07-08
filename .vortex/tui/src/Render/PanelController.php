@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Render;
 
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\Panel;
@@ -87,7 +88,7 @@ class PanelController {
    *   The theme (the visual authority for rendering).
    * @param array<string,mixed> $values
    *   The initial answer values (typically the engine's resolved answers).
-   * @param array<string,string> $provenance
+   * @param array<string,\DrevOps\Tui\Answers\Provenance> $provenance
    *   The initial provenance.
    * @param string $banner
    *   An optional start banner (logo) shown before the interactive loop.
@@ -285,7 +286,7 @@ class PanelController {
 
     if ($this->editor->isComplete()) {
       $this->values[$this->editing->id] = $this->editor->value();
-      $this->provenance[$this->editing->id] = 'edited';
+      $this->provenance[$this->editing->id] = Provenance::Edited;
       $this->closeEditor();
     }
     elseif ($this->editor->isCancelled()) {

@@ -78,14 +78,14 @@ class SummaryFormatter {
   /**
    * The provenance badge for a value (empty for defaults).
    *
-   * @param string $provenance
+   * @param \DrevOps\Tui\Answers\Provenance $provenance
    *   The provenance.
    *
    * @return string
    *   The badge suffix.
    */
-  protected function badge(string $provenance): string {
-    return $provenance === 'default' ? '' : ' (' . $provenance . ')';
+  protected function badge(Provenance $provenance): string {
+    return $provenance === Provenance::Default ? '' : ' (' . $provenance->value . ')';
   }
 
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Theme;
 
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Config\Panel;
@@ -343,11 +344,11 @@ abstract class AbstractTheme implements ThemeInterface {
     $left = $this->marker($selected) . ' ' . $this->styleSelected('label', $field->label, $selected) . '  ' . $this->styleSelected('value', $this->renderFieldValue($field, $answers->value($field->id)), $selected);
 
     $provenance = $answers->provenanceOf($field->id);
-    if ($provenance === 'default') {
+    if ($provenance === Provenance::Default) {
       return $left;
     }
 
-    return Ansi::alignRight($left, $this->styleSelected('badge', ' ' . $provenance . ' ', $selected), $this->width);
+    return Ansi::alignRight($left, $this->styleSelected('badge', ' ' . $provenance->value . ' ', $selected), $this->width);
   }
 
   /**

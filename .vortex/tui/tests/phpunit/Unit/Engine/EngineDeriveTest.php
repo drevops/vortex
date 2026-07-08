@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Engine;
 
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Derive\Derive;
@@ -28,8 +29,8 @@ final class EngineDeriveTest extends TestCase {
 
     $this->assertSame('acme_site', $answers['machine']);
     $this->assertSame('acme-site.com', $answers['domain']);
-    $this->assertSame('derived', $engine->provenance()['machine']);
-    $this->assertSame('edited', $engine->provenance()['name']);
+    $this->assertSame(Provenance::Derived, $engine->provenance()['machine']);
+    $this->assertSame(Provenance::Edited, $engine->provenance()['name']);
   }
 
   public function testOverrideHoldsWhileFollowersUpdate(): void {
@@ -40,8 +41,8 @@ final class EngineDeriveTest extends TestCase {
 
     $this->assertSame('custom', $answers['machine']);
     $this->assertSame('custom.com', $answers['domain']);
-    $this->assertSame('override', $engine->provenance()['machine']);
-    $this->assertSame('derived', $engine->provenance()['domain']);
+    $this->assertSame(Provenance::Override, $engine->provenance()['machine']);
+    $this->assertSame(Provenance::Derived, $engine->provenance()['domain']);
   }
 
   public function testResetRelinks(): void {
@@ -53,7 +54,7 @@ final class EngineDeriveTest extends TestCase {
     $answers = $engine->collect(['name' => 'Acme'], new Context());
 
     $this->assertSame('acme', $answers['machine']);
-    $this->assertSame('derived', $engine->provenance()['machine']);
+    $this->assertSame(Provenance::Derived, $engine->provenance()['machine']);
   }
 
   /**

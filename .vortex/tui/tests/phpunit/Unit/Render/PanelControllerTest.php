@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Render;
 
+use DrevOps\Tui\Answers\Provenance;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Input\Key;
@@ -169,7 +170,7 @@ final class PanelControllerTest extends TestCase {
 
     $this->assertFalse($controller->isEditing());
     $this->assertSame('Acme!', $controller->answers()->value('name'));
-    $this->assertSame('edited', $controller->answers()->provenanceOf('name'));
+    $this->assertSame(Provenance::Edited, $controller->answers()->provenanceOf('name'));
   }
 
   public function testEditCancelKeepsValue(): void {

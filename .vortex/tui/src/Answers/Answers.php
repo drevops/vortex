@@ -28,7 +28,7 @@ final readonly class Answers {
    *
    * @param array<string,mixed> $values
    *   The answer values keyed by question id.
-   * @param array<string,string> $provenance
+   * @param array<string,\DrevOps\Tui\Answers\Provenance> $provenance
    *   The provenance keyed by question id.
    * @param array<string,\DrevOps\Tui\Answers\Answer> $items
    *   The self-describing answers keyed by question id, in form order (empty
@@ -51,7 +51,7 @@ final readonly class Answers {
    *   The configuration the answers were collected against.
    * @param array<string,mixed> $values
    *   The answer values keyed by question id.
-   * @param array<string,string> $provenance
+   * @param array<string,\DrevOps\Tui\Answers\Provenance> $provenance
    *   The provenance keyed by question id.
    *
    * @return self
@@ -68,7 +68,7 @@ final readonly class Answers {
           continue;
         }
 
-        $items[$field->id] = new Answer($field->id, $values[$field->id], $provenance[$field->id] ?? 'default', $field->label, $field->type, $field->weight, $trail);
+        $items[$field->id] = new Answer($field->id, $values[$field->id], $provenance[$field->id] ?? Provenance::Default, $field->label, $field->type, $field->weight, $trail);
       }
 
       foreach ($panel->panels as $subpanel) {
@@ -115,11 +115,11 @@ final readonly class Answers {
    * @param string $id
    *   The question id.
    *
-   * @return string
-   *   The provenance (defaults to "default" when absent).
+   * @return \DrevOps\Tui\Answers\Provenance
+   *   The provenance (Default when absent).
    */
-  public function provenanceOf(string $id): string {
-    return $this->provenance[$id] ?? 'default';
+  public function provenanceOf(string $id): Provenance {
+    return $this->provenance[$id] ?? Provenance::Default;
   }
 
   /**
