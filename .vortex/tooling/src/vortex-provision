@@ -116,6 +116,58 @@ function yesno(string $value): string {
 }
 
 /**
+ * Compare two directories recursively and describe the differences.
+ *
+ * Mirrors the 'diff -rq' report: entries present on one side only and files
+ * whose contents differ.
+ *
+ * @param string $dir1
+ *   First directory.
+ * @param string $dir2
+ *   Second directory.
+ *
+ * @return array<int,string>
+ *   Human-readable difference lines; empty when the directories match.
+ */
+function compare_dirs(string $dir1, string $dir2): array {
+  $list_files = function (string $dir): array {
+    $files = [];
+
+    $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS));
+    foreach ($items as $item) {
+      if ($item instanceof \SplFileInfo && $item->isFile()) {
+        $files[] = substr($item->getPathname(), strlen($dir) + 1);
+      }
+    }
+
+    sort($files);
+
+    return $files;
+  };
+
+  $files1 = $list_files($dir1);
+  $files2 = $list_files($dir2);
+
+  $differences = [];
+
+  foreach (array_diff($files1, $files2) as $file) {
+    $differences[] = sprintf('Only in %s: %s', $dir1, $file);
+  }
+
+  foreach (array_diff($files2, $files1) as $file) {
+    $differences[] = sprintf('Only in %s: %s', $dir2, $file);
+  }
+
+  foreach (array_intersect($files1, $files2) as $file) {
+    if (filesize($dir1 . '/' . $file) !== filesize($dir2 . '/' . $file) || file_get_contents($dir1 . '/' . $file) !== file_get_contents($dir2 . '/' . $file)) {
+      $differences[] = sprintf('Files %s and %s differ', $dir1 . '/' . $file, $dir2 . '/' . $file);
+    }
+  }
+
+  return $differences;
+}
+
+/**
  * Provision site from database dump file.
  *
  * @param string $provision_db
@@ -322,10 +374,6 @@ NOTE('Verify config after update     : %s', yesno($provision_verify_config));
 NOTE('Use maintenance mode           : %s', yesno($provision_use_maintenance_mode));
 echo PHP_EOL;
 
-if ($provision_verify_config === '1') {
-  command_must_exist('diff');
-}
-
 // Provision site from DB dump or profile.
 //
 // The code block below has explicit if-else conditions and verbose output to
@@ -474,7 +522,9 @@ if ($provision_verify_config === '1' && $site_has_config_files) {
   $config_after = $config_tmp_dir . '/config_after_' . uniqid();
 
   TASK('Exporting configuration before database updates.', 'Exported configuration before database updates.', function () use ($config_before): void {
-    mkdir($config_before, 0755, TRUE);
+    if (!is_dir($config_before)) {
+      mkdir($config_before, 0755, TRUE);
+    }
     drush('config:export --destination=' . escapeshellarg($config_before));
   });
 
@@ -483,23 +533,26 @@ if ($provision_verify_config === '1' && $site_has_config_files) {
   });
 
   TASK('Exporting configuration after database updates.', 'Exported configuration after database updates.', function () use ($config_after): void {
-    mkdir($config_after, 0755, TRUE);
+    if (!is_dir($config_after)) {
+      mkdir($config_after, 0755, TRUE);
+    }
     drush('config:export --destination=' . escapeshellarg($config_after));
   });
 
   TASK('Verifying that database updates did not change configuration.', 'Verified that database updates did not change configuration.', function () use ($config_before, $config_after): void {
-    $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
+    $config_diff = compare_dirs($config_before, $config_after);
 
-    if (!empty(trim($config_diff))) {
+    if ($config_diff !== []) {
       NOTE('The following configuration files were changed:');
-      echo $config_diff . PHP_EOL;
+      echo implode(PHP_EOL, $config_diff) . PHP_EOL;
       NOTE('Configuration before updates: %s', $config_before);
       NOTE('Configuration after updates:  %s', $config_after);
       NOTE('Review the update hooks and manually export updated configuration.');
       throw new \RuntimeException('Configuration was changed by database updates.');
     }
 
-    shell_exec('rm -rf ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after));
+    remove_dir($config_before);
+    remove_dir($config_after);
   });
 }
 else {
