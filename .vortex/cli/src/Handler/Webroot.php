@@ -16,29 +16,28 @@ use DrevOps\VortexCli\Utils\File;
 class Webroot extends AbstractHandler {
 
   /**
-   * {@inheritdoc}
+   * Validate the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string|null
+   *   An error message, or NULL when valid.
    */
-  public function default(Field $field, Context $context): mixed {
-    $hosting = $context->answers['hosting_provider'] ?? NULL;
-
-    if ($hosting === NULL) {
-      return NULL;
-    }
-
-    return $hosting === 'acquia' ? 'docroot' : 'web';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validate(Field $field, mixed $value): ?string {
+  public static function validate(mixed $value): ?string {
     return is_string($value) && Validate::isDirname($value) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
   }
 
   /**
-   * {@inheritdoc}
+   * Normalize the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return mixed
+   *   The normalized value.
    */
-  public function transform(Field $field, mixed $value): mixed {
+  public static function transform(mixed $value): mixed {
     return is_string($value) ? rtrim($value, '/') : $value;
   }
 

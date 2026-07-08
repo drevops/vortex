@@ -60,9 +60,9 @@ class Processor {
     $placeholder = new Field('', '', '', FieldType::Text, NULL);
 
     foreach ($items as $item) {
-      $handler = $handlers->get($item['id']);
-      if ($handler instanceof ProcessorInterface) {
-        $handler->process($item['field'] ?? $placeholder, $answers[$item['id']] ?? NULL, $context);
+      $class = $handlers->resolve($item['id']);
+      if ($class !== NULL && is_a($class, ProcessorInterface::class, TRUE)) {
+        (new $class())->process($item['field'] ?? $placeholder, $answers[$item['id']] ?? NULL, $context);
       }
     }
   }

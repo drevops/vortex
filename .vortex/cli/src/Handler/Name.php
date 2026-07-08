@@ -6,37 +6,38 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
-use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 
 /**
- * Handler for the "name" question, auto-discovered by the TUI engine.
- *
- * Demonstrates the thin-CLI pattern: the TUI provides the base class and
- * lifecycle; this handler carries only the project-specific behaviour.
+ * Handler for the "name" question.
  *
  * @package DrevOps\VortexCli\Handler
  */
 class Name extends AbstractHandler {
 
   /**
-   * {@inheritdoc}
+   * Validate the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string|null
+   *   An error message, or NULL when valid.
    */
-  public function default(Field $field, Context $context): mixed {
-    return Converter::label(basename($context->directory));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validate(Field $field, mixed $value): ?string {
+  public static function validate(mixed $value): ?string {
     return is_string($value) && trim($value) !== '' ? NULL : 'The site name is required.';
   }
 
   /**
-   * {@inheritdoc}
+   * Normalize the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return mixed
+   *   The normalized value.
    */
-  public function transform(Field $field, mixed $value): mixed {
+  public static function transform(mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
   }
 

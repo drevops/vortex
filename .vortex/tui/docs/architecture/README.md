@@ -20,7 +20,7 @@ You declare the questions in PHP with the fluent `Form` builder: panels holding 
 
 ## Step 2 - attach behaviour where you need it
 
-Most fields need no code. When one does - a dynamic default, discovery, validation or a normalisation - declare it on the field itself: `->default(fn ...)`, `->validate(fn ...)`, `->transform(fn ...)`, `->discover(...)`. A handler class named after the field id (`machine_name` -> `MachineName`) in a registered namespace offers the same four hooks as a fallback for consumers who prefer per-field classes; the field declaration wins when both exist.
+Most fields need no code. When one does - a dynamic default, discovery, validation or a normalisation - declare it on the field itself: `->default(fn ...)`, `->validate(fn ...)`, `->transform(fn ...)`, `->discover(...)`. Reusable validators and transformers are public static methods on a consumer class named after the field id (`machine_name` -> `MachineName`) in a registered namespace - referenced explicitly as first-class callables or discovered by the engine as the fallback; the field declaration wins when both exist.
 
 ## Step 3 - collect the answers
 
@@ -47,7 +47,7 @@ Each turn it asks the **Theme** to compose a frame (the theme owns colours, glyp
 
 ## Step 5 - apply the answers (the consumer's job)
 
-Collecting produces answers; acting on them - writing files, renaming directories - is the consumer's job, never the engine's. A consumer that processes answers defines its own contract extending `HandlerInterface` with a `process()` hook, so one handler class carries a field's collection behaviour and its side effects, and orders the work by the per-field `weight` metadata (ties in reverse declaration order). This is exactly what the Vortex CLI does with its `ProcessorInterface` and `Processor`.
+Collecting produces answers; acting on them - writing files, renaming directories - is the consumer's job, never the engine's. A consumer that processes answers defines its own processor contract with a `process()` hook, resolves each processor class by field id through the `HandlerRegistry`, and orders the work by the per-field `weight` metadata (ties in reverse declaration order). One class per field can carry both its `process()` and the reusable static `validate()`/`transform()` the engine discovers. This is exactly what the Vortex CLI does with its `ProcessorInterface` and `Processor`.
 
 ## Regenerating this document
 

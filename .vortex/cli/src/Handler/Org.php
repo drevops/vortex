@@ -16,16 +16,28 @@ use DrevOps\VortexCli\Utils\File;
 class Org extends AbstractHandler {
 
   /**
-   * {@inheritdoc}
+   * Validate the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string|null
+   *   An error message, or NULL when valid.
    */
-  public function validate(Field $field, mixed $value): ?string {
+  public static function validate(mixed $value): ?string {
     return is_string($value) && Validate::isFilledLabel($value) ? NULL : 'Please enter a valid organization name.';
   }
 
   /**
-   * {@inheritdoc}
+   * Normalize the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return mixed
+   *   The normalized value.
    */
-  public function transform(Field $field, mixed $value): mixed {
+  public static function transform(mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
   }
 

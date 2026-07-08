@@ -4,26 +4,36 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-
 /**
- * Handler for the "profile_custom" question.
+ * Reusable behaviour for the "profile_custom" question.
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ProfileCustom extends AbstractHandler {
+class ProfileCustom {
 
   /**
-   * {@inheritdoc}
+   * Validate the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string|null
+   *   An error message, or NULL when valid.
    */
-  public function validate(Field $field, mixed $value): ?string {
+  public static function validate(mixed $value): ?string {
     return is_string($value) && Validate::isMachineName($value) ? NULL : 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.';
   }
 
   /**
-   * {@inheritdoc}
+   * Normalize the collected value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return mixed
+   *   The normalized value.
    */
-  public function transform(Field $field, mixed $value): mixed {
+  public static function transform(mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
   }
 

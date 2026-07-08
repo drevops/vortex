@@ -110,9 +110,9 @@ $p->text('name', 'Project name')
   ->transform(fn (mixed $v): mixed => is_string($v) ? trim($v) : $v);
 ```
 
-For consumers who prefer per-field classes, a handler auto-discovered by field id (`machine_name` resolves to `MachineName` in a registered namespace, extending `AbstractHandler`) provides the same four hooks - `default()`, `discover()`, `validate()`, `transform()` - as a fallback; the field declaration wins when both exist.
+Reusable validators and transformers live as public static methods on a consumer class. Reference one explicitly with a first-class callable - `->validate(Webroot::validate(...))` - or let the engine discover it: registering a namespace (`new Tui($form, ['App\\Handler'])`) resolves the class by field id (`machine_name` -> `MachineName`) and uses its static `validate()`/`transform()` whenever the field declares none. The field declaration always wins.
 
-The TUI only collects: it presents answers and never applies them. **Applying answers - writing files, renaming directories - is the consumer's job.** A consumer that processes answers defines its own handler interface adding a `process()` step, keeping the form for collection and the processors for side effects (this is exactly what the Vortex CLI does).
+The TUI only collects: it presents answers and never applies them. **Applying answers - writing files, renaming directories - is the consumer's job.** A consumer that processes answers defines its own processor interface, keeping the form for collection and the processors for side effects - one class per field can carry both its `process()` and its reusable static behaviour (this is exactly what the Vortex CLI does).
 
 ## Themes
 

@@ -9,6 +9,8 @@ use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Derive\Derive;
+use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
 
 /**
  * The Vortex form, declared in PHP.
@@ -57,7 +59,7 @@ BANNER;
       ->envPrefix('VORTEX_')
       ->panel('general', 'General information', function (PanelBuilder $p): void {
         $p->description('Project name, organization and public domain.');
-        $p->text('name', 'Site name')->description('We will use this name in the project and documentation.')->required()->weight(380);
+        $p->text('name', 'Site name')->description('We will use this name in the project and documentation.')->required()->default(fn (Context $c): string => Converter::label(basename($c->directory)))->weight(380);
         $p->text('machine_name', 'Site machine name')
           ->description('We will use this name for the project directory and in the code.')
           ->required()
@@ -92,7 +94,7 @@ BANNER;
           ->weight(250);
         $p->select('profile', 'Profile')
           ->description('The Drupal installation profile the site is built on.')
-          ->default('standard')->required()
+          ->default(fn (Context $c): string => ($c->answers['starter'] ?? '') === 'install_profile_drupalcms' ? '../recipes/drupal_cms_starter' : 'standard')->required()
           ->options([
             'standard' => 'Standard',
             'minimal' => 'Minimal',
@@ -235,13 +237,13 @@ BANNER;
           ->when(new Condition('hosting_provider', in: ['lagoon', 'acquia']))
           ->derive(new Derive('{{machine_name}}'))
           ->weight(290);
-        $p->text('webroot', 'Custom web root directory')->description('The directory where the web server serves the site.')->default('web')->required()->weight(10);
+        $p->text('webroot', 'Custom web root directory')->description('The directory where the web server serves the site.')->default(fn (Context $c): string => ($c->answers['hosting_provider'] ?? NULL) === 'acquia' ? 'docroot' : 'web')->required()->weight(10);
       })
       ->panel('deployment', 'Deployment', function (PanelBuilder $p): void {
         $p->description('How code is shipped to the hosting environment.');
         $p->multiselect('deploy_types', 'Deployment types')
           ->description('One or more deployment mechanisms.')
-          ->default(['webhook'])
+          ->default(fn (Context $c): array => match ($c->answers['hosting_provider'] ?? NULL) { 'lagoon' => ['lagoon'], 'acquia' => ['artifact'], default => ['webhook'] })
           ->options([
             'artifact' => 'Code artifact',
             'lagoon' => 'Lagoon webhook',
@@ -258,7 +260,8 @@ BANNER;
           ->weight(150);
         $p->select('database_fetch_source', 'Database source')
           ->description('Where the database dump is fetched from.')
-          ->default('url')->when(new Condition('provision_type', eq: 'database'))
+          ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { 'acquia' => 'acquia', 'lagoon' => 'lagoon', default => 'url' })
+          ->when(new Condition('provision_type', eq: 'database'))
           ->options([
             'url' => 'URL download',
             'ftp' => 'FTP download',
@@ -277,7 +280,8 @@ BANNER;
         $p->confirm('migration', 'Use a second database for migrations?')->description('Adds a second database service for Drupal migrations.')->default(FALSE)->weight(120);
         $p->select('migration_fetch_source', 'Migration database source')
           ->description('Where the migration database dump is fetched from.')
-          ->default('url')->when(new Condition('migration', eq: TRUE))
+          ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { 'acquia' => 'acquia', 'lagoon' => 'lagoon', default => 'url' })
+          ->when(new Condition('migration', eq: TRUE))
           ->options([
             'url' => 'URL download',
             'ftp' => 'FTP download',

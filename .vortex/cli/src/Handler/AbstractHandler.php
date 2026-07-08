@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Handler\AbstractHandler as TuiAbstractHandler;
 use DrevOps\Tui\Handler\Context;
 
 /**
- * Base handler for the CLI: TUI collection defaults plus a no-op process().
+ * Base processor with a no-op process().
  *
- * Inherits the no-op collection methods (default/discover/validate/transform)
- * from the TUI base and adds a no-op process(), so a concrete handler overrides
- * only the phases it needs.
+ * A concrete handler overrides process() with its side effects and may also
+ * declare public static validate()/transform() methods, which the TUI engine
+ * discovers by field id as the field's reusable behaviour.
  *
  * @package DrevOps\VortexCli\Handler
  */
-abstract class AbstractHandler extends TuiAbstractHandler implements ProcessorInterface {
+abstract class AbstractHandler implements ProcessorInterface {
 
   /**
    * {@inheritdoc}

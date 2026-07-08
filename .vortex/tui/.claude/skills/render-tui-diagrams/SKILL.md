@@ -34,7 +34,7 @@ plantuml -tsvg docs/architecture/*.puml
 
 ## Task B - add a new data-flow diagram
 
-1. **Trace the flow from source.** Pick the entry method (e.g. `Engine::collect()`, `Engine::run()`, `PanelController::run()`) and follow it through the classes it calls: `InputResolver`, `Discovery`, `Deriver` + `Transform`, `ConditionEvaluator`, `HandlerRegistry` -> a `HandlerInterface`, then `Answers` / `Theme` / `WidgetFactory` on the way out.
+1. **Trace the flow from source.** Pick the entry method (e.g. `Engine::collect()`, `PanelController::run()`) and follow it through the classes it calls: `InputResolver`, the discovery specs, `Deriver` + `Derive` + `Transform`, `Condition`, `HandlerRegistry` (reusable static behaviour), then `Answers` / `Theme` / `WidgetFactory` on the way out.
 2. **Create** `docs/architecture/dataflow-<flow>.puml` from the template below.
 3. **Fill** the participants and messages from the real call path: solid arrows (`->`) for the forward path, dashed (`-->`) for returns. Mirror `dataflow-collect.puml`.
 4. **Render** it: `plantuml -tsvg docs/architecture/dataflow-<flow>.puml`.

@@ -20,29 +20,6 @@ class DeployTypes extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(Field $field, Context $context): mixed {
-    $hosting = $context->answers['hosting_provider'] ?? NULL;
-
-    $defaults = [];
-
-    if ($hosting === 'lagoon') {
-      $defaults[] = 'lagoon';
-    }
-
-    if ($hosting === 'acquia') {
-      $defaults[] = 'artifact';
-    }
-
-    if ($defaults === []) {
-      $defaults[] = 'webhook';
-    }
-
-    return $defaults;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function process(Field $field, mixed $value, Context $context): void {
     $types = is_array($value) ? array_values(array_filter($value, is_string(...))) : [];
 

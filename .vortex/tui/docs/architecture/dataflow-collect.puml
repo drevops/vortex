@@ -11,10 +11,10 @@ title Data flow: headless collection (Engine::collect)
 participant "Caller" as Caller
 participant "InputResolver" as IR
 participant "Engine" as Eng
-participant "Handler\n(via registry)" as H
-participant "Discovery" as Disc
-participant "Deriver\n+ Transform" as Der
-participant "ConditionEvaluator" as CE
+participant "Field behaviour\n(closure or static)" as B
+participant "Discovery spec" as Disc
+participant "Deriver\n+ Derive" as Der
+participant "Condition" as CE
 participant "Answers" as Ans
 
 Caller -> IR: resolve(fields, prompts, env)
@@ -27,29 +27,27 @@ activate Eng
 
 loop each field, in order
   alt update mode and no input
-    Eng -> Disc: detect(discover rule)
+    Eng -> Disc: discover(directory)
     Disc --> Eng: discovered value
   end
-  Eng -> H: default(field, context)
-  H --> Eng: dynamic default (or null)
-  note right of Eng: input > discovered > dynamic default > static default
+  note right of Eng: input > discovered > declared default > static default
 end
 
 Eng -> Der: derive(rules, values, pinned)
 activate Der
 Der --> Eng: derived values (fixpoint)
 deactivate Der
-Eng -> CE: matches(when, answers)
+Eng -> CE: matches(answers)
 activate CE
 CE --> Eng: active / inactive per field
 deactivate CE
 note right of Eng: apply fix-ups; repeat until stable
 
 loop each active field
-  Eng -> H: validate(field, value)
-  H --> Eng: error or null
-  Eng -> H: transform(field, value)
-  H --> Eng: normalized value
+  Eng -> B: validate(value)
+  B --> Eng: error or null
+  Eng -> B: transform(value)
+  B --> Eng: normalized value
 end
 
 Eng -> Ans: build(values, provenance)

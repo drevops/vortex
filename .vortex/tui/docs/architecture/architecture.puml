@@ -34,8 +34,6 @@ package "Resolution" #E8F5E9 {
 
 package "Handlers" #F3E5F5 {
   [HandlerRegistry]
-  interface HandlerInterface
-  [AbstractHandler]
   [Context]
 }
 
@@ -67,8 +65,6 @@ package "Interactive TUI" #FFEBEE {
 [Derive] --> [Transform]
 [Engine] --> [Condition]
 [Engine] --> [HandlerRegistry]
-[HandlerRegistry] --> HandlerInterface
-[AbstractHandler] ..|> HandlerInterface
 [Engine] --> [Answers]
 
 [SchemaGenerator] --> [Config]

@@ -19,17 +19,6 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function default(Field $field, Context $context): mixed {
-    if (($context->answers['starter'] ?? '') === 'install_profile_drupalcms') {
-      return '../recipes/drupal_cms_starter';
-    }
-
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function process(Field $field, mixed $value, Context $context): void {
     $v = is_string($value) ? $value : '';
 
