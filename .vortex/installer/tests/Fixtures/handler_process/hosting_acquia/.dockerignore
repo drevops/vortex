@@ -1,4 +1,4 @@
-@@ -14,8 +14,8 @@
+@@ -15,8 +15,8 @@
  .env.local
  .ahoy.local.yml
  docker-compose.override.yml
@@ -9,7 +9,7 @@
  
  # Local data, logs, caches and temporary artifacts.
  .artifacts
-@@ -27,19 +27,19 @@
+@@ -28,19 +28,19 @@
  # Dependencies are installed during the image build.
  vendor
  node_modules
