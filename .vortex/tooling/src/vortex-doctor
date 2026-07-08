@@ -115,8 +115,13 @@ if ($check_tools === '1') {
 
 if ($check_port === '1' && PHP_OS_FAMILY !== 'Linux') {
   TASK('Checking port 80 availability.', 'Port 80 is available.', function (): void {
-    passthru("lsof -i :80 2>/dev/null | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'", $exit_code);
-    if ($exit_code === 0) {
+    $lsof_output = (string) shell_exec('lsof -i :80 2>/dev/null');
+
+    foreach (explode("\n", $lsof_output) as $line) {
+      if (str_contains($line, 'CLOSED') || !str_contains($line, 'LISTEN') || str_contains($line, 'om.docke')) {
+        continue;
+      }
+
       throw new \RuntimeException("Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'.");
     }
   });
@@ -143,10 +148,11 @@ if ($check_pygmy === '1') {
 
 if ($check_containers === '1') {
   TASK('Checking that containers are running.', 'All containers are running.', function (): void {
+    $running_services = array_map(trim(...), explode("\n", (string) shell_exec('docker compose ps --status=running --services 2>/dev/null')));
+
     $container_services = ['cli', 'appserver', 'webserver', 'database'];
     foreach ($container_services as $service) {
-      passthru(sprintf('docker compose ps --status=running --services 2>/dev/null | grep -q %s', escapeshellarg($service)), $exit_code);
-      if ($exit_code !== 0) {
+      if (!in_array($service, $running_services, TRUE)) {
         NOTE("Run 'ahoy up'.");
         NOTE("Run 'ahoy logs %s' to see error logs.", $service);
         throw new \RuntimeException(sprintf('%s container is not running.', $service));
@@ -158,8 +164,8 @@ if ($check_containers === '1') {
 if ($check_ssh === '1') {
   // Check that the key is injected into pygmy ssh-agent container.
   $ssh_key_added_to_pygmy = (bool) TASK('Checking that the SSH key is added to pygmy.', 'SSH key is added to pygmy.', function () use ($ssh_file): bool {
-    passthru(sprintf('pygmy status 2>&1 | grep -q %s', escapeshellarg($ssh_file)), $exit_code);
-    if ($exit_code !== 0) {
+    $status = str_replace("\0", '', (string) shell_exec('pygmy status 2>&1'));
+    if (!str_contains($status, $ssh_file)) {
       NOTE("The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'.");
       throw new \RuntimeException('SSH key is not added to pygmy.');
     }
@@ -230,7 +236,11 @@ echo PHP_EOL;
  * Sanitize system information output to remove PII data.
  */
 function sanitize_system_info(string $input): string {
-  $username = trim((string) shell_exec('whoami'));
+  $username = (string) getenv('USER');
+
+  if ($username === '' && function_exists('posix_getpwuid') && function_exists('posix_geteuid')) {
+    $username = (string) (posix_getpwuid(posix_geteuid())['name'] ?? '');
+  }
 
   $input = str_replace('/Users/' . $username . '/', '/Users/[USERNAME_REDACTED]/', $input);
   $input = str_replace('/home/' . $username . '/', '/home/[USERNAME_REDACTED]/', $input);
