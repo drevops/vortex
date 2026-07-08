@@ -681,42 +681,56 @@ function acli_resolve(): string {
  * ID so concurrent runs sharing the cache directory do not clash.
  *
  * @return string
- *   Path to the home directory; it is created if missing.
+ *   Path to the home directory; any stale copy is cleared and it is recreated.
  */
 function acli_home(): string {
   $dir = (string) getenv_default('VORTEX_ACLI_PATH', '.artifacts/tmp');
   $home = $dir . '/acli-home-' . getmypid();
 
-  if (!is_dir($home)) {
-    mkdir($home, 0755, TRUE);
-    // The isolated home caches acli's token and state; remove it when the run
-    // ends so no credentials linger on disk afterwards.
-    register_shutdown_function(static function () use ($home): void {
-      // @codeCoverageIgnoreStart
-      if (!is_dir($home)) {
-        return;
-      }
+  // A home left behind by a crashed run that reused this PID would hand acli
+  // stale cached credentials; clear it so every run starts from a clean home.
+  acli_home_remove($home);
+  mkdir($home, 0755, TRUE);
 
-      $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($home, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-      foreach ($items as $item) {
-        if (!$item instanceof \SplFileInfo) {
-          continue;
-        }
-
-        if ($item->isDir()) {
-          rmdir($item->getPathname());
-        }
-        else {
-          unlink($item->getPathname());
-        }
-      }
-
-      rmdir($home);
-      // @codeCoverageIgnoreEnd
-    });
-  }
+  // The isolated home caches acli's token and state; remove it when the run
+  // ends so no credentials linger on disk afterwards.
+  register_shutdown_function(static function () use ($home): void {
+    // @codeCoverageIgnoreStart
+    acli_home_remove($home);
+    // @codeCoverageIgnoreEnd
+  });
 
   return $home;
+}
+
+/**
+ * Recursively remove an isolated Acquia CLI home directory.
+ *
+ * @param string $home
+ *   Path to the directory to remove; a no-op when it does not exist.
+ */
+function acli_home_remove(string $home): void {
+  if (!is_dir($home)) {
+    return;
+  }
+
+  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($home, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+  foreach ($items as $item) {
+    // @codeCoverageIgnoreStart
+    if (!$item instanceof \SplFileInfo) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+
+    if ($item->isDir()) {
+      rmdir($item->getPathname());
+    }
+    else {
+      unlink($item->getPathname());
+    }
+  }
+
+  rmdir($home);
 }
 
 /**

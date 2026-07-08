@@ -238,7 +238,17 @@ foreach ($domain_list as $domain) {
     sprintf('Purging cache for %s environment domain %s.', $target_env, $domain),
     sprintf('Purged cache for %s environment domain %s.', $target_env, $domain),
     function () use ($env_id, $token, $domain, $acquia_key, $acquia_secret, $status_retries, $status_interval, $target_env): void {
-      $purge_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/domains/actions/clear-varnish', $env_id), json_encode(['domains' => [$domain]]), array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
+      $purge_url = sprintf('https://cloud.acquia.com/api/environments/%s/domains/actions/clear-varnish', $env_id);
+      $purge_body = json_encode(['domains' => [$domain]]);
+
+      $purge_response = request_post($purge_url, $purge_body, array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
+
+      // The access token expires after five minutes, so a long multi-domain run
+      // can outlive it; refresh once on a 401 and retry, as the poller does.
+      if (!$purge_response['ok'] && ($purge_response['status'] ?? 0) === 401) {
+        $token = purge_acquia_api_get_token($acquia_key, $acquia_secret);
+        $purge_response = request_post($purge_url, $purge_body, array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
+      }
 
       if (!$purge_response['ok']) {
         throw new \RuntimeException(sprintf('Failed to purge cache for %s environment domain %s: %s', $target_env, $domain, $purge_response['error'] ?? 'HTTP ' . ($purge_response['status'] ?? 'unknown')));

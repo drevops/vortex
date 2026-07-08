@@ -116,15 +116,20 @@ class HelpersAcquiaTest extends UnitTestCase {
     $this->assertDirectoryExists($result);
   }
 
-  public function testHomeReusesExistingDir(): void {
+  public function testHomeClearsStaleDir(): void {
     $this->envSet('VORTEX_ACLI_PATH', self::$tmp);
     $home = self::$tmp . '/acli-home-' . getmypid();
-    mkdir($home, 0755, TRUE);
+    mkdir($home . '/subdir', 0755, TRUE);
+    file_put_contents($home . '/subdir/token.json', 'stale');
+    file_put_contents($home . '/state', 'stale');
 
     $result = \DrevOps\VortexTooling\acli_home();
 
     $this->assertSame($home, $result);
     $this->assertDirectoryExists($result);
+    // A leftover home is cleared so stale credentials never reach acli.
+    $this->assertFileDoesNotExist($home . '/state');
+    $this->assertDirectoryDoesNotExist($home . '/subdir');
   }
 
   public function testExecSuccess(): void {
