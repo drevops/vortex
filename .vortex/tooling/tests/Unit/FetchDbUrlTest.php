@@ -71,6 +71,11 @@ class FetchDbUrlTest extends UnitTestCase {
           File::mkdir($temp_dir);
           File::dump($temp_dir . '/extracted_db.sql', 'SQL CONTENT');
 
+          // A symlink sorting before the dump file must be skipped by the
+          // discovery so the link itself is never moved as the dump.
+          File::dump(self::$tmp . '/outside.txt', 'OUTSIDE');
+          symlink(self::$tmp . '/outside.txt', $temp_dir . '/a_link');
+
           $test->mockRequestMultiple([
             ['url' => 'https://example.com/db.zip', 'method' => 'GET', 'response' => []],
           ]);
@@ -85,6 +90,7 @@ class FetchDbUrlTest extends UnitTestCase {
           $test->assertSame('SQL CONTENT', file_get_contents(self::$tmp . '/data/db.sql'));
           $test->assertDirectoryDoesNotExist(self::$tmp . '/data/tmp_extract_12345');
           $test->assertFileDoesNotExist(self::$tmp . '/data/db.sql.zip');
+          $test->assertFileExists(self::$tmp . '/outside.txt');
         },
       ],
       'zip extraction with password' => [

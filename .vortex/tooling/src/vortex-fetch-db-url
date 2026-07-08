@@ -83,7 +83,7 @@ if (str_ends_with($url, '.zip')) {
     NOTE('Discovering database file in archive.');
     $extracted_files = [];
     walk_dir($temp_dir, function (\SplFileInfo $item) use (&$extracted_files): void {
-      if ($item->isFile()) {
+      if ($item->isFile() && !$item->isLink()) {
         $extracted_files[] = $item->getPathname();
       }
     });
