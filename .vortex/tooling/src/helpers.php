@@ -1156,6 +1156,40 @@ function copy_dir(string $src, string $dst): void {
 }
 
 /**
+ * Recursively walk a directory, invoking a visitor for every entry.
+ *
+ * Entries are visited top-down in alphabetical order. Symbolic links are
+ * visited as entries but never followed. Returning FALSE from the visitor for
+ * a directory entry prevents descending into that directory; any other return
+ * value continues the walk.
+ *
+ * @param string $dir
+ *   Directory to walk; a no-op when it does not exist or is not a directory.
+ * @param \Closure $visitor
+ *   Visitor receiving an \SplFileInfo for each entry.
+ */
+function walk_dir(string $dir, \Closure $visitor): void {
+  if (is_link($dir) || !is_dir($dir)) {
+    return;
+  }
+
+  $entries = scandir($dir) ?: [];
+
+  foreach ($entries as $entry) {
+    if ($entry === '.' || $entry === '..') {
+      continue;
+    }
+
+    $item = new \SplFileInfo($dir . '/' . $entry);
+    $descend = $visitor($item);
+
+    if ($descend !== FALSE && !$item->isLink() && $item->isDir()) {
+      walk_dir($item->getPathname(), $visitor);
+    }
+  }
+}
+
+/**
  * Recursively remove a directory and all of its contents.
  *
  * Best-effort, mirroring 'rm -rf': individual failures are suppressed rather
