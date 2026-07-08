@@ -1,4 +1,4 @@
-# Customizer playground
+# TUI playground
 
 Runnable, self-contained examples of the `drevops/tui` engine. Each
 numbered directory is independent - copy one as a starting point.
@@ -29,8 +29,8 @@ composer install
   ```
 
 - **[`2-custom-theme/`](2-custom-theme)** - a self-contained custom theme class
-  ([`OceanTheme.php`](2-custom-theme/OceanTheme.php)) named directly from the
-  config, driving the TUI with a banner.
+  ([`OceanTheme.php`](2-custom-theme/OceanTheme.php)) named directly on the form,
+  driving the TUI with a banner.
 
   ```bash
   php playground/2-custom-theme/run.php
@@ -52,13 +52,12 @@ composer install
   Per-widget files: `widget-text.php`, `widget-select.php`,
   `widget-multiselect.php`, `widget-confirm.php`, `widget-suggest.php`.
 
-## How a config picks a theme
+## How a form picks a theme
 
-Three ways, lowest friction first:
+Set it on the builder with `->theme(...)`, lowest friction first:
 
-1. **Name the class in the config** - `theme: '\Your\ThemeClass'`. The class is
-   instantiated directly; no registration needed. This is what `2-custom-theme`
-   does.
-2. **Register a short name** - `Theme::register('ocean', OceanTheme::class)`,
-   then `theme: ocean`. Useful to give a class a stable alias.
-3. **Built-ins** - `theme: dark` (the default) or `theme: light`.
+1. **Name the class** - `->theme('\Your\ThemeClass')`. The class is instantiated
+   directly; no registration needed. This is what `2-custom-theme` does.
+2. **Register a short name** - `AbstractTheme::register('ocean', OceanTheme::class)`,
+   then `->theme('ocean')`. Useful to give a class a stable alias.
+3. **Built-ins** - `->theme('dark')` (the default) or `->theme('light')`.

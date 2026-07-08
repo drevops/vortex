@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Custom theme example: the config names a theme class; run it via the facade.
+ * Custom theme example: the form names a theme class; run it via the facade.
  *
  * Usage:
  *   php 2-custom-theme/run.php                       # interactive, ocean theme
@@ -10,16 +10,30 @@
  */
 
 declare(strict_types=1);
+
+use Playground\CustomTheme\OceanTheme;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Engine\EngineException;
+use DrevOps\Tui\Tui;
 
 require __DIR__ . '/../../vendor/autoload.php';
-// The require makes the class loadable; config.yml names it directly, so no
+// The require makes the class loadable; the form names it directly, so no
 // Theme::register() call is needed.
 require __DIR__ . '/OceanTheme.php';
 
 $options = getopt('', ['prompts::']);
 
-$customizer = Customizer::fromFiles([__DIR__ . '/config.yml']);
+$config = Form::create('Ocean theme demo')
+  ->theme(OceanTheme::class)
+  ->panel('profile', 'Diver profile', function (PanelBuilder $p): void {
+    $p->text('name', 'Name')->default('Explorer');
+    $p->select('depth', 'Preferred depth')->default('reef')->options(['surface' => 'Surface', 'reef' => 'Reef', 'abyss' => 'Abyss']);
+    $p->multiselect('gear', 'Gear')->options(['mask' => 'Mask', 'fins' => 'Fins', 'tank' => 'Tank']);
+  })
+  ->build();
+
+$customizer = new Tui($config);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
 $banner = <<<'EOT'
@@ -31,8 +45,8 @@ try {
     $answers = $customizer->collect($prompts);
   }
   else {
-    // The theme comes from the config: theme: '\Playground\CustomTheme\OceanTheme'.
-    $answers = $customizer->run(banner: $banner, version: '1.0.0');
+    // The theme comes from the form: ->theme(OceanTheme::class).
+    $answers = $customizer->interact(banner: $banner, version: '1.0.0');
   }
 }
 catch (EngineException $exception) {

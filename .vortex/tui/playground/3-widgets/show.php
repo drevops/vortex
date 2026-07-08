@@ -6,7 +6,7 @@
  *
  * Widgets pull their glyphs from the theme, so the same widget renders with
  * Unicode glyphs under a Unicode theme and ASCII glyphs under an ASCII theme -
- * exactly how the customizer adapts to the terminal (prompty-style: Unicode is
+ * exactly how the TUI adapts to the terminal (prompty-style: Unicode is
  * auto-detected from the locale, ASCII is the fallback). This showcase forces
  * each mode side by side so the difference is visible without a terminal.
  *

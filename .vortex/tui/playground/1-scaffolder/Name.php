@@ -12,8 +12,8 @@ use DrevOps\Tui\Handler\Context;
  * Example handler for the "name" field.
  *
  * Auto-discovered by the engine from the field id ("name" -> Name). Shows the
- * four handler hooks: a dynamic default from the run context, validation,
- * a value transform, and a process() side effect.
+ * collection hooks: a dynamic default from the run context, validation and a
+ * value transform. Applying answers is the caller's job, not the TUI's.
  */
 class Name extends AbstractHandler {
 
@@ -37,15 +37,6 @@ class Name extends AbstractHandler {
    */
   public function transform(Field $field, mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function process(Field $field, mixed $value, Context $context): void {
-    // A real handler would write files under $context->directory here. The
-    // playground just reports what it would do.
-    fwrite(STDOUT, sprintf('  [process] would scaffold package "%s"' . PHP_EOL, is_string($value) ? $value : ''));
   }
 
 }
