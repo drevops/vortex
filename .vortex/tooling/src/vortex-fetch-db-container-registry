@@ -54,9 +54,9 @@ command_must_exist('docker');
  *   TRUE when the image exists on the host.
  */
 function image_exists_on_host(string $image): bool {
-  $inspect_result = shell_exec(sprintf('docker image inspect %s >/dev/null 2>&1 && echo 1 || echo 0', escapeshellarg($image)));
+  passthru(sprintf('docker image inspect %s >/dev/null 2>&1', escapeshellarg($image)), $exit_code);
 
-  return trim((string) $inspect_result) === '1';
+  return $exit_code === 0;
 }
 
 INFO('Started database data container image download.');

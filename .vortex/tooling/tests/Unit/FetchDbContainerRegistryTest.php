@@ -55,14 +55,10 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
     file_put_contents($db_dir . '/db.tar', 'fake-tar-data');
 
     // Initial inspect: not found. After docker load: found.
-    $this->mockShellExecMultiple([
-      ['value' => '0'],
-      ['value' => '1'],
-    ]);
-
-    $this->mockPassthru([
-      'cmd' => sprintf('docker load -q --input %s', escapeshellarg($db_dir . '/db.tar')),
-      'result_code' => 0,
+    $this->mockPassthruMultiple([
+      ['cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1', 'result_code' => 1],
+      ['cmd' => sprintf('docker load -q --input %s', escapeshellarg($db_dir . '/db.tar')), 'result_code' => 0],
+      ['cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1', 'result_code' => 0],
     ]);
 
     $output = $this->runScript('src/vortex-fetch-db-container-registry');
@@ -78,15 +74,18 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
     file_put_contents($db_dir . '/db.tar', 'fake-tar-data');
 
     // Initial inspect: not found. After docker load: still not found.
-    $this->mockShellExecMultiple([
-      ['value' => '0'],
-      ['value' => '0'],
-    ]);
-
     $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 1,
+      ],
       [
         'cmd' => sprintf('docker load -q --input %s', escapeshellarg($db_dir . '/db.tar')),
         'result_code' => 0,
+      ],
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 1,
       ],
       [
         'cmd' => self::$srcDir . '/vortex-login-container-registry',
@@ -108,9 +107,11 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
   public function testNoArchivePullFromRegistry(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
-    $this->mockShellExec('0');
-
     $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 1,
+      ],
       [
         'cmd' => self::$srcDir . '/vortex-login-container-registry',
         'result_code' => 0,
@@ -131,9 +132,11 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
     mkdir(self::$tmp . '/data', 0755, TRUE);
     $this->envSet('VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE', 'myorg/mydb-base');
 
-    $this->mockShellExec('0');
-
     $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 1,
+      ],
       [
         'cmd' => self::$srcDir . '/vortex-login-container-registry',
         'result_code' => 0,
@@ -154,9 +157,11 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
     // Initial inspect: found on host. Still pulls from registry (no archive).
-    $this->mockShellExec('1');
-
     $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 0,
+      ],
       [
         'cmd' => self::$srcDir . '/vortex-login-container-registry',
         'result_code' => 0,
@@ -176,9 +181,11 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
   public function testPullFails(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
-    $this->mockShellExec('0');
-
     $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 1,
+      ],
       [
         'cmd' => self::$srcDir . '/vortex-login-container-registry',
         'result_code' => 0,
@@ -195,11 +202,15 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
   public function testLoginFails(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
-    $this->mockShellExec('0');
-
-    $this->mockPassthru([
-      'cmd' => self::$srcDir . '/vortex-login-container-registry',
-      'result_code' => 1,
+    $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 1,
+      ],
+      [
+        'cmd' => self::$srcDir . '/vortex-login-container-registry',
+        'result_code' => 1,
+      ],
     ]);
 
     $this->runScriptError('src/vortex-fetch-db-container-registry', 'Failed to login to the container registry');

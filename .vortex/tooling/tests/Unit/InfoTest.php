@@ -33,10 +33,16 @@ class InfoTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderInfo')]
-  public function testInfo(array $env_vars, array $mocks, array $expected): void {
+  public function testInfo(array $env_vars, array $mocks, array $expected, bool $xdebug_enabled = FALSE): void {
     if (!empty($env_vars)) {
       $this->envSetMultiple($env_vars);
     }
+
+    $php_version_output = 'PHP 8.3.10 (cli) (built: Aug  1 2024 10:00:00) (NTS)';
+    if ($xdebug_enabled) {
+      $php_version_output .= "\n    with Xdebug v3.3.2, Copyright (c) 2002-2024, by Derick Rethans";
+    }
+    $this->mockShellExec($php_version_output);
 
     foreach ($mocks as $mock) {
       $this->mockPassthru($mock);
@@ -51,7 +57,7 @@ class InfoTest extends UnitTestCase {
     return [
       'basic' => [
         [],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1]],
+        [],
         [
           '* [INFO] Project information:',
           '* Project name                : test_project',
@@ -76,41 +82,41 @@ class InfoTest extends UnitTestCase {
 
       'xdebug enabled' => [
         [],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 0]],
+        [],
         [
           "* Xdebug                      : Enabled ('ahoy up cli' to disable)",
           "! Disabled ('ahoy debug' to enable)",
         ],
+        TRUE,
       ],
 
       'db image' => [
         ['VORTEX_DB_IMAGE' => 'myorg/db:latest'],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1]],
+        [],
         ['* DB-in-image                 : myorg/db:latest'],
       ],
 
       'solr port' => [
         ['VORTEX_HOST_SOLR_PORT' => '8983'],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1]],
+        [],
         ['* Solr URL on host            : http://127.0.0.1:8983'],
       ],
 
       'selenium vnc port' => [
         ['VORTEX_HOST_SELENIUM_VNC_PORT' => '7900'],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1]],
+        [],
         ['* Selenium VNC URL on host    : http://localhost:7900/?autoconnect=1&password=secret'],
       ],
 
       'sequel ace' => [
         ['VORTEX_HOST_HAS_SEQUELACE' => '1'],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1]],
+        [],
         ["* ('ahoy db' to start SequelAce)"],
       ],
 
       'show login' => [
         ['VORTEX_SHOW_LOGIN' => '1'],
         [
-          ['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 1],
           ['cmd' => 'php ' . dirname(__DIR__, 2) . '/src/vortex-login', 'output' => 'http://example.com/user/reset/1/abc123/login', 'result_code' => 0],
         ],
         [
@@ -127,7 +133,7 @@ class InfoTest extends UnitTestCase {
           'VORTEX_HOST_SELENIUM_VNC_PORT' => '7900',
           'VORTEX_HOST_HAS_SEQUELACE' => '1',
         ],
-        [['cmd' => 'php -v 2>/dev/null | grep -q Xdebug', 'result_code' => 0]],
+        [],
         [
           '* DB-in-image                 : myorg/db:latest',
           '* Solr URL on host            : http://127.0.0.1:8983',
@@ -135,6 +141,7 @@ class InfoTest extends UnitTestCase {
           "* ('ahoy db' to start SequelAce)",
           "* Enabled ('ahoy up cli' to disable)",
         ],
+        TRUE,
       ],
     ];
   }

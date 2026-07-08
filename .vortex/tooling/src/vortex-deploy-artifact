@@ -71,8 +71,6 @@ $git_artifact_sha256 = getenv_default('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA25
 
 INFO('Started artifact deployment.');
 
-command_must_exist('curl');
-
 // Configure global git settings, if they do not exist.
 $global_git_name = trim((string) shell_exec('git config --global user.name'));
 if (empty($global_git_name)) {

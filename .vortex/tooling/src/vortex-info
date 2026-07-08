@@ -57,8 +57,8 @@ if ($selenium_vnc_port !== '') {
 NOTE('Mailhog URL                 : http://mailhog.docker.amazee.io/');
 
 // Check Xdebug status.
-passthru('php -v 2>/dev/null | grep -q Xdebug', $exit_code);
-$xdebug_status = $exit_code === 0
+$php_version = (string) shell_exec('php -v 2>/dev/null');
+$xdebug_status = str_contains($php_version, 'Xdebug')
   ? "Enabled ('ahoy up cli' to disable)"
   : "Disabled ('ahoy debug' to enable)";
 NOTE('Xdebug                      : %s', $xdebug_status);
