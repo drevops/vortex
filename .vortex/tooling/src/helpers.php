@@ -773,7 +773,15 @@ function acli_home(): string {
   // A home left behind by a crashed run that reused this PID would hand acli
   // stale cached credentials; clear it so every run starts from a clean home.
   remove_dir($home);
-  mkdir($home, 0755, TRUE);
+  if (file_exists($home) || is_link($home)) {
+    FAIL('Unable to clear the acli home directory %s.', $home);
+  }
+
+  if (!mkdir($home, 0755, TRUE)) {
+    // @codeCoverageIgnoreStart
+    FAIL('Unable to create the acli home directory %s.', $home);
+    // @codeCoverageIgnoreEnd
+  }
 
   // The isolated home caches acli's token and state; remove it when the run
   // ends so no credentials linger on disk afterwards.
