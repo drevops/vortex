@@ -20,23 +20,10 @@ namespace DrevOps\VortexTooling;
 require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
-// Branch filter gate.
-//
-// Comma-separated list of branch names. When set, JIRA notifications are
-// only sent for deployments on the listed branches. When empty, no filtering
-// is applied. Checked before required variable validation so channels not
-// configured for the current branch can short-circuit cleanly.
-// -----------------------------------------------------------------------------
 
-$notify_jira_branches = getenv_default('VORTEX_NOTIFY_JIRA_BRANCHES', '');
-if ($notify_jira_branches !== '') {
-  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
-  $branch_list = array_map(trim(...), explode(',', $notify_jira_branches));
-  if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped JIRA notification for branch '%s'.", $current_branch));
-    quit();
-  }
-}
+// Branch filter gate: checked before required variable validation so channels
+// not configured for the current branch can short-circuit cleanly.
+notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_JIRA_BRANCHES', ''), 'JIRA');
 
 // -----------------------------------------------------------------------------
 
@@ -142,20 +129,17 @@ function build_adf_comment(string $project, string $label, string $timestamp, st
 info('Started JIRA notification.');
 
 // Skip if this is a pre-deployment event (JIRA only processes post-deployment).
-if ($notify_event === 'pre_deployment') {
-  pass('Skipped JIRA notification for pre_deployment event.');
+notify_skip_pre_deployment((string) $notify_event, 'JIRA');
+
+$jira_issue = (string) task(
+  'Extracting issue number from the branch name.',
+  fn(string $issue): string => $issue === '' ? sprintf('Branch %s does not contain issue number. Skipped JIRA notification.', $notify_branch) : sprintf('Found issue %s.', $issue),
+  fn(): string => preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_branch, $matches) ? $matches[2] : '',
+);
+
+if ($jira_issue === '') {
   quit();
 }
-
-task('Extracting issue');
-
-if (!preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_branch, $matches)) {
-  pass('Branch %s does not contain issue number. Skipped JIRA notification.', $notify_branch);
-  quit();
-}
-$jira_issue = $matches[2];
-
-pass('Found issue %s.', $jira_issue);
 
 $token = base64_encode(sprintf('%s:%s', $jira_user_email, $jira_api_token));
 
@@ -264,8 +248,6 @@ if (!empty($jira_transition)) {
 }
 
 if (!empty($jira_assignee_email)) {
-  task('Assigning issue to ' . $jira_assignee_email);
-
   $assignee_account_id = (string) task(
     sprintf('Discovering assignee user ID for %s', $jira_assignee_email),
     fn(string $id): string => sprintf('Found assignee account ID %s', $id),

@@ -41,20 +41,19 @@ if (str_starts_with($dump_file_drush, './')) {
   $dump_file_drush = '../' . substr($dump_file_drush, 2);
 }
 
-// Create a directory to store database dump.
-if (!is_dir($db_dir)) {
-  mkdir($db_dir, 0755, TRUE);
-}
+prepare_db_dir($db_dir);
 
-// Dump database into a file.
-drush('sql:dump --skip-tables-key=common --result-file=' . escapeshellarg($dump_file_drush) . ' -q');
+task(
+  'Exporting database to the dump file.',
+  sprintf('Exported database dump saved %s.', $dump_file),
+  function () use ($dump_file_drush, $dump_file): void {
+    drush('sql:dump --skip-tables-key=common --result-file=' . escapeshellarg($dump_file_drush) . ' -q');
 
-// Check that file was saved and output saved dump file name.
-if (file_exists($dump_file) && filesize($dump_file) > 0) {
-  note('Exported database dump saved %s.', $dump_file);
-}
-else {
-  fail('Unable to save dump file %s.', $dump_file);
-}
+    // Check that file was saved.
+    if (!file_exists($dump_file) || filesize($dump_file) <= 0) {
+      throw new \RuntimeException(sprintf('Unable to save dump file %s.', $dump_file));
+    }
+  },
+);
 
 pass('Finished database file export.');

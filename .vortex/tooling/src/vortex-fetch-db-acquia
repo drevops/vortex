@@ -283,13 +283,7 @@ task('Checking Acquia CLI version.', 'Checked Acquia CLI version.', function () 
   echo acli_exec($bin, '--version', $ctx);
 });
 
-if (!is_dir($db_dir)) {
-  task('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($db_dir): void {
-    if (!mkdir($db_dir, 0755, TRUE)) {
-      throw new \RuntimeException(sprintf('Unable to create directory "%s".', $db_dir));
-    }
-  });
-}
+prepare_db_dir($db_dir);
 
 $app = task(
   $app_name === '' ? 'Auto-discovering the Acquia application.' : sprintf('Discovering the "%s" application.', $app_name),

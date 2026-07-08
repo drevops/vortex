@@ -39,70 +39,6 @@ $status_interval = (int) getenv_default('VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_I
 
 // -----------------------------------------------------------------------------
 
-// Inlined Acquia API helpers.
-function purge_acquia_api_get_token(string $key, string $secret): string {
-  $response = request_post('https://accounts.acquia.com/api/auth/oauth/token', http_build_query(['client_id' => $key, 'client_secret' => $secret, 'grant_type' => 'client_credentials']), ['Content-Type: application/x-www-form-urlencoded']);
-
-  if (!$response['ok']) {
-    fail('Unable to retrieve a token.');
-  }
-
-  $data = json_decode((string) $response['body'], TRUE);
-  $token = $data['access_token'] ?? '';
-  if ($token === '') {
-    fail('Unable to retrieve a token.');
-  }
-
-  return $token;
-}
-
-function purge_acquia_api_headers(string $token): array {
-  return [
-    'Accept: application/json, version=2',
-    'Authorization: Bearer ' . $token,
-  ];
-}
-
-function purge_acquia_api_get_app_uuid(string $token, string $app_name): string {
-  $url = 'https://cloud.acquia.com/api/applications?filter=name%3D' . rawurlencode($app_name);
-  $response = request_get($url, purge_acquia_api_headers($token));
-
-  if (!$response['ok']) {
-    fail('Unable to retrieve an application UUID.');
-  }
-
-  $data = json_decode((string) $response['body'], TRUE);
-  $items = $data['_embedded']['items'] ?? [];
-  $last = end($items);
-  $uuid = $last['uuid'] ?? '';
-
-  if ($uuid === '') {
-    fail('Unable to retrieve an application UUID.');
-  }
-
-  return $uuid;
-}
-
-function purge_acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
-  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, rawurlencode($env_name));
-  $response = request_get($url, purge_acquia_api_headers($token));
-
-  if (!$response['ok']) {
-    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
-  }
-
-  $data = json_decode((string) $response['body'], TRUE);
-  $items = $data['_embedded']['items'] ?? [];
-  $last = end($items);
-  $env_id = $last['id'] ?? '';
-
-  if ($env_id === '') {
-    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
-  }
-
-  return (string) $env_id;
-}
-
 /**
  * Interpolate domain based on environment name.
  */
@@ -136,47 +72,6 @@ function purge_interpolate_domain(string $domain, string $target_env): ?string {
   return $domain;
 }
 
-/**
- * Poll a cache-purge notification until it completes.
- *
- * @param string $key
- *   The Acquia Cloud API key.
- * @param string $secret
- *   The Acquia Cloud API secret.
- * @param string $token
- *   The current API access token; refreshed internally on a 401.
- * @param string $notification_url
- *   The notification URL returned by the purge request.
- * @param int $retries
- *   Number of status checks before giving up.
- * @param int $interval
- *   Seconds to wait between status checks.
- *
- * @return bool
- *   TRUE when the purge completed within the retries.
- */
-function purge_acquia_api_poll_notification(string $key, string $secret, string $token, string $notification_url, int $retries, int $interval): bool {
-  for ($i = 1; $i <= $retries; $i++) {
-    sleep_progress($interval);
-
-    $response = request_get($notification_url, purge_acquia_api_headers($token));
-
-    if (!$response['ok'] && ($response['status'] ?? 0) === 401) {
-      $token = purge_acquia_api_get_token($key, $secret);
-      $response = request_get($notification_url, purge_acquia_api_headers($token));
-    }
-
-    if ($response['ok']) {
-      $data = json_decode((string) $response['body'], TRUE);
-      if (($data['status'] ?? '') === 'completed') {
-        return TRUE;
-      }
-    }
-  }
-
-  return FALSE;
-}
-
 // -----------------------------------------------------------------------------
 
 info('Started cache purging in Acquia.');
@@ -184,19 +79,19 @@ info('Started cache purging in Acquia.');
 $token = (string) task(
   'Retrieving authentication token.',
   'Retrieved authentication token.',
-  fn(): string => purge_acquia_api_get_token($acquia_key, $acquia_secret),
+  fn(): string => acquia_api_get_token($acquia_key, $acquia_secret),
 );
 
 $app_uuid = (string) task(
   sprintf('Retrieving %s application UUID.', $app_name),
   'Retrieved the application UUID.',
-  fn(): string => purge_acquia_api_get_app_uuid($token, $app_name),
+  fn(): string => acquia_api_get_app_uuid($token, $app_name),
 );
 
 $env_id = (string) task(
   'Retrieving environment ID.',
   'Retrieved environment ID.',
-  fn(): string => purge_acquia_api_get_env_id($token, $app_uuid, $target_env),
+  fn(): string => acquia_api_get_env_id($token, $app_uuid, $target_env),
 );
 
 $domain_list = task(
@@ -241,13 +136,13 @@ foreach ($domain_list as $domain) {
       $purge_url = sprintf('https://cloud.acquia.com/api/environments/%s/domains/actions/clear-varnish', $env_id);
       $purge_body = json_encode(['domains' => [$domain]]);
 
-      $purge_response = request_post($purge_url, $purge_body, array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
+      $purge_response = request_post($purge_url, $purge_body, array_merge(acquia_api_headers($token), ['Content-Type: application/json']));
 
       // The access token expires after five minutes, so a long multi-domain run
       // can outlive it; refresh once on a 401 and retry, as the poller does.
       if (!$purge_response['ok'] && ($purge_response['status'] ?? 0) === 401) {
-        $token = purge_acquia_api_get_token($acquia_key, $acquia_secret);
-        $purge_response = request_post($purge_url, $purge_body, array_merge(purge_acquia_api_headers($token), ['Content-Type: application/json']));
+        $token = acquia_api_get_token($acquia_key, $acquia_secret);
+        $purge_response = request_post($purge_url, $purge_body, array_merge(acquia_api_headers($token), ['Content-Type: application/json']));
       }
 
       if (!$purge_response['ok']) {
@@ -262,7 +157,7 @@ foreach ($domain_list as $domain) {
         throw new \RuntimeException(sprintf('Unable to purge cache for %s environment domain %s as it does not exist.', $target_env, $domain));
       }
 
-      if (!purge_acquia_api_poll_notification($acquia_key, $acquia_secret, $token, $notification_url, $status_retries, $status_interval)) {
+      if (!acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $token)) {
         throw new \RuntimeException(sprintf('Unable to purge cache for %s environment domain %s.', $target_env, $domain));
       }
     },

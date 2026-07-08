@@ -91,28 +91,13 @@ if (empty($newrelic_enabled)) {
   quit();
 }
 
-// Branch filter gate.
-//
-// Comma-separated list of branch names. When set, New Relic notifications
-// are only sent for deployments on the listed branches. When empty, no
-// filtering is applied. Defaults to the long-lived branches.
-$notify_newrelic_branches = getenv_default('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master,develop');
-if ($notify_newrelic_branches !== '') {
-  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
-  $branch_list = array_map(trim(...), explode(',', $notify_newrelic_branches));
-  if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped New Relic notification for branch '%s'.", $current_branch));
-    quit();
-  }
-}
+// Branch filter gate: defaults to the long-lived branches.
+notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_NEWRELIC_BRANCHES', 'main,master,develop'), 'New Relic');
 
 info('Started New Relic notification.');
 
 // Skip if this is a pre-deployment event (New Relic only for post-deployment).
-if ($notify_event === 'pre_deployment') {
-  pass('Skipped New Relic notification for pre_deployment event.');
-  quit();
-}
+notify_skip_pre_deployment((string) $notify_event, 'New Relic');
 
 // Validate required variables after enabled check.
 if (empty($newrelic_user_key)) {
@@ -133,26 +118,28 @@ if (!$newrelic_revision) {
 }
 
 if (!$newrelic_appid && $newrelic_app_name) {
-  task('Discovering application ID by name if it was not provided.');
+  $newrelic_appid = task(
+    'Discovering application ID by name if it was not provided.',
+    fn(string|int|null $appid): string => empty($appid) ? sprintf('Notification skipped: No New Relic application ID found for %s. This is expected for non-configured environments.', $newrelic_app_name) : sprintf('Discovered application ID: %s', $appid),
+    function () use ($newrelic_endpoint, $newrelic_app_name, $newrelic_user_key): string|int|null {
+      $url = sprintf('%s/applications.json?filter[name]=%s&exclude_links=true', $newrelic_endpoint, urlencode($newrelic_app_name));
+      $response = request_get($url, [
+        'Api-Key: ' . $newrelic_user_key,
+      ]);
 
-  $url = sprintf('%s/applications.json?filter[name]=%s&exclude_links=true', $newrelic_endpoint, urlencode($newrelic_app_name));
-  $response = request_get($url, [
-    'Api-Key: ' . $newrelic_user_key,
-  ]);
+      if (!$response['ok'] || !$response['body']) {
+        return NULL;
+      }
 
-  if ($response['ok'] && $response['body']) {
-    $data = json_decode((string) $response['body'], TRUE);
-    if (isset($data['applications'][0]['id'])) {
-      $newrelic_appid = $data['applications'][0]['id'];
-    }
+      $data = json_decode((string) $response['body'], TRUE);
 
-    if (!$newrelic_appid) {
-      pass('Notification skipped: No New Relic application ID found for %s. This is expected for non-configured environments.', $newrelic_app_name);
-      quit();
-    }
+      return $data['applications'][0]['id'] ?? NULL;
+    },
+  );
+
+  if (empty($newrelic_appid)) {
+    quit();
   }
-
-  pass('Discovered application ID: %s', $newrelic_appid);
 }
 
 // Validate app ID is numeric regardless of source (provided or discovered).

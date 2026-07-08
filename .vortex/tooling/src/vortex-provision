@@ -130,7 +130,9 @@ function provision_from_db(string $provision_db): void {
     quit(1);
   }
 
-  passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
+  task('Importing database from the dump file.', 'Imported database from the dump file.', function () use ($provision_db): void {
+    passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
+  });
 }
 
 /**
@@ -167,19 +169,20 @@ function provision_from_profile(string $profile, string $site_name, string $site
     $opts[] = '--existing-config';
   }
 
-  // Database may exist in non-bootstrappable state - truncate it.
-  drush('sql:drop', $drop_exit_code);
+  task('Installing a site from the profile.', 'Installed a site from the profile.', function () use ($opts, $is_fallback): void {
+    // Database may exist in non-bootstrappable state - truncate it.
+    drush('sql:drop', $drop_exit_code);
 
-  drush('site:install ' . implode(' ', $opts));
+    drush('site:install ' . implode(' ', $opts));
 
-  // On fallback, enable Shield to protect the site and skip post-provision
-  // operations since the site was installed from profile without configuration.
-  if ($is_fallback) {
-    drush('pm:install shield');
-    putenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP=1');
-  }
-
-  pass('Installed a site from the profile.');
+    // On fallback, enable Shield to protect the site and skip post-provision
+    // operations since the site was installed from profile without
+    // configuration.
+    if ($is_fallback) {
+      drush('pm:install shield');
+      putenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP=1');
+    }
+  });
 }
 
 /**
@@ -199,37 +202,37 @@ function provision_from_profile(string $profile, string $site_name, string $site
 function sanitize_db(string $sanitize_email, string $sanitize_password, bool $replace_username_with_email, string $additional_file, string $admin_email): void {
   info('Sanitizing database.');
 
-  // Always sanitize password and email using standard methods.
-  drush(sprintf(
-    'sql:sanitize --sanitize-password=%s --sanitize-email=%s',
-    escapeshellarg($sanitize_password),
-    escapeshellarg($sanitize_email)
-  ));
-  pass('Sanitized database using drush sql:sanitize.');
+  task('Sanitizing database using drush sql:sanitize.', 'Sanitized database using drush sql:sanitize.', function () use ($sanitize_email, $sanitize_password): void {
+    drush(sprintf('sql:sanitize --sanitize-password=%s --sanitize-email=%s', escapeshellarg($sanitize_password), escapeshellarg($sanitize_email)));
+  });
 
   if ($replace_username_with_email) {
-    drush("sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
-    pass('Updated username with user email.');
+    task('Replacing usernames with user emails.', 'Updated username with user email.', function (): void {
+      drush("sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
+    });
   }
 
   // Sanitize using additional SQL commands provided in file.
   if (!empty($additional_file) && file_exists($additional_file)) {
-    // The file path is relative to the project root, but drush expects it to be
-    // relative to the Drupal root.
-    $relative_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
-    drush('sql:query --file=' . escapeshellarg($relative_file));
-    pass('Applied custom sanitization commands from file.');
+    task('Applying custom sanitization commands from file.', 'Applied custom sanitization commands from file.', function () use ($additional_file): void {
+      // The file path is relative to the project root, but drush expects it to
+      // be relative to the Drupal root.
+      $relative_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
+      drush('sql:query --file=' . escapeshellarg($relative_file));
+    });
   }
 
   // User mail and name for user 0 could have been sanitized - resetting it.
-  drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
-  pass('Reset user 0 username and email.');
+  task('Resetting user 0 username and email.', 'Reset user 0 username and email.', function (): void {
+    drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
+  });
 
   // User email could have been sanitized - setting it back to a
   // pre-defined email.
   if (!empty($admin_email)) {
-    drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
-    pass('Updated user 1 email.');
+    task('Updating user 1 email.', 'Updated user 1 email.', function () use ($admin_email): void {
+      drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
+    });
   }
 
   echo PHP_EOL;
@@ -267,13 +270,23 @@ $bootstrap_output = drush('status --fields=bootstrap 2>/dev/null', $bootstrap_ex
 $site_is_installed = str_contains($bootstrap_output, 'Successful');
 
 // Discover the configuration directory path from the Drupal settings.
-$config_path = trim(drush("php:eval \"print realpath(\\Drupal\\Core\\Site\\Settings::get('config_sync_directory'));\""));
-if (empty($config_path)) {
-  fail('Config directory was not found in the Drupal settings.');
-}
-if (!is_dir($config_path)) {
-  fail('Config directory "%s" does not exist.', $config_path);
-}
+$config_path = (string) task(
+  'Discovering the configuration directory path.',
+  fn(string $path): string => sprintf('Discovered the configuration directory path "%s".', $path),
+  function (): string {
+    $path = trim(drush("php:eval \"print realpath(\\Drupal\\Core\\Site\\Settings::get('config_sync_directory'));\""));
+
+    if (empty($path)) {
+      throw new \RuntimeException('Config directory was not found in the Drupal settings.');
+    }
+
+    if (!is_dir($path)) {
+      throw new \RuntimeException(sprintf('Config directory "%s" does not exist.', $path));
+    }
+
+    return $path;
+  },
+);
 
 // Check if config files exist.
 $config_files = glob($config_path . '/*.yml');
@@ -446,8 +459,10 @@ if ($site_has_config_files) {
     $system_site_content = file_get_contents($system_site_yml);
     if ($system_site_content !== FALSE && preg_match('/^uuid:\s*(\S+)/m', $system_site_content, $matches)) {
       $config_uuid = $matches[1];
-      drush(sprintf('config-set system.site uuid %s', escapeshellarg($config_uuid)));
-      pass('Updated site UUID from the configuration with %s.', $config_uuid);
+
+      task('Updating site UUID from the configuration.', sprintf('Updated site UUID from the configuration with %s.', $config_uuid), function () use ($config_uuid): void {
+        drush(sprintf('config-set system.site uuid %s', escapeshellarg($config_uuid)));
+      });
       echo PHP_EOL;
     }
     else {
@@ -456,40 +471,46 @@ if ($site_has_config_files) {
   }
 }
 
-task('Running database updates.');
-
 if ($provision_verify_config === '1' && $site_has_config_files) {
-  $config_before = sys_get_temp_dir() . '/config_before_' . uniqid();
-  mkdir($config_before, 0755, TRUE);
-  drush('config:export --destination=' . escapeshellarg($config_before));
+  $config_tmp_dir = getenv('TMPDIR') ?: '.artifacts/tmp';
+  $config_before = $config_tmp_dir . '/config_before_' . uniqid();
+  $config_after = $config_tmp_dir . '/config_after_' . uniqid();
 
-  drush('updatedb --no-cache-clear');
+  task('Exporting configuration before database updates.', 'Exported configuration before database updates.', function () use ($config_before): void {
+    mkdir($config_before, 0755, TRUE);
+    drush('config:export --destination=' . escapeshellarg($config_before));
+  });
 
-  $config_after = sys_get_temp_dir() . '/config_after_' . uniqid();
-  mkdir($config_after, 0755, TRUE);
-  drush('config:export --destination=' . escapeshellarg($config_after));
+  task('Running database updates.', 'Completed running database updates.', function (): void {
+    drush('updatedb --no-cache-clear');
+  });
 
-  $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
+  task('Exporting configuration after database updates.', 'Exported configuration after database updates.', function () use ($config_after): void {
+    mkdir($config_after, 0755, TRUE);
+    drush('config:export --destination=' . escapeshellarg($config_after));
+  });
 
-  if (!empty(trim($config_diff))) {
-    fail_no_exit('Configuration was changed by database updates.');
-    note('The following configuration files were changed:');
-    echo $config_diff . PHP_EOL;
-    note('Configuration before updates: %s', $config_before);
-    note('Configuration after updates:  %s', $config_after);
-    note('Review the update hooks and manually export updated configuration.');
-    quit(1);
-  }
+  task('Verifying that database updates did not change configuration.', 'Verified that database updates did not change configuration.', function () use ($config_before, $config_after): void {
+    $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
 
-  shell_exec('rm -rf ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after));
+    if (!empty(trim($config_diff))) {
+      note('The following configuration files were changed:');
+      echo $config_diff . PHP_EOL;
+      note('Configuration before updates: %s', $config_before);
+      note('Configuration after updates:  %s', $config_after);
+      note('Review the update hooks and manually export updated configuration.');
+      throw new \RuntimeException('Configuration was changed by database updates.');
+    }
 
-  pass('Verified that database updates did not change configuration.');
+    shell_exec('rm -rf ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after));
+  });
 }
 else {
-  drush('updatedb --no-cache-clear');
+  task('Running database updates.', 'Completed running database updates.', function (): void {
+    drush('updatedb --no-cache-clear');
+  });
 }
 
-pass('Completed running database updates.');
 echo PHP_EOL;
 
 if ($provision_cache_rebuild_after_db_update_skip !== '1') {

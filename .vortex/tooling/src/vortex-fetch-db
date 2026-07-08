@@ -91,13 +91,19 @@ if (!isset($sources[$source])) {
   fail('Invalid database download source "%s". Available sources: %s.', $source, implode(', ', array_keys($sources)));
 }
 
-passthru_or_fail($sources[$source], 'Failed to download database from source "%s".', $source);
+task(sprintf('Fetching database from the "%s" source.', $source), sprintf('Fetched database from the "%s" source.', $source), function () use ($sources, $source): void {
+  passthru_or_fail($sources[$source], 'Failed to download database from source "%s".', $source);
+});
 
 passthru('ls -Alh ' . escapeshellarg($db_dir) . ' || true');
 
 // Create a semaphore file to indicate that the database has been downloaded.
 if ($semaphore !== '') {
-  touch($semaphore);
+  task(sprintf('Creating the semaphore file "%s".', $semaphore), sprintf('Created the semaphore file "%s".', $semaphore), function () use ($semaphore): void {
+    if (!touch($semaphore)) {
+      throw new \RuntimeException(sprintf('Unable to create the semaphore file "%s".', $semaphore));
+    }
+  });
 }
 
 pass('Finished database%s download.', $db_index !== '' ? ' ' . $db_index : '');

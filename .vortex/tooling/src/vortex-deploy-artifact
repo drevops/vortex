@@ -76,37 +76,48 @@ command_must_exist('curl');
 // Configure global git settings, if they do not exist.
 $global_git_name = trim((string) shell_exec('git config --global user.name'));
 if (empty($global_git_name)) {
-  task('Configuring global git user name.');
-  passthru_or_fail(sprintf('git config --global user.name %s', escapeshellarg($deploy_git_user_name)));
+  task('Configuring global git user name.', 'Configured global git user name.', function () use ($deploy_git_user_name): void {
+    passthru_or_fail(sprintf('git config --global user.name %s', escapeshellarg($deploy_git_user_name)));
+  });
 }
 
 $global_git_email = trim((string) shell_exec('git config --global user.email'));
 if (empty($global_git_email)) {
-  task('Configuring global git user email.');
-  passthru_or_fail(sprintf('git config --global user.email %s', escapeshellarg($deploy_git_user_email)));
+  task('Configuring global git user email.', 'Configured global git user email.', function () use ($deploy_git_user_email): void {
+    passthru_or_fail(sprintf('git config --global user.email %s', escapeshellarg($deploy_git_user_email)));
+  });
 }
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=DEPLOY_ARTIFACT');
 !empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
 !empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FILE=' . $deploy_ssh_file);
-passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
+task('Setting up SSH.', 'Set up SSH.', function (): void {
+  passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
+});
 
-task('Installing artifact builder.');
-$tmp_dir = getenv('TMPDIR') ?: '/tmp';
-$git_artifact_bin = $tmp_dir . '/git-artifact';
-$git_artifact_url = sprintf('https://github.com/drevops/git-artifact/releases/download/%s/git-artifact', $git_artifact_version);
-$dl_response = request($git_artifact_url, ['method' => 'GET', 'save_to' => $git_artifact_bin, 'timeout' => 120]);
-if (!$dl_response['ok']) {
-  fail('Failed to download git-artifact binary.');
-}
+$git_artifact_bin = (getenv('TMPDIR') ?: '.artifacts/tmp') . '/git-artifact';
 
-$actual_sha256 = hash_file('sha256', $git_artifact_bin);
-if ($actual_sha256 !== $git_artifact_sha256) {
-  @unlink($git_artifact_bin);
-  fail('SHA256 checksum verification failed for git-artifact binary.');
-}
-chmod($git_artifact_bin, 0755);
+task('Installing artifact builder.', 'Installed artifact builder.', function () use ($git_artifact_bin, $git_artifact_version, $git_artifact_sha256): void {
+  $dir = dirname($git_artifact_bin);
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  $git_artifact_url = sprintf('https://github.com/drevops/git-artifact/releases/download/%s/git-artifact', $git_artifact_version);
+  $dl_response = request($git_artifact_url, ['method' => 'GET', 'save_to' => $git_artifact_bin, 'timeout' => 120]);
+  if (!$dl_response['ok']) {
+    throw new \RuntimeException('Failed to download git-artifact binary.');
+  }
+
+  $actual_sha256 = hash_file('sha256', $git_artifact_bin);
+  if ($actual_sha256 !== $git_artifact_sha256) {
+    @unlink($git_artifact_bin);
+    throw new \RuntimeException('SHA256 checksum verification failed for git-artifact binary.');
+  }
+
+  chmod($git_artifact_bin, 0755);
+});
 
 // Expand a leading '~' to the home directory before resolving, so paths
 // passed as single-quoted literals from YAML anchors still resolve.
@@ -126,13 +137,17 @@ if ($deploy_artifact_root === FALSE || $deploy_artifact_src === FALSE) {
 }
 
 if (is_dir($deploy_artifact_root . '/.git')) {
-  task('Copying git repo files meta file to the deploy code repo.');
-  copy_dir($deploy_artifact_root . '/.git', $deploy_artifact_src . '/.git');
+  task('Copying git repo files meta file to the deploy code repo.', 'Copied git repo files meta file to the deploy code repo.', function () use ($deploy_artifact_root, $deploy_artifact_src): void {
+    copy_dir($deploy_artifact_root . '/.git', $deploy_artifact_src . '/.git');
+  });
 }
 
 if (file_exists($deploy_artifact_root . '/.gitignore.artifact')) {
-  task('Copying deployment .gitignore as it may not exist in deploy code source files.');
-  copy($deploy_artifact_root . '/.gitignore.artifact', $deploy_artifact_src . '/.gitignore.artifact');
+  task('Copying deployment .gitignore as it may not exist in deploy code source files.', 'Copied deployment .gitignore.', function () use ($deploy_artifact_root, $deploy_artifact_src): void {
+    if (!copy($deploy_artifact_root . '/.gitignore.artifact', $deploy_artifact_src . '/.gitignore.artifact')) {
+      throw new \RuntimeException('Failed to copy deployment .gitignore.');
+    }
+  });
 }
 
 task('Running artifact builder.', 'Finished artifact deployment.', function () use ($git_artifact_bin, $deploy_git_remote, $deploy_artifact_root, $deploy_artifact_src, $deploy_artifact_dst_branch, $deploy_artifact_log): void {

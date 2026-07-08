@@ -19,25 +19,23 @@ require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
 
-// Whether the script runs on the host, where Docker is available, or inside the
-// container. Set RUN_ON_HOST to '1' or '0' to override the Docker detection.
-$run_on_host = getenv('RUN_ON_HOST');
-if ($run_on_host === FALSE || $run_on_host === '') {
-  $run_on_host = command_path('docker') !== FALSE ? '1' : '0';
-}
-
 info('Started database import.');
 
-if ($run_on_host === '1') {
+if (run_on_host()) {
   // Dispatch the import into the container.
   // Script runs inside the container - use path relative to project root.
   $script_rel = ltrim(str_replace((string) getcwd(), '', __DIR__), '/');
-  passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/vortex-import-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to import database from file.');
+
+  task('Importing database inside the container.', 'Imported database inside the container.', function () use ($script_rel, $argv): void {
+    passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/vortex-import-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to import database from file.');
+  });
 }
 else {
   // Script already runs inside the container - import the database from file
   // directly, without dispatching through Docker.
-  passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to import database from file.');
+  task('Importing database from the dump file.', 'Imported database from the dump file.', function () use ($argv): void {
+    passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to import database from file.');
+  });
 }
 
 pass('Finished database import.');

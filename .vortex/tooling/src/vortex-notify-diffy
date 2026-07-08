@@ -56,19 +56,10 @@ $diffy_branches = getenv_default('VORTEX_NOTIFY_DIFFY_BRANCHES', '');
 info('Started Diffy notification.');
 
 // Skip on pre_deployment - the target environment is not yet ready.
-if ($diffy_event === 'pre_deployment') {
-  pass('Skipped Diffy notification for pre_deployment event.');
-  quit();
-}
+notify_skip_pre_deployment((string) $diffy_event, 'Diffy');
 
 // Apply the branch filter when configured.
-if ($diffy_branches !== '') {
-  $branch_list = array_map(trim(...), explode(',', $diffy_branches));
-  if (!in_array($diffy_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped Diffy notification for branch '%s' (not in branch allowlist).", $diffy_branch));
-    quit();
-  }
-}
+notify_skip_unlisted_branch((string) $diffy_branches, 'Diffy', (string) $diffy_branch);
 
 // Validate required values.
 if ($diffy_token === '') {
@@ -111,15 +102,21 @@ $payload = [
   ],
 ];
 
-$url = sprintf('https://api.github.com/repos/%s/dispatches', $repository_sanitized);
-$response = request_post($url, json_encode($payload), [
-  'Accept: application/vnd.github.v3+json',
-  'Authorization: token ' . $diffy_token,
-  'Content-Type: application/json',
-]);
+task(
+  sprintf('Dispatching the "%s" workflow event.', $diffy_event_type),
+  sprintf('Dispatched the "%s" workflow event.', $diffy_event_type),
+  function () use ($repository_sanitized, $payload, $diffy_token): void {
+    $url = sprintf('https://api.github.com/repos/%s/dispatches', $repository_sanitized);
+    $response = request_post($url, json_encode($payload), [
+      'Accept: application/vnd.github.v3+json',
+      'Authorization: token ' . $diffy_token,
+      'Content-Type: application/json',
+    ]);
 
-if ($response['status'] !== 204) {
-  fail('GitHub repository_dispatch failed with HTTP %s.', $response['status']);
-}
+    if ($response['status'] !== 204) {
+      throw new \RuntimeException(sprintf('GitHub repository_dispatch failed with HTTP %s.', $response['status']));
+    }
+  },
+);
 
 pass('Finished Diffy notification.');

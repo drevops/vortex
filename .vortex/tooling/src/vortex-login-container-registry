@@ -38,9 +38,9 @@ if (file_exists($config_file) && str_contains(file_get_contents($config_file), $
   note('Already logged in to the registry "' . $registry . '".');
 }
 elseif (!empty($user) && !empty($pass)) {
-  task('Logging in to registry "' . $registry . '".');
-  $cmd = sprintf('echo %s | docker login --username %s --password-stdin %s', escapeshellarg($pass), escapeshellarg($user), escapeshellarg($registry));
-  passthru_or_fail($cmd);
+  task('Logging in to registry "' . $registry . '".', 'Logged in to registry "' . $registry . '".', function () use ($pass, $user, $registry): void {
+    passthru_or_fail(sprintf('echo %s | docker login --username %s --password-stdin %s', escapeshellarg($pass), escapeshellarg($user), escapeshellarg($registry)));
+  });
 }
 else {
   note('Skipped login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided.');

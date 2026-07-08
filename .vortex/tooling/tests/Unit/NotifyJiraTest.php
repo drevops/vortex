@@ -248,7 +248,6 @@ class NotifyJiraTest extends UnitTestCase {
 
     $output = $this->runScript('src/vortex-notify-jira');
 
-    $this->assertStringContainsString('Assigning issue to assignee@example.com', $output);
     $this->assertStringContainsString('Discovering assignee user ID for assignee@example.com', $output);
     $this->assertStringContainsString('Assigned issue to assignee@example.com', $output);
   }

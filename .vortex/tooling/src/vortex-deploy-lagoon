@@ -94,7 +94,9 @@ $lagoon_bin = lagoon_cli_resolve();
 putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
 !empty($ssh_fingerprint) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT=' . $ssh_fingerprint);
 !empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
-passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
+task('Setting up SSH.', 'Set up SSH.', function (): void {
+  passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
+});
 
 $lagoon_config_file = lagoon_config_file();
 
@@ -222,10 +224,15 @@ else {
         });
       }
 
-      task(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr));
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-      $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+      task(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
+        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
+        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+
+        if ($exit_code !== 0) {
+          throw new \RuntimeException('Failed to request the environment redeployment.');
+        }
+      }, fatal: FALSE);
 
       if ($deploy_action === 'deploy_override_db') {
         task('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
@@ -239,10 +246,15 @@ else {
     }
     // Fresh deployment.
     else {
-      task(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr));
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-      $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+      task(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
+        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
+        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+
+        if ($exit_code !== 0) {
+          throw new \RuntimeException('Failed to request the environment deployment.');
+        }
+      }, fatal: FALSE);
     }
   }
   // Deploy branch.
@@ -266,10 +278,15 @@ else {
         });
       }
 
-      task(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch));
       $deploy_cmd = sprintf('deploy latest --environment %s', escapeshellarg($deploy_branch));
-      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-      $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+      task(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
+        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
+        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+
+        if ($exit_code !== 0) {
+          throw new \RuntimeException('Failed to request the environment redeployment.');
+        }
+      }, fatal: FALSE);
 
       if ($deploy_action === 'deploy_override_db') {
         task('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
@@ -283,10 +300,15 @@ else {
     }
     // Fresh deployment.
     else {
-      task(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch));
       $deploy_cmd = sprintf('deploy branch --branch %s', escapeshellarg($deploy_branch));
-      $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-      $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+      task(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
+        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
+        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+
+        if ($exit_code !== 0) {
+          throw new \RuntimeException('Failed to request the environment deployment.');
+        }
+      }, fatal: FALSE);
     }
   }
 }

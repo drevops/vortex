@@ -49,15 +49,17 @@ if (!is_readable($dump_file)) {
   quit(1);
 }
 
-drush('sql:drop');
+task('Dropping the database.', 'Dropped the database.', function (): void {
+  drush('sql:drop');
+});
 
-$sql_connect = trim(drush('sql:connect'));
-passthru($sql_connect . ' <' . escapeshellarg($dump_file), $import_exit_code);
+task('Importing database from the dump file.', 'Imported database from the dump file.', function () use ($dump_file): void {
+  $sql_connect = trim(drush('sql:connect'));
+  passthru($sql_connect . ' <' . escapeshellarg($dump_file), $import_exit_code);
 
-if ($import_exit_code !== 0) {
-  fail('Failed to import database from dump file.');
-}
-
-note('Imported database from the dump file.');
+  if ($import_exit_code !== 0) {
+    throw new \RuntimeException('Failed to import database from dump file.');
+  }
+});
 
 pass('Finished database file import.');

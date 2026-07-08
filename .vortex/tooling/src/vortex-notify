@@ -96,12 +96,14 @@ foreach ($channels as $channel) {
     fail("Notification script for channel '%s' not found or is not executable: %s", $channel, $script);
   }
 
-  $exit_code = 0;
-  passthru(sprintf('"%s"', $script), $exit_code);
+  task(sprintf('Dispatching notification to the "%s" channel.', $channel), sprintf('Dispatched notification to the "%s" channel.', $channel), function () use ($script, $channel): void {
+    $exit_code = 0;
+    passthru(sprintf('"%s"', $script), $exit_code);
 
-  if ($exit_code !== 0) {
-    fail('Notification to %s failed with exit code %s', $channel, $exit_code);
-  }
+    if ($exit_code !== 0) {
+      throw new \RuntimeException(sprintf('Notification to %s failed with exit code %s', $channel, $exit_code));
+    }
+  });
 }
 
 pass('Finished dispatching notifications.');

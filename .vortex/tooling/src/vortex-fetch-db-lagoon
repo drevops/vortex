@@ -269,7 +269,9 @@ $bin = lagoon_cli_resolve();
 // inside the hosting environment ('false') the ambient identity is used.
 if ($ssh_file !== 'false') {
   putenv('VORTEX_SSH_PREFIX=FETCH_DB');
-  passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+  task('Setting up SSH.', 'Set up SSH.', function (): void {
+    passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+  });
 }
 
 $config_file = lagoon_config_file();
@@ -292,13 +294,7 @@ task('Checking Lagoon authenticated identity.', 'Checked Lagoon authenticated id
   echo lagoon_exec($bin, 'whoami', $ctx);
 });
 
-if (!is_dir($db_dir)) {
-  task('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($db_dir): void {
-    if (!mkdir($db_dir, 0755, TRUE)) {
-      throw new \RuntimeException(sprintf('Unable to create directory "%s".', $db_dir));
-    }
-  });
-}
+prepare_db_dir($db_dir);
 
 $dest = $db_dir . '/' . $db_file;
 
@@ -342,10 +338,18 @@ if (!$reused) {
     }
   });
 
-  $download_url = lagoon_dump_task_url($bin, $ctx, $task_id);
-  if ($download_url === '') {
-    fail('The database dump task "%s" produced no downloadable file.', $task_id);
-  }
+  $download_url = (string) task(
+    'Discovering the database dump download URL.',
+    'Discovered the database dump download URL.',
+    function () use ($bin, $ctx, $task_id): string {
+      $url = lagoon_dump_task_url($bin, $ctx, $task_id);
+      if ($url === '') {
+        throw new \RuntimeException(sprintf('The database dump task "%s" produced no downloadable file.', $task_id));
+      }
+
+      return $url;
+    },
+  );
 
   task('Downloading the database dump.', 'Downloaded the database dump.', function () use ($download_url, $dest, $download_timeout): void {
     if (!lagoon_download_dump($download_url, $dest, $download_timeout)) {

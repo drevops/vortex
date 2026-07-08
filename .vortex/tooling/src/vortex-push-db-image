@@ -36,6 +36,9 @@ if ($db_image === '') {
 }
 
 putenv('VORTEX_PUSH_CONTAINER_REGISTRY_MAP=database=' . $db_image);
-passthru_or_fail(__DIR__ . '/vortex-push-container-registry', 'Failed to push database container image to registry.');
+
+task(sprintf('Pushing database container image "%s" to the registry.', $db_image), sprintf('Pushed database container image "%s" to the registry.', $db_image), function (): void {
+  passthru_or_fail(__DIR__ . '/vortex-push-container-registry', 'Failed to push database container image to registry.');
+});
 
 pass('Finished database container image push.');

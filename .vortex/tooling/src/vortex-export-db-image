@@ -40,13 +40,19 @@ info('Started database data container image export.');
 
 $service_escaped = escapeshellarg($service_name);
 
-$cid = trim((string) shell_exec(sprintf('docker compose ps -q %s', $service_escaped)));
+$cid = (string) task(
+  sprintf('Discovering container for service %s.', $service_name),
+  fn(string $cid): string => sprintf('Found %s service container with id %s.', $service_name, $cid),
+  function () use ($service_escaped, $service_name): string {
+    $cid = trim((string) shell_exec(sprintf('docker compose ps -q %s', $service_escaped)));
 
-if ($cid === '') {
-  fail('Unable to find container for service %s. Check that the service is running with `docker compose ps`.', $service_name);
-}
+    if ($cid === '') {
+      throw new \RuntimeException(sprintf('Unable to find container for service %s. Check that the service is running with `docker compose ps`.', $service_name));
+    }
 
-note(sprintf('Found %s service container with id %s.', $service_name, $cid));
+    return $cid;
+  },
+);
 
 $new_image = $registry . '/' . $image;
 
@@ -80,9 +86,7 @@ task(
 );
 
 // Create directory to store database dump.
-if (!is_dir($image_dir)) {
-  mkdir($image_dir, 0755, TRUE);
-}
+prepare_db_dir($image_dir);
 
 // Create dump file name with a timestamp or use the file name provided
 // as a first argument. Also, make sure that the extension is correct.

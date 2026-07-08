@@ -922,10 +922,9 @@ class ProvisionTest extends UnitTestCase {
       'VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE' => '1',
     ]);
 
-    // Mock sys_get_temp_dir and uniqid for predictable paths.
+    // Set TMPDIR and mock uniqid for predictable paths.
     $tmp = self::$tmp;
-    $sys_tmp_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'sys_get_temp_dir');
-    $sys_tmp_mock->expects($this->any())->willReturn($tmp);
+    $this->envSet('TMPDIR', $tmp);
 
     $uniqid_counter = 0;
     $uniqid_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'uniqid');
@@ -1028,10 +1027,9 @@ class ProvisionTest extends UnitTestCase {
       'VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE' => '1',
     ]);
 
-    // Mock sys_get_temp_dir and uniqid for predictable paths.
+    // Set TMPDIR and mock uniqid for predictable paths.
     $tmp = self::$tmp;
-    $sys_tmp_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'sys_get_temp_dir');
-    $sys_tmp_mock->expects($this->any())->willReturn($tmp);
+    $this->envSet('TMPDIR', $tmp);
 
     $uniqid_counter = 0;
     $uniqid_mock = $this->getFunctionMock('DrevOps\\VortexTooling', 'uniqid');

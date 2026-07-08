@@ -63,19 +63,28 @@ if ($installer_path !== '') {
 else {
   note('Using installer script from URL: %s', $installer_url);
   $installer_path = 'installer.php';
-  note('Downloading installer to %s', $installer_path);
-  $separator = str_contains($installer_url, '?') ? '&' : '?';
-  $response = request($installer_url . $separator . $installer_url_cache_bust, ['method' => 'GET', 'save_to' => $installer_path, 'timeout' => 30]);
-  if (!$response['ok']) {
-    fail('Failed to download installer from %s', $installer_url);
+
+  task(sprintf('Downloading installer to %s.', $installer_path), sprintf('Downloaded installer to %s.', $installer_path), function () use ($installer_url, $installer_url_cache_bust, $installer_path): void {
+    $separator = str_contains($installer_url, '?') ? '&' : '?';
+    $response = request($installer_url . $separator . $installer_url_cache_bust, ['method' => 'GET', 'save_to' => $installer_path, 'timeout' => 30]);
+
+    if (!$response['ok']) {
+      throw new \RuntimeException(sprintf('Failed to download installer from %s', $installer_url));
+    }
+  });
+}
+
+task('Running the installer.', 'Finished running the installer.', function () use ($installer_interactive, $installer_path, $installer_template_repo): void {
+  if ($installer_interactive === '0') {
+    passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
   }
-}
+  else {
+    passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+  }
 
-if ($installer_interactive === '0') {
-  passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
-}
-else {
-  passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
-}
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+});
 
-quit($exit_code);
+quit(0);

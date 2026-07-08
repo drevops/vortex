@@ -44,13 +44,14 @@ $db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_
 
 info('Started database dump download from FTP.');
 
-if (!is_dir($db_dir)) {
-  mkdir($db_dir, 0755, TRUE);
-}
+prepare_db_dir($db_dir);
 
-$response = request(sprintf('ftp://%s:%s/%s', $ftp_host, $ftp_port, $ftp_file), ['method' => 'GET', 'auth' => $ftp_user . ':' . $ftp_pass, 'save_to' => $db_dir . '/' . $db_file, 'timeout' => 300]);
-if (!$response['ok']) {
-  fail('Failed to download database dump from FTP.');
-}
+task('Downloading the database dump from FTP.', 'Downloaded the database dump from FTP.', function () use ($ftp_host, $ftp_port, $ftp_file, $ftp_user, $ftp_pass, $db_dir, $db_file): void {
+  $response = request(sprintf('ftp://%s:%s/%s', $ftp_host, $ftp_port, $ftp_file), ['method' => 'GET', 'auth' => $ftp_user . ':' . $ftp_pass, 'save_to' => $db_dir . '/' . $db_file, 'timeout' => 300]);
+
+  if (!$response['ok']) {
+    throw new \RuntimeException('Failed to download database dump from FTP.');
+  }
+});
 
 pass('Finished database dump download from FTP.');

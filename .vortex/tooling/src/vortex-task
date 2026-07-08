@@ -57,9 +57,15 @@ foreach (array_slice($GLOBALS['argv'], 2) as $arg) {
   $command .= ' ' . escapeshellarg($arg);
 }
 
-$exit_code = 0;
-passthru($command, $exit_code);
+task(
+  sprintf('Running the "%s" task on the "%s" platform.', $operation, $platform),
+  sprintf('Completed the "%s" task on the "%s" platform.', $operation, $platform),
+  function () use ($command, $operation): void {
+    $exit_code = 0;
+    passthru($command, $exit_code);
 
-if ($exit_code !== 0) {
-  fail("Task '%s' failed with exit code %s.", $operation, $exit_code);
-}
+    if ($exit_code !== 0) {
+      throw new \RuntimeException(sprintf("Task '%s' failed with exit code %s.", $operation, $exit_code));
+    }
+  },
+);

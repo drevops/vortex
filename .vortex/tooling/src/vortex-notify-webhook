@@ -13,23 +13,10 @@ namespace DrevOps\VortexTooling;
 require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
-// Branch filter gate.
-//
-// Comma-separated list of branch names. When set, Webhook notifications are
-// only sent for deployments on the listed branches. When empty, no filtering
-// is applied. Checked before required variable validation so channels not
-// configured for the current branch can short-circuit cleanly.
-// -----------------------------------------------------------------------------
 
-$notify_webhook_branches = getenv_default('VORTEX_NOTIFY_WEBHOOK_BRANCHES', '');
-if ($notify_webhook_branches !== '') {
-  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
-  $branch_list = array_map(trim(...), explode(',', $notify_webhook_branches));
-  if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped webhook notification for branch '%s'.", $current_branch));
-    quit();
-  }
-}
+// Branch filter gate: checked before required variable validation so channels
+// not configured for the current branch can short-circuit cleanly.
+notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_WEBHOOK_BRANCHES', ''), 'webhook');
 
 // -----------------------------------------------------------------------------
 
@@ -82,10 +69,7 @@ $webhook_payload = getenv_default('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"channel": 
 
 info('Started webhook notification.');
 
-if ($notify_event === 'pre_deployment') {
-  pass('Skipped webhook notification for pre_deployment event.');
-  quit();
-}
+notify_skip_pre_deployment((string) $notify_event, 'webhook');
 
 $webhook_payload = replace_tokens($webhook_payload, [
   'message' => $webhook_message,
