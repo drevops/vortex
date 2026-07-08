@@ -196,6 +196,7 @@ function getenv_list(...$args): array {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
 function NOTE(string $format, ...$args): void {
   echo sprintf('       %s%s', sprintf($format, ...$args), PHP_EOL);
 }
@@ -229,6 +230,7 @@ function NOTE(string $format, ...$args): void {
  *   Whatever the body returns, or NULL when announcing only or when a non-fatal
  *   body fails.
  */
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
 function TASK(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
   $color = term_supports_color();
 
@@ -273,6 +275,7 @@ function TASK(string $doing, string|\Closure|null $done = NULL, ?callable $body 
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
 function INFO(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[36m[INFO] " . sprintf($format, ...$args) . "\033[0m\n" :
@@ -287,6 +290,7 @@ function INFO(string $format, ...$args): void {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
 function PASS(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[32m[ OK ] " . sprintf($format, ...$args) . "\033[0m\n" :
@@ -342,6 +346,7 @@ function sleep_progress(int $seconds): void {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
 function FAIL(string $format, ...$args): void {
   fail_no_exit($format, ...$args);
   quit(1);
