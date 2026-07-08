@@ -133,12 +133,11 @@ function compare_dirs(string $dir1, string $dir2): array {
   $list_files = function (string $dir): array {
     $files = [];
 
-    $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS));
-    foreach ($items as $item) {
-      if ($item instanceof \SplFileInfo && $item->isFile()) {
+    walk_dir($dir, function (\SplFileInfo $item) use (&$files, $dir): void {
+      if ($item->isFile()) {
         $files[] = substr($item->getPathname(), strlen($dir) + 1);
       }
-    }
+    });
 
     sort($files);
 

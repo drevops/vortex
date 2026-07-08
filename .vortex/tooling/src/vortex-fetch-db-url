@@ -81,14 +81,13 @@ if (str_ends_with($url, '.zip')) {
 
     // Find the first regular file in the extracted content.
     NOTE('Discovering database file in archive.');
-    $extracted_file = '';
-    $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($temp_dir, \RecursiveDirectoryIterator::SKIP_DOTS));
-    foreach ($items as $item) {
-      if ($item instanceof \SplFileInfo && $item->isFile()) {
-        $extracted_file = $item->getPathname();
-        break;
+    $extracted_files = [];
+    walk_dir($temp_dir, function (\SplFileInfo $item) use (&$extracted_files): void {
+      if ($item->isFile()) {
+        $extracted_files[] = $item->getPathname();
       }
-    }
+    });
+    $extracted_file = $extracted_files[0] ?? '';
 
     if ($extracted_file === '') {
       remove_dir($temp_dir);
