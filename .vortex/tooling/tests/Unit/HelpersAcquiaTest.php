@@ -132,6 +132,28 @@ class HelpersAcquiaTest extends UnitTestCase {
     $this->assertDirectoryDoesNotExist($home . '/subdir');
   }
 
+  public function testHomeFailsWhenPathIsFile(): void {
+    $this->envSet('VORTEX_ACLI_PATH', self::$tmp);
+    $home = self::$tmp . '/acli-home-' . getmypid();
+    file_put_contents($home, 'not a directory');
+
+    $this->mockQuit(1);
+
+    ob_start();
+    try {
+      \DrevOps\VortexTooling\acli_home();
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertEquals(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertStringContainsString('Unable to clear the acli home directory', (string) $output);
+      unlink($home);
+    }
+  }
+
   public function testExecSuccess(): void {
     $ctx = ['home' => self::$tmp . '/home', 'key' => 'k', 'secret' => 's'];
     $this->mockPassthru([

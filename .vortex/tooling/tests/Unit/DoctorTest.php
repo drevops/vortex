@@ -78,18 +78,11 @@ class DoctorTest extends UnitTestCase {
 
     $os_cmd = PHP_OS === 'Darwin' ? 'sw_vers' : 'lsb_release -a 2>/dev/null';
 
-    // shell_exec calls in order:
-    // 1. whoami (sanitize docker_path), 2. docker info,
-    // 3. whoami (sanitize docker_info), 4. whoami (sanitize dc_path),
-    // 5. whoami (sanitize pygmy_path), 6. whoami (sanitize ahoy_path).
-    $this->mockShellExecMultiple([
-      ['value' => 'testuser'],
-      ['value' => 'Docker Server Version: 20.10.0'],
-      ['value' => 'testuser'],
-      ['value' => 'testuser'],
-      ['value' => 'testuser'],
-      ['value' => 'testuser'],
-    ]);
+    $this->envSet('USER', 'testuser');
+
+    // The only shell_exec call is 'docker info'; its output must have the
+    // username redacted by sanitize_system_info().
+    $this->mockShellExec('Docker Server Version: 20.10.0 at /Users/testuser/docker');
 
     // Passthru calls in order.
     $this->mockPassthru(['cmd' => $os_cmd, 'result_code' => 0]);
@@ -112,6 +105,8 @@ class DoctorTest extends UnitTestCase {
         '* DOCKER-COMPOSE V1',
         '* PYGMY',
         '* AHOY',
+        '* at /Users/[USERNAME_REDACTED]/docker',
+        '! /Users/testuser/',
         '! Docker is not running',
       ]);
 
@@ -124,15 +119,10 @@ class DoctorTest extends UnitTestCase {
 
     $os_cmd = PHP_OS === 'Darwin' ? 'sw_vers' : 'lsb_release -a 2>/dev/null';
 
-    // shell_exec calls — docker info returns empty (docker not running).
-    // No whoami call for docker_info since sanitize_system_info is not called.
-    $this->mockShellExecMultiple([
-      ['value' => 'testuser'],
-      ['value' => ''],
-      ['value' => 'testuser'],
-      ['value' => 'testuser'],
-      ['value' => 'testuser'],
-    ]);
+    $this->envSet('USER', 'testuser');
+
+    // The 'docker info' shell_exec call returns empty (docker not running).
+    $this->mockShellExec('');
 
     $this->mockPassthru(['cmd' => $os_cmd, 'result_code' => 0]);
     $this->mockPassthru(['cmd' => 'docker -v', 'result_code' => 0]);
@@ -155,13 +145,43 @@ class DoctorTest extends UnitTestCase {
     }
   }
 
+  public function testDoctorInfoUsernameFromPosix(): void {
+    $GLOBALS['argv'] = ['doctor', 'info'];
+
+    $os_cmd = PHP_OS === 'Darwin' ? 'sw_vers' : 'lsb_release -a 2>/dev/null';
+
+    // With no USER in the environment, the username comes from posix.
+    $this->envSet('USER', '');
+    $this->registerMock('posix_geteuid', 'DrevOps\\VortexTooling', static fn(): int => 501);
+    $this->registerMock('posix_getpwuid', 'DrevOps\\VortexTooling', static fn(int $euid): array => ['name' => 'posixuser']);
+
+    $this->mockShellExec('Docker Server Version: 20.10.0 at /home/posixuser/docker');
+
+    $this->mockPassthru(['cmd' => $os_cmd, 'result_code' => 0]);
+    $this->mockPassthru(['cmd' => 'docker -v', 'result_code' => 0]);
+    $this->mockPassthru(['cmd' => 'docker compose version 2>/dev/null || echo "Docker Compose V2 is not installed."', 'result_code' => 0]);
+    $this->mockPassthru(['cmd' => 'docker-compose version 2>/dev/null || echo "Docker Compose V1 is not installed."', 'result_code' => 0]);
+    $this->mockPassthru(['cmd' => 'pygmy version 2>/dev/null || echo "Pygmy is not installed."', 'result_code' => 0]);
+    $this->mockPassthru(['cmd' => 'ahoy --version 2>/dev/null || echo "Ahoy is not installed."', 'result_code' => 0]);
+
+    try {
+      $this->runScript('src/vortex-doctor', 0);
+    }
+    catch (QuitSuccessException $e) {
+      $this->assertStringContainsOrNot($e->getOutput(), [
+        '* at /home/[USERNAME_REDACTED]/docker',
+        '! /home/posixuser/',
+      ]);
+
+      throw $e;
+    }
+  }
+
   public static function dataProviderDoctor(): array {
-    $container_cmd = fn(string $s): array => ['cmd' => sprintf("docker compose ps --status=running --services 2>/dev/null | grep -q '%s'", $s), 'result_code' => 0];
-    $container_fail = fn(string $s): array => ['cmd' => sprintf("docker compose ps --status=running --services 2>/dev/null | grep -q '%s'", $s), 'result_code' => 1];
-    $containers_running = fn(): array => [$container_cmd('cli'), $container_cmd('appserver'), $container_cmd('webserver'), $container_cmd('database')];
+    $containers_running = fn(): array => [['shell_exec' => "cli\nappserver\nwebserver\ndatabase"]];
 
     $ssh_file = '/home/testuser/.ssh/id_rsa';
-    $ssh_pygmy_cmd = fn(int $code): array => ['cmd' => sprintf("pygmy status 2>&1 | grep -q '%s'", $ssh_file), 'result_code' => $code];
+    $ssh_pygmy_status = fn(bool $added): array => ['shell_exec' => 'amazeeio-ssh-agent: Running' . ($added ? "\nssh-key: " . $ssh_file : '')];
     $ssh_volume_cmd = fn(int $code): array => ['cmd' => 'docker compose exec -T cli bash -c \'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent\'', 'result_code' => $code];
     $ssh_key_cmd = fn(int $code): array => ['cmd' => 'docker compose exec -T cli bash -c "ssh-add -L | grep -q \'ssh-rsa\'"', 'result_code' => $code];
 
@@ -209,12 +229,22 @@ class DoctorTest extends UnitTestCase {
 
       'container not running' => [
         ['VORTEX_DOCTOR_CHECK_CONTAINERS' => '1'],
-        [$container_fail('cli')],
+        [['shell_exec' => "appserver\nwebserver\ndatabase"]],
         [
           '* [INFO] Checking project requirements.',
           '* [FAIL] cli container is not running.',
           "* Run 'ahoy up'.",
           "* Run 'ahoy logs cli' to see error logs.",
+        ],
+        TRUE,
+      ],
+
+      'container name is not matched as a substring' => [
+        ['VORTEX_DOCTOR_CHECK_CONTAINERS' => '1'],
+        [['shell_exec' => "clix\nappserver\nwebserver\ndatabase"]],
+        [
+          '* [INFO] Checking project requirements.',
+          '* [FAIL] cli container is not running.',
         ],
         TRUE,
       ],
@@ -246,7 +276,7 @@ class DoctorTest extends UnitTestCase {
           'VORTEX_DOCTOR_CHECK_SSH' => '1',
           'VORTEX_SSH_FILE' => $ssh_file,
         ],
-        [$ssh_pygmy_cmd(0), $ssh_volume_cmd(0), $ssh_key_cmd(0)],
+        [$ssh_pygmy_status(TRUE), $ssh_volume_cmd(0), $ssh_key_cmd(0)],
         [
           '* [INFO] Checking project requirements.',
           '* [ OK ] SSH key is available within the CLI container.',
@@ -260,7 +290,7 @@ class DoctorTest extends UnitTestCase {
           'VORTEX_DOCTOR_CHECK_SSH' => '1',
           'VORTEX_SSH_FILE' => $ssh_file,
         ],
-        [$ssh_pygmy_cmd(1), $ssh_volume_cmd(0)],
+        [$ssh_pygmy_status(FALSE), $ssh_volume_cmd(0)],
         [
           '* [INFO] Checking project requirements.',
           '* [FAIL] SSH key is not added to pygmy.',
@@ -275,7 +305,7 @@ class DoctorTest extends UnitTestCase {
           'VORTEX_DOCTOR_CHECK_SSH' => '1',
           'VORTEX_SSH_FILE' => $ssh_file,
         ],
-        [$ssh_pygmy_cmd(0), $ssh_volume_cmd(1)],
+        [$ssh_pygmy_status(TRUE), $ssh_volume_cmd(1)],
         [
           '* [INFO] Checking project requirements.',
           '* [FAIL] SSH key volume is not mounted into CLI container.',
@@ -293,7 +323,7 @@ class DoctorTest extends UnitTestCase {
           'VORTEX_DOCTOR_CHECK_SSH' => '1',
           'VORTEX_SSH_FILE' => $ssh_file,
         ],
-        [$ssh_pygmy_cmd(0), $ssh_volume_cmd(0), $ssh_key_cmd(1)],
+        [$ssh_pygmy_status(TRUE), $ssh_volume_cmd(0), $ssh_key_cmd(1)],
         [
           '* [INFO] Checking project requirements.',
           "* [FAIL] SSH key was not added to the container. Run 'pygmy restart'.",

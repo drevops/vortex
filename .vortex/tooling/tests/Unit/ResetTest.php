@@ -7,23 +7,28 @@ namespace DrevOps\VortexTooling\Tests\Unit;
 use DrevOps\VortexTooling\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for reset script.
+ *
+ * The script runs against a sandboxed project fixture directory: filesystem
+ * operations are real, while git commands are mocked.
  */
 #[Group('utility')]
-#[RunTestsInSeparateProcesses]
 class ResetTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
 
     $this->envSet('WEBROOT', 'web');
+
+    // Tests share the process: reset argv so a '--hard' flag from a previous
+    // case does not leak into cases that expect the default soft reset.
+    $GLOBALS['argv'] = ['vortex-reset'];
   }
 
   #[DataProvider('dataProviderReset')]
-  public function testReset(array $env_vars, array $mocks, array $expected, ?array $argv = NULL, bool $expect_error = FALSE): void {
+  public function testReset(array $env_vars, ?\Closure $before, array $expected, ?array $argv = NULL, bool $expect_error = FALSE, ?\Closure $after = NULL): void {
     if (!empty($env_vars)) {
       $this->envSetMultiple($env_vars);
     }
@@ -32,44 +37,55 @@ class ResetTest extends UnitTestCase {
       $GLOBALS['argv'] = $argv;
     }
 
-    foreach ($mocks as $mock) {
-      $this->mockPassthru($mock);
+    $root = self::$tmp . '/project_' . uniqid();
+    mkdir($root, 0755, TRUE);
+
+    if ($before instanceof \Closure) {
+      $before($this, $root);
     }
 
     if ($expect_error) {
       try {
-        $this->runScript('src/vortex-reset', 1);
+        $this->runScript('src/vortex-reset', 1, $root);
       }
       catch (QuitErrorException $e) {
         if (!empty($expected)) {
           $this->assertStringContainsOrNot($e->getOutput(), $expected);
+        }
+
+        if ($after instanceof \Closure) {
+          $after($this, $root);
         }
         throw $e;
       }
       return;
     }
 
-    $output = $this->runScript('src/vortex-reset');
+    $output = $this->runScript('src/vortex-reset', NULL, $root);
 
     $this->assertStringContainsOrNot($output, $expected);
+
+    if ($after instanceof \Closure) {
+      $after($this, $root);
+    }
   }
 
   public static function dataProviderReset(): array {
-    $rm_web = 'rm -rf "./vendor" "./web/core" "./web/profiles/contrib" "./web/modules/contrib" "./web/themes/contrib" "./web/themes/custom/*/build" "./web/themes/custom/*/scss/_components.scss"';
-    $rm_docroot = 'rm -rf "./vendor" "./docroot/core" "./docroot/profiles/contrib" "./docroot/modules/contrib" "./docroot/themes/contrib" "./docroot/themes/custom/*/build" "./docroot/themes/custom/*/scss/_components.scss"';
-    $rm_node = 'find . -type d -name node_modules -prune -exec rm -Rf -- {} +';
-    $git_chmod = 'git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _';
-    $git_reset = 'git reset --hard';
-    $git_clean = 'git clean -f -d';
-    $find_empty = 'find . -type d -not -path "./.git/*" -empty -delete';
-
     return [
       'soft default' => [
         [],
-        [
-          ['cmd' => $rm_web, 'result_code' => 0],
-          ['cmd' => $rm_node, 'result_code' => 0],
-        ],
+        static function (self $test, string $root): void {
+          static::createFileTree($root, [
+            'vendor/composer.json' => 'x',
+            'web/core/lib/core.txt' => 'x',
+            'web/modules/contrib/mod/mod.info.yml' => 'x',
+            'web/modules/custom/keep/keep.info.yml' => 'keep',
+            'web/themes/custom/t1/build/script.js' => 'x',
+            'web/themes/custom/t1/scss/_components.scss' => 'x',
+            'web/themes/custom/t1/scss/main.scss' => 'keep',
+            'sub/node_modules/pkg/index.js' => 'x',
+          ]);
+        },
         [
           '* [INFO] Started reset.',
           '* [ OK ] Finished reset.',
@@ -78,14 +94,27 @@ class ResetTest extends UnitTestCase {
           '! [TASK] Removing all untracked files.',
           '! [TASK] Removing empty directories.',
         ],
+        NULL,
+        FALSE,
+        static function (self $test, string $root): void {
+          $test->assertDirectoryDoesNotExist($root . '/vendor');
+          $test->assertDirectoryDoesNotExist($root . '/web/core');
+          $test->assertDirectoryDoesNotExist($root . '/web/modules/contrib');
+          $test->assertFileExists($root . '/web/modules/custom/keep/keep.info.yml');
+          $test->assertDirectoryDoesNotExist($root . '/web/themes/custom/t1/build');
+          // Theme scss sources, including the committed '_components.scss',
+          // are not build artifacts and must survive the reset.
+          $test->assertFileExists($root . '/web/themes/custom/t1/scss/_components.scss');
+          $test->assertFileExists($root . '/web/themes/custom/t1/scss/main.scss');
+          $test->assertDirectoryDoesNotExist($root . '/sub/node_modules');
+          // Soft reset does not sweep empty directories.
+          $test->assertDirectoryExists($root . '/sub');
+        },
       ],
 
       'legacy hard positional is ignored' => [
         [],
-        [
-          ['cmd' => $rm_web, 'result_code' => 0],
-          ['cmd' => $rm_node, 'result_code' => 0],
-        ],
+        NULL,
         [
           '* [INFO] Started reset.',
           '* [ OK ] Finished reset.',
@@ -99,14 +128,19 @@ class ResetTest extends UnitTestCase {
 
       'hard' => [
         [],
-        [
-          ['cmd' => $rm_web, 'result_code' => 0],
-          ['cmd' => $rm_node, 'result_code' => 0],
-          ['cmd' => $git_chmod, 'result_code' => 0],
-          ['cmd' => $git_reset, 'result_code' => 0],
-          ['cmd' => $git_clean, 'result_code' => 0],
-          ['cmd' => $find_empty, 'result_code' => 0],
-        ],
+        static function (self $test, string $root): void {
+          static::createFileTree($root, [
+            'vendor/composer.json' => 'x',
+            'web/themes/custom/t1/build/script.js' => 'x',
+            'sub/node_modules/pkg/index.js' => 'x',
+            'ignored.txt' => 'x',
+            'empty_dir' => NULL,
+            '.git/refs' => NULL,
+          ]);
+          $test->mockShellExec("ignored.txt\0");
+          $test->mockPassthru(['cmd' => 'git reset --hard', 'result_code' => 0]);
+          $test->mockPassthru(['cmd' => 'git clean -f -d', 'result_code' => 0]);
+        },
         [
           '* [INFO] Started reset.',
           '* [TASK] Changing permissions and removing all other untracked files.',
@@ -116,16 +150,25 @@ class ResetTest extends UnitTestCase {
           '* [ OK ] Finished reset.',
         ],
         ['reset', '--hard'],
+        FALSE,
+        static function (self $test, string $root): void {
+          $test->assertDirectoryDoesNotExist($root . '/vendor');
+          $test->assertFileDoesNotExist($root . '/ignored.txt');
+          $test->assertDirectoryDoesNotExist($root . '/empty_dir');
+          // Directories that became empty are swept recursively.
+          $test->assertDirectoryDoesNotExist($root . '/sub');
+          $test->assertDirectoryDoesNotExist($root . '/web');
+          // Empty directories inside '.git' survive the sweep.
+          $test->assertDirectoryExists($root . '/.git/refs');
+        },
       ],
 
       'hard git reset fails' => [
         [],
-        [
-          ['cmd' => $rm_web, 'result_code' => 0],
-          ['cmd' => $rm_node, 'result_code' => 0],
-          ['cmd' => $git_chmod, 'result_code' => 0],
-          ['cmd' => $git_reset, 'result_code' => 1],
-        ],
+        static function (self $test, string $root): void {
+          $test->mockShellExec('');
+          $test->mockPassthru(['cmd' => 'git reset --hard', 'result_code' => 1]);
+        },
         [
           '* [INFO] Started reset.',
           '* [TASK] Resetting repository files.',
@@ -137,13 +180,11 @@ class ResetTest extends UnitTestCase {
 
       'hard git clean fails' => [
         [],
-        [
-          ['cmd' => $rm_web, 'result_code' => 0],
-          ['cmd' => $rm_node, 'result_code' => 0],
-          ['cmd' => $git_chmod, 'result_code' => 0],
-          ['cmd' => $git_reset, 'result_code' => 0],
-          ['cmd' => $git_clean, 'result_code' => 1],
-        ],
+        static function (self $test, string $root): void {
+          $test->mockShellExec('');
+          $test->mockPassthru(['cmd' => 'git reset --hard', 'result_code' => 0]);
+          $test->mockPassthru(['cmd' => 'git clean -f -d', 'result_code' => 1]);
+        },
         [
           '* [INFO] Started reset.',
           '* [TASK] Removing all untracked files.',
@@ -155,16 +196,42 @@ class ResetTest extends UnitTestCase {
 
       'custom webroot' => [
         ['WEBROOT' => 'docroot'],
-        [
-          ['cmd' => $rm_docroot, 'result_code' => 0],
-          ['cmd' => $rm_node, 'result_code' => 0],
-        ],
+        static function (self $test, string $root): void {
+          static::createFileTree($root, [
+            'docroot/core/lib/core.txt' => 'x',
+            'docroot/themes/custom/t1/build/script.js' => 'x',
+          ]);
+        },
         [
           '* [INFO] Started reset.',
           '* [ OK ] Finished reset.',
         ],
+        NULL,
+        FALSE,
+        static function (self $test, string $root): void {
+          $test->assertDirectoryDoesNotExist($root . '/docroot/core');
+          $test->assertDirectoryDoesNotExist($root . '/docroot/themes/custom/t1/build');
+        },
       ],
     ];
+  }
+
+  protected static function createFileTree(string $root, array $items): void {
+    foreach ($items as $path => $content) {
+      $full = $root . '/' . $path;
+
+      if ($content === NULL) {
+        mkdir($full, 0755, TRUE);
+        continue;
+      }
+
+      $dir = dirname($full);
+      if (!is_dir($dir)) {
+        mkdir($dir, 0755, TRUE);
+      }
+
+      file_put_contents($full, $content);
+    }
   }
 
 }

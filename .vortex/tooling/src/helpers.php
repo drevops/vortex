@@ -772,48 +772,26 @@ function acli_home(): string {
 
   // A home left behind by a crashed run that reused this PID would hand acli
   // stale cached credentials; clear it so every run starts from a clean home.
-  acli_home_remove($home);
-  mkdir($home, 0755, TRUE);
+  remove_dir($home);
+  if (file_exists($home) || is_link($home)) {
+    FAIL('Unable to clear the acli home directory %s.', $home);
+  }
+
+  if (!mkdir($home, 0755, TRUE)) {
+    // @codeCoverageIgnoreStart
+    FAIL('Unable to create the acli home directory %s.', $home);
+    // @codeCoverageIgnoreEnd
+  }
 
   // The isolated home caches acli's token and state; remove it when the run
   // ends so no credentials linger on disk afterwards.
   register_shutdown_function(static function () use ($home): void {
     // @codeCoverageIgnoreStart
-    acli_home_remove($home);
+    remove_dir($home);
     // @codeCoverageIgnoreEnd
   });
 
   return $home;
-}
-
-/**
- * Recursively remove an isolated Acquia CLI home directory.
- *
- * @param string $home
- *   Path to the directory to remove; a no-op when it does not exist.
- */
-function acli_home_remove(string $home): void {
-  if (!is_dir($home)) {
-    return;
-  }
-
-  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($home, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-  foreach ($items as $item) {
-    // @codeCoverageIgnoreStart
-    if (!$item instanceof \SplFileInfo) {
-      continue;
-    }
-    // @codeCoverageIgnoreEnd
-
-    if ($item->isDir()) {
-      rmdir($item->getPathname());
-    }
-    else {
-      unlink($item->getPathname());
-    }
-  }
-
-  rmdir($home);
 }
 
 /**
@@ -1183,6 +1161,81 @@ function copy_dir(string $src, string $dst): void {
       copy($item->getPathname(), $target);
     }
   }
+}
+
+/**
+ * Recursively walk a directory, invoking a visitor for every entry.
+ *
+ * Entries are visited top-down in alphabetical order. Symbolic links are
+ * visited as entries but never followed. Returning FALSE from the visitor for
+ * a directory entry prevents descending into that directory; any other return
+ * value continues the walk.
+ *
+ * @param string $dir
+ *   Directory to walk; a no-op when it does not exist or is not a directory.
+ * @param \Closure $visitor
+ *   Visitor receiving an \SplFileInfo for each entry.
+ */
+function walk_dir(string $dir, \Closure $visitor): void {
+  if (is_link($dir) || !is_dir($dir)) {
+    return;
+  }
+
+  $entries = scandir($dir) ?: [];
+
+  foreach ($entries as $entry) {
+    if ($entry === '.' || $entry === '..') {
+      continue;
+    }
+
+    $item = new \SplFileInfo($dir . '/' . $entry);
+    $descend = $visitor($item);
+
+    if ($descend !== FALSE && !$item->isLink() && $item->isDir()) {
+      walk_dir($item->getPathname(), $visitor);
+    }
+  }
+}
+
+/**
+ * Recursively remove a directory and all of its contents.
+ *
+ * Best-effort, mirroring 'rm -rf': individual failures are suppressed rather
+ * than thrown, and a missing path is a no-op. Symbolic links are removed as
+ * links without following them, so a link into a tree outside the directory
+ * never triggers deletions there.
+ *
+ * @param string $dir
+ *   Path to the directory to remove.
+ */
+function remove_dir(string $dir): void {
+  if (is_link($dir)) {
+    @unlink($dir);
+
+    return;
+  }
+
+  if (!is_dir($dir)) {
+    return;
+  }
+
+  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST, \RecursiveIteratorIterator::CATCH_GET_CHILD);
+  foreach ($items as $item) {
+    // @codeCoverageIgnoreStart
+    if (!$item instanceof \SplFileInfo) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+
+    if (!$item->isLink() && $item->isDir()) {
+      @rmdir($item->getPathname());
+    }
+    else {
+      @unlink($item->getPathname());
+    }
+  }
+
+  @rmdir($dir);
 }
 
 /**

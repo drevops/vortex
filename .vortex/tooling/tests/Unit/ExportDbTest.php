@@ -37,7 +37,7 @@ class ExportDbTest extends UnitTestCase {
    * only available in the global scope. When require'd inside a function,
    * we need to define it as a local variable.
    */
-  protected function runScript(string $script_path, ?int $early_exit_code = NULL): string {
+  protected function runScript(string $script_path, ?int $early_exit_code = NULL, ?string $cwd = NULL): string {
     // @phpcs:ignore DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
     $argv = $GLOBALS['argv'] ?? [];
 
@@ -57,7 +57,7 @@ class ExportDbTest extends UnitTestCase {
       // @codeCoverageIgnoreEnd
     }
 
-    chdir($root);
+    chdir($cwd ?? $root);
 
     if (!is_null($early_exit_code)) {
       if ($early_exit_code > 0) {

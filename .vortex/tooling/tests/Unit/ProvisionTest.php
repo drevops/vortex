@@ -935,12 +935,6 @@ class ProvisionTest extends UnitTestCase {
     $config_before = $tmp . '/config_before_test1';
     $config_after = $tmp . '/config_after_test2';
 
-    // shell_exec: diff (no changes), rm -rf.
-    $this->mockShellExecMultiple([
-      ['value' => ''],
-      ['value' => ''],
-    ]);
-
     $this->mockDrushStartupSequenceWithConfig(TRUE);
 
     // Drush php:eval (environment).
@@ -1037,11 +1031,6 @@ class ProvisionTest extends UnitTestCase {
       return 'test' . (++$uniqid_counter);
     });
 
-    // shell_exec: diff returns changes.
-    $this->mockShellExecMultiple([
-      ['value' => 'Files config_before/system.site.yml and config_after/system.site.yml differ'],
-    ]);
-
     $this->mockDrushStartupSequenceWithConfig(TRUE);
 
     // Drush php:eval (environment).
@@ -1059,6 +1048,14 @@ class ProvisionTest extends UnitTestCase {
 
     $config_before = $tmp . '/config_before_test1';
     $config_after = $tmp . '/config_after_test2';
+
+    // Pre-seed the export directories with differing content: the mocked
+    // 'config:export' calls do not write files, and the comparison must
+    // report a difference.
+    mkdir($config_before, 0755, TRUE);
+    mkdir($config_after, 0755, TRUE);
+    file_put_contents($config_before . '/system.site.yml', 'name: before');
+    file_put_contents($config_after . '/system.site.yml', 'name: after');
 
     // Drush config:export (before).
     $this->mockPassthru([

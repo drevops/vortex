@@ -45,10 +45,12 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     parent::tearDown();
   }
 
-  protected function runScript(string $script_path, ?int $early_exit_code = NULL): string {
+  protected function runScript(string $script_path, ?int $early_exit_code = NULL, ?string $cwd = NULL): string {
     ob_start();
 
-    // Change to src directory so __DIR__ works correctly in the script.
+    // Change to the src directory by default so scripts resolve relative
+    // paths consistently; $cwd overrides it for scripts that operate on the
+    // current working directory (e.g. a sandboxed project fixture).
     $original_dir = getcwd();
     if ($original_dir === FALSE) {
       // @codeCoverageIgnoreStart
@@ -63,7 +65,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       // @codeCoverageIgnoreEnd
     }
 
-    chdir($root);
+    chdir($cwd ?? $root);
 
     if (!is_null($early_exit_code)) {
       if ($early_exit_code > 0) {
@@ -151,6 +153,32 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       throw $e;
     }
     return ob_get_clean() ?: '';
+  }
+
+  /**
+   * Create a directory structure from a nested array definition.
+   *
+   * @param string $base_path
+   *   Directory to create the structure under.
+   * @param array $structure
+   *   Nested array where a string value is a file with that content and an
+   *   array value is a subdirectory.
+   */
+  protected function createDirectoryStructure(string $base_path, array $structure): void {
+    if (!is_dir($base_path)) {
+      mkdir($base_path, 0755, TRUE);
+    }
+
+    foreach ($structure as $name => $content) {
+      $path = $base_path . '/' . $name;
+      if (is_array($content)) {
+        mkdir($path, 0755, TRUE);
+        $this->createDirectoryStructure($path, $content);
+      }
+      else {
+        file_put_contents($path, $content);
+      }
+    }
   }
 
   /**

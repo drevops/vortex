@@ -74,18 +74,23 @@ if (str_ends_with($url, '.zip')) {
 
     if ($exit_code !== 0) {
       // Clean up on failure.
-      shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+      remove_dir($temp_dir);
       @unlink($zip_file);
       throw new \RuntimeException('Failed to extract zip file.');
     }
 
     // Find the first regular file in the extracted content.
     NOTE('Discovering database file in archive.');
-    $extracted_file = shell_exec('find ' . escapeshellarg($temp_dir) . ' -type f -print | head -n 1');
-    $extracted_file = $extracted_file !== NULL ? trim($extracted_file) : '';
+    $extracted_files = [];
+    walk_dir($temp_dir, function (\SplFileInfo $item) use (&$extracted_files): void {
+      if ($item->isFile() && !$item->isLink()) {
+        $extracted_files[] = $item->getPathname();
+      }
+    });
+    $extracted_file = $extracted_files[0] ?? '';
 
     if ($extracted_file === '') {
-      shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+      remove_dir($temp_dir);
       @unlink($zip_file);
       throw new \RuntimeException('No files found in the zip archive.');
     }
@@ -94,7 +99,7 @@ if (str_ends_with($url, '.zip')) {
     rename($extracted_file, $dest);
 
     NOTE('Cleaning up temporary files.');
-    shell_exec('rm -rf ' . escapeshellarg($temp_dir));
+    remove_dir($temp_dir);
     @unlink($zip_file);
   });
 }
