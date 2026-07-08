@@ -35,12 +35,12 @@ VORTEX_FETCH_DB_PROCEED="${!_v:-1}"
 # Database dump file name.
 _v="VORTEX_FETCH_DB${_db_index}_FILE"
 _vs="VORTEX_DB${_db_index}_FILE"
-VORTEX_FETCH_DB_FILE="${!_v:-${!_vs:-db.sql}}"
+VORTEX_FETCH_DB_FILE="${!_v:-${!_vs:-${VORTEX_DB_FILE:-db.sql}}}"
 
 # Directory with database dump file.
 _v="VORTEX_FETCH_DB${_db_index}_DIR"
 _vs="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_DIR="${!_v:-${!_vs:-./.data}}"
+VORTEX_FETCH_DB_DIR="${!_v:-${!_vs:-${VORTEX_DB_DIR:-./.data}}}"
 
 # ------------------------------------------------------------------------------
 

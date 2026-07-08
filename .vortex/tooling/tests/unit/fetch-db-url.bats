@@ -25,6 +25,46 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "fetch-db-url: Resolve indexed dir from plain VORTEX_DB_DIR fallback" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_side_effect "${mock_curl}" "mkdir -p custom_data && touch custom_data/db2.sql" 1
+
+  # The migration DB (index 2) has no per-index directory in the fixture, so the
+  # non-indexed VORTEX_DB_DIR base must be used for the fetch target directory.
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_FETCH_DB2_URL="http://example.com/db.sql"
+  export VORTEX_DB_DIR="custom_data"
+
+  run .vortex/tooling/src/vortex-fetch-db-url
+  assert_success
+  # curl writes into custom_data, resolved via the plain VORTEX_DB_DIR fallback.
+  assert_contains "custom_data/" "$(mock_get_call_args "${mock_curl}" 1)"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-url: Resolve indexed file name from plain VORTEX_DB_FILE fallback" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_side_effect "${mock_curl}" "mkdir -p .data && touch .data/custom.sql" 1
+
+  # An index with no per-index file override must fall back to the non-indexed
+  # VORTEX_DB_FILE for the fetch target file name.
+  export VORTEX_DB_INDEX="3"
+  export VORTEX_FETCH_DB3_URL="http://example.com/db.sql"
+  export VORTEX_DB_FILE="custom.sql"
+
+  run .vortex/tooling/src/vortex-fetch-db-url
+  assert_success
+  # curl writes custom.sql, resolved via the plain VORTEX_DB_FILE fallback.
+  assert_contains "/custom.sql" "$(mock_get_call_args "${mock_curl}" 1)"
+
+  popd >/dev/null
+}
+
 @test "fetch-db-url: Fetch zip file without password" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
