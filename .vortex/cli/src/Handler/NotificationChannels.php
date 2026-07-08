@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
@@ -15,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class NotificationChannels extends AbstractHandler implements OptionsInterface {
+class NotificationChannels extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const EMAIL = 'email';
 
@@ -85,6 +87,17 @@ class NotificationChannels extends AbstractHandler implements OptionsInterface {
       self::SLACK => 'Slack',
       self::WEBHOOK => 'Webhook',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->multiselect('notification_channels', 'Notification channels')
+      ->description('One or more notification channels.')
+      ->default([self::EMAIL])
+      ->options(self::options())
+      ->weight(160);
   }
 
 }

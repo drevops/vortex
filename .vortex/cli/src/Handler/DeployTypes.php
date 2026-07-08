@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
@@ -15,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DeployTypes extends AbstractHandler implements OptionsInterface {
+class DeployTypes extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const ARTIFACT = 'artifact';
 
@@ -58,6 +60,17 @@ class DeployTypes extends AbstractHandler implements OptionsInterface {
       self::LAGOON => 'Lagoon webhook',
       self::WEBHOOK => 'Custom webhook',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->multiselect('deploy_types', 'Deployment types')
+      ->description('One or more deployment mechanisms.')
+      ->default(fn (Context $c): array => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::LAGOON => [self::LAGOON], HostingProvider::ACQUIA => [self::ARTIFACT], default => [self::WEBHOOK] })
+      ->options(self::options())
+      ->weight(170);
   }
 
 }

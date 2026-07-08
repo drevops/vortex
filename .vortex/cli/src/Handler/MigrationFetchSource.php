@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
@@ -14,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class MigrationFetchSource extends AbstractHandler implements OptionsInterface {
+class MigrationFetchSource extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const URL = 'url';
 
@@ -76,6 +79,18 @@ class MigrationFetchSource extends AbstractHandler implements OptionsInterface {
       self::CONTAINER_REGISTRY => 'Container registry',
       self::S3 => 'S3 bucket',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('migration_fetch_source', 'Migration database source')
+      ->description('Where the migration database dump is fetched from.')
+      ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL })
+      ->when(new Condition('migration', eq: TRUE))
+      ->options(self::options())
+      ->weight(110);
   }
 
 }

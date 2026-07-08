@@ -6,6 +6,8 @@ namespace DrevOps\VortexCli\Handler;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
 use AlexSkrypnyk\File\Replacer\Replacement;
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -18,7 +20,7 @@ use DrevOps\VortexCli\Utils\Yaml;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Tools extends AbstractHandler implements OptionsInterface {
+class Tools extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const PHPCS = 'phpcs';
 
@@ -538,6 +540,17 @@ class Tools extends AbstractHandler implements OptionsInterface {
       self::BEHAT => 'Behat',
       self::JEST => 'Jest',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->multiselect('tools', 'Development tools')
+      ->description('Linting and testing tools to keep.')
+      ->default([self::BEHAT, self::ESLINT, self::JEST, self::PHPCS, self::PHPSTAN, self::PHPUNIT, self::RECTOR, self::STYLELINT])
+      ->options(self::options())
+      ->weight(190);
   }
 
 }

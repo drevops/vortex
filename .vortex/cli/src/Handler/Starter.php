@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\JsonManipulator;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Starter extends AbstractHandler implements OptionsInterface {
+class Starter extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const INSTALL_PROFILE_CORE = 'install_profile_core';
 
@@ -73,6 +75,17 @@ class Starter extends AbstractHandler implements OptionsInterface {
       self::INSTALL_PROFILE_DRUPALCMS => 'Drupal CMS, installed from profile',
       self::LOAD_DATABASE_DEMO => 'Drupal, loaded from the demo database',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('starter', 'How would you like your site to be created on the first run?')
+      ->description('Applies only on the first run of the installer.')
+      ->default(self::LOAD_DATABASE_DEMO)
+      ->options(self::options())
+      ->weight(250);
   }
 
 }

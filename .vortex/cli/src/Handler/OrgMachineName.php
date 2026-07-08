@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -13,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class OrgMachineName extends AbstractHandler {
+class OrgMachineName extends AbstractHandler implements FieldInterface {
 
   /**
    * Validate the collected value.
@@ -49,6 +52,17 @@ class OrgMachineName extends AbstractHandler {
 
     File::replaceContentAsync('your_org', $org_machine_name);
     File::renameInDir($context->directory, 'your_org', $org_machine_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('org_machine_name', 'Organization machine name')
+      ->description('We will use this name in the code.')
+      ->required()
+      ->derive(new Derive('{{org}}', 'machine'))
+      ->weight(350);
   }
 
 }

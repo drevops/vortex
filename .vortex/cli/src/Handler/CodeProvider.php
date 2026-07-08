@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CodeProvider extends AbstractHandler implements OptionsInterface {
+class CodeProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const GITHUB = 'github';
 
@@ -94,6 +96,17 @@ class CodeProvider extends AbstractHandler implements OptionsInterface {
       self::GITHUB => 'GitHub',
       self::OTHER => 'Other',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('code_provider', 'Repository provider')
+      ->description('Vortex offers full automation with GitHub; support for other providers is limited.')
+      ->default(self::GITHUB)
+      ->options(self::options())
+      ->weight(230);
   }
 
 }

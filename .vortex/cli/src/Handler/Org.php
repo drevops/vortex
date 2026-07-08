@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -13,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Org extends AbstractHandler {
+class Org extends AbstractHandler implements FieldInterface {
 
   /**
    * Validate the collected value.
@@ -46,6 +49,17 @@ class Org extends AbstractHandler {
    */
   public function process(Field $field, mixed $value, Context $context): void {
     File::replaceContentAsync('YOURORG', is_string($value) ? $value : '');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('org', 'Organization name')
+      ->description('We will use this name in the project and documentation.')
+      ->required()
+      ->derive(new Derive('{{name}} Org'))
+      ->weight(370);
   }
 
 }

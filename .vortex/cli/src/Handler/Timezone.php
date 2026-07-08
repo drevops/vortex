@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
@@ -14,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Timezone extends AbstractHandler implements OptionsInterface {
+class Timezone extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const UTC = 'UTC';
 
@@ -56,6 +58,17 @@ class Timezone extends AbstractHandler implements OptionsInterface {
    */
   public static function options(): array {
     return array_combine(self::TIMEZONES, self::TIMEZONES);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->suggest('timezone', 'Timezone')
+      ->description('Start typing to select the timezone for your project.')
+      ->default(self::UTC)
+      ->options(self::options())
+      ->weight(210);
   }
 
 }

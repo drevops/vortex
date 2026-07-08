@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
@@ -15,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Theme extends AbstractHandler implements OptionsInterface {
+class Theme extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const OLIVERO = 'olivero';
 
@@ -175,6 +177,17 @@ class Theme extends AbstractHandler implements OptionsInterface {
       self::STARK => 'Stark',
       self::CUSTOM => 'Custom (next prompt)',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('theme', 'Theme')
+      ->description('The base theme for the site front-end.')
+      ->default(self::CUSTOM)->required()
+      ->options(self::options())
+      ->weight(340);
   }
 
 }

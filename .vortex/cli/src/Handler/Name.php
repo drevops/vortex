@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 
 /**
@@ -13,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Name extends AbstractHandler {
+class Name extends AbstractHandler implements FieldInterface {
 
   /**
    * Validate the collected value.
@@ -46,6 +49,13 @@ class Name extends AbstractHandler {
    */
   public function process(Field $field, mixed $value, Context $context): void {
     File::replaceContentAsync('YOURSITE', is_string($value) ? $value : '');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('name', 'Site name')->description('We will use this name in the project and documentation.')->required()->default(fn (Context $c): string => Converter::label(basename($c->directory)))->weight(380);
   }
 
 }

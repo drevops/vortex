@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DependencyUpdatesProvider extends AbstractHandler implements OptionsInterface {
+class DependencyUpdatesProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const NONE = 'none';
 
@@ -55,6 +57,17 @@ class DependencyUpdatesProvider extends AbstractHandler implements OptionsInterf
       self::RENOVATEBOT_CI => 'Renovate self-hosted in CI',
       self::NONE => 'None',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('dependency_updates_provider', 'Dependency updates provider')
+      ->description('The dependency updates provider.')
+      ->default(self::RENOVATEBOT_APP)
+      ->options(self::options())
+      ->weight(70);
   }
 
 }

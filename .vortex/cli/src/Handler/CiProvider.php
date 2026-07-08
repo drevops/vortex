@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CiProvider extends AbstractHandler implements OptionsInterface {
+class CiProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const NONE = 'none';
 
@@ -76,6 +78,17 @@ class CiProvider extends AbstractHandler implements OptionsInterface {
       self::CIRCLECI => 'CircleCI',
       self::NONE => 'None',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('ci_provider', 'Continuous Integration provider')
+      ->description('The CI provider for the project.')
+      ->default(self::GITHUB_ACTIONS)
+      ->options(self::options())
+      ->weight(90);
   }
 
 }

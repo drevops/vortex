@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
@@ -14,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Profile extends AbstractHandler implements OptionsInterface {
+class Profile extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const STANDARD = 'standard';
 
@@ -69,6 +71,17 @@ class Profile extends AbstractHandler implements OptionsInterface {
       self::DEMO_UMAMI => 'Demo Umami',
       self::CUSTOM => 'Custom (next prompt)',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('profile', 'Profile')
+      ->description('The Drupal installation profile the site is built on.')
+      ->default(fn (Context $c): string => ($c->answers['starter'] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS ? Starter::INSTALL_PROFILE_DRUPALCMS_PATH : self::STANDARD)->required()
+      ->options(self::options())
+      ->weight(270);
   }
 
 }

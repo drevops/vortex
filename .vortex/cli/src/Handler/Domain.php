@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -13,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Domain extends AbstractHandler {
+class Domain extends AbstractHandler implements FieldInterface {
 
   /**
    * Validate the collected value.
@@ -52,6 +55,17 @@ class Domain extends AbstractHandler {
 
     // Replace scalar values.
     File::replaceContentAsync('your-site-domain.example', $domain);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('domain', 'Public domain')
+      ->description('Domain name without protocol and trailing slash.')
+      ->required()
+      ->derive(new Derive('{{machine_name}}.com', 'host'))
+      ->weight(280);
   }
 
 }

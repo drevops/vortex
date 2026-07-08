@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CodeCoverageProvider extends AbstractHandler implements OptionsInterface {
+class CodeCoverageProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const NONE = 'none';
 
@@ -39,6 +41,17 @@ class CodeCoverageProvider extends AbstractHandler implements OptionsInterface {
       self::CODECOV => 'Codecov',
       self::NONE => 'None',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('code_coverage_provider', 'Code coverage provider')
+      ->description('The code coverage provider.')
+      ->default(self::NONE)
+      ->options(self::options())
+      ->weight(60);
   }
 
 }

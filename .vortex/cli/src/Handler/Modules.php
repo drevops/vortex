@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Handler;
 
 use AlexSkrypnyk\File\Replacer\Replacement;
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -14,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Modules extends AbstractHandler implements OptionsInterface {
+class Modules extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   /**
    * {@inheritdoc}
@@ -114,6 +116,17 @@ class Modules extends AbstractHandler implements OptionsInterface {
       'testmode' => 'Testmode',
       'xmlsitemap' => 'XML Sitemap',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->multiselect('modules', 'Modules')
+      ->description('Optional contributed modules to include.')
+      ->default(array_keys(self::options()))
+      ->options(self::options())
+      ->weight(240);
   }
 
 }

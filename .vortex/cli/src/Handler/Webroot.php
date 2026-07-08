@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Webroot extends AbstractHandler {
+class Webroot extends AbstractHandler implements FieldInterface {
 
   const WEB = 'web';
 
@@ -68,6 +70,13 @@ class Webroot extends AbstractHandler {
     File::replaceContentAsync(fn(string $content): string => preg_replace('/=' . preg_quote($default, '/') . '\b/', '=' . $chosen, $content) ?? $content);
 
     rename($context->directory . DIRECTORY_SEPARATOR . $default, $context->directory . DIRECTORY_SEPARATOR . $chosen);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('webroot', 'Custom web root directory')->description('The directory where the web server serves the site.')->default(fn (Context $c): string => ($c->answers['hosting_provider'] ?? NULL) === HostingProvider::ACQUIA ? self::DOCROOT : self::WEB)->required()->weight(10);
   }
 
 }

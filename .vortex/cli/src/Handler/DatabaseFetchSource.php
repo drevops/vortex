@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
@@ -14,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DatabaseFetchSource extends AbstractHandler implements OptionsInterface {
+class DatabaseFetchSource extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const URL = 'url';
 
@@ -83,6 +86,18 @@ class DatabaseFetchSource extends AbstractHandler implements OptionsInterface {
       self::S3 => 'S3 bucket',
       self::NONE => 'None',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('database_fetch_source', 'Database source')
+      ->description('Where the database dump is fetched from.')
+      ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL })
+      ->when(new Condition('provision_type', eq: ProvisionType::DATABASE))
+      ->options(self::options())
+      ->weight(140);
   }
 
 }

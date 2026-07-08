@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
@@ -14,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class VersionScheme extends AbstractHandler implements OptionsInterface {
+class VersionScheme extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const CALVER = 'calver';
 
@@ -53,6 +55,17 @@ class VersionScheme extends AbstractHandler implements OptionsInterface {
       self::SEMVER => 'Semantic Versioning (SemVer)',
       self::OTHER => 'Other',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->select('version_scheme', 'Release versioning scheme')
+      ->description('CalVer (year.month.patch) or SemVer (major.minor.patch).')
+      ->default(self::CALVER)
+      ->options(self::options())
+      ->weight(220);
   }
 
 }

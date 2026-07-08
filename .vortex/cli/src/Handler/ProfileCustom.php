@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+
 /**
  * Reusable behaviour for the "profile_custom" question.
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ProfileCustom {
+class ProfileCustom implements FieldInterface {
 
   /**
    * Validate the collected value.
@@ -35,6 +39,17 @@ class ProfileCustom {
    */
   public static function transform(mixed $value): mixed {
     return is_string($value) ? trim($value) : $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('profile_custom', 'Custom profile machine name')
+      ->description('The machine name of your custom profile.')
+      ->required()
+      ->when(new Condition('profile', eq: Profile::CUSTOM))
+      ->weight(260);
   }
 
 }

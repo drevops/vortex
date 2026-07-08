@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
@@ -14,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ModulePrefix extends AbstractHandler {
+class ModulePrefix extends AbstractHandler implements FieldInterface {
 
   /**
    * Validate the collected value.
@@ -75,6 +78,17 @@ class ModulePrefix extends AbstractHandler {
     File::renameInDir($modules, 'YsBase', Converter::pascal($prefix) . 'Base');
     File::renameInDir($modules, 'YsSearch', Converter::pascal($prefix) . 'Search');
     File::renameInDir($context->directory . sprintf('/%s/sites/default/includes', $webroot), 'ys_base', $prefix . '_base');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->text('module_prefix', 'Custom modules prefix')
+      ->description('We will use this name in custom modules.')
+      ->required()
+      ->derive(new Derive('{{machine_name}}', 'initials'))
+      ->weight(310);
   }
 
 }

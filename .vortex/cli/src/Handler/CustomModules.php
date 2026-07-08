@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CustomModules extends AbstractHandler implements OptionsInterface {
+class CustomModules extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const BASE = 'base';
 
@@ -127,6 +129,17 @@ class CustomModules extends AbstractHandler implements OptionsInterface {
       self::SEARCH => 'Search - custom Solr search integration',
       self::DEMO => 'Demo - counter block and example tests to demonstrate tooling',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->multiselect('custom_modules', 'Custom modules')
+      ->description('Which scaffolded custom modules to keep.')
+      ->default([self::BASE, self::SEARCH, self::DEMO])
+      ->options(self::options())
+      ->weight(300);
   }
 
 }

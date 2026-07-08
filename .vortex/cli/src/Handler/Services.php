@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Services extends AbstractHandler implements OptionsInterface {
+class Services extends AbstractHandler implements OptionsInterface, FieldInterface {
 
   const CLAMAV = 'clamav';
 
@@ -89,6 +91,17 @@ class Services extends AbstractHandler implements OptionsInterface {
       self::SOLR => 'Solr',
       self::REDIS => 'Redis',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->multiselect('services', 'Services')
+      ->description('Optional Docker services to include.')
+      ->default([self::CLAMAV, self::REDIS, self::SOLR])
+      ->options(self::options())
+      ->weight(200);
   }
 
 }

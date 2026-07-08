@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
+use DrevOps\Tui\Builder\FieldBuilder;
+use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -13,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class AiCodeInstructions extends AbstractHandler {
+class AiCodeInstructions extends AbstractHandler implements FieldInterface {
 
   /**
    * {@inheritdoc}
@@ -25,6 +27,13 @@ class AiCodeInstructions extends AbstractHandler {
       File::remove($context->directory . '/.claude');
       File::removeTokenAsync('AI_CODE_INSTRUCTIONS');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function field(PanelBuilder $p): FieldBuilder {
+    return $p->confirm('ai_code_instructions', 'Provide AI agent instructions?')->description('Provides AI coding agents with better context about the project.')->default(TRUE)->weight(20);
   }
 
 }
