@@ -49,4 +49,8 @@ web/themes/**/build
 .vortex/*
 !.vortex/tooling
 .vortex/tooling/tests
+.vortex/tooling/playground
+.vortex/tooling/vendor
+.vortex/tooling/.logs
+.vortex/tooling/.phpunit.cache
 #;> VORTEX_DEV
