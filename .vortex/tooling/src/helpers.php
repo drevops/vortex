@@ -1219,7 +1219,7 @@ function remove_dir(string $dir): void {
     return;
   }
 
-  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST, \RecursiveIteratorIterator::CATCH_GET_CHILD);
   foreach ($items as $item) {
     // @codeCoverageIgnoreStart
     if (!$item instanceof \SplFileInfo) {

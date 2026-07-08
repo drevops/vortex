@@ -129,6 +129,26 @@ class HelpersRemoveDirTest extends UnitTestCase {
     $this->assertFileExists($target . '/kept.txt');
   }
 
+  public function testRemoveDirUnreadableSubdirectoryDoesNotThrow(): void {
+    $dir = self::$tmp . '/remove_' . uniqid();
+
+    $this->createDirectoryStructure($dir, ['unreadable' => ['file.txt' => 'content']]);
+    chmod($dir . '/unreadable', 0000);
+
+    try {
+      // Must not throw: an unreadable subdirectory is skipped, not fatal.
+      \DrevOps\VortexTooling\remove_dir($dir);
+    }
+    finally {
+      if (is_dir($dir . '/unreadable')) {
+        chmod($dir . '/unreadable', 0755);
+      }
+      \DrevOps\VortexTooling\remove_dir($dir);
+    }
+
+    $this->assertDirectoryDoesNotExist($dir);
+  }
+
   public function testRemoveDirSuppressesFailures(): void {
     $dir = self::$tmp . '/remove_' . uniqid();
 
