@@ -53,51 +53,42 @@ $diffy_branches = getenv_default('VORTEX_NOTIFY_DIFFY_BRANCHES', '');
 
 // -----------------------------------------------------------------------------
 
-info('Started Diffy notification.');
+INFO('Started Diffy notification.');
 
 // Skip on pre_deployment - the target environment is not yet ready.
-if ($diffy_event === 'pre_deployment') {
-  pass('Skipped Diffy notification for pre_deployment event.');
-  quit();
-}
+notify_skip_pre_deployment((string) $diffy_event, 'Diffy');
 
 // Apply the branch filter when configured.
-if ($diffy_branches !== '') {
-  $branch_list = array_map(trim(...), explode(',', $diffy_branches));
-  if (!in_array($diffy_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped Diffy notification for branch '%s' (not in branch allowlist).", $diffy_branch));
-    quit();
-  }
-}
+notify_skip_unlisted_branch((string) $diffy_branches, 'Diffy', (string) $diffy_branch);
 
 // Validate required values.
 if ($diffy_token === '') {
-  fail('Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN.');
+  FAIL('Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN.');
 }
 if ($diffy_repository === '') {
-  fail('Missing required value for VORTEX_NOTIFY_DIFFY_REPOSITORY.');
+  FAIL('Missing required value for VORTEX_NOTIFY_DIFFY_REPOSITORY.');
 }
 if ($diffy_branch === '') {
-  fail('Missing required value for VORTEX_NOTIFY_DIFFY_BRANCH.');
+  FAIL('Missing required value for VORTEX_NOTIFY_DIFFY_BRANCH.');
 }
 if ($diffy_environment_url === '') {
-  fail('Missing required value for VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL.');
+  FAIL('Missing required value for VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL.');
 }
 if ($diffy_label === '') {
-  fail('Missing required value for VORTEX_NOTIFY_DIFFY_LABEL.');
+  FAIL('Missing required value for VORTEX_NOTIFY_DIFFY_LABEL.');
 }
 
 // Sanitize the repository (extract owner/repo, hide host if any).
 $repository_sanitized = (string) preg_replace(['#^https?://[^/]+/#', '#\.git$#'], '', $diffy_repository);
 
-info('Diffy notification summary:');
-note('Repository       : ' . $repository_sanitized);
-note('Branch           : ' . $diffy_branch);
-note('Label            : ' . $diffy_label);
-note('Environment URL  : ' . $diffy_environment_url);
-note('Source env       : ' . $diffy_source_env);
-note('Dispatch event   : ' . $diffy_event_type);
-note('Event            : ' . $diffy_event);
+INFO('Diffy notification summary:');
+NOTE('Repository       : %s', $repository_sanitized);
+NOTE('Branch           : %s', $diffy_branch);
+NOTE('Label            : %s', $diffy_label);
+NOTE('Environment URL  : %s', $diffy_environment_url);
+NOTE('Source env       : %s', $diffy_source_env);
+NOTE('Dispatch event   : %s', $diffy_event_type);
+NOTE('Event            : %s', $diffy_event);
 
 // Build the dispatch payload. The workflow parses the PR (if any) from the
 // target URL's 'pr-<n>' segment, so no PR number is included.
@@ -111,15 +102,21 @@ $payload = [
   ],
 ];
 
-$url = sprintf('https://api.github.com/repos/%s/dispatches', $repository_sanitized);
-$response = request_post($url, json_encode($payload), [
-  'Accept: application/vnd.github.v3+json',
-  'Authorization: token ' . $diffy_token,
-  'Content-Type: application/json',
-]);
+TASK(
+  sprintf('Dispatching the "%s" workflow event.', $diffy_event_type),
+  sprintf('Dispatched the "%s" workflow event.', $diffy_event_type),
+  function () use ($repository_sanitized, $payload, $diffy_token): void {
+    $url = sprintf('https://api.github.com/repos/%s/dispatches', $repository_sanitized);
+    $response = request_post($url, json_encode($payload), [
+      'Accept: application/vnd.github.v3+json',
+      'Authorization: token ' . $diffy_token,
+      'Content-Type: application/json',
+    ]);
 
-if ($response['status'] !== 204) {
-  fail('GitHub repository_dispatch failed with HTTP %s.', $response['status']);
-}
+    if ($response['status'] !== 204) {
+      throw new \RuntimeException(sprintf('GitHub repository_dispatch failed with HTTP %s.', $response['status']));
+    }
+  },
+);
 
-pass('Finished Diffy notification.');
+PASS('Finished Diffy notification.');

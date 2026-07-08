@@ -160,9 +160,6 @@ class DoctorTest extends UnitTestCase {
     $container_fail = fn(string $s): array => ['cmd' => sprintf("docker compose ps --status=running --services 2>/dev/null | grep -q '%s'", $s), 'result_code' => 1];
     $containers_running = fn(): array => [$container_cmd('cli'), $container_cmd('appserver'), $container_cmd('webserver'), $container_cmd('database')];
 
-    $pygmy_status_cmd = ['cmd' => 'pygmy status 2>/dev/null | tr -d "\\000" > /tmp/vortex_pygmy_status.txt', 'result_code' => 0];
-    $pygmy_service_ok = fn(string $s): array => ['cmd' => 'grep -q "' . $s . ': Running" /tmp/vortex_pygmy_status.txt', 'result_code' => 0];
-
     $ssh_file = '/home/testuser/.ssh/id_rsa';
     $ssh_pygmy_cmd = fn(int $code): array => ['cmd' => sprintf("pygmy status 2>&1 | grep -q '%s'", $ssh_file), 'result_code' => $code];
     $ssh_volume_cmd = fn(int $code): array => ['cmd' => 'docker compose exec -T cli bash -c \'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent\'', 'result_code' => $code];
@@ -225,11 +222,7 @@ class DoctorTest extends UnitTestCase {
       'pygmy all running' => [
         ['VORTEX_DOCTOR_CHECK_PYGMY' => '1'],
         [
-          $pygmy_status_cmd,
-          $pygmy_service_ok('amazeeio-ssh-agent'),
-          $pygmy_service_ok('amazeeio-mailhog'),
-          $pygmy_service_ok('amazeeio-haproxy'),
-          $pygmy_service_ok('amazeeio-dnsmasq'),
+          ['shell_exec' => "amazeeio-ssh-agent: Running\namazeeio-mailhog: Running\namazeeio-haproxy: Running\namazeeio-dnsmasq: Running"],
         ],
         [
           '* [INFO] Checking project requirements.',
@@ -242,8 +235,7 @@ class DoctorTest extends UnitTestCase {
       'pygmy service not running' => [
         ['VORTEX_DOCTOR_CHECK_PYGMY' => '1'],
         [
-          $pygmy_status_cmd,
-          ['cmd' => 'grep -q "amazeeio-ssh-agent: Running" /tmp/vortex_pygmy_status.txt', 'result_code' => 1],
+          ['shell_exec' => 'amazeeio-mailhog: Running'],
         ],
         ["* [FAIL] Pygmy service amazeeio-ssh-agent is not running. Run 'pygmy up' or 'pygmy restart' to fix."],
         TRUE,

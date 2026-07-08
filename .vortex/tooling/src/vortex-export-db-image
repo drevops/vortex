@@ -36,21 +36,27 @@ $image_dir = getenv_default('VORTEX_EXPORT_DB_IMAGE_DIR', 'VORTEX_DB_DIR', './.d
 
 command_must_exist('docker');
 
-info('Started database data container image export.');
+INFO('Started database data container image export.');
 
 $service_escaped = escapeshellarg($service_name);
 
-$cid = trim((string) shell_exec(sprintf('docker compose ps -q %s', $service_escaped)));
+$cid = (string) TASK(
+  sprintf('Discovering container for service %s.', $service_name),
+  fn(string $cid): string => sprintf('Found %s service container with id %s.', $service_name, $cid),
+  function () use ($service_escaped, $service_name): string {
+    $cid = trim((string) shell_exec(sprintf('docker compose ps -q %s', $service_escaped)));
 
-if ($cid === '') {
-  fail('Unable to find container for service %s. Check that the service is running with `docker compose ps`.', $service_name);
-}
+    if ($cid === '') {
+      throw new \RuntimeException(sprintf('Unable to find container for service %s. Check that the service is running with `docker compose ps`.', $service_name));
+    }
 
-note(sprintf('Found %s service container with id %s.', $service_name, $cid));
+    return $cid;
+  },
+);
 
 $new_image = $registry . '/' . $image;
 
-task('Locking and unlocking tables before upgrade.', 'Locked and unlocked tables before upgrade.', function () use ($service_escaped, $service_name): void {
+TASK('Locking and unlocking tables before upgrade.', 'Locked and unlocked tables before upgrade.', function () use ($service_escaped, $service_name): void {
   passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables for service %s.', $service_name);
 
   sleep_progress(5);
@@ -58,15 +64,15 @@ task('Locking and unlocking tables before upgrade.', 'Locked and unlocked tables
   passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('UNLOCK TABLES;')), 'Failed to unlock tables for service %s.', $service_name);
 });
 
-task('Running forced service upgrade.', 'Ran the forced service upgrade.', function () use ($service_escaped, $service_name): void {
+TASK('Running forced service upgrade.', 'Ran the forced service upgrade.', function () use ($service_escaped, $service_name): void {
   passthru_or_fail(sprintf('docker compose exec -T %s sh -c %s', $service_escaped, escapeshellarg('mariadb-upgrade --force || mariadb-upgrade --force')), 'Failed to run service upgrade for %s.', $service_name);
 });
 
-task('Locking tables after upgrade.', 'Locked tables after upgrade.', function () use ($service_escaped, $service_name): void {
+TASK('Locking tables after upgrade.', 'Locked tables after upgrade.', function () use ($service_escaped, $service_name): void {
   passthru_or_fail(sprintf('docker compose exec -T %s mysql -e %s', $service_escaped, escapeshellarg('FLUSH TABLES WITH READ LOCK;')), 'Failed to lock tables after upgrade for service %s.', $service_name);
 });
 
-task(
+TASK(
   sprintf('Committing exported container image with name %s.', $new_image),
   fn(string $iid): string => sprintf('Committed exported container image with id %s.', $iid),
   function () use ($cid, $new_image): string {
@@ -80,9 +86,7 @@ task(
 );
 
 // Create directory to store database dump.
-if (!is_dir($image_dir)) {
-  mkdir($image_dir, 0755, TRUE);
-}
+prepare_db_dir($image_dir);
 
 // Create dump file name with a timestamp or use the file name provided
 // as a first argument. Also, make sure that the extension is correct.
@@ -93,7 +97,7 @@ else {
   $archive = $image_dir . '/export_db_' . date('Ymd_His') . '.tar';
 }
 
-task(sprintf('Exporting database image archive to file %s.', $archive), sprintf('Exported database image saved to archive file %s.', $archive), function () use ($archive, $new_image): void {
+TASK(sprintf('Exporting database image archive to file %s.', $archive), sprintf('Exported database image saved to archive file %s.', $archive), function () use ($archive, $new_image): void {
   passthru_or_fail(sprintf('docker save -o %s %s', escapeshellarg($archive), escapeshellarg($new_image)), 'Unable to save database image archive file %s.', $archive);
 
   // Check that file was saved and output saved dump file name.
@@ -102,4 +106,4 @@ task(sprintf('Exporting database image archive to file %s.', $archive), sprintf(
   }
 });
 
-pass('Finished database data container image export.');
+PASS('Finished database data container image export.');

@@ -155,12 +155,37 @@ function getenv_required(...$var_names): string {
 
   // None found, fail with error.
   $var_list = implode(', ', $var_names);
-  fail('Missing required value for %s', $var_list);
+  FAIL('Missing required value for %s', $var_list);
 
   // Never reached, but satisfies return type.
   // @codeCoverageIgnoreStart
   return '';
   // @codeCoverageIgnoreEnd
+}
+
+/**
+ * Get a comma-separated environment variable as a list of values.
+ *
+ * Checks multiple environment variable names in order and splits the first
+ * non-empty value on commas into trimmed, non-empty items. The last argument
+ * is used as the default value if all environment variables are empty or
+ * undefined, as in getenv_default().
+ *
+ * @param string ...$args
+ *   Variable names to check, with the last argument being the default value.
+ *
+ * @return array<int, string>
+ *   The list of values.
+ *
+ * @code
+ * // "main, develop" -> ['main', 'develop']
+ * $branches = getenv_list('SPECIFIC_BRANCHES', 'GENERIC_BRANCHES', '');
+ * @endcode
+ */
+function getenv_list(...$args): array {
+  $value = (string) getenv_default(...$args);
+
+  return array_values(array_filter(array_map(trim(...), explode(',', $value)), static fn(string $item): bool => $item !== ''));
 }
 
 /**
@@ -171,7 +196,8 @@ function getenv_required(...$var_names): string {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function note(string $format, ...$args): void {
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
+function NOTE(string $format, ...$args): void {
   echo sprintf('       %s%s', sprintf($format, ...$args), PHP_EOL);
 }
 
@@ -204,7 +230,8 @@ function note(string $format, ...$args): void {
  *   Whatever the body returns, or NULL when announcing only or when a non-fatal
  *   body fails.
  */
-function task(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
+function TASK(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
   $color = term_supports_color();
 
   if ($body === NULL) {
@@ -218,7 +245,7 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
   try {
     $result = $body();
     echo ($color ? "\033[0m" : '') . PHP_EOL;
-    pass('%s', $done instanceof \Closure ? (string) $done($result) : (string) $done);
+    PASS('%s', $done instanceof \Closure ? (string) $done($result) : (string) $done);
 
     return $result;
   }
@@ -231,7 +258,7 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
       return NULL;
     }
 
-    fail('%s', $e->getMessage());
+    FAIL('%s', $e->getMessage());
   }
 
   // @codeCoverageIgnoreStart
@@ -248,7 +275,8 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function info(string $format, ...$args): void {
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
+function INFO(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[36m[INFO] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[INFO] %s%s', sprintf($format, ...$args), PHP_EOL);
@@ -262,7 +290,8 @@ function info(string $format, ...$args): void {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function pass(string $format, ...$args): void {
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
+function PASS(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[32m[ OK ] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[ OK ] %s%s', sprintf($format, ...$args), PHP_EOL);
@@ -317,7 +346,8 @@ function sleep_progress(int $seconds): void {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function fail(string $format, ...$args): void {
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidName -- uppercase for output visibility.
+function FAIL(string $format, ...$args): void {
   fail_no_exit($format, ...$args);
   quit(1);
 }
@@ -356,8 +386,42 @@ function command_path(string $command): string|false {
  */
 function command_must_exist(string $command): void {
   if (!command_path($command)) {
-    fail(sprintf("Command '%s' is not available.", $command));
+    FAIL("Command '%s' is not available.", $command);
   }
+}
+
+/**
+ * Whether the script runs on the host rather than inside the container.
+ *
+ * Docker availability implies the host. Set the RUN_ON_HOST environment
+ * variable to '1' or '0' to override the detection.
+ */
+function run_on_host(): bool {
+  $override = getenv('RUN_ON_HOST');
+
+  if ($override !== FALSE && $override !== '') {
+    return $override === '1';
+  }
+
+  return command_path('docker') !== FALSE;
+}
+
+/**
+ * Create a directory for database dumps unless it already exists.
+ *
+ * @param string $dir
+ *   The directory path to create.
+ */
+function prepare_db_dir(string $dir): void {
+  if (is_dir($dir)) {
+    return;
+  }
+
+  TASK('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($dir): void {
+    if (!mkdir($dir, 0755, TRUE)) {
+      throw new \RuntimeException(sprintf('Unable to create directory "%s".', $dir));
+    }
+  });
 }
 
 /**
@@ -376,7 +440,7 @@ function passthru_or_fail(string $cmd, string $format = '', ...$args): void {
   passthru($cmd, $exit_code);
   if ($exit_code !== 0) {
     if ($format !== '') {
-      fail($format, ...$args);
+      FAIL($format, ...$args);
     }
     quit($exit_code);
   }
@@ -432,10 +496,27 @@ function drush(string $command, ?int &$exit_code = NULL): string {
   echo $output;
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Drush command failed: %s', $command);
+    FAIL('Drush command failed: %s', $command);
   }
 
   return $output ?: '';
+}
+
+/**
+ * Convert a project-root-relative path to a drush-compatible path.
+ *
+ * Drush resolves relative paths against the Drupal root, which sits one
+ * directory below the project root, so a './'-prefixed project path gains one
+ * directory level. Other paths are returned unchanged.
+ *
+ * @param string $path
+ *   The path relative to the project root.
+ *
+ * @return string
+ *   The path relative to the Drupal root.
+ */
+function drush_relative_path(string $path): string {
+  return str_starts_with($path, './') ? '../' . substr($path, 2) : $path;
 }
 
 /**
@@ -451,7 +532,7 @@ function drush(string $command, ?int &$exit_code = NULL): string {
  */
 function lagoon_cli_resolve(): string {
   if (command_path('lagoon')) {
-    note('Using the Lagoon CLI found on PATH.');
+    NOTE('Using the Lagoon CLI found on PATH.');
     return 'lagoon';
   }
 
@@ -460,7 +541,7 @@ function lagoon_cli_resolve(): string {
   $bin = $dir . '/lagoon';
 
   if (is_executable($bin)) {
-    note('Reusing the Lagoon CLI previously downloaded to "%s".', $bin);
+    NOTE('Reusing the Lagoon CLI previously downloaded to "%s".', $bin);
     return $bin;
   }
 
@@ -473,16 +554,17 @@ function lagoon_cli_resolve(): string {
   $base = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s', $version);
   $asset = sprintf('lagoon-cli-%s-%s-%s', $version, $platform, $arch);
 
-  task(sprintf('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin));
-  $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
-  if (!$response['ok']) {
-    @unlink($bin);
-    fail('Failed to download the Lagoon CLI from "%s": %s', $base . '/' . $asset, $response['error'] ?? 'Unknown error');
-  }
+  TASK(sprintf('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin), sprintf('Downloaded the Lagoon CLI "%s" to "%s".', $version, $bin), function () use ($base, $asset, $bin): void {
+    $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
+    if (!$response['ok']) {
+      @unlink($bin);
+      throw new \RuntimeException(sprintf('Failed to download the Lagoon CLI from "%s": %s', $base . '/' . $asset, $response['error'] ?? 'Unknown error'));
+    }
 
-  lagoon_cli_verify_checksum($bin, $base, $asset);
+    lagoon_cli_verify_checksum($bin, $base, $asset);
 
-  chmod($bin, 0755);
+    chmod($bin, 0755);
+  });
 
   return $bin;
 }
@@ -501,7 +583,7 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
   $response = request($base . '/checksums.txt', ['method' => 'GET', 'timeout' => 30]);
   if (!$response['ok']) {
     @unlink($bin);
-    fail('Failed to download the Lagoon CLI checksums from "%s".', $base . '/checksums.txt');
+    FAIL('Failed to download the Lagoon CLI checksums from "%s".', $base . '/checksums.txt');
   }
 
   $expected = '';
@@ -515,7 +597,7 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
 
   if ($expected === '' || !hash_equals($expected, (string) hash_file('sha256', $bin))) {
     @unlink($bin);
-    fail('Lagoon CLI checksum verification failed for "%s".', $asset);
+    FAIL('Lagoon CLI checksum verification failed for "%s".', $asset);
   }
 }
 
@@ -575,9 +657,9 @@ function lagoon_config(string $bin, string $config_file, string $instance, strin
  *   The isolated config file to run against.
  */
 function lagoon_print_version(string $bin, string $config_file): void {
-  task('Checking Lagoon CLI version.');
-  passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
-  pass('Checked Lagoon CLI version.');
+  TASK('Checking Lagoon CLI version.', 'Checked Lagoon CLI version.', function () use ($bin, $config_file): void {
+    passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
+  });
 }
 
 /**
@@ -621,7 +703,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
   $output = ob_get_clean();
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+    FAIL('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
   }
 
   return $output === FALSE ? '' : $output;
@@ -641,7 +723,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
  */
 function acli_resolve(): string {
   if (command_path('acli')) {
-    note('Using the Acquia CLI found on PATH.');
+    NOTE('Using the Acquia CLI found on PATH.');
     return 'acli';
   }
 
@@ -650,7 +732,7 @@ function acli_resolve(): string {
   $bin = $dir . '/acli';
 
   if (is_executable($bin)) {
-    note('Reusing the Acquia CLI previously downloaded to "%s".', $bin);
+    NOTE('Reusing the Acquia CLI previously downloaded to "%s".', $bin);
     return $bin;
   }
 
@@ -660,14 +742,15 @@ function acli_resolve(): string {
 
   $url = sprintf('https://github.com/acquia/cli/releases/download/%s/acli.phar', $version);
 
-  task(sprintf('Downloading the Acquia CLI "%s" to "%s".', $version, $bin));
-  $response = request($url, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
-  if (!$response['ok']) {
-    @unlink($bin);
-    fail('Failed to download the Acquia CLI from "%s": %s', $url, $response['error'] ?? 'Unknown error');
-  }
+  TASK(sprintf('Downloading the Acquia CLI "%s" to "%s".', $version, $bin), sprintf('Downloaded the Acquia CLI "%s" to "%s".', $version, $bin), function () use ($url, $bin): void {
+    $response = request($url, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
+    if (!$response['ok']) {
+      @unlink($bin);
+      throw new \RuntimeException(sprintf('Failed to download the Acquia CLI from "%s": %s', $url, $response['error'] ?? 'Unknown error'));
+    }
 
-  chmod($bin, 0755);
+    chmod($bin, 0755);
+  });
 
   return $bin;
 }
@@ -776,10 +859,298 @@ function acli_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code
   $output = ob_get_clean();
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Acquia CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+    FAIL('Acquia CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
   }
 
   return $output === FALSE ? '' : $output;
+}
+
+/**
+ * Retrieve an Acquia Cloud API access token.
+ *
+ * @param string $key
+ *   The Acquia Cloud API key.
+ * @param string $secret
+ *   The Acquia Cloud API secret.
+ *
+ * @return string
+ *   The API access token.
+ */
+function acquia_api_get_token(string $key, string $secret): string {
+  $response = request_post('https://accounts.acquia.com/api/auth/oauth/token', http_build_query([
+    'client_id' => $key,
+    'client_secret' => $secret,
+    'grant_type' => 'client_credentials',
+  ]), ['Content-Type: application/x-www-form-urlencoded']);
+
+  if (!$response['ok']) {
+    FAIL('Unable to retrieve a token.');
+  }
+
+  $data = json_decode((string) $response['body'], TRUE);
+  $token = is_array($data) && is_string($data['access_token'] ?? NULL) ? $data['access_token'] : '';
+
+  if ($token === '') {
+    FAIL('Unable to retrieve a token.');
+  }
+
+  return $token;
+}
+
+/**
+ * Build Acquia Cloud API request headers.
+ *
+ * @param string $token
+ *   The API access token.
+ *
+ * @return array<int, string>
+ *   The request headers.
+ */
+function acquia_api_headers(string $token): array {
+  return [
+    'Accept: application/json, version=2',
+    'Authorization: Bearer ' . $token,
+  ];
+}
+
+/**
+ * Extract the last item from an Acquia Cloud API embedded collection response.
+ *
+ * @param mixed $data
+ *   The decoded JSON response body.
+ *
+ * @return array<mixed>|null
+ *   The last embedded item, or NULL when none is present.
+ */
+function acquia_api_last_embedded_item(mixed $data): ?array {
+  $items = (is_array($data) && isset($data['_embedded']) && is_array($data['_embedded']) && isset($data['_embedded']['items']) && is_array($data['_embedded']['items'])) ? $data['_embedded']['items'] : [];
+  $last = end($items);
+
+  return is_array($last) ? $last : NULL;
+}
+
+/**
+ * Retrieve an Acquia Cloud application UUID by application name.
+ *
+ * @param string $token
+ *   The API access token.
+ * @param string $app_name
+ *   The application name.
+ *
+ * @return string
+ *   The application UUID.
+ */
+function acquia_api_get_app_uuid(string $token, string $app_name): string {
+  $url = 'https://cloud.acquia.com/api/applications?filter=name%3D' . rawurlencode($app_name);
+  $response = request_get($url, acquia_api_headers($token));
+
+  if (!$response['ok']) {
+    FAIL('Unable to retrieve an application UUID.');
+  }
+
+  $last = acquia_api_last_embedded_item(json_decode((string) $response['body'], TRUE));
+  $uuid = is_string($last['uuid'] ?? NULL) ? $last['uuid'] : '';
+
+  if ($uuid === '') {
+    FAIL('Unable to retrieve an application UUID.');
+  }
+
+  return $uuid;
+}
+
+/**
+ * Retrieve an Acquia Cloud environment ID by environment name.
+ *
+ * @param string $token
+ *   The API access token.
+ * @param string $app_uuid
+ *   The application UUID.
+ * @param string $env_name
+ *   The environment name.
+ *
+ * @return string
+ *   The environment ID.
+ */
+function acquia_api_get_env_id(string $token, string $app_uuid, string $env_name): string {
+  $url = sprintf('https://cloud.acquia.com/api/applications/%s/environments?filter=name%%3D%s', $app_uuid, rawurlencode($env_name));
+  $response = request_get($url, acquia_api_headers($token));
+
+  if (!$response['ok']) {
+    FAIL('Unable to retrieve environment ID for %s.', $env_name);
+  }
+
+  $last = acquia_api_last_embedded_item(json_decode((string) $response['body'], TRUE));
+
+  $env_id = '';
+  if ($last !== NULL && isset($last['id']) && (is_string($last['id']) || is_int($last['id']))) {
+    $env_id = (string) $last['id'];
+  }
+
+  if ($env_id === '') {
+    FAIL('Unable to retrieve environment ID for %s.', $env_name);
+  }
+
+  return $env_id;
+}
+
+/**
+ * Poll an Acquia Cloud API notification until it completes.
+ *
+ * The access token expires after five minutes, so a long poll can outlive it;
+ * the token is refreshed on a 401 response and the check is retried.
+ *
+ * @param string $key
+ *   The Acquia Cloud API key.
+ * @param string $secret
+ *   The Acquia Cloud API secret.
+ * @param string $notification_url
+ *   The notification URL returned by the operation request.
+ * @param int $retries
+ *   Number of status checks before giving up.
+ * @param int $interval
+ *   Seconds to wait between status checks.
+ * @param string $token
+ *   (optional) An existing API access token to start with. A fresh token is
+ *   retrieved when not provided.
+ *
+ * @return bool
+ *   TRUE when the operation completed within the retries.
+ */
+function acquia_api_poll_notification(string $key, string $secret, string $notification_url, int $retries, int $interval, string $token = ''): bool {
+  $token = $token === '' ? acquia_api_get_token($key, $secret) : $token;
+
+  for ($i = 1; $i <= $retries; $i++) {
+    sleep_progress($interval);
+
+    $response = request_get($notification_url, acquia_api_headers($token));
+
+    if (!$response['ok'] && ($response['status'] ?? 0) === 401) {
+      $token = acquia_api_get_token($key, $secret);
+      $response = request_get($notification_url, acquia_api_headers($token));
+    }
+
+    if ($response['ok']) {
+      $data = json_decode((string) $response['body'], TRUE);
+
+      if (is_array($data) && ($data['status'] ?? '') === 'completed') {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Compute an HMAC-SHA256 digest with either a raw or a hex-encoded key.
+ *
+ * @param string $key
+ *   The signing key.
+ * @param string $data
+ *   The data to sign.
+ * @param bool $hex_key
+ *   Whether the key is hex-encoded and should be converted to binary first.
+ *
+ * @return string
+ *   The hex-encoded digest.
+ */
+function hmac_sha256(string $key, string $data, bool $hex_key = FALSE): string {
+  if ($hex_key) {
+    $key = (string) hex2bin($key);
+  }
+
+  return hash_hmac('sha256', $data, $key);
+}
+
+/**
+ * Derive an AWS Signature Version 4 signature.
+ *
+ * @param string $secret_key
+ *   The AWS secret key.
+ * @param string $date_short
+ *   The request date in 'Ymd' format.
+ * @param string $region
+ *   The AWS region.
+ * @param string $service
+ *   The AWS service, e.g. 's3'.
+ * @param string $string_to_sign
+ *   The string to sign.
+ *
+ * @return string
+ *   The hex-encoded signature.
+ */
+function create_aws_signature(string $secret_key, string $date_short, string $region, string $service, string $string_to_sign): string {
+  $date_key = hmac_sha256('AWS4' . $secret_key, $date_short);
+  $region_key = hmac_sha256($date_key, $region, TRUE);
+  $service_key = hmac_sha256($region_key, $service, TRUE);
+  $signing_key = hmac_sha256($service_key, 'aws4_request', TRUE);
+
+  return hmac_sha256($signing_key, $string_to_sign, TRUE);
+}
+
+/**
+ * Build signed headers for an AWS S3 request (Signature Version 4).
+ *
+ * Produces the canonical request, signs it and returns the full set of HTTP
+ * headers - including the 'Authorization' header - to pass to request().
+ *
+ * @param string $method
+ *   The HTTP method, e.g. 'GET' or 'PUT'.
+ * @param string $bucket
+ *   The S3 bucket name.
+ * @param string $region
+ *   The S3 region.
+ * @param string $uri
+ *   The request path starting with '/'.
+ * @param string $payload_hash
+ *   SHA256 hash of the request payload (hash of an empty string for GET).
+ * @param string $access_key
+ *   The AWS access key.
+ * @param string $secret_key
+ *   The AWS secret key.
+ * @param array<string, string> $extra_headers
+ *   (optional) Additional headers to sign, keyed by lowercase header name,
+ *   e.g. ['x-amz-storage-class' => 'STANDARD'].
+ *
+ * @return array<int, string>
+ *   The HTTP header lines, including the computed 'Authorization' header.
+ */
+function aws_s3_signed_headers(string $method, string $bucket, string $region, string $uri, string $payload_hash, string $access_key, string $secret_key, array $extra_headers = []): array {
+  $service = 's3';
+  $host = sprintf('%s.%s.%s.amazonaws.com', $bucket, $service, $region);
+  $date_short = gmdate('Ymd');
+  $date_long = gmdate('Ymd\THis\Z');
+
+  $headers = [
+    'content-type' => 'application/octet-stream',
+    'host' => $host,
+    'x-amz-content-sha256' => $payload_hash,
+    'x-amz-date' => $date_long,
+  ] + $extra_headers;
+  ksort($headers);
+
+  $canonical_headers = [];
+  foreach ($headers as $name => $value) {
+    $canonical_headers[] = $name . ':' . $value;
+  }
+
+  $signed_header_names = implode(';', array_keys($headers));
+  $canonical_request = sprintf("%s\n%s\n\n%s\n\n%s\n%s", $method, $uri, implode("\n", $canonical_headers), $signed_header_names, $payload_hash);
+  $string_to_sign = sprintf("%s\n%s\n%s/%s/%s/aws4_request\n%s", 'AWS4-HMAC-SHA256', $date_long, $date_short, $region, $service, hash('sha256', $canonical_request));
+  $signature = create_aws_signature($secret_key, $date_short, $region, $service, $string_to_sign);
+
+  $lines = [];
+  foreach ($headers as $name => $value) {
+    if ($name === 'host') {
+      continue;
+    }
+
+    $lines[] = $name . ': ' . $value;
+  }
+
+  $lines[] = sprintf('Authorization: AWS4-HMAC-SHA256 Credential=%s/%s/%s/%s/aws4_request, SignedHeaders=%s, Signature=%s', $access_key, $date_short, $region, $service, $signed_header_names, $signature);
+
+  return $lines;
 }
 
 /**
@@ -844,6 +1215,50 @@ function replace_tokens(string $template, array $replacements): string {
 }
 
 /**
+ * Quit when a branch-filtered notification channel does not apply.
+ *
+ * Notification channels are gated by an optional comma-separated branch
+ * allowlist. An empty allowlist applies no filtering. When the current branch
+ * is not listed, the skip is reported and the script exits successfully so
+ * the notify router can carry on with other channels.
+ *
+ * @param string $branches
+ *   Comma-separated branch allowlist.
+ * @param string $label
+ *   Channel label for the skip message, e.g. 'email' or 'Slack'.
+ * @param string|null $branch
+ *   (optional) The branch to check; defaults to VORTEX_NOTIFY_BRANCH.
+ */
+function notify_skip_unlisted_branch(string $branches, string $label, ?string $branch = NULL): void {
+  if ($branches === '') {
+    return;
+  }
+
+  $branch = $branch ?? (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
+  $branch_list = array_map(trim(...), explode(',', $branches));
+
+  if (!in_array($branch, $branch_list, TRUE)) {
+    PASS("Skipped %s notification for branch '%s'.", $label, $branch);
+    quit();
+  }
+}
+
+/**
+ * Quit when a post-deployment-only channel receives a pre_deployment event.
+ *
+ * @param string $event
+ *   The notification event type.
+ * @param string $label
+ *   Channel label for the skip message, e.g. 'email' or 'Slack'.
+ */
+function notify_skip_pre_deployment(string $event, string $label): void {
+  if ($event === 'pre_deployment') {
+    PASS('Skipped %s notification for pre_deployment event.', $label);
+    quit();
+  }
+}
+
+/**
  * Convert a string map to an associative array.
  *
  * @param string $map
@@ -872,7 +1287,7 @@ function string_map_to_array(string $map, string $separator = ',', string $key_v
   foreach ($pairs as $pair) {
     $parts = explode($key_value_separator, $pair, 2);
     if (count($parts) !== 2) {
-      fail(sprintf('invalid key/value pair "%s" provided.', $pair));
+      FAIL('invalid key/value pair "%s" provided.', $pair);
     }
     $array[trim($parts[0])] = trim($parts[1]);
   }
@@ -972,7 +1387,7 @@ function request_post(string $url, $body = NULL, array $headers = [], int $timeo
 function request(string $url, array $options = []): array {
   // @codeCoverageIgnoreStart
   if (!function_exists('curl_init')) {
-    fail('curl extension is not available.');
+    FAIL('curl extension is not available.');
   }
   // @codeCoverageIgnoreEnd
   $ch = curl_init($url);

@@ -83,7 +83,7 @@ class FetchDbUrlTest extends UnitTestCase {
             ['value' => ''],
           ]);
         },
-        'expected' => ['Detecting zip file', 'Finished database dump download from URL.'],
+        'expected' => ['Extracting the database dump from the zip archive.', 'Finished database dump download from URL.'],
         'after' => NULL,
       ],
       'zip extraction with password' => [

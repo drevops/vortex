@@ -267,7 +267,7 @@ function acquia_wait_for_backup(string $bin, array $ctx, string $env_id, string 
   return FALSE;
 }
 
-info('Started database backup download from Acquia.');
+INFO('Started database backup download from Acquia.');
 
 $bin = acli_resolve();
 $home = acli_home();
@@ -279,19 +279,13 @@ $ctx = [
 ];
 
 // Surface the CLI version so the run is observable.
-task('Checking Acquia CLI version.', 'Checked Acquia CLI version.', function () use ($bin, $ctx): void {
+TASK('Checking Acquia CLI version.', 'Checked Acquia CLI version.', function () use ($bin, $ctx): void {
   echo acli_exec($bin, '--version', $ctx);
 });
 
-if (!is_dir($db_dir)) {
-  task('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($db_dir): void {
-    if (!mkdir($db_dir, 0755, TRUE)) {
-      throw new \RuntimeException(sprintf('Unable to create directory "%s".', $db_dir));
-    }
-  });
-}
+prepare_db_dir($db_dir);
 
-$app = task(
+$app = TASK(
   $app_name === '' ? 'Auto-discovering the Acquia application.' : sprintf('Discovering the "%s" application.', $app_name),
   fn(array $app): string => sprintf('Using application "%s" (%s).', $app['name'] ?? '', $app['uuid'] ?? ''),
   function () use ($bin, $ctx, $app_name): array {
@@ -308,7 +302,7 @@ $app = task(
 );
 $app_uuid = is_array($app) ? (string) ($app['uuid'] ?? '') : '';
 
-$env_id = (string) task(
+$env_id = (string) TASK(
   sprintf('Discovering the "%s" environment.', $environment),
   fn(string $env_id): string => sprintf('Found environment "%s".', $env_id),
   function () use ($bin, $ctx, $app_uuid, $environment): string {
@@ -324,18 +318,18 @@ $env_id = (string) task(
 
 // Optionally trigger a fresh backup and wait for it to complete.
 if ($fresh === '1') {
-  task(sprintf('Creating a new database backup for "%s".', $db_name), 'Requested a new database backup.', function () use ($bin, $ctx, $env_id, $db_name): void {
+  TASK(sprintf('Creating a new database backup for "%s".', $db_name), 'Requested a new database backup.', function () use ($bin, $ctx, $env_id, $db_name): void {
     acli_exec($bin, sprintf('api:environments:database-backup-create %s %s', escapeshellarg($env_id), escapeshellarg($db_name)), $ctx);
   });
 
-  task('Waiting for the backup to complete.', 'Backup completed.', function () use ($bin, $ctx, $env_id, $db_name, $backup_max_wait, $backup_wait_interval): void {
+  TASK('Waiting for the backup to complete.', 'Backup completed.', function () use ($bin, $ctx, $env_id, $db_name, $backup_max_wait, $backup_wait_interval): void {
     if (!acquia_wait_for_backup($bin, $ctx, $env_id, $db_name, $backup_max_wait, $backup_wait_interval)) {
       throw new \RuntimeException(sprintf('Backup creation timed out after %d seconds.', $backup_max_wait));
     }
   });
 }
 
-$backup_id = (string) task(
+$backup_id = (string) TASK(
   sprintf('Discovering the latest backup for "%s".', $db_name),
   fn(string $id): string => sprintf('Selected backup "%s".', $id),
   function () use ($bin, $ctx, $env_id, $db_name, $environment): string {
@@ -354,13 +348,13 @@ $file_name = sprintf('%s/%s_backup_%s.%s', $db_dir, $db_name, $backup_id, $file_
 $file_name_compressed = $file_name . '.gz';
 
 if (file_exists($file_name)) {
-  note(sprintf('Found existing cached DB file "%s" for DB "%s".', $file_name, $db_name));
+  NOTE('Found existing cached DB file "%s" for DB "%s".', $file_name, $db_name);
 }
 else {
   if (!file_exists($file_name_compressed)) {
     // The download action returns a short-lived, pre-signed URL; fetch it and
     // stream it straight to disk to avoid buffering a large dump in memory.
-    $download_url = (string) task(
+    $download_url = (string) TASK(
       sprintf('Discovering the download URL for backup "%s".', $backup_id),
       'Discovered the backup download URL.',
       function () use ($bin, $ctx, $env_id, $db_name, $backup_id): string {
@@ -373,7 +367,7 @@ else {
       },
     );
 
-    task(sprintf('Downloading the backup into "%s".', $file_name_compressed), 'Downloaded the database backup.', function () use ($download_url, $file_name_compressed, $db_name, $backup_id): void {
+    TASK(sprintf('Downloading the backup into "%s".', $file_name_compressed), 'Downloaded the database backup.', function () use ($download_url, $file_name_compressed, $db_name, $backup_id): void {
       $response = request($download_url, ['method' => 'GET', 'save_to' => $file_name_compressed, 'timeout' => 1800, 'on_progress' => progress_dot(...)]);
       if (!$response['ok']) {
         @unlink($file_name_compressed);
@@ -386,10 +380,10 @@ else {
     });
   }
   else {
-    pass(sprintf('Found existing cached gzipped DB file "%s" for DB "%s".', $file_name_compressed, $db_name));
+    PASS('Found existing cached gzipped DB file "%s" for DB "%s".', $file_name_compressed, $db_name);
   }
 
-  task(sprintf('Expanding "%s" into "%s".', $file_name_compressed, $file_name), 'Expanded the database dump.', function () use ($file_name_compressed, $file_name): void {
+  TASK(sprintf('Expanding "%s" into "%s".', $file_name_compressed, $file_name), 'Expanded the database dump.', function () use ($file_name_compressed, $file_name): void {
     // Validate the gzip header, then stream-decompress via the zlib wrapper.
     $header = file_get_contents($file_name_compressed, FALSE, NULL, 0, 2);
     if ($header === FALSE || $header !== "\x1f\x8b") {
@@ -423,7 +417,7 @@ else {
   });
 }
 
-task(sprintf('Renaming "%s" to "%s/%s".', $file_name, $db_dir, $db_file), 'Finished database backup download from Acquia.', function () use ($file_name, $db_dir, $db_file): void {
+TASK(sprintf('Renaming "%s" to "%s/%s".', $file_name, $db_dir, $db_file), 'Finished database backup download from Acquia.', function () use ($file_name, $db_dir, $db_file): void {
   $final_path = $db_dir . '/' . $db_file;
   if (!@rename($file_name, $final_path)) {
     throw new \RuntimeException(sprintf('Unable to rename file from "%s" to "%s".', $file_name, $final_path));

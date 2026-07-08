@@ -43,65 +43,39 @@ $lagoon_instance_port = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_PORT'
 // Default SSH file used if custom fingerprint is not provided.
 $ssh_file = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE', getenv('HOME') . '/.ssh/id_rsa');
 
-// Location of the Lagoon CLI binary.
-$lagooncli_path = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_CLI_PATH', sys_get_temp_dir());
-
-// Flag to force the installation of Lagoon CLI.
-$lagooncli_force_install = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_CLI_FORCE_INSTALL', '');
-
-// Lagoon CLI version to use.
-$lagooncli_version = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_CLI_VERSION', 'v0.32.0');
-
 // -----------------------------------------------------------------------------
 
-info(sprintf('Started Lagoon task %s.', $task_name));
+INFO('Started Lagoon task %s.', $task_name);
+
+$lagoon_bin = lagoon_cli_resolve();
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=TASK_CUSTOM_LAGOON');
-passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+TASK('Setting up SSH.', 'Set up SSH.', function (): void {
+  passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+});
 
-// Lagoon CLI binary path.
-$lagoon_bin = 'lagoon';
+$config_file = lagoon_config_file();
 
-// Install Lagoon CLI if needed.
-if (!command_path('lagoon') || $lagooncli_force_install !== '') {
-  task('Installing Lagoon CLI.');
+TASK('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($lagoon_bin, $config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port): void {
+  lagoon_config($lagoon_bin, $config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
+});
 
-  $platform = strtolower(php_uname('s'));
-  $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
+$ctx = [
+  'instance' => (string) $lagoon_instance,
+  'project' => (string) $lagoon_project,
+  'config_file' => $config_file,
+  'ssh_key' => (string) $ssh_file,
+];
 
-  $download_url = sprintf(
-    'https://github.com/uselagoon/lagoon-cli/releases/download/%s/lagoon-cli-%s-%s-%s',
-    $lagooncli_version,
-    $lagooncli_version,
-    $platform,
-    $arch
-  );
+TASK(
+  sprintf('Creating %s task: project %s, branch: %s.', $task_name, $lagoon_project, $branch),
+  sprintf('Created %s task.', $task_name),
+  function () use ($lagoon_bin, $ctx, $branch, $task_name, $command): void {
+    // Break the line first so the CLI output is not glued to the open task
+    // label.
+    echo PHP_EOL . lagoon_exec($lagoon_bin, sprintf('run custom --environment %s --name %s --command %s', escapeshellarg($branch), escapeshellarg($task_name), escapeshellarg($command)), $ctx);
+  },
+);
 
-  $lagoon_binary_path = $lagooncli_path . '/lagoon';
-
-  if (!is_dir($lagooncli_path)) {
-    if (!mkdir($lagooncli_path, 0755, TRUE)) {
-      fail('Failed to create directory %s for Lagoon CLI.', $lagooncli_path);
-    }
-  }
-
-  note(sprintf('Downloading Lagoon CLI from %s.', $download_url));
-  $response = request($download_url, ['method' => 'GET', 'save_to' => $lagoon_binary_path, 'timeout' => 60]);
-  if (!$response['ok']) {
-    fail('Failed to download Lagoon CLI from %s: %s', $download_url, $response['error'] ?? 'Unknown error');
-  }
-
-  note(sprintf('Installing Lagoon CLI to %s.', $lagoon_binary_path));
-  chmod($lagoon_binary_path, 0755);
-
-  $lagoon_bin = $lagoon_binary_path;
-}
-
-task('Configuring Lagoon instance.');
-passthru_or_fail(sprintf('%s config add --force -l %s -g %s -H %s -P %s', escapeshellarg($lagoon_bin), escapeshellarg($lagoon_instance), escapeshellarg($lagoon_instance_graphql), escapeshellarg($lagoon_instance_hostname), escapeshellarg($lagoon_instance_port)), 'Failed to configure Lagoon instance.');
-
-task(sprintf('Creating %s task: project %s, branch: %s.', $task_name, $lagoon_project, $branch));
-passthru_or_fail(sprintf('%s --force --skip-update-check -i %s -l %s -p %s run custom -e %s -N %s -c %s', escapeshellarg($lagoon_bin), escapeshellarg($ssh_file), escapeshellarg($lagoon_instance), escapeshellarg($lagoon_project), escapeshellarg($branch), escapeshellarg($task_name), escapeshellarg($command)), 'Failed to run Lagoon custom task.');
-
-pass(sprintf('Finished Lagoon task %s.', $task_name));
+PASS('Finished Lagoon task %s.', $task_name);

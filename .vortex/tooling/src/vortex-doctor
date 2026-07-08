@@ -94,101 +94,101 @@ command_must_exist('docker');
 command_must_exist('pygmy');
 command_must_exist('ahoy');
 
-info('Checking project requirements.');
+INFO('Checking project requirements.');
 
 if ($check_tools === '1') {
-  if (!command_path('docker')) {
-    fail('Please install Docker (https://www.docker.com/get-started).');
-  }
-  if (!command_path('docker compose')) {
-    fail('Please install docker compose (https://docs.docker.com/compose/install/).');
-  }
-  if (!command_path('pygmy')) {
-    fail('Please install Pygmy (https://pygmy.readthedocs.io/).');
-  }
-  if (!command_path('ahoy')) {
-    fail('Please install Ahoy (https://ahoy-cli.readthedocs.io/).');
-  }
-  pass('All required tools are present.');
+  TASK('Checking for required tools.', 'All required tools are present.', function (): void {
+    if (!command_path('docker')) {
+      throw new \RuntimeException('Please install Docker (https://www.docker.com/get-started).');
+    }
+    if (!command_path('docker compose')) {
+      throw new \RuntimeException('Please install docker compose (https://docs.docker.com/compose/install/).');
+    }
+    if (!command_path('pygmy')) {
+      throw new \RuntimeException('Please install Pygmy (https://pygmy.readthedocs.io/).');
+    }
+    if (!command_path('ahoy')) {
+      throw new \RuntimeException('Please install Ahoy (https://ahoy-cli.readthedocs.io/).');
+    }
+  });
 }
 
 if ($check_port === '1' && PHP_OS_FAMILY !== 'Linux') {
-  passthru("lsof -i :80 2>/dev/null | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'", $exit_code);
-  if ($exit_code === 0) {
-    fail("Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'.");
-  }
-  pass('Port 80 is available.');
+  TASK('Checking port 80 availability.', 'Port 80 is available.', function (): void {
+    passthru("lsof -i :80 2>/dev/null | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'", $exit_code);
+    if ($exit_code === 0) {
+      throw new \RuntimeException("Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'.");
+    }
+  });
 }
 
 if ($check_pygmy === '1') {
-  passthru('pygmy status 2>/dev/null | tr -d "\\000" > /tmp/vortex_pygmy_status.txt', $exit_code);
+  TASK('Checking Pygmy status.', 'Pygmy is running.', function (): void {
+    $status = str_replace("\0", '', (string) shell_exec('pygmy status 2>/dev/null'));
 
-  $pygmy_services = [
-    'amazeeio-ssh-agent',
-    'amazeeio-mailhog',
-    'amazeeio-haproxy',
-    'amazeeio-dnsmasq',
-  ];
+    $pygmy_services = [
+      'amazeeio-ssh-agent',
+      'amazeeio-mailhog',
+      'amazeeio-haproxy',
+      'amazeeio-dnsmasq',
+    ];
 
-  foreach ($pygmy_services as $service) {
-    passthru(sprintf('grep -q "%s: Running" /tmp/vortex_pygmy_status.txt', $service), $exit_code);
-    if ($exit_code !== 0) {
-      fail("Pygmy service %s is not running. Run 'pygmy up' or 'pygmy restart' to fix.", $service);
+    foreach ($pygmy_services as $service) {
+      if (!str_contains($status, $service . ': Running')) {
+        throw new \RuntimeException(sprintf("Pygmy service %s is not running. Run 'pygmy up' or 'pygmy restart' to fix.", $service));
+      }
     }
-  }
-  pass('Pygmy is running.');
+  });
 }
 
 if ($check_containers === '1') {
-  $container_services = ['cli', 'appserver', 'webserver', 'database'];
-  foreach ($container_services as $service) {
-    passthru(sprintf('docker compose ps --status=running --services 2>/dev/null | grep -q %s', escapeshellarg($service)), $exit_code);
-    if ($exit_code !== 0) {
-      fail_no_exit('%s container is not running.', $service);
-      note("Run 'ahoy up'.");
-      note("Run 'ahoy logs %s' to see error logs.", $service);
-      quit(1);
+  TASK('Checking that containers are running.', 'All containers are running.', function (): void {
+    $container_services = ['cli', 'appserver', 'webserver', 'database'];
+    foreach ($container_services as $service) {
+      passthru(sprintf('docker compose ps --status=running --services 2>/dev/null | grep -q %s', escapeshellarg($service)), $exit_code);
+      if ($exit_code !== 0) {
+        NOTE("Run 'ahoy up'.");
+        NOTE("Run 'ahoy logs %s' to see error logs.", $service);
+        throw new \RuntimeException(sprintf('%s container is not running.', $service));
+      }
     }
-  }
-  pass('All containers are running.');
+  });
 }
 
 if ($check_ssh === '1') {
-  $ssh_key_added_to_pygmy = FALSE;
-  $ssh_key_volume_mounted = FALSE;
-
   // Check that the key is injected into pygmy ssh-agent container.
-  passthru(sprintf('pygmy status 2>&1 | grep -q %s', escapeshellarg($ssh_file)), $exit_code);
-  if ($exit_code !== 0) {
-    fail_no_exit('SSH key is not added to pygmy.');
-    note("The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'.");
-  }
-  else {
-    $ssh_key_added_to_pygmy = TRUE;
-  }
+  $ssh_key_added_to_pygmy = (bool) TASK('Checking that the SSH key is added to pygmy.', 'SSH key is added to pygmy.', function () use ($ssh_file): bool {
+    passthru(sprintf('pygmy status 2>&1 | grep -q %s', escapeshellarg($ssh_file)), $exit_code);
+    if ($exit_code !== 0) {
+      NOTE("The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'.");
+      throw new \RuntimeException('SSH key is not added to pygmy.');
+    }
+
+    return TRUE;
+  }, fatal: FALSE);
 
   // Check that the volume is mounted into CLI container.
-  passthru('docker compose exec -T cli bash -c \'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent\'', $exit_code);
-  if ($exit_code !== 0) {
-    fail_no_exit('SSH key volume is not mounted into CLI container.');
-    note('Make sure that your "docker-compose.yml" has the following lines for CLI service:');
-    note('  volumes_from:');
-    note('    - container:amazeeio-ssh-agent');
-    note("After adding these lines, run 'ahoy up'.");
-  }
-  else {
-    $ssh_key_volume_mounted = TRUE;
-  }
+  $ssh_key_volume_mounted = (bool) TASK('Checking that the SSH key volume is mounted into the CLI container.', 'SSH key volume is mounted into the CLI container.', function (): bool {
+    passthru('docker compose exec -T cli bash -c \'grep "^/dev" /etc/mtab | grep -q /tmp/amazeeio_ssh-agent\'', $exit_code);
+    if ($exit_code !== 0) {
+      NOTE('Make sure that your "docker-compose.yml" has the following lines for CLI service:');
+      NOTE('  volumes_from:');
+      NOTE('    - container:amazeeio-ssh-agent');
+      NOTE("After adding these lines, run 'ahoy up'.");
+      throw new \RuntimeException('SSH key volume is not mounted into CLI container.');
+    }
+
+    return TRUE;
+  }, fatal: FALSE);
 
   // Check that ssh key is available in the container.
   if ($ssh_key_added_to_pygmy && $ssh_key_volume_mounted) {
-    passthru("docker compose exec -T cli bash -c \"ssh-add -L | grep -q 'ssh-rsa'\"", $exit_code);
-    if ($exit_code !== 0) {
-      fail_no_exit("SSH key was not added to the container. Run 'pygmy restart'.");
-    }
-    else {
-      pass('SSH key is available within the CLI container.');
-    }
+    TASK('Checking that the SSH key is available within the CLI container.', 'SSH key is available within the CLI container.', function (): void {
+      passthru("docker compose exec -T cli bash -c \"ssh-add -L | grep -q 'ssh-rsa'\"", $exit_code);
+      if ($exit_code !== 0) {
+        throw new \RuntimeException("SSH key was not added to the container. Run 'pygmy restart'.");
+      }
+    }, fatal: FALSE);
   }
 }
 
@@ -196,23 +196,32 @@ if ($check_webserver === '1') {
   $local_dev_url = trim((string) shell_exec("docker compose exec -T cli bash -c 'echo \${LOCALDEV_URL}' 2>/dev/null"));
 
   if ($local_dev_url !== '') {
-    // Depending on the type of installation, the homepage may return 200 or 403.
-    $web_response = request_get($local_dev_url, [], 5);
-    if (!in_array($web_response['status'], [200, 403], TRUE)) {
-      fail('Web server is not accessible at http://%s.', $local_dev_url);
-    }
-    pass('Web server is running and accessible at http://%s.', $local_dev_url);
+    $web_response = TASK(
+      sprintf('Checking that the web server is accessible at http://%s.', $local_dev_url),
+      sprintf('Web server is running and accessible at http://%s.', $local_dev_url),
+      function () use ($local_dev_url): array {
+        // Depending on the type of installation, the homepage may return 200
+        // or 403.
+        $response = request_get($local_dev_url, [], 5);
+        if (!in_array($response['status'], [200, 403], TRUE)) {
+          throw new \RuntimeException(sprintf('Web server is not accessible at http://%s.', $local_dev_url));
+        }
 
-    if ($check_bootstrap === '1') {
-      if (!str_contains(strtolower((string) $web_response['body']), 'charset=')) {
-        fail('Website is running, but cannot be bootstrapped. Check web-server configuration.');
-      }
-      pass('Bootstrapped website at http://%s.', $local_dev_url);
+        return $response;
+      },
+    );
+
+    if ($check_bootstrap === '1' && is_array($web_response)) {
+      TASK(sprintf('Checking that the website can be bootstrapped at http://%s.', $local_dev_url), sprintf('Bootstrapped website at http://%s.', $local_dev_url), function () use ($web_response): void {
+        if (!str_contains(strtolower((string) $web_response['body']), 'charset=')) {
+          throw new \RuntimeException('Website is running, but cannot be bootstrapped. Check web-server configuration.');
+        }
+      });
     }
   }
 }
 
-pass('All required checks have passed.');
+PASS('All required checks have passed.');
 echo PHP_EOL;
 
 // -----------------------------------------------------------------------------

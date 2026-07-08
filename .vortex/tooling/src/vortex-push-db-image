@@ -24,18 +24,21 @@ $registry_push = getenv_default('VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEE
 
 // -----------------------------------------------------------------------------
 
-info('Started database container image push.');
+INFO('Started database container image push.');
 
 if ($registry_push !== '1') {
-  pass('Skipped database container image push as VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED is not set to 1.');
+  PASS('Skipped database container image push as VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED is not set to 1.');
   quit(0);
 }
 
 if ($db_image === '') {
-  fail('Container image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB_IMAGE in a format <org>/<repository>.');
+  FAIL('Container image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB_IMAGE in a format <org>/<repository>.');
 }
 
 putenv('VORTEX_PUSH_CONTAINER_REGISTRY_MAP=database=' . $db_image);
-passthru_or_fail(__DIR__ . '/vortex-push-container-registry', 'Failed to push database container image to registry.');
 
-pass('Finished database container image push.');
+TASK(sprintf('Pushing database container image "%s" to the registry.', $db_image), sprintf('Pushed database container image "%s" to the registry.', $db_image), function (): void {
+  passthru_or_fail(__DIR__ . '/vortex-push-container-registry', 'Failed to push database container image to registry.');
+});
+
+PASS('Finished database container image push.');

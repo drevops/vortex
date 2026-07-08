@@ -45,7 +45,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
 
     // Replace username with email.
     $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';\"",
+      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"",
       'result_code' => 0,
     ]);
 
@@ -200,7 +200,7 @@ class ProvisionSanitizeDbTest extends UnitTestCase {
 
     // Replace username with email.
     $this->mockPassthru([
-      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` set users_field_data.name=users_field_data.mail WHERE uid <> '0';\"",
+      'cmd' => "./vendor/bin/drush -y sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"",
       'result_code' => 0,
     ]);
 

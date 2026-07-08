@@ -140,7 +140,7 @@ function lagoon_create_dump_task(string $bin, array $ctx, string $environment): 
   $id = (is_array($data) && isset($data['data']['id'])) ? (string) $data['data']['id'] : '';
 
   if ($id === '') {
-    fail('Failed to trigger a database dump task.');
+    FAIL('Failed to trigger a database dump task.');
   }
 
   return $id;
@@ -261,7 +261,7 @@ function lagoon_download_dump(string $url, string $dest, int $timeout): bool {
   return $bytes !== FALSE && $bytes > 0;
 }
 
-info('Started database dump download from Lagoon.');
+INFO('Started database dump download from Lagoon.');
 
 $bin = lagoon_cli_resolve();
 
@@ -269,12 +269,14 @@ $bin = lagoon_cli_resolve();
 // inside the hosting environment ('false') the ambient identity is used.
 if ($ssh_file !== 'false') {
   putenv('VORTEX_SSH_PREFIX=FETCH_DB');
-  passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+  TASK('Setting up SSH.', 'Set up SSH.', function (): void {
+    passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
+  });
 }
 
 $config_file = lagoon_config_file();
 
-task('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($bin, $config_file, $instance, $instance_graphql, $ssh_host, $ssh_port): void {
+TASK('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($bin, $config_file, $instance, $instance_graphql, $ssh_host, $ssh_port): void {
   lagoon_config($bin, $config_file, $instance, $instance_graphql, $ssh_host, $ssh_port);
 });
 
@@ -288,27 +290,21 @@ $ctx = [
 // Surface the CLI version and authenticated identity so the run is observable.
 lagoon_print_version($bin, $config_file);
 
-task('Checking Lagoon authenticated identity.', 'Checked Lagoon authenticated identity.', function () use ($bin, $ctx): void {
+TASK('Checking Lagoon authenticated identity.', 'Checked Lagoon authenticated identity.', function () use ($bin, $ctx): void {
   echo lagoon_exec($bin, 'whoami', $ctx);
 });
 
-if (!is_dir($db_dir)) {
-  task('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($db_dir): void {
-    if (!mkdir($db_dir, 0755, TRUE)) {
-      throw new \RuntimeException(sprintf('Unable to create directory "%s".', $db_dir));
-    }
-  });
-}
+prepare_db_dir($db_dir);
 
 $dest = $db_dir . '/' . $db_file;
 
 // Reuse a recent dump when possible; a fresh dump is always the fallback.
 $reuse_id = '';
 if ($fresh === '1') {
-  note('Fresh dump requested; skipping reuse of a previous dump.');
+  NOTE('Fresh dump requested; skipping reuse of a previous dump.');
 }
 else {
-  $reuse_id = (string) task(
+  $reuse_id = (string) TASK(
     'Looking for a recent database dump to reuse.',
     fn(string $id): string => $id !== '' ? sprintf('Reused the database dump from task "%s".', $id) : 'No reusable database dump; a fresh one will be created.',
     function () use ($bin, $ctx, $environment, $reuse_max_age, $dest, $download_timeout): string {
@@ -326,13 +322,13 @@ else {
 $reused = $reuse_id !== '';
 
 if (!$reused) {
-  $task_id = (string) task(
+  $task_id = (string) TASK(
     'Requesting a fresh database dump.',
     fn(string $id): string => sprintf('Requested database dump task "%s".', $id),
     fn(): string => lagoon_create_dump_task($bin, $ctx, $environment),
   );
 
-  task('Waiting for the database dump to complete.', 'Database dump completed.', function () use ($bin, $ctx, $task_id, $status_retries, $status_interval): void {
+  TASK('Waiting for the database dump to complete.', 'Database dump completed.', function () use ($bin, $ctx, $task_id, $status_retries, $status_interval): void {
     $status = lagoon_wait_dump_task($bin, $ctx, $task_id, $status_retries, $status_interval);
     if ($status === 'timeout') {
       throw new \RuntimeException(sprintf('Timed out waiting for the database dump task "%s".', $task_id));
@@ -342,16 +338,24 @@ if (!$reused) {
     }
   });
 
-  $download_url = lagoon_dump_task_url($bin, $ctx, $task_id);
-  if ($download_url === '') {
-    fail('The database dump task "%s" produced no downloadable file.', $task_id);
-  }
+  $download_url = (string) TASK(
+    'Discovering the database dump download URL.',
+    'Discovered the database dump download URL.',
+    function () use ($bin, $ctx, $task_id): string {
+      $url = lagoon_dump_task_url($bin, $ctx, $task_id);
+      if ($url === '') {
+        throw new \RuntimeException(sprintf('The database dump task "%s" produced no downloadable file.', $task_id));
+      }
 
-  task('Downloading the database dump.', 'Downloaded the database dump.', function () use ($download_url, $dest, $download_timeout): void {
+      return $url;
+    },
+  );
+
+  TASK('Downloading the database dump.', 'Downloaded the database dump.', function () use ($download_url, $dest, $download_timeout): void {
     if (!lagoon_download_dump($download_url, $dest, $download_timeout)) {
       throw new \RuntimeException('Failed to download the database dump from Lagoon.');
     }
   });
 }
 
-pass('Finished database dump download from Lagoon.');
+PASS('Finished database dump download from Lagoon.');

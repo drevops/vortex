@@ -49,109 +49,36 @@ $storage_class = getenv_default('VORTEX_PUSH_DB_S3_STORAGE_CLASS', 'STANDARD');
 
 $local_file = $db_dir . '/' . $db_file;
 if (!file_exists($local_file)) {
-  fail(sprintf('Database dump file %s does not exist.', $local_file));
+  FAIL('Database dump file %s does not exist.', $local_file);
 }
 
-info('Started database dump push to S3.');
+INFO('Started database dump push to S3.');
 
 // Ensure prefix ends with a trailing slash if non-empty.
 if ($prefix !== '') {
   $prefix = rtrim($prefix, '/') . '/';
 }
 
-// AWS SigV4 helpers (inlined).
-/**
- * HMAC-SHA256 with either a raw key or hex key.
- */
-function push_hmac_sha256(string $key, string $data, bool $hex_key = FALSE): string {
-  if ($hex_key) {
-    $key = hex2bin($key);
-  }
-  return hash_hmac('sha256', $data, $key);
-}
+$uri = sprintf('/%s%s', $prefix, $remote_file);
+$object_url = sprintf('https://%s.s3.%s.amazonaws.com%s', $bucket, $region, $uri);
 
-/**
- * Create AWS SigV4 signature for push.
- */
-function push_create_aws_signature(
-  string $secret_key,
-  string $date_short,
-  string $region,
-  string $service,
-  string $string_to_sign,
-): string {
-  $date_key = push_hmac_sha256('AWS4' . $secret_key, $date_short);
-  $region_key = push_hmac_sha256($date_key, $region, TRUE);
-  $service_key = push_hmac_sha256($region_key, $service, TRUE);
-  $signing_key = push_hmac_sha256($service_key, 'aws4_request', TRUE);
-
-  return push_hmac_sha256($signing_key, $string_to_sign, TRUE);
-}
-
-$request_type = 'PUT';
-$auth_type = 'AWS4-HMAC-SHA256';
-$service = 's3';
-$base_url = sprintf('.%s.%s.amazonaws.com', $service, $region);
-$date_short = gmdate('Ymd');
-$date_long = gmdate('Ymd\THis\Z');
-$object_url = sprintf('https://%s%s/%s%s', $bucket, $base_url, $prefix, $remote_file);
-
-note(sprintf('Local file:     %s', $local_file));
-note(sprintf('Remote file:    %s%s', $prefix, $remote_file));
-note(sprintf('S3 bucket:      %s', $bucket));
-note(sprintf('S3 region:      %s', $region));
+NOTE('Local file:     %s', $local_file);
+NOTE('Remote file:    %s%s', $prefix, $remote_file);
+NOTE('S3 bucket:      %s', $bucket);
+NOTE('S3 region:      %s', $region);
 if ($prefix !== '') {
-  note(sprintf('S3 prefix:      %s', $prefix));
+  NOTE('S3 prefix:      %s', $prefix);
 }
-note(sprintf('Storage class:  %s', $storage_class));
+NOTE('Storage class:  %s', $storage_class);
 
-$content_type = 'application/octet-stream';
+TASK('Pushing the database dump to S3.', 'Pushed the database dump to S3.', function () use ($object_url, $bucket, $region, $uri, $access_key, $secret_key, $storage_class, $local_file): void {
+  $headers = aws_s3_signed_headers('PUT', $bucket, $region, $uri, (string) hash_file('sha256', $local_file), $access_key, $secret_key, ['x-amz-server-side-encryption' => 'AES256', 'x-amz-storage-class' => $storage_class]);
 
-$payload_hash = hash_file('sha256', $local_file);
+  $response = request($object_url, ['method' => 'PUT', 'headers' => $headers, 'upload_file' => $local_file, 'timeout' => 600]);
 
-$header_list = 'content-type;host;x-amz-content-sha256;x-amz-date;x-amz-server-side-encryption;x-amz-storage-class';
+  if (!$response['ok']) {
+    throw new \RuntimeException('Failed to push database dump to S3.');
+  }
+});
 
-$canonical_request = sprintf(
-  "%s\n/%s%s\n\ncontent-type:%s\nhost:%s%s\nx-amz-content-sha256:%s\nx-amz-date:%s\nx-amz-server-side-encryption:AES256\nx-amz-storage-class:%s\n\n%s\n%s",
-  $request_type,
-  $prefix, $remote_file,
-  $content_type,
-  $bucket, $base_url,
-  $payload_hash,
-  $date_long,
-  $storage_class,
-  $header_list,
-  $payload_hash
-);
-
-$canonical_request_hash = hash('sha256', $canonical_request);
-
-$string_to_sign = sprintf(
-  "%s\n%s\n%s/%s/%s/aws4_request\n%s",
-  $auth_type,
-  $date_long,
-  $date_short,
-  $region,
-  $service,
-  $canonical_request_hash
-);
-
-$signature = push_create_aws_signature($secret_key, $date_short, $region, $service, $string_to_sign);
-
-$auth_header = sprintf(
-  '%s Credential=%s/%s/%s/%s/aws4_request, SignedHeaders=%s, Signature=%s',
-  $auth_type,
-  $access_key,
-  $date_short,
-  $region,
-  $service,
-  $header_list,
-  $signature
-);
-
-$response = request($object_url, ['method' => 'PUT', 'headers' => ['Content-Type: ' . $content_type, 'Host: ' . $bucket . $base_url, 'X-Amz-Content-SHA256: ' . $payload_hash, 'X-Amz-Date: ' . $date_long, 'X-Amz-Server-Side-Encryption: AES256', 'X-Amz-Storage-Class: ' . $storage_class, 'Authorization: ' . $auth_header], 'upload_file' => $local_file, 'timeout' => 600]);
-if (!$response['ok']) {
-  fail('Failed to push database dump to S3.');
-}
-
-pass('Finished database dump push to S3.');
+PASS('Finished database dump push to S3.');

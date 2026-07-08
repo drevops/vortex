@@ -38,7 +38,7 @@ class NotifyDiffyTest extends UnitTestCase {
   public function testSkippedWhenBranchNotInFilter(): void {
     $this->envSet('VORTEX_NOTIFY_DIFFY_BRANCHES', 'develop,master');
 
-    $this->runScriptEarlyPass('src/vortex-notify-diffy', "Skipped Diffy notification for branch 'main' (not in branch allowlist).");
+    $this->runScriptEarlyPass('src/vortex-notify-diffy', "Skipped Diffy notification for branch 'main'.");
   }
 
   public function testProceedsWhenBranchInFilter(): void {

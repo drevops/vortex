@@ -13,23 +13,10 @@ namespace DrevOps\VortexTooling;
 require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
-// Branch filter gate.
-//
-// Comma-separated list of branch names. When set, email notifications are
-// only sent for deployments on the listed branches. When empty, no filtering
-// is applied. Checked before required variable validation so channels not
-// configured for the current branch can short-circuit cleanly.
-// -----------------------------------------------------------------------------
 
-$notify_email_branches = getenv_default('VORTEX_NOTIFY_EMAIL_BRANCHES', '');
-if ($notify_email_branches !== '') {
-  $current_branch = (string) (getenv('VORTEX_NOTIFY_BRANCH') ?: '');
-  $branch_list = array_map(trim(...), explode(',', $notify_email_branches));
-  if (!in_array($current_branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped email notification for branch '%s'.", $current_branch));
-    quit();
-  }
-}
+// Branch filter gate: checked before required variable validation so channels
+// not configured for the current branch can short-circuit cleanly.
+notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_EMAIL_BRANCHES', ''), 'email');
 
 // -----------------------------------------------------------------------------
 
@@ -126,13 +113,10 @@ function parse_email_recipients(string $recipients): array {
 
 // -----------------------------------------------------------------------------
 
-info('Started email notification.');
+INFO('Started email notification.');
 
 // Skip if this is a pre-deployment event (email only for post-deployment).
-if ($notify_event === 'pre_deployment') {
-  pass('Skipped email notification for pre_deployment event.');
-  quit();
-}
+notify_skip_pre_deployment((string) $notify_event, 'email');
 
 $email_subject = replace_tokens($email_subject, [
   'project' => $notify_project,
@@ -150,23 +134,23 @@ $email_message = replace_tokens($email_message, [
   'login_url' => $notify_login_url,
 ]);
 
-note('Email notification summary:');
-note('Project        : ' . $notify_project);
-note('Deployment     : ' . $notify_label);
-note('Environment URL: ' . $notify_env_url);
-note('Login URL      : ' . $notify_login_url);
-note('From           : ' . $email_from);
-note('Recipients     : ' . $email_recipients);
+NOTE('Email notification summary:');
+NOTE('Project        : %s', $notify_project);
+NOTE('Deployment     : %s', $notify_label);
+NOTE('Environment URL: %s', $notify_env_url);
+NOTE('Login URL      : %s', $notify_login_url);
+NOTE('From           : %s', $email_from);
+NOTE('Recipients     : %s', $email_recipients);
 if (!empty($email_cc)) {
-  note('CC             : ' . $email_cc);
+  NOTE('CC             : %s', $email_cc);
 }
 if (!empty($email_bcc)) {
-  note('BCC            : ' . $email_bcc);
+  NOTE('BCC            : %s', $email_bcc);
 }
-note('Subject        : ' . $email_subject);
-note('Content        : ' . $email_message);
+NOTE('Subject        : %s', $email_subject);
+NOTE('Content        : %s', $email_message);
 
-task(
+TASK(
   'Sending email notification',
   function (array $sent): string {
     if (!empty($sent)) {
@@ -218,4 +202,4 @@ task(
   },
 );
 
-info('Finished email notification.');
+INFO('Finished email notification.');

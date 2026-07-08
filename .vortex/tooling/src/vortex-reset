@@ -25,24 +25,41 @@ command_must_exist('git');
 
 $is_hard_reset = in_array('--hard', array_slice($GLOBALS['argv'], 1), TRUE);
 
-info('Started reset.');
+INFO('Started reset.');
 
-passthru(sprintf('rm -rf "./vendor" "./%s/core" "./%s/profiles/contrib" "./%s/modules/contrib" "./%s/themes/contrib" "./%s/themes/custom/*/build" "./%s/themes/custom/*/scss/_components.scss"', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
+TASK('Removing dependencies and built assets.', 'Removed dependencies and built assets.', function () use ($webroot): void {
+  passthru(sprintf('rm -rf "./vendor" "./%s/core" "./%s/profiles/contrib" "./%s/modules/contrib" "./%s/themes/contrib" "./%s/themes/custom/*/build" "./%s/themes/custom/*/scss/_components.scss"', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
+});
 
-passthru_or_fail('find . -type d -name node_modules -prune -exec rm -Rf -- {} +');
+TASK('Removing node_modules directories.', 'Removed node_modules directories.', function (): void {
+  passthru('find . -type d -name node_modules -prune -exec rm -Rf -- {} +', $exit_code);
+  if ($exit_code !== 0) {
+    throw new \RuntimeException('Failed to remove node_modules directories.');
+  }
+});
 
 if ($is_hard_reset) {
-  task('Changing permissions and removing all other untracked files.');
-  passthru('git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _');
+  TASK('Changing permissions and removing all other untracked files.', 'Changed permissions and removed all other untracked files.', function (): void {
+    passthru('git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _');
+  });
 
-  task('Resetting repository files.');
-  passthru_or_fail('git reset --hard');
+  TASK('Resetting repository files.', 'Reset repository files.', function (): void {
+    passthru('git reset --hard', $exit_code);
+    if ($exit_code !== 0) {
+      throw new \RuntimeException('Failed to reset repository files.');
+    }
+  });
 
-  task('Removing all untracked files.');
-  passthru_or_fail('git clean -f -d');
+  TASK('Removing all untracked files.', 'Removed all untracked files.', function (): void {
+    passthru('git clean -f -d', $exit_code);
+    if ($exit_code !== 0) {
+      throw new \RuntimeException('Failed to remove untracked files.');
+    }
+  });
 
-  task('Removing empty directories.');
-  passthru('find . -type d -not -path "./.git/*" -empty -delete');
+  TASK('Removing empty directories.', 'Removed empty directories.', function (): void {
+    passthru('find . -type d -not -path "./.git/*" -empty -delete');
+  });
 }
 
-pass('Finished reset.');
+PASS('Finished reset.');

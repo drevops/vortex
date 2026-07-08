@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\VortexTooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 #[Group('scripts')]
+#[RunTestsInSeparateProcesses]
 class TaskCustomLagoonTest extends UnitTestCase {
 
   /**
@@ -14,10 +16,18 @@ class TaskCustomLagoonTest extends UnitTestCase {
    */
   protected static string $srcDir;
 
+  /**
+   * SSH file used in command assertions.
+   */
+  protected static string $sshFile = '/home/user/.ssh/id_rsa';
+
   protected function setUp(): void {
     parent::setUp();
 
     self::$srcDir = (string) realpath(__DIR__ . '/../../src');
+
+    // Report the 'lagoon' CLI as present so no download is attempted.
+    $this->mockCommandExists();
 
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_NAME', 'Test task');
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_PROJECT', 'myproject');
@@ -27,10 +37,8 @@ class TaskCustomLagoonTest extends UnitTestCase {
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_GRAPHQL', 'https://api.lagoon.amazeeio.cloud/graphql');
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_HOSTNAME', 'ssh.lagoon.amazeeio.cloud');
     $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_PORT', '32222');
-    $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE', '/home/user/.ssh/id_rsa');
-    $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_CLI_FORCE_INSTALL', '1');
-    $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_CLI_PATH', self::$tmp . '/lagoon-cli');
-    $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_CLI_VERSION', 'v0.32.0');
+    $this->envSet('VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE', self::$sshFile);
+    $this->envSet('VORTEX_LAGOONCLI_PATH', self::$tmp);
   }
 
   public function testMissingBranch(): void {
@@ -53,21 +61,6 @@ class TaskCustomLagoonTest extends UnitTestCase {
   }
 
   public function testSuccess(): void {
-    $cli_path = self::$tmp . '/lagoon-cli';
-
-    $platform = strtolower(php_uname('s'));
-    $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
-    $download_url = sprintf(
-      'https://github.com/uselagoon/lagoon-cli/releases/download/v0.32.0/lagoon-cli-v0.32.0-%s-%s',
-      $platform,
-      $arch
-    );
-
-    $lagoon_bin = $cli_path . '/lagoon';
-
-    // Mock download of Lagoon CLI.
-    $this->mockRequest($download_url, ['method' => 'GET'], ['ok' => TRUE, 'status' => 200, 'body' => '']);
-
     $this->mockPassthruMultiple([
       // setup-ssh.
       [
@@ -76,28 +69,12 @@ class TaskCustomLagoonTest extends UnitTestCase {
       ],
       // Lagoon config add.
       [
-        'cmd' => sprintf(
-          '%s config add --force -l %s -g %s -H %s -P %s',
-          escapeshellarg($lagoon_bin),
-          escapeshellarg('amazeeio'),
-          escapeshellarg('https://api.lagoon.amazeeio.cloud/graphql'),
-          escapeshellarg('ssh.lagoon.amazeeio.cloud'),
-          escapeshellarg('32222')
-        ),
+        'cmd' => $this->lagoonConfigAddCmd(),
         'result_code' => 0,
       ],
       // Lagoon run custom.
       [
-        'cmd' => sprintf(
-          '%s --force --skip-update-check -i %s -l %s -p %s run custom -e %s -N %s -c %s',
-          escapeshellarg($lagoon_bin),
-          escapeshellarg('/home/user/.ssh/id_rsa'),
-          escapeshellarg('amazeeio'),
-          escapeshellarg('myproject'),
-          escapeshellarg('main'),
-          escapeshellarg('Test task'),
-          escapeshellarg('drush cr')
-        ),
+        'cmd' => $this->lagoonRunCustomCmd(),
         'result_code' => 0,
       ],
     ]);
@@ -105,9 +82,10 @@ class TaskCustomLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/vortex-task-custom-lagoon');
 
     $this->assertStringContainsString('Started Lagoon task Test task.', $output);
-    $this->assertStringContainsString('Installing Lagoon CLI.', $output);
-    $this->assertStringContainsString('Configuring Lagoon instance.', $output);
+    $this->assertStringContainsString('Using the Lagoon CLI found on PATH.', $output);
+    $this->assertStringContainsString('Configured Lagoon instance.', $output);
     $this->assertStringContainsString('Creating Test task task: project myproject, branch: main.', $output);
+    $this->assertStringContainsString('Created Test task task.', $output);
     $this->assertStringContainsString('Finished Lagoon task Test task.', $output);
   }
 
@@ -121,52 +99,30 @@ class TaskCustomLagoonTest extends UnitTestCase {
   }
 
   public function testLagoonRunFails(): void {
-    $cli_path = self::$tmp . '/lagoon-cli';
-
-    $platform = strtolower(php_uname('s'));
-    $arch = str_replace(['x86_64', 'aarch64'], ['amd64', 'arm64'], php_uname('m'));
-    $download_url = sprintf(
-      'https://github.com/uselagoon/lagoon-cli/releases/download/v0.32.0/lagoon-cli-v0.32.0-%s-%s',
-      $platform,
-      $arch
-    );
-
-    $lagoon_bin = $cli_path . '/lagoon';
-
-    $this->mockRequest($download_url, ['method' => 'GET'], ['ok' => TRUE, 'status' => 200, 'body' => '']);
-
     $this->mockPassthruMultiple([
       [
         'cmd' => self::$srcDir . '/vortex-setup-ssh',
         'result_code' => 0,
       ],
       [
-        'cmd' => sprintf(
-          '%s config add --force -l %s -g %s -H %s -P %s',
-          escapeshellarg($lagoon_bin),
-          escapeshellarg('amazeeio'),
-          escapeshellarg('https://api.lagoon.amazeeio.cloud/graphql'),
-          escapeshellarg('ssh.lagoon.amazeeio.cloud'),
-          escapeshellarg('32222')
-        ),
+        'cmd' => $this->lagoonConfigAddCmd(),
         'result_code' => 0,
       ],
       [
-        'cmd' => sprintf(
-          '%s --force --skip-update-check -i %s -l %s -p %s run custom -e %s -N %s -c %s',
-          escapeshellarg($lagoon_bin),
-          escapeshellarg('/home/user/.ssh/id_rsa'),
-          escapeshellarg('amazeeio'),
-          escapeshellarg('myproject'),
-          escapeshellarg('main'),
-          escapeshellarg('Test task'),
-          escapeshellarg('drush cr')
-        ),
+        'cmd' => $this->lagoonRunCustomCmd(),
         'result_code' => 1,
       ],
     ]);
 
-    $this->runScriptError('src/vortex-task-custom-lagoon', 'Failed to run Lagoon custom task');
+    $this->runScriptError('src/vortex-task-custom-lagoon', 'failed with exit code 1');
+  }
+
+  protected function lagoonConfigAddCmd(): string {
+    return sprintf("'lagoon' --config-file '%s' config add --force --lagoon 'amazeeio' --graphql 'https://api.lagoon.amazeeio.cloud/graphql' --hostname 'ssh.lagoon.amazeeio.cloud' --port '32222'", $this->lagoonConfigFile());
+  }
+
+  protected function lagoonRunCustomCmd(): string {
+    return sprintf("'lagoon' --config-file '%s' --force --skip-update-check --ssh-key '%s' --lagoon 'amazeeio' --project 'myproject' run custom --environment 'main' --name 'Test task' --command 'drush cr' 2>&1", $this->lagoonConfigFile(), self::$sshFile);
   }
 
 }

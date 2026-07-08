@@ -85,12 +85,7 @@ class TaskCopyFilesAcquiaTest extends UnitTestCase {
         'url' => 'https://cloud.acquia.com/api/environments/env-dst-id/files',
         'response' => ['body' => json_encode(['_links' => ['notification' => ['href' => 'https://cloud.acquia.com/api/notifications/456']]])],
       ],
-      // Polling: token refresh.
-      [
-        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-        'response' => ['body' => json_encode(['access_token' => 'test-token-2'])],
-      ],
-      // Polling: notification status (completed).
+      // Polling: notification status (completed); the initial token is reused.
       [
         'url' => 'https://cloud.acquia.com/api/notifications/456',
         'response' => ['body' => json_encode(['status' => 'completed'])],
@@ -130,14 +125,8 @@ class TaskCopyFilesAcquiaTest extends UnitTestCase {
       ],
     ];
 
-    // Token fetched once before the polling loop.
-    $requests[] = [
-      'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
-      'response' => ['body' => json_encode(['access_token' => 'poll-token'])],
-    ];
-
-    // 3 polling iterations — only notification requests (no token refresh
-    // since no 401).
+    // 3 polling iterations - only notification requests (the initial token is
+    // reused and there is no 401 to trigger a refresh).
     for ($i = 0; $i < 3; $i++) {
       $requests[] = [
         'url' => 'https://cloud.acquia.com/api/notifications/456',

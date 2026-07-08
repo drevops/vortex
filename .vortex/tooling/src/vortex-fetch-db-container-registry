@@ -44,52 +44,64 @@ $image_base = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $
 
 command_must_exist('docker');
 
-info('Started database data container image download.');
+/**
+ * Whether a container image is present on the host.
+ *
+ * @param string $image
+ *   The image reference to inspect.
+ *
+ * @return bool
+ *   TRUE when the image exists on the host.
+ */
+function image_exists_on_host(string $image): bool {
+  $inspect_result = shell_exec(sprintf('docker image inspect %s >/dev/null 2>&1 && echo 1 || echo 0', escapeshellarg($image)));
 
-$inspect_result = shell_exec(sprintf('docker image inspect %s >/dev/null 2>&1 && echo 1 || echo 0', escapeshellarg($image)));
-if (trim((string) $inspect_result) === '1') {
-  note(sprintf('Found %s image on host.', $image));
+  return trim((string) $inspect_result) === '1';
+}
+
+INFO('Started database data container image download.');
+
+if (image_exists_on_host($image)) {
+  NOTE('Found %s image on host.', $image);
 }
 else {
-  note(sprintf('Not found %s image on host.', $image));
+  NOTE('Not found %s image on host.', $image);
 }
 
 $image_expanded_successfully = FALSE;
 $archive = $db_dir . '/db.tar';
 
 if (file_exists($archive)) {
-  task(sprintf('Found archived database container image file %s. Expanding...', $archive));
   // Always use archived image, even if such image already exists on the host.
-  passthru(sprintf('docker load -q --input %s', escapeshellarg($archive)), $exit_code);
+  $image_expanded_successfully = (bool) TASK(
+    sprintf('Found archived database container image file %s. Expanding...', $archive),
+    fn(bool $expanded): string => $expanded ? sprintf('Found expanded %s image on host.', $image) : sprintf('Not found expanded %s image on host.', $image),
+    function () use ($archive, $image): bool {
+      passthru(sprintf('docker load -q --input %s', escapeshellarg($archive)), $exit_code);
 
-  // Check that image was expanded and now exists on the host.
-  $inspect_result = shell_exec(sprintf('docker image inspect %s >/dev/null 2>&1 && echo 1 || echo 0', escapeshellarg($image)));
-  if (trim((string) $inspect_result) === '1') {
-    note(sprintf('Found expanded %s image on host.', $image));
-    $image_expanded_successfully = TRUE;
-  }
-  else {
-    note(sprintf('Not found expanded %s image on host.', $image));
-  }
+      // Check that image was expanded and now exists on the host.
+      return image_exists_on_host($image);
+    },
+  );
 }
 
 if (!$image_expanded_successfully) {
   if (!file_exists($archive) && $image_base !== '') {
     // If the image archive does not exist and base image was provided - use the
     // base image which allows "clean slate" for the database.
-    note(sprintf('Database container image was not found. Using base image %s.', $image_base));
+    NOTE('Database container image was not found. Using base image %s.', $image_base);
     $image = $image_base;
   }
 
-  task(sprintf('Downloading %s image from the registry.', $image));
+  TASK(sprintf('Downloading %s image from the registry.', $image), sprintf('Downloaded %s image from the registry.', $image), function () use ($registry, $registry_user, $registry_pass, $image): void {
+    // Login to container registry before pulling.
+    putenv('VORTEX_CONTAINER_REGISTRY=' . $registry);
+    putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $registry_user);
+    putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $registry_pass);
+    passthru_or_fail(__DIR__ . '/vortex-login-container-registry', 'Failed to login to the container registry.');
 
-  // Login to container registry before pulling.
-  putenv('VORTEX_CONTAINER_REGISTRY=' . $registry);
-  putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $registry_user);
-  putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $registry_pass);
-  passthru_or_fail(__DIR__ . '/vortex-login-container-registry', 'Failed to login to the container registry.');
-
-  passthru_or_fail(sprintf('docker pull %s', escapeshellarg($registry . '/' . $image)), 'Failed to pull image %s from registry.', $image);
+    passthru_or_fail(sprintf('docker pull %s', escapeshellarg($registry . '/' . $image)), 'Failed to pull image %s from registry.', $image);
+  });
 }
 
-pass('Finished database data container image download.');
+PASS('Finished database data container image download.');

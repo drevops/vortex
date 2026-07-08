@@ -76,13 +76,13 @@ class DeployWebhookTest extends UnitTestCase {
   public function testHttpRequestFailure(): void {
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 500, 'ok' => FALSE]);
 
-    $this->runScriptError('src/vortex-deploy-webhook', 'Unable to complete webhook deployment.');
+    $this->runScriptError('src/vortex-deploy-webhook', 'Unable to call the deployment webhook.');
   }
 
   public function testUnexpectedResponseStatus(): void {
     $this->mockRequest('https://example.com/webhook', ['method' => 'GET'], ['status' => 201, 'ok' => TRUE]);
 
-    $this->runScriptError('src/vortex-deploy-webhook', 'Unable to complete webhook deployment.');
+    $this->runScriptError('src/vortex-deploy-webhook', 'Webhook returned unexpected status code 201 (expected 200).');
   }
 
   public function testDefaultValues(): void {

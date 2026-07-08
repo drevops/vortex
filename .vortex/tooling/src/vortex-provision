@@ -125,12 +125,14 @@ function provision_from_db(string $provision_db): void {
   if (!file_exists($provision_db)) {
     echo PHP_EOL;
     fail_no_exit('Unable to import database from file.');
-    note('Dump file %s does not exist.', $provision_db);
-    note('Site content was not changed.');
+    NOTE('Dump file %s does not exist.', $provision_db);
+    NOTE('Site content was not changed.');
     quit(1);
   }
 
-  passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
+  TASK('Importing database from the dump file.', 'Imported database from the dump file.', function () use ($provision_db): void {
+    passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . escapeshellarg($provision_db), 'Failed to import database from dump file.');
+  });
 }
 
 /**
@@ -167,19 +169,20 @@ function provision_from_profile(string $profile, string $site_name, string $site
     $opts[] = '--existing-config';
   }
 
-  // Database may exist in non-bootstrappable state - truncate it.
-  drush('sql:drop', $drop_exit_code);
+  TASK('Installing a site from the profile.', 'Installed a site from the profile.', function () use ($opts, $is_fallback): void {
+    // Database may exist in non-bootstrappable state - truncate it.
+    drush('sql:drop', $drop_exit_code);
 
-  drush('site:install ' . implode(' ', $opts));
+    drush('site:install ' . implode(' ', $opts));
 
-  // On fallback, enable Shield to protect the site and skip post-provision
-  // operations since the site was installed from profile without configuration.
-  if ($is_fallback) {
-    drush('pm:install shield');
-    putenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP=1');
-  }
-
-  pass('Installed a site from the profile.');
+    // On fallback, enable Shield to protect the site and skip post-provision
+    // operations since the site was installed from profile without
+    // configuration.
+    if ($is_fallback) {
+      drush('pm:install shield');
+      putenv('VORTEX_PROVISION_POST_OPERATIONS_SKIP=1');
+    }
+  });
 }
 
 /**
@@ -197,39 +200,36 @@ function provision_from_profile(string $profile, string $site_name, string $site
  *   Admin email to restore after sanitization.
  */
 function sanitize_db(string $sanitize_email, string $sanitize_password, bool $replace_username_with_email, string $additional_file, string $admin_email): void {
-  info('Sanitizing database.');
+  INFO('Sanitizing database.');
 
-  // Always sanitize password and email using standard methods.
-  drush(sprintf(
-    'sql:sanitize --sanitize-password=%s --sanitize-email=%s',
-    escapeshellarg($sanitize_password),
-    escapeshellarg($sanitize_email)
-  ));
-  pass('Sanitized database using drush sql:sanitize.');
+  TASK('Sanitizing database using drush sql:sanitize.', 'Sanitized database using drush sql:sanitize.', function () use ($sanitize_email, $sanitize_password): void {
+    drush(sprintf('sql:sanitize --sanitize-password=%s --sanitize-email=%s', escapeshellarg($sanitize_password), escapeshellarg($sanitize_email)));
+  });
 
   if ($replace_username_with_email) {
-    drush("sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
-    pass('Updated username with user email.');
+    TASK('Replacing usernames with user emails.', 'Updated username with user email.', function (): void {
+      drush("sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
+    });
   }
 
   // Sanitize using additional SQL commands provided in file.
   if (!empty($additional_file) && file_exists($additional_file)) {
-    // The file path is relative to the project root, but drush expects it to be
-    // relative to the Drupal root.
-    $relative_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
-    drush('sql:query --file=' . escapeshellarg($relative_file));
-    pass('Applied custom sanitization commands from file.');
+    TASK('Applying custom sanitization commands from file.', 'Applied custom sanitization commands from file.', function () use ($additional_file): void {
+      drush('sql:query --file=' . escapeshellarg(drush_relative_path($additional_file)));
+    });
   }
 
   // User mail and name for user 0 could have been sanitized - resetting it.
-  drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
-  pass('Reset user 0 username and email.');
+  TASK('Resetting user 0 username and email.', 'Reset user 0 username and email.', function (): void {
+    drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
+  });
 
   // User email could have been sanitized - setting it back to a
   // pre-defined email.
   if (!empty($admin_email)) {
-    drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
-    pass('Updated user 1 email.');
+    TASK('Updating user 1 email.', 'Updated user 1 email.', function () use ($admin_email): void {
+      drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
+    });
   }
 
   echo PHP_EOL;
@@ -237,13 +237,13 @@ function sanitize_db(string $sanitize_email, string $sanitize_password, bool $re
 
 // -----------------------------------------------------------------------------
 
-info('Started site provisioning.');
+INFO('Started site provisioning.');
 
 $start_time = time();
 
 if ($provision_skip === '1') {
-  pass('Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.');
-  info('Finished site provisioning.');
+  PASS('Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.');
+  INFO('Finished site provisioning.');
   quit(0);
 }
 
@@ -267,13 +267,23 @@ $bootstrap_output = drush('status --fields=bootstrap 2>/dev/null', $bootstrap_ex
 $site_is_installed = str_contains($bootstrap_output, 'Successful');
 
 // Discover the configuration directory path from the Drupal settings.
-$config_path = trim(drush("php:eval \"print realpath(\\Drupal\\Core\\Site\\Settings::get('config_sync_directory'));\""));
-if (empty($config_path)) {
-  fail('Config directory was not found in the Drupal settings.');
-}
-if (!is_dir($config_path)) {
-  fail('Config directory "%s" does not exist.', $config_path);
-}
+$config_path = (string) TASK(
+  'Discovering the configuration directory path.',
+  fn(string $path): string => sprintf('Discovered the configuration directory path "%s".', $path),
+  function (): string {
+    $path = trim(drush("php:eval \"print realpath(\\Drupal\\Core\\Site\\Settings::get('config_sync_directory'));\""));
+
+    if (empty($path)) {
+      throw new \RuntimeException('Config directory was not found in the Drupal settings.');
+    }
+
+    if (!is_dir($path)) {
+      throw new \RuntimeException(sprintf('Config directory "%s" does not exist.', $path));
+    }
+
+    return $path;
+  },
+);
 
 // Check if config files exist.
 $config_files = glob($config_path . '/*.yml');
@@ -286,30 +296,30 @@ if ($provision_type !== 'profile') {
 
 // Print provisioning information.
 echo PHP_EOL;
-note('Drupal core version            : %s', $drupal_version);
-note('Drush version                  : %s', $drush_version);
+NOTE('Drupal core version            : %s', $drupal_version);
+NOTE('Drush version                  : %s', $drush_version);
 echo PHP_EOL;
-note('Web root path                  : %s/%s', getcwd(), $webroot);
-note('Public files path              : %s', getenv('DRUPAL_PUBLIC_FILES') ?: '<empty>');
-note('Private files path             : %s', getenv('DRUPAL_PRIVATE_FILES') ?: '<empty>');
-note('Temporary files path           : %s', getenv('DRUPAL_TEMPORARY_FILES') ?: '<empty>');
-note('Config files path              : %s', $config_path);
-note('DB dump file path              : %s (%s)', $provision_db, file_exists($provision_db) ? 'present' : 'absent');
+NOTE('Web root path                  : %s/%s', getcwd(), $webroot);
+NOTE('Public files path              : %s', getenv('DRUPAL_PUBLIC_FILES') ?: '<empty>');
+NOTE('Private files path             : %s', getenv('DRUPAL_PRIVATE_FILES') ?: '<empty>');
+NOTE('Temporary files path           : %s', getenv('DRUPAL_TEMPORARY_FILES') ?: '<empty>');
+NOTE('Config files path              : %s', $config_path);
+NOTE('DB dump file path              : %s (%s)', $provision_db, file_exists($provision_db) ? 'present' : 'absent');
 if (!empty($db_image)) {
-  note('DB dump container image        : %s', $db_image);
+  NOTE('DB dump container image        : %s', $db_image);
 }
 echo PHP_EOL;
-note('Profile                        : %s', $drupal_profile);
-note('Configuration files present    : %s', yesno($site_has_config_files ? '1' : '0'));
-note('Existing site found            : %s', yesno($site_is_installed ? '1' : '0'));
+NOTE('Profile                        : %s', $drupal_profile);
+NOTE('Configuration files present    : %s', yesno($site_has_config_files ? '1' : '0'));
+NOTE('Existing site found            : %s', yesno($site_is_installed ? '1' : '0'));
 echo PHP_EOL;
-note('Provision type                 : %s', $provision_type);
-note('Fallback to profile            : %s', yesno($provision_fallback_to_profile));
-note('Overwrite existing DB          : %s', yesno($provision_override_db));
-note('Skip DB sanitization           : %s', yesno($provision_sanitize_db_skip));
-note('Skip post-provision operations : %s', yesno($provision_post_operations_skip));
-note('Verify config after update     : %s', yesno($provision_verify_config));
-note('Use maintenance mode           : %s', yesno($provision_use_maintenance_mode));
+NOTE('Provision type                 : %s', $provision_type);
+NOTE('Fallback to profile            : %s', yesno($provision_fallback_to_profile));
+NOTE('Overwrite existing DB          : %s', yesno($provision_override_db));
+NOTE('Skip DB sanitization           : %s', yesno($provision_sanitize_db_skip));
+NOTE('Skip post-provision operations : %s', yesno($provision_post_operations_skip));
+NOTE('Verify config after update     : %s', yesno($provision_verify_config));
+NOTE('Use maintenance mode           : %s', yesno($provision_use_maintenance_mode));
 echo PHP_EOL;
 
 if ($provision_verify_config === '1') {
@@ -322,24 +332,24 @@ if ($provision_verify_config === '1') {
 // ensure that this significant operation is executed correctly and has
 // sufficient output for debugging.
 if ($provision_type === 'database') {
-  info('Provisioning site from the database dump file.');
-  note('Dump file path: %s', $provision_db);
+  INFO('Provisioning site from the database dump file.');
+  NOTE('Dump file path: %s', $provision_db);
 
   if ($site_is_installed) {
-    note('Existing site was found.');
+    NOTE('Existing site was found.');
 
     if (!empty($db_image)) {
-      note('Database is baked into the container image.');
-      note('Site content will be preserved.');
+      NOTE('Database is baked into the container image.');
+      NOTE('Site content will be preserved.');
       // Container image restarts with a fresh database. Let the downstream
       // scripts know that the database is fresh.
       $provision_override_db = '1';
       putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
     }
     elseif ($provision_override_db === '1') {
-      note('Existing site content will be removed and fresh content will be imported from the database dump file.');
+      NOTE('Existing site content will be removed and fresh content will be imported from the database dump file.');
       if (!file_exists($provision_db) && $provision_fallback_to_profile === '1') {
-        info('Database dump file is not available. Falling back to profile installation.');
+        INFO('Database dump file is not available. Falling back to profile installation.');
         provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
       }
       else {
@@ -347,33 +357,33 @@ if ($provision_type === 'database') {
       }
     }
     else {
-      note('Site content will be preserved.');
-      note('Sanitization will be skipped for an existing database.');
+      NOTE('Site content will be preserved.');
+      NOTE('Sanitization will be skipped for an existing database.');
       $provision_sanitize_db_skip = '1';
       putenv('VORTEX_PROVISION_SANITIZE_DB_SKIP=1');
     }
   }
   else {
-    note('Existing site was not found.');
+    NOTE('Existing site was not found.');
 
     if (!empty($db_image)) {
-      note('Database is baked into the container image.');
+      NOTE('Database is baked into the container image.');
       if ($provision_fallback_to_profile === '1') {
-        info('Database in the container image is not available. Falling back to profile installation.');
+        INFO('Database in the container image is not available. Falling back to profile installation.');
         provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
         $provision_override_db = '1';
         putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
       }
       else {
-        note('Looks like the database in the container image is corrupted.');
-        note('Site content was not changed.');
+        NOTE('Looks like the database in the container image is corrupted.');
+        NOTE('Site content was not changed.');
         quit(1);
       }
     }
     else {
-      note('Fresh site content will be imported from the database dump file.');
+      NOTE('Fresh site content will be imported from the database dump file.');
       if (!file_exists($provision_db) && $provision_fallback_to_profile === '1') {
-        info('Database dump file is not available. Falling back to profile installation.');
+        INFO('Database dump file is not available. Falling back to profile installation.');
         provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files, TRUE);
       }
       else {
@@ -386,29 +396,29 @@ if ($provision_type === 'database') {
   }
 }
 else {
-  info('Provisioning site from the profile.');
-  note('Profile: %s.', $drupal_profile);
+  INFO('Provisioning site from the profile.');
+  NOTE('Profile: %s.', $drupal_profile);
 
   if ($site_is_installed) {
-    note('Existing site was found.');
+    NOTE('Existing site was found.');
 
     if ($provision_override_db === '1') {
-      note('Existing site content will be removed and new content will be created from the profile.');
+      NOTE('Existing site content will be removed and new content will be created from the profile.');
       provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
       // Let the downstream scripts know that the database is fresh.
       $provision_override_db = '1';
       putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
     }
     else {
-      note('Site content will be preserved.');
-      note('Sanitization will be skipped for an existing database.');
+      NOTE('Site content will be preserved.');
+      NOTE('Sanitization will be skipped for an existing database.');
       $provision_sanitize_db_skip = '1';
       putenv('VORTEX_PROVISION_SANITIZE_DB_SKIP=1');
     }
   }
   else {
-    note('Existing site was not found.');
-    note('Fresh site content will be created from the profile.');
+    NOTE('Existing site was not found.');
+    NOTE('Fresh site content will be created from the profile.');
     provision_from_profile($drupal_profile, $drupal_site_name, $drupal_site_email, $drupal_admin_email, $site_has_config_files);
     $provision_override_db = '1';
     putenv('VORTEX_PROVISION_OVERRIDE_DB=1');
@@ -418,22 +428,22 @@ else {
 echo PHP_EOL;
 
 $environment = trim(drush("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""));
-info('Current Drupal environment: %s', $environment);
+INFO('Current Drupal environment: %s', $environment);
 echo PHP_EOL;
 
 // Re-read in case provision_from_profile() changed it via putenv().
 $provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIONS_SKIP', $provision_post_operations_skip);
 
 if ($provision_post_operations_skip === '1') {
-  info('Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1.');
+  INFO('Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1.');
   echo PHP_EOL;
   $duration = time() - $start_time;
-  info('Finished site provisioning (%dm %ds).', (int) floor($duration / 60), $duration % 60);
+  INFO('Finished site provisioning (%dm %ds).', (int) floor($duration / 60), $duration % 60);
   quit(0);
 }
 
 if ($provision_use_maintenance_mode === '1') {
-  task('Enabling maintenance mode.', 'Enabled maintenance mode.', function (): void {
+  TASK('Enabling maintenance mode.', 'Enabled maintenance mode.', function (): void {
     drush('maint:set 1');
   });
   echo PHP_EOL;
@@ -446,72 +456,80 @@ if ($site_has_config_files) {
     $system_site_content = file_get_contents($system_site_yml);
     if ($system_site_content !== FALSE && preg_match('/^uuid:\s*(\S+)/m', $system_site_content, $matches)) {
       $config_uuid = $matches[1];
-      drush(sprintf('config-set system.site uuid %s', escapeshellarg($config_uuid)));
-      pass('Updated site UUID from the configuration with %s.', $config_uuid);
+
+      TASK('Updating site UUID from the configuration.', sprintf('Updated site UUID from the configuration with %s.', $config_uuid), function () use ($config_uuid): void {
+        drush(sprintf('config-set system.site uuid %s', escapeshellarg($config_uuid)));
+      });
       echo PHP_EOL;
     }
     else {
-      fail('Could not read site UUID from %s.', $system_site_yml);
+      FAIL('Could not read site UUID from %s.', $system_site_yml);
     }
   }
 }
 
-task('Running database updates.');
-
 if ($provision_verify_config === '1' && $site_has_config_files) {
-  $config_before = sys_get_temp_dir() . '/config_before_' . uniqid();
-  mkdir($config_before, 0755, TRUE);
-  drush('config:export --destination=' . escapeshellarg($config_before));
+  $config_tmp_dir = getenv('TMPDIR') ?: '.artifacts/tmp';
+  $config_before = $config_tmp_dir . '/config_before_' . uniqid();
+  $config_after = $config_tmp_dir . '/config_after_' . uniqid();
 
-  drush('updatedb --no-cache-clear');
+  TASK('Exporting configuration before database updates.', 'Exported configuration before database updates.', function () use ($config_before): void {
+    mkdir($config_before, 0755, TRUE);
+    drush('config:export --destination=' . escapeshellarg($config_before));
+  });
 
-  $config_after = sys_get_temp_dir() . '/config_after_' . uniqid();
-  mkdir($config_after, 0755, TRUE);
-  drush('config:export --destination=' . escapeshellarg($config_after));
+  TASK('Running database updates.', 'Completed running database updates.', function (): void {
+    drush('updatedb --no-cache-clear');
+  });
 
-  $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
+  TASK('Exporting configuration after database updates.', 'Exported configuration after database updates.', function () use ($config_after): void {
+    mkdir($config_after, 0755, TRUE);
+    drush('config:export --destination=' . escapeshellarg($config_after));
+  });
 
-  if (!empty(trim($config_diff))) {
-    fail_no_exit('Configuration was changed by database updates.');
-    note('The following configuration files were changed:');
-    echo $config_diff . PHP_EOL;
-    note('Configuration before updates: %s', $config_before);
-    note('Configuration after updates:  %s', $config_after);
-    note('Review the update hooks and manually export updated configuration.');
-    quit(1);
-  }
+  TASK('Verifying that database updates did not change configuration.', 'Verified that database updates did not change configuration.', function () use ($config_before, $config_after): void {
+    $config_diff = (string) shell_exec('diff -rq ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after) . ' 2>&1');
 
-  shell_exec('rm -rf ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after));
+    if (!empty(trim($config_diff))) {
+      NOTE('The following configuration files were changed:');
+      echo $config_diff . PHP_EOL;
+      NOTE('Configuration before updates: %s', $config_before);
+      NOTE('Configuration after updates:  %s', $config_after);
+      NOTE('Review the update hooks and manually export updated configuration.');
+      throw new \RuntimeException('Configuration was changed by database updates.');
+    }
 
-  pass('Verified that database updates did not change configuration.');
+    shell_exec('rm -rf ' . escapeshellarg($config_before) . ' ' . escapeshellarg($config_after));
+  });
 }
 else {
-  drush('updatedb --no-cache-clear');
+  TASK('Running database updates.', 'Completed running database updates.', function (): void {
+    drush('updatedb --no-cache-clear');
+  });
 }
 
-pass('Completed running database updates.');
 echo PHP_EOL;
 
 if ($provision_cache_rebuild_after_db_update_skip !== '1') {
-  task('Clearing cache after database updates.', 'Cache was cleared.', function (): void {
+  TASK('Clearing cache after database updates.', 'Cache was cleared.', function (): void {
     drush('cache:rebuild');
   });
   echo PHP_EOL;
 }
 else {
-  pass('Skipped cache rebuild after database updates.');
+  PASS('Skipped cache rebuild after database updates.');
   echo PHP_EOL;
 }
 
 // Import configuration if config files are present.
 if ($site_has_config_files) {
-  task('Importing configuration.', 'Completed configuration import.', function (): void {
+  TASK('Importing configuration.', 'Completed configuration import.', function (): void {
     drush('config:import');
   });
   echo PHP_EOL;
 
   if ($provision_config_import_repeat === '1') {
-    task('Repeating configuration import.', 'Completed repeated configuration import.', function (): void {
+    TASK('Repeating configuration import.', 'Completed repeated configuration import.', function (): void {
       drush('config:import');
     });
     echo PHP_EOL;
@@ -523,14 +541,14 @@ if ($site_has_config_files) {
   // @see https://www.drupal.org/project/drupal/issues/3241439
   $pm_list_output = drush('pm:list --status=enabled', $pm_list_exit_code);
   if (str_contains($pm_list_output, 'config_split')) {
-    task('Importing config_split configuration.', 'Completed config_split configuration import.', function (): void {
+    TASK('Importing config_split configuration.', 'Completed config_split configuration import.', function (): void {
       drush('config:import');
     });
     echo PHP_EOL;
   }
 }
 
-task('Rebuilding cache.', 'Cache was rebuilt.', function (): void {
+TASK('Rebuilding cache.', 'Cache was rebuilt.', function (): void {
   drush('cache:rebuild');
 });
 echo PHP_EOL;
@@ -539,18 +557,18 @@ echo PHP_EOL;
 // hooks, so their deploy step plugins and run-once deploy hooks run on this
 // provision. Site module names are project-specific (the installer renames
 // them), so resolve them by glob. Idempotent in every environment.
-task('Enabling site modules.', 'Enabled site modules.', function () use ($webroot): void {
+TASK('Enabling site modules.', 'Enabled site modules.', function () use ($webroot): void {
   drush('pm:install deploy_steps');
   $module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
   foreach ($module_paths as $module_path) {
     $module_name = basename((string) $module_path);
     drush('pm:install ' . escapeshellarg($module_name));
-    note('Installed module %s.', $module_name);
+    NOTE('Installed module %s.', $module_name);
   }
 });
 echo PHP_EOL;
 
-task('Running deployment hooks.', 'Completed deployment hooks.', function (): void {
+TASK('Running deployment hooks.', 'Completed deployment hooks.', function (): void {
   drush('deploy:hook');
 });
 echo PHP_EOL;
@@ -566,18 +584,18 @@ if ($provision_sanitize_db_skip !== '1') {
   );
 }
 else {
-  pass('Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1.');
+  PASS('Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1.');
   echo PHP_EOL;
 }
 
 if ($provision_use_maintenance_mode === '1') {
-  task('Disabling maintenance mode.', 'Disabled maintenance mode.', function (): void {
+  TASK('Disabling maintenance mode.', 'Disabled maintenance mode.', function (): void {
     drush('maint:set 0');
   });
   echo PHP_EOL;
 }
 
 $duration = time() - $start_time;
-info('Finished site provisioning (%dm %ds).', (int) floor($duration / 60), $duration % 60);
+INFO('Finished site provisioning (%dm %ds).', (int) floor($duration / 60), $duration % 60);
 
 quit(0);

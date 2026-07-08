@@ -51,7 +51,7 @@ $known_hosts = getenv_default('VORTEX_SSH_KNOWN_HOSTS', NULL);
 
 // -----------------------------------------------------------------------------
 
-info('Started SSH setup.');
+INFO('Started SSH setup.');
 
 // Get fingerprint from dynamic variable.
 $fingerprint_var = sprintf('VORTEX_%s_SSH_FINGERPRINT', $ssh_prefix);
@@ -63,36 +63,46 @@ $file_path = getenv_default($file_var, getenv('HOME') . '/.ssh/id_rsa');
 
 // Special case - SSH key may not be required if set to 'false'.
 if ($file_path === 'false') {
-  pass('SSH key is set to false meaning that it is not required. Skipped setup.');
+  PASS('SSH key is set to false meaning that it is not required. Skipped setup.');
   putenv(sprintf('%s=%s', $file_var, $file_path));
   quit(0);
 }
 
 // Handle fingerprint-based key search.
 if (!empty($fingerprint)) {
-  note('Using fingerprint-based deploy key because fingerprint was provided.');
+  NOTE('Using fingerprint-based deploy key because fingerprint was provided.');
 
   // Convert SHA256 fingerprint to MD5 if needed.
   if (str_starts_with($fingerprint, 'SHA256:')) {
-    task('Searching for MD5 hash as fingerprint starts with SHA256.');
-    $ssh_dir = getenv('HOME') . '/.ssh';
-    $id_rsa_files = glob($ssh_dir . '/id_rsa*');
+    $found = TASK(
+      'Searching for MD5 hash as fingerprint starts with SHA256.',
+      fn(array $found): string => $found === [] ? 'No matching existing key file found.' : sprintf('Found matching existing key file %s.', $found['file']),
+      function () use ($fingerprint): array {
+        $ssh_dir = getenv('HOME') . '/.ssh';
+        $id_rsa_files = glob($ssh_dir . '/id_rsa*');
 
-    foreach ($id_rsa_files as $existing_file) {
-      $output = shell_exec(sprintf('ssh-keygen -l -E sha256 -f %s 2>/dev/null', escapeshellarg($existing_file)));
-      if ($output !== NULL && !empty($output)) {
-        $parts = preg_split('/\s+/', trim($output));
-        $fingerprint_sha256 = $parts[1] ?? '';
+        foreach ($id_rsa_files as $existing_file) {
+          $output = shell_exec(sprintf('ssh-keygen -l -E sha256 -f %s 2>/dev/null', escapeshellarg($existing_file)));
+          if ($output !== NULL && !empty($output)) {
+            $parts = preg_split('/\s+/', trim($output));
+            $fingerprint_sha256 = $parts[1] ?? '';
 
-        if ($fingerprint_sha256 === $fingerprint) {
-          pass(sprintf('Found matching existing key file %s.', $existing_file));
-          $output = shell_exec(sprintf('ssh-keygen -l -E md5 -f %s', escapeshellarg($existing_file)));
-          $parts = preg_split('/\s+/', trim($output));
-          $fingerprint = $parts[1] ?? '';
-          $fingerprint = str_replace('MD5:', '', $fingerprint);
-          break;
+            if ($fingerprint_sha256 === $fingerprint) {
+              $output = shell_exec(sprintf('ssh-keygen -l -E md5 -f %s', escapeshellarg($existing_file)));
+              $parts = preg_split('/\s+/', trim((string) $output));
+              $md5 = str_replace('MD5:', '', $parts[1] ?? '');
+
+              return ['file' => (string) $existing_file, 'md5' => $md5];
+            }
+          }
         }
-      }
+
+        return [];
+      },
+    );
+
+    if (is_array($found) && isset($found['md5'])) {
+      $fingerprint = (string) $found['md5'];
     }
   }
 
@@ -104,10 +114,10 @@ if (!empty($fingerprint)) {
 
 // Check if SSH key file exists.
 if (!file_exists($file_path)) {
-  fail(sprintf('SSH key file %s does not exist.', $file_path));
+  FAIL('SSH key file %s does not exist.', $file_path);
 }
 
-note(sprintf('Using SSH key file %s.', $file_path));
+NOTE('Using SSH key file %s.', $file_path);
 putenv(sprintf('%s=%s', $file_var, $file_path));
 
 // Start SSH agent if not running.
@@ -117,17 +127,18 @@ $ssh_auth_sock = getenv('SSH_AUTH_SOCK');
 $agent_running = !empty($ssh_auth_sock) && file_exists($ssh_auth_sock);
 
 if (!$agent_running) {
-  task('Starting SSH agent.');
-  $output = shell_exec('ssh-agent');
-  if ($output !== NULL) {
-    // Parse ssh-agent output to extract environment variables.
-    if (preg_match('/SSH_AUTH_SOCK=([^;]+);/', $output, $matches)) {
-      putenv('SSH_AUTH_SOCK=' . $matches[1]);
+  TASK('Starting SSH agent.', 'Started SSH agent.', function (): void {
+    $output = shell_exec('ssh-agent');
+    if ($output !== NULL) {
+      // Parse ssh-agent output to extract environment variables.
+      if (preg_match('/SSH_AUTH_SOCK=([^;]+);/', $output, $matches)) {
+        putenv('SSH_AUTH_SOCK=' . $matches[1]);
+      }
+      if (preg_match('/SSH_AGENT_PID=(\d+);/', $output, $matches)) {
+        putenv('SSH_AGENT_PID=' . $matches[1]);
+      }
     }
-    if (preg_match('/SSH_AGENT_PID=(\d+);/', $output, $matches)) {
-      putenv('SSH_AGENT_PID=' . $matches[1]);
-    }
-  }
+  });
 }
 
 // Check if key is already loaded.
@@ -135,22 +146,25 @@ $output = (string) shell_exec('ssh-add -l 2>/dev/null');
 $key_loaded = str_contains($output, basename($file_path));
 
 if ($key_loaded) {
-  note(sprintf('SSH agent already has %s key loaded.', $file_path));
+  NOTE('SSH agent already has %s key loaded.', $file_path);
 }
 else {
-  task('SSH agent does not have a required key loaded. Trying to load.');
+  NOTE('SSH agent does not have a required key loaded.');
 
   if (!empty($remove_all_keys)) {
-    task('Removing all keys from the SSH agent.');
-    passthru('ssh-add -D');
+    TASK('Removing all keys from the SSH agent.', 'Removed all keys from the SSH agent.', function (): void {
+      passthru('ssh-add -D');
+    });
   }
 
-  passthru(sprintf('ssh-add %s', escapeshellarg($file_path)), $add_exit_code);
-  if ($add_exit_code !== 0) {
-    fail('Failed to add SSH key to agent.');
-  }
+  TASK('Loading the SSH key to the agent.', 'Loaded the SSH key to the agent.', function () use ($file_path): void {
+    passthru(sprintf('ssh-add %s', escapeshellarg($file_path)), $add_exit_code);
+    if ($add_exit_code !== 0) {
+      throw new \RuntimeException('Failed to add SSH key to agent.');
+    }
 
-  passthru('ssh-add -l');
+    passthru('ssh-add -l');
+  });
 }
 
 // Pin host keys (preferred) or disable strict host key checking if requested.
@@ -158,46 +172,46 @@ $ssh_dir = getenv('HOME') . '/.ssh';
 
 if (!empty($known_hosts)) {
   if (!empty($disable_strict_checking)) {
-    note('Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled.');
+    NOTE('Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled.');
   }
 
-  task('Pinning SSH host keys to known_hosts.');
+  TASK('Pinning SSH host keys to known_hosts.', 'Pinned SSH host keys to known_hosts.', function () use ($ssh_dir, $known_hosts): void {
+    // @codeCoverageIgnoreStart
+    if (!is_dir($ssh_dir)) {
+      mkdir($ssh_dir, 0700, TRUE);
+    }
+    // @codeCoverageIgnoreEnd
 
-  // @codeCoverageIgnoreStart
-  if (!is_dir($ssh_dir)) {
-    mkdir($ssh_dir, 0700, TRUE);
-  }
-  // @codeCoverageIgnoreEnd
+    // Strip insecure directives that an earlier run with strict checking
+    // disabled may have left in the SSH config, so the pinned host keys are
+    // enforced rather than bypassed by a stale "UserKnownHostsFile /dev/null".
+    $config_file = $ssh_dir . '/config';
+    if (file_exists($config_file)) {
+      $lines = file($config_file, FILE_IGNORE_NEW_LINES) ?: [];
+      $lines = array_filter($lines, fn(string $line): bool => !preg_match('/^\s*(StrictHostKeyChecking\s+no|UserKnownHostsFile\s+\/dev\/null)\s*$/', $line));
+      $kept = implode("\n", $lines);
+      file_put_contents($config_file, $kept === '' ? '' : $kept . "\n");
+      chmod($config_file, 0600);
+    }
 
-  // Strip insecure directives that an earlier run with strict checking disabled
-  // may have left in the SSH config, so the pinned host keys are enforced
-  // rather than bypassed by a stale "UserKnownHostsFile /dev/null".
-  $config_file = $ssh_dir . '/config';
-  if (file_exists($config_file)) {
-    $lines = file($config_file, FILE_IGNORE_NEW_LINES) ?: [];
-    $lines = array_filter($lines, fn(string $line): bool => !preg_match('/^\s*(StrictHostKeyChecking\s+no|UserKnownHostsFile\s+\/dev\/null)\s*$/', $line));
-    $kept = implode("\n", $lines);
-    file_put_contents($config_file, $kept === '' ? '' : $kept . "\n");
-    chmod($config_file, 0600);
-  }
-
-  $known_hosts_file = $ssh_dir . '/known_hosts';
-  file_put_contents($known_hosts_file, stripcslashes($known_hosts) . "\n", FILE_APPEND);
-  chmod($known_hosts_file, 0600);
+    $known_hosts_file = $ssh_dir . '/known_hosts';
+    file_put_contents($known_hosts_file, stripcslashes($known_hosts) . "\n", FILE_APPEND);
+    chmod($known_hosts_file, 0600);
+  });
 }
 elseif (!empty($disable_strict_checking)) {
-  task('Disabling strict host key checking.');
+  TASK('Disabling strict host key checking.', 'Disabled strict host key checking.', function () use ($ssh_dir): void {
+    // @codeCoverageIgnoreStart
+    if (!is_dir($ssh_dir)) {
+      mkdir($ssh_dir, 0700, TRUE);
+    }
+    // @codeCoverageIgnoreEnd
 
-  // @codeCoverageIgnoreStart
-  if (!is_dir($ssh_dir)) {
-    mkdir($ssh_dir, 0700, TRUE);
-  }
-  // @codeCoverageIgnoreEnd
-
-  $config_file = $ssh_dir . '/config';
-  $config_content = "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n";
-  file_put_contents($config_file, $config_content, FILE_APPEND);
-  chmod($config_file, 0600);
+    $config_file = $ssh_dir . '/config';
+    $config_content = "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n";
+    file_put_contents($config_file, $config_content, FILE_APPEND);
+    chmod($config_file, 0600);
+  });
 }
 
-pass('Finished SSH setup.');
+PASS('Finished SSH setup.');
