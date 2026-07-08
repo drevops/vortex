@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Answers;
 
 use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Config\Panel;
 
 /**
@@ -60,7 +61,9 @@ class SummaryFormatter {
         continue;
       }
 
-      $value = $this->renderValue($answers->value($field->id));
+      $raw = $answers->value($field->id);
+      // Secrets never print: a fixed-length mask hides both value and length.
+      $value = $field->type === FieldType::Password && is_string($raw) && $raw !== '' ? str_repeat('*', 8) : $this->renderValue($raw);
       $body[] = $indent . '  ' . $field->label . ': ' . $value . $this->badge($answers->provenanceOf($field->id));
     }
 

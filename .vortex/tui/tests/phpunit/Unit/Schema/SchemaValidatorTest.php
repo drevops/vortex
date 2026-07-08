@@ -80,6 +80,34 @@ final class SchemaValidatorTest extends TestCase {
     $this->assertSame([], $errors);
   }
 
+  public function testNumberAcceptsIntRejectsString(): void {
+    $validator = new SchemaValidator($this->config());
+
+    $this->assertSame([], $validator->validate(['name' => 'Acme', 'port' => 8080]));
+    $this->assertContains('Question "port" must be a number.', $validator->validate(['name' => 'Acme', 'port' => '8080']));
+  }
+
+  public function testPauseAcceptsBoolRejectsString(): void {
+    $validator = new SchemaValidator($this->config());
+
+    $this->assertSame([], $validator->validate(['name' => 'Acme', 'ack' => TRUE]));
+    $this->assertContains('Question "ack" must be a boolean.', $validator->validate(['name' => 'Acme', 'ack' => 'yes']));
+  }
+
+  public function testSearchOptionMembership(): void {
+    $validator = new SchemaValidator($this->config());
+
+    $this->assertSame([], $validator->validate(['name' => 'Acme', 'engine' => 'solr']));
+    $this->assertContains('Question "engine" must be one of: solr, none.', $validator->validate(['name' => 'Acme', 'engine' => 'bogus']));
+  }
+
+  public function testMultisearchOptionMembership(): void {
+    $validator = new SchemaValidator($this->config());
+
+    $this->assertSame([], $validator->validate(['name' => 'Acme', 'tags' => ['a']]));
+    $this->assertContains('Question "tags" contains an invalid option "z".', $validator->validate(['name' => 'Acme', 'tags' => ['z']]));
+  }
+
   /**
    * Build a config exercising every validation branch.
    */
@@ -91,6 +119,10 @@ final class SchemaValidatorTest extends TestCase {
         $p->confirm('agree');
         $p->multiselect('mods')->option('a')->option('b');
         $p->text('custom')->required()->when(new Condition('profile', eq: 'custom'));
+        $p->number('port');
+        $p->pause('ack');
+        $p->search('engine')->option('solr')->option('none');
+        $p->multisearch('tags')->option('a')->option('b');
       })
       ->build();
   }

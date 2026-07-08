@@ -117,6 +117,12 @@ final class FormTest extends TestCase {
         $panel->multiselect('m');
         $panel->confirm('c');
         $panel->suggest('g');
+        $panel->number('n');
+        $panel->textarea('ta');
+        $panel->password('pw');
+        $panel->search('se')->option('a');
+        $panel->multisearch('ms')->option('a');
+        $panel->pause('pa');
       })
       ->build();
 
@@ -126,6 +132,13 @@ final class FormTest extends TestCase {
     $this->assertSame([], $config->field('m')?->default);
     $this->assertFalse($config->field('c')?->default);
     $this->assertSame('', $config->field('g')?->default);
+    $this->assertSame(0, $config->field('n')?->default);
+    $this->assertSame('', $config->field('ta')?->default);
+    $this->assertSame('', $config->field('pw')?->default);
+    $this->assertSame('', $config->field('se')?->default);
+    $this->assertSame([], $config->field('ms')?->default);
+    // A pause defaults to acknowledged so headless runs never block on it.
+    $this->assertTrue($config->field('pa')?->default);
 
     // Label and option-label fall back to the id/value.
     $this->assertSame('t', $config->field('t')->label);

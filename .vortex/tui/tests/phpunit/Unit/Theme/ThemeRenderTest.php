@@ -49,6 +49,19 @@ final class ThemeRenderTest extends TestCase {
     $this->assertStringContainsString('M  a, b', $list);
   }
 
+  public function testFieldLineMasksPasswordValue(): void {
+    $field = new Field('token', 'Token', '', FieldType::Password, '');
+
+    $line = Ansi::strip($this->theme()->renderFieldLine($field, new Answers(['token' => 's3cret-long'], ['token' => 'edited']), FALSE));
+
+    $this->assertStringNotContainsString('s3cret-long', $line);
+    // The mask has a fixed length so it does not leak the value's length.
+    $this->assertStringContainsString('Token  ••••••••', $line);
+
+    $empty = Ansi::strip($this->theme()->renderFieldLine($field, new Answers(['token' => ''], ['token' => 'default']), FALSE));
+    $this->assertStringNotContainsString('•', $empty);
+  }
+
   public function testPanelLineShowsDrillIndicator(): void {
     $line = Ansi::strip($this->theme()->renderPanelLine(new Panel('adv', 'Advanced', ''), TRUE));
 

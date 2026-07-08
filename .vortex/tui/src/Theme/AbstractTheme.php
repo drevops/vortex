@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Theme;
 
 use DrevOps\Tui\Answers\Answers;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Config\Panel;
 use DrevOps\Tui\Render\Ansi;
 use DrevOps\Tui\Render\Navigator;
@@ -339,7 +340,7 @@ abstract class AbstractTheme implements ThemeInterface {
    *   The row.
    */
   public function renderFieldLine(Field $field, Answers $answers, bool $selected): string {
-    $left = $this->marker($selected) . ' ' . $this->styleSelected('label', $field->label, $selected) . '  ' . $this->styleSelected('value', $this->renderValue($answers->value($field->id)), $selected);
+    $left = $this->marker($selected) . ' ' . $this->styleSelected('label', $field->label, $selected) . '  ' . $this->styleSelected('value', $this->renderFieldValue($field, $answers->value($field->id)), $selected);
 
     $provenance = $answers->provenanceOf($field->id);
     if ($provenance === 'default') {
@@ -401,7 +402,7 @@ abstract class AbstractTheme implements ThemeInterface {
       }
 
       $value = $answers->value($field->id);
-      $parts[] = is_array($value) && count($value) > 3 ? count($value) . ' selected' : $this->renderValue($value);
+      $parts[] = is_array($value) && count($value) > 3 ? count($value) . ' selected' : $this->renderFieldValue($field, $value);
 
       if (count($parts) >= 4) {
         break;
@@ -548,6 +549,28 @@ abstract class AbstractTheme implements ThemeInterface {
    */
   protected function marker(bool $selected): string {
     return $selected ? $this->style('marker', $this->glyph('marker')) : ' ';
+  }
+
+  /**
+   * Render a field's value readably, masking secret values.
+   *
+   * Password values render as a fixed-length mask so neither the value nor
+   * its length shows on screen.
+   *
+   * @param \DrevOps\Tui\Config\Field $field
+   *   The field the value belongs to.
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string
+   *   The rendered value.
+   */
+  protected function renderFieldValue(Field $field, mixed $value): string {
+    if ($field->type === FieldType::Password) {
+      return is_string($value) && $value !== '' ? str_repeat($this->glyph('mask'), 8) : '';
+    }
+
+    return $this->renderValue($value);
   }
 
   /**

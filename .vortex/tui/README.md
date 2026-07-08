@@ -77,6 +77,7 @@ use DrevOps\Tui\Derive\Derive;
 $form = Form::create('My form')
   ->panel('general', 'General', function (PanelBuilder $p): void {
     // text | select | multiselect | suggest | confirm
+    // number | textarea | password | search | multisearch | pause
     $p->text('name', 'Project name')->required();
 
     // Compute one field from others.
@@ -92,6 +93,8 @@ $form = Form::create('My form')
 ```
 
 Each field builder chains `->description()`, `->default()`, `->required()`, `->options()`, `->when(new Condition(...))` (conditional visibility, operators `eq` / `ne` / `in` / `contains`), `->derive(new Derive(...))` (computed value) and `->discover(...)` (detect from the directory via `new Dotenv('KEY')`, `new JsonValue('composer.json', 'name')`, `new PathExists('path')`, `new Scan('dir', type: 'dir')`, or a custom `fn (Context $c): mixed` closure). A `Derive` transform is any str2name conversion (`machine`, `kebab`, `pascal`, ...) plus `host`, `lower`, `upper` and `initials` - an unknown name throws when the form is declared.
+
+Beyond the basic kinds: `number` collects an int (digits with an optional leading minus), `textarea` is multi-line (Enter inserts a newline, Tab accepts), `password` collects a string that renders as a fixed-length mask everywhere (widget, panel rows, summary), `search` and `multisearch` are the choice kinds with a visible type-to-filter line, and `pause` is an acknowledgement gate (Enter accepts `TRUE`; headless runs auto-acknowledge it).
 
 Form-level methods tune the interactive TUI: `->theme()` names a theme (see [Themes](#themes)), `->banner()` sets a start banner, and the panel shows **Submit** and **Cancel** buttons by default - `->buttons(FALSE)` hides them.
 

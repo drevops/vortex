@@ -299,8 +299,12 @@ final class FieldBuilder {
    */
   protected function defaultFor(FieldType $type): mixed {
     return match ($type) {
-      FieldType::MultiSelect => [],
+      FieldType::MultiSelect, FieldType::MultiSearch => [],
       FieldType::Confirm => FALSE,
+      FieldType::Number => 0,
+      // A pause is an interactive acknowledgement; headless runs have nothing
+      // to wait for, so it defaults to acknowledged.
+      FieldType::Pause => TRUE,
       default => '',
     };
   }

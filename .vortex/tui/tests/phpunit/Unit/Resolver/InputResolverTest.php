@@ -75,8 +75,20 @@ final class InputResolverTest extends TestCase {
     $this->assertSame('VORTEX_MACHINE_NAME', (new InputResolver('VORTEX_'))->envName('machine_name'));
   }
 
+  public function testNumberPauseAndMultisearchCoercion(): void {
+    $inputs = (new InputResolver('VORTEX_'))->resolve($this->fields(), '', [
+      'VORTEX_PORT' => ' 8080 ',
+      'VORTEX_ACK' => 'yes',
+      'VORTEX_TAGS' => 'a, b',
+    ]);
+
+    $this->assertSame(8080, $inputs['port']);
+    $this->assertTrue($inputs['ack']);
+    $this->assertSame(['a', 'b'], $inputs['tags']);
+  }
+
   /**
-   * Build a text, confirm and multiselect field for resolution.
+   * Build one field of each coercible type for resolution.
    *
    * @return \DrevOps\Tui\Config\Field[]
    *   The fields.
@@ -86,6 +98,9 @@ final class InputResolverTest extends TestCase {
       new Field('name', 'Name', '', FieldType::Text, ''),
       new Field('agree', 'Agree', '', FieldType::Confirm, FALSE),
       new Field('mods', 'Mods', '', FieldType::MultiSelect, []),
+      new Field('port', 'Port', '', FieldType::Number, 0),
+      new Field('ack', 'Ack', '', FieldType::Pause, TRUE),
+      new Field('tags', 'Tags', '', FieldType::MultiSearch, []),
     ];
   }
 

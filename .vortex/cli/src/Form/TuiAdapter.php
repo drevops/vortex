@@ -50,6 +50,12 @@ class TuiAdapter {
       PromptType::MultiSelect => $p->multiselect($id, $label),
       PromptType::Confirm => $p->confirm($id, $label),
       PromptType::Suggest => $p->suggest($id, $label),
+      PromptType::Number => $p->number($id, $label),
+      PromptType::Textarea => $p->textarea($id, $label),
+      PromptType::Password => $p->password($id, $label),
+      PromptType::Search => $p->search($id, $label),
+      PromptType::MultiSearch => $p->multisearch($id, $label),
+      PromptType::Pause => $p->pause($id, $label),
       default => $p->text($id, $label),
     };
 

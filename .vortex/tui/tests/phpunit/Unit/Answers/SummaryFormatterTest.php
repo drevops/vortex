@@ -71,4 +71,21 @@ final class SummaryFormatterTest extends TestCase {
     $this->assertStringContainsString('Mods: a, b', $summary);
   }
 
+  public function testMasksPasswordValues(): void {
+    $config = Form::create('T')
+      ->panel('p', 'P', function (PanelBuilder $p): void {
+        $p->password('token', 'Token');
+        $p->password('unset', 'Unset');
+      })
+      ->build();
+    $answers = new Answers(['token' => 's3cret-long', 'unset' => ''], ['token' => 'edited', 'unset' => 'default']);
+
+    $summary = (new SummaryFormatter())->format($config, $answers);
+
+    $this->assertStringNotContainsString('s3cret-long', $summary);
+    // The mask has a fixed length so it does not leak the value's length.
+    $this->assertStringContainsString('Token: ********', $summary);
+    $this->assertStringContainsString('Unset: ', $summary);
+  }
+
 }

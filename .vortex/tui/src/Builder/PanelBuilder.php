@@ -136,6 +136,96 @@ final class PanelBuilder {
   }
 
   /**
+   * Add a number field.
+   *
+   * @param string $id
+   *   The field id.
+   * @param string $label
+   *   The label (defaults to the id).
+   *
+   * @return \DrevOps\Tui\Builder\FieldBuilder
+   *   The field builder.
+   */
+  public function number(string $id, string $label = ''): FieldBuilder {
+    return $this->field($id, $label, FieldType::Number);
+  }
+
+  /**
+   * Add a textarea field.
+   *
+   * @param string $id
+   *   The field id.
+   * @param string $label
+   *   The label (defaults to the id).
+   *
+   * @return \DrevOps\Tui\Builder\FieldBuilder
+   *   The field builder.
+   */
+  public function textarea(string $id, string $label = ''): FieldBuilder {
+    return $this->field($id, $label, FieldType::Textarea);
+  }
+
+  /**
+   * Add a password field.
+   *
+   * @param string $id
+   *   The field id.
+   * @param string $label
+   *   The label (defaults to the id).
+   *
+   * @return \DrevOps\Tui\Builder\FieldBuilder
+   *   The field builder.
+   */
+  public function password(string $id, string $label = ''): FieldBuilder {
+    return $this->field($id, $label, FieldType::Password);
+  }
+
+  /**
+   * Add a search field (single choice with type-to-filter).
+   *
+   * @param string $id
+   *   The field id.
+   * @param string $label
+   *   The label (defaults to the id).
+   *
+   * @return \DrevOps\Tui\Builder\FieldBuilder
+   *   The field builder.
+   */
+  public function search(string $id, string $label = ''): FieldBuilder {
+    return $this->field($id, $label, FieldType::Search);
+  }
+
+  /**
+   * Add a multi-search field (multi-select with a visible search line).
+   *
+   * @param string $id
+   *   The field id.
+   * @param string $label
+   *   The label (defaults to the id).
+   *
+   * @return \DrevOps\Tui\Builder\FieldBuilder
+   *   The field builder.
+   */
+  public function multisearch(string $id, string $label = ''): FieldBuilder {
+    return $this->field($id, $label, FieldType::MultiSearch);
+  }
+
+  /**
+   * Add a pause field (an acknowledgement gate).
+   *
+   * @param string $id
+   *   The field id.
+   * @param string $label
+   *   The label (defaults to the id).
+   *
+   * @return \DrevOps\Tui\Builder\FieldBuilder
+   *   The field builder.
+   */
+  public function pause(string $id, string $label = ''): FieldBuilder {
+    return $this->field($id, $label, FieldType::Pause);
+  }
+
+  /**
    * Add a nested sub-panel.
    *
    * @param string $id

@@ -44,7 +44,7 @@ class TextWidget extends AbstractWidget {
     }
 
     if ($key->is(KeyName::Enter)) {
-      $this->accept($this->buffer);
+      $this->accept($this->liveValue());
 
       return;
     }

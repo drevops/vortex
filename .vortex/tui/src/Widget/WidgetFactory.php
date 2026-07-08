@@ -32,7 +32,13 @@ class WidgetFactory {
       FieldType::Confirm => new ConfirmWidget((bool) $current),
       FieldType::Select => new SelectWidget($labels, is_string($current) ? $current : ''),
       FieldType::MultiSelect => new MultiSelectWidget($labels, $this->toList($current)),
+      FieldType::MultiSearch => new MultiSearchWidget($labels, $this->toList($current)),
       FieldType::Suggest => new SuggestWidget(array_keys($labels), is_string($current) ? $current : ''),
+      FieldType::Search => new SearchWidget($labels, is_string($current) ? $current : ''),
+      FieldType::Number => new NumberWidget(is_int($current) || is_float($current) ? (string) (int) $current : ''),
+      FieldType::Textarea => new TextareaWidget(is_string($current) ? $current : ''),
+      FieldType::Password => new PasswordWidget(is_string($current) ? $current : ''),
+      FieldType::Pause => new PauseWidget(),
       default => new TextWidget(is_string($current) ? $current : ''),
     };
   }

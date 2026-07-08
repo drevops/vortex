@@ -8,9 +8,15 @@ use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Config\Option;
 use DrevOps\Tui\Widget\ConfirmWidget;
+use DrevOps\Tui\Widget\MultiSearchWidget;
 use DrevOps\Tui\Widget\MultiSelectWidget;
+use DrevOps\Tui\Widget\NumberWidget;
+use DrevOps\Tui\Widget\PasswordWidget;
+use DrevOps\Tui\Widget\PauseWidget;
+use DrevOps\Tui\Widget\SearchWidget;
 use DrevOps\Tui\Widget\SelectWidget;
 use DrevOps\Tui\Widget\SuggestWidget;
+use DrevOps\Tui\Widget\TextareaWidget;
 use DrevOps\Tui\Widget\TextWidget;
 use DrevOps\Tui\Widget\WidgetFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -32,6 +38,24 @@ final class WidgetFactoryTest extends TestCase {
     $this->assertInstanceOf(SelectWidget::class, $factory->create($this->fieldWithOptions(FieldType::Select), 'a'));
     $this->assertInstanceOf(MultiSelectWidget::class, $factory->create($this->fieldWithOptions(FieldType::MultiSelect), ['a']));
     $this->assertInstanceOf(SuggestWidget::class, $factory->create($this->fieldWithOptions(FieldType::Suggest), 'a'));
+    $this->assertInstanceOf(NumberWidget::class, $factory->create($this->field(FieldType::Number), 42));
+    $this->assertInstanceOf(TextareaWidget::class, $factory->create($this->field(FieldType::Textarea), 'x'));
+    $this->assertInstanceOf(PasswordWidget::class, $factory->create($this->field(FieldType::Password), 'x'));
+    $this->assertInstanceOf(SearchWidget::class, $factory->create($this->fieldWithOptions(FieldType::Search), 'a'));
+    $this->assertInstanceOf(MultiSearchWidget::class, $factory->create($this->fieldWithOptions(FieldType::MultiSearch), ['a']));
+    $this->assertInstanceOf(PauseWidget::class, $factory->create($this->field(FieldType::Pause), TRUE));
+  }
+
+  public function testNumberSeededFromIntCurrent(): void {
+    $widget = (new WidgetFactory())->create($this->field(FieldType::Number), 8080);
+
+    $this->assertSame(8080, $widget->value());
+  }
+
+  public function testNumberWithNonNumericCurrentIsEmpty(): void {
+    $widget = (new WidgetFactory())->create($this->field(FieldType::Number), 'oops');
+
+    $this->assertSame(0, $widget->value());
   }
 
   public function testSeedsCurrentValue(): void {

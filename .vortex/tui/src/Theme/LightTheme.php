@@ -51,6 +51,7 @@ class LightTheme extends AbstractTheme {
       'check_on' => ['◼', '[x]'],
       'check_off' => ['◻', '[ ]'],
       'caret' => ['│', '|'],
+      'mask' => ['•', '*'],
     ];
   }
 
