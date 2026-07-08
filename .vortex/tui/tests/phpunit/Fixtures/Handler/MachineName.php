@@ -4,27 +4,36 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Fixtures\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Handler\AbstractHandler;
-
 /**
- * Test fixture: a handler auto-discovered for the "machine_name" field.
+ * Test fixture: reusable static behaviour discovered for "machine_name".
  *
  * @package DrevOps\Tui\Tests\Fixtures\Handler
  */
-class MachineName extends AbstractHandler {
+class MachineName {
 
   /**
-   * {@inheritdoc}
+   * Validate a machine name.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string|null
+   *   An error, or NULL when valid.
    */
-  public function validate(Field $field, mixed $value): ?string {
+  public static function validate(mixed $value): ?string {
     return is_string($value) && $value !== '' ? NULL : 'A machine name is required.';
   }
 
   /**
-   * {@inheritdoc}
+   * Normalize a machine name.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return mixed
+   *   The normalized value.
    */
-  public function transform(Field $field, mixed $value): mixed {
+  public static function transform(mixed $value): mixed {
     return is_string($value) ? strtolower($value) : $value;
   }
 

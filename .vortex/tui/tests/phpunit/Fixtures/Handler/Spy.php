@@ -4,46 +4,45 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Fixtures\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Handler\AbstractHandler;
-use DrevOps\Tui\Handler\Context;
-
 /**
- * Test fixture: a spy handler recording lifecycle calls for the "spy" field.
+ * Test fixture: static behaviour recording lifecycle calls for "spy".
  *
  * @package DrevOps\Tui\Tests\Fixtures\Handler
  */
-class Spy extends AbstractHandler {
+class Spy {
 
   /**
-   * The ordered log of lifecycle calls, shared across instances.
+   * The ordered log of lifecycle calls.
    *
    * @var string[]
    */
   public static array $calls = [];
 
   /**
-   * {@inheritdoc}
+   * Record and pass validation.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return string|null
+   *   Always NULL.
    */
-  public function discover(Field $field, Context $context): mixed {
-    self::$calls[] = 'discover';
-
-    return 'discovered';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validate(Field $field, mixed $value): ?string {
+  public static function validate(mixed $value): ?string {
     self::$calls[] = 'validate';
 
     return NULL;
   }
 
   /**
-   * {@inheritdoc}
+   * Record and mark the value.
+   *
+   * @param mixed $value
+   *   The value.
+   *
+   * @return mixed
+   *   The marked value.
    */
-  public function transform(Field $field, mixed $value): mixed {
+  public static function transform(mixed $value): mixed {
     self::$calls[] = 'transform';
 
     return is_string($value) ? $value . '!' : $value;

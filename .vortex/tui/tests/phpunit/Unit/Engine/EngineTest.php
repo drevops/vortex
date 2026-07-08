@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the generic lifecycle engine.
+ * Tests the generic lifecycle engine with discovered static behaviour.
  */
 #[CoversClass(Engine::class)]
 #[CoversClass(EngineException::class)]
@@ -28,52 +28,20 @@ final class EngineTest extends TestCase {
     Spy::$calls = [];
   }
 
-  public function testDiscoversInUpdateMode(): void {
+  public function testDiscoveredStaticsRunInOrder(): void {
     $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('spy');
+      $p->text('spy')->default('seed');
       $p->text('plain');
     });
 
-    $answers = $engine->collect([], new Context('project', [], TRUE));
+    $answers = $engine->collect([], new Context('project'));
 
-    // The discovered value flows through transform().
-    $this->assertSame('discovered!', $answers['spy']);
-    // A field with no handler falls back to its default.
+    // The default flows through the discovered static transform.
+    $this->assertSame('seed!', $answers['spy']);
+    // A field with no consumer class falls back to its default untouched.
     $this->assertSame('', $answers['plain']);
     // Lifecycle order per field.
-    $this->assertSame(['discover', 'validate', 'transform'], Spy::$calls);
-  }
-
-  public function testCollectSkipsProcess(): void {
-    $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('spy');
-    });
-
-    $engine->collect([], new Context('project', [], TRUE));
-
-    // collect() runs the discover, validate and transform lifecycle.
-    $this->assertSame(['discover', 'validate', 'transform'], Spy::$calls);
-    $this->assertSame('discovered!', $engine->answers()->value('spy'));
-  }
-
-  public function testDynamicDefaultFromHandler(): void {
-    $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('defaulter');
-    });
-
-    $answers = $engine->collect([], new Context('proj', [], FALSE));
-
-    $this->assertSame('dynamic-proj', $answers['defaulter']);
-  }
-
-  public function testDynamicDefaultOverriddenByInput(): void {
-    $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('defaulter');
-    });
-
-    $answers = $engine->collect(['defaulter' => 'given'], new Context('proj', [], FALSE));
-
-    $this->assertSame('given', $answers['defaulter']);
+    $this->assertSame(['validate', 'transform'], Spy::$calls);
   }
 
   public function testSuppliedInputWins(): void {
@@ -81,22 +49,9 @@ final class EngineTest extends TestCase {
       $p->text('spy');
     });
 
-    $answers = $engine->collect(['spy' => 'given'], new Context('project', [], TRUE));
+    $answers = $engine->collect(['spy' => 'given'], new Context('project'));
 
     $this->assertSame('given!', $answers['spy']);
-    // Input present: discovery is skipped.
-    $this->assertSame(['validate', 'transform'], Spy::$calls);
-  }
-
-  public function testDefaultUsedWithoutUpdate(): void {
-    $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('spy')->default('seed');
-    });
-
-    $answers = $engine->collect([], new Context('project', [], FALSE));
-
-    $this->assertSame('seed!', $answers['spy']);
-    // Not update mode: discovery is skipped and the default is used.
     $this->assertSame(['validate', 'transform'], Spy::$calls);
   }
 
@@ -108,11 +63,21 @@ final class EngineTest extends TestCase {
     $this->expectException(EngineException::class);
     $this->expectExceptionMessage('Invalid value for field "machine_name"');
     // The MachineName fixture rejects the empty-string text default.
-    $engine->collect([], new Context('project', [], FALSE));
+    $engine->collect([], new Context('project'));
+  }
+
+  public function testDiscoveredTransformNormalizes(): void {
+    $engine = $this->engine(function (PanelBuilder $p): void {
+      $p->text('machine_name');
+    });
+
+    $answers = $engine->collect(['machine_name' => 'ACME'], new Context('project'));
+
+    $this->assertSame('acme', $answers['machine_name']);
   }
 
   /**
-   * Build an engine over a single panel wired to the fixture handlers.
+   * Build an engine over a single panel wired to the fixture namespace.
    *
    * @param \Closure $build
    *   The callback receiving the panel builder to declare its fields.

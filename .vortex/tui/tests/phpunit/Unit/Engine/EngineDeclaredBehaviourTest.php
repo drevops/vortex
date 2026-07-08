@@ -78,8 +78,8 @@ final class EngineDeclaredBehaviourTest extends TestCase {
   }
 
   public function testDeclarationWinsOverHandler(): void {
-    // The "spy" field resolves to the Spy fixture handler, but the declared
-    // closures take precedence for every hook.
+    // The "spy" field resolves to the Spy fixture class, but the declared
+    // closures take precedence over its reusable statics.
     $engine = $this->engine(function (PanelBuilder $p): void {
       $p->text('spy')
         ->discover(fn (Context $c): string => 'declared')

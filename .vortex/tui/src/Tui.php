@@ -56,7 +56,8 @@ final class Tui {
    * @param \DrevOps\Tui\Config\Config|\DrevOps\Tui\Builder\Form $form
    *   The form: a Form builder (built internally) or its built Config.
    * @param string[] $handler_namespaces
-   *   Namespaces the engine searches for field handlers, in order.
+   *   Namespaces searched, in order, for per-field consumer classes offering
+   *   reusable static validate()/transform() behaviour.
    * @param string $env_prefix
    *   The env-variable prefix for per-question overrides; wins over the
    *   form-declared prefix, which wins over the "TUI_" default.

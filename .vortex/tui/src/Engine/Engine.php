@@ -11,19 +11,19 @@ use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Derive\Deriver;
 use DrevOps\Tui\Discovery\DiscoverInterface;
 use DrevOps\Tui\Handler\Context;
-use DrevOps\Tui\Handler\HandlerInterface;
 use DrevOps\Tui\Handler\HandlerRegistry;
 
 /**
  * Orchestrates the question lifecycle generically over a configuration.
  *
  * For each configured field the engine resolves a value (supplied input, else
- * a value detected in update mode, else the field default), runs its declared
+ * a value detected in update mode, else the field default), runs its
  * validator and transformer, then settles derived values, conditional
  * activation and fix-ups to a fixpoint. Precedence per field is
  * input > detected > derived > default. It never knows what any field means:
- * all behaviour comes from the form declaration, with a consumer handler
- * class (resolved by field id) as the fallback for each hook.
+ * all behaviour comes from the form declaration, with the reusable static
+ * validate()/transform() of a consumer class (resolved by field id) as the
+ * fallback.
  *
  * @package DrevOps\Tui\Engine
  */
@@ -81,7 +81,7 @@ class Engine {
     $sources = [];
     foreach ($fields as $field) {
       $resolved = new Context($context->directory, $values, $context->update, $context->version, $context->destination);
-      [$value, $source] = $this->resolveInitial($field, $this->handlers->get($field->id), $inputs, $resolved);
+      [$value, $source] = $this->resolveInitial($field, $inputs, $resolved);
       $sources[$field->id] = $source;
       $values[$field->id] = $value;
     }
@@ -141,8 +141,6 @@ class Engine {
    *
    * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Tui\Handler\HandlerInterface|null $handler
-   *   The resolved handler, if any.
    * @param array<string,mixed> $inputs
    *   Pre-supplied values keyed by field id.
    * @param \DrevOps\Tui\Handler\Context $context
@@ -151,13 +149,13 @@ class Engine {
    * @return array{mixed,string}
    *   The resolved value and its source (input / detected / default).
    */
-  protected function resolveInitial(Field $field, ?HandlerInterface $handler, array $inputs, Context $context): array {
+  protected function resolveInitial(Field $field, array $inputs, Context $context): array {
     if (array_key_exists($field->id, $inputs)) {
       return [$inputs[$field->id], 'input'];
     }
 
     if ($context->update) {
-      $detected = $this->discoverValue($field, $handler, $context);
+      $detected = $this->discoverValue($field, $context);
       if ($detected !== NULL) {
         return [$detected, 'detected'];
       }
@@ -167,18 +165,11 @@ class Engine {
       return [($field->default)($context), 'default'];
     }
 
-    if ($handler instanceof HandlerInterface) {
-      $dynamic = $handler->default($field, $context);
-      if ($dynamic !== NULL) {
-        return [$dynamic, 'default'];
-      }
-    }
-
     return [$field->default, 'default'];
   }
 
   /**
-   * Validate a value through the declared validator, else the handler.
+   * Validate a value: the declared validator, else a reusable static one.
    *
    * @param \DrevOps\Tui\Config\Field $field
    *   The field.
@@ -189,19 +180,18 @@ class Engine {
    *   An error message, or NULL when the value is valid.
    */
   protected function validateValue(Field $field, mixed $value): ?string {
-    if ($field->validate instanceof \Closure) {
-      $error = ($field->validate)($value);
-
-      return is_string($error) && $error !== '' ? $error : NULL;
+    $validator = $field->validate ?? $this->handlers->validator($field->id);
+    if (!$validator instanceof \Closure) {
+      return NULL;
     }
 
-    $handler = $this->handlers->get($field->id);
+    $error = $validator($value);
 
-    return $handler instanceof HandlerInterface ? $handler->validate($field, $value) : NULL;
+    return is_string($error) && $error !== '' ? $error : NULL;
   }
 
   /**
-   * Transform a value through the declared transformer, else the handler.
+   * Transform a value: the declared transformer, else a reusable static one.
    *
    * @param \DrevOps\Tui\Config\Field $field
    *   The field.
@@ -212,29 +202,23 @@ class Engine {
    *   The transformed value.
    */
   protected function transformValue(Field $field, mixed $value): mixed {
-    if ($field->transform instanceof \Closure) {
-      return ($field->transform)($value);
-    }
+    $transformer = $field->transform ?? $this->handlers->transformer($field->id);
 
-    $handler = $this->handlers->get($field->id);
-
-    return $handler instanceof HandlerInterface ? $handler->transform($field, $value) : $value;
+    return $transformer instanceof \Closure ? $transformer($value) : $value;
   }
 
   /**
-   * Detect a value from the declared discovery rule, else the handler.
+   * Detect a value from the declared discovery rule.
    *
    * @param \DrevOps\Tui\Config\Field $field
    *   The field.
-   * @param \DrevOps\Tui\Handler\HandlerInterface|null $handler
-   *   The resolved handler, if any.
    * @param \DrevOps\Tui\Handler\Context $context
    *   The run context.
    *
    * @return mixed
    *   The detected value, or NULL.
    */
-  protected function discoverValue(Field $field, ?HandlerInterface $handler, Context $context): mixed {
+  protected function discoverValue(Field $field, Context $context): mixed {
     if ($field->discover instanceof DiscoverInterface) {
       return $field->discover->discover($context->directory);
     }
@@ -243,7 +227,7 @@ class Engine {
       return ($field->discover)($context);
     }
 
-    return $handler instanceof HandlerInterface ? $handler->discover($field, $context) : NULL;
+    return NULL;
   }
 
   /**
