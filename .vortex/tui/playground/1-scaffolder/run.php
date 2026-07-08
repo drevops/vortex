@@ -23,7 +23,7 @@ require __DIR__ . '/Name.php';
 
 $options = getopt('', ['prompts::', 'schema']);
 
-$config = Form::create('Package scaffolder')
+$form = Form::create('Package scaffolder')
   ->panel('general', 'General', function (PanelBuilder $p): void {
     $p->description('Naming and identity.');
     // A required free-text field. The custom Name handler trims and validates.
@@ -52,10 +52,9 @@ $config = Form::create('Package scaffolder')
     $p->suggest('php_version', 'PHP version')->default('8.4')->options(['8.1' => '8.1', '8.2' => '8.2', '8.3' => '8.3', '8.4' => '8.4']);
     // A yes/no toggle.
     $p->confirm('private', 'Private package?')->default(FALSE);
-  })
-  ->build();
+  });
 
-$tui = new Tui($config, ['Playground\\Scaffolder']);
+$tui = new Tui($form, ['Playground\\Scaffolder']);
 
 if (array_key_exists('schema', $options)) {
   echo (string) json_encode($tui->schema(), JSON_PRETTY_PRINT), PHP_EOL;
@@ -65,12 +64,8 @@ if (array_key_exists('schema', $options)) {
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
 try {
-  if ($prompts !== '' || stream_isatty(STDIN) === FALSE) {
-    $answers = $tui->collect($prompts, version: '1.0.0');
-  }
-  else {
-    $answers = $tui->interact(version: '1.0.0');
-  }
+  // Interactive TUI on a terminal; headless when prompts are given or piped.
+  $answers = $tui->run($prompts, '1.0.0');
 }
 catch (EngineException $exception) {
   fwrite(STDERR, $exception->getMessage() . PHP_EOL);

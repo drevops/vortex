@@ -28,7 +28,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 $options = getopt('', ['prompts::']);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
-$config = Form::create('Discovery demo', 'an existing project')
+$form = Form::create('Discovery demo', 'an existing project')
   // Per-question env overrides read MYAPP_<ID> instead of the default TUI_<ID>.
   ->envPrefix('MYAPP_')
   ->panel('project', 'Project', function (PanelBuilder $p): void {
@@ -40,10 +40,9 @@ $config = Form::create('Discovery demo', 'an existing project')
     $p->confirm('docker', 'Uses Docker?')->discover(['exists' => 'docker-compose.yml']);
     // List directory entries ("type" is dir / file / any).
     $p->multiselect('modules', 'Custom modules')->options(['alpha' => 'Alpha', 'beta' => 'Beta', 'gamma' => 'Gamma'])->discover(['scan' => ['dir' => 'modules', 'type' => 'dir']]);
-  })
-  ->build();
+  });
 
-$tui = new Tui($config);
+$tui = new Tui($form);
 
 try {
   // Update mode (the third argument) is what enables discovery.
@@ -56,6 +55,6 @@ catch (EngineException $exception) {
 
 // The summary groups answers by panel and badges non-default provenance:
 // "detected" for discovered values, "edited" for env and prompt inputs.
-echo (new SummaryFormatter())->format($config, $answers) . PHP_EOL;
+echo (new SummaryFormatter())->format($tui->config(), $answers) . PHP_EOL;
 echo PHP_EOL;
 echo $answers->toJson() . PHP_EOL;

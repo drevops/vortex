@@ -21,7 +21,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 $options = getopt('', ['prompts::']);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
-$config = Form::create('Site settings')
+$form = Form::create('Site settings')
   // Custom button labels; the buttons live on the root panel only.
   ->buttons(TRUE, 'Save', 'Discard')
   // Keep the final frame on screen after the TUI exits.
@@ -51,18 +51,11 @@ $config = Form::create('Site settings')
         $tp->suggest('php_memory', 'PHP memory limit')->default('256M')->options(['128M' => '128M', '256M' => '256M', '512M' => '512M']);
       });
     });
-  })
-  ->build();
-
-$tui = new Tui($config);
+  });
 
 try {
-  if ($prompts !== '' || stream_isatty(STDIN) === FALSE) {
-    $answers = $tui->collect($prompts);
-  }
-  else {
-    $answers = $tui->interact(version: '1.0.0');
-  }
+  // Interactive TUI on a terminal; headless when prompts are given or piped.
+  $answers = (new Tui($form))->run($prompts, '1.0.0');
 }
 catch (EngineException $exception) {
   fwrite(STDERR, $exception->getMessage() . PHP_EOL);

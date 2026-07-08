@@ -23,31 +23,24 @@ require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/OceanTheme.php';
 
 $options = getopt('', ['prompts::']);
-
-$config = Form::create('Ocean theme demo')
-  ->theme(OceanTheme::class)
-  ->panel('profile', 'Diver profile', function (PanelBuilder $p): void {
-    $p->text('name', 'Name')->default('Explorer');
-    $p->select('depth', 'Preferred depth')->default('reef')->options(['surface' => 'Surface', 'reef' => 'Reef', 'abyss' => 'Abyss']);
-    $p->multiselect('gear', 'Gear')->options(['mask' => 'Mask', 'fins' => 'Fins', 'tank' => 'Tank']);
-  })
-  ->build();
-
-$tui = new Tui($config);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
 $banner = <<<'EOT'
   ~ ~ ~  O C E A N  ~ ~ ~
 EOT;
 
+$form = Form::create('Ocean theme demo')
+  ->theme(OceanTheme::class)
+  ->banner($banner)
+  ->panel('profile', 'Diver profile', function (PanelBuilder $p): void {
+    $p->text('name', 'Name')->default('Explorer');
+    $p->select('depth', 'Preferred depth')->default('reef')->options(['surface' => 'Surface', 'reef' => 'Reef', 'abyss' => 'Abyss']);
+    $p->multiselect('gear', 'Gear')->options(['mask' => 'Mask', 'fins' => 'Fins', 'tank' => 'Tank']);
+  });
+
 try {
-  if ($prompts !== '' || stream_isatty(STDIN) === FALSE) {
-    $answers = $tui->collect($prompts);
-  }
-  else {
-    // The theme comes from the form: ->theme(OceanTheme::class).
-    $answers = $tui->interact(banner: $banner, version: '1.0.0');
-  }
+  // The theme and banner come from the form; run() picks the mode.
+  $answers = (new Tui($form))->run($prompts, '1.0.0');
 }
 catch (EngineException $exception) {
   fwrite(STDERR, $exception->getMessage() . PHP_EOL);

@@ -22,13 +22,12 @@ require __DIR__ . '/../../vendor/autoload.php';
 $options = getopt('', ['prompts::']);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
-$config = Form::create('Minimal')
+$form = Form::create('Minimal')
   ->panel('main', 'Main', function (PanelBuilder $p): void {
     $p->text('name', 'Your name')->required();
     $p->select('colour', 'Favourite colour')->default('blue')->options(['red' => 'Red', 'green' => 'Green', 'blue' => 'Blue']);
-  })
-  ->build();
+  });
 
-$answers = (new Tui($config))->collect($prompts);
+$answers = (new Tui($form))->collect($prompts);
 
 echo $answers->toJson() . PHP_EOL;
