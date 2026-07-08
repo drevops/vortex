@@ -1,19 +1,8 @@
-@@ -38,10 +38,8 @@
- !.stylelintrc.js
- !.twig-cs-fixer.php
- !auth.json
--!behat.yml
- !composer.json
- !composer.lock
--!gherkinlint.json
- !jest.config.js
- !package-lock.json
- !package.json
-@@ -49,7 +47,6 @@
- !patches.lock.json
- !phpcs.xml
- !phpstan.neon
--!phpunit.xml
- !postcss.config.js
- !rector.php
- !scripts
+@@ -21,7 +21,6 @@
+ .artifacts
+ .data
+ .logs
+-.phpunit.cache
+ .twig-cs-fixer.cache
+ 
+ # Dependencies are installed during the image build.

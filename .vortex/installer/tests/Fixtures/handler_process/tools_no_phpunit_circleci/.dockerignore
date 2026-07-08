@@ -1,8 +1,8 @@
-@@ -49,7 +49,6 @@
- !patches.lock.json
- !phpcs.xml
- !phpstan.neon
--!phpunit.xml
- !postcss.config.js
- !rector.php
- !scripts
+@@ -21,7 +21,6 @@
+ .artifacts
+ .data
+ .logs
+-.phpunit.cache
+ .twig-cs-fixer.cache
+ 
+ # Dependencies are installed during the image build.
