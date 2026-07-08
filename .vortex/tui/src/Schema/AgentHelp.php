@@ -7,7 +7,7 @@ namespace DrevOps\Tui\Schema;
 use DrevOps\Tui\Config\Config;
 
 /**
- * Produces instructions for driving the customizer non-interactively.
+ * Produces instructions for driving the form non-interactively.
  *
  * @package DrevOps\Tui\Schema
  */
@@ -32,7 +32,7 @@ class AgentHelp {
    */
   public function generate(): string {
     $lines = [
-      'Drive the customizer non-interactively:',
+      'Drive the form non-interactively:',
       '',
       '- Pass --no-interaction to resolve every question from defaults, discovery and derivation without prompting.',
       '- Pass --prompts with a JSON object (or a path to a JSON file) of answers keyed by question id; these take the highest precedence.',

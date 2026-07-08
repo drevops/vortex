@@ -1,6 +1,6 @@
 @startuml
-' drevops/customizer - data flow for the interactive panel TUI.
-' Traced from src/Tui/PanelController.php (run -> frame/handle) and src/Tui/Theme.php.
+' drevops/tui - data flow for the interactive panel TUI.
+' Traced from src/Render/PanelController.php (run -> frame/handle) and src/Theme/.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white

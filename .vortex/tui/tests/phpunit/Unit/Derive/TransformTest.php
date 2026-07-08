@@ -28,7 +28,7 @@ final class TransformTest extends TestCase {
     yield 'kebab' => ['kebab', 'My Site', 'my-site'];
     yield 'pascal' => ['pascal', 'my_site', 'MySite'];
     yield 'snake' => ['snake', 'My Site', 'my_site'];
-    // Customizer-only transforms.
+    // TUI-only transforms.
     yield 'lower' => ['lower', 'HeLLo', 'hello'];
     yield 'upper' => ['upper', 'HeLLo', 'HELLO'];
     yield 'host' => ['host', 'My_Site.Com', 'my-site.com'];

@@ -55,10 +55,10 @@ $config = Form::create('Package scaffolder')
   })
   ->build();
 
-$customizer = new Tui($config, ['Playground\\Scaffolder']);
+$tui = new Tui($config, ['Playground\\Scaffolder']);
 
 if (array_key_exists('schema', $options)) {
-  echo (string) json_encode($customizer->schema(), JSON_PRETTY_PRINT), PHP_EOL;
+  echo (string) json_encode($tui->schema(), JSON_PRETTY_PRINT), PHP_EOL;
   exit(0);
 }
 
@@ -66,10 +66,10 @@ $prompts = array_key_exists('prompts', $options) && is_string($options['prompts'
 
 try {
   if ($prompts !== '' || stream_isatty(STDIN) === FALSE) {
-    $answers = $customizer->collect($prompts, version: '1.0.0');
+    $answers = $tui->collect($prompts, version: '1.0.0');
   }
   else {
-    $answers = $customizer->interact(version: '1.0.0');
+    $answers = $tui->interact(version: '1.0.0');
   }
 }
 catch (EngineException $exception) {

@@ -6,9 +6,9 @@ code in this repository.
 
 ## Project Overview
 
-This project was created from the customizer template and provides a foundation
-for Shell scripts, PHP CLI applications, and/or NodeJS projects with integrated
-testing, code quality tools, and CI/CD workflows.
+This project is a PHP library for building panel-based terminal forms:
+keyboard-driven questionnaires that collect answers interactively through a
+TUI or headlessly from a JSON payload and environment variables.
 
 
 ## PHP Application Architecture

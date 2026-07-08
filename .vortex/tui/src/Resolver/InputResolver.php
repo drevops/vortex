@@ -9,7 +9,7 @@ use DrevOps\Tui\Config\FieldType;
 /**
  * Assembles the non-interactive input map from the external answer layers.
  *
- * The customizer stays dependency-free: this small overlay merges the external
+ * The TUI stays dependency-free: this small overlay merges the external
  * layers - per-question environment variables (below) and a `--prompts`
  * JSON string or file (above) - into one input map. That map is the top layer
  * the engine resolves against, so the full precedence becomes

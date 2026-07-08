@@ -6,15 +6,15 @@
     "authors": [
         {
             "name": "Alex Skrypnyk",
-            "email": "customizer@drevops.com",
+            "email": "tui@drevops.com",
             "homepage": "https://drevops.com",
             "role": "Maintainer"
         }
     ],
-    "homepage": "https://github.com/drevops/customizer",
+    "homepage": "https://github.com/drevops/tui",
     "support": {
-        "issues": "https://github.com/drevops/customizer/issues",
-        "source": "https://github.com/drevops/customizer"
+        "issues": "https://github.com/drevops/tui/issues",
+        "source": "https://github.com/drevops/tui"
     },
     "require": {
         "php": ">=8.2",

@@ -17,11 +17,11 @@ use PHPUnit\Framework\TestCase;
  * Tests the Tui facade.
  */
 #[CoversClass(Tui::class)]
-#[Group('customizer')]
+#[Group('tui')]
 final class TuiTest extends TestCase {
 
   public function testCollect(): void {
-    $answers = $this->customizer()->collect('{"name":"Acme"}', 'dir', FALSE, '1.0');
+    $answers = $this->tui()->collect('{"name":"Acme"}', 'dir', FALSE, '1.0');
 
     $this->assertSame('Acme', $answers->value('name'));
     // "machine" is derived from "name".
@@ -29,30 +29,30 @@ final class TuiTest extends TestCase {
   }
 
   public function testSchema(): void {
-    $this->assertArrayHasKey('prompts', $this->customizer()->schema());
+    $this->assertArrayHasKey('prompts', $this->tui()->schema());
   }
 
   public function testAgentHelp(): void {
-    $this->assertStringContainsString('name', $this->customizer()->agentHelp());
+    $this->assertStringContainsString('name', $this->tui()->agentHelp());
   }
 
   public function testValidate(): void {
-    $this->assertSame([], $this->customizer()->validate(['name' => 'Acme']));
-    $this->assertNotSame([], $this->customizer()->validate(['bogus' => 'x']));
+    $this->assertSame([], $this->tui()->validate(['name' => 'Acme']));
+    $this->assertNotSame([], $this->tui()->validate(['bogus' => 'x']));
   }
 
   public function testAccessors(): void {
-    $customizer = $this->customizer();
+    $tui = $this->tui();
 
-    $this->assertSame('Demo', $customizer->config()->title);
-    $this->assertInstanceOf(Engine::class, $customizer->engine());
-    $this->assertInstanceOf(HandlerRegistry::class, $customizer->registry());
+    $this->assertSame('Demo', $tui->config()->title);
+    $this->assertInstanceOf(Engine::class, $tui->engine());
+    $this->assertInstanceOf(HandlerRegistry::class, $tui->registry());
   }
 
   /**
-   * A customizer over a small in-memory config.
+   * A TUI over a small in-memory config.
    */
-  protected function customizer(): Tui {
+  protected function tui(): Tui {
     $config = Form::create('Demo')
       ->panel('p', 'p', function (PanelBuilder $panel): void {
         $panel->text('name')->required();

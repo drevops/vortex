@@ -18,13 +18,12 @@ use DrevOps\Tui\Render\Terminal;
 use DrevOps\Tui\Theme\AbstractTheme;
 
 /**
- * The one-class entry point for building and running a customizer.
+ * The one-class entry point for collecting a form's answers.
  *
- * Wraps the config loader, engine, input resolver, schema tools and TUI so a
- * consumer can load a config and collect answers - headlessly or interactively
- * - in a single call, without touching the internals. Those internals stay
- * reachable via config(), engine() and registry() when a consumer does want
- * finer control.
+ * Wraps the engine, input resolver, schema tools and panel TUI so a consumer
+ * can collect answers - headlessly or interactively - in a single call,
+ * without touching the internals. Those internals stay reachable via
+ * config(), engine() and registry() when a consumer does want finer control.
  *
  * @package DrevOps\Tui
  */
@@ -41,7 +40,7 @@ final class Tui {
   protected Engine $engine;
 
   /**
-   * Construct a customizer.
+   * Construct a TUI.
    *
    * @param \DrevOps\Tui\Config\Config $config
    *   The configuration.
@@ -50,7 +49,7 @@ final class Tui {
    * @param string $envPrefix
    *   The env-variable prefix for per-question overrides.
    */
-  public function __construct(protected Config $config, array $handler_namespaces = [], protected string $envPrefix = 'CUSTOMIZER_') {
+  public function __construct(protected Config $config, array $handler_namespaces = [], protected string $envPrefix = 'TUI_') {
     $this->registry = new HandlerRegistry($handler_namespaces);
     $this->engine = new Engine($this->config, $this->registry);
   }
@@ -130,7 +129,7 @@ final class Tui {
   }
 
   /**
-   * Agent-facing help for driving the customizer non-interactively.
+   * Agent-facing help for driving the form non-interactively.
    *
    * @return string
    *   The help text.

@@ -10,8 +10,8 @@ use AlexSkrypnyk\Str2Name\Str2Name;
  * Value transforms for derive rules.
  *
  * Extends str2name so every str2name conversion (machine, kebab, pascal, ...)
- * is usable as a derive transform by name, and adds a few customizer-only
- * transforms (host, lower, upper, abbreviation). A config derive rule names a
+ * is usable as a derive transform by name, and adds a few TUI-only
+ * transforms (host, lower, upper, initials). A config derive rule names a
  * transform; the engine validates the name against supports().
  *
  * @package DrevOps\Tui\Derive
@@ -19,7 +19,7 @@ use AlexSkrypnyk\Str2Name\Str2Name;
 class Transform extends Str2Name {
 
   /**
-   * The customizer-only transforms, in addition to the str2name conversions.
+   * The TUI-only transforms, in addition to the str2name conversions.
    */
   protected const EXTRA = ['host', 'lower', 'upper', 'initials'];
 
@@ -90,7 +90,7 @@ class Transform extends Str2Name {
    * The supported transform names.
    *
    * @return list<string>
-   *   All transform names (str2name conversions plus the customizer extras).
+   *   All transform names (str2name conversions plus the TUI extras).
    */
   public static function names(): array {
     return array_values(array_merge(static::STR2NAME, static::EXTRA));

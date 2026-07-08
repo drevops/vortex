@@ -1,5 +1,5 @@
 @startuml
-' drevops/customizer - data flow for headless collection.
+' drevops/tui - data flow for headless collection.
 ' Traced from src/Engine/Engine.php (collect -> resolveInitial -> stabilize -> validate/transform).
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain

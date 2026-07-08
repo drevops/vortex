@@ -1,16 +1,16 @@
 ---
-name: render-customizer-diagrams
-description: Use when regenerating the customizer architecture diagrams under docs/architecture/ after editing a .puml source, or when adding a new data-flow (sequence) diagram. Renders the PlantUML sources to SVG and scaffolds new data-flow diagrams traced from src/. Triggers on "render diagrams", "regenerate architecture diagrams", "update the architecture diagrams", "add a data-flow diagram for <flow>".
+name: render-tui-diagrams
+description: Use when regenerating the TUI architecture diagrams under docs/architecture/ after editing a .puml source, or when adding a new data-flow (sequence) diagram. Renders the PlantUML sources to SVG and scaffolds new data-flow diagrams traced from src/. Triggers on "render diagrams", "regenerate architecture diagrams", "update the architecture diagrams", "add a data-flow diagram for <flow>".
 ---
 
-# Render customizer diagrams
+# Render TUI diagrams
 
-`docs/architecture/` holds the customizer engine's architecture diagrams as PlantUML sources (`.puml`) plus rendered `.svg`:
+`docs/architecture/` holds the TUI engine's architecture diagrams as PlantUML sources (`.puml`) plus rendered `.svg`:
 
 - `architecture.puml` - layered component architecture
 - `dataflow-collect.puml` - the headless collection lifecycle (a sequence diagram)
 - `dataflow-tui.puml` - the interactive panel-TUI loop (a sequence diagram)
-- `README.md` - a narrative walkthrough that explains how the customizer is set up and how it runs, embedding the rendered SVGs as supporting visuals (not a bare index)
+- `README.md` - a narrative walkthrough that explains how the TUI is set up and how it runs, embedding the rendered SVGs as supporting visuals (not a bare index)
 
 All content is derived from the source under `src/` (the packages are the `src/` subdirectories; the lifecycle is what `Engine::collect()` and `PanelController::run()` do), never from design docs. If the docs and the code disagree, the code wins.
 

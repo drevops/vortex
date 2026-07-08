@@ -12,7 +12,7 @@ use DrevOps\Tui\Config\Field;
  *
  * The shape mirrors the installer's schema (`{prompts: [{id, type, label,
  * description, options, default, required, depends_on}]}`) and extends each
- * entry with the customizer's native `when`, `derive` and `discover` rules, so
+ * entry with the TUI's native `when`, `derive` and `discover` rules, so
  * existing tooling keeps working while richer rules are available.
  *
  * @package DrevOps\Tui\Schema

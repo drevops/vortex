@@ -1,5 +1,5 @@
 @startuml
-' drevops/customizer - component architecture.
+' drevops/tui - component architecture.
 ' Packages mirror the src/ subdirectories; arrows show the main dependencies.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -7,7 +7,7 @@ skinparam backgroundColor white
 skinparam defaultFontName Helvetica
 skinparam shadowing false
 skinparam componentStyle rectangle
-title drevops/customizer - component architecture
+title drevops/tui - component architecture
 
 package "Builder" #F0F4C3 {
   [Form]

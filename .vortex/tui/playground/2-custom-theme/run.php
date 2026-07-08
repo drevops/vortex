@@ -33,7 +33,7 @@ $config = Form::create('Ocean theme demo')
   })
   ->build();
 
-$customizer = new Tui($config);
+$tui = new Tui($config);
 $prompts = array_key_exists('prompts', $options) && is_string($options['prompts']) ? $options['prompts'] : '';
 
 $banner = <<<'EOT'
@@ -42,11 +42,11 @@ EOT;
 
 try {
   if ($prompts !== '' || stream_isatty(STDIN) === FALSE) {
-    $answers = $customizer->collect($prompts);
+    $answers = $tui->collect($prompts);
   }
   else {
     // The theme comes from the form: ->theme(OceanTheme::class).
-    $answers = $customizer->interact(banner: $banner, version: '1.0.0');
+    $answers = $tui->interact(banner: $banner, version: '1.0.0');
   }
 }
 catch (EngineException $exception) {
