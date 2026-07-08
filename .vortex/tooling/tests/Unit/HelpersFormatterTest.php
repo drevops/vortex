@@ -68,6 +68,64 @@ class HelpersFormatterTest extends UnitTestCase {
     ];
   }
 
+  public function testTaskBodySuccess(): void {
+    $this->envSet('TERM', 'dumb');
+
+    require_once __DIR__ . '/../../src/helpers.php';
+
+    // A string done message reports [ OK ] verbatim and returns the body value.
+    ob_start();
+    $result = \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', fn(): string => 'value');
+    $output = ob_get_clean();
+
+    $this->assertSame('value', $result);
+    $this->assertEquals("[TASK] Doing the thing.\n[ OK ] Did the thing.\n", $output);
+
+    // A closure done receives the body's return value to build the message.
+    ob_start();
+    $result = \DrevOps\VortexTooling\task('Doing the thing.', fn(string $value): string => sprintf('Did the thing with %s.', $value), fn(): string => 'value');
+    $output = ob_get_clean();
+
+    $this->assertSame('value', $result);
+    $this->assertEquals("[TASK] Doing the thing.\n[ OK ] Did the thing with value.\n", $output);
+  }
+
+  public function testTaskBodyNonFatalFailure(): void {
+    $this->envSet('TERM', 'dumb');
+
+    require_once __DIR__ . '/../../src/helpers.php';
+
+    ob_start();
+    $result = \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', function (): void {
+      throw new \RuntimeException('Something went wrong.');
+    }, fatal: FALSE);
+    $output = ob_get_clean();
+
+    $this->assertNull($result);
+    $this->assertEquals("[TASK] Doing the thing.\n[FAIL] Something went wrong.\n", $output);
+  }
+
+  public function testTaskBodyFatalFailure(): void {
+    $this->envSet('TERM', 'dumb');
+    $this->mockQuit(1);
+
+    require_once __DIR__ . '/../../src/helpers.php';
+
+    $this->expectException(QuitErrorException::class);
+    $this->expectExceptionCode(1);
+
+    try {
+      ob_start();
+      \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', function (): void {
+        throw new \RuntimeException('Something went wrong.');
+      });
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertEquals("[TASK] Doing the thing.\n[FAIL] Something went wrong.\n", $output);
+    }
+  }
+
   #[DataProvider('dataProviderFail')]
   public function testFail(bool $is_tty, string $expected_output): void {
     // Set TERM to a valid terminal type and mock posix_isatty BEFORE loading.

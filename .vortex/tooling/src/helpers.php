@@ -183,8 +183,10 @@ function note(string $format, ...$args): void {
  * [TASK] line (the body may emit progress dots via progress_dot()/
  * sleep_progress() while it works), then reports [ OK ] with the done message.
  * The body signals failure by throwing: the thrown message is reported as
- * [FAIL] and the script exits with an error. This keeps each task's intent,
- * work and outcome in one place and guarantees every task ends with a status.
+ * [FAIL]. A fatal task then exits the script; a non-fatal one returns NULL so a
+ * best-effort loop can carry on to its next item. This keeps each task's
+ * intent, work and outcome in one place and guarantees every task ends with a
+ * status.
  *
  * @param string $doing
  *   The present-tense task message, e.g. 'Downloading the backup.'.
@@ -194,11 +196,15 @@ function note(string $format, ...$args): void {
  *   the work is done.
  * @param callable|null $body
  *   The work to perform; throw to fail the task with the thrown message.
+ * @param bool $fatal
+ *   Whether a thrown failure exits the script. TRUE (default) reports [FAIL]
+ *   and exits; FALSE reports [FAIL] and returns NULL so the caller continues.
  *
  * @return mixed
- *   Whatever the body returns, or NULL when announcing only.
+ *   Whatever the body returns, or NULL when announcing only or when a non-fatal
+ *   body fails.
  */
-function task(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL): mixed {
+function task(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
   $color = term_supports_color();
 
   if ($body === NULL) {
@@ -218,6 +224,13 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
   }
   catch (\Throwable $e) {
     echo ($color ? "\033[0m" : '') . PHP_EOL;
+
+    if (!$fatal) {
+      fail_no_exit('%s', $e->getMessage());
+
+      return NULL;
+    }
+
     fail('%s', $e->getMessage());
   }
 
@@ -270,36 +283,6 @@ function fail_no_exit(string $format, ...$args): void {
 }
 
 /**
- * Run an operation under a task line that stays open for progress dots.
- *
- * Prints the task line without a trailing newline, runs the operation - which
- * emits its own progress dots while it works (see progress_dot()) - then closes
- * the line. This keeps long-running steps such as downloads and status polling
- * visibly alive instead of appearing to hang.
- *
- * @param string $message
- *   The already-formatted task message.
- * @param callable $operation
- *   The work to run; its return value is passed through unchanged.
- *
- * @return mixed
- *   Whatever $operation returns.
- */
-function task_progress(string $message, callable $operation): mixed {
-  $color = term_supports_color();
-  // Leave the colour open so the progress dots inherit the task colour; it is
-  // closed together with the trailing newline once the operation returns.
-  echo $color ? "\033[34m[TASK] " . $message : '[TASK] ' . $message;
-
-  try {
-    return $operation();
-  }
-  finally {
-    echo ($color ? "\033[0m" : '') . PHP_EOL;
-  }
-}
-
-/**
  * Emit a single progress dot for a long-running task and flush it immediately.
  *
  * Flushing matters during a blocking transfer so the dots appear as the work
@@ -313,8 +296,8 @@ function progress_dot(): void {
 /**
  * Sleep for a number of seconds, emitting a progress dot every second.
  *
- * Use inside a task_progress() operation so a fixed wait or a status-poll
- * interval keeps the task line ticking rather than appearing to hang.
+ * Use inside a task() body so a fixed wait or a status-poll interval keeps the
+ * task line ticking rather than appearing to hang.
  *
  * @param int $seconds
  *   The number of seconds to wait.
