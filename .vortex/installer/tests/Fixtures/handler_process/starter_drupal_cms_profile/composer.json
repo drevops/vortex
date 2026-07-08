@@ -39,7 +39,7 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -166,6 +173,19 @@
+@@ -162,6 +169,19 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },

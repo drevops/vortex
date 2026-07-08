@@ -12,8 +12,14 @@ web/profiles/contrib
 web/themes/contrib
 drush/Commands/contrib
 
-# Drupal scaffold files copied into the webroot during the build.
+# Drupal scaffold files copied into the webroot during the build. The README
+# files are kept scaffolded because they materialize otherwise-empty extension
+# directories that the Drupal core PHPUnit bootstrap requires to exist.
+web/modules/README.txt
+web/profiles/README.txt
+web/sites/README.txt
 web/sites/development.services.yml
+web/themes/README.txt
 
 # Local settings overrides.
 web/sites/*/settings.local.php
