@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Handler;
 
 /**
- * The run context passed to handler discover() and process().
+ * The run context passed to the handler hooks.
  *
  * @package DrevOps\Tui\Handler
  */

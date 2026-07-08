@@ -10,7 +10,7 @@ namespace DrevOps\Tui\Derive;
  * A derive rule is `{template, transform?}`, where the template contains
  * `{{field}}` tokens interpolated from the current values and the optional
  * transform normalizes the result via {@see Transform} (any str2name
- * conversion, or one of host / lower / upper / abbreviation).
+ * conversion, or one of host / lower / upper / initials).
  * Derived values are recomputed to a fixpoint so chains settle, and fields the
  * user has pinned (overridden) are left untouched.
  *

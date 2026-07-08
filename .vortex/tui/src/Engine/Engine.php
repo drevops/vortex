@@ -44,7 +44,7 @@ class Engine {
   protected Discovery $discovery;
 
   /**
-   * The provenance of each active field from the most recent run().
+   * The provenance of each active field from the most recent collect().
    *
    * @var array<string,string>
    */
@@ -75,7 +75,7 @@ class Engine {
   }
 
   /**
-   * Collect answers without applying them (no process() side effects).
+   * Collect the answers of the active fields.
    *
    * @param array<string,mixed> $inputs
    *   Pre-supplied values keyed by field id (from flags, env, prompts, ...).
@@ -131,7 +131,7 @@ class Engine {
   }
 
   /**
-   * The provenance of each active field from the most recent run().
+   * The provenance of each active field from the most recent collect().
    *
    * @return array<string,string>
    *   One of default / detected / edited / derived / override, keyed by id.
@@ -141,7 +141,7 @@ class Engine {
   }
 
   /**
-   * The collected answers of the most recent run() as an Answers model.
+   * The collected answers of the most recent collect() as an Answers model.
    *
    * @return \DrevOps\Tui\Answers\Answers
    *   The answer set with values and provenance.
