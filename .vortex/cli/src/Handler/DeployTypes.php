@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
@@ -17,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DeployTypes extends AbstractHandler implements OptionsInterface, FieldInterface {
+class DeployTypes extends AbstractFieldHandler implements OptionsInterface {
 
   const ARTIFACT = 'artifact';
 
@@ -65,12 +64,43 @@ class DeployTypes extends AbstractHandler implements OptionsInterface, FieldInte
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->multiselect('deploy_types', 'Deployment types')
-      ->description('One or more deployment mechanisms.')
-      ->default(fn (Context $c): array => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::LAGOON => [self::LAGOON], HostingProvider::ACQUIA => [self::ARTIFACT], default => [self::WEBHOOK] })
-      ->options(self::options())
-      ->weight(170);
+  public static function id(): string {
+    return 'deploy_types';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Deployment types';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::MultiSelect;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'One or more deployment mechanisms.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return fn (Context $c): array => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::LAGOON => [self::LAGOON], HostingProvider::ACQUIA => [self::ARTIFACT], default => [self::WEBHOOK] };
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 170;
   }
 
 }

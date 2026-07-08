@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Condition\ConditionInterface;
+use DrevOps\Tui\Config\FieldType;
 
 /**
  * Reusable behaviour for the "profile_custom" question.
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ProfileCustom implements FieldInterface {
+class ProfileCustom extends AbstractFieldHandler {
 
   /**
    * Validate the collected value.
@@ -44,12 +44,50 @@ class ProfileCustom implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->text('profile_custom', 'Custom profile machine name')
-      ->description('The machine name of your custom profile.')
-      ->required()
-      ->when(new Condition('profile', eq: Profile::CUSTOM))
-      ->weight(260);
+  public static function id(): string {
+    return 'profile_custom';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Custom profile machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Text;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'The machine name of your custom profile.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function when(): ?ConditionInterface {
+    return new Condition('profile', eq: Profile::CUSTOM);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 260;
   }
 
 }

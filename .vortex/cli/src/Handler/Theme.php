@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
@@ -17,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Theme extends AbstractHandler implements OptionsInterface, FieldInterface {
+class Theme extends AbstractFieldHandler implements OptionsInterface {
 
   const OLIVERO = 'olivero';
 
@@ -182,12 +181,50 @@ class Theme extends AbstractHandler implements OptionsInterface, FieldInterface 
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('theme', 'Theme')
-      ->description('The base theme for the site front-end.')
-      ->default(self::CUSTOM)->required()
-      ->options(self::options())
-      ->weight(340);
+  public static function id(): string {
+    return 'theme';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Theme';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'The base theme for the site front-end.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::CUSTOM;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 340;
   }
 
 }

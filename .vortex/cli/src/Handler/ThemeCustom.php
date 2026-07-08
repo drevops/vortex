@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Condition\ConditionInterface;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Derive\Derive;
 
 /**
@@ -14,7 +14,7 @@ use DrevOps\Tui\Derive\Derive;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ThemeCustom implements FieldInterface {
+class ThemeCustom extends AbstractFieldHandler {
 
   /**
    * Validate the collected value.
@@ -45,13 +45,57 @@ class ThemeCustom implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->text('theme_custom', 'Custom theme machine name')
-      ->description('We will use this name as a custom theme name.')
-      ->required()
-      ->when(new Condition('theme', eq: Theme::CUSTOM))
-      ->derive(new Derive('{{machine_name}}', 'machine'))
-      ->weight(330);
+  public static function id(): string {
+    return 'theme_custom';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Custom theme machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Text;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'We will use this name as a custom theme name.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function when(): ?ConditionInterface {
+    return new Condition('theme', eq: Theme::CUSTOM);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function derive(): ?Derive {
+    return new Derive('{{machine_name}}', 'machine');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 330;
   }
 
 }

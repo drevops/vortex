@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class PreserveDocsProject extends AbstractHandler implements FieldInterface {
+class PreserveDocsProject extends AbstractFieldHandler {
 
   /**
    * {@inheritdoc}
@@ -35,8 +34,43 @@ class PreserveDocsProject extends AbstractHandler implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->confirm('preserve_docs_project', 'Preserve project documentation?')->description('Helps to maintain the project documentation within the repository.')->default(TRUE)->weight(30);
+  public static function id(): string {
+    return 'preserve_docs_project';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Preserve project documentation?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Confirm;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Helps to maintain the project documentation within the repository.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 30;
   }
 
 }

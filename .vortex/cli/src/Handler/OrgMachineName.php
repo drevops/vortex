@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class OrgMachineName extends AbstractHandler implements FieldInterface {
+class OrgMachineName extends AbstractFieldHandler {
 
   /**
    * Validate the collected value.
@@ -57,12 +56,50 @@ class OrgMachineName extends AbstractHandler implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->text('org_machine_name', 'Organization machine name')
-      ->description('We will use this name in the code.')
-      ->required()
-      ->derive(new Derive('{{org}}', 'machine'))
-      ->weight(350);
+  public static function id(): string {
+    return 'org_machine_name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Organization machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Text;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'We will use this name in the code.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function derive(): ?Derive {
+    return new Derive('{{org}}', 'machine');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 350;
   }
 
 }

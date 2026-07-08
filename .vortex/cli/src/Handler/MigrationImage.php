@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
@@ -17,7 +17,7 @@ use DrevOps\VortexCli\Utils\Env;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class MigrationImage extends AbstractHandler implements FieldInterface {
+class MigrationImage extends AbstractFieldHandler {
 
   /**
    * Validate the collected value.
@@ -57,12 +57,50 @@ class MigrationImage extends AbstractHandler implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->text('migration_image', 'Migration database container image name and tag')
-      ->description('Use the "latest" tag for the latest version.')
-      ->when(new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY))
-      ->derive(new Derive('{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'lower'))
-      ->weight(100);
+  public static function id(): string {
+    return 'migration_image';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Migration database container image name and tag';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Text;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Use the "latest" tag for the latest version.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function when(): ?ConditionInterface {
+    return new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function derive(): ?Derive {
+    return new Derive('{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'lower');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 100;
   }
 
 }

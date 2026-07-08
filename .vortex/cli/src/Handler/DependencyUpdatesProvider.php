@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DependencyUpdatesProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
+class DependencyUpdatesProvider extends AbstractFieldHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -62,12 +61,43 @@ class DependencyUpdatesProvider extends AbstractHandler implements OptionsInterf
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('dependency_updates_provider', 'Dependency updates provider')
-      ->description('The dependency updates provider.')
-      ->default(self::RENOVATEBOT_APP)
-      ->options(self::options())
-      ->weight(70);
+  public static function id(): string {
+    return 'dependency_updates_provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Dependency updates provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'The dependency updates provider.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::RENOVATEBOT_APP;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 70;
   }
 
 }

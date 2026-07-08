@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Starter extends AbstractHandler implements OptionsInterface, FieldInterface {
+class Starter extends AbstractFieldHandler implements OptionsInterface {
 
   const INSTALL_PROFILE_CORE = 'install_profile_core';
 
@@ -80,12 +79,43 @@ class Starter extends AbstractHandler implements OptionsInterface, FieldInterfac
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('starter', 'How would you like your site to be created on the first run?')
-      ->description('Applies only on the first run of the installer.')
-      ->default(self::LOAD_DATABASE_DEMO)
-      ->options(self::options())
-      ->weight(250);
+  public static function id(): string {
+    return 'starter';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'How would you like your site to be created on the first run?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Applies only on the first run of the installer.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::LOAD_DATABASE_DEMO;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 250;
   }
 
 }

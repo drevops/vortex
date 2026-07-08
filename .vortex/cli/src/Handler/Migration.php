@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Migration extends AbstractHandler implements FieldInterface {
+class Migration extends AbstractFieldHandler {
 
   /**
    * {@inheritdoc}
@@ -44,8 +43,43 @@ class Migration extends AbstractHandler implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->confirm('migration', 'Use a second database for migrations?')->description('Adds a second database service for Drupal migrations.')->default(FALSE)->weight(120);
+  public static function id(): string {
+    return 'migration';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Use a second database for migrations?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Confirm;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Adds a second database service for Drupal migrations.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 120;
   }
 
 }

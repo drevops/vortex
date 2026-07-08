@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CodeProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
+class CodeProvider extends AbstractFieldHandler implements OptionsInterface {
 
   const GITHUB = 'github';
 
@@ -101,12 +100,43 @@ class CodeProvider extends AbstractHandler implements OptionsInterface, FieldInt
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('code_provider', 'Repository provider')
-      ->description('Vortex offers full automation with GitHub; support for other providers is limited.')
-      ->default(self::GITHUB)
-      ->options(self::options())
-      ->weight(230);
+  public static function id(): string {
+    return 'code_provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Repository provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Vortex offers full automation with GitHub; support for other providers is limited.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::GITHUB;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 230;
   }
 
 }

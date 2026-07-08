@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CodeCoverageProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
+class CodeCoverageProvider extends AbstractFieldHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -46,12 +45,43 @@ class CodeCoverageProvider extends AbstractHandler implements OptionsInterface, 
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('code_coverage_provider', 'Code coverage provider')
-      ->description('The code coverage provider.')
-      ->default(self::NONE)
-      ->options(self::options())
-      ->weight(60);
+  public static function id(): string {
+    return 'code_coverage_provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Code coverage provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'The code coverage provider.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::NONE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 60;
   }
 
 }

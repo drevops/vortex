@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class AiCodeInstructions extends AbstractHandler implements FieldInterface {
+class AiCodeInstructions extends AbstractFieldHandler {
 
   /**
    * {@inheritdoc}
@@ -32,8 +31,43 @@ class AiCodeInstructions extends AbstractHandler implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->confirm('ai_code_instructions', 'Provide AI agent instructions?')->description('Provides AI coding agents with better context about the project.')->default(TRUE)->weight(20);
+  public static function id(): string {
+    return 'ai_code_instructions';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Provide AI agent instructions?';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Confirm;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Provides AI coding agents with better context about the project.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 20;
   }
 
 }

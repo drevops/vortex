@@ -6,7 +6,10 @@ namespace DrevOps\VortexCli\Form;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\VortexCli\Handler\AiCodeInstructions;
 use DrevOps\VortexCli\Handler\AssignAuthorPr;
 use DrevOps\VortexCli\Handler\CiProvider;
@@ -30,6 +33,7 @@ use DrevOps\VortexCli\Handler\ModulePrefix;
 use DrevOps\VortexCli\Handler\Modules;
 use DrevOps\VortexCli\Handler\Name;
 use DrevOps\VortexCli\Handler\NotificationChannels;
+use DrevOps\VortexCli\Handler\OptionsInterface;
 use DrevOps\VortexCli\Handler\Org;
 use DrevOps\VortexCli\Handler\OrgMachineName;
 use DrevOps\VortexCli\Handler\PreserveDocsProject;
@@ -93,79 +97,134 @@ BANNER;
       ->envPrefix('VORTEX_')
       ->panel('general', 'General information', function (PanelBuilder $p): void {
         $p->description('Project name, organization and public domain.');
-        Name::field($p);
-        MachineName::field($p);
-        Org::field($p);
-        OrgMachineName::field($p);
-        Domain::field($p);
+        self::field($p, Name::class);
+        self::field($p, MachineName::class);
+        self::field($p, Org::class);
+        self::field($p, OrgMachineName::class);
+        self::field($p, Domain::class);
       })
       ->panel('drupal', 'Drupal', function (PanelBuilder $p): void {
         $p->description('Install profile, modules, theme and front-end build.');
-        Starter::field($p);
-        Profile::field($p);
-        ProfileCustom::field($p);
-        Modules::field($p);
-        ModulePrefix::field($p);
-        CustomModules::field($p);
-        Theme::field($p);
-        ThemeCustom::field($p);
-        FrontendBuild::field($p);
+        self::field($p, Starter::class);
+        self::field($p, Profile::class);
+        self::field($p, ProfileCustom::class);
+        self::field($p, Modules::class);
+        self::field($p, ModulePrefix::class);
+        self::field($p, CustomModules::class);
+        self::field($p, Theme::class);
+        self::field($p, ThemeCustom::class);
+        self::field($p, FrontendBuild::class);
       })
       ->panel('code_repository', 'Code repository', function (PanelBuilder $p): void {
         $p->description('Where the code lives and how releases are versioned.');
-        CodeProvider::field($p);
-        VersionScheme::field($p);
+        self::field($p, CodeProvider::class);
+        self::field($p, VersionScheme::class);
       })
       ->panel('environment', 'Environment', function (PanelBuilder $p): void {
         $p->description('Timezone, Docker services and developer tooling.');
-        Timezone::field($p);
-        Services::field($p);
-        Tools::field($p);
+        self::field($p, Timezone::class);
+        self::field($p, Services::class);
+        self::field($p, Tools::class);
       })
       ->panel('hosting', 'Hosting', function (PanelBuilder $p): void {
         $p->description('Target hosting provider and project name.');
-        HostingProvider::field($p);
-        HostingProjectName::field($p);
-        Webroot::field($p);
+        self::field($p, HostingProvider::class);
+        self::field($p, HostingProjectName::class);
+        self::field($p, Webroot::class);
       })
       ->panel('deployment', 'Deployment', function (PanelBuilder $p): void {
         $p->description('How code is shipped to the hosting environment.');
-        DeployTypes::field($p);
+        self::field($p, DeployTypes::class);
       })
       ->panel('workflow', 'Workflow', function (PanelBuilder $p): void {
         $p->description('Provisioning method and database source.');
-        ProvisionType::field($p);
-        DatabaseFetchSource::field($p);
-        DatabaseImage::field($p);
-        Migration::field($p);
-        MigrationFetchSource::field($p);
-        MigrationImage::field($p);
+        self::field($p, ProvisionType::class);
+        self::field($p, DatabaseFetchSource::class);
+        self::field($p, DatabaseImage::class);
+        self::field($p, Migration::class);
+        self::field($p, MigrationFetchSource::class);
+        self::field($p, MigrationImage::class);
       })
       ->panel('notifications', 'Notifications', function (PanelBuilder $p): void {
         $p->description('Where build and deployment notifications are sent.');
-        NotificationChannels::field($p);
+        self::field($p, NotificationChannels::class);
       })
       ->panel('continuous_integration', 'Continuous Integration', function (PanelBuilder $p): void {
         $p->description('CI provider and visual regression testing.');
-        CiProvider::field($p);
-        VisualRegression::field($p);
+        self::field($p, CiProvider::class);
+        self::field($p, VisualRegression::class);
       })
       ->panel('automations', 'Automations', function (PanelBuilder $p): void {
         $p->description('Dependency updates, coverage and PR automation.');
-        DependencyUpdatesProvider::field($p);
-        CodeCoverageProvider::field($p);
-        AssignAuthorPr::field($p);
-        LabelMergeConflictsPr::field($p);
+        self::field($p, DependencyUpdatesProvider::class);
+        self::field($p, CodeCoverageProvider::class);
+        self::field($p, AssignAuthorPr::class);
+        self::field($p, LabelMergeConflictsPr::class);
       })
       ->panel('documentation', 'Documentation', function (PanelBuilder $p): void {
         $p->description('Whether project documentation is kept.');
-        PreserveDocsProject::field($p);
+        self::field($p, PreserveDocsProject::class);
       })
       ->panel('ai', 'AI', function (PanelBuilder $p): void {
         $p->description('Whether AI agent instructions are included.');
-        AiCodeInstructions::field($p);
+        self::field($p, AiCodeInstructions::class);
       })
       ->build();
+  }
+
+  /**
+   * Declare a handler's question on a panel.
+   *
+   * The adapter between the handlers and the form: handlers declare their
+   * question as pure data, and this is the single place converting that
+   * metadata into form elements.
+   *
+   * @param \DrevOps\Tui\Builder\PanelBuilder $p
+   *   The panel builder.
+   * @param class-string<\DrevOps\VortexCli\Handler\FieldInterface> $handler
+   *   The handler class declaring the question.
+   */
+  protected static function field(PanelBuilder $p, string $handler): void {
+    $field = match ($handler::type()) {
+      FieldType::Text => $p->text($handler::id(), $handler::label()),
+      FieldType::Select => $p->select($handler::id(), $handler::label()),
+      FieldType::MultiSelect => $p->multiselect($handler::id(), $handler::label()),
+      FieldType::Confirm => $p->confirm($handler::id(), $handler::label()),
+      FieldType::Suggest => $p->suggest($handler::id(), $handler::label()),
+    };
+
+    $field->weight($handler::weight());
+
+    if ($handler::description() !== '') {
+      $field->description($handler::description());
+    }
+
+    if ($handler::default() !== NULL) {
+      $field->default($handler::default());
+    }
+
+    if ($handler::required()) {
+      $field->required();
+    }
+
+    if (is_a($handler, OptionsInterface::class, TRUE)) {
+      $field->options($handler::options());
+    }
+
+    $when = $handler::when();
+    if ($when instanceof ConditionInterface) {
+      $field->when($when);
+    }
+
+    $derive = $handler::derive();
+    if ($derive instanceof Derive) {
+      $field->derive($derive);
+    }
+
+    $discover = $handler::discover();
+    if ($discover !== NULL) {
+      $field->discover($discover);
+    }
   }
 
 }

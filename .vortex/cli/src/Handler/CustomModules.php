@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CustomModules extends AbstractHandler implements OptionsInterface, FieldInterface {
+class CustomModules extends AbstractFieldHandler implements OptionsInterface {
 
   const BASE = 'base';
 
@@ -134,12 +133,43 @@ class CustomModules extends AbstractHandler implements OptionsInterface, FieldIn
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->multiselect('custom_modules', 'Custom modules')
-      ->description('Which scaffolded custom modules to keep.')
-      ->default([self::BASE, self::SEARCH, self::DEMO])
-      ->options(self::options())
-      ->weight(300);
+  public static function id(): string {
+    return 'custom_modules';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Custom modules';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::MultiSelect;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Which scaffolded custom modules to keep.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return [self::BASE, self::SEARCH, self::DEMO];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 300;
   }
 
 }

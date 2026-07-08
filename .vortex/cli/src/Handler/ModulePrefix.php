@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
@@ -17,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ModulePrefix extends AbstractHandler implements FieldInterface {
+class ModulePrefix extends AbstractFieldHandler {
 
   /**
    * Validate the collected value.
@@ -83,12 +82,50 @@ class ModulePrefix extends AbstractHandler implements FieldInterface {
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->text('module_prefix', 'Custom modules prefix')
-      ->description('We will use this name in custom modules.')
-      ->required()
-      ->derive(new Derive('{{machine_name}}', 'initials'))
-      ->weight(310);
+  public static function id(): string {
+    return 'module_prefix';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Custom modules prefix';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Text;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'We will use this name in custom modules.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function derive(): ?Derive {
+    return new Derive('{{machine_name}}', 'initials');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 310;
   }
 
 }

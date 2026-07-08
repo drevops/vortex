@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Profile extends AbstractHandler implements OptionsInterface, FieldInterface {
+class Profile extends AbstractFieldHandler implements OptionsInterface {
 
   const STANDARD = 'standard';
 
@@ -76,12 +75,50 @@ class Profile extends AbstractHandler implements OptionsInterface, FieldInterfac
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('profile', 'Profile')
-      ->description('The Drupal installation profile the site is built on.')
-      ->default(fn (Context $c): string => ($c->answers['starter'] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS ? Starter::INSTALL_PROFILE_DRUPALCMS_PATH : self::STANDARD)->required()
-      ->options(self::options())
-      ->weight(270);
+  public static function id(): string {
+    return 'profile';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Profile';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'The Drupal installation profile the site is built on.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return fn (Context $c): string => ($c->answers['starter'] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS ? Starter::INSTALL_PROFILE_DRUPALCMS_PATH : self::STANDARD;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 270;
   }
 
 }

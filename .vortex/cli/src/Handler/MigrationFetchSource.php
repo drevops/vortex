@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
@@ -17,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class MigrationFetchSource extends AbstractHandler implements OptionsInterface, FieldInterface {
+class MigrationFetchSource extends AbstractFieldHandler implements OptionsInterface {
 
   const URL = 'url';
 
@@ -84,13 +84,50 @@ class MigrationFetchSource extends AbstractHandler implements OptionsInterface, 
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('migration_fetch_source', 'Migration database source')
-      ->description('Where the migration database dump is fetched from.')
-      ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL })
-      ->when(new Condition('migration', eq: TRUE))
-      ->options(self::options())
-      ->weight(110);
+  public static function id(): string {
+    return 'migration_fetch_source';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Migration database source';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Where the migration database dump is fetched from.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL };
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function when(): ?ConditionInterface {
+    return new Condition('migration', eq: TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 110;
   }
 
 }

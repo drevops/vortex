@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Timezone extends AbstractHandler implements OptionsInterface, FieldInterface {
+class Timezone extends AbstractFieldHandler implements OptionsInterface {
 
   const UTC = 'UTC';
 
@@ -641,12 +640,43 @@ class Timezone extends AbstractHandler implements OptionsInterface, FieldInterfa
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->suggest('timezone', 'Timezone')
-      ->description('Start typing to select the timezone for your project.')
-      ->default(self::UTC)
-      ->options(self::options())
-      ->weight(210);
+  public static function id(): string {
+    return 'timezone';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Timezone';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Suggest;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Start typing to select the timezone for your project.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::UTC;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 210;
   }
 
 }

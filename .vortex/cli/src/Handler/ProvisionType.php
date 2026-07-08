@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ProvisionType extends AbstractHandler implements OptionsInterface, FieldInterface {
+class ProvisionType extends AbstractFieldHandler implements OptionsInterface {
 
   const DATABASE = 'database';
 
@@ -52,12 +51,43 @@ class ProvisionType extends AbstractHandler implements OptionsInterface, FieldIn
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('provision_type', 'Provision type')
-      ->description('How the site is provisioned: from a database dump or installed from a profile.')
-      ->default(self::DATABASE)
-      ->options(self::options())
-      ->weight(150);
+  public static function id(): string {
+    return 'provision_type';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Provision type';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'How the site is provisioned: from a database dump or installed from a profile.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::DATABASE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 150;
   }
 
 }

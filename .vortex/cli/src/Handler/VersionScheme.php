@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class VersionScheme extends AbstractHandler implements OptionsInterface, FieldInterface {
+class VersionScheme extends AbstractFieldHandler implements OptionsInterface {
 
   const CALVER = 'calver';
 
@@ -60,12 +59,43 @@ class VersionScheme extends AbstractHandler implements OptionsInterface, FieldIn
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('version_scheme', 'Release versioning scheme')
-      ->description('CalVer (year.month.patch) or SemVer (major.minor.patch).')
-      ->default(self::CALVER)
-      ->options(self::options())
-      ->weight(220);
+  public static function id(): string {
+    return 'version_scheme';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Release versioning scheme';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'CalVer (year.month.patch) or SemVer (major.minor.patch).';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::CALVER;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 220;
   }
 
 }

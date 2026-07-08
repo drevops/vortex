@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
@@ -17,7 +17,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DatabaseFetchSource extends AbstractHandler implements OptionsInterface, FieldInterface {
+class DatabaseFetchSource extends AbstractFieldHandler implements OptionsInterface {
 
   const URL = 'url';
 
@@ -91,13 +91,50 @@ class DatabaseFetchSource extends AbstractHandler implements OptionsInterface, F
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('database_fetch_source', 'Database source')
-      ->description('Where the database dump is fetched from.')
-      ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL })
-      ->when(new Condition('provision_type', eq: ProvisionType::DATABASE))
-      ->options(self::options())
-      ->weight(140);
+  public static function id(): string {
+    return 'database_fetch_source';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Database source';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Where the database dump is fetched from.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL };
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function when(): ?ConditionInterface {
+    return new Condition('provision_type', eq: ProvisionType::DATABASE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 140;
   }
 
 }

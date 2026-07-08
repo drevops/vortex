@@ -6,9 +6,8 @@ namespace DrevOps\VortexCli\Handler;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
 use AlexSkrypnyk\File\Replacer\Replacement;
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
@@ -20,7 +19,7 @@ use DrevOps\VortexCli\Utils\Yaml;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Tools extends AbstractHandler implements OptionsInterface, FieldInterface {
+class Tools extends AbstractFieldHandler implements OptionsInterface {
 
   const PHPCS = 'phpcs';
 
@@ -545,12 +544,43 @@ class Tools extends AbstractHandler implements OptionsInterface, FieldInterface 
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->multiselect('tools', 'Development tools')
-      ->description('Linting and testing tools to keep.')
-      ->default([self::BEHAT, self::ESLINT, self::JEST, self::PHPCS, self::PHPSTAN, self::PHPUNIT, self::RECTOR, self::STYLELINT])
-      ->options(self::options())
-      ->weight(190);
+  public static function id(): string {
+    return 'tools';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Development tools';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::MultiSelect;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Linting and testing tools to keep.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return [self::BEHAT, self::ESLINT, self::JEST, self::PHPCS, self::PHPSTAN, self::PHPUNIT, self::RECTOR, self::STYLELINT];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 190;
   }
 
 }

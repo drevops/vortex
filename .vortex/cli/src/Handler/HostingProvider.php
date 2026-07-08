@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
@@ -16,7 +15,7 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class HostingProvider extends AbstractHandler implements OptionsInterface, FieldInterface {
+class HostingProvider extends AbstractFieldHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -110,12 +109,50 @@ class HostingProvider extends AbstractHandler implements OptionsInterface, Field
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->select('hosting_provider', 'Hosting provider')
-      ->description('The hosting provider for the project.')
-      ->default(self::NONE)->required()
-      ->options(self::options())
-      ->weight(180);
+  public static function id(): string {
+    return 'hosting_provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Hosting provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::Select;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'The hosting provider for the project.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return self::NONE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function required(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 180;
   }
 
 }

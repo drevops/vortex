@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
@@ -15,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Services extends AbstractHandler implements OptionsInterface, FieldInterface {
+class Services extends AbstractFieldHandler implements OptionsInterface {
 
   const CLAMAV = 'clamav';
 
@@ -96,12 +95,43 @@ class Services extends AbstractHandler implements OptionsInterface, FieldInterfa
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->multiselect('services', 'Services')
-      ->description('Optional Docker services to include.')
-      ->default([self::CLAMAV, self::REDIS, self::SOLR])
-      ->options(self::options())
-      ->weight(200);
+  public static function id(): string {
+    return 'services';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Services';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::MultiSelect;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'Optional Docker services to include.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return [self::CLAMAV, self::REDIS, self::SOLR];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 200;
   }
 
 }

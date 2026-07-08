@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Builder\FieldBuilder;
-use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
@@ -17,7 +16,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class NotificationChannels extends AbstractHandler implements OptionsInterface, FieldInterface {
+class NotificationChannels extends AbstractFieldHandler implements OptionsInterface {
 
   const EMAIL = 'email';
 
@@ -92,12 +91,43 @@ class NotificationChannels extends AbstractHandler implements OptionsInterface, 
   /**
    * {@inheritdoc}
    */
-  public static function field(PanelBuilder $p): FieldBuilder {
-    return $p->multiselect('notification_channels', 'Notification channels')
-      ->description('One or more notification channels.')
-      ->default([self::EMAIL])
-      ->options(self::options())
-      ->weight(160);
+  public static function id(): string {
+    return 'notification_channels';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function label(): string {
+    return 'Notification channels';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function type(): FieldType {
+    return FieldType::MultiSelect;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(): string {
+    return 'One or more notification channels.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function default(): mixed {
+    return [self::EMAIL];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 160;
   }
 
 }
