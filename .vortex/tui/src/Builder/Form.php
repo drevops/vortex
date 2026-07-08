@@ -9,7 +9,7 @@ use DrevOps\Tui\Config\ConfigException;
 use DrevOps\Tui\Config\Panel;
 
 /**
- * A fluent builder for the Config model, declared in PHP instead of YAML.
+ * A fluent builder declaring a form: its panels, fields and TUI options.
  *
  * @package DrevOps\Tui\Builder
  */
