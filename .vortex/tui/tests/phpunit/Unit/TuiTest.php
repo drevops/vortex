@@ -28,6 +28,16 @@ final class TuiTest extends TestCase {
     $this->assertSame('acme', $answers->value('machine'));
   }
 
+  public function testRun(): void {
+    // Supplied prompts force the headless path regardless of the TTY.
+    $answers = $this->tui()->run('{"name":"Acme"}', '1.0');
+    $this->assertSame('Acme', $answers->value('name'));
+
+    // An explicit FALSE forces headless collection from the defaults.
+    $answers = $this->tui()->run('', '', '', FALSE);
+    $this->assertSame('', $answers->value('name'));
+  }
+
   public function testSchema(): void {
     $this->assertArrayHasKey('prompts', $this->tui()->schema());
   }
@@ -74,17 +84,16 @@ final class TuiTest extends TestCase {
   }
 
   /**
-   * A TUI over a small in-memory config.
+   * A TUI over a small in-memory form.
    */
   protected function tui(): Tui {
-    $config = Form::create('Demo')
+    $form = Form::create('Demo')
       ->panel('p', 'p', function (PanelBuilder $panel): void {
         $panel->text('name')->required();
         $panel->text('machine')->derive(['template' => '{{name}}', 'transform' => 'machine']);
-      })
-      ->build();
+      });
 
-    return new Tui($config, [], 'TEST_');
+    return new Tui($form, [], 'TEST_');
   }
 
 }

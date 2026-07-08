@@ -24,8 +24,8 @@ of its own. The public surface is:
 - **`DrevOps\Tui\Builder\Form`** - the fluent builder for declaring a form's
   panels and fields.
 
-A consumer declares a form with `Form::create(...)->panel(...)->build()` and
-drives it through the `Tui` facade.
+A consumer declares a form with `Form::create(...)->panel(...)` and drives it
+through the `Tui` facade.
 
 
 ### Namespace Structure

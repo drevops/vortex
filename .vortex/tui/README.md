@@ -47,19 +47,19 @@ use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Tui;
 
-$config = Form::create('My form')
+$form = Form::create('My form')
   ->panel('general', 'General', function (PanelBuilder $p): void {
     $p->text('name', 'Your name')->required();
-  })
-  ->build();
+  });
 
-$tui = new Tui($config, ['App\\Handler']);
+$tui = new Tui($form, ['App\\Handler']);
 
-// Headless: collect answers from a JSON payload (and the environment).
-echo $tui->collect('{"name":"Ada"}')->toJson();
+// Interactive panel TUI on a terminal, headless otherwise.
+$answers = $tui->run();
 
-// Interactive: drive the panel TUI instead.
-$answers = $tui->interact();
+// Or call a mode directly:
+echo $tui->collect('{"name":"Ada"}')->toJson();  // headless: JSON + environment
+$answers = $tui->interact();                     // interactive panel TUI
 ```
 
 It also exposes `schema()`, `agentHelp()` and `validate()`, and - when you want finer control - the internals via `config()`, `engine()` and `registry()`. See [`playground/`](playground) for complete, runnable examples.
@@ -72,7 +72,7 @@ A form is a tree of panels, each holding fields, built fluently:
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 
-$config = Form::create('My form')
+$form = Form::create('My form')
   ->panel('general', 'General', function (PanelBuilder $p): void {
     // text | select | multiselect | suggest | confirm
     $p->text('name', 'Project name')->required();
@@ -86,8 +86,7 @@ $config = Form::create('My form')
 
     // Shown only when the condition holds.
     $p->text('profile_custom', 'Custom profile')->when(['field' => 'profile', 'eq' => 'custom']);
-  })
-  ->build();
+  });
 ```
 
 Each field builder chains `->description()`, `->default()`, `->required()`, `->options()`, `->when()` (conditional visibility), `->derive()` (computed value) and `->discover()` (detect from the directory). A `derive` transform is any str2name conversion (`machine`, `kebab`, `pascal`, ...) plus `host`, `lower`, `upper` and `initials`.
@@ -153,7 +152,7 @@ class OceanTheme extends DarkTheme {
 Lowest friction: a form names the class directly, with no registration:
 
 ```php
-$config = Form::create('My form')->theme('\App\OceanTheme')/* ... */;
+$form = Form::create('My form')->theme('\App\OceanTheme')/* ... */;
 ```
 
 Or register a short alias and use it by name: `AbstractTheme::register('ocean', OceanTheme::class)`, then `->theme('ocean')`.

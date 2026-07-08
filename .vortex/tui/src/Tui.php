@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\Tui;
 
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
@@ -45,20 +46,52 @@ final class Tui {
   protected string $envPrefix;
 
   /**
+   * The configuration.
+   */
+  protected Config $config;
+
+  /**
    * Construct a TUI.
    *
-   * @param \DrevOps\Tui\Config\Config $config
-   *   The configuration.
+   * @param \DrevOps\Tui\Config\Config|\DrevOps\Tui\Builder\Form $form
+   *   The form: a Form builder (built internally) or its built Config.
    * @param string[] $handler_namespaces
    *   Namespaces the engine searches for field handlers, in order.
    * @param string $env_prefix
    *   The env-variable prefix for per-question overrides; wins over the
    *   form-declared prefix, which wins over the "TUI_" default.
    */
-  public function __construct(protected Config $config, array $handler_namespaces = [], string $env_prefix = '') {
-    $this->envPrefix = $env_prefix !== '' ? $env_prefix : ($config->envPrefix !== '' ? $config->envPrefix : 'TUI_');
+  public function __construct(Config|Form $form, array $handler_namespaces = [], string $env_prefix = '') {
+    $this->config = $form instanceof Form ? $form->build() : $form;
+    $this->envPrefix = $env_prefix !== '' ? $env_prefix : ($this->config->envPrefix !== '' ? $this->config->envPrefix : 'TUI_');
     $this->registry = new HandlerRegistry($handler_namespaces);
     $this->engine = new Engine($this->config, $this->registry);
+  }
+
+  /**
+   * Collect answers, interactively on a terminal or headlessly otherwise.
+   *
+   * Routes to interact() when no prompts are supplied and standard input is a
+   * TTY, and to collect() otherwise. Pass $interactive to force a mode - for
+   * example from a console framework's own interactivity detection.
+   *
+   * @param string $prompts
+   *   Answers as a JSON string (or a path to a JSON file), empty for none.
+   * @param string $version
+   *   The version stamped into the context (and shown below the banner).
+   * @param string $directory
+   *   The target directory (defaults to the current working directory).
+   * @param bool|null $interactive
+   *   TRUE/FALSE to force the mode; NULL auto-detects from the prompts and
+   *   the standard-input TTY.
+   *
+   * @return \DrevOps\Tui\Answers\Answers
+   *   The collected answers.
+   */
+  public function run(string $prompts = '', string $version = '', string $directory = '', ?bool $interactive = NULL): Answers {
+    $interactive ??= $prompts === '' && defined('STDIN') && stream_isatty(STDIN);
+
+    return $interactive ? $this->interact(version: $version, directory: $directory) : $this->collect($prompts, $directory, FALSE, $version);
   }
 
   /**
