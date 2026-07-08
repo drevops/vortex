@@ -28,19 +28,50 @@ $is_hard_reset = in_array('--hard', array_slice($GLOBALS['argv'], 1), TRUE);
 INFO('Started reset.');
 
 TASK('Removing dependencies and built assets.', 'Removed dependencies and built assets.', function () use ($webroot): void {
-  passthru(sprintf('rm -rf "./vendor" "./%s/core" "./%s/profiles/contrib" "./%s/modules/contrib" "./%s/themes/contrib" "./%s/themes/custom/*/build" "./%s/themes/custom/*/scss/_components.scss"', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
+  $patterns = ['./vendor', sprintf('./%s/core', $webroot), sprintf('./%s/profiles/contrib', $webroot), sprintf('./%s/modules/contrib', $webroot), sprintf('./%s/themes/contrib', $webroot), sprintf('./%s/themes/custom/*/build', $webroot), sprintf('./%s/themes/custom/*/scss/_components.scss', $webroot)];
+
+  foreach ($patterns as $pattern) {
+    foreach (glob($pattern) ?: [] as $path) {
+      if (is_dir($path) && !is_link($path)) {
+        remove_dir($path);
+      }
+      else {
+        @unlink($path);
+      }
+    }
+  }
 });
 
 TASK('Removing node_modules directories.', 'Removed node_modules directories.', function (): void {
-  passthru('find . -type d -name node_modules -prune -exec rm -Rf -- {} +', $exit_code);
-  if ($exit_code !== 0) {
-    throw new \RuntimeException('Failed to remove node_modules directories.');
-  }
+  walk_dir('.', function (\SplFileInfo $item): bool {
+    if (!$item->isLink() && $item->isDir() && $item->getFilename() === 'node_modules') {
+      remove_dir($item->getPathname());
+
+      return FALSE;
+    }
+
+    return TRUE;
+  });
 });
 
 if ($is_hard_reset) {
   TASK('Changing permissions and removing all other untracked files.', 'Changed permissions and removed all other untracked files.', function (): void {
-    passthru('git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _');
+    $ignored_files = (string) shell_exec('git ls-files --others -i --exclude-from=.gitignore -z');
+
+    foreach (explode("\0", $ignored_files) as $file) {
+      if ($file === '') {
+        continue;
+      }
+
+      @chmod($file, 0777);
+
+      if (is_dir($file) && !is_link($file)) {
+        remove_dir($file);
+      }
+      else {
+        @unlink($file);
+      }
+    }
   });
 
   TASK('Resetting repository files.', 'Reset repository files.', function (): void {
@@ -58,7 +89,31 @@ if ($is_hard_reset) {
   });
 
   TASK('Removing empty directories.', 'Removed empty directories.', function (): void {
-    passthru('find . -type d -not -path "./.git/*" -empty -delete');
+    $dirs = [];
+
+    walk_dir('.', function (\SplFileInfo $item) use (&$dirs): bool {
+      if ($item->isLink() || !$item->isDir()) {
+        return TRUE;
+      }
+
+      if ($item->getPathname() === './.git') {
+        return FALSE;
+      }
+
+      $dirs[] = $item->getPathname();
+
+      return TRUE;
+    });
+
+    // Bottom-up so that directories which only contained empty directories
+    // become empty themselves and are removed in the same pass.
+    usort($dirs, static fn(string $a, string $b): int => substr_count($b, '/') <=> substr_count($a, '/'));
+
+    foreach ($dirs as $dir) {
+      if (scandir($dir) === ['.', '..']) {
+        @rmdir($dir);
+      }
+    }
   });
 }
 

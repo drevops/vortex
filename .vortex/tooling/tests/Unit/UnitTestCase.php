@@ -45,10 +45,12 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     parent::tearDown();
   }
 
-  protected function runScript(string $script_path, ?int $early_exit_code = NULL): string {
+  protected function runScript(string $script_path, ?int $early_exit_code = NULL, ?string $cwd = NULL): string {
     ob_start();
 
-    // Change to src directory so __DIR__ works correctly in the script.
+    // Change to the src directory by default so scripts resolve relative
+    // paths consistently; $cwd overrides it for scripts that operate on the
+    // current working directory (e.g. a sandboxed project fixture).
     $original_dir = getcwd();
     if ($original_dir === FALSE) {
       // @codeCoverageIgnoreStart
@@ -63,7 +65,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
       // @codeCoverageIgnoreEnd
     }
 
-    chdir($root);
+    chdir($cwd ?? $root);
 
     if (!is_null($early_exit_code)) {
       if ($early_exit_code > 0) {
