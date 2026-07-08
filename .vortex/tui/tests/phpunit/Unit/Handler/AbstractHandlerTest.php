@@ -28,10 +28,6 @@ final class AbstractHandlerTest extends TestCase {
     $this->assertNull($handler->discover($field, $context));
     $this->assertNull($handler->validate($field, 'v'));
     $this->assertSame('v', $handler->transform($field, 'v'));
-
-    // process() is a no-op; assert it runs without error.
-    $handler->process($field, 'v', $context);
-    $this->addToAssertionCount(1);
   }
 
 }

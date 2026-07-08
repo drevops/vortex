@@ -72,16 +72,4 @@ interface HandlerInterface {
    */
   public function transform(Field $field, mixed $value): mixed;
 
-  /**
-   * Apply the collected answer (project-specific side effects).
-   *
-   * @param \DrevOps\Tui\Config\Field $field
-   *   The field being processed.
-   * @param mixed $value
-   *   The final value.
-   * @param \DrevOps\Tui\Handler\Context $context
-   *   The run context.
-   */
-  public function process(Field $field, mixed $value, Context $context): void;
-
 }

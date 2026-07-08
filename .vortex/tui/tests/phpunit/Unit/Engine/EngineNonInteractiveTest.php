@@ -38,19 +38,19 @@ final class EngineNonInteractiveTest extends TestCase {
 
     // Static default is overtaken by the derived value (fresh install).
     $inputs = $resolver->resolve($config->fields(), '', []);
-    $this->assertSame('d-seed', $engine->run($inputs, new Context($dir, [], FALSE))['target']);
+    $this->assertSame('d-seed', $engine->collect($inputs, new Context($dir, [], FALSE))['target']);
 
     // Detected (update mode) wins over derived.
     $inputs = $resolver->resolve($config->fields(), '', []);
-    $this->assertSame('from_env', $engine->run($inputs, new Context($dir, [], TRUE))['target']);
+    $this->assertSame('from_env', $engine->collect($inputs, new Context($dir, [], TRUE))['target']);
 
     // Env wins over detected.
     $inputs = $resolver->resolve($config->fields(), '', ['VORTEX_TARGET' => 'from_env_var']);
-    $this->assertSame('from_env_var', $engine->run($inputs, new Context($dir, [], TRUE))['target']);
+    $this->assertSame('from_env_var', $engine->collect($inputs, new Context($dir, [], TRUE))['target']);
 
     // --prompts wins over env.
     $inputs = $resolver->resolve($config->fields(), '{"target": "from_prompts"}', ['VORTEX_TARGET' => 'from_env_var']);
-    $this->assertSame('from_prompts', $engine->run($inputs, new Context($dir, [], TRUE))['target']);
+    $this->assertSame('from_prompts', $engine->collect($inputs, new Context($dir, [], TRUE))['target']);
   }
 
 }

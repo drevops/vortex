@@ -41,10 +41,4 @@ abstract class AbstractHandler implements HandlerInterface {
     return $value;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function process(Field $field, mixed $value, Context $context): void {
-  }
-
 }

@@ -31,7 +31,7 @@ final class EngineAnswersTest extends TestCase {
       ->build();
     $engine = new Engine($config, new HandlerRegistry());
 
-    $engine->run(['name' => 'Acme Site'], new Context());
+    $engine->collect(['name' => 'Acme Site'], new Context());
     $answers = $engine->answers();
 
     $this->assertSame('Acme Site', $answers->value('name'));
@@ -50,7 +50,7 @@ final class EngineAnswersTest extends TestCase {
       ->build();
     $engine = new Engine($config, new HandlerRegistry());
 
-    $engine->run([], new Context());
+    $engine->collect([], new Context());
 
     $errors = (new SchemaValidator($config))->validate($engine->answers()->toArray());
     $this->assertSame([], $errors);

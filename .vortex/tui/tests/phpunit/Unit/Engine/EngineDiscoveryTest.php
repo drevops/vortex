@@ -41,7 +41,7 @@ final class EngineDiscoveryTest extends TestCase {
       $p->text('name')->default('')->discover(['json' => ['file' => 'composer.json', 'path' => 'name']]);
     });
 
-    $answers = $engine->run([], new Context($this->dir, [], TRUE));
+    $answers = $engine->collect([], new Context($this->dir, [], TRUE));
 
     $this->assertSame('minimal', $answers['profile']);
     $this->assertSame('acme/site', $answers['name']);
@@ -54,7 +54,7 @@ final class EngineDiscoveryTest extends TestCase {
       $p->text('profile')->default('standard')->discover(['dotenv' => 'DRUPAL_PROFILE']);
     });
 
-    $answers = $engine->run([], new Context($this->dir, [], FALSE));
+    $answers = $engine->collect([], new Context($this->dir, [], FALSE));
 
     $this->assertSame('standard', $answers['profile']);
     $this->assertSame('default', $engine->provenance()['profile']);
@@ -65,7 +65,7 @@ final class EngineDiscoveryTest extends TestCase {
       $p->text('profile')->default('standard')->discover(['dotenv' => 'DRUPAL_PROFILE']);
     });
 
-    $answers = $engine->run(['profile' => 'demo'], new Context($this->dir, [], TRUE));
+    $answers = $engine->collect(['profile' => 'demo'], new Context($this->dir, [], TRUE));
 
     $this->assertSame('demo', $answers['profile']);
     $this->assertSame('edited', $engine->provenance()['profile']);
@@ -77,7 +77,7 @@ final class EngineDiscoveryTest extends TestCase {
       $p->text('profile')->default('')->derive(['template' => '{{src}}'])->discover(['dotenv' => 'PROFILE']);
     });
 
-    $answers = $engine->run([], new Context($this->dir, [], TRUE));
+    $answers = $engine->collect([], new Context($this->dir, [], TRUE));
 
     $this->assertSame('from_env', $answers['profile']);
     $this->assertSame('detected', $engine->provenance()['profile']);

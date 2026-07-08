@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Handler\AbstractHandler;
 
 /**
  * Handler for the "theme_custom" question.

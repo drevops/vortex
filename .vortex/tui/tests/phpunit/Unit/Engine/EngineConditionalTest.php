@@ -31,11 +31,11 @@ final class EngineConditionalTest extends TestCase {
         ->build()
     );
 
-    $answers = $engine->run([], new Context());
+    $answers = $engine->collect([], new Context());
     $this->assertArrayHasKey('theme', $answers);
     $this->assertArrayNotHasKey('custom_theme', $answers);
 
-    $answers = $engine->run(['theme' => 'custom'], new Context());
+    $answers = $engine->collect(['theme' => 'custom'], new Context());
     $this->assertArrayHasKey('custom_theme', $answers);
     $this->assertSame('mytheme', $answers['custom_theme']);
   }
@@ -51,9 +51,9 @@ final class EngineConditionalTest extends TestCase {
         ->build()
     );
 
-    $this->assertSame('url', $engine->run([], new Context())['database_source']);
+    $this->assertSame('url', $engine->collect([], new Context())['database_source']);
     // No input for database_source: the fix-up resolves it without prompting.
-    $this->assertSame('none', $engine->run(['provision' => 'profile'], new Context())['database_source']);
+    $this->assertSame('none', $engine->collect(['provision' => 'profile'], new Context())['database_source']);
   }
 
   public function testFixupWithoutTargetIsSkipped(): void {
@@ -67,7 +67,7 @@ final class EngineConditionalTest extends TestCase {
         ->build()
     );
 
-    $this->assertSame(['a' => 'x'], $engine->run([], new Context()));
+    $this->assertSame(['a' => 'x'], $engine->collect([], new Context()));
   }
 
   public function testMultiFieldConditional(): void {
@@ -83,10 +83,10 @@ final class EngineConditionalTest extends TestCase {
     );
 
     // Both conditions hold: c is active.
-    $this->assertArrayHasKey('c', $engine->run([], new Context()));
+    $this->assertArrayHasKey('c', $engine->collect([], new Context()));
 
     // One condition fails: c is gated out.
-    $this->assertArrayNotHasKey('c', $engine->run(['b' => 'other'], new Context()));
+    $this->assertArrayNotHasKey('c', $engine->collect(['b' => 'other'], new Context()));
   }
 
   public function testMergeCustomFixup(): void {
@@ -100,7 +100,7 @@ final class EngineConditionalTest extends TestCase {
         ->build()
     );
 
-    $answers = $engine->run(['profile' => 'custom', 'profile_custom' => 'my_profile'], new Context());
+    $answers = $engine->collect(['profile' => 'custom', 'profile_custom' => 'my_profile'], new Context());
     $this->assertSame('my_profile', $answers['profile']);
   }
 
@@ -115,8 +115,8 @@ final class EngineConditionalTest extends TestCase {
         ->build()
     );
 
-    $this->assertSame(['a' => 'x', 'b' => 'y', 'c' => 'z'], $engine->run([], new Context()));
-    $this->assertSame(['a' => 'off'], $engine->run(['a' => 'off'], new Context()));
+    $this->assertSame(['a' => 'x', 'b' => 'y', 'c' => 'z'], $engine->collect([], new Context()));
+    $this->assertSame(['a' => 'off'], $engine->collect(['a' => 'off'], new Context()));
   }
 
   /**

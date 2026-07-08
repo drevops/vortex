@@ -108,7 +108,7 @@ class ConfigureCommand extends Command {
     }
 
     // @codeCoverageIgnoreStart
-    $answers = $customizer->run('', '', $this->version(), $dir);
+    $answers = $customizer->interact('', '', $this->version(), $dir);
     $output->writeln($answers->toJson());
 
     return Command::SUCCESS;

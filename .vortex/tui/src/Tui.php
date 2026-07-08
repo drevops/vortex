@@ -94,7 +94,7 @@ final class Tui {
    * @return \DrevOps\Tui\Answers\Answers
    *   The collected answers.
    */
-  public function run(string $theme = '', string $banner = '', string $version = '', string $directory = '', ?Terminal $terminal = NULL): Answers {
+  public function interact(string $theme = '', string $banner = '', string $version = '', string $directory = '', ?Terminal $terminal = NULL): Answers {
     // @codeCoverageIgnoreStart
     $this->engine->collect([], $this->context($directory, FALSE, $version));
 

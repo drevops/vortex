@@ -8,8 +8,8 @@ use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\Context;
-use DrevOps\Tui\Handler\HandlerInterface;
 use DrevOps\Tui\Handler\HandlerRegistry;
+use DrevOps\VortexCli\Handler\ProcessorInterface;
 
 /**
  * Applies collected answers by running field handlers in a fixed order.
@@ -61,7 +61,7 @@ class Processor {
 
     foreach ($items as $item) {
       $handler = $handlers->get($item['id']);
-      if ($handler instanceof HandlerInterface) {
+      if ($handler instanceof ProcessorInterface) {
         $handler->process($item['field'] ?? $placeholder, $answers[$item['id']] ?? NULL, $context);
       }
     }

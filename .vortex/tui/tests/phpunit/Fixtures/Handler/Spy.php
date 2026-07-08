@@ -49,11 +49,4 @@ class Spy extends AbstractHandler {
     return is_string($value) ? $value . '!' : $value;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function process(Field $field, mixed $value, Context $context): void {
-    self::$calls[] = 'process:' . implode(',', array_keys($context->answers));
-  }
-
 }

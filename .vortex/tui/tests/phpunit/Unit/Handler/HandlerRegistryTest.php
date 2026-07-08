@@ -61,8 +61,6 @@ final class HandlerRegistryTest extends TestCase {
     $this->assertNull($handler->discover($field, $context));
     $this->assertNull($handler->validate($field, 'unchecked'));
     $this->assertSame('kept', $handler->transform($field, 'kept'));
-    $handler->process($field, 'kept', $context);
-    $this->addToAssertionCount(1);
   }
 
   public function testUnknownFieldReturnsNull(): void {

@@ -23,7 +23,7 @@ final class EngineDeriveTest extends TestCase {
   public function testDerivedFollowsSource(): void {
     $engine = $this->engine();
 
-    $answers = $engine->run(['name' => 'Acme Site'], new Context());
+    $answers = $engine->collect(['name' => 'Acme Site'], new Context());
 
     $this->assertSame('acme_site', $answers['machine']);
     $this->assertSame('acme-site.com', $answers['domain']);
@@ -35,7 +35,7 @@ final class EngineDeriveTest extends TestCase {
     $engine = $this->engine();
 
     // Machine is pinned; the domain still follows the pinned machine, not name.
-    $answers = $engine->run(['name' => 'Acme Site', 'machine' => 'custom'], new Context());
+    $answers = $engine->collect(['name' => 'Acme Site', 'machine' => 'custom'], new Context());
 
     $this->assertSame('custom', $answers['machine']);
     $this->assertSame('custom.com', $answers['domain']);
@@ -47,9 +47,9 @@ final class EngineDeriveTest extends TestCase {
     $engine = $this->engine();
 
     // Pinned on the first run.
-    $engine->run(['name' => 'Acme', 'machine' => 'pinned'], new Context());
+    $engine->collect(['name' => 'Acme', 'machine' => 'pinned'], new Context());
     // Re-running without the machine input relinks (reset) and re-derives.
-    $answers = $engine->run(['name' => 'Acme'], new Context());
+    $answers = $engine->collect(['name' => 'Acme'], new Context());
 
     $this->assertSame('acme', $answers['machine']);
     $this->assertSame('derived', $engine->provenance()['machine']);

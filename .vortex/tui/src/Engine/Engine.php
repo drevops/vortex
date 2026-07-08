@@ -20,10 +20,9 @@ use DrevOps\Tui\Handler\HandlerRegistry;
  * For each configured field the engine resolves a value (supplied input, else
  * a value detected in update mode, else the field default), runs the resolved
  * handler's validate() and transform(), then settles derived values,
- * conditional activation and fix-ups to a fixpoint before applying every
- * active answer via process(). Precedence per field is input > detected >
- * derived > default. It never knows what any field means: all behaviour comes
- * from the handlers and config rules.
+ * conditional activation and fix-ups to a fixpoint. Precedence per field is
+ * input > detected > derived > default. It never knows what any field means:
+ * all behaviour comes from the handlers and config rules.
  *
  * @package DrevOps\Tui\Engine
  */
@@ -137,30 +136,6 @@ class Engine {
     $this->lastAnswers = $this->activeAnswers($fields, $values, $active);
 
     return $this->lastAnswers;
-  }
-
-  /**
-   * Collect answers and apply them via each active handler's process().
-   *
-   * @param array<string,mixed> $inputs
-   *   Pre-supplied values keyed by field id (from flags, env, prompts, ...).
-   * @param \DrevOps\Tui\Handler\Context $context
-   *   The run context (destination directory, update flag).
-   *
-   * @return array<string,mixed>
-   *   The collected answers of the active fields, keyed by field id.
-   */
-  public function run(array $inputs, Context $context): array {
-    $answers = $this->collect($inputs, $context);
-
-    $applied = new Context($context->directory, $answers, $context->update, $context->version, $context->destination);
-    foreach ($this->config->fields() as $field) {
-      if ($this->lastActive[$field->id] ?? FALSE) {
-        $this->handlers->get($field->id)?->process($field, $answers[$field->id], $applied);
-      }
-    }
-
-    return $answers;
   }
 
   /**
