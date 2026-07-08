@@ -5,10 +5,11 @@
 # host-installed dependencies enter the image: they leak data, bloat the
 # context and override the in-image build results.
 
-# VCS and IDE files.
+# VCS, IDE and OS files.
 .git
 .idea
 .vscode
+**/.DS_Store
 
 # Local override files - may contain credentials.
 .env.local
