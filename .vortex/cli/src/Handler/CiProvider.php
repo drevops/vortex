@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CiProvider extends AbstractHandler {
+class CiProvider extends AbstractHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -65,6 +65,17 @@ class CiProvider extends AbstractHandler {
     else {
       File::removeTokenAsync('!CI_PROVIDER_ANY');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::GITHUB_ACTIONS => 'GitHub Actions',
+      self::CIRCLECI => 'CircleCI',
+      self::NONE => 'None',
+    ];
   }
 
 }

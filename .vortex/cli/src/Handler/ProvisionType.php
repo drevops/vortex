@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class ProvisionType extends AbstractHandler {
+class ProvisionType extends AbstractHandler implements OptionsInterface {
 
   const DATABASE = 'database';
 
@@ -35,6 +35,16 @@ class ProvisionType extends AbstractHandler {
     else {
       File::removeTokenAsync('PROVISION_TYPE_PROFILE');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::DATABASE => 'Import from database dump',
+      self::PROFILE => 'Install from profile',
+    ];
   }
 
 }

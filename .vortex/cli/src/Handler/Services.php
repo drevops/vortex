@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Services extends AbstractHandler {
+class Services extends AbstractHandler implements OptionsInterface {
 
   const CLAMAV = 'clamav';
 
@@ -78,6 +78,17 @@ class Services extends AbstractHandler {
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
       File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::CLAMAV => 'ClamAV',
+      self::SOLR => 'Solr',
+      self::REDIS => 'Redis',
+    ];
   }
 
 }

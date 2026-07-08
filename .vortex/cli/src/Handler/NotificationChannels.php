@@ -15,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class NotificationChannels extends AbstractHandler {
+class NotificationChannels extends AbstractHandler implements OptionsInterface {
 
   const EMAIL = 'email';
 
@@ -71,6 +71,20 @@ class NotificationChannels extends AbstractHandler {
     foreach ($tokens as $token) {
       File::removeTokenAsync($token);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::EMAIL => 'Email',
+      self::GITHUB => 'GitHub',
+      self::JIRA => 'JIRA',
+      self::NEWRELIC => 'New Relic',
+      self::SLACK => 'Slack',
+      self::WEBHOOK => 'Webhook',
+    ];
   }
 
 }

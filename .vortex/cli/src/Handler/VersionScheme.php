@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class VersionScheme extends AbstractHandler {
+class VersionScheme extends AbstractHandler implements OptionsInterface {
 
   const CALVER = 'calver';
 
@@ -42,6 +42,17 @@ class VersionScheme extends AbstractHandler {
       File::removeTokenAsync('VERSION_RELEASE_SCHEME_SEMVER');
       File::removeTokenAsync('VERSION_RELEASE_SCHEME_CALVER');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::CALVER => 'Calendar Versioning (CalVer)',
+      self::SEMVER => 'Semantic Versioning (SemVer)',
+      self::OTHER => 'Other',
+    ];
   }
 
 }

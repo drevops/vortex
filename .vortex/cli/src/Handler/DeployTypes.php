@@ -15,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DeployTypes extends AbstractHandler {
+class DeployTypes extends AbstractHandler implements OptionsInterface {
 
   const ARTIFACT = 'artifact';
 
@@ -47,6 +47,17 @@ class DeployTypes extends AbstractHandler {
       File::remove($context->directory . '/docs/deployment.md');
       File::removeTokenAsync('DEPLOYMENT');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::ARTIFACT => 'Code artifact',
+      self::LAGOON => 'Lagoon webhook',
+      self::WEBHOOK => 'Custom webhook',
+    ];
   }
 
 }

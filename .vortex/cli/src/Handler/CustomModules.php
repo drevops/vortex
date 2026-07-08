@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CustomModules extends AbstractHandler {
+class CustomModules extends AbstractHandler implements OptionsInterface {
 
   const BASE = 'base';
 
@@ -116,6 +116,17 @@ class CustomModules extends AbstractHandler {
     foreach ($files as $file) {
       File::remove($file);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::BASE => 'Base - starter module with utilities and test scaffolding',
+      self::SEARCH => 'Search - custom Solr search integration',
+      self::DEMO => 'Demo - counter block and example tests to demonstrate tooling',
+    ];
   }
 
 }

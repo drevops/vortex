@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class HostingProvider extends AbstractHandler {
+class HostingProvider extends AbstractHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -91,6 +91,18 @@ class HostingProvider extends AbstractHandler {
 
     File::removeTokenAsync('HOSTING_LAGOON');
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::ACQUIA => 'Acquia Cloud',
+      self::LAGOON => 'Lagoon',
+      self::OTHER => 'Other',
+      self::NONE => 'None',
+    ];
   }
 
 }

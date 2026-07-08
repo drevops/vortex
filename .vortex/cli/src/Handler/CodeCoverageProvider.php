@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CodeCoverageProvider extends AbstractHandler {
+class CodeCoverageProvider extends AbstractHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -29,6 +29,16 @@ class CodeCoverageProvider extends AbstractHandler {
     else {
       File::removeTokenAsync('CODE_COVERAGE_PROVIDER_CODECOV');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::CODECOV => 'Codecov',
+      self::NONE => 'None',
+    ];
   }
 
 }

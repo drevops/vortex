@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Starter extends AbstractHandler {
+class Starter extends AbstractHandler implements OptionsInterface {
 
   const INSTALL_PROFILE_CORE = 'install_profile_core';
 
@@ -62,6 +62,17 @@ class Starter extends AbstractHandler {
     $cj->addProperty('extra.merge-plugin.require', ['vendor/drupal/cms/composer.json']);
 
     file_put_contents($context->directory . '/composer.json', $cj->getContents());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::INSTALL_PROFILE_CORE => 'Drupal, installed from profile',
+      self::INSTALL_PROFILE_DRUPALCMS => 'Drupal CMS, installed from profile',
+      self::LOAD_DATABASE_DEMO => 'Drupal, loaded from the demo database',
+    ];
   }
 
 }

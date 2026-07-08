@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class CodeProvider extends AbstractHandler {
+class CodeProvider extends AbstractHandler implements OptionsInterface {
 
   const GITHUB = 'github';
 
@@ -84,6 +84,16 @@ class CodeProvider extends AbstractHandler {
     if ($changed) {
       file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::GITHUB => 'GitHub',
+      self::OTHER => 'Other',
+    ];
   }
 
 }

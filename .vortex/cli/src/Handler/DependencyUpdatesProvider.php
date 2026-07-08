@@ -13,7 +13,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DependencyUpdatesProvider extends AbstractHandler {
+class DependencyUpdatesProvider extends AbstractHandler implements OptionsInterface {
 
   const NONE = 'none';
 
@@ -44,6 +44,17 @@ class DependencyUpdatesProvider extends AbstractHandler {
       File::remove($context->directory . '/renovate.json');
       File::remove($context->directory . '/.circleci/update-dependencies.yml');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::RENOVATEBOT_APP => 'Renovate GitHub app',
+      self::RENOVATEBOT_CI => 'Renovate self-hosted in CI',
+      self::NONE => 'None',
+    ];
   }
 
 }

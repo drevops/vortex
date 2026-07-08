@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Timezone extends AbstractHandler {
+class Timezone extends AbstractHandler implements OptionsInterface {
 
   const UTC = 'UTC';
 
@@ -49,6 +49,13 @@ class Timezone extends AbstractHandler {
 
     Env::writeValueDotenv('TZ', $timezone, $context->directory . '/.env');
     File::replaceContentInFile($context->directory . '/renovate.json', '/"timezone": "[A-Za-z0-9\/_\-+]+",/', sprintf('"timezone": "%s",', $timezone));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return array_combine(self::TIMEZONES, self::TIMEZONES);
   }
 
 }

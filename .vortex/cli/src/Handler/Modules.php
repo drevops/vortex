@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Modules extends AbstractHandler {
+class Modules extends AbstractHandler implements OptionsInterface {
 
   /**
    * {@inheritdoc}
@@ -68,6 +68,32 @@ class Modules extends AbstractHandler {
    *   Array of module machine names as keys and labels as values.
    */
   public static function getAvailableModules(): array {
+    return [
+      'admin_toolbar' => 'Admin toolbar',
+      'coffee' => 'Coffee',
+      'config_split' => 'Config split',
+      'config_update' => 'Config update',
+      'devel' => 'Devel',
+      'drupal_helpers' => 'Drupal helpers',
+      'environment_indicator' => 'Environment indicator',
+      'generated_content' => 'Generated content',
+      'pathauto' => 'Pathauto',
+      'redirect' => 'Redirect',
+      'reroute_email' => 'Reroute email',
+      'robotstxt' => 'Robots.txt',
+      'sdc_devel' => 'SDC Devel',
+      'seckit' => 'Seckit',
+      'shield' => 'Shield',
+      'stage_file_proxy' => 'Stage file proxy',
+      'testmode' => 'Testmode',
+      'xmlsitemap' => 'XML Sitemap',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
     return [
       'admin_toolbar' => 'Admin toolbar',
       'coffee' => 'Coffee',

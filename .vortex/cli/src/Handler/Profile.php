@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Profile extends AbstractHandler {
+class Profile extends AbstractHandler implements OptionsInterface {
 
   const STANDARD = 'standard';
 
@@ -57,6 +57,18 @@ class Profile extends AbstractHandler {
       File::replaceContentAsync('your_site_profile', $v);
       File::renameInDir($t, 'your_site_profile', $v);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::STANDARD => 'Standard',
+      self::MINIMAL => 'Minimal',
+      self::DEMO_UMAMI => 'Demo Umami',
+      self::CUSTOM => 'Custom (next prompt)',
+    ];
   }
 
 }

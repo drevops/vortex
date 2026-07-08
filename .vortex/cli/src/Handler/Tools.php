@@ -18,7 +18,7 @@ use DrevOps\VortexCli\Utils\Yaml;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Tools extends AbstractHandler {
+class Tools extends AbstractHandler implements OptionsInterface {
 
   const PHPCS = 'phpcs';
 
@@ -522,6 +522,22 @@ class Tools extends AbstractHandler {
     });
 
     return $flat;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::PHPCS => 'PHP CodeSniffer',
+      self::PHPSTAN => 'PHPStan',
+      self::RECTOR => 'Rector',
+      self::ESLINT => 'ESLint',
+      self::STYLELINT => 'Stylelint',
+      self::PHPUNIT => 'PHPUnit',
+      self::BEHAT => 'Behat',
+      self::JEST => 'Jest',
+    ];
   }
 
 }

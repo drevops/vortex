@@ -15,7 +15,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class Theme extends AbstractHandler {
+class Theme extends AbstractHandler implements OptionsInterface {
 
   const OLIVERO = 'olivero';
 
@@ -163,6 +163,18 @@ class Theme extends AbstractHandler {
     $c3 = File::contains($dir . '/package.json', 'build-dev');
 
     return $c1 && $c2 && $c3;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::OLIVERO => 'Olivero',
+      self::CLARO => 'Claro',
+      self::STARK => 'Stark',
+      self::CUSTOM => 'Custom (next prompt)',
+    ];
   }
 
 }

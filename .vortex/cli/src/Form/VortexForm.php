@@ -19,6 +19,7 @@ use DrevOps\VortexCli\Handler\DependencyUpdatesProvider;
 use DrevOps\VortexCli\Handler\DeployTypes;
 use DrevOps\VortexCli\Handler\HostingProvider;
 use DrevOps\VortexCli\Handler\MigrationFetchSource;
+use DrevOps\VortexCli\Handler\Modules;
 use DrevOps\VortexCli\Handler\NotificationChannels;
 use DrevOps\VortexCli\Handler\Profile;
 use DrevOps\VortexCli\Handler\ProvisionType;
@@ -105,21 +106,12 @@ BANNER;
         $p->select('starter', 'How would you like your site to be created on the first run?')
           ->description('Applies only on the first run of the installer.')
           ->default(Starter::LOAD_DATABASE_DEMO)
-          ->options([
-            Starter::INSTALL_PROFILE_CORE => 'Drupal, installed from profile',
-            Starter::INSTALL_PROFILE_DRUPALCMS => 'Drupal CMS, installed from profile',
-            Starter::LOAD_DATABASE_DEMO => 'Drupal, loaded from the demo database',
-          ])
+          ->options(Starter::options())
           ->weight(250);
         $p->select('profile', 'Profile')
           ->description('The Drupal installation profile the site is built on.')
           ->default(fn (Context $c): string => ($c->answers['starter'] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS ? Starter::INSTALL_PROFILE_DRUPALCMS_PATH : Profile::STANDARD)->required()
-          ->options([
-            Profile::STANDARD => 'Standard',
-            Profile::MINIMAL => 'Minimal',
-            Profile::DEMO_UMAMI => 'Demo Umami',
-            Profile::CUSTOM => 'Custom (next prompt)',
-          ])
+          ->options(Profile::options())
           ->weight(270);
         $p->text('profile_custom', 'Custom profile machine name')
           ->description('The machine name of your custom profile.')
@@ -128,31 +120,8 @@ BANNER;
           ->weight(260);
         $p->multiselect('modules', 'Modules')
           ->description('Optional contributed modules to include.')
-          ->default([
-            'admin_toolbar', 'coffee', 'config_split', 'config_update', 'devel', 'drupal_helpers',
-            'environment_indicator', 'generated_content', 'pathauto', 'redirect', 'reroute_email',
-            'robotstxt', 'sdc_devel', 'seckit', 'shield', 'stage_file_proxy', 'testmode', 'xmlsitemap',
-          ])
-          ->options([
-            'admin_toolbar' => 'Admin toolbar',
-            'coffee' => 'Coffee',
-            'config_split' => 'Config split',
-            'config_update' => 'Config update',
-            'devel' => 'Devel',
-            'drupal_helpers' => 'Drupal helpers',
-            'environment_indicator' => 'Environment indicator',
-            'generated_content' => 'Generated content',
-            'pathauto' => 'Pathauto',
-            'redirect' => 'Redirect',
-            'reroute_email' => 'Reroute email',
-            'robotstxt' => 'Robots.txt',
-            'sdc_devel' => 'SDC Devel',
-            'seckit' => 'Seckit',
-            'shield' => 'Shield',
-            'stage_file_proxy' => 'Stage file proxy',
-            'testmode' => 'Testmode',
-            'xmlsitemap' => 'XML Sitemap',
-          ])
+          ->default(array_keys(Modules::options()))
+          ->options(Modules::options())
           ->weight(240);
         $p->text('module_prefix', 'Custom modules prefix')
           ->description('We will use this name in custom modules.')
@@ -162,21 +131,12 @@ BANNER;
         $p->multiselect('custom_modules', 'Custom modules')
           ->description('Which scaffolded custom modules to keep.')
           ->default([CustomModules::BASE, CustomModules::SEARCH, CustomModules::DEMO])
-          ->options([
-            CustomModules::BASE => 'Base - starter module with utilities and test scaffolding',
-            CustomModules::SEARCH => 'Search - custom Solr search integration',
-            CustomModules::DEMO => 'Demo - counter block and example tests to demonstrate tooling',
-          ])
+          ->options(CustomModules::options())
           ->weight(300);
         $p->select('theme', 'Theme')
           ->description('The base theme for the site front-end.')
           ->default(Theme::CUSTOM)->required()
-          ->options([
-            Theme::OLIVERO => 'Olivero',
-            Theme::CLARO => 'Claro',
-            Theme::STARK => 'Stark',
-            Theme::CUSTOM => 'Custom (next prompt)',
-          ])
+          ->options(Theme::options())
           ->weight(340);
         $p->text('theme_custom', 'Custom theme machine name')
           ->description('We will use this name as a custom theme name.')
@@ -195,16 +155,12 @@ BANNER;
         $p->select('code_provider', 'Repository provider')
           ->description('Vortex offers full automation with GitHub; support for other providers is limited.')
           ->default(CodeProvider::GITHUB)
-          ->options([CodeProvider::GITHUB => 'GitHub', CodeProvider::OTHER => 'Other'])
+          ->options(CodeProvider::options())
           ->weight(230);
         $p->select('version_scheme', 'Release versioning scheme')
           ->description('CalVer (year.month.patch) or SemVer (major.minor.patch).')
           ->default(VersionScheme::CALVER)
-          ->options([
-            VersionScheme::CALVER => 'Calendar Versioning (CalVer)',
-            VersionScheme::SEMVER => 'Semantic Versioning (SemVer)',
-            VersionScheme::OTHER => 'Other',
-          ])
+          ->options(VersionScheme::options())
           ->weight(220);
       })
       ->panel('environment', 'Environment', function (PanelBuilder $p): void {
@@ -212,26 +168,17 @@ BANNER;
         $p->suggest('timezone', 'Timezone')
           ->description('Start typing to select the timezone for your project.')
           ->default(Timezone::UTC)
-          ->options(array_combine(Timezone::TIMEZONES, Timezone::TIMEZONES))
+          ->options(Timezone::options())
           ->weight(210);
         $p->multiselect('services', 'Services')
           ->description('Optional Docker services to include.')
           ->default([Services::CLAMAV, Services::REDIS, Services::SOLR])
-          ->options([Services::CLAMAV => 'ClamAV', Services::SOLR => 'Solr', Services::REDIS => 'Redis'])
+          ->options(Services::options())
           ->weight(200);
         $p->multiselect('tools', 'Development tools')
           ->description('Linting and testing tools to keep.')
           ->default([Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT])
-          ->options([
-            Tools::PHPCS => 'PHP CodeSniffer',
-            Tools::PHPSTAN => 'PHPStan',
-            Tools::RECTOR => 'Rector',
-            Tools::ESLINT => 'ESLint',
-            Tools::STYLELINT => 'Stylelint',
-            Tools::PHPUNIT => 'PHPUnit',
-            Tools::BEHAT => 'Behat',
-            Tools::JEST => 'Jest',
-          ])
+          ->options(Tools::options())
           ->weight(190);
       })
       ->panel('hosting', 'Hosting', function (PanelBuilder $p): void {
@@ -239,12 +186,7 @@ BANNER;
         $p->select('hosting_provider', 'Hosting provider')
           ->description('The hosting provider for the project.')
           ->default(HostingProvider::NONE)->required()
-          ->options([
-            HostingProvider::ACQUIA => 'Acquia Cloud',
-            HostingProvider::LAGOON => 'Lagoon',
-            HostingProvider::OTHER => 'Other',
-            HostingProvider::NONE => 'None',
-          ])
+          ->options(HostingProvider::options())
           ->weight(180);
         $p->text('hosting_project_name', 'Hosting project name')
           ->description('Name as found in the hosting configuration; usually the site machine name.')
@@ -259,11 +201,7 @@ BANNER;
         $p->multiselect('deploy_types', 'Deployment types')
           ->description('One or more deployment mechanisms.')
           ->default(fn (Context $c): array => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::LAGOON => [DeployTypes::LAGOON], HostingProvider::ACQUIA => [DeployTypes::ARTIFACT], default => [DeployTypes::WEBHOOK] })
-          ->options([
-            DeployTypes::ARTIFACT => 'Code artifact',
-            DeployTypes::LAGOON => 'Lagoon webhook',
-            DeployTypes::WEBHOOK => 'Custom webhook',
-          ])
+          ->options(DeployTypes::options())
           ->weight(170);
       })
       ->panel('workflow', 'Workflow', function (PanelBuilder $p): void {
@@ -271,21 +209,13 @@ BANNER;
         $p->select('provision_type', 'Provision type')
           ->description('How the site is provisioned: from a database dump or installed from a profile.')
           ->default(ProvisionType::DATABASE)
-          ->options([ProvisionType::DATABASE => 'Import from database dump', ProvisionType::PROFILE => 'Install from profile'])
+          ->options(ProvisionType::options())
           ->weight(150);
         $p->select('database_fetch_source', 'Database source')
           ->description('Where the database dump is fetched from.')
           ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => DatabaseFetchSource::ACQUIA, HostingProvider::LAGOON => DatabaseFetchSource::LAGOON, default => DatabaseFetchSource::URL })
           ->when(new Condition('provision_type', eq: ProvisionType::DATABASE))
-          ->options([
-            DatabaseFetchSource::URL => 'URL download',
-            DatabaseFetchSource::FTP => 'FTP download',
-            DatabaseFetchSource::ACQUIA => 'Acquia backup',
-            DatabaseFetchSource::LAGOON => 'Lagoon environment',
-            DatabaseFetchSource::CONTAINER_REGISTRY => 'Container registry',
-            DatabaseFetchSource::S3 => 'S3 bucket',
-            DatabaseFetchSource::NONE => 'None',
-          ])
+          ->options(DatabaseFetchSource::options())
           ->weight(140);
         $p->text('database_image', 'Database container image name and tag')
           ->description('Use the "latest" tag for the latest version.')
@@ -297,14 +227,7 @@ BANNER;
           ->description('Where the migration database dump is fetched from.')
           ->default(fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => MigrationFetchSource::ACQUIA, HostingProvider::LAGOON => MigrationFetchSource::LAGOON, default => MigrationFetchSource::URL })
           ->when(new Condition('migration', eq: TRUE))
-          ->options([
-            MigrationFetchSource::URL => 'URL download',
-            MigrationFetchSource::FTP => 'FTP download',
-            MigrationFetchSource::ACQUIA => 'Acquia backup',
-            MigrationFetchSource::LAGOON => 'Lagoon environment',
-            MigrationFetchSource::CONTAINER_REGISTRY => 'Container registry',
-            MigrationFetchSource::S3 => 'S3 bucket',
-          ])
+          ->options(MigrationFetchSource::options())
           ->weight(110);
         $p->text('migration_image', 'Migration database container image name and tag')
           ->description('Use the "latest" tag for the latest version.')
@@ -317,14 +240,7 @@ BANNER;
         $p->multiselect('notification_channels', 'Notification channels')
           ->description('One or more notification channels.')
           ->default([NotificationChannels::EMAIL])
-          ->options([
-            NotificationChannels::EMAIL => 'Email',
-            NotificationChannels::GITHUB => 'GitHub',
-            NotificationChannels::JIRA => 'JIRA',
-            NotificationChannels::NEWRELIC => 'New Relic',
-            NotificationChannels::SLACK => 'Slack',
-            NotificationChannels::WEBHOOK => 'Webhook',
-          ])
+          ->options(NotificationChannels::options())
           ->weight(160);
       })
       ->panel('continuous_integration', 'Continuous Integration', function (PanelBuilder $p): void {
@@ -332,7 +248,7 @@ BANNER;
         $p->select('ci_provider', 'Continuous Integration provider')
           ->description('The CI provider for the project.')
           ->default(CiProvider::GITHUB_ACTIONS)
-          ->options([CiProvider::GITHUB_ACTIONS => 'GitHub Actions', CiProvider::CIRCLECI => 'CircleCI', CiProvider::NONE => 'None'])
+          ->options(CiProvider::options())
           ->weight(90);
         $p->confirm('visual_regression', 'Visual regression testing with Diffy?')->description('Requires a Diffy account.')->default(FALSE)->weight(80);
       })
@@ -341,16 +257,12 @@ BANNER;
         $p->select('dependency_updates_provider', 'Dependency updates provider')
           ->description('The dependency updates provider.')
           ->default(DependencyUpdatesProvider::RENOVATEBOT_APP)
-          ->options([
-            DependencyUpdatesProvider::RENOVATEBOT_APP => 'Renovate GitHub app',
-            DependencyUpdatesProvider::RENOVATEBOT_CI => 'Renovate self-hosted in CI',
-            DependencyUpdatesProvider::NONE => 'None',
-          ])
+          ->options(DependencyUpdatesProvider::options())
           ->weight(70);
         $p->select('code_coverage_provider', 'Code coverage provider')
           ->description('The code coverage provider.')
           ->default(CodeCoverageProvider::NONE)
-          ->options([CodeCoverageProvider::CODECOV => 'Codecov', CodeCoverageProvider::NONE => 'None'])
+          ->options(CodeCoverageProvider::options())
           ->weight(60);
         $p->confirm('assign_author_pr', 'Auto-assign the author to their PR?')->description('Helps to keep the PRs organized.')->default(TRUE)->weight(50);
         $p->confirm('label_merge_conflicts_pr', 'Auto-add a CONFLICT label to a PR when conflicts occur?')->description('Helps to quickly identify PRs that need attention.')->default(TRUE)->weight(40);

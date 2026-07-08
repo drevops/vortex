@@ -14,7 +14,7 @@ use DrevOps\VortexCli\Utils\File;
  *
  * @package DrevOps\VortexCli\Handler
  */
-class DatabaseFetchSource extends AbstractHandler {
+class DatabaseFetchSource extends AbstractHandler implements OptionsInterface {
 
   const URL = 'url';
 
@@ -68,6 +68,21 @@ class DatabaseFetchSource extends AbstractHandler {
     if ($source !== 'acquia' && $source !== 'lagoon') {
       File::removeTokenAsync('DB_FETCH_SOURCE_HOSTED');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function options(): array {
+    return [
+      self::URL => 'URL download',
+      self::FTP => 'FTP download',
+      self::ACQUIA => 'Acquia backup',
+      self::LAGOON => 'Lagoon environment',
+      self::CONTAINER_REGISTRY => 'Container registry',
+      self::S3 => 'S3 bucket',
+      self::NONE => 'None',
+    ];
   }
 
 }
