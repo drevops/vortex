@@ -16,7 +16,7 @@
  
  # Drupal scaffold files copied into the webroot during the build. The README
  # files are kept scaffolded because they materialize otherwise-empty extension
- # directories that the Drupal core PHPUnit bootstrap requires to exist.
+ # directories that the Drupal core test bootstrap requires to exist.
 -web/modules/README.txt
 -web/profiles/README.txt
 -web/sites/README.txt
