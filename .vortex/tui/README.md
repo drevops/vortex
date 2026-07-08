@@ -62,6 +62,8 @@ echo $tui->collect('{"name":"Ada"}')->toJson();  // headless: JSON + environment
 $answers = $tui->interact();                     // interactive panel TUI
 ```
 
+The returned `Answers` set is self-describing: each answer carries a snapshot of its question (label, kind, weight, panel trail) taken at collection time, so consumers never need the form configuration to present or process it - `$answers->toSummary()` prints the provenance-badged, panel-grouped summary, `$answers->toJson()` the raw values, and `$answers->items` exposes the per-answer snapshots.
+
 It also exposes `schema()`, `agentHelp()` and `validate()`, and - when you want finer control - the internals via `config()`, `engine()` and `registry()`. See [`playground/`](playground) for complete, runnable examples.
 
 ## Configuration

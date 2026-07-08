@@ -4,90 +4,66 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Answers;
 
-use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Config\Panel;
 
 /**
- * Formats an answer set as a human summary grouped by panel.
+ * Formats a self-describing answer set as a human summary grouped by panel.
  *
- * Panels (and sub-panels) with no active answers are omitted; each value is
- * rendered readably and non-default answers carry a provenance badge.
+ * Panel headings come from each answer's panel trail, so only panels with
+ * active answers appear; each value is rendered readably and non-default
+ * answers carry a provenance badge.
  *
  * @package DrevOps\Tui\Answers
  */
 class SummaryFormatter {
 
   /**
-   * Format the answers grouped by the configuration's panels.
+   * Format the answers grouped by their panel trails.
    *
-   * @param \DrevOps\Tui\Config\Config $config
-   *   The configuration providing the panel structure.
    * @param \DrevOps\Tui\Answers\Answers $answers
-   *   The answer set.
+   *   The answer set (as produced by the engine or the panel TUI).
    *
    * @return string
    *   The formatted summary.
    */
-  public function format(Config $config, Answers $answers): string {
+  public function format(Answers $answers): string {
     $lines = [];
+    $trail = [];
 
-    foreach ($config->panels as $panel) {
-      $lines = array_merge($lines, $this->formatPanel($panel, $answers, 0));
+    foreach ($answers->items as $item) {
+      $common = 0;
+      while ($common < count($trail) && isset($item->panels[$common]) && $trail[$common] === $item->panels[$common]) {
+        $common++;
+      }
+
+      foreach (array_slice($item->panels, $common) as $offset => $title) {
+        $lines[] = str_repeat('  ', $common + $offset) . $title;
+      }
+
+      $trail = $item->panels;
+      $lines[] = str_repeat('  ', count($item->panels)) . $item->label . ': ' . $this->renderValue($item) . $this->badge($item->provenance);
     }
 
     return implode("\n", $lines);
   }
 
   /**
-   * Format a single panel and its sub-panels.
+   * Render an answer's value readably, masking secret values.
    *
-   * @param \DrevOps\Tui\Config\Panel $panel
-   *   The panel.
-   * @param \DrevOps\Tui\Answers\Answers $answers
-   *   The answer set.
-   * @param int $depth
-   *   The nesting depth.
-   *
-   * @return list<string>
-   *   The lines for this panel, or empty when it has no active answers.
-   */
-  protected function formatPanel(Panel $panel, Answers $answers, int $depth): array {
-    $indent = str_repeat('  ', $depth);
-    $body = [];
-
-    foreach ($panel->fields as $field) {
-      if (!$answers->has($field->id)) {
-        continue;
-      }
-
-      $raw = $answers->value($field->id);
-      // Secrets never print: a fixed-length mask hides both value and length.
-      $value = $field->type === FieldType::Password && is_string($raw) && $raw !== '' ? str_repeat('*', 8) : $this->renderValue($raw);
-      $body[] = $indent . '  ' . $field->label . ': ' . $value . $this->badge($answers->provenanceOf($field->id));
-    }
-
-    foreach ($panel->panels as $subpanel) {
-      $body = array_merge($body, $this->formatPanel($subpanel, $answers, $depth + 1));
-    }
-
-    if ($body === []) {
-      return [];
-    }
-
-    return array_merge([$indent . $panel->title], $body);
-  }
-
-  /**
-   * Render a value readably.
-   *
-   * @param mixed $value
-   *   The value.
+   * @param \DrevOps\Tui\Answers\Answer $answer
+   *   The answer.
    *
    * @return string
    *   The rendered value.
    */
-  protected function renderValue(mixed $value): string {
+  protected function renderValue(Answer $answer): string {
+    $value = $answer->value;
+
+    // Secrets never print: a fixed-length mask hides both value and length.
+    if ($answer->type === FieldType::Password) {
+      return is_string($value) && $value !== '' ? str_repeat('*', 8) : '';
+    }
+
     if (is_bool($value)) {
       return $value ? 'yes' : 'no';
     }

@@ -37,12 +37,13 @@ final class SummaryFormatterTest extends TestCase {
         $p->text('gone', 'Gone')->when(new Condition('name', eq: 'never'));
       })
       ->build();
-    $answers = new Answers(
+    $answers = Answers::forConfig(
+      $config,
       ['name' => 'Acme', 'machine' => 'acme', 'profile' => 'standard', 'debug' => TRUE],
       ['name' => 'edited', 'machine' => 'derived', 'profile' => 'default', 'debug' => 'edited'],
     );
 
-    $summary = (new SummaryFormatter())->format($config, $answers);
+    $summary = (new SummaryFormatter())->format($answers);
 
     $this->assertStringContainsString('General', $summary);
     $this->assertStringContainsString('Name: Acme (edited)', $summary);
@@ -51,6 +52,8 @@ final class SummaryFormatterTest extends TestCase {
     $this->assertStringContainsString('Profile: standard', $summary);
     $this->assertStringContainsString('Advanced', $summary);
     $this->assertStringContainsString('Debug: yes (edited)', $summary);
+    // Sub-panel content indents below its parent.
+    $this->assertStringContainsString("Drupal\n  Profile: standard\n  Advanced\n    Debug: yes (edited)", $summary);
     // Defaults carry no badge.
     $this->assertStringNotContainsString('(default)', $summary);
     // A panel with no active answers is omitted.
@@ -64,9 +67,9 @@ final class SummaryFormatterTest extends TestCase {
         $p->multiselect('mods', 'Mods');
       })
       ->build();
-    $answers = new Answers(['mods' => ['a', 'b']], ['mods' => 'edited']);
+    $answers = Answers::forConfig($config, ['mods' => ['a', 'b']], ['mods' => 'edited']);
 
-    $summary = (new SummaryFormatter())->format($config, $answers);
+    $summary = (new SummaryFormatter())->format($answers);
 
     $this->assertStringContainsString('Mods: a, b', $summary);
   }
@@ -78,14 +81,19 @@ final class SummaryFormatterTest extends TestCase {
         $p->password('unset', 'Unset');
       })
       ->build();
-    $answers = new Answers(['token' => 's3cret-long', 'unset' => ''], ['token' => 'edited', 'unset' => 'default']);
+    $answers = Answers::forConfig($config, ['token' => 's3cret-long', 'unset' => ''], ['token' => 'edited', 'unset' => 'default']);
 
-    $summary = (new SummaryFormatter())->format($config, $answers);
+    $summary = (new SummaryFormatter())->format($answers);
 
     $this->assertStringNotContainsString('s3cret-long', $summary);
     // The mask has a fixed length so it does not leak the value's length.
     $this->assertStringContainsString('Token: ********', $summary);
     $this->assertStringContainsString('Unset: ', $summary);
+  }
+
+  public function testBareAnswersFormatEmpty(): void {
+    // An answer set assembled without a configuration carries no snapshots.
+    $this->assertSame('', (new SummaryFormatter())->format(new Answers(['name' => 'Acme'], ['name' => 'edited'])));
   }
 
 }

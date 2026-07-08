@@ -98,7 +98,7 @@ class ConfigureCommand extends Command {
       }
 
       if ($input->getOption('apply')) {
-        (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, $config, VortexForm::PROCESSORS);
+        (new Processor())->apply($answers, $tui->registry(), $config, VortexForm::PROCESSORS);
       }
 
       $output->writeln($answers->toJson());

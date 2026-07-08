@@ -17,7 +17,6 @@
 
 declare(strict_types=1);
 
-use DrevOps\Tui\Answers\SummaryFormatter;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Discovery\Dotenv;
@@ -57,8 +56,9 @@ catch (EngineException $exception) {
   exit(1);
 }
 
-// The summary groups answers by panel and badges non-default provenance:
-// "detected" for discovered values, "edited" for env and prompt inputs.
-echo (new SummaryFormatter())->format($tui->config(), $answers) . PHP_EOL;
+// The answers are self-describing: the summary groups them by panel and
+// badges non-default provenance - "detected" for discovered values, "edited"
+// for env and prompt inputs.
+echo $answers->toSummary() . PHP_EOL;
 echo PHP_EOL;
 echo $answers->toJson() . PHP_EOL;

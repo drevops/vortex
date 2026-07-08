@@ -137,10 +137,10 @@ class Engine {
    * The collected answers of the most recent collect() as an Answers model.
    *
    * @return \DrevOps\Tui\Answers\Answers
-   *   The answer set with values and provenance.
+   *   The self-describing answer set with values and provenance.
    */
   public function answers(): Answers {
-    return new Answers($this->lastAnswers, $this->lastProvenance);
+    return Answers::forConfig($this->config, $this->lastAnswers, $this->lastProvenance);
   }
 
   /**

@@ -66,7 +66,7 @@ composer install
   [`sample/`](5-discovery/sample) project: every `->discover()` rule type
   (dotenv key, JSON dot-path, path exists, directory scan), a form-declared
   `->envPrefix('MYAPP_')` namespacing the env overrides, and the
-  provenance-badged summary via `SummaryFormatter`.
+  provenance-badged summary via `$answers->toSummary()`.
 
   ```bash
   php playground/5-discovery/run.php                            # discover from sample/

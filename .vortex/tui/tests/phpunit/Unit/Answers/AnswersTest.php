@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Answers;
 
+use DrevOps\Tui\Answers\Answer;
 use DrevOps\Tui\Answers\Answers;
+use DrevOps\Tui\Builder\Form;
+use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Config\FieldType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  * Tests the answers model.
  */
 #[CoversClass(Answers::class)]
+#[CoversClass(Answer::class)]
 #[Group('answers')]
 final class AnswersTest extends TestCase {
 
@@ -39,6 +44,53 @@ final class AnswersTest extends TestCase {
 
     $this->assertSame([], $answers->values);
     $this->assertSame('default', $answers->provenanceOf('x'));
+    $this->assertNull($answers->item('x'));
+    $this->assertSame('', $answers->toSummary());
+  }
+
+  public function testForConfigSnapshotsQuestions(): void {
+    $config = Form::create('T')
+      ->panel('general', 'General', function (PanelBuilder $p): void {
+        $p->text('name', 'Site name')->weight(10);
+        $p->text('inactive', 'Inactive');
+        $p->panel('adv', 'Advanced', function (PanelBuilder $sp): void {
+          $sp->confirm('debug', 'Debug');
+        });
+      })
+      ->build();
+
+    $answers = Answers::forConfig($config, ['name' => 'Acme', 'debug' => TRUE], ['name' => 'edited']);
+
+    // Snapshots exist only for active questions, in form order.
+    $this->assertSame(['name', 'debug'], array_keys($answers->items));
+
+    $name = $answers->item('name');
+    $this->assertInstanceOf(Answer::class, $name);
+    $this->assertSame('Acme', $name->value);
+    $this->assertSame('edited', $name->provenance);
+    $this->assertSame('Site name', $name->label);
+    $this->assertSame(FieldType::Text, $name->type);
+    $this->assertSame(10, $name->weight);
+    $this->assertSame(['General'], $name->panels);
+
+    $debug = $answers->item('debug');
+    $this->assertInstanceOf(Answer::class, $debug);
+    $this->assertSame('default', $debug->provenance);
+    $this->assertSame(FieldType::Confirm, $debug->type);
+    $this->assertSame(['General', 'Advanced'], $debug->panels);
+  }
+
+  public function testToSummaryDelegates(): void {
+    $config = Form::create('T')
+      ->panel('p', 'P', function (PanelBuilder $p): void {
+        $p->text('name', 'Name');
+      })
+      ->build();
+
+    $summary = Answers::forConfig($config, ['name' => 'Acme'], ['name' => 'edited'])->toSummary();
+
+    $this->assertStringContainsString('P', $summary);
+    $this->assertStringContainsString('Name: Acme (edited)', $summary);
   }
 
 }

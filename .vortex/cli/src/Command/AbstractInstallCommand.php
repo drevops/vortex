@@ -122,7 +122,7 @@ abstract class AbstractInstallCommand extends Command {
       return Command::FAILURE;
     }
 
-    (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, $config, VortexForm::PROCESSORS);
+    (new Processor())->apply($answers, $tui->registry(), $config, VortexForm::PROCESSORS);
 
     $file_manager = new FileManager($config);
     $file_manager->prepareDestination();

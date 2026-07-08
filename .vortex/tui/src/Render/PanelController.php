@@ -217,10 +217,10 @@ class PanelController {
    * The current answers.
    *
    * @return \DrevOps\Tui\Answers\Answers
-   *   The answers.
+   *   The self-describing answers.
    */
   public function answers(): Answers {
-    return new Answers($this->values, $this->provenance);
+    return Answers::forConfig($this->config, $this->values, $this->provenance);
   }
 
   /**
