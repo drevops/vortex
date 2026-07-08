@@ -102,7 +102,9 @@ class ResetTest extends UnitTestCase {
           $test->assertDirectoryDoesNotExist($root . '/web/modules/contrib');
           $test->assertFileExists($root . '/web/modules/custom/keep/keep.info.yml');
           $test->assertDirectoryDoesNotExist($root . '/web/themes/custom/t1/build');
-          $test->assertFileDoesNotExist($root . '/web/themes/custom/t1/scss/_components.scss');
+          // Theme scss sources, including the committed '_components.scss',
+          // are not build artifacts and must survive the reset.
+          $test->assertFileExists($root . '/web/themes/custom/t1/scss/_components.scss');
           $test->assertFileExists($root . '/web/themes/custom/t1/scss/main.scss');
           $test->assertDirectoryDoesNotExist($root . '/sub/node_modules');
           // Soft reset does not sweep empty directories.

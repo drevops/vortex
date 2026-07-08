@@ -28,7 +28,7 @@ $is_hard_reset = in_array('--hard', array_slice($GLOBALS['argv'], 1), TRUE);
 INFO('Started reset.');
 
 TASK('Removing dependencies and built assets.', 'Removed dependencies and built assets.', function () use ($webroot): void {
-  $patterns = ['./vendor', sprintf('./%s/core', $webroot), sprintf('./%s/profiles/contrib', $webroot), sprintf('./%s/modules/contrib', $webroot), sprintf('./%s/themes/contrib', $webroot), sprintf('./%s/themes/custom/*/build', $webroot), sprintf('./%s/themes/custom/*/scss/_components.scss', $webroot)];
+  $patterns = ['./vendor', sprintf('./%s/core', $webroot), sprintf('./%s/profiles/contrib', $webroot), sprintf('./%s/modules/contrib', $webroot), sprintf('./%s/themes/contrib', $webroot), sprintf('./%s/themes/custom/*/build', $webroot)];
 
   foreach ($patterns as $pattern) {
     foreach (glob($pattern) ?: [] as $path) {
