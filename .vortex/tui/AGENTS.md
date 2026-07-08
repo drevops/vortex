@@ -14,23 +14,18 @@ testing, code quality tools, and CI/CD workflows.
 ## PHP Application Architecture
 
 
-### Symfony Console Application
+### Library API
 
-Multi-command CLI application structure:
+This package is a library consumed programmatically - it has no CLI entry point
+of its own. The public surface is:
 
-- **Location:** `src/Command/` directory
-- **Entry point:** `customizer` (wraps `src/app.php`)
-- **Use for:** Complex applications with multiple commands, shared logic, OOP
-  architecture
+- **`DrevOps\Tui\Tui`** - the facade: collect a form's answers and run its
+  processing handlers.
+- **`DrevOps\Tui\Builder\Form`** - the fluent builder for declaring a form's
+  panels and fields.
 
-### Adding New Commands
-
-To add a Symfony Console command:
-
-1. Create class in `src/Command/YourCommand.php` extending
-   `Symfony\Component\Console\Command\Command`
-2. Register in `src/app.php`: `$application->add(new YourCommand());`
-3. Add functional test in `tests/phpunit/Functional/YourCommandTest.php`
+A consumer declares a form with `Form::create(...)->panel(...)->build()` and
+drives it through the `Tui` facade.
 
 
 ### Namespace Structure
@@ -75,13 +70,7 @@ composer test-coverage
 ```
 
 
-### Building
-
-
-```bash
-# Build PHAR executable (installs Box first)
-composer build
-```
+### Dependencies
 
 
 ```bash
@@ -143,7 +132,6 @@ GitHub Actions workflows test across:
 Key workflows:
 
 - `.github/workflows/test-php.yml` - PHP testing
-- `.github/workflows/release-php.yml` - PHAR packaging and release
 
 
 ## Documentation

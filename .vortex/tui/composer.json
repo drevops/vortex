@@ -48,9 +48,6 @@
             "tests/phpunit"
         ]
     },
-    "bin": [
-        "tui"
-    ],
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,

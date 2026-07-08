@@ -820,7 +820,7 @@
             "dist": {
                 "type": "path",
                 "url": "../tui",
-                "reference": "5f6c5a1f89f31dd5b274a0e565cc83b63e385804"
+                "reference": "baa4e2ee74216bceeafebb4eb2400de5730c5509"
             },
             "require": {
                 "alexskrypnyk/str2name": "^1.4.1",
@@ -839,9 +839,6 @@
                 "phpunit/phpunit": "^11.5.55",
                 "rector/rector": "^2.5.1"
             },
-            "bin": [
-                "tui"
-            ],
             "type": "library",
             "autoload": {
                 "psr-4": {
