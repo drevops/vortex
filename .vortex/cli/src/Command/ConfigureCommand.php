@@ -15,11 +15,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Configures the project by driving the generic customizer engine.
+ * Configures the project by driving the generic TUI engine.
  *
  * The CLI stays thin: it ships the configuration (the PHP `VortexForm`) and the
  * handler classes (auto-discovered by question id), then delegates collection,
- * conditionals, derivation, discovery and rendering to `drevops/customizer`.
+ * conditionals, derivation, discovery and rendering to `drevops/tui`.
  *
  * @package DrevOps\VortexCli\Command
  */
@@ -52,7 +52,7 @@ class ConfigureCommand extends Command {
       ->addOption('update', 'u', InputOption::VALUE_NONE, 'Update an existing project (enable discovery).')
       ->addOption('schema', NULL, InputOption::VALUE_NONE, 'Print the question schema as JSON and exit.')
       ->addOption('validate', NULL, InputOption::VALUE_REQUIRED, 'Validate an answer set (JSON) against the schema and exit.', '')
-      ->addOption('agent-help', NULL, InputOption::VALUE_NONE, 'Print instructions for driving the customizer non-interactively.')
+      ->addOption('agent-help', NULL, InputOption::VALUE_NONE, 'Print instructions for driving the form non-interactively.')
       ->addOption('apply', 'a', InputOption::VALUE_NONE, 'Apply the collected answers to the project directory.');
   }
 
@@ -60,23 +60,23 @@ class ConfigureCommand extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $customizer = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     if ($input->getOption('schema')) {
-      $output->writeln((string) json_encode($customizer->schema()));
+      $output->writeln((string) json_encode($tui->schema()));
 
       return Command::SUCCESS;
     }
 
     if ($input->getOption('agent-help')) {
-      $output->writeln($customizer->agentHelp());
+      $output->writeln($tui->agentHelp());
 
       return Command::SUCCESS;
     }
 
     $validate = $this->stringOption($input, 'validate');
     if ($validate !== '') {
-      return $this->validateAnswers($customizer, $validate, $output);
+      return $this->validateAnswers($tui, $validate, $output);
     }
 
     // Resolve to an absolute path so a relative "." does not reach basename()
@@ -90,7 +90,7 @@ class ConfigureCommand extends Command {
 
     if (!$input->isInteractive() || $prompts !== '') {
       try {
-        $answers = $customizer->collect($prompts, $dir, $update, $this->version());
+        $answers = $tui->collect($prompts, $dir, $update, $this->version());
       }
       catch (EngineException $engine_exception) {
         $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -99,7 +99,7 @@ class ConfigureCommand extends Command {
       }
 
       if ($input->getOption('apply')) {
-        (new Processor())->apply($customizer->config(), $customizer->registry(), $answers->values, new Context($dir, $answers->values, $update, $this->version(), $dir), VortexForm::PROCESSORS);
+        (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, new Context($dir, $answers->values, $update, $this->version(), $dir), VortexForm::PROCESSORS);
       }
 
       $output->writeln($answers->toJson());
@@ -108,7 +108,7 @@ class ConfigureCommand extends Command {
     }
 
     // @codeCoverageIgnoreStart
-    $answers = $customizer->interact('', '', $this->version(), $dir);
+    $answers = $tui->interact('', '', $this->version(), $dir);
     $output->writeln($answers->toJson());
 
     return Command::SUCCESS;
@@ -130,8 +130,8 @@ class ConfigureCommand extends Command {
   /**
    * Validate a JSON answer set against the schema.
    *
-   * @param \DrevOps\Tui\Tui $customizer
-   *   The customizer.
+   * @param \DrevOps\Tui\Tui $tui
+   *   The TUI facade.
    * @param string $json
    *   The answer set as JSON.
    * @param \Symfony\Component\Console\Output\OutputInterface $output
@@ -140,7 +140,7 @@ class ConfigureCommand extends Command {
    * @return int
    *   The exit code.
    */
-  protected function validateAnswers(Tui $customizer, string $json, OutputInterface $output): int {
+  protected function validateAnswers(Tui $tui, string $json, OutputInterface $output): int {
     $decoded = json_decode($json, TRUE);
     $answers = [];
     if (is_array($decoded)) {
@@ -149,7 +149,7 @@ class ConfigureCommand extends Command {
       }
     }
 
-    $errors = $customizer->validate($answers);
+    $errors = $tui->validate($answers);
     foreach ($errors as $error) {
       $output->writeln('<error>' . $error . '</error>');
     }

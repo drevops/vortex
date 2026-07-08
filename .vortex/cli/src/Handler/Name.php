@@ -10,9 +10,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 
 /**
- * Handler for the "name" question, auto-discovered by the customizer engine.
+ * Handler for the "name" question, auto-discovered by the TUI engine.
  *
- * Demonstrates the thin-CLI pattern: the customizer provides the base class and
+ * Demonstrates the thin-CLI pattern: the TUI provides the base class and
  * lifecycle; this handler carries only the project-specific behaviour.
  *
  * @package DrevOps\VortexCli\Handler

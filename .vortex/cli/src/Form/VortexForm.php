@@ -9,10 +9,10 @@ use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Config\Config;
 
 /**
- * The Vortex customizer form, declared in PHP.
+ * The Vortex form, declared in PHP.
  *
- * This is the question set and its panel structure - the data the customizer
- * engine collects answers for. It replaces the former `config/vortex.yml`.
+ * This is the question set and its panel structure - the data the TUI
+ * engine collects answers for.
  *
  * @package DrevOps\VortexCli\Form
  */
@@ -44,7 +44,7 @@ BANNER;
   ];
 
   /**
-   * Build the Vortex customizer configuration.
+   * Build the Vortex form configuration.
    *
    * @return \DrevOps\Tui\Config\Config
    *   The configuration.

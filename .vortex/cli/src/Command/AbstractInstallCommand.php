@@ -112,13 +112,13 @@ abstract class AbstractInstallCommand extends Command {
 
     $config->set(Config::VERSION, $version);
 
-    $customizer = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
 
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';
 
     try {
-      $answers = $customizer->collect($prompts, $dst, $update, $version);
+      $answers = $tui->collect($prompts, $dst, $update, $version);
     }
     catch (EngineException $engine_exception) {
       $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -126,7 +126,7 @@ abstract class AbstractInstallCommand extends Command {
       return Command::FAILURE;
     }
 
-    (new Processor())->apply($customizer->config(), $customizer->registry(), $answers->values, new Context($tmp, $answers->values, $update, $version, $dst), VortexForm::PROCESSORS);
+    (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, new Context($tmp, $answers->values, $update, $version, $dst), VortexForm::PROCESSORS);
 
     $file_manager = new FileManager($config);
     $file_manager->prepareDestination();

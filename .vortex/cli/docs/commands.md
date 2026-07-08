@@ -4,7 +4,7 @@ The reference for what the `vortex` binary is and how a user drives it. It is a 
 
 ## One-screen principle
 
-`vortex` presents **one interactive screen** - the customizer panels plus action buttons. There are no multi-step wizard screens. Version selection, the questions, and the actions all live on that one screen. Once you submit, the tool runs a processing pass and prints a completion summary; those are run output, not further interactive screens.
+`vortex` presents **one interactive screen** - the TUI question panels plus action buttons. There are no multi-step wizard screens. Version selection, the questions, and the actions all live on that one screen. Once you submit, the tool runs a processing pass and prints a completion summary; those are run output, not further interactive screens.
 
 The actions live on the screen (rather than as wizard steps) precisely so more can be added later - e.g. an `Apply to remote` button - without changing the shape of the flow.
 
@@ -36,7 +36,7 @@ Calling an operation explicitly skips detection and opens the one screen already
  │  ⛭ VORTEX                      version 1.38 ▸   │  banner + version (▸ change = update)
  │                                                 │
  │  ❯ General      name · profile · theme          │
- │    Services     Solr · Redis · Clamav           │  the customizer question panels
+ │    Services     Solr · Redis · Clamav           │  the TUI question panels
  │    CI/Hosting   GitHub Actions · Lagoon         │
  │    …                                            │
  │                                                 │
@@ -46,7 +46,7 @@ Calling an operation explicitly skips detection and opens the one screen already
 ```
 
 - **Header** - banner plus the Vortex version. For an existing project the version is the current one and is changeable inline; that inline change is what turns a configure into an update. For a fresh project it defaults to latest and is not prominent.
-- **Body** - the customizer question panels (already built).
+- **Body** - the TUI question panels (already built).
 - **Actions** - `Submit` / `Cancel` today, with room for more buttons on the same screen later.
 - **After submit** - a processing pass (fetch template, apply answers, write files) then a completion summary with the file count and next steps. Printed after the screen closes; not a separate interactive screen.
 

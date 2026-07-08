@@ -1,9 +1,9 @@
 # This action is used for Vortex maintenance. It will not be used in the scaffolded project.
 #
 # Tests the standalone 'drevops/tui' and 'drevops/vortex-cli' packages
-# that live under '.vortex/'. Two jobs share this one workflow: 'customizer'
-# runs first, then 'cli' (which will depend on the customizer) runs only if the
-# customizer passed.
+# that live under '.vortex/'. Two jobs share this one workflow: 'tui'
+# runs first, then 'cli' (which depends on the TUI) runs only if the
+# TUI passed.
 #
 # Scoped to this development branch and to the two package paths so it stays
 # cheap and does not run on unrelated changes. It intentionally does NOT exist
