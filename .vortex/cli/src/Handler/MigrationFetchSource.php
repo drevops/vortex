@@ -16,6 +16,18 @@ use DrevOps\VortexCli\Utils\File;
  */
 class MigrationFetchSource extends AbstractHandler {
 
+  const URL = 'url';
+
+  const FTP = 'ftp';
+
+  const ACQUIA = 'acquia';
+
+  const LAGOON = 'lagoon';
+
+  const CONTAINER_REGISTRY = 'container_registry';
+
+  const S3 = 's3';
+
   /**
    * {@inheritdoc}
    */

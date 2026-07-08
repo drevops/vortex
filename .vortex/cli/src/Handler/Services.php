@@ -15,6 +15,12 @@ use DrevOps\VortexCli\Utils\File;
  */
 class Services extends AbstractHandler {
 
+  const CLAMAV = 'clamav';
+
+  const REDIS = 'redis';
+
+  const SOLR = 'solr';
+
   /**
    * {@inheritdoc}
    */

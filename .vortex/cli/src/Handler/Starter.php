@@ -15,6 +15,14 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  */
 class Starter extends AbstractHandler {
 
+  const INSTALL_PROFILE_CORE = 'install_profile_core';
+
+  const INSTALL_PROFILE_DRUPALCMS = 'install_profile_drupalcms';
+
+  const LOAD_DATABASE_DEMO = 'load_demodb';
+
+  const INSTALL_PROFILE_DRUPALCMS_PATH = '../recipes/drupal_cms_starter';
+
   /**
    * {@inheritdoc}
    */

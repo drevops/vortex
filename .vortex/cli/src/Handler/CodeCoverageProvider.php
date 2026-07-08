@@ -15,6 +15,10 @@ use DrevOps\VortexCli\Utils\File;
  */
 class CodeCoverageProvider extends AbstractHandler {
 
+  const NONE = 'none';
+
+  const CODECOV = 'codecov';
+
   /**
    * {@inheritdoc}
    */

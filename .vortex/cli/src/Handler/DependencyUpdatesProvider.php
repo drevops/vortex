@@ -15,6 +15,12 @@ use DrevOps\VortexCli\Utils\File;
  */
 class DependencyUpdatesProvider extends AbstractHandler {
 
+  const NONE = 'none';
+
+  const RENOVATEBOT_CI = 'renovatebot_ci';
+
+  const RENOVATEBOT_APP = 'renovatebot_app';
+
   /**
    * {@inheritdoc}
    */

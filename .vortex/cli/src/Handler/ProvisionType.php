@@ -16,6 +16,10 @@ use DrevOps\VortexCli\Utils\File;
  */
 class ProvisionType extends AbstractHandler {
 
+  const DATABASE = 'database';
+
+  const PROFILE = 'profile';
+
   /**
    * {@inheritdoc}
    */

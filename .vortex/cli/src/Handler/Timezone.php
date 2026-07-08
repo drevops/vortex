@@ -16,6 +16,31 @@ use DrevOps\VortexCli\Utils\File;
  */
 class Timezone extends AbstractHandler {
 
+  const UTC = 'UTC';
+
+  const TIMEZONES = [
+    'UTC',
+    'Africa/Johannesburg',
+    'America/Chicago',
+    'America/Los_Angeles',
+    'America/New_York',
+    'America/Sao_Paulo',
+    'America/Toronto',
+    'Asia/Dubai',
+    'Asia/Hong_Kong',
+    'Asia/Kolkata',
+    'Asia/Singapore',
+    'Asia/Tokyo',
+    'Australia/Melbourne',
+    'Australia/Sydney',
+    'Europe/Amsterdam',
+    'Europe/Berlin',
+    'Europe/London',
+    'Europe/Madrid',
+    'Europe/Paris',
+    'Pacific/Auckland',
+  ];
+
   /**
    * {@inheritdoc}
    */

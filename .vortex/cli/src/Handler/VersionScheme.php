@@ -16,6 +16,12 @@ use DrevOps\VortexCli\Utils\File;
  */
 class VersionScheme extends AbstractHandler {
 
+  const CALVER = 'calver';
+
+  const SEMVER = 'semver';
+
+  const OTHER = 'other';
+
   /**
    * {@inheritdoc}
    */

@@ -15,6 +15,10 @@ use DrevOps\VortexCli\Utils\File;
  */
 class Webroot extends AbstractHandler {
 
+  const WEB = 'web';
+
+  const DOCROOT = 'docroot';
+
   /**
    * Validate the collected value.
    *

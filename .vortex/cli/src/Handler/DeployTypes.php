@@ -17,6 +17,12 @@ use DrevOps\VortexCli\Utils\File;
  */
 class DeployTypes extends AbstractHandler {
 
+  const ARTIFACT = 'artifact';
+
+  const LAGOON = 'lagoon';
+
+  const WEBHOOK = 'webhook';
+
   /**
    * {@inheritdoc}
    */

@@ -15,6 +15,12 @@ use DrevOps\VortexCli\Utils\File;
  */
 class CiProvider extends AbstractHandler {
 
+  const NONE = 'none';
+
+  const GITHUB_ACTIONS = 'gha';
+
+  const CIRCLECI = 'circleci';
+
   /**
    * {@inheritdoc}
    */

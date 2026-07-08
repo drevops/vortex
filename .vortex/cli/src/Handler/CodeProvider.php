@@ -15,6 +15,10 @@ use DrevOps\VortexCli\Utils\File;
  */
 class CodeProvider extends AbstractHandler {
 
+  const GITHUB = 'github';
+
+  const OTHER = 'other';
+
   /**
    * {@inheritdoc}
    */

@@ -15,6 +15,12 @@ use DrevOps\VortexCli\Utils\File;
  */
 class CustomModules extends AbstractHandler {
 
+  const BASE = 'base';
+
+  const DEMO = 'demo';
+
+  const SEARCH = 'search';
+
   /**
    * {@inheritdoc}
    */

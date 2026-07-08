@@ -17,6 +17,18 @@ use DrevOps\VortexCli\Utils\File;
  */
 class NotificationChannels extends AbstractHandler {
 
+  const EMAIL = 'email';
+
+  const GITHUB = 'github';
+
+  const JIRA = 'jira';
+
+  const NEWRELIC = 'newrelic';
+
+  const SLACK = 'slack';
+
+  const WEBHOOK = 'webhook';
+
   /**
    * {@inheritdoc}
    */

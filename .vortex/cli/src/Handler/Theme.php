@@ -17,6 +17,14 @@ use DrevOps\VortexCli\Utils\File;
  */
 class Theme extends AbstractHandler {
 
+  const OLIVERO = 'olivero';
+
+  const CLARO = 'claro';
+
+  const STARK = 'stark';
+
+  const CUSTOM = 'custom';
+
   /**
    * {@inheritdoc}
    */

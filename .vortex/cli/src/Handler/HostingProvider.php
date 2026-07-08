@@ -16,6 +16,14 @@ use DrevOps\VortexCli\Utils\JsonManipulator;
  */
 class HostingProvider extends AbstractHandler {
 
+  const NONE = 'none';
+
+  const LAGOON = 'lagoon';
+
+  const ACQUIA = 'acquia';
+
+  const OTHER = 'other';
+
   /**
    * {@inheritdoc}
    */

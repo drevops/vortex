@@ -16,6 +16,14 @@ use DrevOps\VortexCli\Utils\File;
  */
 class Profile extends AbstractHandler {
 
+  const STANDARD = 'standard';
+
+  const MINIMAL = 'minimal';
+
+  const DEMO_UMAMI = 'demo_umami';
+
+  const CUSTOM = 'custom';
+
   /**
    * {@inheritdoc}
    */

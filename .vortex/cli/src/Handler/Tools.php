@@ -20,6 +20,22 @@ use DrevOps\VortexCli\Utils\Yaml;
  */
 class Tools extends AbstractHandler {
 
+  const PHPCS = 'phpcs';
+
+  const PHPSTAN = 'phpstan';
+
+  const RECTOR = 'rector';
+
+  const ESLINT = 'eslint';
+
+  const STYLELINT = 'stylelint';
+
+  const PHPUNIT = 'phpunit';
+
+  const BEHAT = 'behat';
+
+  const JEST = 'jest';
+
   /**
    * {@inheritdoc}
    */
