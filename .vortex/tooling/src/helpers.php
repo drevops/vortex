@@ -772,48 +772,18 @@ function acli_home(): string {
 
   // A home left behind by a crashed run that reused this PID would hand acli
   // stale cached credentials; clear it so every run starts from a clean home.
-  acli_home_remove($home);
+  remove_dir($home);
   mkdir($home, 0755, TRUE);
 
   // The isolated home caches acli's token and state; remove it when the run
   // ends so no credentials linger on disk afterwards.
   register_shutdown_function(static function () use ($home): void {
     // @codeCoverageIgnoreStart
-    acli_home_remove($home);
+    remove_dir($home);
     // @codeCoverageIgnoreEnd
   });
 
   return $home;
-}
-
-/**
- * Recursively remove an isolated Acquia CLI home directory.
- *
- * @param string $home
- *   Path to the directory to remove; a no-op when it does not exist.
- */
-function acli_home_remove(string $home): void {
-  if (!is_dir($home)) {
-    return;
-  }
-
-  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($home, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-  foreach ($items as $item) {
-    // @codeCoverageIgnoreStart
-    if (!$item instanceof \SplFileInfo) {
-      continue;
-    }
-    // @codeCoverageIgnoreEnd
-
-    if ($item->isDir()) {
-      rmdir($item->getPathname());
-    }
-    else {
-      unlink($item->getPathname());
-    }
-  }
-
-  rmdir($home);
 }
 
 /**
@@ -1183,6 +1153,47 @@ function copy_dir(string $src, string $dst): void {
       copy($item->getPathname(), $target);
     }
   }
+}
+
+/**
+ * Recursively remove a directory and all of its contents.
+ *
+ * Best-effort, mirroring 'rm -rf': individual failures are suppressed rather
+ * than thrown, and a missing path is a no-op. Symbolic links are removed as
+ * links without following them, so a link into a tree outside the directory
+ * never triggers deletions there.
+ *
+ * @param string $dir
+ *   Path to the directory to remove.
+ */
+function remove_dir(string $dir): void {
+  if (is_link($dir)) {
+    @unlink($dir);
+
+    return;
+  }
+
+  if (!is_dir($dir)) {
+    return;
+  }
+
+  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+  foreach ($items as $item) {
+    // @codeCoverageIgnoreStart
+    if (!$item instanceof \SplFileInfo) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+
+    if (!$item->isLink() && $item->isDir()) {
+      @rmdir($item->getPathname());
+    }
+    else {
+      @unlink($item->getPathname());
+    }
+  }
+
+  @rmdir($dir);
 }
 
 /**
