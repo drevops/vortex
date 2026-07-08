@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\VortexTooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 #[Group('scripts')]
+#[RunTestsInSeparateProcesses]
 class TaskCustomLagoonTest extends UnitTestCase {
 
   /**
