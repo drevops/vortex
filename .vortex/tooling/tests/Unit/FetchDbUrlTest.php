@@ -78,13 +78,14 @@ class FetchDbUrlTest extends UnitTestCase {
             'cmd' => sprintf('unzip -o %s -d %s', escapeshellarg($db_dir . '/db.sql.zip'), escapeshellarg($temp_dir)),
             'result_code' => 0,
           ]);
-          $test->mockShellExecMultiple([
-            ['value' => $temp_dir . '/extracted_db.sql' . "\n"],
-            ['value' => ''],
-          ]);
         },
         'expected' => ['Extracting the database dump from the zip archive.', 'Finished database dump download from URL.'],
-        'after' => NULL,
+        'after' => function (self $test): void {
+          $test->assertFileExists(self::$tmp . '/data/db.sql');
+          $test->assertSame('SQL CONTENT', file_get_contents(self::$tmp . '/data/db.sql'));
+          $test->assertDirectoryDoesNotExist(self::$tmp . '/data/tmp_extract_12345');
+          $test->assertFileDoesNotExist(self::$tmp . '/data/db.sql.zip');
+        },
       ],
       'zip extraction with password' => [
         'before' => function (self $test): void {
@@ -107,13 +108,14 @@ class FetchDbUrlTest extends UnitTestCase {
             'cmd' => sprintf('unzip -o -P %s %s -d %s', escapeshellarg('secret'), escapeshellarg($db_dir . '/db.sql.zip'), escapeshellarg($temp_dir)),
             'result_code' => 0,
           ]);
-          $test->mockShellExecMultiple([
-            ['value' => $temp_dir . '/extracted_db.sql' . "\n"],
-            ['value' => ''],
-          ]);
         },
         'expected' => ['Unzipping password-protected', 'Finished database dump download from URL.'],
-        'after' => NULL,
+        'after' => function (self $test): void {
+          $test->assertFileExists(self::$tmp . '/data/db.sql');
+          $test->assertSame('SQL CONTENT', file_get_contents(self::$tmp . '/data/db.sql'));
+          $test->assertDirectoryDoesNotExist(self::$tmp . '/data/tmp_extract_12345');
+          $test->assertFileDoesNotExist(self::$tmp . '/data/db.sql.zip');
+        },
       ],
     ];
   }
@@ -160,7 +162,6 @@ class FetchDbUrlTest extends UnitTestCase {
             'cmd' => sprintf('unzip -o %s -d %s', escapeshellarg($db_dir . '/db.sql.zip'), escapeshellarg($temp_dir)),
             'result_code' => 1,
           ]);
-          $test->mockShellExec('');
         },
         'expected' => 'Failed to extract zip file',
       ],
@@ -182,10 +183,6 @@ class FetchDbUrlTest extends UnitTestCase {
           $test->mockPassthru([
             'cmd' => sprintf('unzip -o %s -d %s', escapeshellarg($db_dir . '/db.sql.zip'), escapeshellarg($temp_dir)),
             'result_code' => 0,
-          ]);
-          $test->mockShellExecMultiple([
-            ['value' => ''],
-            ['value' => ''],
           ]);
         },
         'expected' => 'No files found in the zip archive',
