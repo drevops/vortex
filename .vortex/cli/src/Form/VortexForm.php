@@ -6,9 +6,8 @@ namespace DrevOps\VortexCli\Form;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\Config;
-use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Config\Config as TuiConfig;
 use DrevOps\Tui\Derive\Derive;
 use DrevOps\VortexCli\Handler\AiCodeInstructions;
 use DrevOps\VortexCli\Handler\AssignAuthorPr;
@@ -33,7 +32,6 @@ use DrevOps\VortexCli\Handler\ModulePrefix;
 use DrevOps\VortexCli\Handler\Modules;
 use DrevOps\VortexCli\Handler\Name;
 use DrevOps\VortexCli\Handler\NotificationChannels;
-use DrevOps\VortexCli\Handler\OptionsInterface;
 use DrevOps\VortexCli\Handler\Org;
 use DrevOps\VortexCli\Handler\OrgMachineName;
 use DrevOps\VortexCli\Handler\PreserveDocsProject;
@@ -49,12 +47,14 @@ use DrevOps\VortexCli\Handler\Tools;
 use DrevOps\VortexCli\Handler\VersionScheme;
 use DrevOps\VortexCli\Handler\VisualRegression;
 use DrevOps\VortexCli\Handler\Webroot;
+use DrevOps\VortexCli\Utils\Config;
 
 /**
  * The Vortex form, declared in PHP.
  *
- * This is the question set and its panel structure - the data the TUI
- * engine collects answers for.
+ * The form owns the panel structure, question order, conditional gating,
+ * derivation and processing weights; everything about a single question comes
+ * from its handler through the TuiAdapter.
  *
  * @package DrevOps\VortexCli\Form
  */
@@ -88,143 +88,91 @@ BANNER;
   /**
    * Build the Vortex form configuration.
    *
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The installer configuration the handlers operate on.
+   *
    * @return \DrevOps\Tui\Config\Config
    *   The configuration.
    */
-  public static function create(): Config {
+  public static function create(Config $config): TuiConfig {
     return Form::create('Vortex', 'your project')
       ->banner(self::BANNER)
       ->envPrefix('VORTEX_')
-      ->panel('general', 'General information', function (PanelBuilder $p): void {
+      ->panel('general', 'General information', function (PanelBuilder $p) use ($config): void {
         $p->description('Project name, organization and public domain.');
-        self::field($p, Name::class);
-        self::field($p, MachineName::class);
-        self::field($p, Org::class);
-        self::field($p, OrgMachineName::class);
-        self::field($p, Domain::class);
+        TuiAdapter::field($p, new Name($config), weight: 380);
+        TuiAdapter::field($p, new MachineName($config), weight: 360, derive: new Derive('{{name}}', 'machine'));
+        TuiAdapter::field($p, new Org($config), weight: 370, derive: new Derive('{{name}} Org'));
+        TuiAdapter::field($p, new OrgMachineName($config), weight: 350, derive: new Derive('{{org}}', 'machine'));
+        TuiAdapter::field($p, new Domain($config), weight: 280, derive: new Derive('{{machine_name}}.com', 'host'));
       })
-      ->panel('drupal', 'Drupal', function (PanelBuilder $p): void {
+      ->panel('drupal', 'Drupal', function (PanelBuilder $p) use ($config): void {
         $p->description('Install profile, modules, theme and front-end build.');
-        self::field($p, Starter::class);
-        self::field($p, Profile::class);
-        self::field($p, ProfileCustom::class);
-        self::field($p, Modules::class);
-        self::field($p, ModulePrefix::class);
-        self::field($p, CustomModules::class);
-        self::field($p, Theme::class);
-        self::field($p, ThemeCustom::class);
-        self::field($p, FrontendBuild::class);
+        TuiAdapter::field($p, new Starter($config), weight: 250);
+        TuiAdapter::field($p, new Profile($config), weight: 270);
+        TuiAdapter::field($p, new ProfileCustom($config), weight: 260, when: new Condition('profile', eq: Profile::CUSTOM));
+        TuiAdapter::field($p, new Modules($config), weight: 240);
+        TuiAdapter::field($p, new ModulePrefix($config), weight: 310, derive: new Derive('{{machine_name}}', 'initials'));
+        TuiAdapter::field($p, new CustomModules($config), weight: 300);
+        TuiAdapter::field($p, new Theme($config), weight: 340);
+        TuiAdapter::field($p, new ThemeCustom($config), weight: 330, when: new Condition('theme', eq: Theme::CUSTOM), derive: new Derive('{{machine_name}}', 'machine'));
+        TuiAdapter::field($p, new FrontendBuild($config), weight: 320, when: new Condition('theme', eq: Theme::CUSTOM));
       })
-      ->panel('code_repository', 'Code repository', function (PanelBuilder $p): void {
+      ->panel('code_repository', 'Code repository', function (PanelBuilder $p) use ($config): void {
         $p->description('Where the code lives and how releases are versioned.');
-        self::field($p, CodeProvider::class);
-        self::field($p, VersionScheme::class);
+        TuiAdapter::field($p, new CodeProvider($config), weight: 230);
+        TuiAdapter::field($p, new VersionScheme($config), weight: 220);
       })
-      ->panel('environment', 'Environment', function (PanelBuilder $p): void {
+      ->panel('environment', 'Environment', function (PanelBuilder $p) use ($config): void {
         $p->description('Timezone, Docker services and developer tooling.');
-        self::field($p, Timezone::class);
-        self::field($p, Services::class);
-        self::field($p, Tools::class);
+        TuiAdapter::field($p, new Timezone($config), weight: 210);
+        TuiAdapter::field($p, new Services($config), weight: 200);
+        TuiAdapter::field($p, new Tools($config), weight: 190);
       })
-      ->panel('hosting', 'Hosting', function (PanelBuilder $p): void {
+      ->panel('hosting', 'Hosting', function (PanelBuilder $p) use ($config): void {
         $p->description('Target hosting provider and project name.');
-        self::field($p, HostingProvider::class);
-        self::field($p, HostingProjectName::class);
-        self::field($p, Webroot::class);
+        TuiAdapter::field($p, new HostingProvider($config), weight: 180);
+        TuiAdapter::field($p, new HostingProjectName($config), weight: 290, when: new Condition('hosting_provider', in: [HostingProvider::LAGOON, HostingProvider::ACQUIA]), derive: new Derive('{{machine_name}}'));
+        TuiAdapter::field($p, new Webroot($config), weight: 10);
       })
-      ->panel('deployment', 'Deployment', function (PanelBuilder $p): void {
+      ->panel('deployment', 'Deployment', function (PanelBuilder $p) use ($config): void {
         $p->description('How code is shipped to the hosting environment.');
-        self::field($p, DeployTypes::class);
+        TuiAdapter::field($p, new DeployTypes($config), weight: 170);
       })
-      ->panel('workflow', 'Workflow', function (PanelBuilder $p): void {
+      ->panel('workflow', 'Workflow', function (PanelBuilder $p) use ($config): void {
         $p->description('Provisioning method and database source.');
-        self::field($p, ProvisionType::class);
-        self::field($p, DatabaseFetchSource::class);
-        self::field($p, DatabaseImage::class);
-        self::field($p, Migration::class);
-        self::field($p, MigrationFetchSource::class);
-        self::field($p, MigrationImage::class);
+        TuiAdapter::field($p, new ProvisionType($config), weight: 150);
+        TuiAdapter::field($p, new DatabaseFetchSource($config), weight: 140, when: new Condition('provision_type', eq: ProvisionType::DATABASE));
+        TuiAdapter::field($p, new DatabaseImage($config), weight: 130, when: new Condition('database_fetch_source', eq: DatabaseFetchSource::CONTAINER_REGISTRY), derive: new Derive('{{org_machine_name}}/{{machine_name}}-data:latest', 'lower'));
+        TuiAdapter::field($p, new Migration($config), weight: 120);
+        TuiAdapter::field($p, new MigrationFetchSource($config), weight: 110, when: new Condition('migration', eq: TRUE));
+        TuiAdapter::field($p, new MigrationImage($config), weight: 100, when: new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY), derive: new Derive('{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'lower'));
       })
-      ->panel('notifications', 'Notifications', function (PanelBuilder $p): void {
+      ->panel('notifications', 'Notifications', function (PanelBuilder $p) use ($config): void {
         $p->description('Where build and deployment notifications are sent.');
-        self::field($p, NotificationChannels::class);
+        TuiAdapter::field($p, new NotificationChannels($config), weight: 160);
       })
-      ->panel('continuous_integration', 'Continuous Integration', function (PanelBuilder $p): void {
+      ->panel('continuous_integration', 'Continuous Integration', function (PanelBuilder $p) use ($config): void {
         $p->description('CI provider and visual regression testing.');
-        self::field($p, CiProvider::class);
-        self::field($p, VisualRegression::class);
+        TuiAdapter::field($p, new CiProvider($config), weight: 90);
+        TuiAdapter::field($p, new VisualRegression($config), weight: 80);
       })
-      ->panel('automations', 'Automations', function (PanelBuilder $p): void {
+      ->panel('automations', 'Automations', function (PanelBuilder $p) use ($config): void {
         $p->description('Dependency updates, coverage and PR automation.');
-        self::field($p, DependencyUpdatesProvider::class);
-        self::field($p, CodeCoverageProvider::class);
-        self::field($p, AssignAuthorPr::class);
-        self::field($p, LabelMergeConflictsPr::class);
+        TuiAdapter::field($p, new DependencyUpdatesProvider($config), weight: 70);
+        TuiAdapter::field($p, new CodeCoverageProvider($config), weight: 60);
+        TuiAdapter::field($p, new AssignAuthorPr($config), weight: 50);
+        TuiAdapter::field($p, new LabelMergeConflictsPr($config), weight: 40);
       })
-      ->panel('documentation', 'Documentation', function (PanelBuilder $p): void {
+      ->panel('documentation', 'Documentation', function (PanelBuilder $p) use ($config): void {
         $p->description('Whether project documentation is kept.');
-        self::field($p, PreserveDocsProject::class);
+        TuiAdapter::field($p, new PreserveDocsProject($config), weight: 30);
       })
-      ->panel('ai', 'AI', function (PanelBuilder $p): void {
+      ->panel('ai', 'AI', function (PanelBuilder $p) use ($config): void {
         $p->description('Whether AI agent instructions are included.');
-        self::field($p, AiCodeInstructions::class);
+        TuiAdapter::field($p, new AiCodeInstructions($config), weight: 20);
       })
       ->build();
-  }
-
-  /**
-   * Declare a handler's question on a panel.
-   *
-   * The adapter between the handlers and the form: handlers declare their
-   * question as pure data, and this is the single place converting that
-   * metadata into form elements.
-   *
-   * @param \DrevOps\Tui\Builder\PanelBuilder $p
-   *   The panel builder.
-   * @param class-string<\DrevOps\VortexCli\Handler\FieldInterface> $handler
-   *   The handler class declaring the question.
-   */
-  protected static function field(PanelBuilder $p, string $handler): void {
-    $field = match ($handler::type()) {
-      FieldType::Text => $p->text($handler::id(), $handler::label()),
-      FieldType::Select => $p->select($handler::id(), $handler::label()),
-      FieldType::MultiSelect => $p->multiselect($handler::id(), $handler::label()),
-      FieldType::Confirm => $p->confirm($handler::id(), $handler::label()),
-      FieldType::Suggest => $p->suggest($handler::id(), $handler::label()),
-    };
-
-    $field->weight($handler::weight());
-
-    if ($handler::description() !== '') {
-      $field->description($handler::description());
-    }
-
-    if ($handler::default() !== NULL) {
-      $field->default($handler::default());
-    }
-
-    if ($handler::required()) {
-      $field->required();
-    }
-
-    if (is_a($handler, OptionsInterface::class, TRUE)) {
-      $field->options($handler::options());
-    }
-
-    $when = $handler::when();
-    if ($when instanceof ConditionInterface) {
-      $field->when($when);
-    }
-
-    $derive = $handler::derive();
-    if ($derive instanceof Derive) {
-      $field->derive($derive);
-    }
-
-    $discover = $handler::discover();
-    if ($discover !== NULL) {
-      $field->discover($discover);
-    }
   }
 
 }

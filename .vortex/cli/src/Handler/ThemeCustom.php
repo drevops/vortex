@@ -4,98 +4,98 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Condition\Condition;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
+use DrevOps\VortexCli\Utils\Converter;
 
-/**
- * Reusable behaviour for the "theme_custom" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class ThemeCustom extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isMachineName($value) ? NULL : 'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class ThemeCustom extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'theme_custom';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Custom theme machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
+  public function hint(array $responses): ?string {
+    return 'We will use this name as a custom theme name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'We will use this name as a custom theme name.';
+  public function placeholder(array $responses): ?string {
+    return 'E.g. my_theme';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function isRequired(): bool {
     return TRUE;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function when(): ?ConditionInterface {
-    return new Condition('theme', eq: Theme::CUSTOM);
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::machine($responses[MachineName::id()]);
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{machine_name}}', 'machine');
+  public function dependsOn(): ?array {
+    return [Theme::id() => [Theme::CUSTOM]];
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 330;
+  public function shouldRun(array $responses): bool {
+    return isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    // Get the discovered theme from the Theme handler.
+    $theme_handler = new Theme($this->config);
+    $theme_handler->setWebroot($this->webroot);
+    $discovered = $theme_handler->discoverName();
+
+    // Only return discovered value if it's a custom theme.
+    if (!empty($discovered) && !in_array($discovered, [Theme::OLIVERO, Theme::CLARO, Theme::STARK], TRUE)) {
+      return $discovered;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ?
+      'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    // This handler doesn't need processing - the Theme handler will handle
+    // the final result.
   }
 
 }

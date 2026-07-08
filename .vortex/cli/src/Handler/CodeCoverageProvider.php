@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "code_coverage_provider" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class CodeCoverageProvider extends AbstractFieldHandler implements OptionsInterface {
+class CodeCoverageProvider extends AbstractHandler {
 
   const NONE = 'none';
 
@@ -23,19 +15,21 @@ class CodeCoverageProvider extends AbstractFieldHandler implements OptionsInterf
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    if ($value === 'codecov') {
-      File::removeTokenAsync('!CODE_COVERAGE_PROVIDER_CODECOV');
-    }
-    else {
-      File::removeTokenAsync('CODE_COVERAGE_PROVIDER_CODECOV');
-    }
+  public function label(): string {
+    return 'Code coverage provider';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function options(): array {
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select the code coverage provider.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
     return [
       self::CODECOV => 'Codecov',
       self::NONE => 'None',
@@ -45,43 +39,45 @@ class CodeCoverageProvider extends AbstractFieldHandler implements OptionsInterf
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'code_coverage_provider';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Code coverage provider';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'The code coverage provider.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
+  public function default(array $responses): null|string|bool|array {
     return self::NONE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 60;
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    $gha_files = glob($this->dstDir . '/.github/workflows/*.{yml,yaml}', GLOB_BRACE) ?: [];
+    foreach ($gha_files as $gha_file) {
+      if (is_readable($gha_file) && File::contains($gha_file, 'codecov/codecov-action')) {
+        return self::CODECOV;
+      }
+    }
+
+    $circle = $this->dstDir . '/.circleci/config.yml';
+    if (is_readable($circle) && File::contains($circle, 'codecov -Z -s')) {
+      return self::CODECOV;
+    }
+
+    return self::NONE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+
+    if ($v === self::CODECOV) {
+      File::removeTokenAsync('!CODE_COVERAGE_PROVIDER_CODECOV');
+    }
+    else {
+      File::removeTokenAsync('CODE_COVERAGE_PROVIDER_CODECOV');
+    }
   }
 
 }

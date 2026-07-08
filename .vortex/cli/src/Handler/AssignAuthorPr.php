@@ -4,67 +4,48 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "assign_author_pr" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class AssignAuthorPr extends AbstractFieldHandler {
+class AssignAuthorPr extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    if ($value !== TRUE) {
-      File::remove($context->directory . '/.github/workflows/assign-author.yml');
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'assign_author_pr';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Auto-assign the author to their PR?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Confirm;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'Helps to keep the PRs organized.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
+  public function default(array $responses): null|string|bool|array {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 50;
+  public function discover(): null|string|bool|array {
+    return $this->isInstalled() ? file_exists($this->dstDir . '/.github/workflows/assign-author.yml') : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsBool();
+    $t = $this->tmpDir;
+
+    if (!$v) {
+      File::remove($t . '/.github/workflows/assign-author.yml');
+    }
   }
 
 }

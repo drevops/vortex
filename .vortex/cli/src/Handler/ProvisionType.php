@@ -4,18 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\Tui;
 
-/**
- * Handler for the "provision_type" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class ProvisionType extends AbstractFieldHandler implements OptionsInterface {
+class ProvisionType extends AbstractHandler {
 
   const DATABASE = 'database';
 
@@ -24,24 +17,43 @@ class ProvisionType extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $provision_type = is_string($value) ? $value : '';
-
-    Env::writeValueDotenv('VORTEX_PROVISION_TYPE', $provision_type, $context->directory . '/.env');
-
-    if ($provision_type === 'profile') {
-      File::remove($context->directory . '/scripts/sanitize.sql');
-      File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
-    }
-    else {
-      File::removeTokenAsync('PROVISION_TYPE_PROFILE');
-    }
+  public function label(): string {
+    return 'Provision type';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function options(): array {
+  public static function description(array $responses): string {
+    $label1 = Tui::bold('Import from database dump');
+    $label2 = Tui::bold('Install from profile');
+
+    return <<<DOC
+Provisioning sets up the site in an environment using an already assembled codebase.
+
+    ○ {$label1}
+      Provisions the site by importing a database dump
+      typically copied from production into lower
+      environments.
+
+    ○ {$label2}
+      Provisions the site by installing a fresh Drupal
+      site from a profile every time an environment is
+      created.
+DOC;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select the provision type.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
     return [
       self::DATABASE => 'Import from database dump',
       self::PROFILE => 'Install from profile',
@@ -51,43 +63,37 @@ class ProvisionType extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'provision_type';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Provision type';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'How the site is provisioned: from a database dump or installed from a profile.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
+  public function default(array $responses): null|string|bool|array {
     return self::DATABASE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 150;
+  public function discover(): null|string|bool|array {
+    $type = Env::getFromDotenv('VORTEX_PROVISION_TYPE', $this->dstDir);
+
+    return $type && in_array($type, [self::DATABASE, self::PROFILE], TRUE) ? $type : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    Env::writeValueDotenv('VORTEX_PROVISION_TYPE', $v, $t . '/.env');
+
+    if ($v === static::PROFILE) {
+      // Sanitization applies only to imported database dumps.
+      File::remove($t . '/scripts/sanitize.sql');
+
+      File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
+    }
+    else {
+      File::removeTokenAsync('PROVISION_TYPE_PROFILE');
+    }
   }
 
 }

@@ -4,120 +4,127 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Condition\Condition;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "hosting_project_name" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class HostingProjectName extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isPhpPackageName($value) ? NULL : 'Please enter a valid machine name: only lowercase letters, numbers, hyphens and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class HostingProjectName extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $hosting = $context->answers['hosting_provider'] ?? NULL;
-
-    if (!in_array($hosting, ['lagoon', 'acquia'], TRUE)) {
-      return;
-    }
-
-    $name = is_string($value) ? $value : '';
-
-    Env::writeValueDotenv('VORTEX_ACQUIA_APP_NAME', $name, $context->directory . '/.env');
-    Env::writeValueDotenv('LAGOON_PROJECT', $name, $context->directory . '/.env');
-    File::replaceContentInFile($context->directory . '/drush/sites/lagoon.site.yml', 'your_site-${env-name}', $name . '-${env-name}');
-    File::replaceContentInFile($context->directory . '/drush/sites/lagoon.site.yml', '.your_site.au2.amazee.io', '.' . $name . '.au2.amazee.io');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'hosting_project_name';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Hosting project name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
+  public function hint(array $responses): ?string {
+    return 'Name as found in the hosting configuration. Usually the same as the site machine name.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'Name as found in the hosting configuration; usually the site machine name.';
+  public function placeholder(array $responses): ?string {
+    return 'E.g. my_site';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function when(): ?ConditionInterface {
-    return new Condition('hosting_provider', in: [HostingProvider::LAGOON, HostingProvider::ACQUIA]);
+  public function dependsOn(): ?array {
+    return [HostingProvider::id() => [HostingProvider::LAGOON, HostingProvider::ACQUIA]];
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{machine_name}}');
+  public function shouldRun(array $responses): bool {
+    return isset($responses[HostingProvider::id()]) &&
+      (
+        $responses[HostingProvider::id()] === HostingProvider::LAGOON ||
+        $responses[HostingProvider::id()] === HostingProvider::ACQUIA
+      );
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 290;
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return $responses[MachineName::id()];
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    // Try Acquia.
+    $v = Env::getFromDotenv('VORTEX_ACQUIA_APP_NAME', $this->dstDir);
+    if (!empty($v)) {
+      return $v;
+    }
+
+    // Try Lagoon.
+    $v = Env::getFromDotenv('LAGOON_PROJECT', $this->dstDir);
+    if (!empty($v)) {
+      return $v;
+    }
+
+    // Try to discover from drush/sites/lagoon.site.yml.
+    $lagoon_site_file = $this->dstDir . '/drush/sites/lagoon.site.yml';
+    if (file_exists($lagoon_site_file)) {
+      $content = file_get_contents($lagoon_site_file);
+      if ($content !== FALSE && preg_match('/user:\s*([a-z0-9_]+)-/', $content, $matches) && (!empty($matches[1]) && $matches[1] !== 'your_site')) {
+        return $matches[1];
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Converter::phpPackageName($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, hyphens and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    if (!in_array($this->responses[HostingProvider::id()], [HostingProvider::LAGOON, HostingProvider::ACQUIA])) {
+      return;
+    }
+
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    Env::writeValueDotenv('VORTEX_ACQUIA_APP_NAME', $v, $t . '/.env');
+
+    Env::writeValueDotenv('LAGOON_PROJECT', $v, $t . '/.env');
+    File::replaceContentInFile($t . '/drush/sites/lagoon.site.yml', 'your_site-${env-name}', $v . '-${env-name}');
+    File::replaceContentInFile($t . '/drush/sites/lagoon.site.yml', '.your_site.au2.amazee.io', '.' . $v . '.au2.amazee.io');
   }
 
 }

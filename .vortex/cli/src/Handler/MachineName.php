@@ -4,108 +4,98 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
+use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\JsonManipulator;
 
-/**
- * Handler for the "machine_name" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class MachineName extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isMachineName($value) ? NULL : 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class MachineName extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $machine_name = is_string($value) ? $value : '';
-
-    File::replaceContentAsync([
-      'your_site' => $machine_name,
-      'your-site' => Converter::kebab($machine_name),
-      'YourSite' => Converter::pascal($machine_name),
-    ]);
-
-    File::renameInDir($context->directory, 'your_site', $machine_name);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'machine_name';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Site machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'We will use this name for the project directory and in the code.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function placeholder(array $responses): ?string {
+    return 'E.g. my_site';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{name}}', 'machine');
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[Name::id()]) && !empty($responses[Name::id()])) {
+      return Converter::machineExtended($responses[Name::id()]);
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 360;
+  public function discover(): null|string|bool|array {
+    $v = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
+
+    if (!empty($v)) {
+      return $v;
+    }
+
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+    if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[2])) {
+      return trim($matches[2]);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    File::replaceContentAsync([
+      'your_site' => $v,
+      'your-site' => Converter::kebab($v),
+      'YourSite' => Converter::pascal($v),
+    ]);
+
+    File::renameInDir($t, 'your_site', $v);
   }
 
 }

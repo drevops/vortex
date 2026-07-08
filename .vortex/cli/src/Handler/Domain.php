@@ -4,105 +4,90 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
+use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\Validator;
 
-/**
- * Handler for the "domain" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Domain extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isDomain($value) ? NULL : 'Please enter a valid domain name.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? Validate::domain($value) : $value;
-  }
+class Domain extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $domain = is_string($value) ? $value : '';
-
-    // Replace in regular expressions.
-    File::replaceContentAsync(preg_quote('your-site-domain.example'), preg_quote($domain));
-
-    // Replace scalar values.
-    File::replaceContentAsync('your-site-domain.example', $domain);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'domain';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Public domain';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'Domain name without protocol and trailing slash.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function placeholder(array $responses): ?string {
+    return 'E.g. example.com';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{machine_name}}.com', 'host');
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::kebab($responses[MachineName::id()]) . '.com';
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 280;
+  public function discover(): null|string|bool|array {
+    $origin = Env::getFromDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN', $this->dstDir);
+
+    if ($origin) {
+      return Converter::domain($origin);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return Converter::domain(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+
+    // Replace in regular expressions.
+    File::replaceContentAsync(preg_quote('your-site-domain.example'), preg_quote($v));
+
+    // Replace scalar values.
+    File::replaceContentAsync('your-site-domain.example', $v);
   }
 
 }

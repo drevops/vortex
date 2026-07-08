@@ -4,102 +4,87 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\JsonManipulator;
 
-/**
- * Handler for the "org_machine_name" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class OrgMachineName extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isMachineName($value) ? NULL : 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class OrgMachineName extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $org_machine_name = is_string($value) ? $value : '';
-
-    File::replaceContentAsync('your_org', $org_machine_name);
-    File::renameInDir($context->directory, 'your_org', $org_machine_name);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'org_machine_name';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Organization machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'We will use this name in the code.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function placeholder(array $responses): ?string {
+    return 'E.g. my_org';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{org}}', 'machine');
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[Org::id()]) && !empty($responses[Org::id()])) {
+      return Converter::machineExtended($responses[Org::id()]);
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 350;
+  public function discover(): null|string|bool|array {
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+
+    if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[1])) {
+      return $matches[1];
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    File::replaceContentAsync('your_org', $v);
+    File::renameInDir($t, 'your_org', $v);
   }
 
 }

@@ -4,20 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Condition\Condition;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "database_fetch_source" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class DatabaseFetchSource extends AbstractFieldHandler implements OptionsInterface {
+class DatabaseFetchSource extends AbstractHandler {
 
   const URL = 'url';
 
@@ -36,22 +26,107 @@ class DatabaseFetchSource extends AbstractFieldHandler implements OptionsInterfa
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $source = is_string($value) ? $value : '';
+  public function label(): string {
+    return 'Database source';
+  }
 
-    Env::writeValueDotenv('VORTEX_FETCH_DB_SOURCE', $source, $context->directory . '/.env');
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select the database fetch source.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::URL => 'URL download',
+      self::FTP => 'FTP download',
+      self::ACQUIA => 'Acquia backup',
+      self::LAGOON => 'Lagoon environment',
+      self::CONTAINER_REGISTRY => 'Container registry',
+      self::S3 => 'S3 bucket',
+      self::NONE => 'None',
+    ];
+
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        unset($options[self::LAGOON]);
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        unset($options[self::ACQUIA]);
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function dependsOn(): ?array {
+    return [ProvisionType::id() => [ProvisionType::DATABASE]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldRun(array $responses): bool {
+    return isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] !== ProvisionType::PROFILE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[HostingProvider::id()])) {
+      return match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::ACQUIA,
+        HostingProvider::LAGOON => self::LAGOON,
+        default => self::URL,
+      };
+    }
+
+    return self::URL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    return Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->dstDir);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    Env::writeValueDotenv('VORTEX_FETCH_DB_SOURCE', $v, $t . '/.env');
 
     // Lagoon identifies environments by branch name; the production branch
     // is `main`. The shared default (`prod`) is correct for Acquia only.
-    if ($source === 'lagoon') {
-      Env::writeValueDotenv('VORTEX_FETCH_DB_ENVIRONMENT', 'main', $context->directory . '/.env');
+    if ($v === self::LAGOON) {
+      Env::writeValueDotenv('VORTEX_FETCH_DB_ENVIRONMENT', 'main', $t . '/.env');
     }
 
-    $types = ['url', 'ftp', 'acquia', 'lagoon', 'container_registry', 's3'];
+    $types = [
+      DatabaseFetchSource::URL,
+      DatabaseFetchSource::FTP,
+      DatabaseFetchSource::ACQUIA,
+      DatabaseFetchSource::LAGOON,
+      DatabaseFetchSource::CONTAINER_REGISTRY,
+      DatabaseFetchSource::S3,
+    ];
 
     foreach ($types as $type) {
       $token = 'DB_FETCH_SOURCE_' . strtoupper($type);
-      if ($source === $type) {
+      if ($v === $type) {
         File::removeTokenAsync('!' . $token);
       }
       else {
@@ -61,80 +136,16 @@ class DatabaseFetchSource extends AbstractFieldHandler implements OptionsInterfa
 
     // Gates content required when either the primary or the migration
     // database is fetched from Lagoon.
-    $migration_source = $context->answers['migration_fetch_source'] ?? NULL;
+    $migration_source = $this->responses[MigrationFetchSource::id()] ?? NULL;
 
-    if ($source !== 'lagoon' && $migration_source !== 'lagoon') {
+    if ($v !== self::LAGOON && $migration_source !== MigrationFetchSource::LAGOON) {
       File::removeTokenAsync('DB_FETCH_ANY_SOURCE_LAGOON');
     }
 
     // Gates content required only for the hosting-connected fetch sources.
-    if ($source !== 'acquia' && $source !== 'lagoon') {
+    if ($v !== self::ACQUIA && $v !== self::LAGOON) {
       File::removeTokenAsync('DB_FETCH_SOURCE_HOSTED');
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::URL => 'URL download',
-      self::FTP => 'FTP download',
-      self::ACQUIA => 'Acquia backup',
-      self::LAGOON => 'Lagoon environment',
-      self::CONTAINER_REGISTRY => 'Container registry',
-      self::S3 => 'S3 bucket',
-      self::NONE => 'None',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'database_fetch_source';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Database source';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'Where the database dump is fetched from.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL };
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function when(): ?ConditionInterface {
-    return new Condition('provision_type', eq: ProvisionType::DATABASE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 140;
   }
 
 }

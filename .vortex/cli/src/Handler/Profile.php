@@ -4,18 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "profile" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Profile extends AbstractFieldHandler implements OptionsInterface {
+class Profile extends AbstractHandler {
 
   const STANDARD = 'standard';
 
@@ -28,42 +20,28 @@ class Profile extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $v = is_string($value) ? $value : '';
-
-    // If user selected 'custom', use the ProfileCustom response instead.
-    $profile_custom = $context->answers['profile_custom'] ?? NULL;
-    if ($v === 'custom' && is_string($profile_custom)) {
-      $v = $profile_custom;
-    }
-
-    $t = $context->directory;
-    $webroot = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
-
-    Env::writeValueDotenv('DRUPAL_PROFILE', $v, $t . '/.env');
-
-    // Assume that profiles provided as a path are contrib profiles.
-    $is_contrib_profile = str_contains($v, DIRECTORY_SEPARATOR);
-
-    if (in_array($v, ['standard', 'minimal', 'demo_umami'], TRUE) || $is_contrib_profile) {
-      File::remove(sprintf('%s/%s/profiles/your_site_profile', $t, $webroot));
-      File::remove(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $webroot));
-
-      File::replaceContentAsync([
-        '/profiles/your_site_profile,' => '',
-        '/profiles/custom/your_site_profile,' => '',
-      ]);
-    }
-    else {
-      File::replaceContentAsync('your_site_profile', $v);
-      File::renameInDir($t, 'your_site_profile', $v);
-    }
+  public function label(): string {
+    return 'Profile';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function options(): array {
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select which Drupal profile to use.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
     return [
       self::STANDARD => 'Standard',
       self::MINIMAL => 'Minimal',
@@ -75,50 +53,113 @@ class Profile extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'profile';
+  public function default(array $responses): null|string|bool|array {
+    return self::STANDARD;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function label(): string {
-    return 'Profile';
+  public function discover(): null|string|bool|array {
+    $value = $this->discoverName();
+
+    if (!is_null($value)) {
+      return in_array($value, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI], TRUE) ? $value : self::CUSTOM;
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Select;
+  public function resolvedValue(array $responses): null|string|bool|array {
+    $discovered = $this->discover();
+
+    if (!is_null($discovered)) {
+      return $discovered;
+    }
+
+    if (($responses[Starter::id()] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS) {
+      return Starter::INSTALL_PROFILE_DRUPALCMS_PATH;
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'The Drupal installation profile the site is built on.';
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Profile will be set to "%s".', $resolved);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Discover the profile name from the filesystem or environment.
+   *
+   * @return null|string|bool|array
+   *   The profile name if found, NULL if not found.
+   */
+  public function discoverName(): null|string|bool|array {
+    if ($this->isInstalled()) {
+      $value = Env::getFromDotenv('DRUPAL_PROFILE', $this->dstDir);
+      if (!empty($value)) {
+        return $value;
+      }
+    }
+
+    $locations = [
+      $this->dstDir . sprintf('/%s/profiles/*/*.info', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/*.info.yml', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/*.info', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/*.info.yml', $this->webroot),
+    ];
+
+    $path = File::findMatchingPath($locations);
+
+    if (empty($path)) {
+      return NULL;
+    }
+
+    return str_replace(['.info.yml', '.info'], '', basename($path));
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
-    return fn (Context $c): string => ($c->answers['starter'] ?? '') === Starter::INSTALL_PROFILE_DRUPALCMS ? Starter::INSTALL_PROFILE_DRUPALCMS_PATH : self::STANDARD;
-  }
+  public function process(): void {
+    $v = $this->getResponseAsString();
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function required(): bool {
-    return TRUE;
-  }
+    // If user selected 'custom', use the ProfileCustom response instead.
+    if ($v === self::CUSTOM && isset($this->responses[ProfileCustom::id()])) {
+      $v = $this->responses[ProfileCustom::id()];
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 270;
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    Env::writeValueDotenv('DRUPAL_PROFILE', $v, $t . '/.env');
+
+    // Assume that profiles provided as a path are contrib profiles.
+    $is_contrib_profile = str_contains($v, DIRECTORY_SEPARATOR);
+
+    if (in_array($v, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI]) || $is_contrib_profile) {
+      File::remove(sprintf('%s/%s/profiles/your_site_profile', $t, $w));
+      File::remove(sprintf('%s/%s/profiles/custom/your_site_profile', $t, $w));
+
+      File::replaceContentAsync([
+        '/profiles/your_site_profile,' => '',
+        '/profiles/custom/your_site_profile,' => '',
+      ]);
+    }
+    else {
+      File::replaceContentAsync('your_site_profile', $v);
+      File::renameInDir($t, 'your_site_profile', $v);
+    }
   }
 
 }

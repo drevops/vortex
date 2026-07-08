@@ -4,90 +4,90 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Condition\Condition;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\FieldType;
+use DrevOps\VortexCli\Utils\Converter;
 
-/**
- * Reusable behaviour for the "profile_custom" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class ProfileCustom extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isMachineName($value) ? NULL : 'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class ProfileCustom extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'profile_custom';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Custom profile machine name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
+  public function hint(array $responses): ?string {
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'The machine name of your custom profile.';
+  public function placeholder(array $responses): ?string {
+    return 'E.g. my_profile';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function when(): ?ConditionInterface {
-    return new Condition('profile', eq: Profile::CUSTOM);
+  public function dependsOn(): ?array {
+    return [Profile::id() => [Profile::CUSTOM]];
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 260;
+  public function shouldRun(array $responses): bool {
+    return isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    // Get the discovered profile from the Profile handler.
+    $profile_handler = new Profile($this->config);
+    $profile_handler->setWebroot($this->webroot);
+    $discovered = $profile_handler->discoverName();
+
+    // Only return discovered value if it's a custom profile.
+    if (!empty($discovered) && !in_array($discovered, [Profile::STANDARD, Profile::MINIMAL, Profile::DEMO_UMAMI], TRUE)) {
+      return $discovered;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn(string $v): ?string => !empty($v) && Converter::machine($v) !== $v ?
+      'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    // This handler doesn't need processing - the Profile handler will handle
+    // the final result.
   }
 
 }

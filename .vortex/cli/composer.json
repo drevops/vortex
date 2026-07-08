@@ -36,6 +36,7 @@
         "drevops/tui": "^1.0@alpha",
         "guzzlehttp/guzzle": "^7.12.3",
         "nelexa/zip": "^4.0.2",
+        "nikic/iter": "^2.4.1",
         "symfony/console": "^7.4.13",
         "symfony/filesystem": "^7.4.11",
         "symfony/yaml": "^7.4.13"

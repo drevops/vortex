@@ -1,0 +1,40 @@
+@@ -154,17 +154,6 @@
+   cache:
+     image: uselagoon/valkey-8:__VERSION__
+ 
+-  search:
+-    build:
+-      context: .
+-      dockerfile: .docker/solr.dockerfile
+-    environment:
+-      <<: *default-environment
+-    volumes:
+-      - search:/var/solr
+-    ports:
+-      - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port search 8983`.
+-
+   antivirus:
+     build:
+       context: .
+@@ -195,13 +184,10 @@
+       - antivirus
+       - database
+       - cache
+-      - search
+     command:
+       - antivirus:3310
+       - database:3306
+       - cache:6379
+-      - search:8983
+-      - curl -s "http://search:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response
+ 
+ networks:           ### Use external networks locally. Automatically removed in CI.
+   amazeeio-network: ### Automatically removed in CI.
+@@ -210,7 +196,6 @@
+ volumes:
+   app: {}
+   files: {}
+-  search: {}
+ 
+ secrets:
+   package_token:

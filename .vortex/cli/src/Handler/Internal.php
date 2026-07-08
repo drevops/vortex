@@ -5,29 +5,32 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Handler;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Yaml;
 
-/**
- * Final processor: version stamping, global content cleanup and task flush.
- *
- * @package DrevOps\VortexCli\Handler
- */
 class Internal extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $t = $context->directory;
+  public function label(): string {
+    return 'Internal processing';
+  }
 
-    $version = $context->version;
+  public function discover(): null|string|bool|array {
+    // Noop.
+    return NULL;
+  }
 
-    $this->processDemoMode($context->answers, $context->destination);
+  public function process(): void {
+    $t = $this->tmpDir;
+
+    $version = (string) $this->config->get(Config::VERSION);
+
+    $this->processDemoMode($this->responses, $t);
 
     // Replace version placeholders.
     File::replaceContentAsync([
@@ -115,13 +118,13 @@ class Internal extends AbstractHandler {
     if (file_exists($composer_json_path)) {
       $content = file_get_contents($composer_json_path);
       $composer_json = json_decode((string) $content, FALSE);
-      if (is_object($composer_json)) {
+      if ($composer_json !== NULL) {
         if (isset($composer_json->require->{'drevops/generic-private-package'})) {
           unset($composer_json->require->{'drevops/generic-private-package'});
         }
 
-        if (isset($composer_json->repositories) && is_array($composer_json->repositories)) {
-          $composer_json->repositories = array_values(array_filter($composer_json->repositories, $this->keepRepository(...)));
+        if (isset($composer_json->repositories)) {
+          $composer_json->repositories = array_values(array_filter($composer_json->repositories, fn($repo): bool => (!isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package')) && (!isset($repo->type) || $repo->type !== 'path' || !isset($repo->url) || $repo->url !== '.vortex/tooling')));
         }
 
         file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
@@ -129,74 +132,73 @@ class Internal extends AbstractHandler {
     }
 
     // Execute all queued batch tasks from all handlers.
-    File::runDirectoryTasks($t);
+    File::runDirectoryTasks($this->config->get(Config::TMP));
   }
 
-  /**
-   * Decide whether a composer repository entry is kept.
-   *
-   * @param mixed $repo
-   *   The repository entry decoded from composer.json.
-   *
-   * @return bool
-   *   TRUE to keep the entry, FALSE to drop it.
-   */
-  protected function keepRepository(mixed $repo): bool {
-    if (!is_object($repo)) {
-      return TRUE;
-    }
+  protected function processDemoMode(array $responses, string $dir): void {
+    $is_demo = $this->config->get(Config::IS_DEMO);
 
-    $url = property_exists($repo, 'url') && is_string($repo->url) ? $repo->url : NULL;
-    $type = property_exists($repo, 'type') && is_string($repo->type) ? $repo->type : NULL;
-
-    if ($url !== NULL && str_contains($url, 'drevops/generic-private-package')) {
-      return FALSE;
-    }
-
-    return !($type === 'path' && $url === '.vortex/tooling');
-  }
-
-  /**
-   * Remove the demo-mode token unless the answer set enables demo mode.
-   *
-   * @param array<string,mixed> $answers
-   *   The collected answers.
-   * @param string $dir
-   *   The destination project directory.
-   */
-  protected function processDemoMode(array $answers, string $dir): void {
-    $starter = $answers['starter'] ?? NULL;
-    $provision_type = $answers['provision_type'] ?? NULL;
-    $source = $answers['database_fetch_source'] ?? NULL;
-
-    if ($starter !== 'load_demodb') {
-      $is_demo = FALSE;
-    }
-    elseif ($provision_type === 'database') {
-      $db_dir = Env::get('VORTEX_DB_DIR', './.data');
-      $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
-      $db_dir = is_string($db_dir) ? $db_dir : './.data';
-      $db_file = is_string($db_file) ? $db_file : 'db.sql';
-      $db_file_exists = file_exists($db_dir . DIRECTORY_SEPARATOR . $db_file);
-      $has_comment = File::contains($dir . '/.env', 'Override project-specific values for demonstration purposes');
-
-      if ($source === 'url') {
-        $is_demo = !$db_file_exists || $has_comment;
-      }
-      elseif ($source === 'container_registry') {
-        $is_demo = $has_comment;
-      }
-      else {
+    if (is_null($is_demo)) {
+      if ($responses[Starter::id()] !== Starter::LOAD_DATABASE_DEMO) {
         $is_demo = FALSE;
       }
-    }
-    else {
-      $is_demo = FALSE;
+      // Check if it should be enabled based on the provision type and database
+      // download source.
+      elseif ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
+        $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql'));
+        $has_comment = File::contains($this->dstDir . '/.env', 'Override project-specific values for demonstration purposes');
+
+        // Demo mode can only be used if the user selected a URL or a container
+        // registry download source. This is because the demo mode would not
+        // have access to integrations with providers to pull the database
+        // from.
+        if ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::URL) {
+          // For a downloading from URL, demo mode is enabled if the database
+          // file does not exist or if there is an explicit comment in the
+          // destination .env file that indicates that this is a demo mode.
+          $is_demo = !$db_file_exists || $has_comment;
+        }
+        elseif ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY) {
+          // For a downloading from container registry, demo mode is enabled if
+          // there is an explicit comment in the destination .env file that
+          // indicates that this is a demo mode.
+          $is_demo = $has_comment;
+        }
+        else {
+          // For any other download source, demo mode is not applicable.
+          $is_demo = FALSE;
+        }
+      }
+      else {
+        // Not a database-driven provision type (a profile-driven), so demo is
+        // not applicable.
+        $is_demo = FALSE;
+      }
     }
 
     if (!$is_demo) {
       File::removeTokenAsync('DEMO_MODE');
     }
+
+    $this->config->set(Config::IS_DEMO, $is_demo);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postInstall(): ?string {
+    $output = '';
+
+    if (!$this->isInstalled()) {
+      $output .= PHP_EOL;
+      $output .= 'Add and commit all files:' . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
+      $output .= '  git add -A' . PHP_EOL;
+      $output .= '  git commit -m "Initial commit."' . PHP_EOL;
+      $output .= PHP_EOL;
+    }
+
+    return $output;
   }
 
 }

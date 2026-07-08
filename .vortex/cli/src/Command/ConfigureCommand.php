@@ -6,9 +6,9 @@ namespace DrevOps\VortexCli\Command;
 
 use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\EngineException;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Process\Processor;
+use DrevOps\VortexCli\Utils\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -55,7 +55,17 @@ class ConfigureCommand extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE]);
+    // Resolve to an absolute path so a relative "." does not reach basename()
+    // literally downstream, which would derive a bogus default site name.
+    $dir = $this->stringOption($input, 'dir');
+    $resolved = realpath($dir);
+    $dir = $resolved !== FALSE ? $resolved : $dir;
+
+    // Configure operates on the project in place: the handlers' destination
+    // and working directory are both the project directory.
+    $config = new Config(NULL, $dir, $dir);
+
+    $tui = new Tui(VortexForm::create($config), [static::HANDLER_NAMESPACE]);
 
     if ($input->getOption('schema')) {
       $output->writeln((string) json_encode($tui->schema()));
@@ -74,12 +84,6 @@ class ConfigureCommand extends Command {
       return $this->validateAnswers($tui, $validate, $output);
     }
 
-    // Resolve to an absolute path so a relative "." does not reach basename()
-    // literally downstream, which would derive a bogus default site name.
-    $dir = $this->stringOption($input, 'dir');
-    $resolved = realpath($dir);
-    $dir = $resolved !== FALSE ? $resolved : $dir;
-
     $update = (bool) $input->getOption('update');
     $prompts = $this->stringOption($input, 'prompts');
 
@@ -94,7 +98,7 @@ class ConfigureCommand extends Command {
       }
 
       if ($input->getOption('apply')) {
-        (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, new Context($dir, $answers->values, $update, $this->version(), $dir), VortexForm::PROCESSORS);
+        (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, $config, VortexForm::PROCESSORS);
       }
 
       $output->writeln($answers->toJson());

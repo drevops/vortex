@@ -4,99 +4,82 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\JsonManipulator;
 
-/**
- * Handler for the "name" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Name extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && trim($value) !== '' ? NULL : 'The site name is required.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class Name extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    File::replaceContentAsync('YOURSITE', is_string($value) ? $value : '');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'name';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Site name';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'We will use this name in the project and documentation.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
-    return fn (Context $c): string => Converter::label(basename($c->directory));
+  public function placeholder(array $responses): ?string {
+    return 'E.g. My Site';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 380;
+  public function default(array $responses): null|string|bool|array {
+    // Discover the name from the project directory.
+    return Converter::label(basename((string) $this->config->getDst()));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('description');
+
+    if ($v && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+)(\s?\.|for)/', (string) $v, $matches) && !empty($matches[1])) {
+      return trim($matches[1]);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Converter::label($v) !== $v ? 'Please enter a valid project name.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+
+    File::replaceContentAsync('YOURSITE', $v);
   }
 
 }

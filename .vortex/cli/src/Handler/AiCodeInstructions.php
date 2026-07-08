@@ -4,70 +4,55 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "ai_code_instructions" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class AiCodeInstructions extends AbstractFieldHandler {
+class AiCodeInstructions extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    if ($value !== TRUE) {
-      File::remove($context->directory . '/AGENTS.md');
-      File::remove($context->directory . '/CLAUDE.md');
-      File::remove($context->directory . '/.claude');
-      File::removeTokenAsync('AI_CODE_INSTRUCTIONS');
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'ai_code_instructions';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Provide AI agent instructions?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Confirm;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'Provides AI coding agents with better context about the project.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
+  public function default(array $responses): null|string|bool|array {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 20;
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    return File::exists($this->dstDir . '/AGENTS.md') || File::exists($this->dstDir . '/CLAUDE.md') || File::exists($this->dstDir . '/.claude/settings.json');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsBool();
+    $t = $this->tmpDir;
+
+    if (!$v) {
+      File::remove($t . '/AGENTS.md');
+      File::remove($t . '/CLAUDE.md');
+      File::remove($t . '/.claude');
+      File::removeTokenAsync('AI_CODE_INSTRUCTIONS');
+    }
   }
 
 }

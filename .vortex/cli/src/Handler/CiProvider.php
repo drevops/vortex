@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "ci_provider" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class CiProvider extends AbstractFieldHandler implements OptionsInterface {
+class CiProvider extends AbstractHandler {
 
   const NONE = 'none';
 
@@ -25,19 +17,76 @@ class CiProvider extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $v = is_string($value) ? $value : '';
-    $t = $context->directory;
+  public function label(): string {
+    return 'Continuous Integration provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select the CI provider.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::GITHUB_ACTIONS => 'GitHub Actions',
+      self::CIRCLECI => 'CircleCI',
+      self::NONE => 'None',
+    ];
+
+    if (isset($responses[CodeProvider::id()]) && $responses[CodeProvider::id()] !== CodeProvider::GITHUB) {
+      unset($options[self::GITHUB_ACTIONS]);
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return self::GITHUB_ACTIONS;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    if (is_readable($this->dstDir . '/.github/workflows/build-test-deploy.yml')) {
+      return self::GITHUB_ACTIONS;
+    }
+
+    if (is_readable($this->dstDir . '/.circleci/config.yml')) {
+      return self::CIRCLECI;
+    }
+
+    return self::NONE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
 
     $remove_gha = FALSE;
     $remove_circleci = FALSE;
 
     switch ($v) {
-      case 'gha':
+      case self::GITHUB_ACTIONS:
         $remove_circleci = TRUE;
         break;
 
-      case 'circleci':
+      case self::CIRCLECI:
         $remove_gha = TRUE;
         break;
 
@@ -71,54 +120,33 @@ class CiProvider extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public static function options(): array {
-    return [
-      self::GITHUB_ACTIONS => 'GitHub Actions',
-      self::CIRCLECI => 'CircleCI',
-      self::NONE => 'None',
-    ];
+  public function postInstall(): ?string {
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'ci_provider';
-  }
+  public function postBuild(string $result): ?string {
+    if ($this->isInstalled()) {
+      return NULL;
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Continuous Integration provider';
-  }
+    $v = $this->getResponseAsString();
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
+    if ($v === self::GITHUB_ACTIONS) {
+      return 'Setup GitHub Actions:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/continuous-integration/github-actions#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'The CI provider for the project.';
-  }
+    if ($v === self::CIRCLECI) {
+      return 'Setup CircleCI:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/continuous-integration/circleci#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return self::GITHUB_ACTIONS;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 90;
+    return NULL;
   }
 
 }

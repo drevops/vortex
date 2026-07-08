@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "deploy_types" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class DeployTypes extends AbstractFieldHandler implements OptionsInterface {
+class DeployTypes extends AbstractHandler {
 
   const ARTIFACT = 'artifact';
 
@@ -27,80 +19,100 @@ class DeployTypes extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $types = is_array($value) ? array_values(array_filter($value, is_string(...))) : [];
-
-    if (!in_array('artifact', $types, TRUE)) {
-      File::removeTokenAsync('DEPLOY_TYPES_ARTIFACT');
-      File::remove($context->directory . '/.gitignore.deployment');
-      File::remove($context->directory . '/.gitignore.artifact');
-    }
-
-    if (!in_array('webhook', $types, TRUE)) {
-      File::removeTokenAsync('DEPLOY_TYPES_WEBHOOK');
-    }
-
-    if (!empty($types)) {
-      Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($types), $context->directory . '/.env');
-      File::removeTokenAsync('!DEPLOYMENT');
-    }
-    else {
-      File::remove($context->directory . '/docs/deployment.md');
-      File::removeTokenAsync('DEPLOYMENT');
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::ARTIFACT => 'Code artifact',
-      self::LAGOON => 'Lagoon webhook',
-      self::WEBHOOK => 'Custom webhook',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'deploy_types';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Deployment types';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::MultiSelect;
+  public function hint(array $responses): ?string {
+    return 'Use ⬆, ⬇ and Space bar to select one or more deployment types.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'One or more deployment mechanisms.';
+  public function options(array $responses): ?array {
+    $options = [
+      self::ARTIFACT => 'Code artifact',
+      self::LAGOON => 'Lagoon webhook',
+      self::WEBHOOK => 'Custom webhook',
+    ];
+
+    // Remove Lagoon option for Acquia hosting.
+    if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+      unset($options[self::LAGOON]);
+    }
+
+    return $options;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
-    return fn (Context $c): array => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::LAGOON => [self::LAGOON], HostingProvider::ACQUIA => [self::ARTIFACT], default => [self::WEBHOOK] };
+  public function default(array $responses): null|string|bool|array {
+    $defaults = [];
+
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        $defaults[] = self::LAGOON;
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        $defaults[] = self::ARTIFACT;
+      }
+    }
+
+    if (empty($defaults)) {
+      $defaults[] = self::WEBHOOK;
+    }
+
+    return $defaults;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 170;
+  public function discover(): null|string|bool|array {
+    $types = Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
+
+    if (!empty($types)) {
+      $types = Converter::fromList($types);
+      sort($types);
+      return $types;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $types = $this->getResponseAsArray();
+    $t = $this->tmpDir;
+
+    if (!in_array(self::ARTIFACT, $types)) {
+      File::removeTokenAsync('DEPLOY_TYPES_ARTIFACT');
+      File::remove($t . '/.gitignore.deployment');
+      File::remove($t . '/.gitignore.artifact');
+    }
+
+    if (!in_array(self::WEBHOOK, $types)) {
+      File::removeTokenAsync('DEPLOY_TYPES_WEBHOOK');
+    }
+
+    if (!empty($types)) {
+      Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($types), $t . '/.env');
+
+      File::removeTokenAsync('!DEPLOYMENT');
+    }
+    else {
+      File::remove($t . '/docs/deployment.md');
+
+      File::removeTokenAsync('DEPLOYMENT');
+    }
   }
 
 }

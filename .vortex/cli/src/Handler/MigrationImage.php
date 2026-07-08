@@ -4,103 +4,106 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Condition\Condition;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
+use DrevOps\VortexCli\Utils\Validator;
 
-/**
- * Handler for the "migration_image" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class MigrationImage extends AbstractFieldHandler {
+class MigrationImage extends AbstractHandler {
 
   /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
+   * {@inheritdoc}
    */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isContainerImage($value) ? NULL : 'Please enter a valid container image name with an optional tag.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
+  public function label(): string {
+    return 'What is your migration database container image name and a tag?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    if (!empty($value)) {
-      Env::writeValueDotenv('VORTEX_DB2_IMAGE', is_string($value) ? $value : '', $context->directory . '/.env');
+  public function hint(array $responses): ?string {
+    return 'Use "latest" tag for the latest version. CI will be building this image overnight.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
+      && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return sprintf('E.g. %s/%s-data-migration:latest',
+        strtolower(Converter::phpNamespace($responses[OrgMachineName::id()])),
+        strtolower(Converter::phpNamespace($responses[MachineName::id()]))
+      );
     }
+
+    return parent::placeholder($responses);
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'migration_image';
+  public function dependsOn(): ?array {
+    return [MigrationFetchSource::id() => [MigrationFetchSource::CONTAINER_REGISTRY]];
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function label(): string {
-    return 'Migration database container image name and tag';
+  public function shouldRun(array $responses): bool {
+    return isset($responses[MigrationFetchSource::id()]) && $responses[MigrationFetchSource::id()] === MigrationFetchSource::CONTAINER_REGISTRY;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
+  public function default(array $responses): null|string|bool|array {
+    if (
+      isset($responses[OrgMachineName::id()]) &&
+      isset($responses[MachineName::id()]) &&
+      !empty($responses[OrgMachineName::id()]) &&
+      !empty($responses[MachineName::id()])
+    ) {
+      return sprintf(
+        '%s/%s-data-migration:latest',
+        strtolower(Converter::phpNamespace($responses[OrgMachineName::id()])),
+        strtolower(Converter::phpNamespace($responses[MachineName::id()]))
+      );
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'Use the "latest" tag for the latest version.';
+  public function discover(): null|string|bool|array {
+    return Env::getFromDotenv('VORTEX_DB2_IMAGE', $this->dstDir);
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function when(): ?ConditionInterface {
-    return new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY);
+  public function validate(): ?callable {
+    return fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'lower');
+  public function transform(): ?callable {
+    return fn($v): string => trim((string) $v);
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 100;
+  public function process(): void {
+    if (!empty($this->response)) {
+      $v = $this->getResponseAsString();
+      $t = $this->tmpDir;
+
+      Env::writeValueDotenv('VORTEX_DB2_IMAGE', $v, $t . '/.env');
+    }
   }
 
 }

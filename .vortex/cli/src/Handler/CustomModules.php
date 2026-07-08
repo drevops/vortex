@@ -4,17 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\Tui;
 
-/**
- * Handler for the "custom_modules" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class CustomModules extends AbstractFieldHandler implements OptionsInterface {
+class CustomModules extends AbstractHandler {
 
   const BASE = 'base';
 
@@ -25,21 +18,116 @@ class CustomModules extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $selected = is_array($value) ? array_values(array_filter($value, is_string(...))) : [];
-    $t = $context->directory;
-    $w = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
+  public function label(): string {
+    return 'Custom modules';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(array $responses): ?string {
+    $base = Tui::bold('Base');
+    $demo = Tui::bold('Demo');
+    $search = Tui::bold('Search');
+
+    return <<<DOC
+Select which custom modules to include in your project:
+
+    ○ {$base}
+      Starter module with common site utilities (mail handling,
+      deploy hooks) and test scaffolding for Unit, Kernel,
+      Functional, and FunctionalJavascript tests.
+
+    ○ {$search}
+      Custom Solr search integration module. Requires the Solr
+      service to be selected.
+
+    ○ {$demo}
+      Demonstrates how Vortex tooling works: includes a counter
+      block with CSS/JS, PHPUnit example tests across all test
+      types, and a Behat feature. Safe to remove on real projects.
+DOC;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆, ⬇ and Space bar to select one or more modules.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::BASE => 'Base - starter module with utilities and test scaffolding',
+      self::SEARCH => 'Search - custom Solr search integration',
+      self::DEMO => 'Demo - counter block and example tests to demonstrate tooling',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return [self::BASE, self::SEARCH, self::DEMO];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    // Discover the module prefix from the existing codebase.
+    $prefix = $this->discoverModulePrefix();
+
+    if ($prefix === NULL) {
+      return NULL;
+    }
+
+    $modules = [];
+
+    $module_dir = $this->dstDir . '/' . $this->webroot . '/modules/custom';
+
+    if (is_dir($module_dir . '/' . $prefix . '_base')) {
+      $modules[] = self::BASE;
+    }
+
+    if (is_dir($module_dir . '/' . $prefix . '_demo')) {
+      $modules[] = self::DEMO;
+    }
+
+    if (is_dir($module_dir . '/' . $prefix . '_search')) {
+      $modules[] = self::SEARCH;
+    }
+
+    sort($modules);
+
+    return $modules;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $selected = $this->getResponseAsArray();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
 
     // Safety net: if search was selected but Solr service was not, force-remove
     // search module since it cannot function without Solr.
-    if (in_array('search', $selected, TRUE) && isset($context->answers['services'])) {
-      $services = $context->answers['services'];
-      if (is_array($services) && !in_array('solr', $services, TRUE)) {
-        $selected = array_values(array_filter($selected, fn($x): bool => $x !== 'search'));
+    if (in_array(self::SEARCH, $selected) && isset($this->responses[Services::id()])) {
+      $services = $this->responses[Services::id()];
+      if (is_array($services) && !in_array(Services::SOLR, $services)) {
+        $selected = array_values(array_diff($selected, [self::SEARCH]));
       }
     }
 
-    if (!in_array('base', $selected, TRUE)) {
+    if (!in_array(self::BASE, $selected)) {
       File::removeTokenAsync('CUSTOM_MODULE_BASE');
 
       $locations = [
@@ -57,7 +145,7 @@ class CustomModules extends AbstractFieldHandler implements OptionsInterface {
       }
     }
 
-    if (!in_array('demo', $selected, TRUE)) {
+    if (!in_array(self::DEMO, $selected)) {
       File::removeTokenAsync('CUSTOM_MODULE_DEMO');
 
       $locations = [
@@ -77,7 +165,7 @@ class CustomModules extends AbstractFieldHandler implements OptionsInterface {
       static::removeDemoBehatFeatures($t);
     }
 
-    if (!in_array('search', $selected, TRUE)) {
+    if (!in_array(self::SEARCH, $selected)) {
       File::removeTokenAsync('CUSTOM_MODULE_SEARCH');
 
       $locations = [
@@ -94,6 +182,25 @@ class CustomModules extends AbstractFieldHandler implements OptionsInterface {
         File::remove($path);
       }
     }
+  }
+
+  /**
+   * Discover the module prefix from the existing codebase.
+   *
+   * @return string|null
+   *   The discovered module prefix, or NULL if not found.
+   */
+  protected function discoverModulePrefix(): ?string {
+    $locations = [
+      $this->dstDir . sprintf('/%s/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
+    ];
+
+    $path = File::findMatchingPath($locations);
+
+    return empty($path) ? NULL : str_replace(['_base', '_core'], '', basename($path));
   }
 
   /**
@@ -117,59 +224,6 @@ class CustomModules extends AbstractFieldHandler implements OptionsInterface {
     foreach ($files as $file) {
       File::remove($file);
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::BASE => 'Base - starter module with utilities and test scaffolding',
-      self::SEARCH => 'Search - custom Solr search integration',
-      self::DEMO => 'Demo - counter block and example tests to demonstrate tooling',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'custom_modules';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Custom modules';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::MultiSelect;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'Which scaffolded custom modules to keep.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return [self::BASE, self::SEARCH, self::DEMO];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 300;
   }
 
 }

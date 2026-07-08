@@ -4,20 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "timezone" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Timezone extends AbstractFieldHandler implements OptionsInterface {
-
-  const UTC = 'UTC';
+class Timezone extends AbstractHandler {
 
   const TIMEZONES = [
     'Africa/Abidjan',
@@ -623,60 +613,54 @@ class Timezone extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $timezone = is_string($value) ? $value : '';
-
-    Env::writeValueDotenv('TZ', $timezone, $context->directory . '/.env');
-    File::replaceContentInFile($context->directory . '/renovate.json', '/"timezone": "[A-Za-z0-9\/_\-+]+",/', sprintf('"timezone": "%s",', $timezone));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return array_combine(self::TIMEZONES, self::TIMEZONES);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'timezone';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Timezone';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Suggest;
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇, or start typing to select the timezone for your project.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'Start typing to select the timezone for your project.';
+  public function options(array $responses): ?array {
+    return self::TIMEZONES;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
-    return self::UTC;
+  public function default(array $responses): null|string|bool|array {
+    return 'UTC';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 210;
+  public function discover(): null|string|bool|array {
+    $value = NULL;
+
+    $from_env = Env::getFromDotenv('TZ', $this->dstDir);
+    if ($from_env) {
+      $value = $from_env;
+    }
+
+    return $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    Env::writeValueDotenv('TZ', $v, $t . '/.env');
+    File::replaceContentInFile($t . '/renovate.json', '/"timezone": "[A-Za-z0-9\/_\-+]+",/', sprintf('"timezone": "%s",', $v));
   }
 
 }

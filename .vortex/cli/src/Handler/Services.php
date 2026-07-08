@@ -4,17 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\Yaml;
 
-/**
- * Handler for the "services" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Services extends AbstractFieldHandler implements OptionsInterface {
+class Services extends AbstractHandler {
 
   const CLAMAV = 'clamav';
 
@@ -25,35 +18,123 @@ class Services extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $webroot = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
+  public function label(): string {
+    return 'Services';
+  }
 
-    $v = is_array($value) ? array_values(array_filter($value, is_string(...))) : [];
-    $t = $context->directory;
-    $w = $webroot;
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆, ⬇ and Space bar to select one or more services.';
+  }
 
-    if (in_array('clamav', $v)) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::CLAMAV => 'ClamAV',
+      self::SOLR => 'Solr',
+      self::REDIS => 'Redis',
+    ];
+
+    // Hide Solr if the search custom module is not selected and Solr is not
+    // already discovered in the existing codebase.
+    if (isset($responses[CustomModules::id()])) {
+      $custom_modules = $responses[CustomModules::id()];
+      if (is_array($custom_modules) && !in_array(CustomModules::SEARCH, $custom_modules)) {
+        // Check if Solr is discovered in the existing docker-compose.yml.
+        $discovered = $this->discover();
+        $solr_discovered = is_array($discovered) && in_array(self::SOLR, $discovered);
+        if (!$solr_discovered) {
+          unset($options[self::SOLR]);
+        }
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    $defaults = [self::CLAMAV, self::REDIS, self::SOLR];
+
+    // Filter defaults to only include available options.
+    $options = $this->options($responses);
+    if (is_array($options)) {
+      $defaults = array_values(array_intersect($defaults, array_keys($options)));
+    }
+
+    return $defaults;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    try {
+      $dc = Yaml::parseFile($this->dstDir . '/docker-compose.yml');
+    }
+    catch (\Exception) {
+      return NULL;
+    }
+
+    $services = [];
+
+    if (isset($dc['services']['antivirus'])) {
+      $services[] = self::CLAMAV;
+    }
+
+    if (isset($dc['services']['search'])) {
+      $services[] = self::SOLR;
+    }
+
+    if (isset($dc['services']['cache'])) {
+      $services[] = self::REDIS;
+    }
+
+    sort($services);
+
+    return $services;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsArray();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    if (in_array(self::CLAMAV, $v)) {
       File::removeTokenAsync('!SERVICE_ANTIVIRUS');
     }
     else {
       File::removeTokenAsync('SERVICE_ANTIVIRUS');
     }
 
-    if (in_array('solr', $v)) {
+    if (in_array(self::SOLR, $v)) {
       File::removeTokenAsync('!SERVICE_SEARCH');
     }
     else {
       File::removeTokenAsync('SERVICE_SEARCH');
     }
 
-    if (in_array('redis', $v)) {
+    if (in_array(self::REDIS, $v)) {
       File::removeTokenAsync('!SERVICE_CACHE');
     }
     else {
       File::removeTokenAsync('SERVICE_CACHE');
     }
 
-    if (!in_array('clamav', $v)) {
+    if (!in_array(self::CLAMAV, $v)) {
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/clamav');
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/clamav.dockerfile');
       File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.clamav.php');
@@ -62,7 +143,7 @@ class Services extends AbstractFieldHandler implements OptionsInterface {
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
     }
 
-    if (!in_array('solr', $v)) {
+    if (!in_array(self::SOLR, $v)) {
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/solr');
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/solr.dockerfile');
       File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.search_api.php');
@@ -71,7 +152,7 @@ class Services extends AbstractFieldHandler implements OptionsInterface {
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/search_api_solr":\s*"[^\"]+",?\n/', "\n");
     }
 
-    if (!in_array('redis', $v)) {
+    if (!in_array(self::REDIS, $v)) {
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/config/redis');
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/redis.dockerfile');
       File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.redis.php');
@@ -79,59 +160,6 @@ class Services extends AbstractFieldHandler implements OptionsInterface {
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
       File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/redis.feature');
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::CLAMAV => 'ClamAV',
-      self::SOLR => 'Solr',
-      self::REDIS => 'Redis',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'services';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Services';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::MultiSelect;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'Optional Docker services to include.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return [self::CLAMAV, self::REDIS, self::SOLR];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 200;
   }
 
 }

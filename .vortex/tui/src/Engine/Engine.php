@@ -102,12 +102,19 @@ class Engine {
         continue;
       }
 
+      // Only supplied inputs pass through the guards: defaults, discovered
+      // and derived values are the configuration's own. Transform first so
+      // validation sees the normalized value.
+      if (($sources[$field->id] ?? '') !== 'input') {
+        continue;
+      }
+
+      $values[$field->id] = $this->transformValue($field, $values[$field->id]);
+
       $error = $this->validateValue($field, $values[$field->id]);
       if ($error !== NULL) {
         throw new EngineException(sprintf('Invalid value for field "%s": %s', $field->id, $error));
       }
-
-      $values[$field->id] = $this->transformValue($field, $values[$field->id]);
     }
 
     $this->lastProvenance = $this->provenanceFor($fields, $sources, $active);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Command;
 
 use DrevOps\Tui\Engine\EngineException;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Tui;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
@@ -106,8 +105,10 @@ abstract class AbstractInstallCommand extends Command {
     }
 
     $config->set(Config::VERSION, $version);
+    // The handlers operate on the extracted template before it is copied.
+    $config->set(Config::TMP, $tmp, TRUE);
 
-    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE]);
+    $tui = new Tui(VortexForm::create($config), [static::HANDLER_NAMESPACE]);
 
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';
@@ -121,7 +122,7 @@ abstract class AbstractInstallCommand extends Command {
       return Command::FAILURE;
     }
 
-    (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, new Context($tmp, $answers->values, $update, $version, $dst), VortexForm::PROCESSORS);
+    (new Processor())->apply($tui->config(), $tui->registry(), $answers->values, $config, VortexForm::PROCESSORS);
 
     $file_manager = new FileManager($config);
     $file_manager->prepareDestination();

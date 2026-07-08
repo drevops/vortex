@@ -4,18 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
-/**
- * Handler for the "hosting_provider" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class HostingProvider extends AbstractFieldHandler implements OptionsInterface {
+class HostingProvider extends AbstractHandler {
 
   const NONE = 'none';
 
@@ -28,76 +21,28 @@ class HostingProvider extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $v = is_string($value) ? $value : '';
-    $t = $context->directory;
-    $w = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
-
-    if ($v === 'acquia') {
-      File::removeTokenAsync('!HOSTING_ACQUIA');
-      File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
-
-      $this->removeLagoon($t);
-    }
-    elseif ($v === 'lagoon') {
-      File::removeTokenAsync('!HOSTING_LAGOON');
-      File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
-
-      $this->removeAcquia($t);
-
-      File::remove(sprintf('%s/%s/.htaccess', $t, $w));
-
-      $cj = JsonManipulator::fromFile($t . '/composer.json');
-
-      if (!$cj instanceof JsonManipulator) {
-        return;
-      }
-
-      $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
-      file_put_contents($t . '/composer.json', $cj->getContents());
-    }
-    else {
-      $this->removeAcquia($t);
-      $this->removeLagoon($t);
-
-      File::removeTokenAsync('HOSTING');
-
-      File::remove(sprintf('%s/%s/.htaccess', $t, $w));
-    }
-  }
-
-  /**
-   * Remove Acquia hosting integration files and tokens.
-   *
-   * @param string $directory
-   *   The destination project directory.
-   */
-  protected function removeAcquia(string $directory): void {
-    File::remove($directory . '/hooks');
-
-    File::removeTokenAsync('HOSTING_ACQUIA');
-    File::removeTokenAsync('SETTINGS_PROVIDER_ACQUIA');
-  }
-
-  /**
-   * Remove Lagoon hosting integration files and tokens.
-   *
-   * @param string $directory
-   *   The destination project directory.
-   */
-  protected function removeLagoon(string $directory): void {
-    File::remove($directory . '/drush/sites/lagoon.site.yml');
-    File::remove($directory . '/.lagoon.yml');
-    File::remove($directory . '/.github/workflows/close-pull-request.yml');
-
-    File::removeTokenAsync('HOSTING_LAGOON');
-    File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
+  public function label(): string {
+    return 'Hosting provider';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function options(): array {
+  public function hint(array $responses): ?string {
+    return 'Use ⬆, ⬇ and Space bar to select your hosting provider.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
     return [
       self::ACQUIA => 'Acquia Cloud',
       self::LAGOON => 'Lagoon',
@@ -109,50 +54,107 @@ class HostingProvider extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public static function id(): string {
-    return 'hosting_provider';
+  public function default(array $responses): null|string|bool|array {
+    return 'none';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function label(): string {
-    return 'Hosting provider';
+  public function discover(): null|string|bool|array {
+    if (is_readable($this->dstDir . '/hooks') || Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->dstDir) === DatabaseFetchSource::ACQUIA) {
+      return self::ACQUIA;
+    }
+
+    if (is_readable($this->dstDir . '/.lagoon.yml')) {
+      return self::LAGOON;
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Select;
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    if ($v === static::ACQUIA) {
+      File::removeTokenAsync('!HOSTING_ACQUIA');
+      File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
+
+      $this->removeLagoon();
+    }
+    elseif ($v === static::LAGOON) {
+      File::removeTokenAsync('!HOSTING_LAGOON');
+      File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
+
+      $this->removeAcquia();
+
+      File::remove(sprintf('%s/%s/.htaccess', $t, $w));
+
+      $cj = JsonManipulator::fromFile($t . '/composer.json');
+      $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
+      file_put_contents($t . '/composer.json', $cj->getContents());
+    }
+    else {
+      $this->removeAcquia();
+      $this->removeLagoon();
+
+      File::removeTokenAsync('HOSTING');
+
+      File::remove(sprintf('%s/%s/.htaccess', $t, $w));
+    }
+  }
+
+  protected function removeAcquia(): void {
+    File::remove($this->tmpDir . '/hooks');
+
+    File::removeTokenAsync('HOSTING_ACQUIA');
+    File::removeTokenAsync('SETTINGS_PROVIDER_ACQUIA');
+  }
+
+  protected function removeLagoon(): void {
+    File::remove($this->tmpDir . '/drush/sites/lagoon.site.yml');
+    File::remove($this->tmpDir . '/.lagoon.yml');
+    File::remove($this->tmpDir . '/.github/workflows/close-pull-request.yml');
+
+    File::removeTokenAsync('HOSTING_LAGOON');
+    File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'The hosting provider for the project.';
+  public function postInstall(): ?string {
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
-    return self::NONE;
-  }
+  public function postBuild(string $result): ?string {
+    if ($this->isInstalled()) {
+      return NULL;
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function required(): bool {
-    return TRUE;
-  }
+    $v = $this->getResponseAsString();
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 180;
+    if ($v === self::ACQUIA) {
+      return 'Setup Acquia hosting:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/hosting/acquia#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
+
+    if ($v === self::LAGOON) {
+      return 'Setup Lagoon hosting:' . PHP_EOL
+        . '  https://www.vortextemplate.com/docs/hosting/lagoon#onboarding' . PHP_EOL
+        . PHP_EOL;
+    }
+
+    return NULL;
   }
 
 }

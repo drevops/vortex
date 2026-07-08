@@ -4,120 +4,154 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
+use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\JsonManipulator;
+use DrevOps\VortexCli\Utils\Validator;
 
-/**
- * Handler for the "webroot" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Webroot extends AbstractFieldHandler {
+class Webroot extends AbstractHandler {
 
   const WEB = 'web';
 
   const DOCROOT = 'docroot';
 
   /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isDirname($value) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? rtrim($value, '/') : $value;
-  }
-
-  /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $chosen = is_string($value) ? $value : '';
-    $default = 'web';
-
-    if ($chosen === $default) {
-      return;
-    }
-
-    File::replaceContentAsync([
-      sprintf('%s/', $default) => $chosen . '/',
-      sprintf('%s\/', $default) => $chosen . '\/',
-      sprintf(': %s', $default) => ': ' . $chosen,
-      sprintf('!%s', $default) => '!' . $chosen,
-      sprintf('/\/%s\//', $default) => '/' . $chosen . '/',
-      sprintf('/\'\/%s\'/', $default) => "'/" . $chosen . "'",
-    ]);
-
-    File::replaceContentAsync(fn(string $content): string => preg_replace('/=' . preg_quote($default, '/') . '\b/', '=' . $chosen, $content) ?? $content);
-
-    rename($context->directory . DIRECTORY_SEPARATOR . $default, $context->directory . DIRECTORY_SEPARATOR . $chosen);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'webroot';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Custom web root directory';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
+  public function hint(array $responses): ?string {
+    return 'Custom directory where the web server serves the site.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'The directory where the web server serves the site.';
+  public function placeholder(array $responses): ?string {
+    return 'E.g. ' . implode(', ', [self::WEB, self::DOCROOT]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
-    return fn (Context $c): string => ($c->answers['hosting_provider'] ?? NULL) === HostingProvider::ACQUIA ? self::DOCROOT : self::WEB;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function required(): bool {
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 10;
+  public function default(array $responses): null|string|bool|array {
+    // Auto-select webroot based on hosting provider.
+    if (isset($responses[HostingProvider::id()])) {
+      return match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::DOCROOT,
+        HostingProvider::LAGOON => self::WEB,
+        default => self::WEB,
+      };
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    $v = Env::getFromDotenv('WEBROOT', $this->dstDir);
+
+    if (!empty($v)) {
+      return $v;
+    }
+
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
+    if (!empty($v)) {
+      try {
+        $v = File::toRelative($v, $this->dstDir);
+      }
+      catch (\Exception) {
+        $v = NULL;
+      }
+    }
+
+    if (!empty($v)) {
+      return $v;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedValue(array $responses): null|string|bool|array {
+    $discovered = $this->discover();
+
+    if (!is_null($discovered)) {
+      return $discovered;
+    }
+
+    if (($responses[HostingProvider::id()] ?? '') === HostingProvider::ACQUIA) {
+      return self::DOCROOT;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Web root will be set to "%s".', $resolved);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+    $webroot = self::WEB;
+
+    if ($v === $webroot) {
+      return;
+    }
+
+    File::replaceContentAsync([
+      sprintf('%s/', $webroot) => $v . '/',
+      sprintf('%s\/', $webroot) => $v . '\/',
+      sprintf(': %s', $webroot) => ': ' . $v,
+      sprintf('!%s', $webroot) => '!' . $v,
+      sprintf('/\/%s\//', $webroot) => '/' . $v . '/',
+      sprintf('/\'\/%s\'/', $webroot) => "'/" . $v . "'",
+    ]);
+
+    File::replaceContentAsync(fn(string $content): string => preg_replace('/=' . preg_quote($webroot, '/') . '\b/', '=' . $v, $content) ?? $content);
+
+    rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
   }
 
 }

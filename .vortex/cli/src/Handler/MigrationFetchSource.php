@@ -4,20 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Condition\Condition;
-use DrevOps\Tui\Condition\ConditionInterface;
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "migration_fetch_source" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class MigrationFetchSource extends AbstractFieldHandler implements OptionsInterface {
+class MigrationFetchSource extends AbstractHandler {
 
   const URL = 'url';
 
@@ -34,26 +24,110 @@ class MigrationFetchSource extends AbstractFieldHandler implements OptionsInterf
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $source = NULL;
+  public function label(): string {
+    return 'Migration database source';
+  }
 
-    if (!empty($value)) {
-      $source = is_string($value) ? $value : '';
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select the migration database fetch source.';
+  }
 
-      Env::writeValueDotenv('VORTEX_FETCH_DB2_SOURCE', $source, $context->directory . '/.env');
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [
+      self::URL => 'URL download',
+      self::FTP => 'FTP download',
+      self::ACQUIA => 'Acquia backup',
+      self::LAGOON => 'Lagoon environment',
+      self::CONTAINER_REGISTRY => 'Container registry',
+      self::S3 => 'S3 bucket',
+    ];
 
-      // Lagoon identifies environments by branch name; the production branch
-      // is `main`. The shared default (`prod`) is correct for Acquia only.
-      if ($source === 'lagoon') {
-        Env::writeValueDotenv('VORTEX_FETCH_DB2_ENVIRONMENT', 'main', $context->directory . '/.env');
+    if (isset($responses[HostingProvider::id()])) {
+      if ($responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
+        unset($options[self::LAGOON]);
+      }
+
+      if ($responses[HostingProvider::id()] === HostingProvider::LAGOON) {
+        unset($options[self::ACQUIA]);
       }
     }
 
-    $types = ['url', 'ftp', 'acquia', 'lagoon', 'container_registry', 's3'];
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function dependsOn(): ?array {
+    return [Migration::id() => [TRUE]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldRun(array $responses): bool {
+    return isset($responses[Migration::id()]) && $responses[Migration::id()] === TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[HostingProvider::id()])) {
+      return match ($responses[HostingProvider::id()]) {
+        HostingProvider::ACQUIA => self::ACQUIA,
+        HostingProvider::LAGOON => self::LAGOON,
+        default => self::URL,
+      };
+    }
+
+    return self::URL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    return Env::getFromDotenv('VORTEX_FETCH_DB2_SOURCE', $this->dstDir);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $t = $this->tmpDir;
+
+    $v = NULL;
+    if (!empty($this->response)) {
+      $v = $this->getResponseAsString();
+
+      Env::writeValueDotenv('VORTEX_FETCH_DB2_SOURCE', $v, $t . '/.env');
+
+      // Lagoon identifies environments by branch name; the production branch
+      // is `main`. The shared default (`prod`) is correct for Acquia only.
+      if ($v === self::LAGOON) {
+        Env::writeValueDotenv('VORTEX_FETCH_DB2_ENVIRONMENT', 'main', $t . '/.env');
+      }
+    }
+
+    $types = [
+      MigrationFetchSource::URL,
+      MigrationFetchSource::FTP,
+      MigrationFetchSource::ACQUIA,
+      MigrationFetchSource::LAGOON,
+      MigrationFetchSource::CONTAINER_REGISTRY,
+      MigrationFetchSource::S3,
+    ];
 
     foreach ($types as $type) {
       $token = 'DB2_FETCH_SOURCE_' . strtoupper($type);
-      if ($source === $type) {
+      if ($v === $type) {
         File::removeTokenAsync('!' . $token);
       }
       else {
@@ -62,72 +136,9 @@ class MigrationFetchSource extends AbstractFieldHandler implements OptionsInterf
     }
 
     // Gates content required only for the hosting-connected fetch sources.
-    if ($source !== 'acquia' && $source !== 'lagoon') {
+    if ($v !== self::ACQUIA && $v !== self::LAGOON) {
       File::removeTokenAsync('DB2_FETCH_SOURCE_HOSTED');
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::URL => 'URL download',
-      self::FTP => 'FTP download',
-      self::ACQUIA => 'Acquia backup',
-      self::LAGOON => 'Lagoon environment',
-      self::CONTAINER_REGISTRY => 'Container registry',
-      self::S3 => 'S3 bucket',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'migration_fetch_source';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Migration database source';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'Where the migration database dump is fetched from.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return fn (Context $c): string => match ($c->answers['hosting_provider'] ?? NULL) { HostingProvider::ACQUIA => self::ACQUIA, HostingProvider::LAGOON => self::LAGOON, default => self::URL };
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function when(): ?ConditionInterface {
-    return new Condition('migration', eq: TRUE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 110;
   }
 
 }

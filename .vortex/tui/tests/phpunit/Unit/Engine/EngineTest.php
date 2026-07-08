@@ -34,14 +34,14 @@ final class EngineTest extends TestCase {
       $p->text('plain');
     });
 
-    $answers = $engine->collect([], new Context('project'));
+    $answers = $engine->collect(['spy' => 'given'], new Context('project'));
 
-    // The default flows through the discovered static transform.
-    $this->assertSame('seed!', $answers['spy']);
-    // A field with no consumer class falls back to its default untouched.
+    // The supplied input flows through the discovered static transform.
+    $this->assertSame('given!', $answers['spy']);
+    // A field with no input keeps its default untouched by the guards.
     $this->assertSame('', $answers['plain']);
-    // Lifecycle order per field.
-    $this->assertSame(['validate', 'transform'], Spy::$calls);
+    // Lifecycle order per field: normalize first, then validate.
+    $this->assertSame(['transform', 'validate'], Spy::$calls);
   }
 
   public function testSuppliedInputWins(): void {
@@ -52,7 +52,7 @@ final class EngineTest extends TestCase {
     $answers = $engine->collect(['spy' => 'given'], new Context('project'));
 
     $this->assertSame('given!', $answers['spy']);
-    $this->assertSame(['validate', 'transform'], Spy::$calls);
+    $this->assertSame(['transform', 'validate'], Spy::$calls);
   }
 
   public function testInvalidValueThrows(): void {
@@ -62,8 +62,8 @@ final class EngineTest extends TestCase {
 
     $this->expectException(EngineException::class);
     $this->expectExceptionMessage('Invalid value for field "machine_name"');
-    // The MachineName fixture rejects the empty-string text default.
-    $engine->collect([], new Context('project'));
+    // The MachineName fixture rejects an empty supplied input.
+    $engine->collect(['machine_name' => ''], new Context('project'));
   }
 
   public function testDiscoveredTransformNormalizes(): void {

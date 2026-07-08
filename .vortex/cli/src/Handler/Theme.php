@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "theme" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Theme extends AbstractFieldHandler implements OptionsInterface {
+class Theme extends AbstractHandler {
 
   const OLIVERO = 'olivero';
 
@@ -29,20 +21,119 @@ class Theme extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $v = is_string($value) ? $value : '';
-    $theme_custom = $context->answers['theme_custom'] ?? NULL;
+  public function label(): string {
+    return 'Theme';
+  }
 
-    // If user selected 'custom', use the ThemeCustom response instead.
-    if ($v === 'custom' && is_string($theme_custom)) {
-      $v = $theme_custom;
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select which Drupal theme to use.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::OLIVERO => 'Olivero',
+      self::CLARO => 'Claro',
+      self::STARK => 'Stark',
+      self::CUSTOM => 'Custom (next prompt)',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return self::CUSTOM;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    $value = $this->discoverName();
+
+    if (!is_null($value)) {
+      return in_array($value, [self::OLIVERO, self::CLARO, self::STARK], TRUE) ? $value : self::CUSTOM;
     }
 
-    $t = $context->directory;
-    $w = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
+    return NULL;
+  }
 
-    // Handle core themes (no custom theme files needed).
-    if (in_array($v, ['olivero', 'claro', 'stark'], TRUE)) {
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedValue(array $responses): null|string|bool|array {
+    $discovered = $this->discover();
+
+    if (!is_null($discovered)) {
+      return $discovered;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resolvedMessage(array $responses, mixed $resolved): ?string {
+    if (is_string($resolved)) {
+      return sprintf('Theme will be set to "%s".', $resolved);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Discover the theme name from the filesystem or environment.
+   *
+   * @return null|string|bool|array
+   *   The theme name if found, NULL if not found.
+   */
+  public function discoverName(): null|string|bool|array {
+    if ($this->isInstalled()) {
+      $value = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);
+      if (!empty($value)) {
+        return $value;
+      }
+    }
+
+    $path = static::findThemeFile($this->dstDir, $this->webroot);
+
+    if (empty($path)) {
+      return NULL;
+    }
+
+    return str_replace(['.info.yml', '.info'], '', basename($path));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+
+    // If user selected 'custom', use the ThemeCustom response instead.
+    if ($v === self::CUSTOM && isset($this->responses[ThemeCustom::id()])) {
+      $v = $this->responses[ThemeCustom::id()];
+    }
+
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    // Handle core themes (no custom theme files needed)
+    if (in_array($v, [self::OLIVERO, self::CLARO, self::STARK])) {
       // Remove custom theme files if they exist.
       $file_tmpl = static::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
@@ -65,11 +156,19 @@ class Theme extends AbstractFieldHandler implements OptionsInterface {
     Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
 
     // Find the theme file in the destination directory.
-    $file_dst = static::findThemeFile($context->directory, $w, $v);
+    $file_dst = static::findThemeFile($this->dstDir, $w, $v);
 
     // Remove the theme-related files from the template if not found OR
     // if found, but the theme is not from Vortex.
-    if ($context->update && (empty($file_dst) || !static::isVortexTheme(dirname($file_dst)))) {
+    if (
+      $this->isInstalled()
+      &&
+      (
+        empty($file_dst)
+        ||
+        !static::isVortexTheme(dirname($file_dst))
+      )
+    ) {
       $file_tmpl = static::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::remove(dirname($file_tmpl));
@@ -87,53 +186,37 @@ class Theme extends AbstractFieldHandler implements OptionsInterface {
 
   /**
    * Remove theme-related configuration lines from various files.
-   *
-   * @param string $tmp_dir
-   *   The directory containing the files to update.
    */
-  protected function removeThemeConfigLines(string $tmp_dir): void {
-    File::removeLineInFile($tmp_dir . '/phpcs.xml', '<file>web/themes/custom</file>');
-    File::removeLineInFile($tmp_dir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>');
-    File::removeLineInFile($tmp_dir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>');
-    File::removeLineInFile($tmp_dir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>');
-    File::removeLineInFile($tmp_dir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>');
+  protected function removeThemeConfigLines(string $tmpDir): void {
+    File::removeLineInFile($tmpDir . '/phpcs.xml', '<file>web/themes/custom</file>');
+    File::removeLineInFile($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>');
+    File::removeLineInFile($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>');
+    File::removeLineInFile($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>');
+    File::removeLineInFile($tmpDir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>');
 
-    File::removeLineInFile($tmp_dir . '/phpstan.neon', '- web/themes/custom');
+    File::removeLineInFile($tmpDir . '/phpstan.neon', '- web/themes/custom');
 
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Unit</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Kernel</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Functional</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/FunctionalJavascript</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/FunctionalJavascript</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
-    File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/**/node_modules</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Unit</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Unit</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Kernel</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Kernel</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/Functional</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/Functional</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/tests/src/FunctionalJavascript</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/tests/src/FunctionalJavascript</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory suffix="Test.php">web/themes/custom</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/*/node_modules</directory>');
+    File::removeLineInFile($tmpDir . '/phpunit.xml', '<directory>web/themes/custom/**/node_modules</directory>');
 
-    File::removeLineInFile($tmp_dir . '/rector.php', "__DIR__ . '/web/themes/custom',");
+    File::removeLineInFile($tmpDir . '/rector.php', "__DIR__ . '/web/themes/custom',");
 
-    File::removeLineInFile($tmp_dir . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
+    File::removeLineInFile($tmpDir . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
 
-    File::replaceContentInFile($tmp_dir . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
-    File::replaceContentInFile($tmp_dir . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
+    File::replaceContentInFile($tmpDir . '/.ahoy.yml', 'cmd: ahoy lint-be && ahoy lint-fe && ahoy lint-tests', 'cmd: ahoy lint-be && ahoy lint-tests');
+    File::replaceContentInFile($tmpDir . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
   }
 
-  /**
-   * Find a custom theme info file within a project directory.
-   *
-   * @param string $dir
-   *   The project directory to search in.
-   * @param string $webroot
-   *   The webroot directory name.
-   * @param string|null $text
-   *   Optional text that a matching file path must contain.
-   *
-   * @return string|null
-   *   The path to the matching theme file, or NULL when none is found.
-   */
   protected static function findThemeFile(string $dir, string $webroot, ?string $text = NULL): ?string {
     $locations = [
       sprintf('%s/%s/themes/custom/*/*.info', $dir, $webroot),
@@ -149,82 +232,12 @@ class Theme extends AbstractFieldHandler implements OptionsInterface {
     return File::findMatchingPath($locations, $text);
   }
 
-  /**
-   * Check whether a theme directory contains a Vortex-generated theme.
-   *
-   * @param string $dir
-   *   The theme directory to check.
-   *
-   * @return bool
-   *   TRUE when the directory contains a Vortex theme, FALSE otherwise.
-   */
   protected static function isVortexTheme(string $dir): bool {
     $c1 = file_exists($dir . '/scss/_variables.scss');
     $c2 = file_exists($dir . '/package.json');
     $c3 = File::contains($dir . '/package.json', 'build-dev');
 
     return $c1 && $c2 && $c3;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::OLIVERO => 'Olivero',
-      self::CLARO => 'Claro',
-      self::STARK => 'Stark',
-      self::CUSTOM => 'Custom (next prompt)',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'theme';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Theme';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'The base theme for the site front-end.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return self::CUSTOM;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function required(): bool {
-    return TRUE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 340;
   }
 
 }

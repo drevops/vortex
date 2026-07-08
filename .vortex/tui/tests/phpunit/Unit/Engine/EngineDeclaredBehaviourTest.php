@@ -82,12 +82,11 @@ final class EngineDeclaredBehaviourTest extends TestCase {
     // closures take precedence over its reusable statics.
     $engine = $this->engine(function (PanelBuilder $p): void {
       $p->text('spy')
-        ->discover(fn (Context $c): string => 'declared')
         ->validate(fn (mixed $v): ?string => NULL)
         ->transform(fn (mixed $v): mixed => $v . '?');
     });
 
-    $answers = $engine->collect([], new Context('project', [], TRUE));
+    $answers = $engine->collect(['spy' => 'declared'], new Context('project'));
 
     $this->assertSame('declared?', $answers['spy']);
     $this->assertSame([], Spy::$calls);

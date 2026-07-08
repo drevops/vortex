@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "code_provider" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class CodeProvider extends AbstractFieldHandler implements OptionsInterface {
+class CodeProvider extends AbstractHandler {
 
   const GITHUB = 'github';
 
@@ -23,20 +15,72 @@ class CodeProvider extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    if ($value === 'github') {
-      if (file_exists($context->directory . '/.github/PULL_REQUEST_TEMPLATE.md')) {
-        File::remove($context->directory . '/.github/PULL_REQUEST_TEMPLATE.md');
+  public function label(): string {
+    return 'Repository provider';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function description(array $responses): string {
+    return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆ and ⬇ to select your code repository provider.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    return [
+      self::GITHUB => 'GitHub',
+      self::OTHER => 'Other',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return self::GITHUB;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    if (file_exists($this->dstDir . '/.github')) {
+      return self::GITHUB;
+    }
+
+    return $this->isInstalled() && file_exists($this->dstDir . '/.git') ? self::OTHER : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    if ($v === self::GITHUB) {
+      if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.md')) {
+        File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
       }
 
-      if (file_exists($context->directory . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
-        rename($context->directory . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $context->directory . '/.github/PULL_REQUEST_TEMPLATE.md');
+      if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
+        rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');
       }
     }
     else {
-      File::remove($context->directory . '/.github');
+      File::remove($t . '/.github');
 
-      $this->removeRenovateGithubActionsManager($context->directory . '/renovate.json');
+      $this->removeRenovateGithubActionsManager($t . '/renovate.json');
     }
   }
 
@@ -45,9 +89,6 @@ class CodeProvider extends AbstractFieldHandler implements OptionsInterface {
    *
    * The manager only operates on files under '.github/workflows', which do
    * not exist for non-GitHub code providers.
-   *
-   * @param string $path
-   *   The path to the Renovate configuration file.
    */
   protected function removeRenovateGithubActionsManager(string $path): void {
     if (!file_exists($path)) {
@@ -69,12 +110,12 @@ class CodeProvider extends AbstractFieldHandler implements OptionsInterface {
     $changed = FALSE;
 
     if (isset($data['enabledManagers']) && is_array($data['enabledManagers']) && in_array('github-actions', $data['enabledManagers'], TRUE)) {
-      $data['enabledManagers'] = array_values(array_filter($data['enabledManagers'], fn($manager): bool => $manager !== 'github-actions'));
+      $data['enabledManagers'] = array_values(array_diff($data['enabledManagers'], ['github-actions']));
       $changed = TRUE;
     }
 
     if (isset($data['packageRules']) && is_array($data['packageRules'])) {
-      $filtered = array_values(array_filter($data['packageRules'], fn($rule): bool => !is_array($rule) || ($rule['matchManagers'] ?? NULL) !== ['github-actions']));
+      $filtered = array_values(array_filter($data['packageRules'], fn(array $rule): bool => ($rule['matchManagers'] ?? NULL) !== ['github-actions']));
 
       if (count($filtered) !== count($data['packageRules'])) {
         $data['packageRules'] = $filtered;
@@ -85,58 +126,6 @@ class CodeProvider extends AbstractFieldHandler implements OptionsInterface {
     if ($changed) {
       file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::GITHUB => 'GitHub',
-      self::OTHER => 'Other',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'code_provider';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Repository provider';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::Select;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'Vortex offers full automation with GitHub; support for other providers is limited.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return self::GITHUB;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 230;
   }
 
 }

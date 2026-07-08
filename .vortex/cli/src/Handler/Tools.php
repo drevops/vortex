@@ -6,20 +6,13 @@ namespace DrevOps\VortexCli\Handler;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
 use AlexSkrypnyk\File\Replacer\Replacement;
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Yaml;
+use function iter\flatten;
 
-/**
- * Handler for the "tools" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Tools extends AbstractFieldHandler implements OptionsInterface {
+class Tools extends AbstractHandler {
 
   const PHPCS = 'phpcs';
 
@@ -40,120 +33,139 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $selected_tools = is_array($value) ? array_values(array_filter($value, is_string(...))) : [];
+  public function label(): string {
+    return 'Development tools';
+  }
 
-    $tmp_dir = $context->directory;
-    $webroot = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'Use ⬆, ⬇ and Space bar to select one or more tools.';
+  }
 
-    $tools = static::getToolDefinitions($tmp_dir, $webroot, 'tools');
-    $groups = static::getToolDefinitions($tmp_dir, $webroot, 'groups');
+  /**
+   * {@inheritdoc}
+   */
+  public function options(array $responses): ?array {
+    $options = [];
+    foreach (static::getToolDefinitions('tools') as $tool => $config) {
+      $options[$tool] = $config['title'];
+    }
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    return [
+      self::BEHAT,
+      self::ESLINT,
+      self::JEST,
+      self::PHPCS,
+      self::PHPSTAN,
+      self::PHPUNIT,
+      self::RECTOR,
+      self::STYLELINT,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    $tools = [];
+
+    foreach (static::getToolDefinitions('tools') as $tool => $config) {
+      if (isset($config['present']) && $config['present'] instanceof \Closure && $config['present']->bindTo($this)()) {
+        $tools[] = $tool;
+      }
+    }
+
+    sort($tools);
+
+    return $tools;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $selected_tools = $this->getResponseAsArray();
+
+    $tools = static::getToolDefinitions('tools');
+    $groups = static::getToolDefinitions('groups');
 
     $missing_tools = array_diff_key($tools, array_flip($selected_tools));
 
     foreach (array_keys($missing_tools) as $name) {
-      $this->processTool($name, $tmp_dir, $webroot);
+      $this->processTool($name);
     }
 
     foreach (array_keys($groups) as $name) {
-      $this->processGroup($name, $tmp_dir, $webroot, $selected_tools);
+      $this->processGroup($name);
     }
 
     // Remove fei: command and its call when all FE tools and custom
     // theme are absent, as there are no front-end dependencies to install.
     $fe_all_group = $groups['frontend_all'] ?? NULL;
-
-    if (!is_array($fe_all_group) || !isset($fe_all_group['tools']) || !is_array($fe_all_group['tools'])) {
-      return;
+    if ($fe_all_group && isset($fe_all_group['tools']) && !array_intersect($fe_all_group['tools'], $selected_tools)) {
+      $theme = $this->responses[Theme::id()] ?? NULL;
+      if (in_array($theme, [Theme::OLIVERO, Theme::CLARO, Theme::STARK])) {
+        File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_fei', function (string $content): string {
+          $content = preg_replace('/^\h*fei:\R(?:\h{4,}.*\R)*/m', '', $content) ?? $content;
+          $content = preg_replace('/^\h*ahoy fei\b.*\n?/m', '', $content) ?? $content;
+          return Yaml::collapseEmptyLinesInLiteralBlock($content);
+        }));
+      }
     }
-
-    $fe_tools = array_values(array_filter($fe_all_group['tools'], is_string(...)));
-
-    if (array_intersect($fe_tools, $selected_tools)) {
-      return;
-    }
-
-    $theme = $context->answers['theme'] ?? NULL;
-
-    if (!in_array($theme, ['olivero', 'claro', 'stark'])) {
-      return;
-    }
-
-    File::replaceContentInFile($tmp_dir . '/.ahoy.yml', Replacement::create('ahoy_fei', function (string $content): string {
-      $content = preg_replace('/^\h*fei:\R(?:\h{4,}.*\R)*/m', '', $content) ?? $content;
-      $content = preg_replace('/^\h*ahoy fei\b.*\n?/m', '', $content) ?? $content;
-      return Yaml::collapseEmptyLinesInLiteralBlock($content);
-    }));
   }
 
-  /**
-   * Remove a single tool's files, dependencies, commands and tokens.
-   *
-   * @param string $name
-   *   The tool name.
-   * @param string $tmp_dir
-   *   The destination project directory.
-   * @param string $webroot
-   *   The webroot directory name.
-   */
-  protected function processTool(string $name, string $tmp_dir, string $webroot): void {
-    $definitions = static::getToolDefinitions($tmp_dir, $webroot, 'tools');
-    $tool = $definitions[$name] ?? NULL;
-
-    if (!is_array($tool)) {
-      return;
-    }
+  protected function processTool(string $name): void {
+    $tool = static::getToolDefinitions('tools')[$name];
 
     // Remove associated files.
-    $files_def = $tool['files'] ?? NULL;
-
-    if ($files_def !== NULL) {
-      if ($files_def instanceof \Closure) {
-        $result = $files_def();
-        $files = is_array($result) ? static::flattenFiles($result) : [];
+    if (isset($tool['files'])) {
+      if ($tool['files'] instanceof \Closure) {
+        $files = $tool['files']->bindTo($this)();
+        $files = flatten($files);
       }
       else {
-        $files = is_array($files_def) ? array_values(array_filter($files_def, is_string(...))) : [];
-        $files = array_map(fn(string $file): string => $tmp_dir . '/' . $file, $files);
+        $files = $tool['files'];
+        $files = array_map(fn($file): string => $this->tmpDir . '/' . $file, $files);
       }
-
       File::remove($files);
     }
 
     // Remove dependencies from composer.json.
-    $composer_callback = $tool['composer.json'] ?? NULL;
-
-    if (is_callable($composer_callback)) {
-      $composer_path = $tmp_dir . '/composer.json';
+    if (isset($tool['composer.json']) && is_callable($tool['composer.json'])) {
+      $composer_path = $this->tmpDir . '/composer.json';
       $cj = JsonManipulator::fromFile($composer_path);
-
       if ($cj instanceof JsonManipulator) {
-        $composer_callback($cj);
+        $tool['composer.json']($cj);
         file_put_contents($composer_path, $cj->getContents());
       }
     }
 
     // Remove dependencies from package.json.
-    $package_callback = $tool['package.json'] ?? NULL;
-
-    if (is_callable($package_callback)) {
-      $package_path = $tmp_dir . '/package.json';
+    if (isset($tool['package.json']) && is_callable($tool['package.json'])) {
+      $package_path = $this->tmpDir . '/package.json';
       $pj = JsonManipulator::fromFile($package_path);
-
       if ($pj instanceof JsonManipulator) {
-        $package_callback($pj);
+        $tool['package.json']($pj);
         file_put_contents($package_path, $pj->getContents());
       }
     }
 
     // Remove command definitions from Ahoy.
-    if (isset($tool['ahoy']) && is_array($tool['ahoy'])) {
+    if (isset($tool['ahoy'])) {
       foreach ($tool['ahoy'] as $string) {
-        if (!is_string($string)) {
-          continue;
-        }
-
-        File::replaceContentInFile($tmp_dir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
+        File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
           $content = File::replaceContent($content, $string, '');
           return Yaml::collapseEmptyLinesInLiteralBlock($content);
         }));
@@ -161,17 +173,13 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
     }
 
     File::replaceContentAsync(
-      function (string $content, ContentFile $file) use ($tool, $tmp_dir): string {
-        if (isset($tool['strings']) && is_array($tool['strings'])) {
+      function (string $content, ContentFile $file) use ($tool): string {
+        if (isset($tool['strings'])) {
           foreach ($tool['strings'] as $string) {
-            if (!is_string($string)) {
-              continue;
-            }
-
             if (Strings::isRegex($string)) {
               $replaced = preg_replace($string, '', $content, -1, $count);
 
-              if ($count > 0 && $replaced !== NULL) {
+              if ($count > 0) {
                 $content = $replaced;
               }
             }
@@ -181,18 +189,11 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
           }
         }
 
-        if (isset($tool['lines']) && is_array($tool['lines'])) {
-          $relative_file_path = str_replace($tmp_dir . '/', '', $file->getPathname());
-
+        if (isset($tool['lines'])) {
+          $relative_file_path = str_replace($this->tmpDir . '/', '', $file->getPathname());
           foreach ($tool['lines'] as $relative_lines_file_name => $lines) {
-            if ($relative_file_path !== $relative_lines_file_name) {
-                continue;
-            }
-            if (!is_array($lines)) {
-                continue;
-            }
-            foreach ($lines as $line) {
-              if (is_string($line)) {
+            if ($relative_file_path === $relative_lines_file_name) {
+              foreach ($lines as $line) {
                 $content = File::removeLine($content, $line);
               }
             }
@@ -206,75 +207,45 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
     File::removeTokenAsync('TOOL_' . strtoupper($name));
   }
 
-  /**
-   * Remove a tool group's shared files, commands and tokens.
-   *
-   * @param string $name
-   *   The group name.
-   * @param string $tmp_dir
-   *   The destination project directory.
-   * @param string $webroot
-   *   The webroot directory name.
-   * @param array<int, string> $selected_tools
-   *   The list of selected tool names.
-   */
-  protected function processGroup(string $name, string $tmp_dir, string $webroot, array $selected_tools): void {
-    $definitions = static::getToolDefinitions($tmp_dir, $webroot, 'goups');
-    $config = $definitions[$name] ?? NULL;
+  protected function processGroup(string $name): void {
+    $config = static::getToolDefinitions('goups')[$name];
+    $selected_tools = $this->getResponseAsArray();
 
-    if (!is_array($config)) {
+    if (!isset($config['tools']) || array_intersect($config['tools'], $selected_tools)) {
       return;
     }
 
-    $group_tools = $config['tools'] ?? NULL;
-
-    if (!is_array($group_tools) || array_intersect(array_values(array_filter($group_tools, is_string(...))), $selected_tools)) {
-      return;
-    }
-
-    if (isset($config['files']) && is_array($config['files'])) {
-      $files = array_values(array_filter($config['files'], is_string(...)));
-      $files = array_map(fn(string $file): string => $tmp_dir . '/' . $file, $files);
+    if (isset($config['files'])) {
+      $files = array_map(fn($file): string => $this->tmpDir . '/' . $file, $config['files']);
       File::remove($files);
     }
 
-    if (isset($config['ahoy']) && is_array($config['ahoy'])) {
+    if (isset($config['ahoy'])) {
       foreach ($config['ahoy'] as $string) {
-        if (!is_string($string)) {
-          continue;
-        }
-
-        File::replaceContentInFile($tmp_dir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
+        File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {
           $content = File::replaceContent($content, $string, '');
           return Yaml::collapseEmptyLinesInLiteralBlock($content);
         }));
       }
     }
 
-    if (isset($config['token']) && is_string($config['token'])) {
+    if (isset($config['token'])) {
       File::removeTokenAsync($config['token']);
     }
   }
 
-  /**
-   * Get the tool and tool-group definitions.
-   *
-   * @param string $tmp_dir
-   *   The destination project directory.
-   * @param string $webroot
-   *   The webroot directory name.
-   * @param string $filter
-   *   Which subset to return: 'all', 'tools' or 'groups'.
-   *
-   * @return array<string, array<string, mixed>>
-   *   The tool definitions keyed by tool or group name.
-   */
-  protected static function getToolDefinitions(string $tmp_dir, string $webroot, string $filter = 'all'): array {
+  public static function getToolDefinitions(string $filter = 'all'): array {
     $filter = in_array($filter, ['all', 'tools', 'groups'], TRUE) ? $filter : 'all';
 
     $map = [
-      'phpcs' => [
+      self::PHPCS => [
         'title' => 'PHP CodeSniffer',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'dealerdirect/phpcodesniffer-composer-installer') ||
+          File::contains($this->dstDir . '/composer.json', 'drupal/coder') ||
+          File::contains($this->dstDir . '/composer.json', 'squizlabs/php_codesniffer') ||
+          File::contains($this->dstDir . '/composer.json', 'phpcompatibility/php-compatibility') ||
+          File::contains($this->dstDir . '/composer.json', 'drevops/phpcs-standard') ||
+          File::exists($this->dstDir . '/phpcs.xml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'dealerdirect/phpcodesniffer-composer-installer');
           $cj->removeConfigSetting('allow-plugins.dealerdirect/phpcodesniffer-composer-installer');
@@ -291,8 +262,12 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         'ahoy' => ['ahoy cli vendor/bin/phpcs', 'ahoy cli vendor/bin/phpcbf'],
       ],
 
-      'phpstan' => [
+      self::PHPSTAN => [
         'title' => 'PHPStan',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpstan/phpstan') ||
+          File::contains($this->dstDir . '/composer.json', 'mglaman/phpstan-drupal') ||
+          File::contains($this->dstDir . '/composer.json', 'phpstan/extension-installer') ||
+          File::exists($this->dstDir . '/phpstan.neon'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpstan/phpstan');
           $cj->removeSubNode('require-dev', 'mglaman/phpstan-drupal');
@@ -307,8 +282,11 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         'ahoy' => ['ahoy cli vendor/bin/phpstan'],
       ],
 
-      'rector' => [
+      self::RECTOR => [
         'title' => 'Rector',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'rector/rector') ||
+          File::contains($this->dstDir . '/composer.json', 'palantirnet/drupal-rector') ||
+          File::exists($this->dstDir . '/rector.php'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'rector/rector');
           $cj->removeSubNode('require-dev', 'palantirnet/drupal-rector');
@@ -322,8 +300,10 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         ],
       ],
 
-      'eslint' => [
+      self::ESLINT => [
         'title' => 'ESLint',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"eslint":') ||
+          File::exists($this->dstDir . '/.eslintrc.json'),
         'package.json' => function (JsonManipulator $pj): void {
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-airbnb-base');
@@ -340,16 +320,13 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
           $pj->addSubNode('scripts', 'lint', 'yarn run lint-css');
           $pj->addSubNode('scripts', 'lint-fix', 'yarn run lint-fix-css');
         },
-        'files' => [
-          '.eslintrc.json',
-          '.eslintignore',
-          '.prettierrc.json',
-          '.prettierignore',
-        ],
+        'files' => ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
       ],
 
-      'stylelint' => [
+      self::STYLELINT => [
         'title' => 'Stylelint',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"stylelint":') ||
+          File::exists($this->dstDir . '/.stylelintrc.js'),
         'package.json' => function (JsonManipulator $pj): void {
           $pj->removeSubNode('devDependencies', 'stylelint');
           $pj->removeSubNode('devDependencies', 'stylelint-config-standard');
@@ -362,16 +339,18 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         'files' => ['.stylelintrc.js'],
       ],
 
-      'jest' => [
+      self::JEST => [
         'title' => 'Jest',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"jest":') ||
+          File::exists($this->dstDir . '/jest.config.js'),
         'package.json' => function (JsonManipulator $pj): void {
           $pj->removeSubNode('devDependencies', 'jest');
           $pj->removeSubNode('devDependencies', 'jest-environment-jsdom');
           $pj->removeSubNode('scripts', 'test');
         },
         'files' => fn(): array => [
-          $tmp_dir . '/jest.config.js',
-          glob($tmp_dir . '/' . $webroot . '/modules/custom/*/js/*.test.js'),
+          $this->tmpDir . '/jest.config.js',
+          glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/js/*.test.js'),
         ],
         'lines' => [
           'AGENTS.md' => [
@@ -381,8 +360,11 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         ],
       ],
 
-      'phpunit' => [
+      self::PHPUNIT => [
         'title' => 'PHPUnit',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'phpunit/phpunit') ||
+          File::contains($this->dstDir . '/composer.json', 'phpspec/prophecy-phpunit') ||
+          File::exists($this->dstDir . '/phpunit.xml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'phpunit/phpunit');
           $cj->removeSubNode('require-dev', 'phpspec/prophecy-phpunit');
@@ -390,11 +372,11 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
           $cj->removeMainKeyIfEmpty('autoload-dev');
         },
         'files' => fn(): array => [
-          $tmp_dir . '/phpunit.xml',
-          $tmp_dir . '/tests/phpunit',
-          glob($tmp_dir . '/' . $webroot . '/profiles/custom/*/tests', GLOB_ONLYDIR),
-          glob($tmp_dir . '/' . $webroot . '/modules/custom/*/tests', GLOB_ONLYDIR),
-          glob($tmp_dir . '/' . $webroot . '/themes/custom/*/tests', GLOB_ONLYDIR),
+          $this->tmpDir . '/phpunit.xml',
+          $this->tmpDir . '/tests/phpunit',
+          glob($this->tmpDir . '/' . $this->webroot . '/profiles/custom/*/tests', GLOB_ONLYDIR),
+          glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/tests', GLOB_ONLYDIR),
+          glob($this->tmpDir . '/' . $this->webroot . '/themes/custom/*/tests', GLOB_ONLYDIR),
         ],
         'strings' => ['/^.*phpunit.*\n?/m'],
         'lines' => [
@@ -423,8 +405,14 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         ],
       ],
 
-      'behat' => [
+      self::BEHAT => [
         'title' => 'Behat',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'behat/behat') ||
+          File::contains($this->dstDir . '/composer.json', 'drupal/drupal-extension') ||
+          File::contains($this->dstDir . '/composer.json', 'drevops/behat-format-progress-fail') ||
+          File::contains($this->dstDir . '/composer.json', 'drevops/behat-screenshot') ||
+          File::contains($this->dstDir . '/composer.json', 'drevops/behat-steps') ||
+          File::exists($this->dstDir . '/behat.yml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'behat/behat');
           $cj->removeSubNode('require-dev', 'drupal/drupal-extension');
@@ -459,7 +447,7 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
 
       // Tool groups with shared resources.
       'backend_linting' => [
-        'tools' => ['phpcs', 'phpstan', 'rector'],
+        'tools' => [self::PHPCS, self::PHPSTAN, self::RECTOR],
         'ahoy' => [
           'ahoy lint-be-fix',
           'ahoy lint-be',
@@ -469,7 +457,7 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         ],
       ],
       'test' => [
-        'tools' => ['phpunit', 'behat'],
+        'tools' => [self::PHPUNIT, self::BEHAT],
         'ahoy' => [
           '/^\h*test:\R\h*usage:\h*Run all tests\.\R\h*cmd:\h*\|$/um',
           '/^\h*lint-tests:\R\h*usage:\h*Lint tests code\.\R\h*cmd:\h*\|\h*\R^\h*$/um',
@@ -477,7 +465,7 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         'token' => 'TOOL_PHPUNIT_BEHAT',
       ],
       'frontend_linting' => [
-        'tools' => ['eslint', 'stylelint'],
+        'tools' => [self::ESLINT, self::STYLELINT],
         'ahoy' => [
           '/^\h*ahoy cli "yarn run lint"\h*\n?/m',
           '/^\h*ahoy cli "yarn run lint-fix"\h*\n?/m',
@@ -485,11 +473,11 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
         'token' => 'TOOL_ESLINT_STYLELINT',
       ],
       'frontend_testing' => [
-        'tools' => ['jest'],
+        'tools' => [self::JEST],
         'token' => 'TOOL_JEST',
       ],
       'frontend_all' => [
-        'tools' => ['eslint', 'stylelint', 'jest'],
+        'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
         'files' => ['package.json', 'yarn.lock'],
       ],
     ];
@@ -502,85 +490,6 @@ class Tools extends AbstractFieldHandler implements OptionsInterface {
     }
 
     return $map;
-  }
-
-  /**
-   * Flatten a nested list of paths into a flat list of string paths.
-   *
-   * @param array<mixed> $files
-   *   The nested list of paths, potentially containing arrays and non-strings.
-   *
-   * @return array<int, string>
-   *   The flattened list of string paths.
-   */
-  protected static function flattenFiles(array $files): array {
-    $flat = [];
-
-    array_walk_recursive($files, function (mixed $item) use (&$flat): void {
-      if (is_string($item)) {
-        $flat[] = $item;
-      }
-    });
-
-    return $flat;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function options(): array {
-    return [
-      self::PHPCS => 'PHP CodeSniffer',
-      self::PHPSTAN => 'PHPStan',
-      self::RECTOR => 'Rector',
-      self::ESLINT => 'ESLint',
-      self::STYLELINT => 'Stylelint',
-      self::PHPUNIT => 'PHPUnit',
-      self::BEHAT => 'Behat',
-      self::JEST => 'Jest',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'tools';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
-    return 'Development tools';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function type(): FieldType {
-    return FieldType::MultiSelect;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
-    return 'Linting and testing tools to keep.';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function default(): mixed {
-    return [self::BEHAT, self::ESLINT, self::JEST, self::PHPCS, self::PHPSTAN, self::PHPUNIT, self::RECTOR, self::STYLELINT];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 190;
   }
 
 }

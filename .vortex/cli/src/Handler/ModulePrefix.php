@@ -4,128 +4,120 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Derive\Derive;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 
-/**
- * Handler for the "module_prefix" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class ModulePrefix extends AbstractFieldHandler {
-
-  /**
-   * Validate the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return string|null
-   *   An error message, or NULL when valid.
-   */
-  public static function validate(mixed $value): ?string {
-    return is_string($value) && Validate::isMachineName($value) ? NULL : 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.';
-  }
-
-  /**
-   * Normalize the collected value.
-   *
-   * @param mixed $value
-   *   The value.
-   *
-   * @return mixed
-   *   The normalized value.
-   */
-  public static function transform(mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
+class ModulePrefix extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $prefix = is_string($value) ? $value : '';
-    $webroot = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
-
-    File::replaceContentAsync([
-      'ys_demo' => $prefix . '_demo',
-      'ys-demo' => Converter::kebab($prefix) . '-demo',
-      'ys_base' => $prefix . '_base',
-      'ys-base' => Converter::kebab($prefix) . '-base',
-      'ys_search' => $prefix . '_search',
-      'ys-search' => Converter::kebab($prefix) . '-search',
-      'YsDemo' => Converter::pascal($prefix) . 'Demo',
-      'YsBase' => Converter::pascal($prefix) . 'Base',
-      'YsSearch' => Converter::pascal($prefix) . 'Search',
-      'YSBASE' => Converter::cobol($prefix),
-      'YSSEARCH' => Converter::cobol($prefix),
-    ]);
-
-    $modules = $context->directory . sprintf('/%s/modules/custom', $webroot);
-
-    File::renameInDir($modules, 'ys_demo', $prefix . '_demo');
-    File::renameInDir($modules, 'ys-demo', Converter::kebab($prefix) . '-demo');
-    File::renameInDir($modules, 'ys_base', $prefix . '_base');
-    File::renameInDir($modules, 'ys-base', Converter::kebab($prefix) . '-base');
-    File::renameInDir($modules, 'ys_search', $prefix . '_search');
-    File::renameInDir($modules, 'ys-search', Converter::kebab($prefix) . '-search');
-    File::renameInDir($modules, 'YsDemo', Converter::pascal($prefix) . 'Demo');
-    File::renameInDir($modules, 'YsBase', Converter::pascal($prefix) . 'Base');
-    File::renameInDir($modules, 'YsSearch', Converter::pascal($prefix) . 'Search');
-    File::renameInDir($context->directory . sprintf('/%s/sites/default/includes', $webroot), 'ys_base', $prefix . '_base');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'module_prefix';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Custom modules prefix';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Text;
+  public function hint(array $responses): ?string {
+    return 'We will use this name in custom modules';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function description(): string {
-    return 'We will use this name in custom modules.';
+  public function placeholder(array $responses): ?string {
+    return 'E.g. ms (for My Site)';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function required(): bool {
+  public function isRequired(): bool {
     return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function derive(): ?Derive {
-    return new Derive('{{machine_name}}', 'initials');
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
+      return Converter::abbreviation(Converter::machine($responses[MachineName::id()]), 4, ['_']);
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 310;
+  public function discover(): null|string|bool|array {
+    $locations = [
+      $this->dstDir . sprintf('/%s/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/*/modules/custom/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/*_core', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/custom/*_base', $this->webroot),
+      $this->dstDir . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $this->webroot),
+    ];
+
+    $path = File::findMatchingPath($locations);
+
+    return empty($path) ? NULL : str_replace(['_base', '_core'], '', basename($path));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Converter::machine($v) !== $v ? 'Please enter a valid module prefix: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    File::replaceContentAsync([
+      'ys_demo' => $v . '_demo',
+      'ys-demo' => Converter::kebab($v) . '-demo',
+      'ys_base' => $v . '_base',
+      'ys-base' => Converter::kebab($v) . '-base',
+      'ys_search' => $v . '_search',
+      'ys-search' => Converter::kebab($v) . '-search',
+      'YsDemo' => Converter::pascal($v) . 'Demo',
+      'YsBase' => Converter::pascal($v) . 'Base',
+      'YsSearch' => Converter::pascal($v) . 'Search',
+      'YSBASE' => Converter::cobol($v),
+      'YSSEARCH' => Converter::cobol($v),
+    ]);
+
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_demo', $v . '_demo');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys-demo', Converter::kebab($v) . '-demo');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_base', $v . '_base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys-base', Converter::kebab($v) . '-base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys_search', $v . '_search');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'ys-search', Converter::kebab($v) . '-search');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsDemo', Converter::pascal($v) . 'Demo');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsBase', Converter::pascal($v) . 'Base');
+    File::renameInDir($t . sprintf('/%s/modules/custom', $w), 'YsSearch', Converter::pascal($v) . 'Search');
+    File::renameInDir($t . sprintf('/%s/sites/default/includes', $w), 'ys_base', $v . '_base');
   }
 
 }

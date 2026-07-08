@@ -4,82 +4,74 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Handler;
 
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Config\FieldType;
-use DrevOps\Tui\Handler\Context;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
+use DrevOps\VortexCli\Utils\Yaml;
 
-/**
- * Handler for the "migration" question.
- *
- * @package DrevOps\VortexCli\Handler
- */
-class Migration extends AbstractFieldHandler {
+class Migration extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
-  public function process(Field $field, mixed $value, Context $context): void {
-    $webroot = is_string($context->answers['webroot'] ?? NULL) ? $context->answers['webroot'] : 'web';
-
-    if ($value === TRUE) {
-      File::removeTokenAsync('!MIGRATION');
-    }
-    else {
-      File::removeTokenAsync('MIGRATION');
-      File::remove($context->directory . '/' . $webroot . '/sites/default/settings.migration.php');
-      File::remove($context->directory . '/' . $webroot . '/modules/custom/ys_migrate');
-
-      $cj = JsonManipulator::fromFile($context->directory . '/composer.json');
-      if ($cj instanceof JsonManipulator) {
-        $cj->removeSubNode('require', 'drupal/migrate_plus');
-        $cj->removeSubNode('require', 'drupal/migrate_tools');
-        file_put_contents($context->directory . '/composer.json', $cj->getContents());
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function id(): string {
-    return 'migration';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function label(): string {
+  public function label(): string {
     return 'Use a second database for migrations?';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function type(): FieldType {
-    return FieldType::Confirm;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function description(): string {
+  public function hint(array $responses): ?string {
     return 'Adds a second database service for Drupal migrations.';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function default(): mixed {
+  public function default(array $responses): null|string|bool|array {
     return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function weight(): int {
-    return 120;
+  public function discover(): null|string|bool|array {
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    try {
+      $dc = Yaml::parseFile($this->dstDir . '/docker-compose.yml');
+    }
+    catch (\Exception) {
+      return NULL;
+    }
+
+    return isset($dc['services']['database2']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsBool();
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    if ($v) {
+      File::removeTokenAsync('!MIGRATION');
+    }
+    else {
+      File::removeTokenAsync('MIGRATION');
+      File::remove($t . '/' . $w . '/sites/default/settings.migration.php');
+      File::remove($t . '/' . $w . '/modules/custom/ys_migrate');
+
+      $cj = JsonManipulator::fromFile($t . '/composer.json');
+      if ($cj instanceof JsonManipulator) {
+        $cj->removeSubNode('require', 'drupal/migrate_plus');
+        $cj->removeSubNode('require', 'drupal/migrate_tools');
+        file_put_contents($t . '/composer.json', $cj->getContents());
+      }
+    }
   }
 
 }
