@@ -130,14 +130,14 @@ $payload = json_encode($data, JSON_UNESCAPED_SLASHES);
 $webhook_domain = parse_url($slack_webhook, PHP_URL_SCHEME) . '://' . parse_url($slack_webhook, PHP_URL_HOST);
 
 NOTE('Slack notification summary:');
-NOTE('Project        : ' . $notify_project);
-NOTE('Deployment     : ' . $notify_label);
-NOTE('Environment URL: ' . $notify_env_url);
-NOTE('Login URL      : ' . $notify_login_url);
+NOTE('Project        : %s', $notify_project);
+NOTE('Deployment     : %s', $notify_label);
+NOTE('Environment URL: %s', $notify_env_url);
+NOTE('Login URL      : %s', $notify_login_url);
 NOTE('Webhook        : %s/***', $webhook_domain);
-NOTE('Channel        : ' . ($slack_channel ?: '<default>'));
-NOTE('Username       : ' . $slack_username);
-NOTE('Event          : ' . $event_label);
+NOTE('Channel        : %s', ($slack_channel ?: '<default>'));
+NOTE('Username       : %s', $slack_username);
+NOTE('Event          : %s', $event_label);
 
 TASK('Sending notification to Slack', 'Slack notification sent successfully.', function () use ($slack_webhook, $payload): void {
   $response = request_post($slack_webhook, $payload, [

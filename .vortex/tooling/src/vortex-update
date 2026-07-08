@@ -74,17 +74,20 @@ else {
   });
 }
 
-TASK('Running the installer.', 'Finished running the installer.', function () use ($installer_interactive, $installer_path, $installer_template_repo): void {
+// Capture the exit code by reference and quit after the task returns, so the
+// task line is closed and the installer's exit code is still propagated.
+$installer_exit_code = 0;
+TASK('Running the installer.', 'Finished running the installer.', function () use ($installer_interactive, $installer_path, $installer_template_repo, &$installer_exit_code): void {
   if ($installer_interactive === '0') {
-    passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+    passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $installer_exit_code);
   }
   else {
-    passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
+    passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $installer_exit_code);
   }
 
-  if ($exit_code !== 0) {
-    quit($exit_code);
+  if ($installer_exit_code !== 0) {
+    throw new \RuntimeException('The installer run failed.');
   }
-});
+}, fatal: FALSE);
 
-quit(0);
+quit($installer_exit_code);

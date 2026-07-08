@@ -62,10 +62,10 @@ function image_exists_on_host(string $image): bool {
 INFO('Started database data container image download.');
 
 if (image_exists_on_host($image)) {
-  NOTE(sprintf('Found %s image on host.', $image));
+  NOTE('Found %s image on host.', $image);
 }
 else {
-  NOTE(sprintf('Not found %s image on host.', $image));
+  NOTE('Not found %s image on host.', $image);
 }
 
 $image_expanded_successfully = FALSE;
@@ -89,7 +89,7 @@ if (!$image_expanded_successfully) {
   if (!file_exists($archive) && $image_base !== '') {
     // If the image archive does not exist and base image was provided - use the
     // base image which allows "clean slate" for the database.
-    NOTE(sprintf('Database container image was not found. Using base image %s.', $image_base));
+    NOTE('Database container image was not found. Using base image %s.', $image_base);
     $image = $image_base;
   }
 

@@ -348,7 +348,7 @@ $file_name = sprintf('%s/%s_backup_%s.%s', $db_dir, $db_name, $backup_id, $file_
 $file_name_compressed = $file_name . '.gz';
 
 if (file_exists($file_name)) {
-  NOTE(sprintf('Found existing cached DB file "%s" for DB "%s".', $file_name, $db_name));
+  NOTE('Found existing cached DB file "%s" for DB "%s".', $file_name, $db_name);
 }
 else {
   if (!file_exists($file_name_compressed)) {
@@ -380,7 +380,7 @@ else {
     });
   }
   else {
-    PASS(sprintf('Found existing cached gzipped DB file "%s" for DB "%s".', $file_name_compressed, $db_name));
+    PASS('Found existing cached gzipped DB file "%s" for DB "%s".', $file_name_compressed, $db_name);
   }
 
   TASK(sprintf('Expanding "%s" into "%s".', $file_name_compressed, $file_name), 'Expanded the database dump.', function () use ($file_name_compressed, $file_name): void {

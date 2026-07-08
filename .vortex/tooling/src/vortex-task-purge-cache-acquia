@@ -125,7 +125,7 @@ if (!is_array($domain_list)) {
 }
 
 if ($domain_list === []) {
-  NOTE(sprintf('No domains to purge cache for %s environment.', $target_env));
+  NOTE('No domains to purge cache for %s environment.', $target_env);
 }
 
 foreach ($domain_list as $domain) {

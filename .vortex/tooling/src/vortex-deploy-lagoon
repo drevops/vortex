@@ -207,7 +207,7 @@ else {
 
     $env_names = lagoon_get_existing_environments(FALSE);
     $is_redeploy = in_array($deploy_pr_full, $env_names, TRUE);
-    $is_redeploy && NOTE(sprintf('Found already deployed environment for PR "%s".', $deploy_pr));
+    $is_redeploy && NOTE('Found already deployed environment for PR "%s".', $deploy_pr);
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
@@ -261,7 +261,7 @@ else {
   else {
     $env_names = lagoon_get_existing_environments(TRUE);
     $is_redeploy = in_array($deploy_branch, $env_names, TRUE);
-    $is_redeploy && NOTE(sprintf('Found already deployed environment for branch "%s".', $deploy_branch));
+    $is_redeploy && NOTE('Found already deployed environment for branch "%s".', $deploy_branch);
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {

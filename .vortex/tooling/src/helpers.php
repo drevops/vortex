@@ -185,7 +185,7 @@ function getenv_required(...$var_names): string {
 function getenv_list(...$args): array {
   $value = (string) getenv_default(...$args);
 
-  return array_values(array_filter(array_map(trim(...), explode(',', $value))));
+  return array_values(array_filter(array_map(trim(...), explode(',', $value)), static fn(string $item): bool => $item !== ''));
 }
 
 /**
@@ -386,7 +386,7 @@ function command_path(string $command): string|false {
  */
 function command_must_exist(string $command): void {
   if (!command_path($command)) {
-    FAIL(sprintf("Command '%s' is not available.", $command));
+    FAIL("Command '%s' is not available.", $command);
   }
 }
 
@@ -914,6 +914,22 @@ function acquia_api_headers(string $token): array {
 }
 
 /**
+ * Extract the last item from an Acquia Cloud API embedded collection response.
+ *
+ * @param mixed $data
+ *   The decoded JSON response body.
+ *
+ * @return array<mixed>|null
+ *   The last embedded item, or NULL when none is present.
+ */
+function acquia_api_last_embedded_item(mixed $data): ?array {
+  $items = (is_array($data) && isset($data['_embedded']) && is_array($data['_embedded']) && isset($data['_embedded']['items']) && is_array($data['_embedded']['items'])) ? $data['_embedded']['items'] : [];
+  $last = end($items);
+
+  return is_array($last) ? $last : NULL;
+}
+
+/**
  * Retrieve an Acquia Cloud application UUID by application name.
  *
  * @param string $token
@@ -932,10 +948,8 @@ function acquia_api_get_app_uuid(string $token, string $app_name): string {
     FAIL('Unable to retrieve an application UUID.');
   }
 
-  $data = json_decode((string) $response['body'], TRUE);
-  $items = (is_array($data) && isset($data['_embedded']) && is_array($data['_embedded']) && isset($data['_embedded']['items']) && is_array($data['_embedded']['items'])) ? $data['_embedded']['items'] : [];
-  $last = end($items);
-  $uuid = is_array($last) && is_string($last['uuid'] ?? NULL) ? $last['uuid'] : '';
+  $last = acquia_api_last_embedded_item(json_decode((string) $response['body'], TRUE));
+  $uuid = is_string($last['uuid'] ?? NULL) ? $last['uuid'] : '';
 
   if ($uuid === '') {
     FAIL('Unable to retrieve an application UUID.');
@@ -962,20 +976,18 @@ function acquia_api_get_env_id(string $token, string $app_uuid, string $env_name
   $response = request_get($url, acquia_api_headers($token));
 
   if (!$response['ok']) {
-    FAIL(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+    FAIL('Unable to retrieve environment ID for %s.', $env_name);
   }
 
-  $data = json_decode((string) $response['body'], TRUE);
-  $items = (is_array($data) && isset($data['_embedded']) && is_array($data['_embedded']) && isset($data['_embedded']['items']) && is_array($data['_embedded']['items'])) ? $data['_embedded']['items'] : [];
-  $last = end($items);
+  $last = acquia_api_last_embedded_item(json_decode((string) $response['body'], TRUE));
 
   $env_id = '';
-  if (is_array($last) && isset($last['id']) && (is_string($last['id']) || is_int($last['id']))) {
+  if ($last !== NULL && isset($last['id']) && (is_string($last['id']) || is_int($last['id']))) {
     $env_id = (string) $last['id'];
   }
 
   if ($env_id === '') {
-    FAIL(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+    FAIL('Unable to retrieve environment ID for %s.', $env_name);
   }
 
   return $env_id;
@@ -1226,7 +1238,7 @@ function notify_skip_unlisted_branch(string $branches, string $label, ?string $b
   $branch_list = array_map(trim(...), explode(',', $branches));
 
   if (!in_array($branch, $branch_list, TRUE)) {
-    PASS(sprintf("Skipped %s notification for branch '%s'.", $label, $branch));
+    PASS("Skipped %s notification for branch '%s'.", $label, $branch);
     quit();
   }
 }
@@ -1241,7 +1253,7 @@ function notify_skip_unlisted_branch(string $branches, string $label, ?string $b
  */
 function notify_skip_pre_deployment(string $event, string $label): void {
   if ($event === 'pre_deployment') {
-    PASS(sprintf('Skipped %s notification for pre_deployment event.', $label));
+    PASS('Skipped %s notification for pre_deployment event.', $label);
     quit();
   }
 }
@@ -1275,7 +1287,7 @@ function string_map_to_array(string $map, string $separator = ',', string $key_v
   foreach ($pairs as $pair) {
     $parts = explode($key_value_separator, $pair, 2);
     if (count($parts) !== 2) {
-      FAIL(sprintf('invalid key/value pair "%s" provided.', $pair));
+      FAIL('invalid key/value pair "%s" provided.', $pair);
     }
     $array[trim($parts[0])] = trim($parts[1]);
   }

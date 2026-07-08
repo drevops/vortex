@@ -82,8 +82,8 @@ $notification_url = (string) TASK(sprintf('Copying files from %s to %s environme
   return $notification_url;
 });
 
-TASK('Waiting for the files copy to complete.', sprintf('Copied files from %s to %s environment.', $src_env, $dst_env), function () use ($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $src_env, $dst_env): void {
-  if (!acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval)) {
+TASK('Waiting for the files copy to complete.', sprintf('Copied files from %s to %s environment.', $src_env, $dst_env), function () use ($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $src_env, $dst_env, $token): void {
+  if (!acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $token)) {
     throw new \RuntimeException(sprintf('Unable to copy files from %s to %s environment.', $src_env, $dst_env));
   }
 });

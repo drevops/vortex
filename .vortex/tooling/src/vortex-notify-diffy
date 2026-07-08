@@ -82,13 +82,13 @@ if ($diffy_label === '') {
 $repository_sanitized = (string) preg_replace(['#^https?://[^/]+/#', '#\.git$#'], '', $diffy_repository);
 
 INFO('Diffy notification summary:');
-NOTE('Repository       : ' . $repository_sanitized);
-NOTE('Branch           : ' . $diffy_branch);
-NOTE('Label            : ' . $diffy_label);
-NOTE('Environment URL  : ' . $diffy_environment_url);
-NOTE('Source env       : ' . $diffy_source_env);
-NOTE('Dispatch event   : ' . $diffy_event_type);
-NOTE('Event            : ' . $diffy_event);
+NOTE('Repository       : %s', $repository_sanitized);
+NOTE('Branch           : %s', $diffy_branch);
+NOTE('Label            : %s', $diffy_label);
+NOTE('Environment URL  : %s', $diffy_environment_url);
+NOTE('Source env       : %s', $diffy_source_env);
+NOTE('Dispatch event   : %s', $diffy_event_type);
+NOTE('Event            : %s', $diffy_event);
 
 // Build the dispatch payload. The workflow parses the PR (if any) from the
 // target URL's 'pr-<n>' segment, so no PR number is included.

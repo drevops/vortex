@@ -135,20 +135,20 @@ $email_message = replace_tokens($email_message, [
 ]);
 
 NOTE('Email notification summary:');
-NOTE('Project        : ' . $notify_project);
-NOTE('Deployment     : ' . $notify_label);
-NOTE('Environment URL: ' . $notify_env_url);
-NOTE('Login URL      : ' . $notify_login_url);
-NOTE('From           : ' . $email_from);
-NOTE('Recipients     : ' . $email_recipients);
+NOTE('Project        : %s', $notify_project);
+NOTE('Deployment     : %s', $notify_label);
+NOTE('Environment URL: %s', $notify_env_url);
+NOTE('Login URL      : %s', $notify_login_url);
+NOTE('From           : %s', $email_from);
+NOTE('Recipients     : %s', $email_recipients);
 if (!empty($email_cc)) {
-  NOTE('CC             : ' . $email_cc);
+  NOTE('CC             : %s', $email_cc);
 }
 if (!empty($email_bcc)) {
-  NOTE('BCC            : ' . $email_bcc);
+  NOTE('BCC            : %s', $email_bcc);
 }
-NOTE('Subject        : ' . $email_subject);
-NOTE('Content        : ' . $email_message);
+NOTE('Subject        : %s', $email_subject);
+NOTE('Content        : %s', $email_message);
 
 TASK(
   'Sending email notification',

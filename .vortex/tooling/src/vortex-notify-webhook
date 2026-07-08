@@ -84,15 +84,15 @@ $webhook_payload = replace_tokens($webhook_payload, [
 $webhook_domain = preg_replace('|(https?://[^/]+).*|', '$1', $webhook_url);
 
 NOTE('Webhook notification summary:');
-NOTE('Project            : ' . $notify_project);
-NOTE('Deployment         : ' . $notify_label);
-NOTE('Environment URL    : ' . $notify_env_url);
-NOTE('Login URL          : ' . $notify_login_url);
+NOTE('Project            : %s', $notify_project);
+NOTE('Deployment         : %s', $notify_label);
+NOTE('Environment URL    : %s', $notify_env_url);
+NOTE('Login URL          : %s', $notify_login_url);
 NOTE('Webhook URL        : %s/***', $webhook_domain);
-NOTE('Method             : ' . $webhook_method);
-NOTE('Headers            : ' . $webhook_headers);
-NOTE('Expected Status    : ' . $webhook_expected_status);
-NOTE('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
+NOTE('Method             : %s', $webhook_method);
+NOTE('Headers            : %s', $webhook_headers);
+NOTE('Expected Status    : %s', $webhook_expected_status);
+NOTE('Payload (first 200): %s', substr($webhook_payload, 0, 200) . '...');
 
 TASK(
   sprintf('Sending webhook notification to %s', $webhook_domain),

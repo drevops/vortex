@@ -92,8 +92,8 @@ $notification_url = (string) TASK(
 TASK(
   'Waiting for the database copy to complete.',
   sprintf('Copied DB from %s to %s environment.', $src_env, $dst_env),
-  function () use ($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $src_env, $dst_env): void {
-    if (!acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval)) {
+  function () use ($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $src_env, $dst_env, $token): void {
+    if (!acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $token)) {
       throw new \RuntimeException(sprintf('Unable to copy DB from %s to %s environment.', $src_env, $dst_env));
     }
   },

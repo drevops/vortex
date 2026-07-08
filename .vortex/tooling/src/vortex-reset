@@ -32,7 +32,10 @@ TASK('Removing dependencies and built assets.', 'Removed dependencies and built 
 });
 
 TASK('Removing node_modules directories.', 'Removed node_modules directories.', function (): void {
-  passthru_or_fail('find . -type d -name node_modules -prune -exec rm -Rf -- {} +');
+  passthru('find . -type d -name node_modules -prune -exec rm -Rf -- {} +', $exit_code);
+  if ($exit_code !== 0) {
+    throw new \RuntimeException('Failed to remove node_modules directories.');
+  }
 });
 
 if ($is_hard_reset) {
@@ -41,11 +44,17 @@ if ($is_hard_reset) {
   });
 
   TASK('Resetting repository files.', 'Reset repository files.', function (): void {
-    passthru_or_fail('git reset --hard');
+    passthru('git reset --hard', $exit_code);
+    if ($exit_code !== 0) {
+      throw new \RuntimeException('Failed to reset repository files.');
+    }
   });
 
   TASK('Removing all untracked files.', 'Removed all untracked files.', function (): void {
-    passthru_or_fail('git clean -f -d');
+    passthru('git clean -f -d', $exit_code);
+    if ($exit_code !== 0) {
+      throw new \RuntimeException('Failed to remove untracked files.');
+    }
   });
 
   TASK('Removing empty directories.', 'Removed empty directories.', function (): void {

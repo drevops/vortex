@@ -60,12 +60,19 @@ putenv('VORTEX_CONTAINER_REGISTRY=' . $push_container_registry);
 putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $push_container_registry_user);
 putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $push_container_registry_pass);
 
-TASK('Logging in to the container registry.', 'Logged in to the container registry.', function (): void {
+// Capture the exit code by reference and quit after the task returns, so the
+// task line is closed and the child's exit code is still propagated.
+$login_exit_code = 0;
+TASK('Logging in to the container registry.', 'Logged in to the container registry.', function () use (&$login_exit_code): void {
   passthru(__DIR__ . '/vortex-login-container-registry', $login_exit_code);
   if ($login_exit_code !== 0) {
-    quit($login_exit_code);
+    throw new \RuntimeException('Failed to login to the container registry.');
   }
-});
+}, fatal: FALSE);
+
+if ($login_exit_code !== 0) {
+  quit($login_exit_code);
+}
 
 foreach ($push_container_registry_map as $service => $image) {
   $cid = (string) TASK(
@@ -106,12 +113,19 @@ foreach ($push_container_registry_map as $service => $image) {
     },
   );
 
-  TASK('Pushing container image to the registry.', 'Pushed container image to the registry.', function () use ($fully_qualified_image_reference): void {
+  // Capture the exit code by reference and quit after the task returns, so
+  // the task line is closed and the child's exit code is still propagated.
+  $push_exit_code = 0;
+  TASK('Pushing container image to the registry.', 'Pushed container image to the registry.', function () use ($fully_qualified_image_reference, &$push_exit_code): void {
     passthru(sprintf('docker push %s', escapeshellarg($fully_qualified_image_reference)), $push_exit_code);
     if ($push_exit_code !== 0) {
-      quit($push_exit_code);
+      throw new \RuntimeException('Failed to push container image to the registry.');
     }
-  });
+  }, fatal: FALSE);
+
+  if ($push_exit_code !== 0) {
+    quit($push_exit_code);
+  }
 }
 
 PASS('Finished container registry push.');

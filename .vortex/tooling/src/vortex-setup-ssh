@@ -114,10 +114,10 @@ if (!empty($fingerprint)) {
 
 // Check if SSH key file exists.
 if (!file_exists($file_path)) {
-  FAIL(sprintf('SSH key file %s does not exist.', $file_path));
+  FAIL('SSH key file %s does not exist.', $file_path);
 }
 
-NOTE(sprintf('Using SSH key file %s.', $file_path));
+NOTE('Using SSH key file %s.', $file_path);
 putenv(sprintf('%s=%s', $file_var, $file_path));
 
 // Start SSH agent if not running.
@@ -146,7 +146,7 @@ $output = (string) shell_exec('ssh-add -l 2>/dev/null');
 $key_loaded = str_contains($output, basename($file_path));
 
 if ($key_loaded) {
-  NOTE(sprintf('SSH agent already has %s key loaded.', $file_path));
+  NOTE('SSH agent already has %s key loaded.', $file_path);
 }
 else {
   NOTE('SSH agent does not have a required key loaded.');

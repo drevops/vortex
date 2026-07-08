@@ -319,7 +319,9 @@ class NotifyJiraTest extends UnitTestCase {
     $this->envSet('VORTEX_NOTIFY_JIRA_BRANCHES', 'main,master');
     $this->envSet('VORTEX_NOTIFY_BRANCH', 'feature/x');
 
-    $this->runScriptEarlyPass('src/vortex-notify-jira', "Skipped JIRA notification for branch 'feature/x'.");
+    // The JIRA-specific branch from setUp() takes precedence over the generic
+    // VORTEX_NOTIFY_BRANCH in the gate.
+    $this->runScriptEarlyPass('src/vortex-notify-jira', "Skipped JIRA notification for branch 'feature/TEST-123-test-feature'.");
   }
 
   public function testNotificationProceedsWhenBranchInFilter(): void {

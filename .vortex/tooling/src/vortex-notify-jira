@@ -23,7 +23,7 @@ require_once __DIR__ . '/helpers.php';
 
 // Branch filter gate: checked before required variable validation so channels
 // not configured for the current branch can short-circuit cleanly.
-notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_JIRA_BRANCHES', ''), 'JIRA');
+notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_JIRA_BRANCHES', ''), 'JIRA', (string) getenv_default('VORTEX_NOTIFY_JIRA_BRANCH', 'VORTEX_NOTIFY_BRANCH', ''));
 
 // -----------------------------------------------------------------------------
 
@@ -169,15 +169,15 @@ $timestamp = date('d/m/Y H:i:s T');
 $comment_body = build_adf_comment($notify_project, $notify_label, $timestamp, $notify_env_url, $notify_login_url);
 
 NOTE('JIRA notification summary:');
-NOTE('Project        : ' . $notify_project);
-NOTE('Deployment     : ' . $notify_label);
-NOTE('Issue          : ' . $jira_issue);
-NOTE('Environment URL: ' . $notify_env_url);
-NOTE('Login URL      : ' . $notify_login_url);
-NOTE('Endpoint       : ' . $jira_endpoint);
-NOTE('User email     : ' . $jira_user_email);
-NOTE('Transition     : ' . ($jira_transition ?: '<none>'));
-NOTE('Assignee email : ' . ($jira_assignee_email ?: '<none>'));
+NOTE('Project        : %s', $notify_project);
+NOTE('Deployment     : %s', $notify_label);
+NOTE('Issue          : %s', $jira_issue);
+NOTE('Environment URL: %s', $notify_env_url);
+NOTE('Login URL      : %s', $notify_login_url);
+NOTE('Endpoint       : %s', $jira_endpoint);
+NOTE('User email     : %s', $jira_user_email);
+NOTE('Transition     : %s', ($jira_transition ?: '<none>'));
+NOTE('Assignee email : %s', ($jira_assignee_email ?: '<none>'));
 
 TASK('Posting a comment', fn(string $id): string => sprintf('Posted comment with ID %s.', $id), function () use ($token, $jira_endpoint, $jira_issue, $comment_body): string {
   $payload_data = ['body' => $comment_body];

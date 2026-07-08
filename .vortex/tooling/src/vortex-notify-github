@@ -23,7 +23,7 @@ require_once __DIR__ . '/helpers.php';
 
 // Branch filter gate: checked before required variable validation so channels
 // not configured for the current branch can short-circuit cleanly.
-notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_GITHUB_BRANCHES', ''), 'GitHub');
+notify_skip_unlisted_branch((string) getenv_default('VORTEX_NOTIFY_GITHUB_BRANCHES', ''), 'GitHub', (string) getenv_default('VORTEX_NOTIFY_GITHUB_BRANCH', 'VORTEX_NOTIFY_BRANCH', ''));
 
 // -----------------------------------------------------------------------------
 
@@ -77,10 +77,10 @@ function deployment_id_is_valid(mixed $deployment_id): bool {
 
 if ($notify_event === 'pre_deployment') {
   NOTE('GitHub pre-deployment notification summary:');
-  NOTE('Repository      : ' . $github_repository);
-  NOTE('Branch (ref)    : ' . $notify_branch);
-  NOTE('Environment Type: ' . $github_env_type);
-  NOTE('Event           : ' . $notify_event);
+  NOTE('Repository      : %s', $github_repository);
+  NOTE('Branch (ref)    : %s', $notify_branch);
+  NOTE('Environment Type: %s', $github_env_type);
+  NOTE('Event           : %s', $notify_event);
 
   TASK(
     'Creating deployment',
@@ -147,12 +147,12 @@ else {
   );
 
   NOTE('GitHub post-deployment notification summary:');
-  NOTE('Repository         : ' . $github_repository);
-  NOTE('Branch (ref)       : ' . $notify_branch);
-  NOTE('Environment Type   : ' . $github_env_type);
-  NOTE('Environment URL    : ' . $env_url);
-  NOTE('Deployment ID      : ' . $deployment_id);
-  NOTE('Event              : ' . $notify_event);
+  NOTE('Repository         : %s', $github_repository);
+  NOTE('Branch (ref)       : %s', $notify_branch);
+  NOTE('Environment Type   : %s', $github_env_type);
+  NOTE('Environment URL    : %s', $env_url);
+  NOTE('Deployment ID      : %s', $deployment_id);
+  NOTE('Event              : %s', $notify_event);
 
   TASK('Marking deployment as finished', 'Marked deployment as finished.', function () use ($github_repository, $deployment_id, $env_url, $github_token): void {
     $status_data = [

@@ -36,11 +36,11 @@ TASK('Calling the deployment webhook.', 'Webhook call completed.', function () u
   $response = request($deploy_webhook_url, ['method' => $deploy_webhook_method]);
 
   if (!$response['ok']) {
-    throw new \RuntimeException('Unable to complete webhook deployment.');
+    throw new \RuntimeException('Unable to call the deployment webhook.');
   }
 
   if ((string) $response['status'] !== $deploy_webhook_expected_status) {
-    throw new \RuntimeException('Unable to complete webhook deployment.');
+    throw new \RuntimeException(sprintf('Webhook returned unexpected status code %s (expected %s).', $response['status'], $deploy_webhook_expected_status));
   }
 });
 

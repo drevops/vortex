@@ -77,15 +77,15 @@ putenv('VORTEX_NOTIFY_ENVIRONMENT_URL=' . $env_url);
 putenv('VORTEX_NOTIFY_LOGIN_URL=' . $login_url);
 
 INFO('Notification summary:');
-NOTE('Project        : ' . $project);
-NOTE('Branch         : ' . $branch);
-NOTE('SHA            : ' . $sha);
-NOTE('PR Number      : ' . ($pr_number ?: '<none>'));
-NOTE('Label          : ' . $label);
-NOTE('Environment URL: ' . $env_url);
-NOTE('Login URL      : ' . $login_url);
-NOTE('Event          : ' . $event);
-NOTE('Channels       : ' . implode(',', $channels));
+NOTE('Project        : %s', $project);
+NOTE('Branch         : %s', $branch);
+NOTE('SHA            : %s', $sha);
+NOTE('PR Number      : %s', ($pr_number ?: '<none>'));
+NOTE('Label          : %s', $label);
+NOTE('Environment URL: %s', $env_url);
+NOTE('Login URL      : %s', $login_url);
+NOTE('Event          : %s', $event);
+NOTE('Channels       : %s', implode(',', $channels));
 
 foreach ($channels as $channel) {
   $script = __DIR__ . ('/vortex-notify-' . $channel);

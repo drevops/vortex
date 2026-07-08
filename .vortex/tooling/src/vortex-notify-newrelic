@@ -107,13 +107,13 @@ if (empty($newrelic_user_key)) {
 if (!$newrelic_revision) {
   if (!empty($notify_sha)) {
     $newrelic_revision = $notify_sha;
-    NOTE('Using SHA as revision: ' . $newrelic_revision);
+    NOTE('Using SHA as revision: %s', $newrelic_revision);
   }
   else {
     $revision_date = date('Ymd');
     $revision_time = date('His');
     $newrelic_revision = sprintf('%s-%s-%s', $notify_label, $revision_date, $revision_time);
-    NOTE('Auto-generated revision: ' . $newrelic_revision);
+    NOTE('Auto-generated revision: %s', $newrelic_revision);
   }
 }
 
@@ -159,14 +159,14 @@ $newrelic_description = replace_tokens($newrelic_description, [
 $newrelic_changelog = $newrelic_changelog ?: $newrelic_description;
 
 NOTE('New Relic notification summary:');
-NOTE('Project          : ' . $notify_project);
-NOTE('Deployment       : ' . $notify_label);
-NOTE('App Name         : ' . $newrelic_app_name);
-NOTE('App ID (resolved): ' . $newrelic_appid);
-NOTE('Revision         : ' . $newrelic_revision);
-NOTE('User             : ' . $newrelic_user);
-NOTE('Endpoint         : ' . $newrelic_endpoint);
-NOTE('Description      : ' . $newrelic_description);
+NOTE('Project          : %s', $notify_project);
+NOTE('Deployment       : %s', $notify_label);
+NOTE('App Name         : %s', $newrelic_app_name);
+NOTE('App ID (resolved): %s', $newrelic_appid);
+NOTE('Revision         : %s', $newrelic_revision);
+NOTE('User             : %s', $newrelic_user);
+NOTE('Endpoint         : %s', $newrelic_endpoint);
+NOTE('Description      : %s', $newrelic_description);
 
 $payload_data = [
   'deployment' => [

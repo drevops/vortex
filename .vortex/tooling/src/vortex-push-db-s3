@@ -49,7 +49,7 @@ $storage_class = getenv_default('VORTEX_PUSH_DB_S3_STORAGE_CLASS', 'STANDARD');
 
 $local_file = $db_dir . '/' . $db_file;
 if (!file_exists($local_file)) {
-  FAIL(sprintf('Database dump file %s does not exist.', $local_file));
+  FAIL('Database dump file %s does not exist.', $local_file);
 }
 
 INFO('Started database dump push to S3.');
@@ -62,14 +62,14 @@ if ($prefix !== '') {
 $uri = sprintf('/%s%s', $prefix, $remote_file);
 $object_url = sprintf('https://%s.s3.%s.amazonaws.com%s', $bucket, $region, $uri);
 
-NOTE(sprintf('Local file:     %s', $local_file));
-NOTE(sprintf('Remote file:    %s%s', $prefix, $remote_file));
-NOTE(sprintf('S3 bucket:      %s', $bucket));
-NOTE(sprintf('S3 region:      %s', $region));
+NOTE('Local file:     %s', $local_file);
+NOTE('Remote file:    %s%s', $prefix, $remote_file);
+NOTE('S3 bucket:      %s', $bucket);
+NOTE('S3 region:      %s', $region);
 if ($prefix !== '') {
-  NOTE(sprintf('S3 prefix:      %s', $prefix));
+  NOTE('S3 prefix:      %s', $prefix);
 }
-NOTE(sprintf('Storage class:  %s', $storage_class));
+NOTE('Storage class:  %s', $storage_class);
 
 TASK('Pushing the database dump to S3.', 'Pushed the database dump to S3.', function () use ($object_url, $bucket, $region, $uri, $access_key, $secret_key, $storage_class, $local_file): void {
   $headers = aws_s3_signed_headers('PUT', $bucket, $region, $uri, (string) hash_file('sha256', $local_file), $access_key, $secret_key, ['x-amz-server-side-encryption' => 'AES256', 'x-amz-storage-class' => $storage_class]);

@@ -35,7 +35,7 @@ $docker_config = getenv_default('VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG',
 
 $config_file = $docker_config . '/config.json';
 if (file_exists($config_file) && str_contains(file_get_contents($config_file), $registry)) {
-  NOTE('Already logged in to the registry "' . $registry . '".');
+  NOTE('Already logged in to the registry "%s".', $registry);
 }
 elseif (!empty($user) && !empty($pass)) {
   TASK('Logging in to registry "' . $registry . '".', 'Logged in to registry "' . $registry . '".', function () use ($pass, $user, $registry): void {

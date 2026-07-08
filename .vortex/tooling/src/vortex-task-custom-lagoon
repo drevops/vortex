@@ -45,7 +45,7 @@ $ssh_file = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE', getenv('HOME') 
 
 // -----------------------------------------------------------------------------
 
-INFO(sprintf('Started Lagoon task %s.', $task_name));
+INFO('Started Lagoon task %s.', $task_name);
 
 $lagoon_bin = lagoon_cli_resolve();
 
@@ -72,8 +72,10 @@ TASK(
   sprintf('Creating %s task: project %s, branch: %s.', $task_name, $lagoon_project, $branch),
   sprintf('Created %s task.', $task_name),
   function () use ($lagoon_bin, $ctx, $branch, $task_name, $command): void {
-    echo lagoon_exec($lagoon_bin, sprintf('run custom --environment %s --name %s --command %s', escapeshellarg($branch), escapeshellarg($task_name), escapeshellarg($command)), $ctx);
+    // Break the line first so the CLI output is not glued to the open task
+    // label.
+    echo PHP_EOL . lagoon_exec($lagoon_bin, sprintf('run custom --environment %s --name %s --command %s', escapeshellarg($branch), escapeshellarg($task_name), escapeshellarg($command)), $ctx);
   },
 );
 
-PASS(sprintf('Finished Lagoon task %s.', $task_name));
+PASS('Finished Lagoon task %s.', $task_name);
