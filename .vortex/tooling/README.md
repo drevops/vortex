@@ -16,6 +16,29 @@ composer require drevops/vortex-tooling
 Once installed, you run the shipped scripts as Composer binaries from
 `vendor/bin/vortex-<script-name>`.
 
+## Host requirements
+
+The scripts are PHP and use PHP internals wherever possible: HTTP requests go
+through the PHP `curl` extension, gzip archives are decompressed with the
+`zlib` stream wrapper, and file discovery, comparison and removal are native
+PHP. The remaining external commands are the tools whose job cannot be done
+in-process:
+
+- `docker` (with the `compose` plugin) - all container operations.
+- `git` - repository reset and artifact deployment.
+- `ssh-keygen`, `ssh-agent`, `ssh-add` - SSH key loading for deployments and
+  database downloads.
+- `unzip` - only when fetching a database dump from a `.zip` URL.
+- `pygmy`, `ahoy`, `lsof` - local development stack checks in `vortex-doctor`
+  (`lsof` is used only for the port check on macOS).
+- Hosting provider CLIs (`lagoon`, `acli`) - downloaded automatically when not
+  already installed on the host.
+
+Scripts that run inside the CLI container (`vortex-login`, `vortex-logout`,
+`vortex-info`, `vortex-provision`, database import/export) additionally rely on
+the project's `vendor/bin/drush` and the database client provided by the
+container image.
+
 ## Read-only mirror
 
 > [!IMPORTANT]
