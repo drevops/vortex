@@ -156,6 +156,32 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   /**
+   * Create a directory structure from a nested array definition.
+   *
+   * @param string $base_path
+   *   Directory to create the structure under.
+   * @param array $structure
+   *   Nested array where a string value is a file with that content and an
+   *   array value is a subdirectory.
+   */
+  protected function createDirectoryStructure(string $base_path, array $structure): void {
+    if (!is_dir($base_path)) {
+      mkdir($base_path, 0755, TRUE);
+    }
+
+    foreach ($structure as $name => $content) {
+      $path = $base_path . '/' . $name;
+      if (is_array($content)) {
+        mkdir($path, 0755, TRUE);
+        $this->createDirectoryStructure($path, $content);
+      }
+      else {
+        file_put_contents($path, $content);
+      }
+    }
+  }
+
+  /**
    * Path to the isolated Lagoon CLI config file used in command assertions.
    *
    * Mirrors lagoon_config_file(): the file lives under VORTEX_LAGOONCLI_PATH

@@ -149,23 +149,4 @@ class HelpersRemoveDirTest extends UnitTestCase {
     $this->assertDirectoryDoesNotExist($dir);
   }
 
-  protected function createDirectoryStructure(string $base_path, array $structure): void {
-    if (!is_dir($base_path)) {
-      mkdir($base_path, 0755, TRUE);
-    }
-
-    foreach ($structure as $name => $content) {
-      $path = $base_path . '/' . $name;
-      if (is_array($content)) {
-        // It's a directory.
-        mkdir($path, 0755, TRUE);
-        $this->createDirectoryStructure($path, $content);
-      }
-      else {
-        // It's a file.
-        file_put_contents($path, $content);
-      }
-    }
-  }
-
 }
