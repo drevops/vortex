@@ -52,9 +52,10 @@ class HelpersFormatterTest extends UnitTestCase {
     return [
       // Note - does not use term_supports_color, always plain output.
       'note' => ['note', NULL, "       Test message arg\n"],
-      // Task - blue (34m).
-      'task, no color' => ['task', FALSE, "[TASK] Test message arg\n"],
-      'task, with color' => ['task', TRUE, "\033[34m[TASK] Test message arg\033[0m\n"],
+      // Task - blue (34m). Announces only (no body), so the message is printed
+      // verbatim and the extra argument is the ignored done message.
+      'task, no color' => ['task', FALSE, "[TASK] Test message %s\n"],
+      'task, with color' => ['task', TRUE, "\033[34m[TASK] Test message %s\033[0m\n"],
       // Info - cyan (36m).
       'info, no color' => ['info', FALSE, "[INFO] Test message arg\n"],
       'info, with color' => ['info', TRUE, "\033[36m[INFO] Test message arg\033[0m\n"],
@@ -65,6 +66,64 @@ class HelpersFormatterTest extends UnitTestCase {
       'fail_no_exit, no color' => ['fail_no_exit', FALSE, "[FAIL] Test message arg\n"],
       'fail_no_exit, with color' => ['fail_no_exit', TRUE, "\033[31m[FAIL] Test message arg\033[0m\n"],
     ];
+  }
+
+  public function testTaskBodySuccess(): void {
+    $this->envSet('TERM', 'dumb');
+
+    require_once __DIR__ . '/../../src/helpers.php';
+
+    // A string done message reports [ OK ] verbatim and returns the body value.
+    ob_start();
+    $result = \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', fn(): string => 'value');
+    $output = ob_get_clean();
+
+    $this->assertSame('value', $result);
+    $this->assertEquals("[TASK] Doing the thing.\n[ OK ] Did the thing.\n", $output);
+
+    // A closure done receives the body's return value to build the message.
+    ob_start();
+    $result = \DrevOps\VortexTooling\task('Doing the thing.', fn(string $value): string => sprintf('Did the thing with %s.', $value), fn(): string => 'value');
+    $output = ob_get_clean();
+
+    $this->assertSame('value', $result);
+    $this->assertEquals("[TASK] Doing the thing.\n[ OK ] Did the thing with value.\n", $output);
+  }
+
+  public function testTaskBodyNonFatalFailure(): void {
+    $this->envSet('TERM', 'dumb');
+
+    require_once __DIR__ . '/../../src/helpers.php';
+
+    ob_start();
+    $result = \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', function (): void {
+      throw new \RuntimeException('Something went wrong.');
+    }, fatal: FALSE);
+    $output = ob_get_clean();
+
+    $this->assertNull($result);
+    $this->assertEquals("[TASK] Doing the thing.\n[FAIL] Something went wrong.\n", $output);
+  }
+
+  public function testTaskBodyFatalFailure(): void {
+    $this->envSet('TERM', 'dumb');
+    $this->mockQuit(1);
+
+    require_once __DIR__ . '/../../src/helpers.php';
+
+    $this->expectException(QuitErrorException::class);
+    $this->expectExceptionCode(1);
+
+    try {
+      ob_start();
+      \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', function (): void {
+        throw new \RuntimeException('Something went wrong.');
+      });
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertEquals("[TASK] Doing the thing.\n[FAIL] Something went wrong.\n", $output);
+    }
   }
 
   #[DataProvider('dataProviderFail')]

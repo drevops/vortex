@@ -176,17 +176,68 @@ function note(string $format, ...$args): void {
 }
 
 /**
- * Output a task message.
+ * Announce a task, or run its body and report the outcome.
  *
- * @param string $format
- *   Format string for sprintf().
- * @param bool|float|int|string|null ...$args
- *   Arguments for sprintf().
+ * With only a message, announces the task - a caller then follows with its own
+ * pass()/fail(). With a done message and a body, it runs the body under a live
+ * [TASK] line (the body may emit progress dots via progress_dot()/
+ * sleep_progress() while it works), then reports [ OK ] with the done message.
+ * The body signals failure by throwing: the thrown message is reported as
+ * [FAIL]. A fatal task then exits the script; a non-fatal one returns NULL so a
+ * best-effort loop can carry on to its next item. This keeps each task's
+ * intent, work and outcome in one place and guarantees every task ends with a
+ * status.
+ *
+ * @param string $doing
+ *   The present-tense task message, e.g. 'Downloading the backup.'.
+ * @param string|\Closure|null $done
+ *   The success message reported when a body completes. A closure receives the
+ *   body's return value and produces the message, for outcomes known only once
+ *   the work is done.
+ * @param callable|null $body
+ *   The work to perform; throw to fail the task with the thrown message.
+ * @param bool $fatal
+ *   Whether a thrown failure exits the script. TRUE (default) reports [FAIL]
+ *   and exits; FALSE reports [FAIL] and returns NULL so the caller continues.
+ *
+ * @return mixed
+ *   Whatever the body returns, or NULL when announcing only or when a non-fatal
+ *   body fails.
  */
-function task(string $format, ...$args): void {
-  echo term_supports_color() ?
-    "\033[34m[TASK] " . sprintf($format, ...$args) . "\033[0m\n" :
-    sprintf('[TASK] %s%s', sprintf($format, ...$args), PHP_EOL);
+function task(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
+  $color = term_supports_color();
+
+  if ($body === NULL) {
+    echo $color ? "\033[34m[TASK] " . $doing . "\033[0m" . PHP_EOL : '[TASK] ' . $doing . PHP_EOL;
+
+    return NULL;
+  }
+
+  echo $color ? "\033[34m[TASK] " . $doing : '[TASK] ' . $doing;
+
+  try {
+    $result = $body();
+    echo ($color ? "\033[0m" : '') . PHP_EOL;
+    pass('%s', $done instanceof \Closure ? (string) $done($result) : (string) $done);
+
+    return $result;
+  }
+  catch (\Throwable $e) {
+    echo ($color ? "\033[0m" : '') . PHP_EOL;
+
+    if (!$fatal) {
+      fail_no_exit('%s', $e->getMessage());
+
+      return NULL;
+    }
+
+    fail('%s', $e->getMessage());
+  }
+
+  // @codeCoverageIgnoreStart
+  // Unreachable: fail() above terminates the script.
+  return NULL;
+  // @codeCoverageIgnoreEnd
 }
 
 /**
@@ -229,6 +280,33 @@ function fail_no_exit(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[31m[FAIL] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[FAIL] %s%s', sprintf($format, ...$args), PHP_EOL);
+}
+
+/**
+ * Emit a single progress dot for a long-running task and flush it immediately.
+ *
+ * Flushing matters during a blocking transfer so the dots appear as the work
+ * happens rather than all at once when the call returns.
+ */
+function progress_dot(): void {
+  echo '.';
+  flush();
+}
+
+/**
+ * Sleep for a number of seconds, emitting a progress dot every second.
+ *
+ * Use inside a task() body so a fixed wait or a status-poll interval keeps the
+ * task line ticking rather than appearing to hang.
+ *
+ * @param int $seconds
+ *   The number of seconds to wait.
+ */
+function sleep_progress(int $seconds): void {
+  for ($second = 0; $second < $seconds; $second++) {
+    sleep(1);
+    progress_dot();
+  }
 }
 
 /**
@@ -395,7 +473,7 @@ function lagoon_cli_resolve(): string {
   $base = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s', $version);
   $asset = sprintf('lagoon-cli-%s-%s-%s', $version, $platform, $arch);
 
-  task('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin);
+  task(sprintf('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin));
   $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
   if (!$response['ok']) {
     @unlink($bin);
@@ -544,6 +622,161 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
 
   if (!$exit_code_provided && $exit_code !== 0) {
     fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+  }
+
+  return $output === FALSE ? '' : $output;
+}
+
+/**
+ * Resolve the Acquia CLI binary, installing it on demand.
+ *
+ * Prefers an 'acli' already available on PATH. Otherwise reuses a phar
+ * previously downloaded to the cache directory, or downloads it there once.
+ * This lets the same scripts run where acli is not pre-installed, without
+ * re-downloading on every invocation. The Acquia CLI ships as a
+ * platform-independent PHP phar, so there is no per-architecture asset.
+ *
+ * @return string
+ *   Path to the Acquia CLI binary.
+ */
+function acli_resolve(): string {
+  if (command_path('acli')) {
+    note('Using the Acquia CLI found on PATH.');
+    return 'acli';
+  }
+
+  $dir = (string) getenv_default('VORTEX_ACLI_PATH', '.artifacts/tmp');
+  $version = getenv_default('VORTEX_ACLI_VERSION', '2.61.3');
+  $bin = $dir . '/acli';
+
+  if (is_executable($bin)) {
+    note('Reusing the Acquia CLI previously downloaded to "%s".', $bin);
+    return $bin;
+  }
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, TRUE);
+  }
+
+  $url = sprintf('https://github.com/acquia/cli/releases/download/%s/acli.phar', $version);
+
+  task(sprintf('Downloading the Acquia CLI "%s" to "%s".', $version, $bin));
+  $response = request($url, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
+  if (!$response['ok']) {
+    @unlink($bin);
+    fail('Failed to download the Acquia CLI from "%s": %s', $url, $response['error'] ?? 'Unknown error');
+  }
+
+  chmod($bin, 0755);
+
+  return $bin;
+}
+
+/**
+ * Path to an ephemeral Acquia CLI home directory scoped to a single run.
+ *
+ * Pointing 'ACLI_HOME' at a throwaway directory keeps acli's credentials,
+ * cached tokens and active-environment state out of a developer's global
+ * '~/.acquia' configuration. The directory name is suffixed with the process
+ * ID so concurrent runs sharing the cache directory do not clash.
+ *
+ * @return string
+ *   Path to the home directory; any stale copy is cleared and it is recreated.
+ */
+function acli_home(): string {
+  $dir = (string) getenv_default('VORTEX_ACLI_PATH', '.artifacts/tmp');
+  $home = $dir . '/acli-home-' . getmypid();
+
+  // A home left behind by a crashed run that reused this PID would hand acli
+  // stale cached credentials; clear it so every run starts from a clean home.
+  acli_home_remove($home);
+  mkdir($home, 0755, TRUE);
+
+  // The isolated home caches acli's token and state; remove it when the run
+  // ends so no credentials linger on disk afterwards.
+  register_shutdown_function(static function () use ($home): void {
+    // @codeCoverageIgnoreStart
+    acli_home_remove($home);
+    // @codeCoverageIgnoreEnd
+  });
+
+  return $home;
+}
+
+/**
+ * Recursively remove an isolated Acquia CLI home directory.
+ *
+ * @param string $home
+ *   Path to the directory to remove; a no-op when it does not exist.
+ */
+function acli_home_remove(string $home): void {
+  if (!is_dir($home)) {
+    return;
+  }
+
+  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($home, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+  foreach ($items as $item) {
+    // @codeCoverageIgnoreStart
+    if (!$item instanceof \SplFileInfo) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+
+    if ($item->isDir()) {
+      rmdir($item->getPathname());
+    }
+    else {
+      unlink($item->getPathname());
+    }
+  }
+
+  rmdir($home);
+}
+
+/**
+ * Run an Acquia CLI subcommand and capture its output.
+ *
+ * The isolated home directory and API credentials are threaded from the context
+ * so acli authenticates headlessly without touching the global '~/.acquia'
+ * configuration; command-specific arguments are provided by the caller in the
+ * subcommand.
+ *
+ * @param string $bin
+ *   The Acquia CLI binary.
+ * @param string $subcommand
+ *   The subcommand with its command-specific arguments.
+ * @param array{home: string, key: string, secret: string} $ctx
+ *   Execution context: the isolated ACLI_HOME and the API key and secret.
+ * @param int|null $exit_code
+ *   (optional) Variable to capture the exit code. Pass an initialised variable
+ *   (e.g. `$exit_code = 0`) to suppress the automatic fail() on non-zero exit.
+ *
+ * @param-out int $exit_code
+ *
+ * @return string
+ *   The captured command output.
+ */
+function acli_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code = NULL): string {
+  // Pass credentials through the process environment rather than the command
+  // line, so they are never exposed in the process list (e.g. `ps`).
+  putenv('ACLI_HOME=' . $ctx['home']);
+  putenv('ACLI_KEY=' . $ctx['key']);
+  putenv('ACLI_SECRET=' . $ctx['secret']);
+  putenv('ACLI_NO_TELEMETRY=1');
+
+  $cmd = sprintf('%s %s --no-interaction 2>&1', escapeshellarg($bin), $subcommand);
+
+  $exit_code_provided = $exit_code !== NULL;
+  if (!$exit_code_provided) {
+    $exit_code = 0;
+  }
+
+  ob_start();
+  passthru($cmd, $exit_code);
+  $output = ob_get_clean();
+
+  if (!$exit_code_provided && $exit_code !== 0) {
+    fail('Acquia CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
   }
 
   return $output === FALSE ? '' : $output;
@@ -817,6 +1050,26 @@ function request(string $url, array $options = []): array {
       }
       $opts[CURLOPT_FILE] = $save_fh;
       unset($opts[CURLOPT_RETURNTRANSFER]);
+    }
+
+    // Report transfer progress to the caller's callback about once a second.
+    // The callback owns any output; request() stays output-agnostic.
+    if (isset($options['on_progress']) && is_callable($options['on_progress'])) {
+      $on_progress = $options['on_progress'];
+      $opts[CURLOPT_NOPROGRESS] = FALSE;
+      $opts[CURLOPT_XFERINFOFUNCTION] = static function (mixed $ch, int $dltotal, int $dlnow, int $ultotal, int $ulnow) use ($on_progress): int {
+        // @codeCoverageIgnoreStart
+        static $last = 0;
+        $now = time();
+
+        if ($dlnow > 0 && $now !== $last) {
+          $on_progress();
+          $last = $now;
+        }
+
+        return 0;
+        // @codeCoverageIgnoreEnd
+      };
     }
 
     curl_setopt_array($ch, $opts);

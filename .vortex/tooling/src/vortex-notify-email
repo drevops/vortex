@@ -166,49 +166,56 @@ if (!empty($email_bcc)) {
 note('Subject        : ' . $email_subject);
 note('Content        : ' . $email_message);
 
-task('Sending email notification');
+task(
+  'Sending email notification',
+  function (array $sent): string {
+    if (!empty($sent)) {
+      return sprintf('Email notification sent successfully to %d recipient(s).', count($sent));
+    }
 
-// Parse recipients.
-$to_list = parse_email_recipients($email_recipients);
-$cc_list = parse_email_recipients($email_cc);
-$bcc_list = parse_email_recipients($email_bcc);
+    // @codeCoverageIgnoreStart
+    return 'No notification emails were sent.';
+    // @codeCoverageIgnoreEnd
+  },
+  function () use ($email_recipients, $email_cc, $email_bcc, $email_from, $email_subject, $email_message): array {
+    // Parse recipients.
+    $to_list = parse_email_recipients($email_recipients);
+    $cc_list = parse_email_recipients($email_cc);
+    $bcc_list = parse_email_recipients($email_bcc);
 
-// Build headers once. The CC and BCC headers must appear a single time on the
-// one outgoing message; adding them per TO recipient would deliver a duplicate
-// copy to every CC and BCC address for each TO recipient.
-$headers = [
-  'From: ' . $email_from,
-  'Content-Type: text/plain; charset=UTF-8',
-];
+    // Build headers once. The CC and BCC headers must appear only once on the
+    // one outgoing message; adding them per TO recipient would deliver a
+    // duplicate copy to every CC and BCC address for each TO recipient.
+    $headers = [
+      'From: ' . $email_from,
+      'Content-Type: text/plain; charset=UTF-8',
+    ];
 
-// Add CC header if there are CC recipients.
-if (!empty($cc_list)) {
-  $headers[] = 'Cc: ' . implode(', ', $cc_list);
-}
+    // Add CC header if there are CC recipients.
+    if (!empty($cc_list)) {
+      $headers[] = 'Cc: ' . implode(', ', $cc_list);
+    }
 
-// Add BCC header if there are BCC recipients.
-if (!empty($bcc_list)) {
-  $headers[] = 'Bcc: ' . implode(', ', $bcc_list);
-}
+    // Add BCC header if there are BCC recipients.
+    if (!empty($bcc_list)) {
+      $headers[] = 'Bcc: ' . implode(', ', $bcc_list);
+    }
 
-// Send a single message addressed to all TO recipients at once.
-$to_combined = implode(', ', $to_list);
+    // Send a single message addressed to all TO recipients at once.
+    $to_combined = implode(', ', $to_list);
 
-$sent = [];
-if (mail($to_combined, $email_subject, $email_message, $headers)) {
-  foreach ($to_list as $to) {
-    // Extract just the email address from formatted string for tracking.
-    $sent[] = preg_match('/<(.+?)>/', $to, $matches) ? $matches[1] : $to;
-  }
-}
+    if (!mail($to_combined, $email_subject, $email_message, $headers)) {
+      throw new \RuntimeException('Failed to send email notification via mail().');
+    }
 
-if (!empty($sent)) {
-  pass('Email notification sent successfully to %d recipient(s).', count($sent));
-}
-else {
-  // @codeCoverageIgnoreStart
-  pass('No notification emails were sent.');
-  // @codeCoverageIgnoreEnd
-}
+    $sent = [];
+    foreach ($to_list as $to) {
+      // Extract just the email address from formatted string for tracking.
+      $sent[] = preg_match('/<(.+?)>/', $to, $matches) ? $matches[1] : $to;
+    }
+
+    return $sent;
+  },
+);
 
 info('Finished email notification.');

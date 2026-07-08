@@ -181,8 +181,6 @@ note('User             : ' . $newrelic_user);
 note('Endpoint         : ' . $newrelic_endpoint);
 note('Description      : ' . $newrelic_description);
 
-task('Creating a deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid);
-
 $payload_data = [
   'deployment' => [
     'revision' => $newrelic_revision,
@@ -193,15 +191,20 @@ $payload_data = [
 ];
 
 $url = sprintf('%s/applications/%s/deployments.json', $newrelic_endpoint, $newrelic_appid);
-$response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
-  'Api-Key: ' . $newrelic_user_key,
-  'Content-Type: application/json',
-]);
 
-if ($response['status'] !== 201) {
-  fail('Failed to create a deployment notification for application %s with ID %s', $newrelic_app_name, $newrelic_appid);
-}
+task(
+  sprintf('Creating a deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid),
+  sprintf('Created deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid),
+  function () use ($url, $payload_data, $newrelic_user_key, $newrelic_app_name, $newrelic_appid): void {
+    $response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
+      'Api-Key: ' . $newrelic_user_key,
+      'Content-Type: application/json',
+    ]);
 
-pass('Created deployment notification for application %s with ID %s.', $newrelic_app_name, $newrelic_appid);
+    if ($response['status'] !== 201) {
+      throw new \RuntimeException(sprintf('Failed to create a deployment notification for application %s with ID %s', $newrelic_app_name, $newrelic_appid));
+    }
+  },
+);
 
 info('Finished New Relic notification.');

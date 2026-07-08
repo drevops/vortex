@@ -86,6 +86,29 @@ or CI builds:
 ahoy fetch-db
 ```
 
+This wraps the provider-native [Acquia CLI](https://github.com/acquia/cli). If an
+`acli` binary is already on your `PATH`, **Vortex** uses it as-is. Otherwise it
+downloads a pinned release into a cache directory (`.artifacts/tmp` by default,
+overridable with `VORTEX_ACLI_PATH`) and reuses that copy on later runs, so
+nothing needs to be pre-installed.
+
+Authentication uses your Acquia Cloud API key and secret from `.env` and
+`.env.local`. They are passed to the CLI for a single run against an isolated
+home directory rather than your global `~/.acquia` configuration, so any Acquia
+credentials you already have locally are left untouched.
+
+The source application is auto-discovered from those credentials. When they
+expose more than one application, set `VORTEX_FETCH_DB_ACQUIA_APP_NAME` to pick
+one - it matches an application by its name, hosting id (for example
+`prod:<name>`), machine name or uuid.
+
+By default the latest existing backup is downloaded. Force a new backup and wait
+for it to complete with:
+
+```shell
+ahoy fetch-db --fresh
+```
+
 ### Run a hosting task
 
 Copying databases or files between environments and purging the edge cache run
