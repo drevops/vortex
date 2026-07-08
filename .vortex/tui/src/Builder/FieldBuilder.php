@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Builder;
 
+use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Config\Option;
+use DrevOps\Tui\Derive\Derive;
+use DrevOps\Tui\Discovery\DiscoverInterface;
 
 /**
  * A fluent builder for a single Field.
@@ -43,25 +46,29 @@ final class FieldBuilder {
   protected bool $required = FALSE;
 
   /**
-   * The raw conditional-visibility rule.
-   *
-   * @var array<array-key,mixed>|null
+   * The conditional-visibility rule.
    */
-  protected ?array $when = NULL;
+  protected ?ConditionInterface $when = NULL;
 
   /**
-   * The raw derive rule.
-   *
-   * @var array<array-key,mixed>|null
+   * The derive rule.
    */
-  protected ?array $derive = NULL;
+  protected ?Derive $derive = NULL;
 
   /**
-   * The raw discovery rule.
-   *
-   * @var array<array-key,mixed>|null
+   * The discovery rule, or a custom detector closure.
    */
-  protected ?array $discover = NULL;
+  protected DiscoverInterface|\Closure|null $discover = NULL;
+
+  /**
+   * The declared validator.
+   */
+  protected ?\Closure $validate = NULL;
+
+  /**
+   * The declared transformer.
+   */
+  protected ?\Closure $transform = NULL;
 
   /**
    * The processing weight.
@@ -100,7 +107,8 @@ final class FieldBuilder {
    * Set the default value.
    *
    * @param mixed $default
-   *   The default value.
+   *   The default value, or a `fn (Context): mixed` closure computing a
+   *   dynamic default from the run context.
    *
    * @return $this
    *   The builder.
@@ -145,14 +153,14 @@ final class FieldBuilder {
   /**
    * Set the conditional-visibility rule.
    *
-   * @param array<array-key,mixed> $rule
-   *   The raw rule, evaluated by the engine.
+   * @param \DrevOps\Tui\Condition\ConditionInterface $condition
+   *   The condition gating the field, evaluated by the engine.
    *
    * @return $this
    *   The builder.
    */
-  public function when(array $rule): self {
-    $this->when = $rule;
+  public function when(ConditionInterface $condition): self {
+    $this->when = $condition;
 
     return $this;
   }
@@ -160,14 +168,14 @@ final class FieldBuilder {
   /**
    * Set the derive rule.
    *
-   * @param array<array-key,mixed> $rule
-   *   The raw rule (template + transform), evaluated by the engine.
+   * @param \DrevOps\Tui\Derive\Derive $derive
+   *   The derive rule, evaluated by the engine.
    *
    * @return $this
    *   The builder.
    */
-  public function derive(array $rule): self {
-    $this->derive = $rule;
+  public function derive(Derive $derive): self {
+    $this->derive = $derive;
 
     return $this;
   }
@@ -175,14 +183,47 @@ final class FieldBuilder {
   /**
    * Set the discovery rule.
    *
-   * @param array<array-key,mixed> $rule
-   *   The raw rule, evaluated by the engine in update mode.
+   * @param \DrevOps\Tui\Discovery\DiscoverInterface|\Closure $discover
+   *   The discovery rule - or a custom `fn (Context): mixed` detector -
+   *   evaluated by the engine in update mode.
    *
    * @return $this
    *   The builder.
    */
-  public function discover(array $rule): self {
-    $this->discover = $rule;
+  public function discover(DiscoverInterface|\Closure $discover): self {
+    $this->discover = $discover;
+
+    return $this;
+  }
+
+  /**
+   * Set the declared validator.
+   *
+   * @param \Closure $validator
+   *   The validator `fn (mixed $value): ?string` returning an error message,
+   *   or NULL when the value is valid.
+   *
+   * @return $this
+   *   The builder.
+   */
+  public function validate(\Closure $validator): self {
+    $this->validate = $validator;
+
+    return $this;
+  }
+
+  /**
+   * Set the declared transformer.
+   *
+   * @param \Closure $transformer
+   *   The transformer `fn (mixed $value): mixed` normalizing an accepted
+   *   value.
+   *
+   * @return $this
+   *   The builder.
+   */
+  public function transform(\Closure $transformer): self {
+    $this->transform = $transformer;
 
     return $this;
   }
@@ -241,6 +282,8 @@ final class FieldBuilder {
       $this->when,
       $this->derive,
       $this->discover,
+      $this->validate,
+      $this->transform,
       $this->weight,
     );
   }

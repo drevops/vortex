@@ -31,7 +31,7 @@ It powers the [Vortex](https://www.vortextemplate.com) project installer, but kn
 - **Derived values** - compute one field from others with [str2name](https://github.com/AlexSkrypnyk/str2name) transforms; chains settle to a fixpoint.
 - **Conditional fields** - show or hide fields with `when` rules; a fix-up pass reconciles dependent answers.
 - **Discovery** - detect sensible defaults from the target directory (`.env` keys, JSON paths, path existence, directory scans).
-- **Handlers** - attach validation, transforms and dynamic defaults by dropping in a class named after the field id.
+- **Declared behaviour** - validation, transforms and dynamic defaults as closures on the field; per-field handler classes remain as a fallback.
 - **Themeable** - the whole visual representation (colours, glyphs, layout) is a theme class; ships with dark and light, and a form can name a custom theme class directly.
 
 ## Installation
@@ -66,11 +66,13 @@ It also exposes `schema()`, `agentHelp()` and `validate()`, and - when you want 
 
 ## Configuration
 
-A form is a tree of panels, each holding fields, built fluently:
+A form is a tree of panels, each holding fields, built fluently. Rules are named-argument spec objects, so the IDE completes them and a typo fails at declaration time:
 
 ```php
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Derive\Derive;
 
 $form = Form::create('My form')
   ->panel('general', 'General', function (PanelBuilder $p): void {
@@ -78,53 +80,39 @@ $form = Form::create('My form')
     $p->text('name', 'Project name')->required();
 
     // Compute one field from others.
-    $p->text('machine_name', 'Machine name')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+    $p->text('machine_name', 'Machine name')->derive(new Derive('{{name}}', transform: 'machine'));
 
     $p->select('profile', 'Profile')
       ->default('standard')
       ->options(['standard' => 'Standard', 'custom' => 'Custom']);
 
-    // Shown only when the condition holds.
-    $p->text('profile_custom', 'Custom profile')->when(['field' => 'profile', 'eq' => 'custom']);
+    // Shown only when the condition holds; compose with Condition::all()/any()/not().
+    $p->text('profile_custom', 'Custom profile')->when(new Condition('profile', eq: 'custom'));
   });
 ```
 
-Each field builder chains `->description()`, `->default()`, `->required()`, `->options()`, `->when()` (conditional visibility), `->derive()` (computed value) and `->discover()` (detect from the directory). A `derive` transform is any str2name conversion (`machine`, `kebab`, `pascal`, ...) plus `host`, `lower`, `upper` and `initials`.
+Each field builder chains `->description()`, `->default()`, `->required()`, `->options()`, `->when(new Condition(...))` (conditional visibility, operators `eq` / `ne` / `in` / `contains`), `->derive(new Derive(...))` (computed value) and `->discover(...)` (detect from the directory via `new Dotenv('KEY')`, `new JsonValue('composer.json', 'name')`, `new PathExists('path')`, `new Scan('dir', type: 'dir')`, or a custom `fn (Context $c): mixed` closure). A `Derive` transform is any str2name conversion (`machine`, `kebab`, `pascal`, ...) plus `host`, `lower`, `upper` and `initials` - an unknown name throws when the form is declared.
 
 Form-level methods tune the interactive TUI: `->theme()` names a theme (see [Themes](#themes)), `->banner()` sets a start banner, and the panel shows **Submit** and **Cancel** buttons by default - `->buttons(FALSE)` hides them.
 
 Headless collection also reads per-question environment overrides named `<PREFIX><FIELD_ID>` (the uppercased field id). `->envPrefix('MYAPP_')` declares that namespace on the form, a `new Tui($config, [], 'MYAPP_')` constructor argument overrides it, and without either the prefix is `TUI_`.
 
-## Handlers
+## Field behaviour
 
-A field needs a handler only when it requires behaviour beyond a static value. Handlers are auto-discovered: field id `machine_name` resolves to class `MachineName` in a registered namespace. A handler contributes to **collection** - a dynamic default, discovery, validation and a value transform:
+Behaviour beyond a static value is declared on the field itself - a dynamic default, validation and a value transform as closures, right in the form:
 
 ```php
-namespace App\Handler;
-
-use DrevOps\Tui\Config\Field;
-use DrevOps\Tui\Handler\AbstractHandler;
 use DrevOps\Tui\Handler\Context;
 
-class Name extends AbstractHandler {
-
-  public function default(Field $field, Context $context): mixed {
-    // A dynamic default, computed from the run context.
-    return basename($context->directory);
-  }
-
-  public function validate(Field $field, mixed $value): ?string {
-    return is_string($value) && trim($value) !== '' ? NULL : 'A name is required.';
-  }
-
-  public function transform(Field $field, mixed $value): mixed {
-    return is_string($value) ? trim($value) : $value;
-  }
-
-}
+$p->text('name', 'Project name')
+  ->default(fn (Context $c): string => basename($c->directory))
+  ->validate(fn (mixed $v): ?string => is_string($v) && trim($v) !== '' ? NULL : 'A name is required.')
+  ->transform(fn (mixed $v): mixed => is_string($v) ? trim($v) : $v);
 ```
 
-The TUI only collects: it presents answers and never applies them. **Applying answers - writing files, renaming directories - is the consumer's job.** A consumer that also processes answers defines its own handler interface extending this one to add a `process()` step, so a single handler class carries both a field's collection behaviour and its side effects (this is exactly what the Vortex CLI does).
+For consumers who prefer per-field classes, a handler auto-discovered by field id (`machine_name` resolves to `MachineName` in a registered namespace, extending `AbstractHandler`) provides the same four hooks - `default()`, `discover()`, `validate()`, `transform()` - as a fallback; the field declaration wins when both exist.
+
+The TUI only collects: it presents answers and never applies them. **Applying answers - writing files, renaming directories - is the consumer's job.** A consumer that processes answers defines its own handler interface adding a `process()` step, keeping the form for collection and the processors for side effects (this is exactly what the Vortex CLI does).
 
 ## Themes
 

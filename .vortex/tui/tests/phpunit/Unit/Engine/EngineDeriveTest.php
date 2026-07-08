@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Tests\Unit\Engine;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -62,8 +63,8 @@ final class EngineDeriveTest extends TestCase {
     $config = Form::create('T')
       ->panel('p', 'p', function (PanelBuilder $p): void {
         $p->text('name')->default('');
-        $p->text('machine')->default('')->derive(['template' => '{{name}}', 'transform' => 'machine']);
-        $p->text('domain')->default('')->derive(['template' => '{{machine}}.com', 'transform' => 'host']);
+        $p->text('machine')->default('')->derive(new Derive('{{name}}', 'machine'));
+        $p->text('domain')->default('')->derive(new Derive('{{machine}}.com', 'host'));
       })
       ->build();
 

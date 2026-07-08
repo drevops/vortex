@@ -6,6 +6,9 @@ namespace DrevOps\Tui\Tests\Unit\Engine;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Derive\Derive;
+use DrevOps\Tui\Discovery\Dotenv;
+use DrevOps\Tui\Discovery\JsonValue;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -37,8 +40,8 @@ final class EngineDiscoveryTest extends TestCase {
 
   public function testDetectsInUpdateMode(): void {
     $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('profile')->default('standard')->discover(['dotenv' => 'DRUPAL_PROFILE']);
-      $p->text('name')->default('')->discover(['json' => ['file' => 'composer.json', 'path' => 'name']]);
+      $p->text('profile')->default('standard')->discover(new Dotenv('DRUPAL_PROFILE'));
+      $p->text('name')->default('')->discover(new JsonValue('composer.json', 'name'));
     });
 
     $answers = $engine->collect([], new Context($this->dir, [], TRUE));
@@ -51,7 +54,7 @@ final class EngineDiscoveryTest extends TestCase {
 
   public function testFreshInstallDiscoversNothing(): void {
     $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('profile')->default('standard')->discover(['dotenv' => 'DRUPAL_PROFILE']);
+      $p->text('profile')->default('standard')->discover(new Dotenv('DRUPAL_PROFILE'));
     });
 
     $answers = $engine->collect([], new Context($this->dir, [], FALSE));
@@ -62,7 +65,7 @@ final class EngineDiscoveryTest extends TestCase {
 
   public function testInputWinsOverDetected(): void {
     $engine = $this->engine(function (PanelBuilder $p): void {
-      $p->text('profile')->default('standard')->discover(['dotenv' => 'DRUPAL_PROFILE']);
+      $p->text('profile')->default('standard')->discover(new Dotenv('DRUPAL_PROFILE'));
     });
 
     $answers = $engine->collect(['profile' => 'demo'], new Context($this->dir, [], TRUE));
@@ -74,7 +77,7 @@ final class EngineDiscoveryTest extends TestCase {
   public function testDetectedWinsOverDerived(): void {
     $engine = $this->engine(function (PanelBuilder $p): void {
       $p->text('src')->default('seed');
-      $p->text('profile')->default('')->derive(['template' => '{{src}}'])->discover(['dotenv' => 'PROFILE']);
+      $p->text('profile')->default('')->derive(new Derive('{{src}}'))->discover(new Dotenv('PROFILE'));
     });
 
     $answers = $engine->collect([], new Context($this->dir, [], TRUE));

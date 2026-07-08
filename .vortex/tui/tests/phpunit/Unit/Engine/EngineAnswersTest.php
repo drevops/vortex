@@ -6,6 +6,8 @@ namespace DrevOps\Tui\Tests\Unit\Engine;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -25,8 +27,8 @@ final class EngineAnswersTest extends TestCase {
     $config = Form::create('T')
       ->panel('p', 'p', function (PanelBuilder $p): void {
         $p->text('name')->default('');
-        $p->text('machine')->default('')->derive(['template' => '{{name}}', 'transform' => 'machine']);
-        $p->text('gone')->default('x')->when(['field' => 'name', 'eq' => 'never']);
+        $p->text('machine')->default('')->derive(new Derive('{{name}}', 'machine'));
+        $p->text('gone')->default('x')->when(new Condition('name', eq: 'never'));
       })
       ->build();
     $engine = new Engine($config, new HandlerRegistry());

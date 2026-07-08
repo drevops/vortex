@@ -25,10 +25,11 @@ package "Core" #FFF3E0 {
 
 package "Resolution" #E8F5E9 {
   [InputResolver]
-  [Discovery]
+  [Discover specs]
   [Deriver]
+  [Derive]
   [Transform]
-  [ConditionEvaluator]
+  [Condition]
 }
 
 package "Handlers" #F3E5F5 {
@@ -60,10 +61,11 @@ package "Interactive TUI" #FFEBEE {
 
 [Engine] --> [Config]
 [Engine] --> [InputResolver]
-[Engine] --> [Discovery]
+[Engine] --> [Discover specs]
 [Engine] --> [Deriver]
-[Deriver] --> [Transform]
-[Engine] --> [ConditionEvaluator]
+[Deriver] --> [Derive]
+[Derive] --> [Transform]
+[Engine] --> [Condition]
 [Engine] --> [HandlerRegistry]
 [HandlerRegistry] --> HandlerInterface
 [AbstractHandler] ..|> HandlerInterface

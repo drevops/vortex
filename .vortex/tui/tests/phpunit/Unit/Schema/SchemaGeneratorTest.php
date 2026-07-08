@@ -6,6 +6,8 @@ namespace DrevOps\Tui\Tests\Unit\Schema;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Schema\SchemaGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -23,7 +25,7 @@ final class SchemaGeneratorTest extends TestCase {
       ->panel('p', 'p', function (PanelBuilder $p): void {
         $profile = $p->select('profile', 'Profile')->description('The profile')->default('standard')->required();
         $profile->option('standard', 'Standard', 'Std')->option('minimal', 'Minimal');
-        $p->text('theme')->derive(['template' => '{{profile}}'])->when(['field' => 'profile', 'eq' => 'standard']);
+        $p->text('theme')->derive(new Derive('{{profile}}'))->when(new Condition('profile', eq: 'standard'));
       })
       ->build();
 
@@ -69,7 +71,7 @@ final class SchemaGeneratorTest extends TestCase {
       ->panel('p', 'p', function (PanelBuilder $p): void {
         $p->text('a');
         $p->text('b');
-        $p->text('c')->when(['all' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]]);
+        $p->text('c')->when(Condition::all(new Condition('a', eq: 'x'), new Condition('b', eq: 'y')));
       })
       ->build();
 

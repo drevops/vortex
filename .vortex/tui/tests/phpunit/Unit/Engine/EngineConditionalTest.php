@@ -6,7 +6,9 @@ namespace DrevOps\Tui\Tests\Unit\Engine;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Config\Fixup;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -26,7 +28,7 @@ final class EngineConditionalTest extends TestCase {
       Form::create('T')
         ->panel('p', 'p', function (PanelBuilder $p): void {
           $p->text('theme')->default('olivero');
-          $p->text('custom_theme')->default('mytheme')->when(['field' => 'theme', 'eq' => 'custom']);
+          $p->text('custom_theme')->default('mytheme')->when(new Condition('theme', eq: 'custom'));
         })
         ->build()
     );
@@ -47,27 +49,13 @@ final class EngineConditionalTest extends TestCase {
           $p->text('provision')->default('database');
           $p->text('database_source')->default('url');
         })
-        ->fixup(['when' => ['field' => 'provision', 'eq' => 'profile'], 'set' => 'database_source', 'to' => 'none'])
+        ->fixup(new Fixup(set: 'database_source', to: 'none', when: new Condition('provision', eq: 'profile')))
         ->build()
     );
 
     $this->assertSame('url', $engine->collect([], new Context())['database_source']);
     // No input for database_source: the fix-up resolves it without prompting.
     $this->assertSame('none', $engine->collect(['provision' => 'profile'], new Context())['database_source']);
-  }
-
-  public function testFixupWithoutTargetIsSkipped(): void {
-    $engine = $this->engine(
-      Form::create('T')
-        ->panel('p', 'p', function (PanelBuilder $p): void {
-          $p->text('a')->default('x');
-        })
-        // The "when" matches but there is no "set" target: the rule is ignored.
-        ->fixup(['when' => ['field' => 'a', 'eq' => 'x']])
-        ->build()
-    );
-
-    $this->assertSame(['a' => 'x'], $engine->collect([], new Context()));
   }
 
   public function testMultiFieldConditional(): void {
@@ -77,7 +65,7 @@ final class EngineConditionalTest extends TestCase {
         ->panel('p', 'p', function (PanelBuilder $p): void {
           $p->text('a')->default('x');
           $p->text('b')->default('y');
-          $p->text('c')->default('z')->when(['all' => [['field' => 'a', 'eq' => 'x'], ['field' => 'b', 'eq' => 'y']]]);
+          $p->text('c')->default('z')->when(Condition::all(new Condition('a', eq: 'x'), new Condition('b', eq: 'y')));
         })
         ->build()
     );
@@ -96,7 +84,7 @@ final class EngineConditionalTest extends TestCase {
           $p->text('profile')->default('standard');
           $p->text('profile_custom')->default('');
         })
-        ->fixup(['when' => ['field' => 'profile', 'eq' => 'custom'], 'set' => 'profile', 'to' => ['field' => 'profile_custom']])
+        ->fixup(new Fixup(set: 'profile', from: 'profile_custom', when: new Condition('profile', eq: 'custom')))
         ->build()
     );
 
@@ -109,8 +97,8 @@ final class EngineConditionalTest extends TestCase {
       Form::create('T')
         ->panel('p', 'p', function (PanelBuilder $p): void {
           $p->text('a')->default('x');
-          $p->text('b')->default('y')->when(['field' => 'a', 'eq' => 'x']);
-          $p->text('c')->default('z')->when(['field' => 'b', 'eq' => 'y']);
+          $p->text('b')->default('y')->when(new Condition('a', eq: 'x'));
+          $p->text('c')->default('z')->when(new Condition('b', eq: 'y'));
         })
         ->build()
     );

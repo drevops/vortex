@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Builder;
 
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\ConfigException;
+use DrevOps\Tui\Config\Fixup;
 use DrevOps\Tui\Config\Panel;
 
 /**
@@ -61,9 +62,9 @@ final class Form {
   protected string $envPrefix = '';
 
   /**
-   * The raw post-submit fix-up rules.
+   * The post-settle fix-up rules.
    *
-   * @var array<int,array<array-key,mixed>>
+   * @var \DrevOps\Tui\Config\Fixup[]
    */
   protected array $fixups = [];
 
@@ -212,16 +213,16 @@ final class Form {
   }
 
   /**
-   * Add a raw post-submit fix-up rule.
+   * Add a post-settle fix-up rule.
    *
-   * @param array<array-key,mixed> $rule
-   *   The raw rule, evaluated by the engine.
+   * @param \DrevOps\Tui\Config\Fixup $fixup
+   *   The fix-up, evaluated by the engine.
    *
    * @return $this
    *   The builder.
    */
-  public function fixup(array $rule): self {
-    $this->fixups[] = $rule;
+  public function fixup(Fixup $fixup): self {
+    $this->fixups[] = $fixup;
 
     return $this;
   }

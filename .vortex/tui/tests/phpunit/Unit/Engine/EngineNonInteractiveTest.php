@@ -6,6 +6,8 @@ namespace DrevOps\Tui\Tests\Unit\Engine;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Derive\Derive;
+use DrevOps\Tui\Discovery\Dotenv;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -30,7 +32,7 @@ final class EngineNonInteractiveTest extends TestCase {
     $config = Form::create('T')
       ->panel('p', 'p', function (PanelBuilder $p): void {
         $p->text('src')->default('seed');
-        $p->text('target')->default('static')->derive(['template' => 'd-{{src}}'])->discover(['dotenv' => 'DETECTED']);
+        $p->text('target')->default('static')->derive(new Derive('d-{{src}}'))->discover(new Dotenv('DETECTED'));
       })
       ->build();
     $resolver = new InputResolver('VORTEX_');

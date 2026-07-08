@@ -6,7 +6,9 @@ namespace DrevOps\VortexCli\Form;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\Config;
+use DrevOps\Tui\Derive\Derive;
 
 /**
  * The Vortex form, declared in PHP.
@@ -59,22 +61,22 @@ BANNER;
         $p->text('machine_name', 'Site machine name')
           ->description('We will use this name for the project directory and in the code.')
           ->required()
-          ->derive(['template' => '{{name}}', 'transform' => 'machine'])
+          ->derive(new Derive('{{name}}', 'machine'))
           ->weight(360);
         $p->text('org', 'Organization name')
           ->description('We will use this name in the project and documentation.')
           ->required()
-          ->derive(['template' => '{{name}} Org'])
+          ->derive(new Derive('{{name}} Org'))
           ->weight(370);
         $p->text('org_machine_name', 'Organization machine name')
           ->description('We will use this name in the code.')
           ->required()
-          ->derive(['template' => '{{org}}', 'transform' => 'machine'])
+          ->derive(new Derive('{{org}}', 'machine'))
           ->weight(350);
         $p->text('domain', 'Public domain')
           ->description('Domain name without protocol and trailing slash.')
           ->required()
-          ->derive(['template' => '{{machine_name}}.com', 'transform' => 'host'])
+          ->derive(new Derive('{{machine_name}}.com', 'host'))
           ->weight(280);
       })
       ->panel('drupal', 'Drupal', function (PanelBuilder $p): void {
@@ -101,7 +103,7 @@ BANNER;
         $p->text('profile_custom', 'Custom profile machine name')
           ->description('The machine name of your custom profile.')
           ->required()
-          ->when(['field' => 'profile', 'eq' => 'custom'])
+          ->when(new Condition('profile', eq: 'custom'))
           ->weight(260);
         $p->multiselect('modules', 'Modules')
           ->description('Optional contributed modules to include.')
@@ -134,7 +136,7 @@ BANNER;
         $p->text('module_prefix', 'Custom modules prefix')
           ->description('We will use this name in custom modules.')
           ->required()
-          ->derive(['template' => '{{machine_name}}', 'transform' => 'initials'])
+          ->derive(new Derive('{{machine_name}}', 'initials'))
           ->weight(310);
         $p->multiselect('custom_modules', 'Custom modules')
           ->description('Which scaffolded custom modules to keep.')
@@ -158,13 +160,13 @@ BANNER;
         $p->text('theme_custom', 'Custom theme machine name')
           ->description('We will use this name as a custom theme name.')
           ->required()
-          ->when(['field' => 'theme', 'eq' => 'custom'])
-          ->derive(['template' => '{{machine_name}}', 'transform' => 'machine'])
+          ->when(new Condition('theme', eq: 'custom'))
+          ->derive(new Derive('{{machine_name}}', 'machine'))
           ->weight(330);
         $p->confirm('frontend_build', 'Build front-end assets in the container?')
           ->description('Disable to build theme assets on the host or as part of deployment.')
           ->default(TRUE)
-          ->when(['field' => 'theme', 'eq' => 'custom'])
+          ->when(new Condition('theme', eq: 'custom'))
           ->weight(320);
       })
       ->panel('code_repository', 'Code repository', function (PanelBuilder $p): void {
@@ -230,8 +232,8 @@ BANNER;
         $p->text('hosting_project_name', 'Hosting project name')
           ->description('Name as found in the hosting configuration; usually the site machine name.')
           ->required()
-          ->when(['field' => 'hosting_provider', 'in' => ['lagoon', 'acquia']])
-          ->derive(['template' => '{{machine_name}}'])
+          ->when(new Condition('hosting_provider', in: ['lagoon', 'acquia']))
+          ->derive(new Derive('{{machine_name}}'))
           ->weight(290);
         $p->text('webroot', 'Custom web root directory')->description('The directory where the web server serves the site.')->default('web')->required()->weight(10);
       })
@@ -256,7 +258,7 @@ BANNER;
           ->weight(150);
         $p->select('database_fetch_source', 'Database source')
           ->description('Where the database dump is fetched from.')
-          ->default('url')->when(['field' => 'provision_type', 'eq' => 'database'])
+          ->default('url')->when(new Condition('provision_type', eq: 'database'))
           ->options([
             'url' => 'URL download',
             'ftp' => 'FTP download',
@@ -269,13 +271,13 @@ BANNER;
           ->weight(140);
         $p->text('database_image', 'Database container image name and tag')
           ->description('Use the "latest" tag for the latest version.')
-          ->when(['field' => 'database_fetch_source', 'eq' => 'container_registry'])
-          ->derive(['template' => '{{org_machine_name}}/{{machine_name}}-data:latest', 'transform' => 'lower'])
+          ->when(new Condition('database_fetch_source', eq: 'container_registry'))
+          ->derive(new Derive('{{org_machine_name}}/{{machine_name}}-data:latest', 'lower'))
           ->weight(130);
         $p->confirm('migration', 'Use a second database for migrations?')->description('Adds a second database service for Drupal migrations.')->default(FALSE)->weight(120);
         $p->select('migration_fetch_source', 'Migration database source')
           ->description('Where the migration database dump is fetched from.')
-          ->default('url')->when(['field' => 'migration', 'eq' => TRUE])
+          ->default('url')->when(new Condition('migration', eq: TRUE))
           ->options([
             'url' => 'URL download',
             'ftp' => 'FTP download',
@@ -287,8 +289,8 @@ BANNER;
           ->weight(110);
         $p->text('migration_image', 'Migration database container image name and tag')
           ->description('Use the "latest" tag for the latest version.')
-          ->when(['field' => 'migration_fetch_source', 'eq' => 'container_registry'])
-          ->derive(['template' => '{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'transform' => 'lower'])
+          ->when(new Condition('migration_fetch_source', eq: 'container_registry'))
+          ->derive(new Derive('{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'lower'))
           ->weight(100);
       })
       ->panel('notifications', 'Notifications', function (PanelBuilder $p): void {

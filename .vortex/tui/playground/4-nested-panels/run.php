@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Config\Fixup;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Tui;
 
@@ -28,11 +31,11 @@ $form = Form::create('Site settings')
   ->clearOnExit(FALSE)
   // A fix-up reconciles dependent answers on every settle pass: no CDN outside
   // production, whatever was answered.
-  ->fixup(['when' => ['field' => 'environment', 'ne' => 'prod'], 'set' => 'cdn', 'to' => FALSE])
+  ->fixup(new Fixup(set: 'cdn', to: FALSE, when: new Condition('environment', ne: 'prod')))
   ->panel('identity', 'Identity', function (PanelBuilder $p): void {
     $p->description('Who this site is.');
     $p->text('name', 'Site name')->default('Umami')->required();
-    $p->text('machine_name', 'Machine name')->description('Derived from the site name.')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+    $p->text('machine_name', 'Machine name')->description('Derived from the site name.')->derive(new Derive('{{name}}', 'machine'));
   })
   ->panel('stack', 'Stack', function (PanelBuilder $p): void {
     $p->description('What the site runs on.');
@@ -44,7 +47,7 @@ $form = Form::create('Site settings')
     $p->panel('services', 'Services', function (PanelBuilder $sp): void {
       $sp->description('Optional backing services.');
       $sp->multiselect('services', 'Enabled services')->options(['solr' => 'Solr', 'redis' => 'Redis', 'clamav' => 'ClamAV']);
-      $sp->text('solr_core', 'Solr core')->default('drupal')->when(['field' => 'services', 'contains' => 'solr']);
+      $sp->text('solr_core', 'Solr core')->default('drupal')->when(new Condition('services', contains: 'solr'));
 
       // Sub-panels nest to any depth.
       $sp->panel('tuning', 'Tuning', function (PanelBuilder $tp): void {

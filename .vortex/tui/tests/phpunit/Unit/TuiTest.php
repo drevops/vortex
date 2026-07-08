@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Tests\Unit;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\Engine;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -90,7 +91,7 @@ final class TuiTest extends TestCase {
     $form = Form::create('Demo')
       ->panel('p', 'p', function (PanelBuilder $panel): void {
         $panel->text('name')->required();
-        $panel->text('machine')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+        $panel->text('machine')->derive(new Derive('{{name}}', 'machine'));
       });
 
     return new Tui($form, [], 'TEST_');

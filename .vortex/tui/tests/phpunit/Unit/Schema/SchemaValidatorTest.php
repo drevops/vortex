@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Tests\Unit\Schema;
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Schema\SchemaValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -89,7 +90,7 @@ final class SchemaValidatorTest extends TestCase {
         $p->select('profile')->option('standard')->option('minimal');
         $p->confirm('agree');
         $p->multiselect('mods')->option('a')->option('b');
-        $p->text('custom')->required()->when(['field' => 'profile', 'eq' => 'custom']);
+        $p->text('custom')->required()->when(new Condition('profile', eq: 'custom'));
       })
       ->build();
   }

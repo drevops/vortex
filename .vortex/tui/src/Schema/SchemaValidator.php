@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Schema;
 
-use DrevOps\Tui\Condition\ConditionEvaluator;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
@@ -21,18 +20,12 @@ use DrevOps\Tui\Config\FieldType;
 class SchemaValidator {
 
   /**
-   * The condition evaluator for activation checks.
-   */
-  protected ConditionEvaluator $evaluator;
-
-  /**
    * Construct a validator.
    *
    * @param \DrevOps\Tui\Config\Config $config
    *   The configuration to validate against.
    */
   public function __construct(protected Config $config) {
-    $this->evaluator = new ConditionEvaluator();
   }
 
   /**
@@ -48,7 +41,7 @@ class SchemaValidator {
     $errors = [];
 
     foreach ($this->config->fields() as $field) {
-      if ($field->when !== NULL && !$this->evaluator->matches($field->when, $answers)) {
+      if ($field->when !== NULL && !$field->when->matches($answers)) {
         continue;
       }
 

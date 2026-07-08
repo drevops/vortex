@@ -20,7 +20,7 @@ You declare the questions in PHP with the fluent `Form` builder: panels holding 
 
 ## Step 2 - attach behaviour where you need it
 
-Most fields need no code. When one does - a dynamic default, discovery, validation or a normalisation - you add a handler class named after the field id (`machine_name` -> `MachineName`) in a namespace you register. The engine discovers it automatically. A handler exposes four hooks: `default()`, `discover()`, `validate()` and `transform()`.
+Most fields need no code. When one does - a dynamic default, discovery, validation or a normalisation - declare it on the field itself: `->default(fn ...)`, `->validate(fn ...)`, `->transform(fn ...)`, `->discover(...)`. A handler class named after the field id (`machine_name` -> `MachineName`) in a registered namespace offers the same four hooks as a fallback for consumers who prefer per-field classes; the field declaration wins when both exist.
 
 ## Step 3 - collect the answers
 

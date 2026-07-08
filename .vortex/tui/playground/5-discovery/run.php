@@ -20,6 +20,10 @@ declare(strict_types=1);
 use DrevOps\Tui\Answers\SummaryFormatter;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Discovery\Dotenv;
+use DrevOps\Tui\Discovery\JsonValue;
+use DrevOps\Tui\Discovery\PathExists;
+use DrevOps\Tui\Discovery\Scan;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Tui;
 
@@ -33,13 +37,13 @@ $form = Form::create('Discovery demo', 'an existing project')
   ->envPrefix('MYAPP_')
   ->panel('project', 'Project', function (PanelBuilder $p): void {
     // Read a dot-path from a JSON file.
-    $p->text('name', 'Project name')->discover(['json' => ['file' => 'composer.json', 'path' => 'name']]);
+    $p->text('name', 'Project name')->discover(new JsonValue('composer.json', 'name'));
     // Read a key from the .env file.
-    $p->text('timezone', 'Timezone')->default('UTC')->discover(['dotenv' => 'TZ']);
+    $p->text('timezone', 'Timezone')->default('UTC')->discover(new Dotenv('TZ'));
     // Whether a path exists.
-    $p->confirm('docker', 'Uses Docker?')->discover(['exists' => 'docker-compose.yml']);
+    $p->confirm('docker', 'Uses Docker?')->discover(new PathExists('docker-compose.yml'));
     // List directory entries ("type" is dir / file / any).
-    $p->multiselect('modules', 'Custom modules')->options(['alpha' => 'Alpha', 'beta' => 'Beta', 'gamma' => 'Gamma'])->discover(['scan' => ['dir' => 'modules', 'type' => 'dir']]);
+    $p->multiselect('modules', 'Custom modules')->options(['alpha' => 'Alpha', 'beta' => 'Beta', 'gamma' => 'Gamma'])->discover(new Scan('modules', type: 'dir'));
   });
 
 $tui = new Tui($form);

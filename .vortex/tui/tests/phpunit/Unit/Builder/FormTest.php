@@ -7,9 +7,13 @@ namespace DrevOps\Tui\Tests\Unit\Builder;
 use DrevOps\Tui\Builder\FieldBuilder;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Config\ConfigException;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
+use DrevOps\Tui\Config\Fixup;
+use DrevOps\Tui\Derive\Derive;
+use DrevOps\Tui\Discovery\Dotenv;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -24,6 +28,8 @@ use PHPUnit\Framework\TestCase;
 final class FormTest extends TestCase {
 
   public function testBuildsExpectedConfig(): void {
+    $fixup = new Fixup(set: 'a', to: 'b', when: new Condition('x', eq: 'y'));
+
     $config = Form::create('Vortex', 'the project')
       ->theme('dark')
       ->banner('LOGO')
@@ -32,15 +38,15 @@ final class FormTest extends TestCase {
       ->color(TRUE)
       ->unicode(FALSE)
       ->envPrefix('APP_')
-      ->fixup(['when' => ['x' => 'y'], 'set' => ['a' => 'b']])
+      ->fixup($fixup)
       ->panel('general', 'General', function (PanelBuilder $p): void {
         $p->description('General settings.');
         $p->text('name', 'Site name')->description('The name.')->required()->weight(10)->default('Acme');
-        $p->text('machine_name', 'Machine name')->derive(['template' => '{{ name }}']);
+        $p->text('machine_name', 'Machine name')->derive(new Derive('{{ name }}'));
         $p->select('profile', 'Profile')->options(['standard' => 'Standard', 'minimal' => 'Minimal'])->default('standard');
         $p->multiselect('services', 'Services')->option('solr', 'Solr', 'Search')->option('redis', 'Redis');
-        $p->confirm('docs', 'Keep docs?')->default(TRUE)->when(['profile' => 'standard']);
-        $p->suggest('timezone', 'Timezone')->discover(['dotenv' => 'TZ']);
+        $p->confirm('docs', 'Keep docs?')->default(TRUE)->when(new Condition('profile', eq: 'standard'));
+        $p->suggest('timezone', 'Timezone')->discover(new Dotenv('TZ'));
         $p->panel('advanced', 'Advanced', function (PanelBuilder $sp): void {
           $sp->text('webroot', 'Web root')->default('web');
         });
@@ -58,7 +64,7 @@ final class FormTest extends TestCase {
     $this->assertTrue($config->color);
     $this->assertFalse($config->unicode);
     $this->assertSame('APP_', $config->envPrefix);
-    $this->assertSame([['when' => ['x' => 'y'], 'set' => ['a' => 'b']]], $config->fixups);
+    $this->assertSame([$fixup], $config->fixups);
     $this->assertSame('General settings.', $config->panels[0]->description);
 
     $name = $config->field('name');
@@ -72,7 +78,7 @@ final class FormTest extends TestCase {
 
     $machine = $config->field('machine_name');
     $this->assertInstanceOf(Field::class, $machine);
-    $this->assertSame(['template' => '{{ name }}'], $machine->derive);
+    $this->assertSame('{{ name }}', $machine->derive?->template);
 
     $profile = $config->field('profile');
     $this->assertInstanceOf(Field::class, $profile);
@@ -89,12 +95,13 @@ final class FormTest extends TestCase {
     $this->assertInstanceOf(Field::class, $docs);
     $this->assertSame(FieldType::Confirm, $docs->type);
     $this->assertTrue($docs->default);
-    $this->assertSame(['profile' => 'standard'], $docs->when);
+    $this->assertSame(['field' => 'profile', 'eq' => 'standard'], $docs->when?->toArray());
 
     $timezone = $config->field('timezone');
     $this->assertInstanceOf(Field::class, $timezone);
     $this->assertSame(FieldType::Suggest, $timezone->type);
-    $this->assertSame(['dotenv' => 'TZ'], $timezone->discover);
+    $this->assertInstanceOf(Dotenv::class, $timezone->discover);
+    $this->assertSame('TZ', $timezone->discover->key);
 
     $webroot = $config->field('webroot');
     $this->assertInstanceOf(Field::class, $webroot);

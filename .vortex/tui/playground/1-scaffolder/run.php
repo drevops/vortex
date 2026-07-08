@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Engine\EngineException;
 use DrevOps\Tui\Tui;
 
@@ -29,13 +31,13 @@ $form = Form::create('Package scaffolder')
     // A required free-text field. The custom Name handler trims and validates.
     $p->text('name', 'Package name')->description('A human-readable name, e.g. "My Widget".')->required();
     // Derived: machine name of the package name (str2name "machine").
-    $p->text('machine_name', 'Machine name')->description('Derived from the package name.')->derive(['template' => '{{name}}', 'transform' => 'machine']);
+    $p->text('machine_name', 'Machine name')->description('Derived from the package name.')->derive(new Derive('{{name}}', 'machine'));
     // A plain default that other fields derive from.
     $p->text('vendor', 'Vendor')->default('acme');
     // Derived through a chain: "{{vendor}}/{{machine_name}}", lowercased.
-    $p->text('package', 'Composer package')->description('Derived from vendor and machine name.')->derive(['template' => '{{vendor}}/{{machine_name}}', 'transform' => 'lower']);
+    $p->text('package', 'Composer package')->description('Derived from vendor and machine name.')->derive(new Derive('{{vendor}}/{{machine_name}}', 'lower'));
     // Derived PHP namespace (str2name "pascal").
-    $p->text('namespace', 'PHP namespace')->derive(['template' => '{{name}}', 'transform' => 'pascal']);
+    $p->text('namespace', 'PHP namespace')->derive(new Derive('{{name}}', 'pascal'));
   })
   ->panel('build', 'Build & features', function (PanelBuilder $p): void {
     $p->description('What the package ships with.');
@@ -44,10 +46,10 @@ $form = Form::create('Package scaffolder')
     // A multi-select list.
     $p->multiselect('features', 'Features')->description('Space to toggle, type to filter.')->options(['tests' => 'Tests', 'ci' => 'CI', 'docker' => 'Docker', 'docs' => 'Docs']);
     // Conditional: only shown when "docker" is among the selected features.
-    $p->text('docker_image', 'Docker base image')->default('php:8.4-cli')->when(['field' => 'features', 'contains' => 'docker']);
+    $p->text('docker_image', 'Docker base image')->default('php:8.4-cli')->when(new Condition('features', contains: 'docker'));
     // A multi-field conditional: conditions compose with all/any/not, so a field
     // can depend on any number of others - here docker selected AND type application.
-    $p->confirm('docker_compose', 'Generate a docker-compose.yml?')->default(TRUE)->when(['all' => [['field' => 'features', 'contains' => 'docker'], ['field' => 'type', 'eq' => 'application']]]);
+    $p->confirm('docker_compose', 'Generate a docker-compose.yml?')->default(TRUE)->when(Condition::all(new Condition('features', contains: 'docker'), new Condition('type', eq: 'application')));
     // An autocomplete with free-text fallback.
     $p->suggest('php_version', 'PHP version')->default('8.4')->options(['8.1' => '8.1', '8.2' => '8.2', '8.3' => '8.3', '8.4' => '8.4']);
     // A yes/no toggle.

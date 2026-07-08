@@ -20,8 +20,8 @@ final readonly class Config {
    *   The subject being configured (e.g. the project name).
    * @param \DrevOps\Tui\Config\Panel[] $panels
    *   The top-level panels.
-   * @param array<int,array<array-key,mixed>> $fixups
-   *   Raw post-submit fix-up rules, evaluated by the engine.
+   * @param \DrevOps\Tui\Config\Fixup[] $fixups
+   *   Post-settle fix-up rules, evaluated by the engine.
    * @param string $theme
    *   The theme name or class for the interactive TUI (empty for the default).
    * @param string $banner

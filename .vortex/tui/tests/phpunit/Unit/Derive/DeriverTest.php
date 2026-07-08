@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace DrevOps\Tui\Tests\Unit\Derive;
 
+use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Derive\Deriver;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the deriver.
+ * Tests the deriver's fixpoint settling.
  */
 #[CoversClass(Deriver::class)]
 #[Group('derive')]
 final class DeriverTest extends TestCase {
 
   public function testInterpolationAndTransform(): void {
-    $rules = ['machine' => ['template' => '{{name}}', 'transform' => 'machine']];
+    $rules = ['machine' => new Derive('{{name}}', 'machine')];
 
     $out = (new Deriver())->derive($rules, ['name' => 'Acme Site', 'machine' => ''], []);
 
@@ -27,8 +27,8 @@ final class DeriverTest extends TestCase {
 
   public function testChainSettles(): void {
     $rules = [
-      'machine' => ['template' => '{{name}}', 'transform' => 'machine'],
-      'domain' => ['template' => '{{ machine }}.com', 'transform' => 'host'],
+      'machine' => new Derive('{{name}}', 'machine'),
+      'domain' => new Derive('{{ machine }}.com', 'host'),
     ];
 
     $out = (new Deriver())->derive($rules, ['name' => 'Acme Site', 'machine' => '', 'domain' => ''], []);
@@ -38,7 +38,7 @@ final class DeriverTest extends TestCase {
   }
 
   public function testOverriddenNotRecomputed(): void {
-    $rules = ['machine' => ['template' => '{{name}}', 'transform' => 'machine']];
+    $rules = ['machine' => new Derive('{{name}}', 'machine')];
 
     $out = (new Deriver())->derive($rules, ['name' => 'Acme', 'machine' => 'pinned'], ['machine' => TRUE]);
 
@@ -46,49 +46,11 @@ final class DeriverTest extends TestCase {
   }
 
   public function testMissingTokenResolvesEmpty(): void {
-    $rules = ['x' => ['template' => 'a-{{nope}}-b']];
+    $rules = ['x' => new Derive('a-{{nope}}-b')];
 
     $out = (new Deriver())->derive($rules, ['x' => ''], []);
 
     $this->assertSame('a--b', $out['x']);
-  }
-
-  /**
-   * Named transforms normalize the interpolated value.
-   *
-   * @param string $transform
-   *   The transform name.
-   * @param string $input
-   *   The source value.
-   * @param string $expected
-   *   The expected derived value.
-   */
-  #[DataProvider('dataProviderTransforms')]
-  public function testTransforms(string $transform, string $input, string $expected): void {
-    $rules = ['x' => ['template' => '{{src}}', 'transform' => $transform]];
-
-    $out = (new Deriver())->derive($rules, ['src' => $input, 'x' => ''], []);
-
-    $this->assertSame($expected, $out['x']);
-  }
-
-  /**
-   * Data provider for testTransforms().
-   *
-   * @return \Iterator<string,array{string,string,string}>
-   *   Transform name, input and expected output.
-   */
-  public static function dataProviderTransforms(): \Iterator {
-    yield 'lower' => ['lower', 'HeLLo', 'hello'];
-    yield 'upper' => ['upper', 'HeLLo', 'HELLO'];
-    yield 'machine' => ['machine', 'My Site! 2', 'my_site_2'];
-    yield 'host' => ['host', 'My_Site.Com', 'my-site.com'];
-    yield 'kebab (str2name)' => ['kebab', 'My Site', 'my-site'];
-    yield 'pascal (str2name)' => ['pascal', 'my_site', 'MySite'];
-    yield 'initials' => ['initials', 'My Awesome Site', 'mas'];
-    yield 'initials capped' => ['initials', 'a b c d e', 'abcd'];
-    yield 'none' => ['', 'As Is', 'As Is'];
-    yield 'unknown passthrough' => ['bogus', 'As Is', 'As Is'];
   }
 
 }

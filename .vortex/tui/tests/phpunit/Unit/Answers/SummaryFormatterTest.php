@@ -8,6 +8,8 @@ use DrevOps\Tui\Answers\Answers;
 use DrevOps\Tui\Answers\SummaryFormatter;
 use DrevOps\Tui\Builder\Form;
 use DrevOps\Tui\Builder\PanelBuilder;
+use DrevOps\Tui\Condition\Condition;
+use DrevOps\Tui\Derive\Derive;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +25,7 @@ final class SummaryFormatterTest extends TestCase {
     $config = Form::create('T')
       ->panel('general', 'General', function (PanelBuilder $p): void {
         $p->text('name', 'Name');
-        $p->text('machine', 'Machine')->derive(['template' => '{{name}}']);
+        $p->text('machine', 'Machine')->derive(new Derive('{{name}}'));
       })
       ->panel('drupal', 'Drupal', function (PanelBuilder $p): void {
         $p->text('profile', 'Profile');
@@ -32,7 +34,7 @@ final class SummaryFormatterTest extends TestCase {
         });
       })
       ->panel('empty', 'Empty', function (PanelBuilder $p): void {
-        $p->text('gone', 'Gone')->when(['field' => 'name', 'eq' => 'never']);
+        $p->text('gone', 'Gone')->when(new Condition('name', eq: 'never'));
       })
       ->build();
     $answers = new Answers(

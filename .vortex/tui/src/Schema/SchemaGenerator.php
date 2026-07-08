@@ -6,6 +6,7 @@ namespace DrevOps\Tui\Schema;
 
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\Field;
+use DrevOps\Tui\Discovery\DiscoverInterface;
 
 /**
  * Generates a machine-readable schema of every configured question.
@@ -44,12 +45,12 @@ class SchemaGenerator {
         'label' => $field->label,
         'description' => $field->description,
         'options' => $this->options($field),
-        'default' => $field->default,
+        'default' => $field->default instanceof \Closure ? NULL : $field->default,
         'required' => $field->required,
-        'when' => $field->when,
-        'derive' => $field->derive,
-        'discover' => $field->discover,
-        'depends_on' => $this->dependsOn($field->when),
+        'when' => $field->when?->toArray(),
+        'derive' => $field->derive?->toArray(),
+        'discover' => $field->discover instanceof DiscoverInterface ? $field->discover->toArray() : NULL,
+        'depends_on' => $field->when === NULL ? [] : $field->when->fields(),
       ];
     }
 
@@ -77,45 +78,6 @@ class SchemaGenerator {
     }
 
     return $out;
-  }
-
-  /**
-   * Extract the field ids a `when` rule depends on.
-   *
-   * @param array<array-key,mixed>|null $when
-   *   The condition rule.
-   *
-   * @return list<string>
-   *   The referenced field ids.
-   */
-  protected function dependsOn(?array $when): array {
-    if ($when === NULL) {
-      return [];
-    }
-
-    $ids = [];
-    $this->collectFieldRefs($when, $ids);
-
-    return array_values(array_unique($ids));
-  }
-
-  /**
-   * Recursively collect `field` references from a condition rule.
-   *
-   * @param array<array-key,mixed> $when
-   *   The condition rule.
-   * @param list<string> $ids
-   *   Accumulator, populated in place.
-   */
-  protected function collectFieldRefs(array $when, array &$ids): void {
-    foreach ($when as $key => $value) {
-      if ($key === 'field' && is_scalar($value)) {
-        $ids[] = (string) $value;
-      }
-      elseif (is_array($value)) {
-        $this->collectFieldRefs($value, $ids);
-      }
-    }
   }
 
 }

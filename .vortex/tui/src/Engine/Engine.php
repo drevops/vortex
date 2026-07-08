@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\Tui\Engine;
 
 use DrevOps\Tui\Answers\Answers;
-use DrevOps\Tui\Condition\ConditionEvaluator;
+use DrevOps\Tui\Condition\ConditionInterface;
 use DrevOps\Tui\Config\Config;
 use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Derive\Deriver;
-use DrevOps\Tui\Discovery\Discovery;
+use DrevOps\Tui\Discovery\DiscoverInterface;
 use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Handler\HandlerInterface;
 use DrevOps\Tui\Handler\HandlerRegistry;
@@ -18,30 +18,21 @@ use DrevOps\Tui\Handler\HandlerRegistry;
  * Orchestrates the question lifecycle generically over a configuration.
  *
  * For each configured field the engine resolves a value (supplied input, else
- * a value detected in update mode, else the field default), runs the resolved
- * handler's validate() and transform(), then settles derived values,
- * conditional activation and fix-ups to a fixpoint. Precedence per field is
+ * a value detected in update mode, else the field default), runs its declared
+ * validator and transformer, then settles derived values, conditional
+ * activation and fix-ups to a fixpoint. Precedence per field is
  * input > detected > derived > default. It never knows what any field means:
- * all behaviour comes from the handlers and config rules.
+ * all behaviour comes from the form declaration, with a consumer handler
+ * class (resolved by field id) as the fallback for each hook.
  *
  * @package DrevOps\Tui\Engine
  */
 class Engine {
 
   /**
-   * The condition evaluator for `when` gating and fix-up guards.
-   */
-  protected ConditionEvaluator $evaluator;
-
-  /**
    * The deriver for computed field values.
    */
   protected Deriver $deriver;
-
-  /**
-   * The discovery mechanism for config-declared shortcuts.
-   */
-  protected Discovery $discovery;
 
   /**
    * The provenance of each active field from the most recent collect().
@@ -69,9 +60,7 @@ class Engine {
     protected Config $config,
     protected HandlerRegistry $handlers,
   ) {
-    $this->evaluator = new ConditionEvaluator();
     $this->deriver = new Deriver();
-    $this->discovery = new Discovery();
   }
 
   /**
@@ -113,15 +102,12 @@ class Engine {
         continue;
       }
 
-      $handler = $this->handlers->get($field->id);
-      if ($handler instanceof HandlerInterface) {
-        $error = $handler->validate($field, $values[$field->id]);
-        if ($error !== NULL) {
-          throw new EngineException(sprintf('Invalid value for field "%s": %s', $field->id, $error));
-        }
-
-        $values[$field->id] = $handler->transform($field, $values[$field->id]);
+      $error = $this->validateValue($field, $values[$field->id]);
+      if ($error !== NULL) {
+        throw new EngineException(sprintf('Invalid value for field "%s": %s', $field->id, $error));
       }
+
+      $values[$field->id] = $this->transformValue($field, $values[$field->id]);
     }
 
     $this->lastProvenance = $this->provenanceFor($fields, $sources, $active);
@@ -177,6 +163,10 @@ class Engine {
       }
     }
 
+    if ($field->default instanceof \Closure) {
+      return [($field->default)($context), 'default'];
+    }
+
     if ($handler instanceof HandlerInterface) {
       $dynamic = $handler->default($field, $context);
       if ($dynamic !== NULL) {
@@ -188,7 +178,51 @@ class Engine {
   }
 
   /**
-   * Detect a value from the handler, then the config-declared shortcut.
+   * Validate a value through the declared validator, else the handler.
+   *
+   * @param \DrevOps\Tui\Config\Field $field
+   *   The field.
+   * @param mixed $value
+   *   The value to validate.
+   *
+   * @return string|null
+   *   An error message, or NULL when the value is valid.
+   */
+  protected function validateValue(Field $field, mixed $value): ?string {
+    if ($field->validate instanceof \Closure) {
+      $error = ($field->validate)($value);
+
+      return is_string($error) && $error !== '' ? $error : NULL;
+    }
+
+    $handler = $this->handlers->get($field->id);
+
+    return $handler instanceof HandlerInterface ? $handler->validate($field, $value) : NULL;
+  }
+
+  /**
+   * Transform a value through the declared transformer, else the handler.
+   *
+   * @param \DrevOps\Tui\Config\Field $field
+   *   The field.
+   * @param mixed $value
+   *   The accepted value.
+   *
+   * @return mixed
+   *   The transformed value.
+   */
+  protected function transformValue(Field $field, mixed $value): mixed {
+    if ($field->transform instanceof \Closure) {
+      return ($field->transform)($value);
+    }
+
+    $handler = $this->handlers->get($field->id);
+
+    return $handler instanceof HandlerInterface ? $handler->transform($field, $value) : $value;
+  }
+
+  /**
+   * Detect a value from the declared discovery rule, else the handler.
    *
    * @param \DrevOps\Tui\Config\Field $field
    *   The field.
@@ -201,18 +235,15 @@ class Engine {
    *   The detected value, or NULL.
    */
   protected function discoverValue(Field $field, ?HandlerInterface $handler, Context $context): mixed {
-    if ($handler instanceof HandlerInterface) {
-      $discovered = $handler->discover($field, $context);
-      if ($discovered !== NULL) {
-        return $discovered;
-      }
+    if ($field->discover instanceof DiscoverInterface) {
+      return $field->discover->discover($context->directory);
     }
 
-    if ($field->discover !== NULL) {
-      return $this->discovery->detect($field->discover, $context->directory);
+    if ($field->discover instanceof \Closure) {
+      return ($field->discover)($context);
     }
 
-    return NULL;
+    return $handler instanceof HandlerInterface ? $handler->discover($field, $context) : NULL;
   }
 
   /**
@@ -243,7 +274,7 @@ class Engine {
       $next_active = [];
       $answers = $this->activeAnswers($fields, $derived, $active);
       foreach ($fields as $field) {
-        $next_active[$field->id] = $field->when === NULL || $this->evaluator->matches($field->when, $answers);
+        $next_active[$field->id] = $field->when === NULL || $field->when->matches($answers);
       }
 
       $next_values = $this->applyFixups($derived, $this->activeAnswers($fields, $derived, $next_active));
@@ -321,9 +352,8 @@ class Engine {
   /**
    * Apply the config fix-up rules to the values.
    *
-   * A rule sets a target field's value when its `when` guard matches (or when
-   * it has no guard). The new value is a literal `to`, or a copy of another
-   * field's value when `to` is `{field: other_id}`.
+   * A fix-up sets its target field's value when its guard matches (or when it
+   * has no guard): a literal `to`, or a copy of the `from` field's value.
    *
    * @param array<string,mixed> $values
    *   The current values.
@@ -334,40 +364,15 @@ class Engine {
    *   The values after fix-ups.
    */
   protected function applyFixups(array $values, array $answers): array {
-    foreach ($this->config->fixups as $rule) {
-      $when = isset($rule['when']) && is_array($rule['when']) ? $rule['when'] : [];
-      if ($when !== [] && !$this->evaluator->matches($when, $answers)) {
+    foreach ($this->config->fixups as $fixup) {
+      if ($fixup->when instanceof ConditionInterface && !$fixup->when->matches($answers)) {
         continue;
       }
 
-      $target = isset($rule['set']) && is_scalar($rule['set']) ? (string) $rule['set'] : '';
-      if ($target === '') {
-        continue;
-      }
-
-      $values[$target] = $this->fixupValue($rule['to'] ?? NULL, $values);
+      $values[$fixup->set] = $fixup->from !== '' ? ($values[$fixup->from] ?? NULL) : $fixup->to;
     }
 
     return $values;
-  }
-
-  /**
-   * Resolve a fix-up target value: a literal, or a copy of another field.
-   *
-   * @param mixed $to
-   *   The raw `to` operand.
-   * @param array<string,mixed> $values
-   *   The current values (copy source).
-   *
-   * @return mixed
-   *   The resolved value.
-   */
-  protected function fixupValue(mixed $to, array $values): mixed {
-    if (is_array($to) && isset($to['field']) && is_scalar($to['field'])) {
-      return $values[(string) $to['field']] ?? NULL;
-    }
-
-    return $to;
   }
 
 }
