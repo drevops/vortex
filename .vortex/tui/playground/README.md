@@ -18,9 +18,9 @@ composer install
 
 - **[`1-scaffolder/`](1-scaffolder)** - a "package scaffolder" that exercises
   every widget type, conditional visibility (`when`), derived values with
-  str2name transforms, and a custom auto-discovered handler
-  ([`Name.php`](1-scaffolder/Name.php)). Runs the interactive TUI or collects
-  non-interactively.
+  str2name transforms, and declared field behaviour (a dynamic default,
+  validation and a transform as closures). Runs the interactive TUI or
+  collects non-interactively.
 
   ```bash
   php playground/1-scaffolder/run.php                                  # TUI

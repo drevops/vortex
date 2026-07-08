@@ -17,19 +17,22 @@ use DrevOps\Tui\Builder\PanelBuilder;
 use DrevOps\Tui\Condition\Condition;
 use DrevOps\Tui\Derive\Derive;
 use DrevOps\Tui\Engine\EngineException;
+use DrevOps\Tui\Handler\Context;
 use DrevOps\Tui\Tui;
 
 require __DIR__ . '/../../vendor/autoload.php';
-// A require, not autoload: the handler namespace lives inside this example.
-require __DIR__ . '/Name.php';
 
 $options = getopt('', ['prompts::', 'schema']);
 
 $form = Form::create('Package scaffolder')
   ->panel('general', 'General', function (PanelBuilder $p): void {
     $p->description('Naming and identity.');
-    // A required free-text field. The custom Name handler trims and validates.
-    $p->text('name', 'Package name')->description('A human-readable name, e.g. "My Widget".')->required();
+    // Declared behaviour: a dynamic default from the run context, validation
+    // and a value transform - all closures on the field, no handler class.
+    $p->text('name', 'Package name')->description('A human-readable name, e.g. "My Widget".')->required()
+      ->default(fn (Context $c): string => ucwords(str_replace(['-', '_'], ' ', basename($c->directory))))
+      ->validate(fn (mixed $v): ?string => is_string($v) && trim($v) !== '' ? NULL : 'The package name is required.')
+      ->transform(fn (mixed $v): mixed => is_string($v) ? trim($v) : $v);
     // Derived: machine name of the package name (str2name "machine").
     $p->text('machine_name', 'Machine name')->description('Derived from the package name.')->derive(new Derive('{{name}}', 'machine'));
     // A plain default that other fields derive from.
@@ -56,7 +59,7 @@ $form = Form::create('Package scaffolder')
     $p->confirm('private', 'Private package?')->default(FALSE);
   });
 
-$tui = new Tui($form, ['Playground\\Scaffolder']);
+$tui = new Tui($form);
 
 if (array_key_exists('schema', $options)) {
   echo (string) json_encode($tui->schema(), JSON_PRETTY_PRINT), PHP_EOL;
