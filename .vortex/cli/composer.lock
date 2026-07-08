@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be59d9847ccd490e91bb40b26db0a0d4",
+    "content-hash": "133e39d2c32ba2e5453945a9757f6fe7",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -820,11 +820,11 @@
             "dist": {
                 "type": "path",
                 "url": "../tui",
-                "reference": "baa4e2ee74216bceeafebb4eb2400de5730c5509"
+                "reference": "bad1894510905bf3498289d11ca87cdc80a00693"
             },
             "require": {
                 "alexskrypnyk/str2name": "^1.4.1",
-                "php": ">=8.2",
+                "php": ">=8.3",
                 "symfony/console": "^7.4.13"
             },
             "require-dev": {
@@ -879,16 +879,16 @@
             "authors": [
                 {
                     "name": "Alex Skrypnyk",
-                    "email": "customizer@drevops.com",
+                    "email": "tui@drevops.com",
                     "homepage": "https://drevops.com",
                     "role": "Maintainer"
                 }
             ],
             "description": "Provides terminal UI form-building functionality.",
-            "homepage": "https://github.com/drevops/customizer",
+            "homepage": "https://github.com/drevops/tui",
             "support": {
-                "issues": "https://github.com/drevops/customizer/issues",
-                "source": "https://github.com/drevops/customizer"
+                "issues": "https://github.com/drevops/tui/issues",
+                "source": "https://github.com/drevops/tui"
             },
             "transport-options": {
                 "relative": true
@@ -6566,7 +6566,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.2"
+        "php": ">=8.3"
     },
     "platform-dev": {},
     "platform-overrides": {

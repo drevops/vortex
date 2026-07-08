@@ -92,9 +92,9 @@ composer install
   - Config: `phpstan.neon`
   - Ignores: Untyped iterables in tests/data providers
 
-3. **Rector** - PHP 8.2/8.3 modernization + code quality
+3. **Rector** - PHP 8.3 modernization + code quality
   - Config: `rector.php`
-  - Sets: PHP_82, PHP_83, CODE_QUALITY, CODING_STYLE, DEAD_CODE,
+  - Sets: PHP_83, CODE_QUALITY, CODING_STYLE, DEAD_CODE,
     TYPE_DECLARATION
 
 ### Coding Conventions
@@ -125,7 +125,7 @@ Tests should use PHPUnit 11 features:
 
 GitHub Actions workflows test across:
 
-- PHP versions: 8.2, 8.3, 8.4, 8.5 (normal and lowest dependency sets)
+- PHP versions: 8.3, 8.4, 8.5 (normal and lowest dependency sets)
 - One matrix job runs lint, tests and the coverage upload (Codecov)
 
 Key workflows:

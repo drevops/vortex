@@ -17,7 +17,7 @@
         "source": "https://github.com/drevops/tui"
     },
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "alexskrypnyk/str2name": "^1.4.1",
         "symfony/console": "^7.4.13"
     },
