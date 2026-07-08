@@ -19,23 +19,23 @@ require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
 
-info('Started database import.');
+INFO('Started database import.');
 
 if (run_on_host()) {
   // Dispatch the import into the container.
   // Script runs inside the container - use path relative to project root.
   $script_rel = ltrim(str_replace((string) getcwd(), '', __DIR__), '/');
 
-  task('Importing database inside the container.', 'Imported database inside the container.', function () use ($script_rel, $argv): void {
+  TASK('Importing database inside the container.', 'Imported database inside the container.', function () use ($script_rel, $argv): void {
     passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/vortex-import-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to import database from file.');
   });
 }
 else {
   // Script already runs inside the container - import the database from file
   // directly, without dispatching through Docker.
-  task('Importing database from the dump file.', 'Imported database from the dump file.', function () use ($argv): void {
+  TASK('Importing database from the dump file.', 'Imported database from the dump file.', function () use ($argv): void {
     passthru_or_fail(__DIR__ . '/vortex-import-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to import database from file.');
   });
 }
 
-pass('Finished database import.');
+PASS('Finished database import.');

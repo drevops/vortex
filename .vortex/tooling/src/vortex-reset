@@ -25,32 +25,32 @@ command_must_exist('git');
 
 $is_hard_reset = in_array('--hard', array_slice($GLOBALS['argv'], 1), TRUE);
 
-info('Started reset.');
+INFO('Started reset.');
 
-task('Removing dependencies and built assets.', 'Removed dependencies and built assets.', function () use ($webroot): void {
+TASK('Removing dependencies and built assets.', 'Removed dependencies and built assets.', function () use ($webroot): void {
   passthru(sprintf('rm -rf "./vendor" "./%s/core" "./%s/profiles/contrib" "./%s/modules/contrib" "./%s/themes/contrib" "./%s/themes/custom/*/build" "./%s/themes/custom/*/scss/_components.scss"', $webroot, $webroot, $webroot, $webroot, $webroot, $webroot));
 });
 
-task('Removing node_modules directories.', 'Removed node_modules directories.', function (): void {
+TASK('Removing node_modules directories.', 'Removed node_modules directories.', function (): void {
   passthru_or_fail('find . -type d -name node_modules -prune -exec rm -Rf -- {} +');
 });
 
 if ($is_hard_reset) {
-  task('Changing permissions and removing all other untracked files.', 'Changed permissions and removed all other untracked files.', function (): void {
+  TASK('Changing permissions and removing all other untracked files.', 'Changed permissions and removed all other untracked files.', function (): void {
     passthru('git ls-files --others -i --exclude-from=.gitignore -z | xargs -0 -r sh -c \'for f in "$@"; do chmod 777 "$f" 2>/dev/null; rm -rf "$f" 2>/dev/null; done\' _');
   });
 
-  task('Resetting repository files.', 'Reset repository files.', function (): void {
+  TASK('Resetting repository files.', 'Reset repository files.', function (): void {
     passthru_or_fail('git reset --hard');
   });
 
-  task('Removing all untracked files.', 'Removed all untracked files.', function (): void {
+  TASK('Removing all untracked files.', 'Removed all untracked files.', function (): void {
     passthru_or_fail('git clean -f -d');
   });
 
-  task('Removing empty directories.', 'Removed empty directories.', function (): void {
+  TASK('Removing empty directories.', 'Removed empty directories.', function (): void {
     passthru('find . -type d -not -path "./.git/*" -empty -delete');
   });
 }
 
-pass('Finished reset.');
+PASS('Finished reset.');

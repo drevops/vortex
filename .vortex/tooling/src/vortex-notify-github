@@ -52,7 +52,7 @@ $github_env_type = getenv_default('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE', 'VORT
 
 // -----------------------------------------------------------------------------
 
-info('Started GitHub notification for %s event.', $notify_event);
+INFO('Started GitHub notification for %s event.', $notify_event);
 
 /**
  * Validate deployment ID.
@@ -76,13 +76,13 @@ function deployment_id_is_valid(mixed $deployment_id): bool {
 }
 
 if ($notify_event === 'pre_deployment') {
-  note('GitHub pre-deployment notification summary:');
-  note('Repository      : ' . $github_repository);
-  note('Branch (ref)    : ' . $notify_branch);
-  note('Environment Type: ' . $github_env_type);
-  note('Event           : ' . $notify_event);
+  NOTE('GitHub pre-deployment notification summary:');
+  NOTE('Repository      : ' . $github_repository);
+  NOTE('Branch (ref)    : ' . $notify_branch);
+  NOTE('Environment Type: ' . $github_env_type);
+  NOTE('Event           : ' . $notify_event);
 
-  task(
+  TASK(
     'Creating deployment',
     fn(string $deployment_id): string => sprintf('Created deployment with ID %s.', $deployment_id),
     function () use ($notify_branch, $github_env_type, $github_repository, $github_token, $notify_event): string {
@@ -117,7 +117,7 @@ if ($notify_event === 'pre_deployment') {
 else {
   $env_url = getenv_required('VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL', 'VORTEX_NOTIFY_ENVIRONMENT_URL');
 
-  $deployment_id = (string) task(
+  $deployment_id = (string) TASK(
     sprintf('Finding latest deployment for ref %s', $notify_branch),
     fn(string $deployment_id): string => sprintf('Found deployment with ID %s.', $deployment_id),
     function () use ($github_repository, $notify_branch, $github_token): string {
@@ -146,15 +146,15 @@ else {
     },
   );
 
-  note('GitHub post-deployment notification summary:');
-  note('Repository         : ' . $github_repository);
-  note('Branch (ref)       : ' . $notify_branch);
-  note('Environment Type   : ' . $github_env_type);
-  note('Environment URL    : ' . $env_url);
-  note('Deployment ID      : ' . $deployment_id);
-  note('Event              : ' . $notify_event);
+  NOTE('GitHub post-deployment notification summary:');
+  NOTE('Repository         : ' . $github_repository);
+  NOTE('Branch (ref)       : ' . $notify_branch);
+  NOTE('Environment Type   : ' . $github_env_type);
+  NOTE('Environment URL    : ' . $env_url);
+  NOTE('Deployment ID      : ' . $deployment_id);
+  NOTE('Event              : ' . $notify_event);
 
-  task('Marking deployment as finished', 'Marked deployment as finished.', function () use ($github_repository, $deployment_id, $env_url, $github_token): void {
+  TASK('Marking deployment as finished', 'Marked deployment as finished.', function () use ($github_repository, $deployment_id, $env_url, $github_token): void {
     $status_data = [
       'state' => 'success',
       'environment_url' => $env_url,
@@ -178,4 +178,4 @@ else {
   });
 }
 
-info('Finished GitHub notification for %s event.', $notify_event);
+INFO('Finished GitHub notification for %s event.', $notify_event);

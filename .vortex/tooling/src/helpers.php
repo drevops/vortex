@@ -155,7 +155,7 @@ function getenv_required(...$var_names): string {
 
   // None found, fail with error.
   $var_list = implode(', ', $var_names);
-  fail('Missing required value for %s', $var_list);
+  FAIL('Missing required value for %s', $var_list);
 
   // Never reached, but satisfies return type.
   // @codeCoverageIgnoreStart
@@ -196,7 +196,7 @@ function getenv_list(...$args): array {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function note(string $format, ...$args): void {
+function NOTE(string $format, ...$args): void {
   echo sprintf('       %s%s', sprintf($format, ...$args), PHP_EOL);
 }
 
@@ -229,7 +229,7 @@ function note(string $format, ...$args): void {
  *   Whatever the body returns, or NULL when announcing only or when a non-fatal
  *   body fails.
  */
-function task(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
+function TASK(string $doing, string|\Closure|null $done = NULL, ?callable $body = NULL, bool $fatal = TRUE): mixed {
   $color = term_supports_color();
 
   if ($body === NULL) {
@@ -243,7 +243,7 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
   try {
     $result = $body();
     echo ($color ? "\033[0m" : '') . PHP_EOL;
-    pass('%s', $done instanceof \Closure ? (string) $done($result) : (string) $done);
+    PASS('%s', $done instanceof \Closure ? (string) $done($result) : (string) $done);
 
     return $result;
   }
@@ -256,7 +256,7 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
       return NULL;
     }
 
-    fail('%s', $e->getMessage());
+    FAIL('%s', $e->getMessage());
   }
 
   // @codeCoverageIgnoreStart
@@ -273,7 +273,7 @@ function task(string $doing, string|\Closure|null $done = NULL, ?callable $body 
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function info(string $format, ...$args): void {
+function INFO(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[36m[INFO] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[INFO] %s%s', sprintf($format, ...$args), PHP_EOL);
@@ -287,7 +287,7 @@ function info(string $format, ...$args): void {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function pass(string $format, ...$args): void {
+function PASS(string $format, ...$args): void {
   echo term_supports_color() ?
     "\033[32m[ OK ] " . sprintf($format, ...$args) . "\033[0m\n" :
     sprintf('[ OK ] %s%s', sprintf($format, ...$args), PHP_EOL);
@@ -342,7 +342,7 @@ function sleep_progress(int $seconds): void {
  * @param bool|float|int|string|null ...$args
  *   Arguments for sprintf().
  */
-function fail(string $format, ...$args): void {
+function FAIL(string $format, ...$args): void {
   fail_no_exit($format, ...$args);
   quit(1);
 }
@@ -381,7 +381,7 @@ function command_path(string $command): string|false {
  */
 function command_must_exist(string $command): void {
   if (!command_path($command)) {
-    fail(sprintf("Command '%s' is not available.", $command));
+    FAIL(sprintf("Command '%s' is not available.", $command));
   }
 }
 
@@ -412,7 +412,7 @@ function prepare_db_dir(string $dir): void {
     return;
   }
 
-  task('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($dir): void {
+  TASK('Creating directory for database dumps.', 'Created directory for database dumps.', function () use ($dir): void {
     if (!mkdir($dir, 0755, TRUE)) {
       throw new \RuntimeException(sprintf('Unable to create directory "%s".', $dir));
     }
@@ -435,7 +435,7 @@ function passthru_or_fail(string $cmd, string $format = '', ...$args): void {
   passthru($cmd, $exit_code);
   if ($exit_code !== 0) {
     if ($format !== '') {
-      fail($format, ...$args);
+      FAIL($format, ...$args);
     }
     quit($exit_code);
   }
@@ -491,7 +491,7 @@ function drush(string $command, ?int &$exit_code = NULL): string {
   echo $output;
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Drush command failed: %s', $command);
+    FAIL('Drush command failed: %s', $command);
   }
 
   return $output ?: '';
@@ -527,7 +527,7 @@ function drush_relative_path(string $path): string {
  */
 function lagoon_cli_resolve(): string {
   if (command_path('lagoon')) {
-    note('Using the Lagoon CLI found on PATH.');
+    NOTE('Using the Lagoon CLI found on PATH.');
     return 'lagoon';
   }
 
@@ -536,7 +536,7 @@ function lagoon_cli_resolve(): string {
   $bin = $dir . '/lagoon';
 
   if (is_executable($bin)) {
-    note('Reusing the Lagoon CLI previously downloaded to "%s".', $bin);
+    NOTE('Reusing the Lagoon CLI previously downloaded to "%s".', $bin);
     return $bin;
   }
 
@@ -549,7 +549,7 @@ function lagoon_cli_resolve(): string {
   $base = sprintf('https://github.com/uselagoon/lagoon-cli/releases/download/%s', $version);
   $asset = sprintf('lagoon-cli-%s-%s-%s', $version, $platform, $arch);
 
-  task(sprintf('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin), sprintf('Downloaded the Lagoon CLI "%s" to "%s".', $version, $bin), function () use ($base, $asset, $bin): void {
+  TASK(sprintf('Downloading the Lagoon CLI "%s" to "%s".', $version, $bin), sprintf('Downloaded the Lagoon CLI "%s" to "%s".', $version, $bin), function () use ($base, $asset, $bin): void {
     $response = request($base . '/' . $asset, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
     if (!$response['ok']) {
       @unlink($bin);
@@ -578,7 +578,7 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
   $response = request($base . '/checksums.txt', ['method' => 'GET', 'timeout' => 30]);
   if (!$response['ok']) {
     @unlink($bin);
-    fail('Failed to download the Lagoon CLI checksums from "%s".', $base . '/checksums.txt');
+    FAIL('Failed to download the Lagoon CLI checksums from "%s".', $base . '/checksums.txt');
   }
 
   $expected = '';
@@ -592,7 +592,7 @@ function lagoon_cli_verify_checksum(string $bin, string $base, string $asset): v
 
   if ($expected === '' || !hash_equals($expected, (string) hash_file('sha256', $bin))) {
     @unlink($bin);
-    fail('Lagoon CLI checksum verification failed for "%s".', $asset);
+    FAIL('Lagoon CLI checksum verification failed for "%s".', $asset);
   }
 }
 
@@ -652,7 +652,7 @@ function lagoon_config(string $bin, string $config_file, string $instance, strin
  *   The isolated config file to run against.
  */
 function lagoon_print_version(string $bin, string $config_file): void {
-  task('Checking Lagoon CLI version.', 'Checked Lagoon CLI version.', function () use ($bin, $config_file): void {
+  TASK('Checking Lagoon CLI version.', 'Checked Lagoon CLI version.', function () use ($bin, $config_file): void {
     passthru(sprintf('%s --config-file %s --version 2>&1', escapeshellarg($bin), escapeshellarg($config_file)));
   });
 }
@@ -698,7 +698,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
   $output = ob_get_clean();
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+    FAIL('Lagoon CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
   }
 
   return $output === FALSE ? '' : $output;
@@ -718,7 +718,7 @@ function lagoon_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_co
  */
 function acli_resolve(): string {
   if (command_path('acli')) {
-    note('Using the Acquia CLI found on PATH.');
+    NOTE('Using the Acquia CLI found on PATH.');
     return 'acli';
   }
 
@@ -727,7 +727,7 @@ function acli_resolve(): string {
   $bin = $dir . '/acli';
 
   if (is_executable($bin)) {
-    note('Reusing the Acquia CLI previously downloaded to "%s".', $bin);
+    NOTE('Reusing the Acquia CLI previously downloaded to "%s".', $bin);
     return $bin;
   }
 
@@ -737,7 +737,7 @@ function acli_resolve(): string {
 
   $url = sprintf('https://github.com/acquia/cli/releases/download/%s/acli.phar', $version);
 
-  task(sprintf('Downloading the Acquia CLI "%s" to "%s".', $version, $bin), sprintf('Downloaded the Acquia CLI "%s" to "%s".', $version, $bin), function () use ($url, $bin): void {
+  TASK(sprintf('Downloading the Acquia CLI "%s" to "%s".', $version, $bin), sprintf('Downloaded the Acquia CLI "%s" to "%s".', $version, $bin), function () use ($url, $bin): void {
     $response = request($url, ['method' => 'GET', 'save_to' => $bin, 'timeout' => 120]);
     if (!$response['ok']) {
       @unlink($bin);
@@ -854,7 +854,7 @@ function acli_exec(string $bin, string $subcommand, array $ctx, ?int &$exit_code
   $output = ob_get_clean();
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    fail('Acquia CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
+    FAIL('Acquia CLI command "%s" failed with exit code %s. Output: %s', $subcommand, $exit_code, $output);
   }
 
   return $output === FALSE ? '' : $output;
@@ -879,14 +879,14 @@ function acquia_api_get_token(string $key, string $secret): string {
   ]), ['Content-Type: application/x-www-form-urlencoded']);
 
   if (!$response['ok']) {
-    fail('Unable to retrieve a token.');
+    FAIL('Unable to retrieve a token.');
   }
 
   $data = json_decode((string) $response['body'], TRUE);
   $token = is_array($data) && is_string($data['access_token'] ?? NULL) ? $data['access_token'] : '';
 
   if ($token === '') {
-    fail('Unable to retrieve a token.');
+    FAIL('Unable to retrieve a token.');
   }
 
   return $token;
@@ -924,7 +924,7 @@ function acquia_api_get_app_uuid(string $token, string $app_name): string {
   $response = request_get($url, acquia_api_headers($token));
 
   if (!$response['ok']) {
-    fail('Unable to retrieve an application UUID.');
+    FAIL('Unable to retrieve an application UUID.');
   }
 
   $data = json_decode((string) $response['body'], TRUE);
@@ -933,7 +933,7 @@ function acquia_api_get_app_uuid(string $token, string $app_name): string {
   $uuid = is_array($last) && is_string($last['uuid'] ?? NULL) ? $last['uuid'] : '';
 
   if ($uuid === '') {
-    fail('Unable to retrieve an application UUID.');
+    FAIL('Unable to retrieve an application UUID.');
   }
 
   return $uuid;
@@ -957,7 +957,7 @@ function acquia_api_get_env_id(string $token, string $app_uuid, string $env_name
   $response = request_get($url, acquia_api_headers($token));
 
   if (!$response['ok']) {
-    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+    FAIL(sprintf('Unable to retrieve environment ID for %s.', $env_name));
   }
 
   $data = json_decode((string) $response['body'], TRUE);
@@ -970,7 +970,7 @@ function acquia_api_get_env_id(string $token, string $app_uuid, string $env_name
   }
 
   if ($env_id === '') {
-    fail(sprintf('Unable to retrieve environment ID for %s.', $env_name));
+    FAIL(sprintf('Unable to retrieve environment ID for %s.', $env_name));
   }
 
   return $env_id;
@@ -1221,7 +1221,7 @@ function notify_skip_unlisted_branch(string $branches, string $label, ?string $b
   $branch_list = array_map(trim(...), explode(',', $branches));
 
   if (!in_array($branch, $branch_list, TRUE)) {
-    pass(sprintf("Skipped %s notification for branch '%s'.", $label, $branch));
+    PASS(sprintf("Skipped %s notification for branch '%s'.", $label, $branch));
     quit();
   }
 }
@@ -1236,7 +1236,7 @@ function notify_skip_unlisted_branch(string $branches, string $label, ?string $b
  */
 function notify_skip_pre_deployment(string $event, string $label): void {
   if ($event === 'pre_deployment') {
-    pass(sprintf('Skipped %s notification for pre_deployment event.', $label));
+    PASS(sprintf('Skipped %s notification for pre_deployment event.', $label));
     quit();
   }
 }
@@ -1270,7 +1270,7 @@ function string_map_to_array(string $map, string $separator = ',', string $key_v
   foreach ($pairs as $pair) {
     $parts = explode($key_value_separator, $pair, 2);
     if (count($parts) !== 2) {
-      fail(sprintf('invalid key/value pair "%s" provided.', $pair));
+      FAIL(sprintf('invalid key/value pair "%s" provided.', $pair));
     }
     $array[trim($parts[0])] = trim($parts[1]);
   }
@@ -1370,7 +1370,7 @@ function request_post(string $url, $body = NULL, array $headers = [], int $timeo
 function request(string $url, array $options = []): array {
   // @codeCoverageIgnoreStart
   if (!function_exists('curl_init')) {
-    fail('curl extension is not available.');
+    FAIL('curl extension is not available.');
   }
   // @codeCoverageIgnoreEnd
   $ch = curl_init($url);

@@ -44,14 +44,14 @@ $push_container_registry_image_tag = getenv_default('VORTEX_PUSH_CONTAINER_REGIS
 
 // -----------------------------------------------------------------------------
 
-info('Started container registry push.');
+INFO('Started container registry push.');
 
 $push_container_registry_map = string_map_to_array($push_container_registry_map);
 
 // Only push if the map was provided, but do not fail if it has not as this
 // may be called as a part of another task.
 if (empty($push_container_registry_map)) {
-  note('Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue.');
+  NOTE('Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue.');
   quit(0);
 }
 
@@ -60,7 +60,7 @@ putenv('VORTEX_CONTAINER_REGISTRY=' . $push_container_registry);
 putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $push_container_registry_user);
 putenv('VORTEX_CONTAINER_REGISTRY_PASS=' . $push_container_registry_pass);
 
-task('Logging in to the container registry.', 'Logged in to the container registry.', function (): void {
+TASK('Logging in to the container registry.', 'Logged in to the container registry.', function (): void {
   passthru(__DIR__ . '/vortex-login-container-registry', $login_exit_code);
   if ($login_exit_code !== 0) {
     quit($login_exit_code);
@@ -68,7 +68,7 @@ task('Logging in to the container registry.', 'Logged in to the container regist
 });
 
 foreach ($push_container_registry_map as $service => $image) {
-  $cid = (string) task(
+  $cid = (string) TASK(
     sprintf('Processing service %s.', $service),
     fn(string $cid): string => sprintf('Found "%s" service container with id "%s".', $service, $cid),
     function () use ($service): string {
@@ -91,7 +91,7 @@ foreach ($push_container_registry_map as $service => $image) {
 
   $fully_qualified_image_reference = $push_container_registry . '/' . $image;
 
-  task(
+  TASK(
     sprintf('Committing container image with name "%s".', $fully_qualified_image_reference),
     fn(string $iid): string => sprintf('Committed container image with id "%s".', $iid),
     function () use ($cid, $fully_qualified_image_reference): string {
@@ -106,7 +106,7 @@ foreach ($push_container_registry_map as $service => $image) {
     },
   );
 
-  task('Pushing container image to the registry.', 'Pushed container image to the registry.', function () use ($fully_qualified_image_reference): void {
+  TASK('Pushing container image to the registry.', 'Pushed container image to the registry.', function () use ($fully_qualified_image_reference): void {
     passthru(sprintf('docker push %s', escapeshellarg($fully_qualified_image_reference)), $push_exit_code);
     if ($push_exit_code !== 0) {
       quit($push_exit_code);
@@ -114,4 +114,4 @@ foreach ($push_container_registry_map as $service => $image) {
   });
 }
 
-pass('Finished container registry push.');
+PASS('Finished container registry push.');

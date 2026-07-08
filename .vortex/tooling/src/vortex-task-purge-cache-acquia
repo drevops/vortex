@@ -74,27 +74,27 @@ function purge_interpolate_domain(string $domain, string $target_env): ?string {
 
 // -----------------------------------------------------------------------------
 
-info('Started cache purging in Acquia.');
+INFO('Started cache purging in Acquia.');
 
-$token = (string) task(
+$token = (string) TASK(
   'Retrieving authentication token.',
   'Retrieved authentication token.',
   fn(): string => acquia_api_get_token($acquia_key, $acquia_secret),
 );
 
-$app_uuid = (string) task(
+$app_uuid = (string) TASK(
   sprintf('Retrieving %s application UUID.', $app_name),
   'Retrieved the application UUID.',
   fn(): string => acquia_api_get_app_uuid($token, $app_name),
 );
 
-$env_id = (string) task(
+$env_id = (string) TASK(
   'Retrieving environment ID.',
   'Retrieved environment ID.',
   fn(): string => acquia_api_get_env_id($token, $app_uuid, $target_env),
 );
 
-$domain_list = task(
+$domain_list = TASK(
   'Compiling a list of domains.',
   fn(array $domain_list): string => sprintf('Compiled a list of %d domain(s).', count($domain_list)),
   function () use ($domains_file, $target_env): array {
@@ -125,11 +125,11 @@ if (!is_array($domain_list)) {
 }
 
 if ($domain_list === []) {
-  note(sprintf('No domains to purge cache for %s environment.', $target_env));
+  NOTE(sprintf('No domains to purge cache for %s environment.', $target_env));
 }
 
 foreach ($domain_list as $domain) {
-  task(
+  TASK(
     sprintf('Purging cache for %s environment domain %s.', $target_env, $domain),
     sprintf('Purged cache for %s environment domain %s.', $target_env, $domain),
     function () use ($env_id, $token, $domain, $acquia_key, $acquia_secret, $status_retries, $status_interval, $target_env): void {
@@ -165,4 +165,4 @@ foreach ($domain_list as $domain) {
   );
 }
 
-pass('Finished cache purging in Acquia.');
+PASS('Finished cache purging in Acquia.');

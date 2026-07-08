@@ -113,7 +113,7 @@ function parse_email_recipients(string $recipients): array {
 
 // -----------------------------------------------------------------------------
 
-info('Started email notification.');
+INFO('Started email notification.');
 
 // Skip if this is a pre-deployment event (email only for post-deployment).
 notify_skip_pre_deployment((string) $notify_event, 'email');
@@ -134,23 +134,23 @@ $email_message = replace_tokens($email_message, [
   'login_url' => $notify_login_url,
 ]);
 
-note('Email notification summary:');
-note('Project        : ' . $notify_project);
-note('Deployment     : ' . $notify_label);
-note('Environment URL: ' . $notify_env_url);
-note('Login URL      : ' . $notify_login_url);
-note('From           : ' . $email_from);
-note('Recipients     : ' . $email_recipients);
+NOTE('Email notification summary:');
+NOTE('Project        : ' . $notify_project);
+NOTE('Deployment     : ' . $notify_label);
+NOTE('Environment URL: ' . $notify_env_url);
+NOTE('Login URL      : ' . $notify_login_url);
+NOTE('From           : ' . $email_from);
+NOTE('Recipients     : ' . $email_recipients);
 if (!empty($email_cc)) {
-  note('CC             : ' . $email_cc);
+  NOTE('CC             : ' . $email_cc);
 }
 if (!empty($email_bcc)) {
-  note('BCC            : ' . $email_bcc);
+  NOTE('BCC            : ' . $email_bcc);
 }
-note('Subject        : ' . $email_subject);
-note('Content        : ' . $email_message);
+NOTE('Subject        : ' . $email_subject);
+NOTE('Content        : ' . $email_message);
 
-task(
+TASK(
   'Sending email notification',
   function (array $sent): string {
     if (!empty($sent)) {
@@ -202,4 +202,4 @@ task(
   },
 );
 
-info('Finished email notification.');
+INFO('Finished email notification.');

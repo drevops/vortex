@@ -45,19 +45,19 @@ $ssh_file = getenv_default('VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE', getenv('HOME') 
 
 // -----------------------------------------------------------------------------
 
-info(sprintf('Started Lagoon task %s.', $task_name));
+INFO(sprintf('Started Lagoon task %s.', $task_name));
 
 $lagoon_bin = lagoon_cli_resolve();
 
 // Setup SSH.
 putenv('VORTEX_SSH_PREFIX=TASK_CUSTOM_LAGOON');
-task('Setting up SSH.', 'Set up SSH.', function (): void {
+TASK('Setting up SSH.', 'Set up SSH.', function (): void {
   passthru_or_fail(__DIR__ . '/vortex-setup-ssh', 'Failed to setup SSH.');
 });
 
 $config_file = lagoon_config_file();
 
-task('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($lagoon_bin, $config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port): void {
+TASK('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($lagoon_bin, $config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port): void {
   lagoon_config($lagoon_bin, $config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
 });
 
@@ -68,7 +68,7 @@ $ctx = [
   'ssh_key' => (string) $ssh_file,
 ];
 
-task(
+TASK(
   sprintf('Creating %s task: project %s, branch: %s.', $task_name, $lagoon_project, $branch),
   sprintf('Created %s task.', $task_name),
   function () use ($lagoon_bin, $ctx, $branch, $task_name, $command): void {
@@ -76,4 +76,4 @@ task(
   },
 );
 
-pass(sprintf('Finished Lagoon task %s.', $task_name));
+PASS(sprintf('Finished Lagoon task %s.', $task_name));

@@ -67,7 +67,7 @@ $webhook_payload = getenv_default('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"channel": 
 
 // -----------------------------------------------------------------------------
 
-info('Started webhook notification.');
+INFO('Started webhook notification.');
 
 notify_skip_pre_deployment((string) $notify_event, 'webhook');
 
@@ -83,18 +83,18 @@ $webhook_payload = replace_tokens($webhook_payload, [
 // Sanitize webhook URL (extract domain, hide path that may contain secrets).
 $webhook_domain = preg_replace('|(https?://[^/]+).*|', '$1', $webhook_url);
 
-note('Webhook notification summary:');
-note('Project            : ' . $notify_project);
-note('Deployment         : ' . $notify_label);
-note('Environment URL    : ' . $notify_env_url);
-note('Login URL          : ' . $notify_login_url);
-note('Webhook URL        : %s/***', $webhook_domain);
-note('Method             : ' . $webhook_method);
-note('Headers            : ' . $webhook_headers);
-note('Expected Status    : ' . $webhook_expected_status);
-note('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
+NOTE('Webhook notification summary:');
+NOTE('Project            : ' . $notify_project);
+NOTE('Deployment         : ' . $notify_label);
+NOTE('Environment URL    : ' . $notify_env_url);
+NOTE('Login URL          : ' . $notify_login_url);
+NOTE('Webhook URL        : %s/***', $webhook_domain);
+NOTE('Method             : ' . $webhook_method);
+NOTE('Headers            : ' . $webhook_headers);
+NOTE('Expected Status    : ' . $webhook_expected_status);
+NOTE('Payload (first 200): ' . substr($webhook_payload, 0, 200) . '...');
 
-task(
+TASK(
   sprintf('Sending webhook notification to %s', $webhook_domain),
   fn(int $status): string => sprintf('Webhook notification sent successfully with status %s.', $status),
   function () use ($webhook_url, $webhook_method, $webhook_headers, $webhook_payload, $webhook_expected_status): int {
@@ -113,4 +113,4 @@ task(
   },
 );
 
-pass('Finished webhook notification.');
+PASS('Finished webhook notification.');

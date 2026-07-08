@@ -30,9 +30,9 @@ $deploy_webhook_expected_status = getenv_default('VORTEX_DEPLOY_WEBHOOK_RESPONSE
 
 // -----------------------------------------------------------------------------
 
-info('Started webhook deployment.');
+INFO('Started webhook deployment.');
 
-task('Calling the deployment webhook.', 'Webhook call completed.', function () use ($deploy_webhook_url, $deploy_webhook_method, $deploy_webhook_expected_status): void {
+TASK('Calling the deployment webhook.', 'Webhook call completed.', function () use ($deploy_webhook_url, $deploy_webhook_method, $deploy_webhook_expected_status): void {
   $response = request($deploy_webhook_url, ['method' => $deploy_webhook_method]);
 
   if (!$response['ok']) {
@@ -44,4 +44,4 @@ task('Calling the deployment webhook.', 'Webhook call completed.', function () u
   }
 });
 
-pass('Finished webhook deployment.');
+PASS('Finished webhook deployment.');

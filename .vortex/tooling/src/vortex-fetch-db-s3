@@ -44,7 +44,7 @@ $db_file = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_
 
 // -----------------------------------------------------------------------------
 
-info('Started database dump download from S3.');
+INFO('Started database dump download from S3.');
 
 // Ensure prefix ends with a trailing slash if non-empty.
 if ($prefix !== '') {
@@ -56,15 +56,15 @@ prepare_db_dir($db_dir);
 $uri = sprintf('/%s%s', $prefix, $db_file);
 $object_url = sprintf('https://%s.s3.%s.amazonaws.com%s', $bucket, $region, $uri);
 
-note(sprintf('Remote file: %s%s', $prefix, $db_file));
-note(sprintf('Local path:  %s/%s', $db_dir, $db_file));
-note(sprintf('S3 bucket:   %s', $bucket));
-note(sprintf('S3 region:   %s', $region));
+NOTE(sprintf('Remote file: %s%s', $prefix, $db_file));
+NOTE(sprintf('Local path:  %s/%s', $db_dir, $db_file));
+NOTE(sprintf('S3 bucket:   %s', $bucket));
+NOTE(sprintf('S3 region:   %s', $region));
 if ($prefix !== '') {
-  note(sprintf('S3 prefix:   %s', $prefix));
+  NOTE(sprintf('S3 prefix:   %s', $prefix));
 }
 
-task('Downloading the database dump from S3.', 'Downloaded the database dump from S3.', function () use ($object_url, $bucket, $region, $uri, $access_key, $secret_key, $db_dir, $db_file): void {
+TASK('Downloading the database dump from S3.', 'Downloaded the database dump from S3.', function () use ($object_url, $bucket, $region, $uri, $access_key, $secret_key, $db_dir, $db_file): void {
   $headers = aws_s3_signed_headers('GET', $bucket, $region, $uri, hash('sha256', ''), $access_key, $secret_key);
 
   $response = request($object_url, ['method' => 'GET', 'headers' => $headers, 'save_to' => $db_dir . '/' . $db_file, 'timeout' => 300]);
@@ -74,4 +74,4 @@ task('Downloading the database dump from S3.', 'Downloaded the database dump fro
   }
 });
 
-pass('Finished database dump download from S3.');
+PASS('Finished database dump download from S3.');

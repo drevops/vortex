@@ -71,12 +71,12 @@ $deploy_lagoon_fail_when_env_limit_exceeded = getenv_default('VORTEX_DEPLOY_LAGO
 
 // -----------------------------------------------------------------------------
 
-info('Started Lagoon deployment.');
+INFO('Started Lagoon deployment.');
 
 // Lagoon does not support tag deployments. Exit successfully with a message.
 if ($deploy_mode === 'tag') {
-  note('Lagoon does not support tag deployments. Skipped.');
-  pass('Finished Lagoon deployment.');
+  NOTE('Lagoon does not support tag deployments. Skipped.');
+  PASS('Finished Lagoon deployment.');
   quit(0);
 }
 
@@ -85,7 +85,7 @@ $exit_code = 0;
 
 // Check required values.
 if (empty($deploy_branch) && empty($deploy_pr)) {
-  fail('Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
+  FAIL('Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
 }
 
 $lagoon_bin = lagoon_cli_resolve();
@@ -94,20 +94,20 @@ $lagoon_bin = lagoon_cli_resolve();
 putenv('VORTEX_SSH_PREFIX=DEPLOY_LAGOON');
 !empty($ssh_fingerprint) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT=' . $ssh_fingerprint);
 !empty($ssh_file) && putenv('VORTEX_DEPLOY_LAGOON_SSH_FILE=' . $ssh_file);
-task('Setting up SSH.', 'Set up SSH.', function (): void {
+TASK('Setting up SSH.', 'Set up SSH.', function (): void {
   passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 });
 
 $lagoon_config_file = lagoon_config_file();
 
-task('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($lagoon_bin, $lagoon_config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port): void {
+TASK('Configuring Lagoon instance.', 'Configured Lagoon instance.', function () use ($lagoon_bin, $lagoon_config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port): void {
   lagoon_config($lagoon_bin, $lagoon_config_file, $lagoon_instance, $lagoon_instance_graphql, $lagoon_instance_hostname, $lagoon_instance_port);
 });
 
 // Surface the CLI version and authenticated identity so the run is observable.
 lagoon_print_version($lagoon_bin, $lagoon_config_file);
 
-task('Checking Lagoon authenticated identity.', 'Checked Lagoon authenticated identity.', function (): void {
+TASK('Checking Lagoon authenticated identity.', 'Checked Lagoon authenticated identity.', function (): void {
   echo lagoon_run_cli('whoami');
 });
 
@@ -143,7 +143,7 @@ function lagoon_run_cli(string $subcommand, ?int &$subcommand_exit_code = NULL):
 function lagoon_get_existing_environments(bool $is_branch): array {
   $deploy_type = $is_branch ? 'branch' : 'pullrequest';
 
-  $names = task(
+  $names = TASK(
     sprintf('Discovering existing environments for %s deployments.', $deploy_type),
     fn(array $names): string => sprintf('Discovered %d existing %s environment(s).', count($names), $deploy_type),
     function () use ($deploy_type): array {
@@ -183,9 +183,9 @@ function lagoon_handle_environment_limit_exceeded(string $output, int $exit_code
   global $deploy_lagoon_fail_when_env_limit_exceeded;
 
   if (stripos($output, 'exceed') !== FALSE) {
-    note('Lagoon environment limit exceeded.');
+    NOTE('Lagoon environment limit exceeded.');
     if (!$deploy_lagoon_fail_when_env_limit_exceeded) {
-      note('Ignoring environment limit exceeded error as per configuration.');
+      NOTE('Ignoring environment limit exceeded error as per configuration.');
       return 0;
     }
 
@@ -197,7 +197,7 @@ function lagoon_handle_environment_limit_exceeded(string $output, int $exit_code
 }
 
 if ($deploy_action === 'destroy') {
-  task(sprintf('Destroying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Destroyed the environment.', function () use ($deploy_branch): void {
+  TASK(sprintf('Destroying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Destroyed the environment.', function () use ($deploy_branch): void {
     lagoon_run_cli(sprintf('delete environment --environment %s', escapeshellarg($deploy_branch)));
   });
 }
@@ -207,25 +207,25 @@ else {
 
     $env_names = lagoon_get_existing_environments(FALSE);
     $is_redeploy = in_array($deploy_pr_full, $env_names, TRUE);
-    $is_redeploy && note(sprintf('Found already deployed environment for PR "%s".', $deploy_pr));
+    $is_redeploy && NOTE(sprintf('Found already deployed environment for PR "%s".', $deploy_pr));
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
       // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       // @see https://github.com/uselagoon/lagoon/issues/1922
       // @todo Review and remove this workaround as the issue is fixed.
-      task('Setting a database overwrite flag to 0.', 'Set the database overwrite flag to 0.', function () use ($deploy_pr_full): void {
+      TASK('Setting a database overwrite flag to 0.', 'Set the database overwrite flag to 0.', function () use ($deploy_pr_full): void {
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
       });
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Adding a database import override flag for the current deployment.', 'Added the database import override flag.', function () use ($deploy_pr_full): void {
+        TASK('Adding a database import override flag for the current deployment.', 'Added the database import override flag.', function () use ($deploy_pr_full): void {
           lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_pr_full)));
         });
       }
 
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      task(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
+      TASK(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
         $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
         $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
@@ -235,11 +235,11 @@ else {
       }, fatal: FALSE);
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
+        TASK('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
           sleep_progress(10);
         });
 
-        task('Removing a database import override flag for the current deployment.', 'Removed the database import override flag.', function () use ($deploy_pr_full): void {
+        TASK('Removing a database import override flag for the current deployment.', 'Removed the database import override flag.', function () use ($deploy_pr_full): void {
           lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
         });
       }
@@ -247,7 +247,7 @@ else {
     // Fresh deployment.
     else {
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      task(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
+      TASK(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
         $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
         $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
@@ -261,25 +261,25 @@ else {
   else {
     $env_names = lagoon_get_existing_environments(TRUE);
     $is_redeploy = in_array($deploy_branch, $env_names, TRUE);
-    $is_redeploy && note(sprintf('Found already deployed environment for branch "%s".', $deploy_branch));
+    $is_redeploy && NOTE(sprintf('Found already deployed environment for branch "%s".', $deploy_branch));
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
       // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
       // @see https://github.com/uselagoon/lagoon/issues/1922
       // @todo Review and remove this workaround as the issue is fixed.
-      task('Setting a database overwrite flag to 0.', 'Set the database overwrite flag to 0.', function () use ($deploy_branch): void {
+      TASK('Setting a database overwrite flag to 0.', 'Set the database overwrite flag to 0.', function () use ($deploy_branch): void {
         lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
       });
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Adding a database import override flag for the current deployment.', 'Added the database import override flag.', function () use ($deploy_branch): void {
+        TASK('Adding a database import override flag for the current deployment.', 'Added the database import override flag.', function () use ($deploy_branch): void {
           lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_branch)));
         });
       }
 
       $deploy_cmd = sprintf('deploy latest --environment %s', escapeshellarg($deploy_branch));
-      task(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
+      TASK(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
         $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
         $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
@@ -289,11 +289,11 @@ else {
       }, fatal: FALSE);
 
       if ($deploy_action === 'deploy_override_db') {
-        task('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
+        TASK('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
           sleep_progress(10);
         });
 
-        task('Removing a database import override flag for the current deployment.', 'Removed the database import override flag.', function () use ($deploy_branch): void {
+        TASK('Removing a database import override flag for the current deployment.', 'Removed the database import override flag.', function () use ($deploy_branch): void {
           lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
         });
       }
@@ -301,7 +301,7 @@ else {
     // Fresh deployment.
     else {
       $deploy_cmd = sprintf('deploy branch --branch %s', escapeshellarg($deploy_branch));
-      task(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
+      TASK(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
         $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
         $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
 
@@ -314,10 +314,10 @@ else {
 }
 
 if ($exit_code === 0) {
-  pass('Finished Lagoon deployment.');
+  PASS('Finished Lagoon deployment.');
 }
 else {
-  fail('Lagoon deployment completed with errors.');
+  FAIL('Lagoon deployment completed with errors.');
 }
 
 quit($exit_code);

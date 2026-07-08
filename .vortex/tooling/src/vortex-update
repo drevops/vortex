@@ -55,16 +55,16 @@ foreach (array_slice($GLOBALS['argv'] ?? [], 1) as $arg) {
 }
 
 if ($installer_path !== '') {
-  note('Using installer script from local path: %s', $installer_path);
+  NOTE('Using installer script from local path: %s', $installer_path);
   if (!file_exists($installer_path)) {
-    fail('Installer script not found at %s', $installer_path);
+    FAIL('Installer script not found at %s', $installer_path);
   }
 }
 else {
-  note('Using installer script from URL: %s', $installer_url);
+  NOTE('Using installer script from URL: %s', $installer_url);
   $installer_path = 'installer.php';
 
-  task(sprintf('Downloading installer to %s.', $installer_path), sprintf('Downloaded installer to %s.', $installer_path), function () use ($installer_url, $installer_url_cache_bust, $installer_path): void {
+  TASK(sprintf('Downloading installer to %s.', $installer_path), sprintf('Downloaded installer to %s.', $installer_path), function () use ($installer_url, $installer_url_cache_bust, $installer_path): void {
     $separator = str_contains($installer_url, '?') ? '&' : '?';
     $response = request($installer_url . $separator . $installer_url_cache_bust, ['method' => 'GET', 'save_to' => $installer_path, 'timeout' => 30]);
 
@@ -74,7 +74,7 @@ else {
   });
 }
 
-task('Running the installer.', 'Finished running the installer.', function () use ($installer_interactive, $installer_path, $installer_template_repo): void {
+TASK('Running the installer.', 'Finished running the installer.', function () use ($installer_interactive, $installer_path, $installer_template_repo): void {
   if ($installer_interactive === '0') {
     passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $exit_code);
   }

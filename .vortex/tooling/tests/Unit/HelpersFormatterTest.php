@@ -16,12 +16,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
 #[RunTestsInSeparateProcesses]
-#[CoversFunction('DrevOps\VortexTooling\note')]
-#[CoversFunction('DrevOps\VortexTooling\task')]
-#[CoversFunction('DrevOps\VortexTooling\info')]
-#[CoversFunction('DrevOps\VortexTooling\pass')]
+#[CoversFunction('DrevOps\VortexTooling\NOTE')]
+#[CoversFunction('DrevOps\VortexTooling\TASK')]
+#[CoversFunction('DrevOps\VortexTooling\INFO')]
+#[CoversFunction('DrevOps\VortexTooling\PASS')]
 #[CoversFunction('DrevOps\VortexTooling\fail_no_exit')]
-#[CoversFunction('DrevOps\VortexTooling\fail')]
+#[CoversFunction('DrevOps\VortexTooling\FAIL')]
 #[CoversFunction('DrevOps\VortexTooling\term_supports_color')]
 #[Group('helpers')]
 class HelpersFormatterTest extends UnitTestCase {
@@ -75,7 +75,7 @@ class HelpersFormatterTest extends UnitTestCase {
 
     // A string done message reports [ OK ] verbatim and returns the body value.
     ob_start();
-    $result = \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', fn(): string => 'value');
+    $result = \DrevOps\VortexTooling\TASK('Doing the thing.', 'Did the thing.', fn(): string => 'value');
     $output = ob_get_clean();
 
     $this->assertSame('value', $result);
@@ -83,7 +83,7 @@ class HelpersFormatterTest extends UnitTestCase {
 
     // A closure done receives the body's return value to build the message.
     ob_start();
-    $result = \DrevOps\VortexTooling\task('Doing the thing.', fn(string $value): string => sprintf('Did the thing with %s.', $value), fn(): string => 'value');
+    $result = \DrevOps\VortexTooling\TASK('Doing the thing.', fn(string $value): string => sprintf('Did the thing with %s.', $value), fn(): string => 'value');
     $output = ob_get_clean();
 
     $this->assertSame('value', $result);
@@ -96,7 +96,7 @@ class HelpersFormatterTest extends UnitTestCase {
     require_once __DIR__ . '/../../src/helpers.php';
 
     ob_start();
-    $result = \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', function (): void {
+    $result = \DrevOps\VortexTooling\TASK('Doing the thing.', 'Did the thing.', function (): void {
       throw new \RuntimeException('Something went wrong.');
     }, fatal: FALSE);
     $output = ob_get_clean();
@@ -116,7 +116,7 @@ class HelpersFormatterTest extends UnitTestCase {
 
     try {
       ob_start();
-      \DrevOps\VortexTooling\task('Doing the thing.', 'Did the thing.', function (): void {
+      \DrevOps\VortexTooling\TASK('Doing the thing.', 'Did the thing.', function (): void {
         throw new \RuntimeException('Something went wrong.');
       });
     }
@@ -140,7 +140,7 @@ class HelpersFormatterTest extends UnitTestCase {
 
     try {
       ob_start();
-      \DrevOps\VortexTooling\fail('Test failure %s', 'message');
+      \DrevOps\VortexTooling\FAIL('Test failure %s', 'message');
     }
     finally {
       $output = ob_get_clean();

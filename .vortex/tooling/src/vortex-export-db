@@ -24,7 +24,7 @@ $db_image = getenv_default('VORTEX_EXPORT_DB_IMAGE', 'VORTEX_DB_IMAGE', '');
 
 // -----------------------------------------------------------------------------
 
-info('Started database export.');
+INFO('Started database export.');
 
 if (run_on_host()) {
   if ($db_image === '') {
@@ -32,7 +32,7 @@ if (run_on_host()) {
     // Script runs inside the container - use path relative to project root.
     $script_rel = ltrim(str_replace((string) getcwd(), '', __DIR__), '/');
 
-    task('Exporting database as a file inside the container.', 'Exported database as a file inside the container.', function () use ($script_rel, $argv): void {
+    TASK('Exporting database as a file inside the container.', 'Exported database as a file inside the container.', function () use ($script_rel, $argv): void {
       passthru_or_fail('docker compose exec -T cli php ' . $script_rel . '/vortex-export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
     });
   }
@@ -40,7 +40,7 @@ if (run_on_host()) {
     // Export database as a container image.
     putenv('VORTEX_EXPORT_DB_IMAGE=' . $db_image);
 
-    task('Exporting database as a container image.', 'Exported database as a container image.', function () use ($argv): void {
+    TASK('Exporting database as a container image.', 'Exported database as a container image.', function () use ($argv): void {
       passthru_or_fail(__DIR__ . '/vortex-export-db-image ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as image.');
     });
   }
@@ -48,9 +48,9 @@ if (run_on_host()) {
 else {
   // Script already runs inside the container - export the database as a file
   // directly, without dispatching through Docker.
-  task('Exporting database as a file.', 'Exported database as a file.', function () use ($argv): void {
+  TASK('Exporting database as a file.', 'Exported database as a file.', function () use ($argv): void {
     passthru_or_fail(__DIR__ . '/vortex-export-db-file ' . implode(' ', array_map('escapeshellarg', array_slice($argv, 1))), 'Failed to export database as file.');
   });
 }
 
-pass('Finished database export.');
+PASS('Finished database export.');

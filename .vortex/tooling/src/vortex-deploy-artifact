@@ -69,21 +69,21 @@ $git_artifact_sha256 = getenv_default('VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA25
 
 // -----------------------------------------------------------------------------
 
-info('Started artifact deployment.');
+INFO('Started artifact deployment.');
 
 command_must_exist('curl');
 
 // Configure global git settings, if they do not exist.
 $global_git_name = trim((string) shell_exec('git config --global user.name'));
 if (empty($global_git_name)) {
-  task('Configuring global git user name.', 'Configured global git user name.', function () use ($deploy_git_user_name): void {
+  TASK('Configuring global git user name.', 'Configured global git user name.', function () use ($deploy_git_user_name): void {
     passthru_or_fail(sprintf('git config --global user.name %s', escapeshellarg($deploy_git_user_name)));
   });
 }
 
 $global_git_email = trim((string) shell_exec('git config --global user.email'));
 if (empty($global_git_email)) {
-  task('Configuring global git user email.', 'Configured global git user email.', function () use ($deploy_git_user_email): void {
+  TASK('Configuring global git user email.', 'Configured global git user email.', function () use ($deploy_git_user_email): void {
     passthru_or_fail(sprintf('git config --global user.email %s', escapeshellarg($deploy_git_user_email)));
   });
 }
@@ -92,13 +92,13 @@ if (empty($global_git_email)) {
 putenv('VORTEX_SSH_PREFIX=DEPLOY_ARTIFACT');
 !empty($deploy_ssh_fingerprint) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT=' . $deploy_ssh_fingerprint);
 !empty($deploy_ssh_file) && putenv('VORTEX_DEPLOY_ARTIFACT_SSH_FILE=' . $deploy_ssh_file);
-task('Setting up SSH.', 'Set up SSH.', function (): void {
+TASK('Setting up SSH.', 'Set up SSH.', function (): void {
   passthru_or_fail(__DIR__ . '/vortex-setup-ssh');
 });
 
 $git_artifact_bin = (getenv('TMPDIR') ?: '.artifacts/tmp') . '/git-artifact';
 
-task('Installing artifact builder.', 'Installed artifact builder.', function () use ($git_artifact_bin, $git_artifact_version, $git_artifact_sha256): void {
+TASK('Installing artifact builder.', 'Installed artifact builder.', function () use ($git_artifact_bin, $git_artifact_version, $git_artifact_sha256): void {
   $dir = dirname($git_artifact_bin);
   if (!is_dir($dir)) {
     mkdir($dir, 0755, TRUE);
@@ -133,24 +133,24 @@ $deploy_artifact_root = realpath($deploy_artifact_root);
 $deploy_artifact_src = realpath($deploy_artifact_src);
 
 if ($deploy_artifact_root === FALSE || $deploy_artifact_src === FALSE) {
-  fail('Failed to resolve real path for deployment directories.');
+  FAIL('Failed to resolve real path for deployment directories.');
 }
 
 if (is_dir($deploy_artifact_root . '/.git')) {
-  task('Copying git repo files meta file to the deploy code repo.', 'Copied git repo files meta file to the deploy code repo.', function () use ($deploy_artifact_root, $deploy_artifact_src): void {
+  TASK('Copying git repo files meta file to the deploy code repo.', 'Copied git repo files meta file to the deploy code repo.', function () use ($deploy_artifact_root, $deploy_artifact_src): void {
     copy_dir($deploy_artifact_root . '/.git', $deploy_artifact_src . '/.git');
   });
 }
 
 if (file_exists($deploy_artifact_root . '/.gitignore.artifact')) {
-  task('Copying deployment .gitignore as it may not exist in deploy code source files.', 'Copied deployment .gitignore.', function () use ($deploy_artifact_root, $deploy_artifact_src): void {
+  TASK('Copying deployment .gitignore as it may not exist in deploy code source files.', 'Copied deployment .gitignore.', function () use ($deploy_artifact_root, $deploy_artifact_src): void {
     if (!copy($deploy_artifact_root . '/.gitignore.artifact', $deploy_artifact_src . '/.gitignore.artifact')) {
       throw new \RuntimeException('Failed to copy deployment .gitignore.');
     }
   });
 }
 
-task('Running artifact builder.', 'Finished artifact deployment.', function () use ($git_artifact_bin, $deploy_git_remote, $deploy_artifact_root, $deploy_artifact_src, $deploy_artifact_dst_branch, $deploy_artifact_log): void {
+TASK('Running artifact builder.', 'Finished artifact deployment.', function () use ($git_artifact_bin, $deploy_git_remote, $deploy_artifact_root, $deploy_artifact_src, $deploy_artifact_dst_branch, $deploy_artifact_log): void {
   $git_artifact_args = [
     escapeshellarg($git_artifact_bin),
     escapeshellarg($deploy_git_remote),

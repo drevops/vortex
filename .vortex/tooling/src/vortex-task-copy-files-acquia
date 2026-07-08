@@ -39,33 +39,33 @@ $status_interval = (int) getenv_default('VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_IN
 
 // -----------------------------------------------------------------------------
 
-info('Started files copying between environments in Acquia.');
+INFO('Started files copying between environments in Acquia.');
 
-$token = (string) task(
+$token = (string) TASK(
   'Retrieving authentication token.',
   'Retrieved authentication token.',
   fn(): string => acquia_api_get_token($acquia_key, $acquia_secret),
 );
 
-$app_uuid = (string) task(
+$app_uuid = (string) TASK(
   sprintf('Retrieving %s application UUID.', $app_name),
   'Retrieved the application UUID.',
   fn(): string => acquia_api_get_app_uuid($token, $app_name),
 );
 
-$src_env_id = (string) task(
+$src_env_id = (string) TASK(
   'Retrieving source environment ID.',
   'Retrieved source environment ID.',
   fn(): string => acquia_api_get_env_id($token, $app_uuid, $src_env),
 );
 
-$dst_env_id = (string) task(
+$dst_env_id = (string) TASK(
   'Retrieving destination environment ID.',
   'Retrieved destination environment ID.',
   fn(): string => acquia_api_get_env_id($token, $app_uuid, $dst_env),
 );
 
-$notification_url = (string) task(sprintf('Copying files from %s to %s environment.', $src_env, $dst_env), 'Requested the files copy.', function () use ($token, $dst_env_id, $src_env_id, $src_env, $dst_env): string {
+$notification_url = (string) TASK(sprintf('Copying files from %s to %s environment.', $src_env, $dst_env), 'Requested the files copy.', function () use ($token, $dst_env_id, $src_env_id, $src_env, $dst_env): string {
   $copy_response = request_post(sprintf('https://cloud.acquia.com/api/environments/%s/files', $dst_env_id), json_encode(['source' => $src_env_id]), array_merge(acquia_api_headers($token), ['Content-Type: application/json']));
 
   if (!$copy_response['ok']) {
@@ -82,10 +82,10 @@ $notification_url = (string) task(sprintf('Copying files from %s to %s environme
   return $notification_url;
 });
 
-task('Waiting for the files copy to complete.', sprintf('Copied files from %s to %s environment.', $src_env, $dst_env), function () use ($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $src_env, $dst_env): void {
+TASK('Waiting for the files copy to complete.', sprintf('Copied files from %s to %s environment.', $src_env, $dst_env), function () use ($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval, $src_env, $dst_env): void {
   if (!acquia_api_poll_notification($acquia_key, $acquia_secret, $notification_url, $status_retries, $status_interval)) {
     throw new \RuntimeException(sprintf('Unable to copy files from %s to %s environment.', $src_env, $dst_env));
   }
 });
 
-pass('Finished files copying between environments in Acquia.');
+PASS('Finished files copying between environments in Acquia.');

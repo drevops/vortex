@@ -33,13 +33,13 @@ $unzip_password = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB'
 
 // -----------------------------------------------------------------------------
 
-info('Started database dump download from URL.');
+INFO('Started database dump download from URL.');
 
 prepare_db_dir($db_dir);
 
 $dest = $db_dir . '/' . $db_file;
 
-task('Downloading the database dump file.', 'Downloaded the database dump file.', function () use ($url, $dest): void {
+TASK('Downloading the database dump file.', 'Downloaded the database dump file.', function () use ($url, $dest): void {
   $response = request($url, ['method' => 'GET', 'save_to' => $dest, 'timeout' => 300]);
 
   if (!$response['ok']) {
@@ -54,7 +54,7 @@ task('Downloading the database dump file.', 'Downloaded the database dump file.'
 if (str_ends_with($url, '.zip')) {
   command_must_exist('unzip');
 
-  task('Extracting the database dump from the zip archive.', 'Extracted the database dump from the zip archive.', function () use ($dest, $db_dir, $unzip_password): void {
+  TASK('Extracting the database dump from the zip archive.', 'Extracted the database dump from the zip archive.', function () use ($dest, $db_dir, $unzip_password): void {
     $zip_file = $dest . '.zip';
     rename($dest, $zip_file);
 
@@ -64,11 +64,11 @@ if (str_ends_with($url, '.zip')) {
     }
 
     if ($unzip_password !== '') {
-      note('Unzipping password-protected database dump file.');
+      NOTE('Unzipping password-protected database dump file.');
       passthru(sprintf('unzip -o -P %s %s -d %s', escapeshellarg($unzip_password), escapeshellarg($zip_file), escapeshellarg($temp_dir)), $exit_code);
     }
     else {
-      note('Unzipping database dump file.');
+      NOTE('Unzipping database dump file.');
       passthru(sprintf('unzip -o %s -d %s', escapeshellarg($zip_file), escapeshellarg($temp_dir)), $exit_code);
     }
 
@@ -80,7 +80,7 @@ if (str_ends_with($url, '.zip')) {
     }
 
     // Find the first regular file in the extracted content.
-    note('Discovering database file in archive.');
+    NOTE('Discovering database file in archive.');
     $extracted_file = shell_exec('find ' . escapeshellarg($temp_dir) . ' -type f -print | head -n 1');
     $extracted_file = $extracted_file !== NULL ? trim($extracted_file) : '';
 
@@ -90,13 +90,13 @@ if (str_ends_with($url, '.zip')) {
       throw new \RuntimeException('No files found in the zip archive.');
     }
 
-    note('Moving extracted file to target location.');
+    NOTE('Moving extracted file to target location.');
     rename($extracted_file, $dest);
 
-    note('Cleaning up temporary files.');
+    NOTE('Cleaning up temporary files.');
     shell_exec('rm -rf ' . escapeshellarg($temp_dir));
     @unlink($zip_file);
   });
 }
 
-pass('Finished database dump download from URL.');
+PASS('Finished database dump download from URL.');

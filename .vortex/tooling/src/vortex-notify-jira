@@ -126,12 +126,12 @@ function build_adf_comment(string $project, string $label, string $timestamp, st
 
 // -----------------------------------------------------------------------------
 
-info('Started JIRA notification.');
+INFO('Started JIRA notification.');
 
 // Skip if this is a pre-deployment event (JIRA only processes post-deployment).
 notify_skip_pre_deployment((string) $notify_event, 'JIRA');
 
-$jira_issue = (string) task(
+$jira_issue = (string) TASK(
   'Extracting issue number from the branch name.',
   fn(string $issue): string => $issue === '' ? sprintf('Branch %s does not contain issue number. Skipped JIRA notification.', $notify_branch) : sprintf('Found issue %s.', $issue),
   fn(): string => preg_match('/([^\/]+\/)?([A-Za-z0-9]+\-\d+)/', $notify_branch, $matches) ? $matches[2] : '',
@@ -143,7 +143,7 @@ if ($jira_issue === '') {
 
 $token = base64_encode(sprintf('%s:%s', $jira_user_email, $jira_api_token));
 
-task('Checking API access', fn(string $account_id): string => sprintf('Authenticated as user with account ID %s.', $account_id), function () use ($token, $jira_endpoint): string {
+TASK('Checking API access', fn(string $account_id): string => sprintf('Authenticated as user with account ID %s.', $account_id), function () use ($token, $jira_endpoint): string {
   $url = sprintf('%s/rest/api/3/myself', $jira_endpoint);
 
   $response = request_get($url, [
@@ -168,18 +168,18 @@ $timestamp = date('d/m/Y H:i:s T');
 
 $comment_body = build_adf_comment($notify_project, $notify_label, $timestamp, $notify_env_url, $notify_login_url);
 
-note('JIRA notification summary:');
-note('Project        : ' . $notify_project);
-note('Deployment     : ' . $notify_label);
-note('Issue          : ' . $jira_issue);
-note('Environment URL: ' . $notify_env_url);
-note('Login URL      : ' . $notify_login_url);
-note('Endpoint       : ' . $jira_endpoint);
-note('User email     : ' . $jira_user_email);
-note('Transition     : ' . ($jira_transition ?: '<none>'));
-note('Assignee email : ' . ($jira_assignee_email ?: '<none>'));
+NOTE('JIRA notification summary:');
+NOTE('Project        : ' . $notify_project);
+NOTE('Deployment     : ' . $notify_label);
+NOTE('Issue          : ' . $jira_issue);
+NOTE('Environment URL: ' . $notify_env_url);
+NOTE('Login URL      : ' . $notify_login_url);
+NOTE('Endpoint       : ' . $jira_endpoint);
+NOTE('User email     : ' . $jira_user_email);
+NOTE('Transition     : ' . ($jira_transition ?: '<none>'));
+NOTE('Assignee email : ' . ($jira_assignee_email ?: '<none>'));
 
-task('Posting a comment', fn(string $id): string => sprintf('Posted comment with ID %s.', $id), function () use ($token, $jira_endpoint, $jira_issue, $comment_body): string {
+TASK('Posting a comment', fn(string $id): string => sprintf('Posted comment with ID %s.', $id), function () use ($token, $jira_endpoint, $jira_issue, $comment_body): string {
   $payload_data = ['body' => $comment_body];
   $url = sprintf('%s/rest/api/3/issue/%s/comment', $jira_endpoint, $jira_issue);
   $response = request_post($url, json_encode($payload_data, JSON_UNESCAPED_SLASHES), [
@@ -201,7 +201,7 @@ task('Posting a comment', fn(string $id): string => sprintf('Posted comment with
 });
 
 if (!empty($jira_transition)) {
-  $transition_id = (string) task(
+  $transition_id = (string) TASK(
     sprintf('Discovering transition ID for %s', $jira_transition),
     fn(string $id): string => sprintf('Found transition ID %s', $id),
     function () use ($token, $jira_endpoint, $jira_issue, $jira_transition): string {
@@ -232,7 +232,7 @@ if (!empty($jira_transition)) {
     },
   );
 
-  task('Transitioning issue to ' . $jira_transition, sprintf('Transitioned issue to %s ', $jira_transition), function () use ($token, $jira_endpoint, $jira_issue, $transition_id, $jira_transition): void {
+  TASK('Transitioning issue to ' . $jira_transition, sprintf('Transitioned issue to %s ', $jira_transition), function () use ($token, $jira_endpoint, $jira_issue, $transition_id, $jira_transition): void {
     $payload_data = ['transition' => ['id' => $transition_id]];
     $url = sprintf('%s/rest/api/3/issue/%s/transitions', $jira_endpoint, $jira_issue);
     $response = request_post($url, json_encode($payload_data), [
@@ -248,7 +248,7 @@ if (!empty($jira_transition)) {
 }
 
 if (!empty($jira_assignee_email)) {
-  $assignee_account_id = (string) task(
+  $assignee_account_id = (string) TASK(
     sprintf('Discovering assignee user ID for %s', $jira_assignee_email),
     fn(string $id): string => sprintf('Found assignee account ID %s', $id),
     function () use ($token, $jira_endpoint, $jira_issue, $jira_assignee_email): string {
@@ -275,7 +275,7 @@ if (!empty($jira_assignee_email)) {
     },
   );
 
-  task('Assigning issue to user ID ' . $assignee_account_id, 'Assigned issue to ' . $jira_assignee_email, function () use ($token, $jira_endpoint, $jira_issue, $assignee_account_id, $jira_assignee_email): void {
+  TASK('Assigning issue to user ID ' . $assignee_account_id, 'Assigned issue to ' . $jira_assignee_email, function () use ($token, $jira_endpoint, $jira_issue, $assignee_account_id, $jira_assignee_email): void {
     $payload_data = ['accountId' => $assignee_account_id];
     $url = sprintf('%s/rest/api/3/issue/%s/assignee', $jira_endpoint, $jira_issue);
     $response = request($url, [
@@ -294,4 +294,4 @@ if (!empty($jira_assignee_email)) {
   });
 }
 
-info('Finished JIRA notification.');
+INFO('Finished JIRA notification.');

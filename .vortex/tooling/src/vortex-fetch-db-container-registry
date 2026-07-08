@@ -59,13 +59,13 @@ function image_exists_on_host(string $image): bool {
   return trim((string) $inspect_result) === '1';
 }
 
-info('Started database data container image download.');
+INFO('Started database data container image download.');
 
 if (image_exists_on_host($image)) {
-  note(sprintf('Found %s image on host.', $image));
+  NOTE(sprintf('Found %s image on host.', $image));
 }
 else {
-  note(sprintf('Not found %s image on host.', $image));
+  NOTE(sprintf('Not found %s image on host.', $image));
 }
 
 $image_expanded_successfully = FALSE;
@@ -73,7 +73,7 @@ $archive = $db_dir . '/db.tar';
 
 if (file_exists($archive)) {
   // Always use archived image, even if such image already exists on the host.
-  $image_expanded_successfully = (bool) task(
+  $image_expanded_successfully = (bool) TASK(
     sprintf('Found archived database container image file %s. Expanding...', $archive),
     fn(bool $expanded): string => $expanded ? sprintf('Found expanded %s image on host.', $image) : sprintf('Not found expanded %s image on host.', $image),
     function () use ($archive, $image): bool {
@@ -89,11 +89,11 @@ if (!$image_expanded_successfully) {
   if (!file_exists($archive) && $image_base !== '') {
     // If the image archive does not exist and base image was provided - use the
     // base image which allows "clean slate" for the database.
-    note(sprintf('Database container image was not found. Using base image %s.', $image_base));
+    NOTE(sprintf('Database container image was not found. Using base image %s.', $image_base));
     $image = $image_base;
   }
 
-  task(sprintf('Downloading %s image from the registry.', $image), sprintf('Downloaded %s image from the registry.', $image), function () use ($registry, $registry_user, $registry_pass, $image): void {
+  TASK(sprintf('Downloading %s image from the registry.', $image), sprintf('Downloaded %s image from the registry.', $image), function () use ($registry, $registry_user, $registry_pass, $image): void {
     // Login to container registry before pulling.
     putenv('VORTEX_CONTAINER_REGISTRY=' . $registry);
     putenv('VORTEX_CONTAINER_REGISTRY_USER=' . $registry_user);
@@ -104,4 +104,4 @@ if (!$image_expanded_successfully) {
   });
 }
 
-pass('Finished database data container image download.');
+PASS('Finished database data container image download.');

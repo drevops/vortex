@@ -51,7 +51,7 @@ $known_hosts = getenv_default('VORTEX_SSH_KNOWN_HOSTS', NULL);
 
 // -----------------------------------------------------------------------------
 
-info('Started SSH setup.');
+INFO('Started SSH setup.');
 
 // Get fingerprint from dynamic variable.
 $fingerprint_var = sprintf('VORTEX_%s_SSH_FINGERPRINT', $ssh_prefix);
@@ -63,18 +63,18 @@ $file_path = getenv_default($file_var, getenv('HOME') . '/.ssh/id_rsa');
 
 // Special case - SSH key may not be required if set to 'false'.
 if ($file_path === 'false') {
-  pass('SSH key is set to false meaning that it is not required. Skipped setup.');
+  PASS('SSH key is set to false meaning that it is not required. Skipped setup.');
   putenv(sprintf('%s=%s', $file_var, $file_path));
   quit(0);
 }
 
 // Handle fingerprint-based key search.
 if (!empty($fingerprint)) {
-  note('Using fingerprint-based deploy key because fingerprint was provided.');
+  NOTE('Using fingerprint-based deploy key because fingerprint was provided.');
 
   // Convert SHA256 fingerprint to MD5 if needed.
   if (str_starts_with($fingerprint, 'SHA256:')) {
-    $found = task(
+    $found = TASK(
       'Searching for MD5 hash as fingerprint starts with SHA256.',
       fn(array $found): string => $found === [] ? 'No matching existing key file found.' : sprintf('Found matching existing key file %s.', $found['file']),
       function () use ($fingerprint): array {
@@ -114,10 +114,10 @@ if (!empty($fingerprint)) {
 
 // Check if SSH key file exists.
 if (!file_exists($file_path)) {
-  fail(sprintf('SSH key file %s does not exist.', $file_path));
+  FAIL(sprintf('SSH key file %s does not exist.', $file_path));
 }
 
-note(sprintf('Using SSH key file %s.', $file_path));
+NOTE(sprintf('Using SSH key file %s.', $file_path));
 putenv(sprintf('%s=%s', $file_var, $file_path));
 
 // Start SSH agent if not running.
@@ -127,7 +127,7 @@ $ssh_auth_sock = getenv('SSH_AUTH_SOCK');
 $agent_running = !empty($ssh_auth_sock) && file_exists($ssh_auth_sock);
 
 if (!$agent_running) {
-  task('Starting SSH agent.', 'Started SSH agent.', function (): void {
+  TASK('Starting SSH agent.', 'Started SSH agent.', function (): void {
     $output = shell_exec('ssh-agent');
     if ($output !== NULL) {
       // Parse ssh-agent output to extract environment variables.
@@ -146,18 +146,18 @@ $output = (string) shell_exec('ssh-add -l 2>/dev/null');
 $key_loaded = str_contains($output, basename($file_path));
 
 if ($key_loaded) {
-  note(sprintf('SSH agent already has %s key loaded.', $file_path));
+  NOTE(sprintf('SSH agent already has %s key loaded.', $file_path));
 }
 else {
-  note('SSH agent does not have a required key loaded.');
+  NOTE('SSH agent does not have a required key loaded.');
 
   if (!empty($remove_all_keys)) {
-    task('Removing all keys from the SSH agent.', 'Removed all keys from the SSH agent.', function (): void {
+    TASK('Removing all keys from the SSH agent.', 'Removed all keys from the SSH agent.', function (): void {
       passthru('ssh-add -D');
     });
   }
 
-  task('Loading the SSH key to the agent.', 'Loaded the SSH key to the agent.', function () use ($file_path): void {
+  TASK('Loading the SSH key to the agent.', 'Loaded the SSH key to the agent.', function () use ($file_path): void {
     passthru(sprintf('ssh-add %s', escapeshellarg($file_path)), $add_exit_code);
     if ($add_exit_code !== 0) {
       throw new \RuntimeException('Failed to add SSH key to agent.');
@@ -172,10 +172,10 @@ $ssh_dir = getenv('HOME') . '/.ssh';
 
 if (!empty($known_hosts)) {
   if (!empty($disable_strict_checking)) {
-    note('Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled.');
+    NOTE('Both pinned host keys and disabled strict checking are set; pinning takes precedence and strict host key checking remains enabled.');
   }
 
-  task('Pinning SSH host keys to known_hosts.', 'Pinned SSH host keys to known_hosts.', function () use ($ssh_dir, $known_hosts): void {
+  TASK('Pinning SSH host keys to known_hosts.', 'Pinned SSH host keys to known_hosts.', function () use ($ssh_dir, $known_hosts): void {
     // @codeCoverageIgnoreStart
     if (!is_dir($ssh_dir)) {
       mkdir($ssh_dir, 0700, TRUE);
@@ -200,7 +200,7 @@ if (!empty($known_hosts)) {
   });
 }
 elseif (!empty($disable_strict_checking)) {
-  task('Disabling strict host key checking.', 'Disabled strict host key checking.', function () use ($ssh_dir): void {
+  TASK('Disabling strict host key checking.', 'Disabled strict host key checking.', function () use ($ssh_dir): void {
     // @codeCoverageIgnoreStart
     if (!is_dir($ssh_dir)) {
       mkdir($ssh_dir, 0700, TRUE);
@@ -214,4 +214,4 @@ elseif (!empty($disable_strict_checking)) {
   });
 }
 
-pass('Finished SSH setup.');
+PASS('Finished SSH setup.');

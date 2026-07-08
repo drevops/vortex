@@ -17,35 +17,35 @@ require_once __DIR__ . '/../src/helpers.php';
 echo "=== Output Formatter Demo ===\n\n";
 
 echo "1. note() - Plain note output:\n";
-note("This is a plain note message");
-note("Note with formatting: %s %d", "text", 123);
+NOTE("This is a plain note message");
+NOTE("Note with formatting: %s %d", "text", 123);
 
 echo "\n2. info() - [INFO] Cyan output:\n";
-info("This is an info message");
-info("Info with formatting: %s", "formatted text");
+INFO("This is an info message");
+INFO("Info with formatting: %s", "formatted text");
 
 echo "\n3. task() - [TASK] Blue output:\n";
-task("This is a task message");
-task("Task with formatting: %s", "running task");
+TASK("This is a task message");
+TASK("Task with formatting: %s", "running task");
 
 echo "\n4. pass() - [ OK ] Green output:\n";
-pass("This is a success message");
-pass("Success with formatting: %s completed", "operation");
+PASS("This is a success message");
+PASS("Success with formatting: %s completed", "operation");
 
 echo "\n5. fail_no_exit() - [FAIL] Red output (no exit):\n";
 fail_no_exit("This is a failure message (no exit)");
 fail_no_exit("Failure with formatting: %s failed", "operation");
 
 echo "\n6. Testing color detection:\n";
-note("Colors should appear in terminal with color support");
-note("If TERM=dumb or no tput, colors are stripped");
-info("Current TERM: %s", getenv('TERM') ?: 'not set');
+NOTE("Colors should appear in terminal with color support");
+NOTE("If TERM=dumb or no tput, colors are stripped");
+INFO("Current TERM: %s", getenv('TERM') ?: 'not set');
 
 echo "\n7. Multiple formatters in sequence:\n";
-task("Starting multi-step process");
-note("Step 1: Initializing");
-note("Step 2: Processing data");
-note("Step 3: Validating results");
-pass("Multi-step process completed successfully");
+TASK("Starting multi-step process");
+NOTE("Step 1: Initializing");
+NOTE("Step 2: Processing data");
+NOTE("Step 3: Validating results");
+PASS("Multi-step process completed successfully");
 
 echo "\n=== Demo Complete ===\n";

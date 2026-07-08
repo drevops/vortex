@@ -31,25 +31,25 @@ $platform = getenv_default('VORTEX_TASK_PLATFORM', getenv_default('VORTEX_PLATFO
 $operation = $GLOBALS['argv'][1] ?? '';
 
 if ($operation === '') {
-  fail('Missing task operation.');
+  FAIL('Missing task operation.');
 }
 
 if (!in_array($operation, ['copy-db', 'copy-files', 'purge-cache'], TRUE)) {
-  fail("Unsupported task operation '%s'.", $operation);
+  FAIL("Unsupported task operation '%s'.", $operation);
 }
 
 if ($platform === '') {
-  fail('Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM.');
+  FAIL('Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM.');
 }
 
 if (!in_array($platform, ['acquia', 'lagoon'], TRUE)) {
-  fail("Unsupported hosting platform '%s'.", $platform);
+  FAIL("Unsupported hosting platform '%s'.", $platform);
 }
 
 $task_script = __DIR__ . '/vortex-task-' . $operation . '-' . $platform;
 
 if (!file_exists($task_script) || !is_executable($task_script)) {
-  fail("Operation '%s' is not supported on the '%s' platform.", $operation, $platform);
+  FAIL("Operation '%s' is not supported on the '%s' platform.", $operation, $platform);
 }
 
 $command = sprintf('"%s"', $task_script);
@@ -57,7 +57,7 @@ foreach (array_slice($GLOBALS['argv'], 2) as $arg) {
   $command .= ' ' . escapeshellarg($arg);
 }
 
-task(
+TASK(
   sprintf('Running the "%s" task on the "%s" platform.', $operation, $platform),
   sprintf('Completed the "%s" task on the "%s" platform.', $operation, $platform),
   function () use ($command, $operation): void {

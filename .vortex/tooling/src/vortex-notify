@@ -52,20 +52,20 @@ $skip = getenv('VORTEX_NOTIFY_SKIP');
 
 // -----------------------------------------------------------------------------
 
-info('Started dispatching notifications.');
+INFO('Started dispatching notifications.');
 
 if ($skip) {
-  pass('Skipped dispatching notifications.');
+  PASS('Skipped dispatching notifications.');
   quit(0);
 }
 
 if (empty($channels)) {
-  pass('No notification channels specified, skipping notifications.');
+  PASS('No notification channels specified, skipping notifications.');
   quit(0);
 }
 
 if (!in_array($event, ['pre_deployment', 'post_deployment'], TRUE)) {
-  fail('Unsupported event %s provided.', $event);
+  FAIL('Unsupported event %s provided.', $event);
 }
 
 // Export variables so notification scripts can use them.
@@ -76,25 +76,25 @@ putenv('VORTEX_NOTIFY_LABEL=' . $label);
 putenv('VORTEX_NOTIFY_ENVIRONMENT_URL=' . $env_url);
 putenv('VORTEX_NOTIFY_LOGIN_URL=' . $login_url);
 
-info('Notification summary:');
-note('Project        : ' . $project);
-note('Branch         : ' . $branch);
-note('SHA            : ' . $sha);
-note('PR Number      : ' . ($pr_number ?: '<none>'));
-note('Label          : ' . $label);
-note('Environment URL: ' . $env_url);
-note('Login URL      : ' . $login_url);
-note('Event          : ' . $event);
-note('Channels       : ' . implode(',', $channels));
+INFO('Notification summary:');
+NOTE('Project        : ' . $project);
+NOTE('Branch         : ' . $branch);
+NOTE('SHA            : ' . $sha);
+NOTE('PR Number      : ' . ($pr_number ?: '<none>'));
+NOTE('Label          : ' . $label);
+NOTE('Environment URL: ' . $env_url);
+NOTE('Login URL      : ' . $login_url);
+NOTE('Event          : ' . $event);
+NOTE('Channels       : ' . implode(',', $channels));
 
 foreach ($channels as $channel) {
   $script = __DIR__ . ('/vortex-notify-' . $channel);
 
   if (!file_exists($script) || !is_executable($script)) {
-    fail("Notification script for channel '%s' not found or is not executable: %s", $channel, $script);
+    FAIL("Notification script for channel '%s' not found or is not executable: %s", $channel, $script);
   }
 
-  task(sprintf('Dispatching notification to the "%s" channel.', $channel), sprintf('Dispatched notification to the "%s" channel.', $channel), function () use ($script, $channel): void {
+  TASK(sprintf('Dispatching notification to the "%s" channel.', $channel), sprintf('Dispatched notification to the "%s" channel.', $channel), function () use ($script, $channel): void {
     $exit_code = 0;
     passthru(sprintf('"%s"', $script), $exit_code);
 
@@ -104,4 +104,4 @@ foreach ($channels as $channel) {
   });
 }
 
-pass('Finished dispatching notifications.');
+PASS('Finished dispatching notifications.');

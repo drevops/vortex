@@ -24,7 +24,7 @@ $custom_file = $GLOBALS['argv'][1] ?? '';
 
 // -----------------------------------------------------------------------------
 
-info('Started database file export.');
+INFO('Started database file export.');
 
 // Create dump file name with a timestamp or use the file name provided.
 if ($custom_file !== '') {
@@ -38,7 +38,7 @@ $dump_file_drush = drush_relative_path($dump_file);
 
 prepare_db_dir($db_dir);
 
-task(
+TASK(
   'Exporting database to the dump file.',
   sprintf('Exported database dump saved %s.', $dump_file),
   function () use ($dump_file_drush, $dump_file): void {
@@ -51,4 +51,4 @@ task(
   },
 );
 
-pass('Finished database file export.');
+PASS('Finished database file export.');

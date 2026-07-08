@@ -91,31 +91,31 @@ $deploy_pr_labels = getenv_list('VORTEX_DEPLOY_PR_LABELS', '');
 
 // -----------------------------------------------------------------------------
 
-info('Started deployment.');
+INFO('Started deployment.');
 
 if (!empty($deploy_skip)) {
-  note('Found flag to skip all deployments.');
-  pass(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
+  NOTE('Found flag to skip all deployments.');
+  PASS(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
   quit(0);
 }
 
 if (empty($deploy_types)) {
-  fail('Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): artifact, webhook, lagoon.');
+  FAIL('Missing required value for VORTEX_DEPLOY_TYPES. Must be a combination of comma-separated values (to support multiple deployments): artifact, webhook, lagoon.');
 }
 
 // Check for conditional skip flags.
 if (!empty($deploy_allow_skip)) {
-  note('Found flag to skip a deployment.');
+  NOTE('Found flag to skip a deployment.');
 
   if (!empty($deploy_pr) && !empty($deploy_allow_skip_prs) && in_array($deploy_pr, $deploy_allow_skip_prs, TRUE)) {
-    note(sprintf('Found PR %s in skip list.', $deploy_pr));
-    note(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
+    NOTE(sprintf('Found PR %s in skip list.', $deploy_pr));
+    NOTE(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
     quit(0);
   }
 
   if (!empty($deploy_branch) && !empty($deploy_allow_skip_branches) && in_array($deploy_branch, $deploy_allow_skip_branches, TRUE)) {
-    note(sprintf('Found branch %s in skip list.', $deploy_branch));
-    note(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
+    NOTE(sprintf('Found branch %s in skip list.', $deploy_branch));
+    NOTE(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
     quit(0);
   }
 }
@@ -125,15 +125,15 @@ if (!empty($deploy_allow_label) && !empty($deploy_pr)) {
   //
   // The PR's labels are provided as a comma-separated list in
   // $VORTEX_DEPLOY_PR_LABELS, populated by the CI provider from the PR event.
-  note(sprintf("Found flag to gate deployment on the '%s' label.", $deploy_allow_label));
+  NOTE(sprintf("Found flag to gate deployment on the '%s' label.", $deploy_allow_label));
 
   if (!in_array($deploy_allow_label, $deploy_pr_labels, TRUE)) {
-    note(sprintf("PR %s does not carry the '%s' label.", $deploy_pr, $deploy_allow_label));
-    note(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
+    NOTE(sprintf("PR %s does not carry the '%s' label.", $deploy_pr, $deploy_allow_label));
+    NOTE(sprintf('Skipped deployment %s.', implode(',', $deploy_types)));
     quit(0);
   }
 
-  note(sprintf("PR %s carries the '%s' label.", $deploy_pr, $deploy_allow_label));
+  NOTE(sprintf("PR %s carries the '%s' label.", $deploy_pr, $deploy_allow_label));
 }
 
 // Route to deployment scripts based on type.
@@ -142,25 +142,25 @@ if (in_array('artifact', $deploy_types, TRUE)) {
     putenv('VORTEX_DEPLOY_ARTIFACT_DST_BRANCH=deployment/[tags:-]');
   }
 
-  task('Dispatching the "artifact" deployment.', 'Dispatched the "artifact" deployment.', function (): void {
+  TASK('Dispatching the "artifact" deployment.', 'Dispatched the "artifact" deployment.', function (): void {
     passthru(__DIR__ . '/vortex-deploy-artifact', $exit_code);
     $exit_code && quit($exit_code);
   });
 }
 
 if (in_array('webhook', $deploy_types, TRUE)) {
-  task('Dispatching the "webhook" deployment.', 'Dispatched the "webhook" deployment.', function (): void {
+  TASK('Dispatching the "webhook" deployment.', 'Dispatched the "webhook" deployment.', function (): void {
     passthru(__DIR__ . '/vortex-deploy-webhook', $exit_code);
     $exit_code && quit($exit_code);
   });
 }
 
 if (in_array('lagoon', $deploy_types, TRUE)) {
-  task('Dispatching the "lagoon" deployment.', 'Dispatched the "lagoon" deployment.', function (): void {
+  TASK('Dispatching the "lagoon" deployment.', 'Dispatched the "lagoon" deployment.', function (): void {
     passthru(__DIR__ . '/vortex-deploy-lagoon', $exit_code);
     $exit_code && quit($exit_code);
   });
 }
 
-pass('Finished deployment.');
+PASS('Finished deployment.');
 quit(0);

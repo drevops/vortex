@@ -33,34 +33,34 @@ $admin_email = getenv_default('DRUPAL_ADMIN_EMAIL', '');
 
 // -----------------------------------------------------------------------------
 
-info('Sanitizing database.');
+INFO('Sanitizing database.');
 
-task('Sanitizing database using drush sql:sanitize.', 'Sanitized database using drush sql:sanitize.', function () use ($sanitize_email, $sanitize_password): void {
+TASK('Sanitizing database using drush sql:sanitize.', 'Sanitized database using drush sql:sanitize.', function () use ($sanitize_email, $sanitize_password): void {
   drush(sprintf('sql:sanitize --sanitize-password=%s --sanitize-email=%s', escapeshellarg($sanitize_password), escapeshellarg($sanitize_email)));
 });
 
 if ($replace_username === '1') {
-  task('Replacing usernames with user emails.', 'Updated username with user email.', function (): void {
+  TASK('Replacing usernames with user emails.', 'Updated username with user email.', function (): void {
     drush("sql:query \"UPDATE \\`users_field_data\\` SET users_field_data.name=users_field_data.mail WHERE uid <> '0';\"");
   });
 }
 
 // Sanitize using additional SQL commands provided in file.
 if ($additional_file !== '' && file_exists($additional_file)) {
-  task('Applying custom sanitization commands from file.', 'Applied custom sanitization commands from file.', function () use ($additional_file): void {
+  TASK('Applying custom sanitization commands from file.', 'Applied custom sanitization commands from file.', function () use ($additional_file): void {
     drush('sql:query --file=' . escapeshellarg(drush_relative_path($additional_file)));
   });
 }
 
 // User mail and name for user 0 could have been sanitized - resetting it.
-task('Resetting user 0 username and email.', 'Reset user 0 username and email.', function (): void {
+TASK('Resetting user 0 username and email.', 'Reset user 0 username and email.', function (): void {
   drush("sql:query \"UPDATE \\`users_field_data\\` SET mail = '', name = '' WHERE uid = '0';\"");
 });
 
 // User email could have been sanitized - setting it back to a pre-defined
 // email.
 if ($admin_email !== '') {
-  task('Updating user 1 email.', 'Updated user 1 email.', function () use ($admin_email): void {
+  TASK('Updating user 1 email.', 'Updated user 1 email.', function () use ($admin_email): void {
     drush(sprintf("sql:query \"UPDATE \\`users_field_data\\` SET mail = '%s' WHERE uid = '1';\"", str_replace("'", "''", $admin_email)));
   });
 }
