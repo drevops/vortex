@@ -48,10 +48,7 @@ if ($replace_username === '1') {
 // Sanitize using additional SQL commands provided in file.
 if ($additional_file !== '' && file_exists($additional_file)) {
   task('Applying custom sanitization commands from file.', 'Applied custom sanitization commands from file.', function () use ($additional_file): void {
-    // The file path is relative to the project root, but drush expects it to
-    // be relative to the Drupal root.
-    $drush_file = str_starts_with($additional_file, './') ? '../' . substr($additional_file, 2) : $additional_file;
-    drush('sql:query --file=' . escapeshellarg($drush_file));
+    drush('sql:query --file=' . escapeshellarg(drush_relative_path($additional_file)));
   });
 }
 

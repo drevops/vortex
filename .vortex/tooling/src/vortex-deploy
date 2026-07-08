@@ -29,8 +29,7 @@ require_once __DIR__ . '/helpers.php';
 //
 // Can be a combination of comma-separated values (to support multiple
 // deployments): artifact, webhook, lagoon.
-$deploy_types = getenv_default('VORTEX_DEPLOY_TYPES', '');
-$deploy_types = !empty($deploy_types) ? array_map('trim', explode(',', $deploy_types)) : [];
+$deploy_types = getenv_list('VORTEX_DEPLOY_TYPES', '');
 
 // Deployment mode.
 //
@@ -65,8 +64,7 @@ $deploy_allow_skip = getenv_default('VORTEX_DEPLOY_ALLOW_SKIP', FALSE);
 // Examples:
 // VORTEX_DEPLOY_SKIP_BRANCHES=feature/test
 // VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental.
-$deploy_allow_skip_branches = getenv_default('VORTEX_DEPLOY_SKIP_BRANCHES', '');
-$deploy_allow_skip_branches = array_filter(array_map('trim', explode(',', $deploy_allow_skip_branches)));
+$deploy_allow_skip_branches = getenv_list('VORTEX_DEPLOY_SKIP_BRANCHES', '');
 
 // Allow skipping deployment by providing `$VORTEX_DEPLOY_SKIP_PRS` variable
 // with PR numbers as a single value or comma-separated list.
@@ -74,8 +72,7 @@ $deploy_allow_skip_branches = array_filter(array_map('trim', explode(',', $deplo
 // Examples:
 // VORTEX_DEPLOY_SKIP_PRS=123
 // VORTEX_DEPLOY_SKIP_PRS=123,456,789.
-$deploy_allow_skip_prs = getenv_default('VORTEX_DEPLOY_SKIP_PRS', '');
-$deploy_allow_skip_prs = array_filter(array_map('trim', explode(',', $deploy_allow_skip_prs)));
+$deploy_allow_skip_prs = getenv_list('VORTEX_DEPLOY_SKIP_PRS', '');
 
 // Label that authorizes a pull request deployment.
 //
@@ -90,7 +87,7 @@ $deploy_allow_label = getenv_default('VORTEX_DEPLOY_ALLOW_LABEL', '');
 // Populated by the CI provider from the pull request event (for example, in
 // GitHub Actions from "github.event.pull_request.labels"). Consulted by the
 // VORTEX_DEPLOY_ALLOW_LABEL gate.
-$deploy_pr_labels = getenv_default('VORTEX_DEPLOY_PR_LABELS', '');
+$deploy_pr_labels = getenv_list('VORTEX_DEPLOY_PR_LABELS', '');
 
 // -----------------------------------------------------------------------------
 
@@ -129,8 +126,6 @@ if (!empty($deploy_allow_label) && !empty($deploy_pr)) {
   // The PR's labels are provided as a comma-separated list in
   // $VORTEX_DEPLOY_PR_LABELS, populated by the CI provider from the PR event.
   note(sprintf("Found flag to gate deployment on the '%s' label.", $deploy_allow_label));
-
-  $deploy_pr_labels = array_map('trim', explode(',', $deploy_pr_labels));
 
   if (!in_array($deploy_allow_label, $deploy_pr_labels, TRUE)) {
     note(sprintf("PR %s does not carry the '%s' label.", $deploy_pr, $deploy_allow_label));

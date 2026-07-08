@@ -164,6 +164,31 @@ function getenv_required(...$var_names): string {
 }
 
 /**
+ * Get a comma-separated environment variable as a list of values.
+ *
+ * Checks multiple environment variable names in order and splits the first
+ * non-empty value on commas into trimmed, non-empty items. The last argument
+ * is used as the default value if all environment variables are empty or
+ * undefined, as in getenv_default().
+ *
+ * @param string ...$args
+ *   Variable names to check, with the last argument being the default value.
+ *
+ * @return array<int, string>
+ *   The list of values.
+ *
+ * @code
+ * // "main, develop" -> ['main', 'develop']
+ * $branches = getenv_list('SPECIFIC_BRANCHES', 'GENERIC_BRANCHES', '');
+ * @endcode
+ */
+function getenv_list(...$args): array {
+  $value = (string) getenv_default(...$args);
+
+  return array_values(array_filter(array_map(trim(...), explode(',', $value))));
+}
+
+/**
  * Output a note message.
  *
  * @param string $format
@@ -470,6 +495,23 @@ function drush(string $command, ?int &$exit_code = NULL): string {
   }
 
   return $output ?: '';
+}
+
+/**
+ * Convert a project-root-relative path to a drush-compatible path.
+ *
+ * Drush resolves relative paths against the Drupal root, which sits one
+ * directory below the project root, so a './'-prefixed project path gains one
+ * directory level. Other paths are returned unchanged.
+ *
+ * @param string $path
+ *   The path relative to the project root.
+ *
+ * @return string
+ *   The path relative to the Drupal root.
+ */
+function drush_relative_path(string $path): string {
+  return str_starts_with($path, './') ? '../' . substr($path, 2) : $path;
 }
 
 /**

@@ -19,7 +19,7 @@ require_once __DIR__ . '/helpers.php';
 // Notification channels.
 //
 // Comma-separated values: email,slack,newrelic,github,jira,webhook,diffy.
-$channels = (string) getenv('VORTEX_NOTIFY_CHANNELS') ?: 'email';
+$channels = getenv_list('VORTEX_NOTIFY_CHANNELS', 'email');
 
 // Notification event type.
 //
@@ -58,8 +58,6 @@ if ($skip) {
   pass('Skipped dispatching notifications.');
   quit(0);
 }
-
-$channels = array_filter(array_map(trim(...), explode(',', $channels)));
 
 if (empty($channels)) {
   pass('No notification channels specified, skipping notifications.');
