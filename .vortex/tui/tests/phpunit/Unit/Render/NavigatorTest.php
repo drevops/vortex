@@ -23,13 +23,11 @@ final class NavigatorTest extends TestCase {
 
     $this->assertSame('Hub', $navigator->current()->title);
     $this->assertTrue($navigator->isRoot());
-    $this->assertSame(1, $navigator->depth());
     $this->assertSame(['Hub'], $navigator->breadcrumb());
 
     $navigator->enter($sub);
     $this->assertSame('Advanced', $navigator->current()->title);
     $this->assertFalse($navigator->isRoot());
-    $this->assertSame(2, $navigator->depth());
     $this->assertSame(['Hub', 'Advanced'], $navigator->breadcrumb());
 
     $this->assertTrue($navigator->pop());

@@ -43,11 +43,6 @@ final class FieldBuilder {
   protected bool $required = FALSE;
 
   /**
-   * Whether the value must be a machine name.
-   */
-  protected bool $machine = FALSE;
-
-  /**
    * The raw conditional-visibility rule.
    *
    * @var array<array-key,mixed>|null
@@ -128,21 +123,6 @@ final class FieldBuilder {
    */
   public function required(bool $required = TRUE): self {
     $this->required = $required;
-
-    return $this;
-  }
-
-  /**
-   * Mark the field's value a machine name.
-   *
-   * @param bool $machine
-   *   Whether the value must be a machine name.
-   *
-   * @return $this
-   *   The builder.
-   */
-  public function machine(bool $machine = TRUE): self {
-    $this->machine = $machine;
 
     return $this;
   }
@@ -258,7 +238,6 @@ final class FieldBuilder {
       $this->hasDefault ? $this->default : $this->defaultFor($this->fieldType),
       $this->options,
       $this->required,
-      $this->machine,
       $this->when,
       $this->derive,
       $this->discover,

@@ -51,18 +51,11 @@ class Engine {
   protected array $lastProvenance = [];
 
   /**
-   * The active answers from the most recent run().
+   * The active answers from the most recent collect().
    *
    * @var array<string,mixed>
    */
   protected array $lastAnswers = [];
-
-  /**
-   * The active map of each field from the most recent collect().
-   *
-   * @var array<string,bool>
-   */
-  protected array $lastActive = [];
 
   /**
    * Construct an engine.
@@ -131,7 +124,6 @@ class Engine {
       }
     }
 
-    $this->lastActive = $active;
     $this->lastProvenance = $this->provenanceFor($fields, $sources, $active);
     $this->lastAnswers = $this->activeAnswers($fields, $values, $active);
 

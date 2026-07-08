@@ -93,7 +93,6 @@ final class ConfigModelTest extends TestCase {
     $this->assertSame('', $config->banner);
     $this->assertNull($config->color);
     $this->assertNull($config->unicode);
-    $this->assertSame([], $config->processors);
     $this->assertSame([], $config->fixups);
   }
 

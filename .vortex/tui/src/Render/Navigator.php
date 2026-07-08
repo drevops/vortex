@@ -68,16 +68,6 @@ class Navigator {
   }
 
   /**
-   * The nesting depth (1 at the root).
-   *
-   * @return int
-   *   The depth.
-   */
-  public function depth(): int {
-    return count($this->parents) + 1;
-  }
-
-  /**
    * Whether the navigator is at the root.
    *
    * @return bool

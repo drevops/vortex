@@ -34,10 +34,6 @@ final readonly class Config {
    *   The label of the cancel button.
    * @param bool $clearOnExit
    *   Whether to clear the screen when the interactive TUI exits.
-   * @param array<int,array{id:string,weight:int}> $processors
-   *   Field-less processors that always run, each an id (resolved to a handler)
-   *   and a weight. Used to bookend field processing (e.g. carry ".env" first,
-   *   clean up last).
    * @param bool|null $color
    *   Force ANSI colour on/off in the interactive TUI; NULL auto-detects.
    * @param bool|null $unicode
@@ -57,7 +53,6 @@ final readonly class Config {
     public string $submitLabel = 'Submit',
     public string $cancelLabel = 'Cancel',
     public bool $clearOnExit = TRUE,
-    public array $processors = [],
     public ?bool $color = NULL,
     public ?bool $unicode = NULL,
     public string $envPrefix = '',

@@ -76,26 +76,6 @@ class HandlerRegistry {
   }
 
   /**
-   * Resolve the handler for a field id, or throw if none is registered.
-   *
-   * @param string $field_id
-   *   The field id.
-   */
-  public function getOrFail(string $field_id): HandlerInterface {
-    $handler = $this->get($field_id);
-    if (!$handler instanceof HandlerInterface) {
-      throw new HandlerException(sprintf(
-        'No handler found for field "%s" (expected class "%s" in one of: %s).',
-        $field_id,
-        $this->classNameFor($field_id),
-        $this->namespaces === [] ? '(none)' : implode(', ', $this->namespaces),
-      ));
-    }
-
-    return $handler;
-  }
-
-  /**
    * Convert a field id (snake_case) to a PascalCase class name.
    *
    * @param string $field_id

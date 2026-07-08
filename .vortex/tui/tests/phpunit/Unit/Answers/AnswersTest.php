@@ -25,8 +25,7 @@ final class AnswersTest extends TestCase {
     $this->assertNull($answers->value('nope'));
     $this->assertSame('edited', $answers->provenanceOf('name'));
     $this->assertSame('default', $answers->provenanceOf('missing'));
-    $this->assertSame(['name', 'agree'], $answers->ids());
-    $this->assertSame(['name' => 'Acme', 'agree' => TRUE], $answers->toArray());
+    $this->assertSame(['name' => 'Acme', 'agree' => TRUE], $answers->values);
   }
 
   public function testToJson(): void {
@@ -38,7 +37,7 @@ final class AnswersTest extends TestCase {
   public function testEmpty(): void {
     $answers = new Answers();
 
-    $this->assertSame([], $answers->ids());
+    $this->assertSame([], $answers->values);
     $this->assertSame('default', $answers->provenanceOf('x'));
   }
 

@@ -70,26 +70,6 @@ final readonly class Answers {
   }
 
   /**
-   * The active question ids, in order.
-   *
-   * @return list<string>
-   *   The question ids.
-   */
-  public function ids(): array {
-    return array_keys($this->values);
-  }
-
-  /**
-   * The answer values as a plain array.
-   *
-   * @return array<string,mixed>
-   *   The values keyed by question id.
-   */
-  public function toArray(): array {
-    return $this->values;
-  }
-
-  /**
    * The answer values as a JSON string.
    *
    * @return string

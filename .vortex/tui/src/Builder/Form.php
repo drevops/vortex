@@ -61,13 +61,6 @@ final class Form {
   protected string $envPrefix = '';
 
   /**
-   * The field-less processors, each an id and a weight.
-   *
-   * @var array<int,array{id:string,weight:int}>
-   */
-  protected array $processors = [];
-
-  /**
    * The raw post-submit fix-up rules.
    *
    * @var array<int,array<array-key,mixed>>
@@ -219,23 +212,6 @@ final class Form {
   }
 
   /**
-   * Add a field-less processor.
-   *
-   * @param string $id
-   *   The processor id (resolved to a handler).
-   * @param int $weight
-   *   The processing weight; lower runs earlier.
-   *
-   * @return $this
-   *   The builder.
-   */
-  public function processor(string $id, int $weight = 0): self {
-    $this->processors[] = ['id' => $id, 'weight' => $weight];
-
-    return $this;
-  }
-
-  /**
    * Add a raw post-submit fix-up rule.
    *
    * @param array<array-key,mixed> $rule
@@ -291,7 +267,6 @@ final class Form {
       $this->submitLabel,
       $this->cancelLabel,
       $this->clearOnExit,
-      $this->processors,
       $this->color,
       $this->unicode,
       $this->envPrefix,

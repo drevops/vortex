@@ -28,8 +28,6 @@ final readonly class Field {
    *   Options for choice-based fields, keyed by option value.
    * @param bool $required
    *   Whether a value is required.
-   * @param bool $machine
-   *   Whether the value must be a machine name.
    * @param array<array-key,mixed>|null $when
    *   The raw conditional-visibility rule, evaluated by the engine.
    * @param array<array-key,mixed>|null $derive
@@ -50,7 +48,6 @@ final readonly class Field {
     public mixed $default,
     public array $options = [],
     public bool $required = FALSE,
-    public bool $machine = FALSE,
     public ?array $when = NULL,
     public ?array $derive = NULL,
     public ?array $discover = NULL,

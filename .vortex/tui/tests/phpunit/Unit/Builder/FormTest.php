@@ -32,17 +32,15 @@ final class FormTest extends TestCase {
       ->color(TRUE)
       ->unicode(FALSE)
       ->envPrefix('APP_')
-      ->processor('dotenv', -1000)
-      ->processor('internal', 1000)
       ->fixup(['when' => ['x' => 'y'], 'set' => ['a' => 'b']])
       ->panel('general', 'General', function (PanelBuilder $p): void {
         $p->description('General settings.');
         $p->text('name', 'Site name')->description('The name.')->required()->weight(10)->default('Acme');
-        $p->text('machine_name', 'Machine name')->machine()->derive(['template' => '{{ name }}']);
+        $p->text('machine_name', 'Machine name')->derive(['template' => '{{ name }}']);
         $p->select('profile', 'Profile')->options(['standard' => 'Standard', 'minimal' => 'Minimal'])->default('standard');
         $p->multiselect('services', 'Services')->option('solr', 'Solr', 'Search')->option('redis', 'Redis');
         $p->confirm('docs', 'Keep docs?')->default(TRUE)->when(['profile' => 'standard']);
-        $p->suggest('timezone', 'Timezone')->discover(['type' => 'dotenv', 'name' => 'TZ']);
+        $p->suggest('timezone', 'Timezone')->discover(['dotenv' => 'TZ']);
         $p->panel('advanced', 'Advanced', function (PanelBuilder $sp): void {
           $sp->text('webroot', 'Web root')->default('web');
         });
@@ -60,7 +58,6 @@ final class FormTest extends TestCase {
     $this->assertTrue($config->color);
     $this->assertFalse($config->unicode);
     $this->assertSame('APP_', $config->envPrefix);
-    $this->assertSame([['id' => 'dotenv', 'weight' => -1000], ['id' => 'internal', 'weight' => 1000]], $config->processors);
     $this->assertSame([['when' => ['x' => 'y'], 'set' => ['a' => 'b']]], $config->fixups);
     $this->assertSame('General settings.', $config->panels[0]->description);
 
@@ -75,7 +72,6 @@ final class FormTest extends TestCase {
 
     $machine = $config->field('machine_name');
     $this->assertInstanceOf(Field::class, $machine);
-    $this->assertTrue($machine->machine);
     $this->assertSame(['template' => '{{ name }}'], $machine->derive);
 
     $profile = $config->field('profile');
@@ -98,7 +94,7 @@ final class FormTest extends TestCase {
     $timezone = $config->field('timezone');
     $this->assertInstanceOf(Field::class, $timezone);
     $this->assertSame(FieldType::Suggest, $timezone->type);
-    $this->assertSame(['type' => 'dotenv', 'name' => 'TZ'], $timezone->discover);
+    $this->assertSame(['dotenv' => 'TZ'], $timezone->discover);
 
     $webroot = $config->field('webroot');
     $this->assertInstanceOf(Field::class, $webroot);

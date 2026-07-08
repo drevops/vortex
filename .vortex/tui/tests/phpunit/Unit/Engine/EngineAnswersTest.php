@@ -52,7 +52,7 @@ final class EngineAnswersTest extends TestCase {
 
     $engine->collect([], new Context());
 
-    $errors = (new SchemaValidator($config))->validate($engine->answers()->toArray());
+    $errors = (new SchemaValidator($config))->validate($engine->answers()->values);
     $this->assertSame([], $errors);
   }
 

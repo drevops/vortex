@@ -9,7 +9,6 @@ use DrevOps\Tui\Config\Field;
 use DrevOps\Tui\Config\FieldType;
 use DrevOps\Tui\Handler\AbstractHandler;
 use DrevOps\Tui\Handler\Context;
-use DrevOps\Tui\Handler\HandlerException;
 use DrevOps\Tui\Handler\HandlerRegistry;
 use DrevOps\Tui\Tests\Fixtures\Handler\MachineName;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,7 +19,6 @@ use PHPUnit\Framework\TestCase;
  * Tests the handler registry and name-based auto-discovery.
  */
 #[CoversClass(HandlerRegistry::class)]
-#[CoversClass(HandlerException::class)]
 #[CoversClass(AbstractHandler::class)]
 #[CoversClass(Context::class)]
 #[Group('handler')]
@@ -45,7 +43,8 @@ final class HandlerRegistryTest extends TestCase {
   }
 
   public function testHandlerBehaviour(): void {
-    $handler = $this->registry()->getOrFail('machine_name');
+    $handler = $this->registry()->get('machine_name');
+    $this->assertInstanceOf(MachineName::class, $handler);
     $field = new Field('machine_name', 'Machine name', '', FieldType::Text, '');
 
     $this->assertSame('acme', $handler->transform($field, 'ACME'));
@@ -65,12 +64,6 @@ final class HandlerRegistryTest extends TestCase {
 
   public function testUnknownFieldReturnsNull(): void {
     $this->assertNotInstanceOf(HandlerInterface::class, $this->registry()->get('does_not_exist'));
-  }
-
-  public function testGetOrFailThrowsForUnknownField(): void {
-    $this->expectException(HandlerException::class);
-    $this->expectExceptionMessage('No handler found for field "does_not_exist"');
-    $this->registry()->getOrFail('does_not_exist');
   }
 
   /**
