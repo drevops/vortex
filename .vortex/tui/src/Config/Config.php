@@ -42,6 +42,9 @@ final readonly class Config {
    *   Force ANSI colour on/off in the interactive TUI; NULL auto-detects.
    * @param bool|null $unicode
    *   Force Unicode/ASCII glyphs in the interactive TUI; NULL auto-detects.
+   * @param string $envPrefix
+   *   The prefix namespacing per-question env-variable overrides (empty for
+   *   the facade default).
    */
   public function __construct(
     public string $title,
@@ -57,6 +60,7 @@ final readonly class Config {
     public array $processors = [],
     public ?bool $color = NULL,
     public ?bool $unicode = NULL,
+    public string $envPrefix = '',
   ) {
   }
 

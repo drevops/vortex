@@ -56,6 +56,11 @@ final class Form {
   protected ?bool $unicode = NULL;
 
   /**
+   * The prefix namespacing per-question env-variable overrides.
+   */
+  protected string $envPrefix = '';
+
+  /**
    * The field-less processors, each an id and a weight.
    *
    * @var array<int,array{id:string,weight:int}>
@@ -199,6 +204,21 @@ final class Form {
   }
 
   /**
+   * Set the prefix namespacing per-question env-variable overrides.
+   *
+   * @param string $prefix
+   *   The env-variable prefix (e.g. "MYAPP_"); empty for the facade default.
+   *
+   * @return $this
+   *   The builder.
+   */
+  public function envPrefix(string $prefix): self {
+    $this->envPrefix = $prefix;
+
+    return $this;
+  }
+
+  /**
    * Add a field-less processor.
    *
    * @param string $id
@@ -274,6 +294,7 @@ final class Form {
       $this->processors,
       $this->color,
       $this->unicode,
+      $this->envPrefix,
     );
 
     $this->assertUniqueFieldIds($config);

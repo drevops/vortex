@@ -40,16 +40,23 @@ final class Tui {
   protected Engine $engine;
 
   /**
+   * The effective env-variable prefix for per-question overrides.
+   */
+  protected string $envPrefix;
+
+  /**
    * Construct a TUI.
    *
    * @param \DrevOps\Tui\Config\Config $config
    *   The configuration.
    * @param string[] $handler_namespaces
    *   Namespaces the engine searches for field handlers, in order.
-   * @param string $envPrefix
-   *   The env-variable prefix for per-question overrides.
+   * @param string $env_prefix
+   *   The env-variable prefix for per-question overrides; wins over the
+   *   form-declared prefix, which wins over the "TUI_" default.
    */
-  public function __construct(protected Config $config, array $handler_namespaces = [], protected string $envPrefix = 'TUI_') {
+  public function __construct(protected Config $config, array $handler_namespaces = [], string $env_prefix = '') {
+    $this->envPrefix = $env_prefix !== '' ? $env_prefix : ($config->envPrefix !== '' ? $config->envPrefix : 'TUI_');
     $this->registry = new HandlerRegistry($handler_namespaces);
     $this->engine = new Engine($this->config, $this->registry);
   }

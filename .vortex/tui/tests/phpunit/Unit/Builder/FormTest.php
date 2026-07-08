@@ -31,6 +31,7 @@ final class FormTest extends TestCase {
       ->clearOnExit(FALSE)
       ->color(TRUE)
       ->unicode(FALSE)
+      ->envPrefix('APP_')
       ->processor('dotenv', -1000)
       ->processor('internal', 1000)
       ->fixup(['when' => ['x' => 'y'], 'set' => ['a' => 'b']])
@@ -58,6 +59,7 @@ final class FormTest extends TestCase {
     $this->assertFalse($config->clearOnExit);
     $this->assertTrue($config->color);
     $this->assertFalse($config->unicode);
+    $this->assertSame('APP_', $config->envPrefix);
     $this->assertSame([['id' => 'dotenv', 'weight' => -1000], ['id' => 'internal', 'weight' => 1000]], $config->processors);
     $this->assertSame([['when' => ['x' => 'y'], 'set' => ['a' => 'b']]], $config->fixups);
     $this->assertSame('General settings.', $config->panels[0]->description);
@@ -132,6 +134,7 @@ final class FormTest extends TestCase {
     $this->assertSame('Submit', $config->submitLabel);
     $this->assertSame('', $config->theme);
     $this->assertNull($config->color);
+    $this->assertSame('', $config->envPrefix);
     $this->assertSame('', $config->panels[0]->description);
   }
 

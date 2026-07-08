@@ -94,6 +94,8 @@ Each field builder chains `->description()`, `->default()`, `->required()`, `->o
 
 Form-level methods tune the interactive TUI: `->theme()` names a theme (see [Themes](#themes)), `->banner()` sets a start banner, and the panel shows **Submit** and **Cancel** buttons by default - `->buttons(FALSE)` hides them.
 
+Headless collection also reads per-question environment overrides named `<PREFIX><FIELD_ID>` (the uppercased field id). `->envPrefix('MYAPP_')` declares that namespace on the form, a `new Tui($config, [], 'MYAPP_')` constructor argument overrides it, and without either the prefix is `TUI_`.
+
 ## Handlers
 
 A field needs a handler only when it requires behaviour beyond a static value. Handlers are auto-discovered: field id `machine_name` resolves to class `MachineName` in a registered namespace. A handler contributes to **collection** - a dynamic default, discovery, validation and a value transform:

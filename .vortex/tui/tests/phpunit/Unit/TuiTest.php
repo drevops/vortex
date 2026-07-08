@@ -36,6 +36,30 @@ final class TuiTest extends TestCase {
     $this->assertStringContainsString('name', $this->tui()->agentHelp());
   }
 
+  public function testEnvPrefix(): void {
+    $config = Form::create('Demo')
+      ->panel('p', 'p', function (PanelBuilder $panel): void {
+        $panel->text('name');
+      })
+      ->build();
+
+    // No prefix anywhere falls back to the package default.
+    $this->assertStringContainsString('TUI_<ID>', (new Tui($config))->agentHelp());
+    // A constructor prefix wins.
+    $this->assertStringContainsString('ARG_<ID>', (new Tui($config, [], 'ARG_'))->agentHelp());
+
+    $config = Form::create('Demo')
+      ->envPrefix('FORM_')
+      ->panel('p', 'p', function (PanelBuilder $panel): void {
+        $panel->text('name');
+      })
+      ->build();
+
+    // The form-declared prefix is used unless the constructor overrides it.
+    $this->assertStringContainsString('FORM_<ID>', (new Tui($config))->agentHelp());
+    $this->assertStringContainsString('ARG_<ID>', (new Tui($config, [], 'ARG_'))->agentHelp());
+  }
+
   public function testValidate(): void {
     $this->assertSame([], $this->tui()->validate(['name' => 'Acme']));
     $this->assertNotSame([], $this->tui()->validate(['bogus' => 'x']));
