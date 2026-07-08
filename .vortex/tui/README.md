@@ -160,7 +160,7 @@ Or register a short alias and use it by name: `AbstractTheme::register('ocean', 
 
 ## Playground
 
-Runnable, self-contained examples are in [`playground/`](playground): a minimal form, a full "package scaffolder" exercising every feature, and a custom-theme demo. Each is independent - copy one as a starting point.
+Runnable, self-contained examples are in [`playground/`](playground): a minimal form, a full "package scaffolder", a custom-theme demo, per-widget demos, nested panels with fix-ups, and update-mode discovery. Each is independent - copy one as a starting point.
 
 ## Architecture
 

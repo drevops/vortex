@@ -52,6 +52,28 @@ composer install
   Per-widget files: `widget-text.php`, `widget-select.php`,
   `widget-multiselect.php`, `widget-confirm.php`, `widget-suggest.php`.
 
+- **[`4-nested-panels/`](4-nested-panels)** - a hub with drill-in sub-panels
+  (nested to any depth), per-option descriptions, custom button labels
+  (`->buttons(TRUE, 'Save', 'Discard')`), `->clearOnExit(FALSE)` and a
+  `->fixup()` rule that reconciles dependent answers on every settle pass.
+
+  ```bash
+  php playground/4-nested-panels/run.php                        # TUI
+  php playground/4-nested-panels/run.php --prompts='{"environment":"dev","cdn":true}'
+  ```
+
+- **[`5-discovery/`](5-discovery)** - update-mode discovery against the bundled
+  [`sample/`](5-discovery/sample) project: every `->discover()` rule type
+  (dotenv key, JSON dot-path, path exists, directory scan), a form-declared
+  `->envPrefix('MYAPP_')` namespacing the env overrides, and the
+  provenance-badged summary via `SummaryFormatter`.
+
+  ```bash
+  php playground/5-discovery/run.php                            # discover from sample/
+  MYAPP_TIMEZONE=UTC php playground/5-discovery/run.php         # env override wins
+  php playground/5-discovery/run.php --prompts='{"name":"Renamed"}'
+  ```
+
 ## How a form picks a theme
 
 Set it on the builder with `->theme(...)`, lowest friction first:
