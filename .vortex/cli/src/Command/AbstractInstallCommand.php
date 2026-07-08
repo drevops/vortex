@@ -40,11 +40,6 @@ abstract class AbstractInstallCommand extends Command {
   protected const HANDLER_NAMESPACE = 'DrevOps\\VortexCli\\Handler';
 
   /**
-   * The prefix for per-question environment variable overrides.
-   */
-  protected const ENV_PREFIX = 'VORTEX_';
-
-  /**
    * The version stamped into placeholders when the app version is unset.
    */
   protected const VERSION = '__VERSION__';
@@ -112,7 +107,7 @@ abstract class AbstractInstallCommand extends Command {
 
     $config->set(Config::VERSION, $version);
 
-    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE]);
 
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';

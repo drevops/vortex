@@ -31,11 +31,6 @@ class ConfigureCommand extends Command {
   protected const HANDLER_NAMESPACE = 'DrevOps\\VortexCli\\Handler';
 
   /**
-   * The prefix for per-question environment variable overrides.
-   */
-  protected const ENV_PREFIX = 'VORTEX_';
-
-  /**
    * The version stamped into placeholders when the app version is unset.
    */
   protected const VERSION = '__VERSION__';
@@ -60,7 +55,7 @@ class ConfigureCommand extends Command {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE], static::ENV_PREFIX);
+    $tui = new Tui(VortexForm::create(), [static::HANDLER_NAMESPACE]);
 
     if ($input->getOption('schema')) {
       $output->writeln((string) json_encode($tui->schema()));

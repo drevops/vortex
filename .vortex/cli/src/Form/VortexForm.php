@@ -52,6 +52,7 @@ BANNER;
   public static function create(): Config {
     return Form::create('Vortex', 'your project')
       ->banner(self::BANNER)
+      ->envPrefix('VORTEX_')
       ->panel('general', 'General information', function (PanelBuilder $p): void {
         $p->description('Project name, organization and public domain.');
         $p->text('name', 'Site name')->description('We will use this name in the project and documentation.')->required()->weight(380);
