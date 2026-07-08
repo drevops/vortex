@@ -129,13 +129,9 @@
                 "[web-root]/INSTALL.txt": false,
                 "[web-root]/README.md": false,
                 "[web-root]/example.gitignore": false,
-                "[web-root]/modules/README.txt": false,
-                "[web-root]/profiles/README.txt": false,
                 "[web-root]/robots.txt": false,
-                "[web-root]/sites/README.txt": false,
                 "[web-root]/sites/example.settings.local.php": false,
                 "[web-root]/sites/example.sites.php": false,
-                "[web-root]/themes/README.txt": false,
                 "[web-root]/update.php": false
             },
             "locations": {
