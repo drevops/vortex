@@ -19,8 +19,8 @@ TUI or headlessly from a JSON payload and environment variables.
 This package is a library consumed programmatically - it has no CLI entry point
 of its own. The public surface is:
 
-- **`DrevOps\Tui\Tui`** - the facade: collect a form's answers and run its
-  processing handlers.
+- **`DrevOps\Tui\Tui`** - the facade: collect a form's answers, headlessly or
+  through the interactive panel TUI.
 - **`DrevOps\Tui\Builder\Form`** - the fluent builder for declaring a form's
   panels and fields.
 
@@ -63,7 +63,7 @@ composer test-coverage
 # Coverage reports: .logs/.coverage-html/index.html, .logs/cobertura.xml
 
 # Run specific test file
-./vendor/bin/phpunit tests/phpunit/Functional/JokeCommandTest.php
+./vendor/bin/phpunit tests/phpunit/Unit/TuiTest.php
 
 # Run specific test method
 ./vendor/bin/phpunit --filter testMethodName
@@ -75,7 +75,7 @@ composer test-coverage
 
 ```bash
 # Clean and reinstall dependencies
-composer reset # removes vendor/, vendor-bin/, composer.lock
+composer reset # removes vendor/ and composer.lock
 composer install
 ```
 
@@ -109,9 +109,8 @@ composer install
 
 ### PHPUnit Structure
 
-- `tests/phpunit/Unit/` - Unit tests with mocks, no I/O
-- `tests/phpunit/Functional/` - Integration tests, real file system
-- `tests/phpunit/Traits/` - Shared test utilities
+- `tests/phpunit/Unit/` - Unit tests, no real TTY I/O
+- `tests/phpunit/Fixtures/` - Fixture handler classes used by the tests
 
 ### Writing Tests
 
@@ -126,8 +125,8 @@ Tests should use PHPUnit 11 features:
 
 GitHub Actions workflows test across:
 
-- PHP versions: 8.2, 8.3
-- Separate jobs: lint, test, coverage upload (Codecov)
+- PHP versions: 8.2, 8.3, 8.4, 8.5 (normal and lowest dependency sets)
+- One matrix job runs lint, tests and the coverage upload (Codecov)
 
 Key workflows:
 
@@ -136,17 +135,8 @@ Key workflows:
 
 ## Documentation
 
-If using the documentation site (Docusaurus):
-
-```bash
-cd docs
-npm install
-npm start # Local dev server
-npm run build # Production build
-npm run spellcheck # CSpell validation
-```
-
-Documentation deploys automatically on releases via GitHub Actions.
+Architecture diagrams and a narrative walkthrough live in `docs/architecture/`.
+After a structural change, update them with the `render-tui-diagrams` skill.
 
 ## Updating from the template
 

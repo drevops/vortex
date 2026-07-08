@@ -20,7 +20,7 @@ You declare the questions in PHP with the fluent `Form` builder: panels holding 
 
 ## Step 2 - attach behaviour where you need it
 
-Most fields need no code. When one does - a dynamic default, validation, a normalisation, or a side effect that writes files - you add a handler class named after the field id (`machine_name` -> `MachineName`) in a namespace you register. The engine discovers it automatically. A handler exposes four hooks: `default()`, `validate()`, `transform()` and `process()`.
+Most fields need no code. When one does - a dynamic default, discovery, validation or a normalisation - you add a handler class named after the field id (`machine_name` -> `MachineName`) in a namespace you register. The engine discovers it automatically. A handler exposes four hooks: `default()`, `discover()`, `validate()` and `transform()`.
 
 ## Step 3 - collect the answers
 
@@ -45,9 +45,9 @@ For interactive use, `PanelController::run()` seeds itself with the engine's res
 
 Each turn it asks the **Theme** to compose a frame (the theme owns colours, glyphs and layout), computes the visible window with the `Navigator` and `Scroller`, and renders it to the `Terminal`. A key press is parsed by `KeyParser`; the controller either moves the cursor / drills into a sub-panel, or opens a widget to edit a field. Editing writes the new value back and marks it "edited". When the user finishes, it returns the same `Answers` object the headless path produces.
 
-## Step 5 - apply the answers (optional)
+## Step 5 - apply the answers (the consumer's job)
 
-Collecting produces answers; a consumer that scaffolds a project acts on them. `Processor::apply()` runs each field's handler `process()` in a config-driven order - fields sort by `weight` (ties in reverse declaration order), interleaved with any field-less `processors` declared on the config (for example an ".env" carry first, a cleanup last). Only active fields process, and the order lives entirely in the config, never in code.
+Collecting produces answers; acting on them - writing files, renaming directories - is the consumer's job, never the engine's. A consumer that processes answers defines its own contract extending `HandlerInterface` with a `process()` hook, so one handler class carries a field's collection behaviour and its side effects, and orders the work by the per-field `weight` metadata (ties in reverse declaration order). This is exactly what the Vortex CLI does with its `ProcessorInterface` and `Processor`.
 
 ## Regenerating this document
 
