@@ -4,5 +4,5 @@
  **/.logs
 -**/.phpunit.cache
  **/.twig-cs-fixer.cache
- db_cache_*
  
+ # Database cache key files written into the workspace by the CI workflow.

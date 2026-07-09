@@ -42,10 +42,8 @@ web/sites/simpletest
 /.prettierrc.json
 /.stylelintrc.js
 /.twig-cs-fixer.php
-/.vortex
 /AGENTS.md
 /CLAUDE.md
-/db_cache_*
 /docker-compose.yml
 /renovate.json
 
@@ -54,7 +52,6 @@ web/sites/simpletest
 /CODE_OF_CONDUCT.md
 /CONTRIBUTING.md
 /LICENSE
-/README.dist.md
 /README.md
 /SECURITY.md
 

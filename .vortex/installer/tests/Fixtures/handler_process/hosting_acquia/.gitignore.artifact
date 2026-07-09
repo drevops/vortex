@@ -42,19 +42,19 @@ docroot/sites/simpletest
 /.prettierrc.json
 /.stylelintrc.js
 /.twig-cs-fixer.php
-/.vortex
 /AGENTS.md
 /CLAUDE.md
-/db_cache_*
 /docker-compose.yml
 /renovate.json
+
+# Database cache key files written into the workspace by the CI workflow.
+/db_cache_*
 
 # Documentation.
 /docs
 /CODE_OF_CONDUCT.md
 /CONTRIBUTING.md
 /LICENSE
-/README.dist.md
 /README.md
 /SECURITY.md
 
