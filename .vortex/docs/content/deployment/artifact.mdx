@@ -55,27 +55,41 @@ When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
 
 ## Artifact file control
 
-The `.gitignore.artifact` file controls which files are included in or excluded
-from the artifact. This file replaces the standard `.gitignore` in the artifact
-repository.
+The `.gitignore.artifact` file controls which files are included in the
+deployment artifact. During deployment it replaces the standard `.gitignore` in
+the artifact repository, so its rules - not the project's normal ignore rules -
+decide what reaches the hosting Git repository.
 
-**Vortex** provides a
+**Vortex** writes `.gitignore.artifact` as a **deny list**: every file is
+deployed by default, and the file lists only what must be kept out of
+production. **Vortex** provides a
 [pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
-that includes all required files for a production Drupal site while excluding
-development dependencies.
+that deploys everything a production Drupal site needs - `vendor/`, the built
+webroot (Drupal core, contributed modules and themes, and compiled theme
+assets), `config/`, `drush/`, `scripts/`, and `.env` - while excluding:
+
+- Development, continuous integration, and AI configuration (`.ahoy.yml`,
+  `.circleci`, `.docker`, `.github`, `docker-compose.yml`).
+- Documentation and testing configuration (`docs`, `tests`, `behat.yml`,
+  `phpunit.xml`, `phpcs.xml`).
+- Dependency manifests and lock files not needed at runtime (`composer.lock`,
+  `package.json`, `yarn.lock`).
+- Credentials, local overrides, caches, and content files (`auth.json`,
+  `.env.local`, `.data`, `web/sites/*/files`).
+- Theme asset sources, since only the compiled `build/` output is deployed.
 
 ### Customizing the artifact
 
-Edit `.gitignore.artifact` to add or remove files from the artifact:
+Because the file is a deny list, a new file you add to the project is deployed
+automatically. Edit `.gitignore.artifact` only to keep an additional file out of
+the artifact, or to re-include something that a broader rule excludes:
 
 ```shell title=".gitignore.artifact"
-# Include compiled assets
-!/web/themes/custom/*/dist
+# Keep an additional development file out of the artifact.
+/RELEASE.md
 
-# Exclude test files
-/tests
-/behat.yml
-/phpunit.xml
+# Re-include theme images that the artifact excludes by default.
+!/web/themes/custom/your_site_theme/images
 ```
 
 ## Use cases
