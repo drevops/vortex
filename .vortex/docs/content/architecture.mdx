@@ -72,6 +72,36 @@ Support for DDEV and Lando is on our [roadmap](/docs/contributing/roadmap) for l
 
 :::
 
+## Ignored files
+
+**Vortex** manages three ignore files as **deny lists**: everything is tracked,
+built, or deployed by default, and each file lists only what must be excluded.
+This is the opposite of an allow list, where everything is excluded by default
+and every addition has to be explicitly re-included. The deny-list model follows
+the "avoid silent errors" principle - a newly added file is visible by default
+instead of silently disappearing until someone remembers to allow it.
+
+The `.gitignore` file controls what is tracked in the project repository. It
+excludes Composer- and Yarn-generated directories (`web/core`,
+`web/modules/contrib`, `vendor`, `node_modules`), local setting overrides,
+caches, and content files. Two sections stay as small allow lists because a deny
+rule cannot express them:
+
+- `recipes/` - Composer installs contributed recipes next to your custom ones,
+  so custom recipes are un-ignored explicitly (`!recipes/page`).
+- `.claude/` - only `.claude/settings.json` is tracked by default.
+
+The other two ignore files apply the same deny-list model to different targets:
+
+- `.dockerignore` controls the container image build context.
+  ➡️ See [Tools > Docker](./tools/docker#build-context-and-dockerignore)
+- `.gitignore.artifact` controls the deployment artifact.
+  ➡️ See [Deployment > Artifact](./deployment/artifact#artifact-file-control)
+
+When you add a new file or directory to your project, it is tracked, built, and
+deployed automatically. Add an entry to one of these files only when a file must
+be kept out of that particular target.
+
 ## Drupal management
 
 ### Provisioning

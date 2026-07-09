@@ -242,6 +242,33 @@ each other. [Pygmy](pygmy.mdx) provides the default `amazeeio-network` network
 that
 is used to connect all containers together.
 
+## Build context and `.dockerignore`
+
+When an image is built, Docker sends a **build context** - the set of files it
+is allowed to copy into the image - to the build engine. **Vortex** controls
+this context with a `.dockerignore` file written as a **deny list**: every file
+is part of the build context by default, and the file lists only what must be
+kept out.
+
+Excluded from the image build context:
+
+- Version control, IDE, and operating system files (`.git`, `.idea`,
+  `**/.DS_Store`).
+- Credentials and local overrides (`.env.local`, `docker-compose.override.yml`,
+  `web/sites/*/settings.local.php`).
+- Host-installed dependencies, which are reinstalled during the build (`vendor`,
+  `node_modules`, `web/themes/**/node_modules`).
+- Composer-generated Drupal directories, which are regenerated during the build
+  (`web/core`, `web/modules/contrib`, `drush/Commands/contrib`).
+- Content files, caches, logs, and compiled theme assets (`web/sites/*/files`,
+  `.data`, `.logs`, `web/themes/**/build`).
+
+Keeping these out of the context matters for both security - secrets and
+database dumps never reach an image layer - and speed, since a smaller context
+builds faster. Everything not listed, such as application code, configuration,
+`composer.json`, and settings files, is included automatically, so a new file
+you add reaches the build without any change to `.dockerignore`.
+
 ## Validate `docker-compose.yml`
 
 After updating the `docker-compose.yml` file, it is useful sometimes to validate
