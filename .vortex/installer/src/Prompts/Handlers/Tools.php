@@ -30,6 +30,8 @@ class Tools extends AbstractHandler {
 
   const JEST = 'jest';
 
+  const TWIG_CS_FIXER = 'twig_cs_fixer';
+
   /**
    * {@inheritdoc}
    */
@@ -68,6 +70,7 @@ class Tools extends AbstractHandler {
       self::PHPUNIT,
       self::RECTOR,
       self::STYLELINT,
+      self::TWIG_CS_FIXER,
     ];
   }
 
@@ -442,6 +445,21 @@ class Tools extends AbstractHandler {
           'ahoy lint-tests',
           '/^\h*test-bdd:\R\h*usage:\h*Run BDD tests\.$/um',
           'ahoy cli vendor/bin/gherkinlint lint tests/behat/features',
+        ],
+      ],
+
+      self::TWIG_CS_FIXER => [
+        'title' => 'Twig CS Fixer',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/composer.json', 'vincentlanglet/twig-cs-fixer') ||
+          File::exists($this->dstDir . '/.twig-cs-fixer.php'),
+        'composer.json' => function (JsonManipulator $cj): void {
+          $cj->removeSubNode('require-dev', 'vincentlanglet/twig-cs-fixer');
+        },
+        'files' => ['.twig-cs-fixer.php'],
+        'strings' => ['/^.*\btwig-cs-fixer\b.*\n?/m'],
+        'ahoy' => [
+          'ahoy cli vendor/bin/twig-cs-fixer lint --fix',
+          'ahoy cli vendor/bin/twig-cs-fixer lint',
         ],
       ],
 

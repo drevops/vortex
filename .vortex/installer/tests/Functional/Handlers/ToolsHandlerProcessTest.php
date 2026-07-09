@@ -24,6 +24,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
             'phpcbf',
             'phpstan',
             'rector',
+            'twig-cs-fixer',
+            'vincentlanglet/twig-cs-fixer',
             'phpunit',
             'behat',
             'gherkinlint',
@@ -125,6 +127,28 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'rector',
         'rector/rector',
+      ])),
+    ];
+    yield 'tools_no_twig' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::TWIG_CS_FIXER]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+        'twig-cs-fixer',
+        'vincentlanglet/twig-cs-fixer',
+      ])),
+    ];
+    yield 'tools_no_twig_circleci' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::TWIG_CS_FIXER]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+        'twig-cs-fixer',
+        'vincentlanglet/twig-cs-fixer',
       ])),
     ];
     yield 'tools_no_eslint' => [
