@@ -34,8 +34,6 @@ web/sites/simpletest
 .vortex/tooling/tests
 .vortex/tooling/playground
 .vortex/tooling/vendor
-.vortex/tooling/.logs
-.vortex/tooling/.phpunit.cache
 #;> VORTEX_DEV
 
 # Dependencies are installed during the image build.
@@ -47,11 +45,11 @@ web/themes/**/node_modules
 web/themes/**/build
 
 # Caches, data, logs and temporary artifacts.
-.artifacts
-.data
-.logs
-.phpunit.cache
-.twig-cs-fixer.cache
+**/.artifacts
+**/.data
+**/.logs
+**/.phpunit.cache
+**/.twig-cs-fixer.cache
 
 # Local override files.
 docker-compose.override.yml
