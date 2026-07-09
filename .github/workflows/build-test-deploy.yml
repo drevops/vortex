@@ -181,9 +181,11 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
       #;> TOOL_RECTOR
 
+      #;< TOOL_TWIG_CS_FIXER
       - name: Lint code with Twig CS Fixer
         run: docker compose exec -T cli vendor/bin/twig-cs-fixer
         continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
+      #;> TOOL_TWIG_CS_FIXER
 
       #;< TOOL_BEHAT
       - name: Lint code with Gherkin Lint

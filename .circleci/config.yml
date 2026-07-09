@@ -188,9 +188,11 @@ jobs:
           command: docker compose exec -T cli vendor/bin/rector --dry-run || [ "${VORTEX_CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_RECTOR
 
+      #;< TOOL_TWIG_CS_FIXER
       - run:
           name: Lint code with Twig CS Fixer
           command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_TWIG_CS_FIXER
 
       #;< TOOL_BEHAT
       - run:
