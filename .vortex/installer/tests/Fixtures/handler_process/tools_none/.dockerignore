@@ -4,5 +4,5 @@
  **/.logs
 -**/.phpunit.cache
  **/.twig-cs-fixer.cache
+ db_cache_*
  
- # Local override files.
