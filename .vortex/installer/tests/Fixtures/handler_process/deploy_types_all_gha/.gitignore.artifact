@@ -9,20 +9,19 @@
 /.vscode
 **/.DS_Store
 
-# Credentials and local overrides.
-/auth.json
-/.env.local
-/.env.local.example
-/.ahoy.local.yml
-/.ahoy.local.example.yml
-/docker-compose.override.yml
+# Non-production Drupal Scaffold files.
+web/sites/default/default.services.local.yml
+web/sites/default/default.settings.local.php
+web/sites/default/example.services.local.yml
+web/sites/default/example.settings.local.php
 
-# Local data, logs, caches and temporary artifacts.
-/.artifacts
-/.data
-/.logs
-/.phpunit.cache
-/.twig-cs-fixer.cache
+# Local settings overrides.
+web/sites/default/settings.local.php
+web/sites/default/services.local.yml
+
+# Content files and test artifacts.
+web/sites/default/files
+web/sites/simpletest
 
 # Development, CI and AI configuration.
 /.ahoy.yml
@@ -55,15 +54,6 @@
 /README.md
 /SECURITY.md
 
-# Dependency manifests, lock files and packages not needed at runtime.
-/composer.lock
-/node_modules
-/package.json
-/package-lock.json
-/patches
-/patches.lock.json
-/yarn.lock
-
 # Testing and linting configuration.
 /tests
 /behat.yml
@@ -75,19 +65,14 @@
 /postcss.config.js
 /rector.php
 
-# Content files and test artifacts.
-web/sites/default/files
-web/sites/simpletest
-
-# Local settings overrides.
-web/sites/default/settings.local.php
-web/sites/default/services.local.yml
-
-# Non-production Drupal Scaffold files.
-web/sites/default/default.services.local.yml
-web/sites/default/default.settings.local.php
-web/sites/default/example.services.local.yml
-web/sites/default/example.settings.local.php
+# Dependency manifests, lock files and packages not needed at runtime.
+/composer.lock
+/node_modules
+/package.json
+/package-lock.json
+/patches
+/patches.lock.json
+/yarn.lock
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
 web/themes/custom/star_wars/.eslintrc.json
@@ -99,3 +84,18 @@ web/themes/custom/star_wars/package.json
 web/themes/custom/star_wars/postcss.config.js
 web/themes/custom/star_wars/scss
 web/themes/custom/star_wars/yarn.lock
+
+# Caches, data, logs and temporary artifacts.
+/.artifacts
+/.data
+/.logs
+/.phpunit.cache
+/.twig-cs-fixer.cache
+
+# Credentials and local override files.
+/auth.json
+/docker-compose.override.yml
+/.env.local
+/.env.local.example
+/.ahoy.local.yml
+/.ahoy.local.example.yml

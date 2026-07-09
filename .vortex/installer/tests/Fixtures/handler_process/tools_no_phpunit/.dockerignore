@@ -1,8 +1,8 @@
-@@ -22,7 +22,6 @@
+@@ -39,7 +39,6 @@
  .artifacts
  .data
  .logs
 -.phpunit.cache
  .twig-cs-fixer.cache
  
- # Dependencies are installed during the image build.
+ # Local override files.
