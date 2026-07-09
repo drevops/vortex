@@ -1,8 +1,7 @@
-@@ -50,8 +50,6 @@
- .artifacts
+@@ -51,7 +51,6 @@
  .data
  .logs
--.phpunit.cache
+ .phpunit.cache
 -.twig-cs-fixer.cache
  
  # Local override files.

@@ -6,7 +6,7 @@
  
        - name: Audit Composer packages
          run: docker compose exec -T cli composer audit
-@@ -146,30 +145,10 @@
+@@ -146,30 +145,6 @@
          run: docker compose exec -T cli composer normalize --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
  
@@ -22,10 +22,10 @@
 -        run: docker compose exec -T cli vendor/bin/rector --dry-run
 -        continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
 -
-       - name: Lint code with Twig CS Fixer
-         run: docker compose exec -T cli vendor/bin/twig-cs-fixer
-         continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
- 
+-      - name: Lint code with Twig CS Fixer
+-        run: docker compose exec -T cli vendor/bin/twig-cs-fixer
+-        continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
+-
 -      - name: Lint code with Gherkin Lint
 -        run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
 -        continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
@@ -37,7 +37,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -388,7 +367,6 @@
+@@ -388,7 +363,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -45,7 +45,7 @@
  
        - name: Provision site
          run: |
-@@ -399,71 +377,6 @@
+@@ -399,71 +373,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -117,7 +117,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -476,20 +389,6 @@
+@@ -476,20 +385,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -138,7 +138,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -506,16 +405,6 @@
+@@ -506,16 +401,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
