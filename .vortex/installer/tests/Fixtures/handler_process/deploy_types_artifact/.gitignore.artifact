@@ -16,11 +16,11 @@ web/sites/default/example.services.local.yml
 web/sites/default/example.settings.local.php
 
 # Local settings overrides.
-web/sites/default/settings.local.php
-web/sites/default/services.local.yml
+web/sites/*/settings.local.php
+web/sites/*/services.local.yml
 
 # Content files and test artifacts.
-web/sites/default/files
+web/sites/*/files
 web/sites/simpletest
 
 # Development, CI and AI configuration.
@@ -73,24 +73,24 @@ web/sites/simpletest
 /patches
 /patches.lock.json
 /yarn.lock
+web/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
 web/themes/custom/star_wars/.eslintrc.json
 web/themes/custom/star_wars/fonts
 web/themes/custom/star_wars/images
 web/themes/custom/star_wars/js
-web/themes/custom/star_wars/node_modules
 web/themes/custom/star_wars/package.json
 web/themes/custom/star_wars/postcss.config.js
 web/themes/custom/star_wars/scss
 web/themes/custom/star_wars/yarn.lock
 
 # Caches, data, logs and temporary artifacts.
-/.artifacts
-/.data
-/.logs
-/.phpunit.cache
-/.twig-cs-fixer.cache
+.artifacts
+.data
+.logs
+.phpunit.cache
+.twig-cs-fixer.cache
 
 # Credentials and local override files.
 /auth.json

@@ -36,11 +36,11 @@ web/themes/**/node_modules
 web/themes/**/build
 
 # Caches, data, logs and temporary artifacts.
-.artifacts
-.data
-.logs
-.phpunit.cache
-.twig-cs-fixer.cache
+**/.artifacts
+**/.data
+**/.logs
+**/.phpunit.cache
+**/.twig-cs-fixer.cache
 
 # Local override files.
 docker-compose.override.yml

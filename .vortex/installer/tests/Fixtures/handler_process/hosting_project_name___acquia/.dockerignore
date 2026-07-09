@@ -37,4 +37,4 @@
 +docroot/themes/**/build
  
  # Caches, data, logs and temporary artifacts.
- .artifacts
+ **/.artifacts

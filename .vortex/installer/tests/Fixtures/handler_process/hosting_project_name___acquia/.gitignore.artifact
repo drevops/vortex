@@ -16,11 +16,11 @@ docroot/sites/default/example.services.local.yml
 docroot/sites/default/example.settings.local.php
 
 # Local settings overrides.
-docroot/sites/default/settings.local.php
-docroot/sites/default/services.local.yml
+docroot/sites/*/settings.local.php
+docroot/sites/*/services.local.yml
 
 # Content files and test artifacts.
-docroot/sites/default/files
+docroot/sites/*/files
 docroot/sites/simpletest
 
 # Development, CI and AI configuration.
@@ -73,24 +73,24 @@ docroot/sites/simpletest
 /patches
 /patches.lock.json
 /yarn.lock
+docroot/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
 docroot/themes/custom/star_wars/.eslintrc.json
 docroot/themes/custom/star_wars/fonts
 docroot/themes/custom/star_wars/images
 docroot/themes/custom/star_wars/js
-docroot/themes/custom/star_wars/node_modules
 docroot/themes/custom/star_wars/package.json
 docroot/themes/custom/star_wars/postcss.config.js
 docroot/themes/custom/star_wars/scss
 docroot/themes/custom/star_wars/yarn.lock
 
 # Caches, data, logs and temporary artifacts.
-/.artifacts
-/.data
-/.logs
-/.phpunit.cache
-/.twig-cs-fixer.cache
+.artifacts
+.data
+.logs
+.phpunit.cache
+.twig-cs-fixer.cache
 
 # Credentials and local override files.
 /auth.json
