@@ -34,6 +34,7 @@ web/sites/simpletest
 .vortex/tooling/tests
 .vortex/tooling/playground
 .vortex/tooling/vendor
+README.dist.md
 #;> VORTEX_DEV
 
 # Dependencies are installed during the image build.
@@ -50,7 +51,11 @@ web/themes/**/build
 **/.logs
 **/.phpunit.cache
 **/.twig-cs-fixer.cache
+
+#;< CI_PROVIDER_GHA
+# Database cache key files written into the workspace by the CI workflow.
 db_cache_*
+#;> CI_PROVIDER_GHA
 
 # Local override files.
 docker-compose.override.yml
