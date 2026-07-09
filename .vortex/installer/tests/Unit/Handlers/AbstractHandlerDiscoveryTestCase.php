@@ -18,6 +18,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
+use DrevOps\VortexInstaller\Prompts\Handlers\Gitleaks;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
@@ -157,6 +158,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationImage::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       VisualRegression::id() => FALSE,
+      Gitleaks::id() => TRUE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
       CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => TRUE,
@@ -180,6 +182,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       LabelMergeConflictsPr::id() => FALSE,
       PreserveDocsProject::id() => FALSE,
       AiCodeInstructions::id() => FALSE,
+      Gitleaks::id() => FALSE,
     ];
     return $overrides + static::getExpectedDefaults();
   }
@@ -237,6 +240,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationImage::id() => static::TUI_SKIP,
       CiProvider::id() => static::TUI_DEFAULT,
       VisualRegression::id() => static::TUI_DEFAULT,
+      Gitleaks::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
       CodeCoverageProvider::id() => static::TUI_DEFAULT,
       AssignAuthorPr::id() => static::TUI_DEFAULT,
