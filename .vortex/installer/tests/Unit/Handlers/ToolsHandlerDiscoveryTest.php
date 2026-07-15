@@ -18,11 +18,11 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_installed = static::getExpectedInstalled();
     yield 'tools - prompt - defaults' => [
       [Tools::id() => Key::ENTER],
-      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_defaults,
+      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER]] + $expected_defaults,
     ];
     yield 'tools - discovery - all tools' => [
       [],
-      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT]] + $expected_installed,
+      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $dependencies = [
@@ -31,6 +31,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'rector/rector' => '*',
           'phpunit/phpunit' => '*',
           'behat/behat' => '*',
+          'vincentlanglet/twig-cs-fixer' => '*',
         ];
         $test->stubComposerJsonDependencies($dependencies, TRUE);
         file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['eslint' => '*', 'jest' => '*', 'stylelint' => '*']], JSON_PRETTY_PRINT));
@@ -216,6 +217,22 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::dump(static::$sut . '/.stylelintrc.js');
+      },
+    ];
+    yield 'tools - discovery - twig_cs_fixer' => [
+      [],
+      [Tools::id() => [Tools::TWIG_CS_FIXER]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        $test->stubComposerJsonDependencies(['vincentlanglet/twig-cs-fixer' => '*'], TRUE);
+      },
+    ];
+    yield 'tools - discovery - twig_cs_fixer, alt' => [
+      [],
+      [Tools::id() => [Tools::TWIG_CS_FIXER]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.twig-cs-fixer.php');
       },
     ];
   }

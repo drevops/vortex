@@ -145,7 +145,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       VersionScheme::id() => VersionScheme::CALVER,
       Timezone::id() => 'UTC',
       Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR],
-      Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT],
+      Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER],
       HostingProvider::id() => HostingProvider::NONE,
       HostingProjectName::id() => NULL,
       Webroot::id() => Webroot::WEB,
