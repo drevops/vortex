@@ -95,8 +95,9 @@ trait SutTrait {
    * install step. This method copies the in-tree tooling into the SUT at
    * '.tooling-source' (deliberately outside '.vortex/' so the SUT keeps no
    * '.vortex/' directory at runtime), re-injects the path repository into
-   * composer.json, re-injects the COPY into cli.dockerfile, and whitelists
-   * the path in .dockerignore.
+   * composer.json, re-injects the COPY into cli.dockerfile, and adjusts
+   * '.dockerignore' and '.gitignore.artifact' so the tooling source enters
+   * the build context but never the deployment artifact.
    *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */
@@ -140,6 +141,11 @@ trait SutTrait {
     $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
     if (file_exists($dockerignore_path)) {
       file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/vendor\n");
+    }
+
+    $gitignore_artifact_path = $sut_root . DIRECTORY_SEPARATOR . '.gitignore.artifact';
+    if (file_exists($gitignore_artifact_path)) {
+      file_put_contents($gitignore_artifact_path, file_get_contents($gitignore_artifact_path) . "\n# Test-only: exclude tooling source from the deployment artifact.\n/.tooling-source\n");
     }
 
     $this->reinstallToolingToVendor();
