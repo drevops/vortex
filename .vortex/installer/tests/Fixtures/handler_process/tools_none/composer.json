@@ -1,4 +1,4 @@
-@@ -38,28 +38,11 @@
+@@ -38,29 +38,11 @@
          "webflo/drupal-finder": "__VERSION__"
      },
      "require-dev": {
@@ -22,12 +22,14 @@
 -        "phpstan/extension-installer": "__VERSION__",
 -        "phpstan/phpstan": "__VERSION__",
 -        "phpunit/phpunit": "__VERSION__",
-         "pyrech/composer-changelogs": "__VERSION__",
+-        "pyrech/composer-changelogs": "__VERSION__",
 -        "rector/rector": "__VERSION__",
-         "vincentlanglet/twig-cs-fixer": "__VERSION__"
+-        "vincentlanglet/twig-cs-fixer": "__VERSION__"
++        "pyrech/composer-changelogs": "__VERSION__"
      },
      "conflict": {
-@@ -73,20 +56,13 @@
+         "drupal/drupal": "*"
+@@ -73,20 +55,13 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
