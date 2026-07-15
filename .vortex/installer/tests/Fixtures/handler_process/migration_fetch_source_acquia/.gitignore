@@ -1,8 +1,0 @@
-@@ -21,6 +21,7 @@
- web/sites/default/*
- !web/sites/default/settings.php
- !web/sites/default/services.yml
-+!web/sites/default/settings.migration.php
- !web/sites/default/example.settings.local.php
- !web/sites/default/example.services.local.yml
- !web/sites/default/default.settings.local.php
