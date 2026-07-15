@@ -18,6 +18,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
 use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
+use DrevOps\VortexInstaller\Prompts\Handlers\Gitleaks;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
@@ -69,7 +70,7 @@ class PromptManager {
    *
    * Used to display the progress of the prompts.
    */
-  const TOTAL_RESPONSES = 35;
+  const TOTAL_RESPONSES = 36;
 
   /**
    * Array of responses.
@@ -226,6 +227,7 @@ class PromptManager {
       ->intro('Continuous Integration')
       ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CiProvider::class, $r), CiProvider::id())
       ->add(fn($r, $pr, $n): mixed => $this->prompt(VisualRegression::class), VisualRegression::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(Gitleaks::class), Gitleaks::id())
 
       ->intro('Automations')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
@@ -312,6 +314,7 @@ class PromptManager {
       AssignAuthorPr::id(),
       CodeCoverageProvider::id(),
       DependencyUpdatesProvider::id(),
+      Gitleaks::id(),
       VisualRegression::id(),
       CiProvider::id(),
       MigrationImage::id(),
@@ -513,6 +516,7 @@ class PromptManager {
     $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
     $values['CI provider'] = $responses[CiProvider::id()];
     $values['Visual regression testing'] = Converter::bool($responses[VisualRegression::id()]);
+    $values['Secret scanning with Gitleaks'] = Converter::bool($responses[Gitleaks::id()]);
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
     $values['Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
