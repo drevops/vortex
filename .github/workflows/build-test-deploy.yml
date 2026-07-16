@@ -77,7 +77,7 @@ env:
   DOCKER_CONFIG: /tmp/.docker
 
 permissions:
-  contents: read # Minimal default for all jobs; jobs that need more override below.
+  contents: read
 
 jobs:
 
@@ -334,9 +334,9 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     permissions:
-      contents: read # Check out the repository.
-      checks: write # Publish test results to the Checks tab.
-      pull-requests: write # Comment on the pull request.
+      contents: read
+      checks: write
+      pull-requests: write
 
     strategy:
       # A matrix to run multiple jobs in parallel.
@@ -625,8 +625,8 @@ jobs:
     #;> !PROVISION_TYPE_PROFILE
 
     permissions:
-      contents: read # Check out the repository.
-      pull-requests: read # 'gh pr view' resolves the PR head SHA and branch.
+      contents: read
+      pull-requests: read
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
