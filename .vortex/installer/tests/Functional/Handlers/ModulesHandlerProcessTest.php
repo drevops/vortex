@@ -12,12 +12,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
-    yield 'modules_no_admin_toolbar' => [
-      static::cw(function ($test): void {
-          $test->prompts[Modules::id()] = static::getModulesExcept('admin_toolbar');
-      }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/admin_toolbar')),
-    ];
     yield 'modules_no_coffee' => [
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('coffee');
@@ -59,6 +53,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/generated_content')),
+    ];
+    yield 'modules_no_navigation_extra_tools' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('navigation_extra_tools');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/navigation_extra_tools')),
     ];
     yield 'modules_no_pathauto' => [
       static::cw(function ($test): void {

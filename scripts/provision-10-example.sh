@@ -49,9 +49,17 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
   pass "Set site name."
 
+  # Use the core Navigation module as the administration interface. The
+  # standard install profile enables the classic Toolbar module, so uninstall
+  # it here to avoid running two administration systems at once.
+  task "Setting up the administration navigation."
+  drush pm:install navigation
+  drush pm:uninstall toolbar
+  pass "Set up the administration navigation."
+
   #;< MODULES
   task "Installing contrib modules."
-  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
+  drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
   pass "Installed contrib modules."
   #;> MODULES
 

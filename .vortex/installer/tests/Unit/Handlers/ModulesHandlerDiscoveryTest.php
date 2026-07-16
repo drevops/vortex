@@ -38,7 +38,6 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubComposerJsonDependencies([
-          'drupal/admin_toolbar' => '^3.6.2',
           'drupal/coffee' => '^2.0.1',
           'drupal/config_split' => '^2.0.2',
           'drupal/config_update' => '^2@alpha',
@@ -46,6 +45,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/drupal_helpers' => '^2.0.1',
           'drupal/environment_indicator' => '^4.0.25',
           'drupal/generated_content' => '^2.0.1',
+          'drupal/navigation_extra_tools' => '^1.3.2',
           'drupal/pathauto' => '^1.14',
           'drupal/redirect' => '^1.12',
           'drupal/reroute_email' => '^2.3@RC',
@@ -73,25 +73,25 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'modules - discovery - filters out core packages' => [
       [],
-      [Modules::id() => ['admin_toolbar', 'pathauto']] + $expected_installed,
+      [Modules::id() => ['navigation_extra_tools', 'pathauto']] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubComposerJsonDependencies([
           'drupal/core-recommended' => '~11.2.5',
           'drupal/core-composer-scaffold' => '~11.2.5',
           'drupal/core-dev' => '~11.2.5',
-          'drupal/admin_toolbar' => '^3.6.2',
+          'drupal/navigation_extra_tools' => '^1.3.2',
           'drupal/pathauto' => '^1.14',
         ]);
       },
     ];
     yield 'modules - discovery - filters out service modules' => [
       [],
-      [Modules::id() => ['admin_toolbar', 'pathauto']] + $expected_installed,
+      [Modules::id() => ['navigation_extra_tools', 'pathauto']] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubComposerJsonDependencies([
-          'drupal/admin_toolbar' => '^3.6.2',
+          'drupal/navigation_extra_tools' => '^1.3.2',
           'drupal/clamav' => '^2.1',
           'drupal/pathauto' => '^1.14',
           'drupal/redis' => '^1.10',
@@ -114,7 +114,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubComposerJsonDependencies([
-          'drupal/admin_toolbar' => '^3.6.2',
+          'drupal/navigation_extra_tools' => '^1.3.2',
           'drupal/pathauto' => '^1.14',
         ]);
       },
