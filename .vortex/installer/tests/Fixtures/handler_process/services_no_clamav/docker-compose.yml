@@ -1,4 +1,4 @@
-@@ -163,17 +163,6 @@
+@@ -165,17 +165,6 @@
      ports:
        - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
  
@@ -16,7 +16,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -190,12 +179,10 @@
+@@ -192,12 +181,10 @@
    wait-for-dependencies:
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
