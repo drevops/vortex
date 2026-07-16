@@ -73,6 +73,9 @@ abstract class SettingsTestCase extends TestCase {
     // Vortex and Drupal variables.
     'VORTEX_',
     'DRUPAL_',
+    // Exact variable name (not a prefix), so it does not also match other
+    // variables such as 'LAGOON_ENVIRONMENT_TYPE'.
+    'ENVIRONMENT_TYPE',
   ];
 
   /**
