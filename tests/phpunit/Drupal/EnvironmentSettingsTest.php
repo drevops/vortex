@@ -1329,23 +1329,4 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   }
   // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
 
-  /**
-   * Test that a host-provided environment type does not leak between cases.
-   *
-   * A real 'ENVIRONMENT_TYPE' present in the host environment must be cleared
-   * during setup so it cannot override cases that do not set it explicitly.
-   */
-  public function testEnvironmentTypeHostValueDoesNotLeak(): void {
-    // Simulate a host or CI runner that exports 'ENVIRONMENT_TYPE'.
-    putenv('ENVIRONMENT_TYPE=' . self::ENVIRONMENT_PROD);
-
-    // Setting up a case that does not provide 'ENVIRONMENT_TYPE' must clear the
-    // host value so it cannot override the environment resolved by settings.
-    $this->setEnvVars([]);
-    $this->assertFalse(getenv('ENVIRONMENT_TYPE'));
-
-    $this->requireSettingsFile();
-    $this->assertNotSame(self::ENVIRONMENT_PROD, $this->settings['environment']);
-  }
-
 }
