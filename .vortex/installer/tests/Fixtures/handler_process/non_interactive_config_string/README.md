@@ -8,5 +8,5 @@
 -[![Database, Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
 +[![Database, Build, Test and Deploy](https://github.com/my_other_custom_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/my_other_custom_org/star_wars/actions/workflows/build-test-deploy.yml)
  
- ![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
+ ![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
  
