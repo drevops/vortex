@@ -1,6 +1,6 @@
 @@ -13,8 +13,6 @@
  
- ![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
+ ![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
  
 -![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
 -
