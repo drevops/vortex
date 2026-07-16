@@ -33,7 +33,7 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [test, lint, build]
-@@ -534,6 +555,20 @@
+@@ -538,6 +559,20 @@
        - name: Load environment variables from .env
          run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
  
@@ -54,7 +54,7 @@
        - name: Add SSH private key to the runner
          if: ${{ env.VORTEX_DEPLOY_SSH_PRIVATE_KEY != '' }}
          uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
-@@ -554,7 +589,11 @@
+@@ -558,7 +593,11 @@
            VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
            VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
            VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
