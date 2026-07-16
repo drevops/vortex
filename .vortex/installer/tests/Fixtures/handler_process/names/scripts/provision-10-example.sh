@@ -6,8 +6,8 @@
 +  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'New hope')->save();"
    pass "Set site name."
  
-   task "Installing contrib modules."
-@@ -79,11 +79,11 @@
+   # Use the core Navigation module as the administration interface. The
+@@ -87,11 +87,11 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."

@@ -1,4 +1,4 @@
-@@ -57,11 +57,6 @@
+@@ -65,11 +65,6 @@
    drush pm:install redis || true
    pass "Installed Redis module."
  

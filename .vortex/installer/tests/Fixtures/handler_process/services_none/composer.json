@@ -1,13 +1,13 @@
-@@ -9,7 +9,6 @@
+@@ -8,7 +8,6 @@
+         "composer/installers": "__VERSION__",
          "cweagans/composer-patches": "__VERSION__",
          "drevops/vortex-tooling": "__VERSION__",
-         "drupal/admin_toolbar": "__VERSION__",
 -        "drupal/clamav": "__VERSION__",
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
 @@ -21,12 +20,10 @@
-         "drupal/generated_content": "__VERSION__",
+         "drupal/navigation_extra_tools": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
 -        "drupal/redis": "__VERSION__",

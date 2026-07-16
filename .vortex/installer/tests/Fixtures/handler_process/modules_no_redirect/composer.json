@@ -1,6 +1,6 @@
 @@ -20,7 +20,6 @@
-         "drupal/environment_indicator": "__VERSION__",
          "drupal/generated_content": "__VERSION__",
+         "drupal/navigation_extra_tools": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
 -        "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",
