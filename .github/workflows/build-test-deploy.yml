@@ -624,6 +624,10 @@ jobs:
     if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE
 
+    permissions:
+      contents: read # Check out the repository.
+      pull-requests: read # 'gh pr view' resolves the PR head SHA and branch.
+
     container:
       # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
