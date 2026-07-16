@@ -259,7 +259,7 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
 
       - name: Check GitHub Actions security with Zizmor
-        uses: zizmorcore/zizmor-action@192e21d79ab29983730a13d1382995c2307fbcaa # v0.5.7
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
         with:
           # Audit only the template's own workflows. The installer test fixtures
           # carry generated workflow snapshots whose action SHAs are normalized
