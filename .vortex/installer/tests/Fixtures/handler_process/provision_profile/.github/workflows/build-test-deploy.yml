@@ -185,5 +185,5 @@
      needs: [build, lint]
 -    if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
  
-     container:
-       # https://hub.docker.com/r/drevops/ci-runner
+     permissions:
+       contents: read # Check out the repository.
