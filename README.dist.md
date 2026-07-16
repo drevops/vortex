@@ -25,7 +25,7 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;> CI_PROVIDER_GHA)
 
-![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
+![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
 
 [//]: # (#;< CODE_COVERAGE_PROVIDER_CODECOV)
 
