@@ -70,6 +70,7 @@ abstract class SettingsTestCase extends TestCase {
     // Vortex and Drupal variables.
     'VORTEX_',
     'DRUPAL_',
+    'ENVIRONMENT_TYPE',
   ];
 
   /**
