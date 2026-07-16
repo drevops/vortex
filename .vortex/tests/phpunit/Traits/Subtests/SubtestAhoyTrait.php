@@ -123,6 +123,14 @@ trait SubtestAhoyTrait {
       txt: '`ahoy cli` passes only allowed environment variables into the container'
     );
 
+    // A host 'ENVIRONMENT_TYPE' is forwarded via the 'ENVIRONMENT_' prefix.
+    $this->cmd(
+      'ahoy cli \'echo $ENVIRONMENT_TYPE | grep envtypevar\'',
+      'envtypevar',
+      env: ['ENVIRONMENT_TYPE' => 'envtypevar'],
+      txt: '`ahoy cli` forwards a host ENVIRONMENT_TYPE into the container'
+    );
+
     $this->logStepFinish();
   }
 
