@@ -624,6 +624,10 @@ jobs:
     if: ${{ !cancelled() && (inputs.deploy_target || (success() && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE
 
+    permissions:
+      contents: read
+      pull-requests: read
+
     env:
       TZ: ${{ vars.TZ || 'UTC' }}
       TERM: xterm-256color
