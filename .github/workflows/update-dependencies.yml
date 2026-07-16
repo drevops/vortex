@@ -31,6 +31,7 @@ jobs:
 
     permissions:
       contents: write # Renovate creates branches and pushes commits.
+      issues: write
       pull-requests: write # Renovate opens and updates dependency PRs.
 
     steps:
