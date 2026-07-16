@@ -1,4 +1,4 @@
-@@ -52,8 +52,6 @@
+@@ -54,8 +54,6 @@
    # Drupal Shield credentials.
    DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
@@ -7,7 +7,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -151,9 +149,6 @@
+@@ -153,9 +151,6 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -17,7 +17,7 @@
    search:
      build:
        context: .
-@@ -194,12 +189,10 @@
+@@ -196,12 +191,10 @@
      depends_on:
        - antivirus
        - database

@@ -104,5 +104,5 @@
      needs: [test, lint, build]
 -    if: ${{ !cancelled() && (inputs.deploy_target || (success() && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
  
-     env:
-       TZ: ${{ vars.TZ || 'UTC' }}
+     permissions:
+       contents: read

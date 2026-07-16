@@ -5,7 +5,7 @@
 -[![Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
 +[![CircleCI](https://circleci.com/gh/star_wars_org/star_wars.svg?style=shield)](https://circleci.com/gh/star_wars_org/star_wars)
  
- ![Drupal 11](https://img.shields.io/badge/Drupal-11-blue.svg)
+ ![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
  
 @@ -32,8 +32,6 @@
  - Make sure that you have latest versions of all required software installed: [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
