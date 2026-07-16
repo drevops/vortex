@@ -9,8 +9,8 @@
 -    if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
 -
 -    permissions:
--      contents: read # Check out the repository.
--      pull-requests: read # 'gh pr view' resolves the PR head SHA and branch.
+-      contents: read
+-      pull-requests: read
 -
 -    container:
 -      # https://hub.docker.com/r/drevops/ci-runner
