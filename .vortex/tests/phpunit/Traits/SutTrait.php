@@ -24,7 +24,7 @@ trait SutTrait {
    * Tests use demo database and 'ahoy fetch-db' command, so we need
    * to set the CURL DB to test DB.
    */
-  const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql';
+  const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/1.40.0/db.test.sql';
 
   /**
    * URL for the migration source demo database used in tests.
