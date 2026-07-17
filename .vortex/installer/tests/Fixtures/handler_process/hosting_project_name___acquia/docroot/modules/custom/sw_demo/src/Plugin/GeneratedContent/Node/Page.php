@@ -42,6 +42,13 @@ class Page extends GeneratedContentPluginBase {
         'format' => 'full_html',
       ]);
 
+      // When Content Moderation is attached to the bundle, 'status' alone
+      // leaves the node as an unpublished draft, so the state must be set
+      // explicitly for the node to appear in published listings.
+      if ($node->hasField('moderation_state')) {
+        $node->set('moderation_state', 'published');
+      }
+
       $node->save();
 
       $this->helper::log('Created "%s" node "%s" [ID: %s]', $node->bundle(), $node->toLink()->toString(), $node->id());

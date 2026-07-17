@@ -8,9 +8,9 @@ Feature: Pages listing
   @api @testmode
   Scenario: Pages view shows only test content when test mode is enabled
     Given the following page content:
-      | title                   | status |
-      | [TEST] First test page  | 1      |
-      | [TEST] Second test page | 1      |
+      | title                   | status | moderation_state |
+      | [TEST] First test page  | 1      | published        |
+      | [TEST] Second test page | 1      | published        |
     When I visit "/pages"
     Then I should see "[TEST] First test page"
     And I should see "[TEST] Second test page"
