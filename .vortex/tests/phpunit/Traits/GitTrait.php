@@ -405,6 +405,25 @@ trait GitTrait {
   }
 
   /**
+   * Assert git working tree has no modified or untracked files within a path.
+   *
+   * @param string $subpath
+   *   Path within the repository to check, relative to the repository root.
+   * @param string|null $path
+   *   Optional path to the repository directory. If not provided, fixture
+   *   directory is used.
+   * @param string|null $message
+   *   Optional message to display on failure.
+   */
+  protected function gitAssertCleanPath(string $subpath, ?string $path = NULL, ?string $message = NULL): void {
+    $path = $path ?: File::cwd();
+    $entries = (new Git())->open($path)->run(['status', '--porcelain', '--', $subpath])->getOutput();
+    $entries = array_filter($entries);
+    $message = $message ?: sprintf('Git working tree should have no changes in "%s"', $subpath);
+    $this->assertEmpty($entries, $message . PHP_EOL . implode(PHP_EOL, $entries));
+  }
+
+  /**
    * Get global default branch.
    *
    * @return string

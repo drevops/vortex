@@ -98,8 +98,11 @@ trait SubtestDeploymentTrait {
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/.eslintrc.json', 'Theme .eslintrc.json should not exist in deployment');
     $this->assertDirectoryDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/node_modules', 'Theme node_modules should not exist in deployment');
 
-    // Drupal scaffold files should be present.
+    // Drupal scaffold files should be present. The 'autoload_runtime.php'
+    // loader is required by 'index.php' at runtime, so a deployment artifact
+    // without it fatals on the first request.
     $this->assertFileExists($dir . '/' . $webroot . '/autoload.php', 'autoload.php should exist');
+    $this->assertFileExists($dir . '/' . $webroot . '/autoload_runtime.php', 'autoload_runtime.php should exist');
     $this->assertFileExists($dir . '/' . $webroot . '/index.php', 'index.php should exist');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/robots.txt', 'robots.txt should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/update.php', 'update.php should not exist in deployment');

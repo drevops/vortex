@@ -628,6 +628,11 @@ trait SutTrait {
   }
 
   protected function assertFilesTrackedInGit(string $webroot = 'web', bool $skip_commit = FALSE): void {
+    // Modified or new files in the webroot at this point mean that the
+    // committed Drupal Scaffold files drifted from the files shipped with the
+    // installed Drupal core version and have to be re-committed.
+    $this->gitAssertCleanPath($webroot, message: 'Drupal Scaffold files in the webroot should not be modified or added by the build');
+
     $this->createDevelopmentSettings($webroot);
 
     if (!$skip_commit) {
@@ -636,7 +641,9 @@ trait SutTrait {
 
     // Assert that Drupal Scaffold files were added to the git repository.
     $this->gitAssertFilesTracked($webroot . '/autoload.php');
+    $this->gitAssertFilesTracked($webroot . '/autoload_runtime.php');
     $this->gitAssertFilesTracked($webroot . '/index.php');
+    $this->gitAssertFilesNotTracked($webroot . '/.gitignore');
     $this->gitAssertFilesNotTracked($webroot . '/robots.txt');
     $this->gitAssertFilesNotTracked($webroot . '/update.php');
 
