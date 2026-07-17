@@ -282,6 +282,13 @@ function build_in(string $root_dir, string $cwd): void {
   $env = 'VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1';
   run(sprintf('%s ahoy provision', $env), $cwd);
 
+  step('Apply the Basic page content model');
+  // The Drupal standard profile no longer ships the 'page' content type, so
+  // apply the project's core-only 'recipes/page' recipe to create it (plus its
+  // body field) for the demo node. This installs only core node/text/path
+  // config and pulls in no contrib or custom modules.
+  run("ahoy cli 'drush recipe /app/recipes/page --no-interaction'", $cwd);
+
   step('Info');
   run('ahoy info', $cwd);
 }
