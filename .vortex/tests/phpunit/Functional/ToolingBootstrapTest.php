@@ -19,6 +19,9 @@ use PHPUnit\Framework\Attributes\Group;
  */
 class ToolingBootstrapTest extends FunctionalTestCase {
 
+  /**
+   * The working directory before the test chdir'd into the fixture project.
+   */
   protected string $originalCwd = '';
 
   protected function setUp(): void {
@@ -95,13 +98,11 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->logStepFinish();
   }
 
-  public static function dataProviderBootstrap(): array {
-    return [
-      'fresh vendor' => [FALSE, FALSE],
-      'package present, binaries missing' => [TRUE, FALSE],
-      'binaries present, package missing' => [FALSE, TRUE],
-      'package and binaries present' => [TRUE, TRUE],
-    ];
+  public static function dataProviderBootstrap(): \Iterator {
+    yield 'fresh vendor' => [FALSE, FALSE];
+    yield 'package present, binaries missing' => [TRUE, FALSE];
+    yield 'binaries present, package missing' => [FALSE, TRUE];
+    yield 'package and binaries present' => [TRUE, TRUE];
   }
 
   #[Group('p2')]
