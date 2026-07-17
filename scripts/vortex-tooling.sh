@@ -82,6 +82,12 @@ fi
 
 composer --working-dir=vendor-temp install --no-dev --no-interaction
 
+# The target directory may already be occupied by a package copy without the
+# 'vendor/bin/vortex-*' proxies (e.g. an older tooling version mid-way through
+# a project update). 'mv' cannot replace a non-empty directory, so remove the
+# existing copy first - otherwise the failure would abort the ahoy entrypoint
+# and block every command, including those needed to recover.
+rm -rf vendor/drevops/vortex-tooling
 mv vendor-temp/vendor/drevops/vortex-tooling vendor/drevops/
 
 # Expose the surfaced tooling binaries under 'vendor/bin/' too, so host-side
