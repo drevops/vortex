@@ -152,7 +152,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('.env', 'VORTEX_FETCH_DB_SOURCE=container_registry', '.env should contain container registry source');
     $this->assertFileContainsString('.env', 'VORTEX_DB_IMAGE=' . self::VORTEX_DB_IMAGE_TEST, '.env should contain correct database image');
     // Assert that demo config was removed as a part of the installation.
-    $this->assertFileNotContainsString('.env', 'VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest', '.env should not contain demo database image');
+    $this->assertFileNotContainsString('.env', 'VORTEX_DB_IMAGE=drevops/vortex-dev-mariadb-drupal-data-demo-11.x:1.40.0', '.env should not contain demo database image');
     $this->assertFileNotContainsString('.env', 'VORTEX_FETCH_DB_URL=', '.env should not contain database fetch URL');
 
     // Do not use demo database - testing demo database discovery is
