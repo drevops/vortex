@@ -148,6 +148,7 @@ class Services extends AbstractHandler {
       File::remove($t . DIRECTORY_SEPARATOR . '.docker/solr.dockerfile');
       File::remove($t . DIRECTORY_SEPARATOR . $w . DIRECTORY_SEPARATOR . 'sites/default/includes/modules/settings.solr.php');
       File::remove($t . DIRECTORY_SEPARATOR . 'tests/behat/features/search.feature');
+      File::remove($t . DIRECTORY_SEPARATOR . 'scripts/provision-30-search-index.sh');
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/solr":\s*"[^\"]+",?\n/', "\n");
       File::replaceContentInFile($t . DIRECTORY_SEPARATOR . 'composer.json', '/\s*"drupal\/search_api_solr":\s*"[^\"]+",?\n/', "\n");
     }

@@ -18,7 +18,10 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Services::id()] = [Services::SOLR, Services::REDIS];
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('clamav')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains('clamav');
+          $test->assertFileExists(static::$sut . '/scripts/provision-30-search-index.sh');
+      }),
     ];
     yield 'services_no_redis' => [
       static::cw(function ($test): void {
@@ -32,7 +35,10 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Services::id()] = [Services::CLAMAV, Services::REDIS];
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('solr')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains('solr');
+          $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
+      }),
     ];
     yield 'services_none' => [
       static::cw(fn($test): array => $test->prompts[Services::id()] = []),
@@ -40,6 +46,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('clamav');
           $test->assertSutNotContains('solr');
           $test->assertSutNotContains('redis');
+          $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];
   }
