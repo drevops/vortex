@@ -11,6 +11,8 @@ load ../_helper.bash
 
   rm ./.env && touch ./.env
 
+  unset DRUPAL_SEARCH_INDEX_SKIP
+
   create_global_command_wrapper "vendor/bin/drush"
 
   declare -a STEPS=(
@@ -82,6 +84,8 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   rm ./.env && touch ./.env
+
+  unset DRUPAL_SEARCH_INDEX_SKIP
 
   create_global_command_wrapper "vendor/bin/drush"
 
