@@ -284,3 +284,31 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: email, deployment log token in custom template" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf 'CUSTOM log line one\nCUSTOM log line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_EMAIL_MESSAGE="Custom body. Log below: %deployment_log%"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # A custom template's %deployment_log% token is substituted with the log.
+  assert_output_contains "Custom body. Log below:"
+  assert_output_contains "CUSTOM log line one"
+  assert_output_contains "CUSTOM log line two"
+
+  popd >/dev/null || exit 1
+}

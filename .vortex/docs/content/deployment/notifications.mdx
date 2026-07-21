@@ -95,6 +95,14 @@ what happened during the deploy. The email and webhook message templates expose
 it as the `%deployment_log%` token; Slack adds it to the message attachment and
 JIRA as a comment code block.
 
+:::warning
+
+The deployment log is included verbatim. Make sure the `vortex-provision` output
+does not print secrets, and enable `VORTEX_NOTIFY_LOG` only for the channels and
+environments where exposing the full log is acceptable.
+
+:::
+
 Unless overridden, the log file is `/tmp/vortex-provision.log`; change it with
 `VORTEX_NOTIFY_LOG_FILE`.
 

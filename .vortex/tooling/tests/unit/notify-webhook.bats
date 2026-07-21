@@ -188,3 +188,32 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: webhook, deployment log token in custom payload" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "200" 1
+
+  printf 'CUSTOM webhook log line\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="webhook"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
+  export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"log": "%deployment_log%"}'
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # A custom payload's %deployment_log% token is replaced with the log.
+  run mock_get_call_args "${mock_curl}" 1
+  assert_output_contains "CUSTOM webhook log line"
+
+  popd >/dev/null || exit 1
+}
