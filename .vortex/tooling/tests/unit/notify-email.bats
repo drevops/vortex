@@ -172,7 +172,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -218,7 +219,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -241,8 +243,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
-  export VORTEX_NOTIFY_EMAIL_LOG_LINES=2
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG_LINES=2
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -269,7 +272,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -296,7 +300,8 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -324,8 +329,9 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
-  export VORTEX_NOTIFY_EMAIL_LOG_LINES=-5
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG_LINES=-5
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -335,6 +341,31 @@ load ../_helper.bash
   assert_output_contains "## Deployment log (last 100 lines) ##"
   assert_output_contains "UNIQUELAST"
   assert_output_not_contains "UNIQUEFIRST"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log excluded when flag disabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf 'Provision line one\nProvision line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  # The log file exists and has content, but the feature flag is left disabled.
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_not_contains "## Deployment log"
+  assert_output_not_contains "Provision line one"
 
   popd >/dev/null || exit 1
 }

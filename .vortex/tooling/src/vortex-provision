@@ -13,17 +13,20 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Deployment log file. When set, the full provision output is written to this
-# file (in addition to the console) so it can be included in deployment
-# notifications. See 'vortex-notify'.
-VORTEX_PROVISION_LOG="${VORTEX_PROVISION_LOG:-}"
+# Include the deployment log in notifications. When enabled, the full provision
+# output is captured to the log file (in addition to the console) so that
+# 'vortex-notify' can include it in the notification body.
+VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+
+# Deployment log file path. Generated automatically; rarely overridden.
+VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-/tmp/vortex-provision.log}"
 
 # Re-run this script once through 'tee' so all provision output is captured to
 # the log file while still streaming to the console. PIPESTATUS preserves the
 # provision exit code, so a logging failure can never mask a deployment failure.
-if [ -n "${VORTEX_PROVISION_LOG}" ] && [ -z "${VORTEX_PROVISION_LOG_ACTIVE:-}" ]; then
-  export VORTEX_PROVISION_LOG_ACTIVE=1
-  "${BASH_SOURCE[0]}" "$@" 2>&1 | tee "${VORTEX_PROVISION_LOG}"
+if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -z "${VORTEX_NOTIFY_LOG_ACTIVE:-}" ]; then
+  export VORTEX_NOTIFY_LOG_ACTIVE=1
+  "${BASH_SOURCE[0]}" "$@" 2>&1 | tee "${VORTEX_NOTIFY_LOG_FILE}"
   exit "${PIPESTATUS[0]}"
 fi
 

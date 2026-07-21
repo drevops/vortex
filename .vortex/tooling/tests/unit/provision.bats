@@ -2422,11 +2422,12 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Provision: deployment log is captured to file" {
+@test "Provision: deployment log is captured to file when enabled" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_PROVISION_SKIP=1
-  export VORTEX_PROVISION_LOG="${BATS_TEST_TMPDIR}/provision.log"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/provision.log"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
@@ -2436,11 +2437,26 @@ assert_provision_info() {
   assert_output_contains "Finished site provisioning."
 
   # The full output is also written to the log file, preserving the exit code.
-  [ -f "${VORTEX_PROVISION_LOG}" ]
+  [ -f "${VORTEX_NOTIFY_LOG_FILE}" ]
 
-  run cat "${VORTEX_PROVISION_LOG}"
+  run cat "${VORTEX_NOTIFY_LOG_FILE}"
   assert_output_contains "Started site provisioning."
   assert_output_contains "Finished site provisioning."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: deployment log is not captured when disabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_PROVISION_SKIP=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/provision.log"
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+
+  # Without VORTEX_NOTIFY_LOG=1 the log file is never written.
+  [ ! -f "${BATS_TEST_TMPDIR}/provision.log" ]
 
   popd >/dev/null || exit 1
 }
