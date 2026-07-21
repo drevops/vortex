@@ -308,3 +308,33 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: email, invalid log line count falls back to default cap" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf 'UNIQUEFIRST\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+  seq 2 149 >>"${BATS_TEST_TMPDIR}/deploy.log"
+  printf 'UNIQUELAST\n' >>"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_EMAIL_LOG_LINES=-5
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # A negative or non-numeric line count must not dump the whole log; it falls
+  # back to the default cap of 100 trailing lines.
+  assert_output_contains "## Deployment log (last 100 lines) ##"
+  assert_output_contains "UNIQUELAST"
+  assert_output_not_contains "UNIQUEFIRST"
+
+  popd >/dev/null || exit 1
+}

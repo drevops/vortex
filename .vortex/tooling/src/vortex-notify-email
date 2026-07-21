@@ -137,20 +137,35 @@ content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" TEMPLATE="${content}" p
 content=$(TEMPLATE="${content}" LOG_FILE="${VORTEX_NOTIFY_EMAIL_LOG}" LOG_LINES="${VORTEX_NOTIFY_EMAIL_LOG_LINES}" php -r '
 $template = getenv("TEMPLATE");
 $file = getenv("LOG_FILE");
-$max = (int) getenv("LOG_LINES");
+// Only a non-negative integer is valid; 0 means no line limit. Anything else
+// (negative, non-numeric) falls back to the safe default so a misconfiguration
+// cannot dump an unbounded log into the email.
+$max = getenv("LOG_LINES");
+$max = is_numeric($max) && (int) $max >= 0 ? (int) $max : 100;
 $section = "";
 if ($file !== "" && is_file($file)) {
-  $log = (string) file_get_contents($file);
-  $log = preg_replace("/\x1b\[[0-9;?]*[ -\/]*[@-~]/", "", $log);
-  $log = rtrim($log, "\r\n");
-  if ($log !== "") {
-    $lines = explode("\n", $log);
-    $header = "## Deployment log ##";
-    if ($max > 0 && count($lines) > $max) {
-      $lines = array_slice($lines, -$max);
-      $header = "## Deployment log (last " . $max . " lines) ##";
+  $fp = fopen($file, "rb");
+  if ($fp !== FALSE) {
+    // Read at most the trailing 1 MiB to bound memory regardless of log size,
+    // discarding the first (likely partial) line after seeking.
+    $limit = 1024 * 1024;
+    if ((int) fstat($fp)["size"] > $limit) {
+      fseek($fp, -$limit, SEEK_END);
+      fgets($fp);
     }
-    $section = "\n\n" . $header . "\n\n" . implode("\n", $lines);
+    $log = (string) stream_get_contents($fp);
+    fclose($fp);
+    $log = preg_replace("/\x1b\[[0-9;?]*[ -\/]*[@-~]/", "", $log);
+    $log = rtrim($log, "\r\n");
+    if ($log !== "") {
+      $lines = explode("\n", $log);
+      $header = "## Deployment log ##";
+      if ($max > 0 && count($lines) > $max) {
+        $lines = array_slice($lines, -$max);
+        $header = "## Deployment log (last " . $max . " lines) ##";
+      }
+      $section = "\n\n" . $header . "\n\n" . implode("\n", $lines);
+    }
   }
 }
 echo str_replace("%deployment_log%", $section, $template);
