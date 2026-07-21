@@ -123,7 +123,6 @@ class Modules extends AbstractHandler {
    */
   public static function getAvailableModules(): array {
     return [
-      'admin_toolbar' => 'Admin toolbar',
       'coffee' => 'Coffee',
       'config_split' => 'Config split',
       'config_update' => 'Config update',
@@ -131,6 +130,7 @@ class Modules extends AbstractHandler {
       'drupal_helpers' => 'Drupal helpers',
       'environment_indicator' => 'Environment indicator',
       'generated_content' => 'Generated content',
+      'navigation_extra_tools' => 'Navigation extra tools',
       'pathauto' => 'Pathauto',
       'redirect' => 'Redirect',
       'reroute_email' => 'Reroute email',

@@ -1,15 +1,15 @@
-@@ -49,10 +49,6 @@
-   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
-   pass "Set site name."
+@@ -60,10 +60,6 @@
+   fi
+   pass "Set up the administration navigation."
  
 -  task "Installing contrib modules."
--  drush pm:install admin_toolbar coffee config_split config_update media environment_indicator pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
+-  drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
 -  pass "Installed contrib modules."
 -
    task "Installing Redis module."
    drush pm:install redis || true
    pass "Installed Redis module."
-@@ -65,14 +61,6 @@
+@@ -76,14 +72,6 @@
    task "Installing Solr search modules."
    drush pm:install search_api search_api_solr
    pass "Installed Solr search modules."
