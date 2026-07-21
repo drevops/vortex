@@ -178,14 +178,14 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  assert_output_contains "## Deployment log ##"
+  # The whole log file is included verbatim, below the login URL.
   assert_output_contains "Provision line one"
   assert_output_contains "Provision line two"
 
   popd >/dev/null || exit 1
 }
 
-@test "Notify: email, no deployment log leaves body unchanged" {
+@test "Notify: email, missing deployment log file leaves body intact" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_NOTIFY_CHANNELS="email"
@@ -196,17 +196,18 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/missing.log"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Site testproject develop has been deployed"
-  assert_output_not_contains "## Deployment log"
 
   popd >/dev/null || exit 1
 }
 
-@test "Notify: email, empty deployment log is omitted" {
+@test "Notify: email, empty deployment log leaves body intact" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   touch "${BATS_TEST_TMPDIR}/deploy.log"
@@ -225,61 +226,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  assert_output_not_contains "## Deployment log"
-
-  popd >/dev/null || exit 1
-}
-
-@test "Notify: email, deployment log capped to trailing lines" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  printf 'line1\nline2\nline3\nline4\nline5\n' >"${BATS_TEST_TMPDIR}/deploy.log"
-
-  export VORTEX_NOTIFY_CHANNELS="email"
-  export VORTEX_NOTIFY_PROJECT="testproject"
-  export DRUPAL_SITE_EMAIL="testproject@example.com"
-  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
-  export VORTEX_NOTIFY_BRANCH="develop"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
-  export VORTEX_NOTIFY_LOG_LINES=2
-
-  run ./.vortex/tooling/src/vortex-notify
-  assert_success
-
-  assert_output_contains "## Deployment log (last 2 lines) ##"
-  assert_output_contains "line4"
-  assert_output_contains "line5"
-  assert_output_not_contains "line1"
-  assert_output_not_contains "line3"
-
-  popd >/dev/null || exit 1
-}
-
-@test "Notify: email, deployment log strips ANSI escapes" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  printf '\033[36mColored\033[0m output\n' >"${BATS_TEST_TMPDIR}/deploy.log"
-
-  export VORTEX_NOTIFY_CHANNELS="email"
-  export VORTEX_NOTIFY_PROJECT="testproject"
-  export DRUPAL_SITE_EMAIL="testproject@example.com"
-  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
-  export VORTEX_NOTIFY_BRANCH="develop"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
-
-  run ./.vortex/tooling/src/vortex-notify
-  assert_success
-
-  # If ANSI were not stripped, the escape codes would sit between the words.
-  assert_output_contains "Colored output"
+  assert_output_contains "Site testproject develop has been deployed"
 
   popd >/dev/null || exit 1
 }
@@ -314,37 +261,6 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
-@test "Notify: email, invalid log line count falls back to default cap" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  printf 'UNIQUEFIRST\n' >"${BATS_TEST_TMPDIR}/deploy.log"
-  seq 2 149 >>"${BATS_TEST_TMPDIR}/deploy.log"
-  printf 'UNIQUELAST\n' >>"${BATS_TEST_TMPDIR}/deploy.log"
-
-  export VORTEX_NOTIFY_CHANNELS="email"
-  export VORTEX_NOTIFY_PROJECT="testproject"
-  export DRUPAL_SITE_EMAIL="testproject@example.com"
-  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
-  export VORTEX_NOTIFY_BRANCH="develop"
-  export VORTEX_NOTIFY_SHA="abc123def456"
-  export VORTEX_NOTIFY_LABEL="develop"
-  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
-  export VORTEX_NOTIFY_LOG_LINES=-5
-
-  run ./.vortex/tooling/src/vortex-notify
-  assert_success
-
-  # A negative or non-numeric line count must not dump the whole log; it falls
-  # back to the default cap of 100 trailing lines.
-  assert_output_contains "## Deployment log (last 100 lines) ##"
-  assert_output_contains "UNIQUELAST"
-  assert_output_not_contains "UNIQUEFIRST"
-
-  popd >/dev/null || exit 1
-}
-
 @test "Notify: email, deployment log excluded when flag disabled" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -364,7 +280,6 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  assert_output_not_contains "## Deployment log"
   assert_output_not_contains "Provision line one"
 
   popd >/dev/null || exit 1

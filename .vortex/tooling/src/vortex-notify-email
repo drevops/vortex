@@ -51,10 +51,6 @@ VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
 # Deployment log file path. Provided by 'vortex-notify'.
 VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-}"
 
-# Maximum number of trailing deployment log lines to include in the body.
-# Set to 0 to include the entire log.
-VORTEX_NOTIFY_LOG_LINES="${VORTEX_NOTIFY_LOG_LINES:-100}"
-
 # Email notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_EMAIL_EVENT="${VORTEX_NOTIFY_EMAIL_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
 
@@ -97,7 +93,9 @@ if [ -z "${VORTEX_NOTIFY_EMAIL_MESSAGE}" ]; then
 
 Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%.
 
-Login at: %login_url%%deployment_log%"
+Login at: %login_url%
+
+%deployment_log%"
 fi
 
 # Skip if this is a pre-deployment event (email only for post-deployment).
@@ -133,46 +131,13 @@ content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" TEMPLATE="${content}" p
 
 # Replace the deployment log token last. The log file is read inside PHP (never
 # interpolated into the shell) and inserted as literal text, so arbitrary log
-# content cannot break out or re-trigger earlier token replacements. ANSI escape
-# sequences are stripped and the output is capped to the trailing
-# VORTEX_NOTIFY_LOG_LINES lines to keep the email a reasonable size.
+# content cannot break out or re-trigger earlier token replacements.
 log_file=""
 [ "${VORTEX_NOTIFY_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_LOG_FILE}"
-content=$(TEMPLATE="${content}" LOG_FILE="${log_file}" LOG_LINES="${VORTEX_NOTIFY_LOG_LINES}" php -r '
-$template = getenv("TEMPLATE");
+content=$(TEMPLATE="${content}" LOG_FILE="${log_file}" php -r '
 $file = getenv("LOG_FILE");
-// Only a non-negative integer is valid; 0 means no line limit. Anything else
-// (negative, non-numeric) falls back to the safe default so a misconfiguration
-// cannot dump an unbounded log into the email.
-$max = getenv("LOG_LINES");
-$max = is_numeric($max) && (int) $max >= 0 ? (int) $max : 100;
-$section = "";
-if ($file !== "" && is_file($file)) {
-  $fp = fopen($file, "rb");
-  if ($fp !== FALSE) {
-    // Read at most the trailing 1 MiB to bound memory regardless of log size,
-    // discarding the first (likely partial) line after seeking.
-    $limit = 1024 * 1024;
-    if ((int) fstat($fp)["size"] > $limit) {
-      fseek($fp, -$limit, SEEK_END);
-      fgets($fp);
-    }
-    $log = (string) stream_get_contents($fp);
-    fclose($fp);
-    $log = preg_replace("/\x1b\[[0-9;?]*[ -\/]*[@-~]/", "", $log);
-    $log = rtrim($log, "\r\n");
-    if ($log !== "") {
-      $lines = explode("\n", $log);
-      $header = "## Deployment log ##";
-      if ($max > 0 && count($lines) > $max) {
-        $lines = array_slice($lines, -$max);
-        $header = "## Deployment log (last " . $max . " lines) ##";
-      }
-      $section = "\n\n" . $header . "\n\n" . implode("\n", $lines);
-    }
-  }
-}
-echo str_replace("%deployment_log%", $section, $template);
+$log = ($file !== "" && is_file($file)) ? rtrim((string) file_get_contents($file), "\r\n") : "";
+echo str_replace("%deployment_log%", $log, getenv("TEMPLATE"));
 ')
 
 info "Email notification summary:"

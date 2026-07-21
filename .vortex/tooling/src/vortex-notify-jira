@@ -66,6 +66,12 @@ VORTEX_NOTIFY_JIRA_ENDPOINT="${VORTEX_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassi
 # filtering is applied.
 VORTEX_NOTIFY_JIRA_BRANCHES="${VORTEX_NOTIFY_JIRA_BRANCHES:-}"
 
+# Include the deployment log in the comment (0/1). Provided by 'vortex-notify'.
+VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+
+# Deployment log file path. Provided by 'vortex-notify'.
+VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -182,14 +188,20 @@ message=$(REPLACEMENT="${timestamp}" TEMPLATE="${message}" php -r 'echo str_repl
 message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" TEMPLATE="${message}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" TEMPLATE="${message}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 
+# Read the deployment log (when enabled) to include it in the comment.
+log_file=""
+[ "${VORTEX_NOTIFY_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_LOG_FILE}"
+
 # Build JIRA Atlassian Document Format (ADF) from the message using PHP with proper escaping.
 # shellcheck disable=SC2016
-comment_body=$(VORTEX_NOTIFY_JIRA_PROJECT="${VORTEX_NOTIFY_JIRA_PROJECT}" VORTEX_NOTIFY_JIRA_LABEL="${VORTEX_NOTIFY_JIRA_LABEL}" timestamp="${timestamp}" VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" VORTEX_NOTIFY_JIRA_LOGIN_URL="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" php -r '
+comment_body=$(VORTEX_NOTIFY_JIRA_PROJECT="${VORTEX_NOTIFY_JIRA_PROJECT}" VORTEX_NOTIFY_JIRA_LABEL="${VORTEX_NOTIFY_JIRA_LABEL}" timestamp="${timestamp}" VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" VORTEX_NOTIFY_JIRA_LOGIN_URL="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" LOG_FILE="${log_file}" php -r '
 $project = getenv("VORTEX_NOTIFY_JIRA_PROJECT");
 $label = getenv("VORTEX_NOTIFY_JIRA_LABEL");
 $timestamp = getenv("timestamp");
 $envUrl = getenv("VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL");
 $loginUrl = getenv("VORTEX_NOTIFY_JIRA_LOGIN_URL");
+$logFile = getenv("LOG_FILE");
+$log = ($logFile !== "" && is_file($logFile)) ? rtrim((string) file_get_contents($logFile), "\r\n") : "";
 
 $content = [[
   "type" => "paragraph",
@@ -208,6 +220,13 @@ $content = [[
     ["type" => "text", "text" => $loginUrl, "marks" => [["type" => "link", "attrs" => ["href" => $loginUrl]]]]
   ]
 ]];
+
+if ($log !== "") {
+  $content[] = [
+    "type" => "codeBlock",
+    "content" => [["type" => "text", "text" => $log]]
+  ];
+}
 
 $body = [
   "type" => "doc",

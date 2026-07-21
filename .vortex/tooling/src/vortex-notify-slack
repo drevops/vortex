@@ -52,6 +52,12 @@ VORTEX_NOTIFY_SLACK_ICON_EMOJI="${VORTEX_NOTIFY_SLACK_ICON_EMOJI:-:rocket:}"
 # filtering is applied.
 VORTEX_NOTIFY_SLACK_BRANCHES="${VORTEX_NOTIFY_SLACK_BRANCHES:-}"
 
+# Include the deployment log in the message (0/1). Provided by 'vortex-notify'.
+VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+
+# Deployment log file path. Provided by 'vortex-notify'.
+VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -113,8 +119,12 @@ fi
 # Build the message title.
 title="${event_label}: ${VORTEX_NOTIFY_SLACK_PROJECT}"
 
+# Read the deployment log (when enabled) to include it in the message.
+log_file=""
+[ "${VORTEX_NOTIFY_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_LOG_FILE}"
+
 # Build payload using PHP with proper escaping from environment variables.
-payload=$(VORTEX_NOTIFY_SLACK_USERNAME="${VORTEX_NOTIFY_SLACK_USERNAME}" VORTEX_NOTIFY_SLACK_ICON_EMOJI="${VORTEX_NOTIFY_SLACK_ICON_EMOJI}" color="${color}" fallback_message="${fallback_message}" title="${title}" VORTEX_NOTIFY_SLACK_LABEL="${VORTEX_NOTIFY_SLACK_LABEL}" VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" VORTEX_NOTIFY_SLACK_LOGIN_URL="${VORTEX_NOTIFY_SLACK_LOGIN_URL}" timestamp="${timestamp}" VORTEX_NOTIFY_SLACK_CHANNEL="${VORTEX_NOTIFY_SLACK_CHANNEL}" VORTEX_NOTIFY_SLACK_EVENT="${VORTEX_NOTIFY_SLACK_EVENT}" php -r '
+payload=$(VORTEX_NOTIFY_SLACK_USERNAME="${VORTEX_NOTIFY_SLACK_USERNAME}" VORTEX_NOTIFY_SLACK_ICON_EMOJI="${VORTEX_NOTIFY_SLACK_ICON_EMOJI}" color="${color}" fallback_message="${fallback_message}" title="${title}" VORTEX_NOTIFY_SLACK_LABEL="${VORTEX_NOTIFY_SLACK_LABEL}" VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL="${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" VORTEX_NOTIFY_SLACK_LOGIN_URL="${VORTEX_NOTIFY_SLACK_LOGIN_URL}" timestamp="${timestamp}" VORTEX_NOTIFY_SLACK_CHANNEL="${VORTEX_NOTIFY_SLACK_CHANNEL}" VORTEX_NOTIFY_SLACK_EVENT="${VORTEX_NOTIFY_SLACK_EVENT}" LOG_FILE="${log_file}" php -r '
 $username = getenv("VORTEX_NOTIFY_SLACK_USERNAME");
 $icon = getenv("VORTEX_NOTIFY_SLACK_ICON_EMOJI");
 $color = getenv("color");
@@ -126,6 +136,8 @@ $login_url = getenv("VORTEX_NOTIFY_SLACK_LOGIN_URL");
 $timestamp = getenv("timestamp");
 $channel = getenv("VORTEX_NOTIFY_SLACK_CHANNEL");
 $event = getenv("VORTEX_NOTIFY_SLACK_EVENT");
+$logFile = getenv("LOG_FILE");
+$log = ($logFile !== "" && is_file($logFile)) ? rtrim((string) file_get_contents($logFile), "\r\n") : "";
 
 $fields = [
   ["title" => "Deployment", "value" => $label, "short" => true],
@@ -139,19 +151,23 @@ if ($event !== "pre_deployment") {
   $fields[] = ["title" => "Login", "value" => "<" . $login_url . "|Login Here>", "short" => true];
 }
 
+$attachment = [
+  "color" => $color,
+  "fallback" => $fallback,
+  "title" => $title,
+  "fields" => $fields,
+  "footer" => "Vortex Deployment",
+  "ts" => time()
+];
+
+if ($log !== "") {
+  $attachment["text"] = $log;
+}
+
 $data = [
   "username" => $username,
   "icon_emoji" => $icon,
-  "attachments" => [
-    [
-      "color" => $color,
-      "fallback" => $fallback,
-      "title" => $title,
-      "fields" => $fields,
-      "footer" => "Vortex Deployment",
-      "ts" => time()
-    ]
-  ]
+  "attachments" => [$attachment]
 ];
 
 if (!empty($channel)) {

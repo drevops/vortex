@@ -168,3 +168,37 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: jira, deployment log included in comment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  # Call 1: authentication check returns an account ID of the expected length.
+  mock_set_output "${mock_curl}" '{"accountId": "123456789020165700ede21g"}' 1
+  # Call 2: comment creation returns a numeric comment ID.
+  mock_set_output "${mock_curl}" '{"id": "1234"}' 2
+
+  printf 'JIRA log line one\nJIRA log line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="jira"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # The whole log is added to the comment as an ADF code block.
+  run mock_get_call_args "${mock_curl}" 2
+  assert_output_contains "JIRA log line one"
+  assert_output_contains "JIRA log line two"
+
+  popd >/dev/null || exit 1
+}
