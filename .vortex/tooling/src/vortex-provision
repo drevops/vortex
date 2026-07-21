@@ -22,10 +22,13 @@ VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
 VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-/tmp/vortex-provision.log}"
 
 # Re-run this script once through 'tee' so all provision output is captured to
-# the log file while still streaming to the console. PIPESTATUS preserves the
-# provision exit code, so a logging failure can never mask a deployment failure.
+# the log file while still streaming to the console. PIPESTATUS returns the
+# provision (not tee) exit code, so a logging failure never masks a deployment
+# failure. 'errexit' is disabled around the pipeline so that a tee write error
+# (e.g. an unwritable log path) cannot abort before that exit code is read.
 if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -z "${VORTEX_NOTIFY_LOG_ACTIVE:-}" ]; then
   export VORTEX_NOTIFY_LOG_ACTIVE=1
+  set +e
   "${BASH_SOURCE[0]}" "$@" 2>&1 | tee "${VORTEX_NOTIFY_LOG_FILE}"
   exit "${PIPESTATUS[0]}"
 fi

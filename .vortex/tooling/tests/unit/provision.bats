@@ -2463,3 +2463,21 @@ assert_provision_info() {
 
   popd >/dev/null || exit 1
 }
+
+@test "Provision: deployment log capture failure does not fail provision" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_PROVISION_SKIP=1
+  export VORTEX_NOTIFY_LOG=1
+  # A path inside a non-existent directory cannot be written by 'tee', but a
+  # logging failure must not turn a successful provision into a failure.
+  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/no-such-dir/provision.log"
+  unset VORTEX_NOTIFY_LOG_ACTIVE
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+
+  assert_output_contains "Finished site provisioning."
+
+  popd >/dev/null || exit 1
+}

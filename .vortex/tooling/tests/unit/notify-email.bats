@@ -275,6 +275,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   # The log file exists and has content, but the feature flag is left disabled.
+  unset VORTEX_NOTIFY_LOG
   export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
 
   run ./.vortex/tooling/src/vortex-notify
