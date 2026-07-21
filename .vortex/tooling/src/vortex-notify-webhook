@@ -49,11 +49,11 @@ VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS="${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS:-
 # filtering is applied.
 VORTEX_NOTIFY_WEBHOOK_BRANCHES="${VORTEX_NOTIFY_WEBHOOK_BRANCHES:-}"
 
-# Include the deployment log in the payload (0/1). Provided by 'vortex-notify'.
-VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+# Include the deployment log in the payload (0/1). Defaults to VORTEX_NOTIFY_LOG.
+VORTEX_NOTIFY_WEBHOOK_LOG="${VORTEX_NOTIFY_WEBHOOK_LOG:-${VORTEX_NOTIFY_LOG:-0}}"
 
-# Deployment log file path. Provided by 'vortex-notify'.
-VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-}"
+# Deployment log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+VORTEX_NOTIFY_WEBHOOK_LOG_FILE="${VORTEX_NOTIFY_WEBHOOK_LOG_FILE:-${VORTEX_NOTIFY_LOG_FILE:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}"
 # Replace the deployment log token last. The log file is read inside PHP and
 # JSON-escaped, so arbitrary log content is inserted safely as literal text.
 log_file=""
-[ "${VORTEX_NOTIFY_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_LOG_FILE}"
+[ "${VORTEX_NOTIFY_WEBHOOK_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_WEBHOOK_LOG_FILE}"
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(LOG_FILE="${log_file}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$file = getenv("LOG_FILE"); $log = ($file !== "" && is_file($file)) ? rtrim((string) file_get_contents($file), "\r\n") : ""; $escaped = json_encode($log); $escaped = substr($escaped, 1, -1); echo str_replace("%deployment_log%", $escaped, getenv("TEMPLATE"));')
 
 # Sanitize webhook URL (extract domain, hide path that may contain secrets).

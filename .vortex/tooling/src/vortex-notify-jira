@@ -66,11 +66,11 @@ VORTEX_NOTIFY_JIRA_ENDPOINT="${VORTEX_NOTIFY_JIRA_ENDPOINT:-https://jira.atlassi
 # filtering is applied.
 VORTEX_NOTIFY_JIRA_BRANCHES="${VORTEX_NOTIFY_JIRA_BRANCHES:-}"
 
-# Include the deployment log in the comment (0/1). Provided by 'vortex-notify'.
-VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+# Include the deployment log in the comment (0/1). Defaults to VORTEX_NOTIFY_LOG.
+VORTEX_NOTIFY_JIRA_LOG="${VORTEX_NOTIFY_JIRA_LOG:-${VORTEX_NOTIFY_LOG:-0}}"
 
-# Deployment log file path. Provided by 'vortex-notify'.
-VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-}"
+# Deployment log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+VORTEX_NOTIFY_JIRA_LOG_FILE="${VORTEX_NOTIFY_JIRA_LOG_FILE:-${VORTEX_NOTIFY_LOG_FILE:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -190,7 +190,7 @@ message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" TEMPLATE="${message}" ph
 
 # Read the deployment log (when enabled) to include it in the comment.
 log_file=""
-[ "${VORTEX_NOTIFY_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_LOG_FILE}"
+[ "${VORTEX_NOTIFY_JIRA_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_JIRA_LOG_FILE}"
 
 # Build JIRA Atlassian Document Format (ADF) from the message using PHP with proper escaping.
 # shellcheck disable=SC2016

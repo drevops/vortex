@@ -166,7 +166,8 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" "200" 1
 
-  printf 'WEBHOOK log line one\nWEBHOOK log line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'WEBHOOK log line one\nWEBHOOK log line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
@@ -176,7 +177,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
   export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
@@ -195,7 +196,8 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" "200" 1
 
-  printf 'CUSTOM webhook log line one\nCUSTOM webhook log line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'CUSTOM webhook log line one\nCUSTOM webhook log line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
 
   export VORTEX_NOTIFY_CHANNELS="webhook"
   export VORTEX_NOTIFY_PROJECT="testproject"
@@ -206,7 +208,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_URL="https://example-webhook-url.com"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"log": "%deployment_log%"}'
   export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success

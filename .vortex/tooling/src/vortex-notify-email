@@ -45,11 +45,11 @@ VORTEX_NOTIFY_EMAIL_LOGIN_URL="${VORTEX_NOTIFY_EMAIL_LOGIN_URL:-${VORTEX_NOTIFY_
 # Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%, %deployment_log%
 VORTEX_NOTIFY_EMAIL_MESSAGE="${VORTEX_NOTIFY_EMAIL_MESSAGE:-}"
 
-# Include the deployment log in the message body (0/1). Provided by 'vortex-notify'.
-VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+# Include the deployment log in the message body (0/1). Defaults to VORTEX_NOTIFY_LOG.
+VORTEX_NOTIFY_EMAIL_LOG="${VORTEX_NOTIFY_EMAIL_LOG:-${VORTEX_NOTIFY_LOG:-0}}"
 
-# Deployment log file path. Provided by 'vortex-notify'.
-VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-}"
+# Deployment log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+VORTEX_NOTIFY_EMAIL_LOG_FILE="${VORTEX_NOTIFY_EMAIL_LOG_FILE:-${VORTEX_NOTIFY_LOG_FILE:-}}"
 
 # Email notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_EMAIL_EVENT="${VORTEX_NOTIFY_EMAIL_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
@@ -133,7 +133,7 @@ content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" TEMPLATE="${content}" p
 # interpolated into the shell) and inserted as literal text, so arbitrary log
 # content cannot break out or re-trigger earlier token replacements.
 log_file=""
-[ "${VORTEX_NOTIFY_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_LOG_FILE}"
+[ "${VORTEX_NOTIFY_EMAIL_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_EMAIL_LOG_FILE}"
 content=$(TEMPLATE="${content}" LOG_FILE="${log_file}" php -r '
 $file = getenv("LOG_FILE");
 $log = ($file !== "" && is_file($file)) ? rtrim((string) file_get_contents($file), "\r\n") : "";
@@ -145,8 +145,8 @@ note "Project        : ${VORTEX_NOTIFY_EMAIL_PROJECT}"
 note "Deployment     : ${VORTEX_NOTIFY_EMAIL_LABEL}"
 note "Environment URL: ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}"
 note "Login URL      : ${VORTEX_NOTIFY_EMAIL_LOGIN_URL}"
-if [ "${VORTEX_NOTIFY_LOG}" = "1" ]; then
-  note "Deployment log : ${VORTEX_NOTIFY_LOG_FILE}"
+if [ "${VORTEX_NOTIFY_EMAIL_LOG}" = "1" ]; then
+  note "Deployment log : ${VORTEX_NOTIFY_EMAIL_LOG_FILE}"
 else
   note "Deployment log : <disabled>"
 fi

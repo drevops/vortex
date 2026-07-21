@@ -2422,13 +2422,13 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
-@test "Provision: deployment log is captured to file when enabled" {
+@test "Provision: deployment log is captured to the log directory when enabled" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_PROVISION_SKIP=1
-  export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/provision.log"
-  unset VORTEX_NOTIFY_LOG_ACTIVE
+  export VORTEX_PROVISION_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
@@ -2437,10 +2437,10 @@ assert_provision_info() {
   assert_output_contains "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
   assert_output_contains "Finished site provisioning."
 
-  # The full output is also written to the log file, preserving the exit code.
-  [ -f "${VORTEX_NOTIFY_LOG_FILE}" ]
+  # The full output is also written to <dir>/provision.log, preserving the exit code.
+  [ -f "${VORTEX_NOTIFY_LOG_DIR}/provision.log" ]
 
-  run cat "${VORTEX_NOTIFY_LOG_FILE}"
+  run cat "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
   assert_output_contains "Started site provisioning."
   assert_output_contains "Finished site provisioning."
 
@@ -2451,15 +2451,15 @@ assert_provision_info() {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_PROVISION_SKIP=1
-  export VORTEX_NOTIFY_LOG=0
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/provision.log"
-  unset VORTEX_NOTIFY_LOG_ACTIVE
+  export VORTEX_PROVISION_LOG=0
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  # Without VORTEX_NOTIFY_LOG=1 the log file is never written.
-  [ ! -f "${BATS_TEST_TMPDIR}/provision.log" ]
+  # Without VORTEX_PROVISION_LOG=1 the log file is never written.
+  [ ! -f "${BATS_TEST_TMPDIR}/logs/provision.log" ]
 
   popd >/dev/null || exit 1
 }
@@ -2467,12 +2467,14 @@ assert_provision_info() {
 @test "Provision: deployment log capture failure does not fail provision" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # A file where the log directory should be makes 'mkdir -p' and 'tee' fail, but
+  # a logging failure must not turn a successful provision into a failure.
+  touch "${BATS_TEST_TMPDIR}/blocker"
+
   export VORTEX_PROVISION_SKIP=1
-  export VORTEX_NOTIFY_LOG=1
-  # A path inside a non-existent directory cannot be written by 'tee', but a
-  # logging failure must not turn a successful provision into a failure.
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/no-such-dir/provision.log"
-  unset VORTEX_NOTIFY_LOG_ACTIVE
+  export VORTEX_PROVISION_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/blocker/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success

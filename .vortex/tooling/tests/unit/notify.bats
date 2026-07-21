@@ -137,3 +137,33 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: collects multiple producer logs from the log directory" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'provision output line\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
+  printf 'deploy output line\n' >"${BATS_TEST_TMPDIR}/logs/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # Every '*.log' in the directory is collected, each as its own titled section.
+  assert_output_contains "## deploy.log ##"
+  assert_output_contains "deploy output line"
+  assert_output_contains "## provision.log ##"
+  assert_output_contains "provision output line"
+
+  popd >/dev/null || exit 1
+}

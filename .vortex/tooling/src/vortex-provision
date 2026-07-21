@@ -13,23 +13,22 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Include the deployment log in notifications. When enabled, the full provision
-# output is captured to the log file (in addition to the console) so that
-# 'vortex-notify' can include it in the notification body.
-VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+# Write the provision log for collection by deployment notifications (0/1).
+VORTEX_PROVISION_LOG="${VORTEX_PROVISION_LOG:-0}"
 
-# Deployment log file path. Generated automatically; rarely overridden.
-VORTEX_NOTIFY_LOG_FILE="${VORTEX_NOTIFY_LOG_FILE:-/tmp/vortex-provision.log}"
+# Directory where deployment logs are collected. Each producing script writes its
+# own '<name>.log' here and 'vortex-notify' collects them all.
+VORTEX_NOTIFY_LOG_DIR="${VORTEX_NOTIFY_LOG_DIR:-/tmp/vortex-logs}"
 
-# Re-run this script once through 'tee' so all provision output is captured to
-# the log file while still streaming to the console. PIPESTATUS returns the
-# provision (not tee) exit code, so a logging failure never masks a deployment
-# failure. 'errexit' is disabled around the pipeline so that a tee write error
-# (e.g. an unwritable log path) cannot abort before that exit code is read.
-if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -z "${VORTEX_NOTIFY_LOG_ACTIVE:-}" ]; then
-  export VORTEX_NOTIFY_LOG_ACTIVE=1
+# When enabled, re-run this script once through 'tee' to capture this run's output
+# into the shared log directory (truncated fresh each run) while still streaming to
+# the console. PIPESTATUS returns the provision (not tee) exit code and 'errexit' is
+# disabled around the pipeline, so a logging failure never masks a deployment failure.
+if [ "${VORTEX_PROVISION_LOG}" = "1" ] && [ -z "${VORTEX_PROVISION_LOG_ACTIVE:-}" ]; then
+  export VORTEX_PROVISION_LOG_ACTIVE=1
   set +e
-  "${BASH_SOURCE[0]}" "$@" 2>&1 | tee "${VORTEX_NOTIFY_LOG_FILE}"
+  mkdir -p "${VORTEX_NOTIFY_LOG_DIR}"
+  "${BASH_SOURCE[0]}" "$@" 2>&1 | tee "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
   exit "${PIPESTATUS[0]}"
 fi
 

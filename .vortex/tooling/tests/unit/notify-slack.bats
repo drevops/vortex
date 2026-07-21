@@ -349,7 +349,8 @@ load ../_helper.bash
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" "200" 1
 
-  printf 'SLACK log line one\nSLACK log line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'SLACK log line one\nSLACK log line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
 
   export VORTEX_NOTIFY_CHANNELS="slack"
   export VORTEX_NOTIFY_PROJECT="testproject"
@@ -359,7 +360,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
   export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success

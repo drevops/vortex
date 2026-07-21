@@ -178,7 +178,8 @@ load ../_helper.bash
   # Call 2: comment creation returns a numeric comment ID.
   mock_set_output "${mock_curl}" '{"id": "1234"}' 2
 
-  printf 'JIRA log line one\nJIRA log line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'JIRA log line one\nJIRA log line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
 
   export VORTEX_NOTIFY_CHANNELS="jira"
   export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
@@ -190,7 +191,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
   export VORTEX_NOTIFY_LOG=1
-  export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_success
