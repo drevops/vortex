@@ -280,6 +280,20 @@ import ProvisionScriptExample from '!!raw-loader!./provision-example.sh';
 
 </details>
 
+### Search indexing
+
+Projects with the Solr service ship with a `scripts/provision-30-search-index.sh`
+custom script that rebuilds the search index at the end of provisioning: it
+resets the Search API index tracker and re-indexes the site content.
+
+The script runs only in the `local`, `ci`, `dev` and `stage` environments, as
+these environments receive a database with an index tracker state that does not
+match their own (empty) search backend. Other environments are skipped to
+preserve the existing index.
+
+To opt out of search indexing, set `DRUPAL_SEARCH_INDEX_SKIP=1` in the `.env`
+file or in your hosting provider's specific environment.
+
 :::tip Related Documentation
 For information about different types of Drupal hooks used during deployment and updates.
 
