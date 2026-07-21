@@ -79,6 +79,7 @@ tasks:
           fi
 
           export VORTEX_DB_DIR=/tmp/data
+          export VORTEX_PROVISION_LOG=/tmp/vortex-provision.log
           ./vendor/bin/vortex-provision
         service: cli
         shell: bash
@@ -94,6 +95,7 @@ tasks:
           export VORTEX_NOTIFY_LABEL="$LAGOON_GIT_BRANCH"
           [ -n "$LAGOON_PR_NUMBER" ] && export VORTEX_NOTIFY_LABEL="PR-${LAGOON_PR_NUMBER}"
           export VORTEX_NOTIFY_EVENT=post_deployment
+          export VORTEX_NOTIFY_LOG=/tmp/vortex-provision.log
           ./vendor/bin/vortex-notify
         service: cli
         shell: bash
