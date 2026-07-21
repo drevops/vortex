@@ -21,7 +21,7 @@ export PHP_INI_SCAN_DIR
 export VORTEX_UNBLOCK_ADMIN="${VORTEX_UNBLOCK_ADMIN:-0}"
 
 # Capture the provision output so it can be included in deployment notifications.
-export VORTEX_PROVISION_LOG=/tmp/vortex-provision.log
+export VORTEX_PROVISION_LOG=/tmp/vortex-provision-${site}-${target_env}.log
 
 ./vendor/bin/vortex-provision
 
