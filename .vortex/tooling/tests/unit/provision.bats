@@ -2428,6 +2428,7 @@ assert_provision_info() {
   export VORTEX_PROVISION_SKIP=1
   export VORTEX_NOTIFY_LOG=1
   export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/provision.log"
+  unset VORTEX_NOTIFY_LOG_ACTIVE
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
@@ -2450,7 +2451,9 @@ assert_provision_info() {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_PROVISION_SKIP=1
+  export VORTEX_NOTIFY_LOG=0
   export VORTEX_NOTIFY_LOG_FILE="${BATS_TEST_TMPDIR}/provision.log"
+  unset VORTEX_NOTIFY_LOG_ACTIVE
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success

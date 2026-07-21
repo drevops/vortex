@@ -93,15 +93,15 @@ captures its output to a log file during the deploy and the **email** channel
 appends it to the message body via the `%deployment_log%` token, so recipients
 can see exactly what happened during the deploy.
 
-The log file path is generated automatically and rarely needs changing; override
-it with `VORTEX_NOTIFY_LOG_FILE`. By default only the trailing 100 lines are
-included, to keep the email a reasonable size; adjust this with
-`VORTEX_NOTIFY_LOG_LINES` (set to `0` to include the entire log).
+Unless overridden, the log file is `/tmp/vortex-provision.log`; change it with
+`VORTEX_NOTIFY_LOG_FILE`. By default only the trailing 100 lines are included,
+to keep the email a reasonable size; adjust this with `VORTEX_NOTIFY_LOG_LINES`
+(set to `0` to include the entire log).
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
 | `VORTEX_NOTIFY_LOG` | No | `0` | `.env` or Hosting | Set to `1` to include the deployment log in the notification body |
-| `VORTEX_NOTIFY_LOG_FILE` | No | Auto | `.env` | Deployment log file path (generated automatically) |
+| `VORTEX_NOTIFY_LOG_FILE` | No | `/tmp/vortex-provision.log` | `.env` | Deployment log file path |
 | `VORTEX_NOTIFY_LOG_LINES` | No | `100` | `.env` | Max trailing log lines to include (`0` = all) |
 
 ---
