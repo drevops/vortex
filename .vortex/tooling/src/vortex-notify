@@ -45,6 +45,10 @@ VORTEX_NOTIFY_ENVIRONMENT_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL:-}"
 # Notification login URL (defaults to ENVIRONMENT_URL/user/login if not provided).
 VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_LOGIN_URL:-}"
 
+# Notification deployment log file. When set and non-empty, its contents are
+# included in the notification body. Defaults to the provision log path.
+VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-${VORTEX_PROVISION_LOG:-}}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -77,6 +81,7 @@ export VORTEX_NOTIFY_PR_NUMBER
 export VORTEX_NOTIFY_LABEL
 export VORTEX_NOTIFY_ENVIRONMENT_URL
 export VORTEX_NOTIFY_LOGIN_URL
+export VORTEX_NOTIFY_LOG
 
 # Validate event type (scripts will handle event-specific logic).
 if [ "${VORTEX_NOTIFY_EVENT}" != "pre_deployment" ] && [ "${VORTEX_NOTIFY_EVENT}" != "post_deployment" ]; then
@@ -91,6 +96,7 @@ note "PR Number      : ${VORTEX_NOTIFY_PR_NUMBER:-<none>}"
 note "Label          : ${VORTEX_NOTIFY_LABEL}"
 note "Environment URL: ${VORTEX_NOTIFY_ENVIRONMENT_URL}"
 note "Login URL      : ${VORTEX_NOTIFY_LOGIN_URL}"
+note "Deployment log : ${VORTEX_NOTIFY_LOG:-<none>}"
 note "Event          : ${VORTEX_NOTIFY_EVENT}"
 note "Channels       : ${VORTEX_NOTIFY_CHANNELS}"
 

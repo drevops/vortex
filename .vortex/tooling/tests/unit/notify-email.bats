@@ -158,3 +158,153 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: email, deployment log included in body" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf 'Provision line one\nProvision line two\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_contains "## Deployment log ##"
+  assert_output_contains "Provision line one"
+  assert_output_contains "Provision line two"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, no deployment log leaves body unchanged" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_contains "Site testproject develop has been deployed"
+  assert_output_not_contains "## Deployment log"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, empty deployment log is omitted" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  touch "${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_not_contains "## Deployment log"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log capped to trailing lines" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf 'line1\nline2\nline3\nline4\nline5\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+  export VORTEX_NOTIFY_EMAIL_LOG_LINES=2
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_contains "## Deployment log (last 2 lines) ##"
+  assert_output_contains "line4"
+  assert_output_contains "line5"
+  assert_output_not_contains "line1"
+  assert_output_not_contains "line3"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log strips ANSI escapes" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf '\033[36mColored\033[0m output\n' >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # If ANSI were not stripped, the escape codes would sit between the words.
+  assert_output_contains "Colored output"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log content is treated as literal text" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm -f "${BATS_TEST_TMPDIR}/pwned"
+  # The literal command substitution below is intentional test data.
+  # shellcheck disable=SC2016
+  printf '%%project%% literal $(touch "%s/pwned")\n' "${BATS_TEST_TMPDIR}" >"${BATS_TEST_TMPDIR}/deploy.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG="${BATS_TEST_TMPDIR}/deploy.log"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # The %project% token inside the log is inserted last, so it stays literal.
+  assert_output_contains "%project% literal"
+  # The command substitution embedded in the log never executes.
+  [ ! -f "${BATS_TEST_TMPDIR}/pwned" ]
+
+  popd >/dev/null || exit 1
+}

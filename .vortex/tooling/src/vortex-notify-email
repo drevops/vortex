@@ -12,7 +12,7 @@
 # VORTEX_NOTIFY_ENVIRONMENT_URL="https://environment-url-example.com" \
 # ./notify-email
 #
-# shellcheck disable=SC1090,SC1091
+# shellcheck disable=SC1090,SC1091,SC2016
 
 t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
 
@@ -42,8 +42,16 @@ VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL="${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL:-${VO
 VORTEX_NOTIFY_EMAIL_LOGIN_URL="${VORTEX_NOTIFY_EMAIL_LOGIN_URL:-${VORTEX_NOTIFY_LOGIN_URL:-}}"
 
 # Email notification message template.
-# Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%
+# Available tokens: %project%, %label%, %timestamp%, %environment_url%, %login_url%, %deployment_log%
 VORTEX_NOTIFY_EMAIL_MESSAGE="${VORTEX_NOTIFY_EMAIL_MESSAGE:-}"
+
+# Email notification deployment log file. When set and non-empty, its contents
+# are included in the message body via the %deployment_log% token.
+VORTEX_NOTIFY_EMAIL_LOG="${VORTEX_NOTIFY_EMAIL_LOG:-${VORTEX_NOTIFY_LOG:-}}"
+
+# Maximum number of trailing deployment log lines to include in the body.
+# Set to 0 to include the entire log.
+VORTEX_NOTIFY_EMAIL_LOG_LINES="${VORTEX_NOTIFY_EMAIL_LOG_LINES:-100}"
 
 # Email notification event type. Can be 'pre_deployment' or 'post_deployment'.
 VORTEX_NOTIFY_EMAIL_EVENT="${VORTEX_NOTIFY_EMAIL_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
@@ -87,7 +95,7 @@ if [ -z "${VORTEX_NOTIFY_EMAIL_MESSAGE}" ]; then
 
 Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%.
 
-Login at: %login_url%"
+Login at: %login_url%%deployment_log%"
 fi
 
 # Skip if this is a pre-deployment event (email only for post-deployment).
@@ -121,11 +129,39 @@ content=$(REPLACEMENT="${timestamp}" TEMPLATE="${content}" php -r 'echo str_repl
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}" TEMPLATE="${content}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" TEMPLATE="${content}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 
+# Replace the deployment log token last. The log file is read inside PHP (never
+# interpolated into the shell) and inserted as literal text, so arbitrary log
+# content cannot break out or re-trigger earlier token replacements. ANSI escape
+# sequences are stripped and the output is capped to the trailing
+# VORTEX_NOTIFY_EMAIL_LOG_LINES lines to keep the email a reasonable size.
+content=$(TEMPLATE="${content}" LOG_FILE="${VORTEX_NOTIFY_EMAIL_LOG}" LOG_LINES="${VORTEX_NOTIFY_EMAIL_LOG_LINES}" php -r '
+$template = getenv("TEMPLATE");
+$file = getenv("LOG_FILE");
+$max = (int) getenv("LOG_LINES");
+$section = "";
+if ($file !== "" && is_file($file)) {
+  $log = (string) file_get_contents($file);
+  $log = preg_replace("/\x1b\[[0-9;?]*[ -\/]*[@-~]/", "", $log);
+  $log = rtrim($log, "\r\n");
+  if ($log !== "") {
+    $lines = explode("\n", $log);
+    $header = "## Deployment log ##";
+    if ($max > 0 && count($lines) > $max) {
+      $lines = array_slice($lines, -$max);
+      $header = "## Deployment log (last " . $max . " lines) ##";
+    }
+    $section = "\n\n" . $header . "\n\n" . implode("\n", $lines);
+  }
+}
+echo str_replace("%deployment_log%", $section, $template);
+')
+
 info "Email notification summary:"
 note "Project        : ${VORTEX_NOTIFY_EMAIL_PROJECT}"
 note "Deployment     : ${VORTEX_NOTIFY_EMAIL_LABEL}"
 note "Environment URL: ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}"
 note "Login URL      : ${VORTEX_NOTIFY_EMAIL_LOGIN_URL}"
+note "Deployment log : ${VORTEX_NOTIFY_EMAIL_LOG:-<none>}"
 note "From           : ${VORTEX_NOTIFY_EMAIL_FROM}"
 note "Recipients     : ${VORTEX_NOTIFY_EMAIL_RECIPIENTS}"
 note "Subject        : ${subject}"

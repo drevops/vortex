@@ -73,6 +73,7 @@ Most notification channels support customizable message templates using replacem
 | `%timestamp%` | Current timestamp | `15/11/2025 14:30:45 UTC` |
 | `%environment_url%` | Environment URL | `https://example.com` |
 | `%login_url%` | Login URL | `https://example.com/user/login` |
+| `%deployment_log%` | Captured deployment log (email channel only) | |
 
 **Default message template:**
 
@@ -83,6 +84,22 @@ Site %project% %label% has been deployed at %timestamp% and is available at %env
 
 Login at: %login_url%
 ```
+
+## Deployment log
+
+When a deployment runs, **Vortex** captures the `vortex-provision` output to a
+log file and exposes it to notifications through the `VORTEX_NOTIFY_LOG`
+variable, which the hosting integrations set automatically. The **email**
+channel appends this log to the message body via the `%deployment_log%` token,
+so recipients can see exactly what happened during the deploy.
+
+The section is omitted when no log is available. By default only the trailing
+100 lines are included, to keep the email a reasonable size; adjust this with
+`VORTEX_NOTIFY_EMAIL_LOG_LINES` (set to `0` to include the entire log).
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_NOTIFY_LOG` | No | Provision log path | Hosting | Deployment log file included in the notification body |
 
 ---
 
@@ -104,6 +121,8 @@ Send deployment notification via email.
 | `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | | `.env` | Recipients (format: `email\|name`) |
 | `VORTEX_NOTIFY_EMAIL_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name for email |
 | `VORTEX_NOTIFY_EMAIL_MESSAGE` | No | Default template | `.env` | Custom message template |
+| `VORTEX_NOTIFY_EMAIL_LOG` | No | `VORTEX_NOTIFY_LOG` | Hosting | Deployment log file to include in the body |
+| `VORTEX_NOTIFY_EMAIL_LOG_LINES` | No | `100` | `.env` | Max trailing log lines to include (`0` = all) |
 | `VORTEX_NOTIFY_EMAIL_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ---

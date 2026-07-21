@@ -2421,3 +2421,26 @@ assert_provision_info() {
 
   popd >/dev/null || exit 1
 }
+
+@test "Provision: deployment log is captured to file" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_PROVISION_SKIP=1
+  export VORTEX_PROVISION_LOG="${BATS_TEST_TMPDIR}/provision.log"
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+
+  assert_output_contains "Started site provisioning."
+  assert_output_contains "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
+  assert_output_contains "Finished site provisioning."
+
+  # The full output is also written to the log file, preserving the exit code.
+  [ -f "${VORTEX_PROVISION_LOG}" ]
+
+  run cat "${VORTEX_PROVISION_LOG}"
+  assert_output_contains "Started site provisioning."
+  assert_output_contains "Finished site provisioning."
+
+  popd >/dev/null || exit 1
+}

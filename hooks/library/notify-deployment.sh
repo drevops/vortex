@@ -31,6 +31,7 @@ export VORTEX_NOTIFY_SHA="${ref}"
 export VORTEX_NOTIFY_PR_NUMBER=""
 export VORTEX_NOTIFY_LABEL="${branch}"
 export VORTEX_NOTIFY_ENVIRONMENT_URL="${url}"
+export VORTEX_NOTIFY_LOG=/tmp/vortex-provision.log
 
 ./vendor/bin/vortex-notify
 
