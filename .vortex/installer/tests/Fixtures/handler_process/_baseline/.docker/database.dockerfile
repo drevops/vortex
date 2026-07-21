@@ -1,9 +1,4 @@
-# check=skip=SecretsUsedInArgOrEnv
 # Database container.
-#
-# The `MYSQL_PASSWORD` variable below is flagged by name by the
-# `SecretsUsedInArgOrEnv` build check. This is a local development database
-# with a non-secret default credential, so that check is skipped.
 #
 # @see https://hub.docker.com/r/uselagoon/mysql-8.4/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mysql
