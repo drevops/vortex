@@ -85,16 +85,19 @@ VORTEX_NOTIFY_LOG_FILE=""
 if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -d "${VORTEX_NOTIFY_LOG_DIR}" ]; then
   set +e
   _combined="${VORTEX_NOTIFY_LOG_DIR}/combined"
-  : >"${_combined}"
-  for _log in "${VORTEX_NOTIFY_LOG_DIR}"/*.log; do
-    [ -s "${_log}" ] || continue
-    {
-      printf '## %s ##\n\n' "$(basename "${_log}")"
-      cat "${_log}"
-      printf '\n\n'
-    } >>"${_combined}"
-  done
-  [ -s "${_combined}" ] && VORTEX_NOTIFY_LOG_FILE="${_combined}"
+  # Only publish the combined file when it was freshly truncated, so a failed
+  # write can never leave a previous run's log to be sent.
+  if : >"${_combined}"; then
+    for _log in "${VORTEX_NOTIFY_LOG_DIR}"/*.log; do
+      [ -s "${_log}" ] || continue
+      {
+        printf '## %s ##\n\n' "$(basename "${_log}")"
+        cat "${_log}"
+        printf '\n\n'
+      } >>"${_combined}"
+    done
+    [ -s "${_combined}" ] && VORTEX_NOTIFY_LOG_FILE="${_combined}"
+  fi
   set -e
 fi
 

@@ -146,6 +146,7 @@ load ../_helper.bash
   printf 'deploy output line\n' >"${BATS_TEST_TMPDIR}/logs/deploy.log"
 
   export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_EVENT="post_deployment"
   export VORTEX_NOTIFY_PROJECT="testproject"
   export DRUPAL_SITE_EMAIL="testproject@example.com"
   export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
