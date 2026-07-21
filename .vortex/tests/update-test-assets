@@ -393,7 +393,10 @@ function seed_image(string $cwd, string $filename, string $image): void {
   run('chmod +x seed.sh', $cwd);
 
   step(sprintf('Seed and push image to %s', $image));
-  run(sprintf('./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
+  // seed.sh defaults to building only the host platform. Build both platforms
+  // so amd64 CI runners and arm64 local machines can run the pushed image
+  // natively; seed.sh tests the host-native variant after the push.
+  run(sprintf('DESTINATION_PLATFORMS=linux/amd64,linux/arm64 ./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
 }
 
 // =============================================================================
