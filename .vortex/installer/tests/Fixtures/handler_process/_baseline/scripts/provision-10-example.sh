@@ -49,12 +49,13 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
   pass "Set site name."
 
-  # Use the core Navigation module as the administration interface. The
-  # standard install profile enables the classic Toolbar module, so uninstall
-  # it here to avoid running two administration systems at once.
+  # Use the core Navigation module as the administration interface and remove
+  # the classic Toolbar so both admin systems never run at once. Toolbar may
+  # already be absent (on re-provision or a navigation-based database), so allow
+  # its uninstall to fail.
   task "Setting up the administration navigation."
   drush pm:install navigation
-  drush pm:uninstall toolbar
+  drush pm:uninstall toolbar || true
   pass "Set up the administration navigation."
 
   task "Installing contrib modules."

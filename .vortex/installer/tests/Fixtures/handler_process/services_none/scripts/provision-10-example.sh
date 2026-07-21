@@ -1,4 +1,4 @@
-@@ -61,19 +61,6 @@
+@@ -62,19 +62,6 @@
    drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
    pass "Installed contrib modules."
  
@@ -18,7 +18,7 @@
    task "Installing Single Directory Component development tools."
    drush pm:install sdc_devel || true
    pass "Installed Single Directory Component development tools."
-@@ -88,8 +75,6 @@
+@@ -89,8 +76,6 @@
    # parent "provision.sh" script.
    task "Installing custom site modules."
    drush pm:install sw_base
