@@ -360,6 +360,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_SLACK_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify

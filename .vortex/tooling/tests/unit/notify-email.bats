@@ -174,6 +174,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
@@ -199,6 +200,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/nologs"
 
   run ./.vortex/tooling/src/vortex-notify
@@ -225,6 +227,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
@@ -254,6 +257,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
@@ -283,6 +287,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   # Logs exist in the directory, but the feature flag is left disabled.
   unset VORTEX_NOTIFY_LOG
+  export VORTEX_NOTIFY_EMAIL_LOG=0
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
@@ -309,6 +314,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_EMAIL_MESSAGE="Custom body. Log below: %deployment_log%"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify

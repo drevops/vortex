@@ -191,6 +191,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
   export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_JIRA_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
   run ./.vortex/tooling/src/vortex-notify
