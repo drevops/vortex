@@ -137,12 +137,6 @@ setup() {
   # Allow to override debug variables from environment when developing tests.
   export VORTEX_DEBUG="${TEST_VORTEX_DEBUG:-}"
 
-  # Switch to using test demo DB.
-  # Demo DB is what is being fetched when the installer runs for the first
-  # time do demonstrate fetching from CURL and importing from the DB dump
-  # functionality.
-  export VORTEX_INSTALLER_DEMO_DB_TEST=https://github.com/drevops/vortex/releases/download/25.4.0/db_d11_2.test.sql
-
   ##
   ## Phase 5: SUT files setup.
   ##
