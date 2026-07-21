@@ -392,11 +392,17 @@ function seed_image(string $cwd, string $filename, string $image): void {
   run(sprintf('curl -fsSL -o seed.sh %s', escapeshellarg(SEED_URL)), $cwd);
   run('chmod +x seed.sh', $cwd);
 
+  step('Ensure a multi-platform capable buildx builder');
+  // The default 'docker' buildx driver cannot build multi-platform images
+  // unless the containerd image store is enabled, so seed via a dedicated
+  // 'docker-container' builder, created on first use.
+  run('docker buildx inspect vortex-seed >/dev/null 2>&1 || docker buildx create --name vortex-seed --driver docker-container');
+
   step(sprintf('Seed and push image to %s', $image));
   // seed.sh defaults to building only the host platform. Build both platforms
   // so amd64 CI runners and arm64 local machines can run the pushed image
   // natively; seed.sh tests the host-native variant after the push.
-  run(sprintf('DESTINATION_PLATFORMS=linux/amd64,linux/arm64 ./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
+  run(sprintf('DESTINATION_PLATFORMS=linux/amd64,linux/arm64 BUILDX_BUILDER=vortex-seed ./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
 }
 
 // =============================================================================
