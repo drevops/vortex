@@ -1,4 +1,4 @@
-@@ -59,7 +59,7 @@
+@@ -61,7 +61,7 @@
    pass "Set up the administration navigation."
  
    task "Installing contrib modules."

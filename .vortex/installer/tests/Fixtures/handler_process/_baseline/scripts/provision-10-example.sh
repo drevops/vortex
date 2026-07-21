@@ -50,12 +50,14 @@ if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
   pass "Set site name."
 
   # Use the core Navigation module as the administration interface and remove
-  # the classic Toolbar so both admin systems never run at once. Toolbar may
-  # already be absent (on re-provision or a navigation-based database), so allow
-  # its uninstall to fail.
+  # the classic Toolbar so the two admin systems never run at once. Uninstall
+  # only when Toolbar is actually enabled (it is absent on re-provision or a
+  # navigation-based database); a genuine uninstall failure must still abort.
   task "Setting up the administration navigation."
   drush pm:install navigation
-  drush pm:uninstall toolbar || true
+  if [ "$(drush php:eval "print \Drupal::moduleHandler()->moduleExists('toolbar');")" = "1" ]; then
+    drush pm:uninstall toolbar
+  fi
   pass "Set up the administration navigation."
 
   task "Installing contrib modules."

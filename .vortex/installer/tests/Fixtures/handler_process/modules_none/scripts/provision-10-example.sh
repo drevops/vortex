@@ -1,5 +1,5 @@
-@@ -58,10 +58,6 @@
-   drush pm:uninstall toolbar || true
+@@ -60,10 +60,6 @@
+   fi
    pass "Set up the administration navigation."
  
 -  task "Installing contrib modules."
@@ -9,7 +9,7 @@
    task "Installing Redis module."
    drush pm:install redis || true
    pass "Installed Redis module."
-@@ -74,14 +70,6 @@
+@@ -76,14 +72,6 @@
    task "Installing Solr search modules."
    drush pm:install search_api search_api_solr
    pass "Installed Solr search modules."
