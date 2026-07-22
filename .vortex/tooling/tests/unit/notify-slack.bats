@@ -342,3 +342,34 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: slack, deployment log included in message" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "200" 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'SLACK log line one\nSLACK log line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="slack"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_SLACK_WEBHOOK="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_SLACK_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # The whole log is placed in the attachment text.
+  run mock_get_call_args "${mock_curl}" 1
+  assert_output_contains "SLACK log line one"
+  assert_output_contains "SLACK log line two"
+
+  popd >/dev/null || exit 1
+}

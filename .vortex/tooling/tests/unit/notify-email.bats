@@ -158,3 +158,201 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: email, deployment log included in body" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'Provision line one\nProvision line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com|John Doe"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # Each collected log is a titled section, below the login URL.
+  assert_output_contains "## provision.log ##"
+  assert_output_contains "Provision line one"
+  assert_output_contains "Provision line two"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, missing deployment log directory leaves body intact" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/nologs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_contains "Site testproject develop has been deployed"
+  assert_output_not_contains "## provision.log ##"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, empty deployment log leaves body intact" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  touch "${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_contains "Site testproject develop has been deployed"
+  assert_output_not_contains "## provision.log ##"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log content is treated as literal text" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm -f "${BATS_TEST_TMPDIR}/pwned"
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  # The literal command substitution below is intentional test data.
+  # shellcheck disable=SC2016
+  printf '%%project%% literal $(touch "%s/pwned")\n' "${BATS_TEST_TMPDIR}" >"${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # The log body keeps the %project% token and the command substitution as literal
+  # text (inserted last, so neither is expanded)...
+  assert_output_contains "%project% literal"
+  assert_output_contains "\$(touch \"${BATS_TEST_TMPDIR}/pwned\")"
+  # ...and the command substitution never executes.
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/pwned"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log excluded when flag disabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'Provision line one\nProvision line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  # Logs exist in the directory, but the feature flag is left disabled.
+  unset VORTEX_NOTIFY_LOG
+  export VORTEX_NOTIFY_EMAIL_LOG=0
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_not_contains "Provision line one"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, deployment log token in custom template" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'CUSTOM log line one\nCUSTOM log line two\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_EMAIL_MESSAGE="Custom body. Log below: %deployment_log%"
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  # A custom template's %deployment_log% token is substituted with the log.
+  assert_output_contains "Custom body. Log below:"
+  assert_output_contains "CUSTOM log line one"
+  assert_output_contains "CUSTOM log line two"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: email, per-channel flag overrides the common flag" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p "${BATS_TEST_TMPDIR}/logs"
+  printf 'Provision line one\n' >"${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  export VORTEX_NOTIFY_CHANNELS="email"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  export DRUPAL_SITE_EMAIL="testproject@example.com"
+  export VORTEX_NOTIFY_EMAIL_RECIPIENTS="john@example.com"
+  export VORTEX_NOTIFY_BRANCH="develop"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="develop"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+  # Enabled globally, but disabled for the email channel specifically.
+  export VORTEX_NOTIFY_LOG=1
+  export VORTEX_NOTIFY_EMAIL_LOG=0
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  assert_output_not_contains "Provision line one"
+
+  popd >/dev/null || exit 1
+}

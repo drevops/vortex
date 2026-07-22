@@ -36,7 +36,7 @@ VORTEX_NOTIFY_WEBHOOK_METHOD="${VORTEX_NOTIFY_WEBHOOK_METHOD:-POST}"
 VORTEX_NOTIFY_WEBHOOK_HEADERS="${VORTEX_NOTIFY_WEBHOOK_HEADERS:-Content-type: application/json}"
 
 # Webhook notification JSON payload.
-# Available tokens: %message%, %project%, %label%, %timestamp%, %environment_url%, %login_url%
+# Available tokens: %message%, %project%, %label%, %timestamp%, %environment_url%, %login_url%, %deployment_log%
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:-}"
 
 # Webhook notification expected HTTP status.
@@ -48,6 +48,12 @@ VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS="${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS:-
 # are only sent for deployments on the listed branches. When empty, no
 # filtering is applied.
 VORTEX_NOTIFY_WEBHOOK_BRANCHES="${VORTEX_NOTIFY_WEBHOOK_BRANCHES:-}"
+
+# Include the deployment log in the payload (0/1). Defaults to VORTEX_NOTIFY_LOG.
+VORTEX_NOTIFY_WEBHOOK_LOG="${VORTEX_NOTIFY_WEBHOOK_LOG:-${VORTEX_NOTIFY_LOG:-0}}"
+
+# Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+VORTEX_NOTIFY_WEBHOOK_LOG_FILE="${VORTEX_NOTIFY_WEBHOOK_LOG_FILE:-${VORTEX_NOTIFY_LOG_FILE:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -94,7 +100,7 @@ fi
 
 # Build and replace tokens (%variable_name%) for webhook payload.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
-message='## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%'
+message='## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%\n\n%deployment_log%'
 
 # JSON-escape each replacement value before substituting into JSON template.
 # shellcheck disable=SC2016
@@ -104,6 +110,12 @@ VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_LABEL}" TEM
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_PROJECT}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%project%", $escaped, getenv("TEMPLATE"));')
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%environment_url%", $escaped, getenv("TEMPLATE"));')
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$escaped = json_encode(getenv("REPLACEMENT")); $escaped = substr($escaped, 1, -1); echo str_replace("%login_url%", $escaped, getenv("TEMPLATE"));')
+
+# Replace the deployment log token last. The log file is read inside PHP and
+# JSON-escaped, so arbitrary log content is inserted safely as literal text.
+log_file=""
+[ "${VORTEX_NOTIFY_WEBHOOK_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_WEBHOOK_LOG_FILE}"
+VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(LOG_FILE="${log_file}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$file = getenv("LOG_FILE"); $log = ($file !== "" && is_file($file)) ? rtrim((string) file_get_contents($file), "\r\n") : ""; $escaped = json_encode($log, JSON_INVALID_UTF8_SUBSTITUTE); $escaped = substr($escaped, 1, -1); echo str_replace("%deployment_log%", $escaped, getenv("TEMPLATE"));')
 
 # Sanitize webhook URL (extract domain, hide path that may contain secrets).
 webhook_domain=$(echo "${VORTEX_NOTIFY_WEBHOOK_URL}" | sed -E 's|(https?://[^/]+).*|\1|')

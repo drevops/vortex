@@ -2421,3 +2421,228 @@ assert_provision_info() {
 
   popd >/dev/null || exit 1
 }
+
+@test "Provision: deployment log is captured to the log directory when enabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_PROVISION_SKIP=1
+  export VORTEX_PROVISION_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+
+  assert_output_contains "Started site provisioning."
+  assert_output_contains "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
+  assert_output_contains "Finished site provisioning."
+
+  # The full output is also written to <dir>/provision.log as an owner-only file.
+  assert_file_exists "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  assert_file_mode "${VORTEX_NOTIFY_LOG_DIR}/provision.log" "600"
+
+  run cat "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  assert_output_contains "Started site provisioning."
+  assert_output_contains "Finished site provisioning."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: deployment log is not captured when disabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_PROVISION_SKIP=1
+  export VORTEX_PROVISION_LOG=0
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+
+  # Without VORTEX_PROVISION_LOG=1 the log file is never written.
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/logs/provision.log"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: deployment log capture failure does not fail provision" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # A file where the log directory should be makes 'mkdir -p' and 'tee' fail, but
+  # a logging failure must not turn a successful provision into a failure.
+  touch "${BATS_TEST_TMPDIR}/blocker"
+
+  export VORTEX_PROVISION_SKIP=1
+  export VORTEX_PROVISION_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/blocker/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+
+  assert_output_contains "Finished site provisioning."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: DB; no site; full run captured to the log file" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/provision-20-migration.sh
+  rm -f ./scripts/provision-30-search-index.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+  export VORTEX_PROVISION_LOG=1
+  export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
+  unset VORTEX_PROVISION_LOG_ACTIVE
+
+  mkdir "./.data"
+  touch "./.data/db.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "- Existing site was found."
+    "- Site content will be preserved."
+    "- Sanitization will be skipped for an existing database."
+    "- Existing site content will be removed and fresh content will be imported from the database dump file."
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:connect"
+    "- Unable to import database from file."
+    "- Dump file $(pwd)/.data/db.sql does not exist."
+    "- Site content was not changed."
+    "Imported database from the dump file."
+    # Profile.
+    "- Provisioning site from the profile."
+    "- Existing site was found."
+    "- Existing site content will be removed and new content will be created from the profile."
+    "- Installed a site from the profile."
+    "- Fresh site content will be created from the profile."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+
+    # Post-provision operations.
+    "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # Deployment and configuration updates.
+    "- Updated site UUID from the configuration with"
+    "- Importing configuration."
+    "- Importing config_split configuration."
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Deployment hooks.
+    "Running deployment hooks."
+    "@drush -y deploy:hook"
+    "Completed deployment hooks."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "- Updated username with user email."
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+    "- Updated user 1 email."
+    "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+
+    # Custom post-install script.
+    "Running custom post-install script './scripts/provision-10-example.sh'."
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "    > Setting site name."
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "    > Setting up the administration navigation."
+    "@drush -y pm:install navigation"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
+    "@drush -y pm:uninstall toolbar"
+    "    > Installing contrib modules."
+    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap"
+    "    > Installing Redis module."
+    "@drush -y pm:install redis"
+    "    > Installing and configuring ClamAV."
+    "@drush -y pm:install clamav"
+    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "    > Installing Solr search modules."
+    "@drush -y pm:install search_api search_api_solr"
+    "    > Installing Single Directory Component development tools."
+    "@drush -y pm:install sdc_devel"
+    "    > Installing Devel module."
+    "@drush -y pm:install devel"
+    "    > Installing custom site modules."
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_search"
+    "@drush -y pm:install ys_demo"
+    "    > Running deployment hooks."
+    "@drush -y deploy:hook"
+    "  ==> Started example operations."
+    "      Environment: ci"
+    "      Running example operations in non-production environment."
+    # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
+    "      Fresh database detected. Performing additional example operations."
+    "-      Existing database detected. Performing additional example operations."
+    "  ==> Finished example operations."
+    "Completed running of custom post-install script './scripts/provision-10-example.sh'."
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./.vortex/tooling/src/vortex-provision
+  assert_success
+  console_output="${output}"
+
+  # The re-dispatch streams the full run to the console (asserted here)...
+  run_steps "assert" "${mocks[@]}"
+
+  # ...and captures the identical output to the owner-only log file.
+  assert_file_exists "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  assert_file_mode "${VORTEX_NOTIFY_LOG_DIR}/provision.log" "600"
+  run cat "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  assert_equal "${console_output}" "${output}"
+
+  popd >/dev/null || exit 1
+}

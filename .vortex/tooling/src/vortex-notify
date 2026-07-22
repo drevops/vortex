@@ -45,6 +45,14 @@ VORTEX_NOTIFY_ENVIRONMENT_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL:-}"
 # Notification login URL (defaults to ENVIRONMENT_URL/user/login if not provided).
 VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_LOGIN_URL:-}"
 
+# Collect deployment logs into the notification body (0/1). Set in '.env' or
+# per environment.
+VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
+
+# Directory from which deployment logs are collected. Each producing script writes
+# its own '<name>.log' here.
+VORTEX_NOTIFY_LOG_DIR="${VORTEX_NOTIFY_LOG_DIR:-/tmp/vortex-logs}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -70,6 +78,31 @@ if [ -z "${VORTEX_NOTIFY_LOGIN_URL}" ]; then
   VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL}/user/login"
 fi
 
+# Collect all producer logs from the shared directory into one combined file for
+# the channels to include, each as its own titled section. Best-effort: a failure
+# here must not abort dispatching.
+VORTEX_NOTIFY_LOG_FILE=""
+if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -d "${VORTEX_NOTIFY_LOG_DIR}" ]; then
+  set +e
+  _combined="${VORTEX_NOTIFY_LOG_DIR}/combined"
+  # Only publish the combined file when it was freshly truncated, so a failed
+  # write can never leave a previous run's log to be sent. It is owner-only, as it
+  # may aggregate logs containing secrets.
+  if : >"${_combined}"; then
+    chmod 600 "${_combined}" 2>/dev/null
+    for _log in "${VORTEX_NOTIFY_LOG_DIR}"/*.log; do
+      [ -s "${_log}" ] || continue
+      {
+        printf '## %s ##\n\n' "$(basename "${_log}")"
+        cat "${_log}"
+        printf '\n\n'
+      } >>"${_combined}"
+    done
+    [ -s "${_combined}" ] && VORTEX_NOTIFY_LOG_FILE="${_combined}"
+  fi
+  set -e
+fi
+
 # Export variables so notification scripts can use them.
 export VORTEX_NOTIFY_BRANCH
 export VORTEX_NOTIFY_SHA
@@ -77,6 +110,9 @@ export VORTEX_NOTIFY_PR_NUMBER
 export VORTEX_NOTIFY_LABEL
 export VORTEX_NOTIFY_ENVIRONMENT_URL
 export VORTEX_NOTIFY_LOGIN_URL
+export VORTEX_NOTIFY_LOG
+export VORTEX_NOTIFY_LOG_DIR
+export VORTEX_NOTIFY_LOG_FILE
 
 # Validate event type (scripts will handle event-specific logic).
 if [ "${VORTEX_NOTIFY_EVENT}" != "pre_deployment" ] && [ "${VORTEX_NOTIFY_EVENT}" != "post_deployment" ]; then
@@ -91,6 +127,13 @@ note "PR Number      : ${VORTEX_NOTIFY_PR_NUMBER:-<none>}"
 note "Label          : ${VORTEX_NOTIFY_LABEL}"
 note "Environment URL: ${VORTEX_NOTIFY_ENVIRONMENT_URL}"
 note "Login URL      : ${VORTEX_NOTIFY_LOGIN_URL}"
+if [ "${VORTEX_NOTIFY_LOG}" != "1" ]; then
+  note "Log file       : <disabled>"
+elif [ -s "${VORTEX_NOTIFY_LOG_FILE}" ]; then
+  note "Log file       : ${VORTEX_NOTIFY_LOG_FILE}"
+else
+  note "Log file       : <missing>"
+fi
 note "Event          : ${VORTEX_NOTIFY_EVENT}"
 note "Channels       : ${VORTEX_NOTIFY_CHANNELS}"
 
