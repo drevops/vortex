@@ -47,6 +47,14 @@ $env_url = getenv_required('VORTEX_NOTIFY_ENVIRONMENT_URL');
 // Notification login URL.
 $login_url = getenv_default('VORTEX_NOTIFY_LOGIN_URL', $env_url . '/user/login');
 
+// Collect deployment logs into the notification body (0/1). Set in '.env' or
+// per environment.
+$notify_log = getenv_default('VORTEX_NOTIFY_LOG', '0');
+
+// Directory from which deployment logs are collected. Each producing script
+// writes its own '<name>.log' here.
+$notify_log_dir = getenv_default('VORTEX_NOTIFY_LOG_DIR', './.logs');
+
 // Notification skip flag.
 $skip = getenv('VORTEX_NOTIFY_SKIP');
 
@@ -68,6 +76,38 @@ if (!in_array($event, ['pre_deployment', 'post_deployment'], TRUE)) {
   FAIL('Unsupported event %s provided.', $event);
 }
 
+// Collect every producer log from the shared directory into one combined file
+// for the channels to include, each as its own titled section. Best-effort: a
+// failure here must not abort dispatching. The combined file is owner-only, as
+// it may aggregate logs containing secrets.
+$notify_log_file = '';
+if ($notify_log === '1' && is_dir($notify_log_dir)) {
+  $combined = $notify_log_dir . '/combined';
+
+  // Only publish the combined file once it has been freshly truncated, so a
+  // failed write can never leave a previous run's log to be sent.
+  if (@file_put_contents($combined, '') !== FALSE) {
+    @chmod($combined, 0600);
+
+    $logs = glob($notify_log_dir . '/*.log') ?: [];
+    sort($logs);
+
+    $has_logs = FALSE;
+    foreach ($logs as $log) {
+      if (!is_file($log) || filesize($log) === 0) {
+        continue;
+      }
+
+      @file_put_contents($combined, sprintf("## %s ##\n\n%s\n\n", basename($log), (string) file_get_contents($log)), FILE_APPEND);
+      $has_logs = TRUE;
+    }
+
+    if ($has_logs) {
+      $notify_log_file = $combined;
+    }
+  }
+}
+
 // Export variables so notification scripts can use them.
 putenv('VORTEX_NOTIFY_BRANCH=' . $branch);
 putenv('VORTEX_NOTIFY_SHA=' . $sha);
@@ -75,6 +115,9 @@ putenv('VORTEX_NOTIFY_PR_NUMBER=' . $pr_number);
 putenv('VORTEX_NOTIFY_LABEL=' . $label);
 putenv('VORTEX_NOTIFY_ENVIRONMENT_URL=' . $env_url);
 putenv('VORTEX_NOTIFY_LOGIN_URL=' . $login_url);
+putenv('VORTEX_NOTIFY_LOG=' . $notify_log);
+putenv('VORTEX_NOTIFY_LOG_DIR=' . $notify_log_dir);
+putenv('VORTEX_NOTIFY_LOG_FILE=' . $notify_log_file);
 
 INFO('Notification summary:');
 NOTE('Project        : %s', $project);
@@ -84,6 +127,15 @@ NOTE('PR Number      : %s', ($pr_number ?: '<none>'));
 NOTE('Label          : %s', $label);
 NOTE('Environment URL: %s', $env_url);
 NOTE('Login URL      : %s', $login_url);
+if ($notify_log !== '1') {
+  NOTE('Log file       : %s', '<disabled>');
+}
+elseif ($notify_log_file !== '') {
+  NOTE('Log file       : %s', $notify_log_file);
+}
+else {
+  NOTE('Log file       : %s', '<missing>');
+}
 NOTE('Event          : %s', $event);
 NOTE('Channels       : %s', implode(',', $channels));
 

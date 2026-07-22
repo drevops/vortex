@@ -53,17 +53,28 @@ $webhook_expected_status = getenv_default('VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS
 $webhook_headers = getenv_default('VORTEX_NOTIFY_WEBHOOK_HEADERS', 'Content-type: application/json');
 
 // Webhook notification message template.
-$webhook_message = getenv_default('VORTEX_NOTIFY_WEBHOOK_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%");
+$webhook_message = getenv_default('VORTEX_NOTIFY_WEBHOOK_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%\n\n%deployment_log%");
 
 // Webhook notification JSON payload.
 //
 // Available tokens:
+// - %message% - Full deployment message with all tokens replaced
 // - %project% - Project name
 // - %label% - Deployment label
 // - %timestamp% - Deployment timestamp
 // - %environment_url% - Environment URL
-// - %login_url% - Login URL.
+// - %login_url% - Login URL
+// - %deployment_log% - Collected deployment logs, when enabled.
 $webhook_payload = getenv_default('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"channel": "Channel 1", "message": "%message%", "project": "%project%", "label": "%label%", "timestamp": "%timestamp%", "environment_url": "%environment_url%", "login_url": "%login_url%"}');
+
+// Include the deployment log in the payload (0/1). Defaults to
+// VORTEX_NOTIFY_LOG.
+$notify_log = getenv_default('VORTEX_NOTIFY_WEBHOOK_LOG', 'VORTEX_NOTIFY_LOG', '0');
+
+// Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+$notify_log_file = getenv_default('VORTEX_NOTIFY_WEBHOOK_LOG_FILE', 'VORTEX_NOTIFY_LOG_FILE', '');
+
+$deployment_log = notify_read_log($notify_log === '1', $notify_log_file);
 
 // -----------------------------------------------------------------------------
 
@@ -71,6 +82,9 @@ INFO('Started webhook notification.');
 
 notify_skip_pre_deployment((string) $notify_event, 'webhook');
 
+// The deployment log is listed last so it is substituted after every other
+// token: its JSON-escaped, literal content can then never re-trigger an earlier
+// substitution.
 $webhook_payload = replace_tokens($webhook_payload, [
   'message' => $webhook_message,
   'timestamp' => date('d/m/Y H:i:s T'),
@@ -78,6 +92,7 @@ $webhook_payload = replace_tokens($webhook_payload, [
   'project' => $notify_project,
   'environment_url' => $notify_env_url,
   'login_url' => $notify_login_url,
+  'deployment_log' => $deployment_log,
 ]);
 
 // Sanitize webhook URL (extract domain, hide path that may contain secrets).

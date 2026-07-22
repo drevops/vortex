@@ -482,4 +482,141 @@ class NotifyEmailTest extends UnitTestCase {
     $this->assertStringContainsString('Email notification sent successfully to 1 recipient(s)', $output);
   }
 
+  public function testDeploymentLogIncludedInBody(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "Provision line one\nProvision line two\n");
+
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', $log_file);
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => fn(string $msg): bool => str_contains($msg, 'Provision line one') && str_contains($msg, 'Provision line two'),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('Log file       : ' . $log_file, $output);
+    $this->assertStringContainsString('Finished email notification', $output);
+  }
+
+  public function testDeploymentLogMissingFileLeavesBodyIntact(): void {
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', self::$tmp . '/nonexistent.log');
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => $this->defaultMessageMatcher(),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('Log file       : <missing>', $output);
+  }
+
+  public function testDeploymentLogEmptyLeavesBodyIntact(): void {
+    $log_file = self::$tmp . '/provision.log';
+    touch($log_file);
+
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', $log_file);
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => $this->defaultMessageMatcher(),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('Log file       : <missing>', $output);
+  }
+
+  public function testDeploymentLogTreatedAsLiteralText(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, '%project% literal $(touch pwned)');
+
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', $log_file);
+
+    // The log is inserted last and verbatim: the '%project%' token and the
+    // command substitution stay literal and are never expanded.
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => fn(string $msg): bool => str_contains($msg, '%project% literal $(touch pwned)'),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('Finished email notification', $output);
+  }
+
+  public function testDeploymentLogExcludedWhenDisabled(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "Provision line one\n");
+
+    // The log exists, but the email channel flag is left disabled.
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '0');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', $log_file);
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => fn(string $msg): bool => str_contains($msg, 'has been deployed') && !str_contains($msg, 'Provision line one'),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('Log file       : <disabled>', $output);
+  }
+
+  public function testDeploymentLogTokenInCustomTemplate(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "CUSTOM log line one\nCUSTOM log line two\n");
+
+    $this->envSet('VORTEX_NOTIFY_EMAIL_MESSAGE', 'Custom body. Log below: %deployment_log%');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', $log_file);
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => fn(string $msg): bool => str_contains($msg, 'Custom body. Log below:') && str_contains($msg, 'CUSTOM log line one') && str_contains($msg, 'CUSTOM log line two'),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('CUSTOM log line one', $output);
+  }
+
+  public function testDeploymentLogPerChannelFlagOverridesCommon(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "Provision line one\n");
+
+    // Enabled globally, but disabled for the email channel specifically.
+    $this->envSet('VORTEX_NOTIFY_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG', '0');
+    $this->envSet('VORTEX_NOTIFY_EMAIL_LOG_FILE', $log_file);
+
+    $this->mockMail([
+      'to' => 'to@example.com',
+      'subject' => 'test-project deployment notification of main',
+      'message' => fn(string $msg): bool => !str_contains($msg, 'Provision line one'),
+      'result' => TRUE,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify-email');
+
+    $this->assertStringContainsString('Log file       : <disabled>', $output);
+  }
+
 }

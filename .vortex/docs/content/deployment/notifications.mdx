@@ -73,6 +73,7 @@ Most notification channels support customizable message templates using replacem
 | `%timestamp%` | Current timestamp | `15/11/2025 14:30:45 UTC` |
 | `%environment_url%` | Environment URL | `https://example.com` |
 | `%login_url%` | Login URL | `https://example.com/user/login` |
+| `%deployment_log%` | Collected deployment logs, when enabled | |
 
 **Default message template:**
 
@@ -83,6 +84,44 @@ Site %project% %label% has been deployed at %timestamp% and is available at %env
 
 Login at: %login_url%
 ```
+
+## Deployment log
+
+Deployment logs are collected from a shared directory and included in
+notifications. Each producing script writes its own `<name>.log` into
+`VORTEX_NOTIFY_LOG_DIR` - `vortex-provision` writes `provision.log` when
+`VORTEX_PROVISION_LOG=1`, truncated fresh each run - and when
+`VORTEX_NOTIFY_LOG=1` the notifier collects every log in that directory, each as
+its own titled section, and the **email**, **Slack**, **JIRA**, and **webhook**
+channels add them to their message. The email and webhook message templates
+expose the collected logs as the `%deployment_log%` token; Slack adds them to the
+message attachment and JIRA as a comment code block. Any future script that drops
+a `<name>.log` into the directory is collected automatically.
+
+To include the provision log in notifications, set both `VORTEX_PROVISION_LOG=1`
+and `VORTEX_NOTIFY_LOG=1` (in `.env` or per environment). A single channel can be
+turned off with `VORTEX_NOTIFY_<CHANNEL>_LOG=0` (for example
+`VORTEX_NOTIFY_SLACK_LOG=0`).
+
+:::warning
+
+Deployment logs are included verbatim. Make sure producing scripts do not print
+secrets, and enable the feature only for the channels and environments where
+exposing the full logs is acceptable.
+
+Logs are written to `VORTEX_NOTIFY_LOG_DIR` (default `./.logs`).
+`vortex-provision` creates its log directory and `provision.log` owner-only
+(`700`/`600`) on a best-effort basis; any other producing script controls the
+permissions of its own log file. If you point `VORTEX_NOTIFY_LOG_DIR` at a custom
+directory, make sure that location is not readable by other users.
+
+:::
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_PROVISION_LOG` | No | `0` | `.env` or Hosting | Set to `1` to write the provision log for collection |
+| `VORTEX_NOTIFY_LOG` | No | `0` | `.env` or Hosting | Set to `1` to collect and include deployment logs |
+| `VORTEX_NOTIFY_LOG_DIR` | No | `./.logs` | `.env` | Directory the logs are collected from |
 
 ---
 

@@ -953,4 +953,45 @@ class NotifyJiraTest extends UnitTestCase {
     ];
   }
 
+  public function testDeploymentLogIncludedInComment(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "JIRA log line one\nJIRA log line two\n");
+
+    $this->envSet('VORTEX_NOTIFY_JIRA_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_JIRA_LOG_FILE', $log_file);
+
+    // Authentication check returns an account ID of the expected length.
+    $this->mockRequestGet(
+      'https://jira.example.com/rest/api/3/myself',
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 200, 'body' => '{"accountId": "123456789012345678901234"}']
+    );
+
+    // Comment creation returns a numeric comment ID.
+    $this->mockRequestPost(
+      'https://jira.example.com/rest/api/3/issue/TEST-123/comment',
+      NULL,
+      [
+        'Authorization: Basic ' . base64_encode('user@example.com:test-token-123'),
+        'Content-Type: application/json',
+      ],
+      10,
+      ['status' => 201, 'body' => '{"id": "10001"}']
+    );
+
+    $output = $this->runScript('src/vortex-notify-jira');
+
+    $this->assertStringContainsString('Posted comment with ID 10001', $output);
+
+    // The whole log is added to the comment as an ADF code block.
+    $comment_body = $this->getMockRequestBody(1);
+    $this->assertStringContainsString('JIRA log line one', $comment_body);
+    $this->assertStringContainsString('JIRA log line two', $comment_body);
+    $this->assertStringContainsString('codeBlock', $comment_body);
+  }
+
 }

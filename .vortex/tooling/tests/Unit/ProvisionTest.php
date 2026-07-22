@@ -1078,6 +1078,112 @@ class ProvisionTest extends UnitTestCase {
     $this->runScriptError('src/vortex-provision', 'Configuration was changed by database updates.');
   }
 
+  public function testDeploymentLogCapturedWhenEnabled(): void {
+    $log_dir = self::$tmp . '/logs';
+
+    $this->envSet('VORTEX_PROVISION_SKIP', '1');
+    $this->envSet('VORTEX_PROVISION_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', $log_dir);
+    $this->envUnset('VORTEX_PROVISION_LOG_ACTIVE');
+
+    $this->mockQuit(0);
+
+    $output = '';
+    try {
+      $this->runScript('src/vortex-provision');
+      $this->fail('Expected QuitSuccessException.');
+    }
+    catch (QuitSuccessException $e) {
+      $output = $e->getOutput();
+    }
+
+    // The re-run streams the full provision to the console...
+    $this->assertStringContainsString('Started site provisioning.', $output);
+    $this->assertStringContainsString('Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.', $output);
+    $this->assertStringContainsString('Finished site provisioning.', $output);
+
+    // ...and captures the same output to the owner-only log file.
+    $log_file = $log_dir . '/provision.log';
+    $this->assertFileExists($log_file);
+    $this->assertSame('600', substr(sprintf('%o', (int) fileperms($log_file)), -3));
+
+    $captured = (string) file_get_contents($log_file);
+    $this->assertStringContainsString('Started site provisioning.', $captured);
+    $this->assertStringContainsString('Finished site provisioning.', $captured);
+  }
+
+  public function testDeploymentLogNotCapturedWhenDisabled(): void {
+    $log_dir = self::$tmp . '/logs';
+
+    $this->envSet('VORTEX_PROVISION_SKIP', '1');
+    $this->envSet('VORTEX_PROVISION_LOG', '0');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', $log_dir);
+    $this->envUnset('VORTEX_PROVISION_LOG_ACTIVE');
+
+    $this->mockQuit(0);
+
+    try {
+      $this->runScript('src/vortex-provision');
+      $this->fail('Expected QuitSuccessException.');
+    }
+    catch (QuitSuccessException) {
+      // Without VORTEX_PROVISION_LOG=1 the log file is never written.
+      $this->assertFileDoesNotExist($log_dir . '/provision.log');
+    }
+  }
+
+  public function testDeploymentLogReentryGuardSkipsCapture(): void {
+    $log_dir = self::$tmp . '/logs';
+
+    $this->envSet('VORTEX_PROVISION_SKIP', '1');
+    $this->envSet('VORTEX_PROVISION_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', $log_dir);
+    // The guard marks this as the already-re-entered run, so the capture is
+    // skipped and provisioning proceeds in this process.
+    $this->envSet('VORTEX_PROVISION_LOG_ACTIVE', '1');
+
+    $this->mockQuit(0);
+
+    $output = '';
+    try {
+      $this->runScript('src/vortex-provision');
+      $this->fail('Expected QuitSuccessException.');
+    }
+    catch (QuitSuccessException $e) {
+      $output = $e->getOutput();
+    }
+
+    $this->assertStringContainsString('Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1.', $output);
+    $this->assertFileDoesNotExist($log_dir . '/provision.log');
+  }
+
+  public function testDeploymentLogCaptureFailureDoesNotFailProvision(): void {
+    // A file where the log directory should be makes directory and log file
+    // creation fail, but a logging failure must not fail an otherwise
+    // successful provision.
+    $blocker = self::$tmp . '/blocker';
+    touch($blocker);
+
+    $this->envSet('VORTEX_PROVISION_SKIP', '1');
+    $this->envSet('VORTEX_PROVISION_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', $blocker . '/logs');
+    $this->envUnset('VORTEX_PROVISION_LOG_ACTIVE');
+
+    $this->mockQuit(0);
+
+    $output = '';
+    try {
+      $this->runScript('src/vortex-provision');
+      $this->fail('Expected QuitSuccessException.');
+    }
+    catch (QuitSuccessException $e) {
+      $output = $e->getOutput();
+    }
+
+    $this->assertStringContainsString('Finished site provisioning.', $output);
+    $this->assertFileDoesNotExist($blocker . '/logs/provision.log');
+  }
+
   protected function drushCmd(string $command): string {
     return './vendor/bin/drush -y ' . $command;
   }
