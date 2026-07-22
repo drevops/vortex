@@ -69,7 +69,7 @@ if [ "${VORTEX_FETCH_DB_SOURCE}" != "container_registry" ]; then
     if [ "${VORTEX_FETCH_DB_FORCE}" != "1" ]; then
       note "Using existing database dump file(s)."
       note "Fetch will not proceed."
-      note "Remove existing database file or set VORTEX_FETCH_DB_FORCE value to 1 to force fetch."
+      note "Remove existing database file or set VORTEX_FETCH_DB${_db_index}_FORCE value to 1 to force fetch."
       exit 0
     else
       note "Will fetch a fresh copy of the database."

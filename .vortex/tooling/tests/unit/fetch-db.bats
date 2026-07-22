@@ -210,6 +210,9 @@ EOF
   # plain VORTEX_DB_DIR fallback and found the existing dump there.
   assert_output_contains "Found existing database dump file(s)."
   assert_output_contains "Using existing database dump file(s)."
+  # The force hint must name the indexed variable that controls this fetch
+  # (VORTEX_FETCH_DB2_FORCE), not the non-indexed VORTEX_FETCH_DB_FORCE.
+  assert_output_contains "Remove existing database file or set VORTEX_FETCH_DB2_FORCE value to 1 to force fetch."
 
   popd >/dev/null
 }
