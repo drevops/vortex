@@ -120,6 +120,10 @@ load ../_helper.bash
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test_user@example.com"
   local file=${HOME}/.ssh/id_rsa
 
+  # Ensure cleanup stays disabled regardless of any inherited environment.
+  unset VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN
+  unset VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE
+
   # Echo git-artifact's arguments so the absence of cleanup flags can be
   # asserted when no cleanup pattern is set.
   printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${TMPDIR:-/tmp}/git-artifact"
@@ -155,6 +159,8 @@ load ../_helper.bash
   assert_success
 
   assert_output_not_contains "--cleanup-stale"
+  assert_output_not_contains "--cleanup-pattern"
+  assert_output_not_contains "--cleanup-age"
 
   run_steps "assert" "${mocks[@]}"
   assert_equal "2" "$(mock_get_call_num "${mock_realpath}" 1)"
