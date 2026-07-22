@@ -1,5 +1,5 @@
-@@ -69,7 +69,6 @@
-       'environment_indicator',
+@@ -86,7 +86,6 @@
+       'navigation_extra_tools',
        'pathauto',
        'redirect',
 -      'reroute_email',

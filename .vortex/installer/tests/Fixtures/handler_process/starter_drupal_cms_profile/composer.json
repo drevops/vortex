@@ -1,6 +1,6 @@
-@@ -11,6 +11,7 @@
+@@ -10,6 +10,7 @@
+         "drevops/environment-detector": "__VERSION__",
          "drevops/vortex-tooling": "__VERSION__",
-         "drupal/admin_toolbar": "__VERSION__",
          "drupal/clamav": "__VERSION__",
 +        "drupal/cms": "__VERSION__",
          "drupal/coffee": "__VERSION__",

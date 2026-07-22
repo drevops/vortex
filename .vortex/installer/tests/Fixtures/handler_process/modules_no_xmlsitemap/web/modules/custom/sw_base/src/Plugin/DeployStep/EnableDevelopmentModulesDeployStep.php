@@ -1,4 +1,4 @@
-@@ -73,7 +73,6 @@
+@@ -90,7 +90,6 @@
        'robotstxt',
        'shield',
        'stage_file_proxy',

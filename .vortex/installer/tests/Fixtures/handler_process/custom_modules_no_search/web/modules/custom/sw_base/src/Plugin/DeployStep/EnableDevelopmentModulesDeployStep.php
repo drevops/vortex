@@ -1,4 +1,4 @@
-@@ -87,8 +87,6 @@
+@@ -104,8 +104,6 @@
  
      $this->moduleInstaller->install(['devel']);
  
