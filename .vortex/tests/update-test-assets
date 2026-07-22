@@ -113,7 +113,7 @@ function mode_test_dump(string $root_dir, string $installer): void {
   $body = body_test_dump();
 
   reset_sut($root_dir, $installer);
-  build_in($root_dir, SUT_DIR, FALSE);
+  build_in($root_dir, SUT_DIR);
   set_node_content(SUT_DIR, 'Welcome to the test site!', $body);
   finalise_content(SUT_DIR);
   export_db(SUT_DIR, 'db.test.sql', $body);
@@ -125,7 +125,7 @@ function mode_test_image(string $root_dir, string $installer, string $tag): void
   $body = body_test_image();
 
   reset_sut($root_dir, $installer);
-  build_in($root_dir, SUT_DIR, FALSE);
+  build_in($root_dir, SUT_DIR);
   set_node_content(SUT_DIR, 'Welcome to the test site!', $body);
   finalise_content(SUT_DIR);
   export_db(SUT_DIR, 'db.test_image.sql', $body);
@@ -176,7 +176,7 @@ function mode_all(string $root_dir, string $installer, string $tag): void {
   // Test phase: one stack build, two exports.
   step('=== Test phase (single stack build) ===');
   reset_sut($root_dir, $installer);
-  build_in($root_dir, SUT_DIR, FALSE);
+  build_in($root_dir, SUT_DIR);
 
   $test_dump_body = body_test_dump();
   set_node_content(SUT_DIR, 'Welcome to the test site!', $test_dump_body);
@@ -249,10 +249,10 @@ function reset_sut(string $root_dir, string $installer): void {
 }
 
 function build_demo_in_place(string $root_dir): void {
-  build_in($root_dir, $root_dir, TRUE);
+  build_in($root_dir, $root_dir);
 }
 
-function build_in(string $root_dir, string $cwd, bool $skip_post_ops): void {
+function build_in(string $root_dir, string $cwd): void {
   step('Remove any pre-existing DB dump');
   run('rm -f .data/db.sql', $cwd);
 
@@ -276,10 +276,18 @@ function build_in(string $root_dir, string $cwd, bool $skip_post_ops): void {
   run('ahoy fe || true', $cwd);
 
   step('Provision');
-  $env = $skip_post_ops
-    ? 'VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1'
-    : 'VORTEX_PROVISION_TYPE=profile AHOY_CONFIRM_RESPONSE=1';
+  // Skip post-provision operations so the exported dump is a pure Drupal
+  // standard-profile install - no contrib or custom modules are baked in, and
+  // sites that provision from this dump enable their own modules on top.
+  $env = 'VORTEX_PROVISION_TYPE=profile VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 AHOY_CONFIRM_RESPONSE=1';
   run(sprintf('%s ahoy provision', $env), $cwd);
+
+  step('Apply the Basic page content model');
+  // The Drupal standard profile no longer ships the 'page' content type, so
+  // apply the project's core-only 'recipes/page' recipe to create it (plus its
+  // body field) for the demo node. This installs only core node/text/path
+  // config and pulls in no contrib or custom modules.
+  run("ahoy cli 'drush recipe /app/recipes/page --no-interaction'", $cwd);
 
   step('Info');
   run('ahoy info', $cwd);
@@ -384,8 +392,17 @@ function seed_image(string $cwd, string $filename, string $image): void {
   run(sprintf('curl -fsSL -o seed.sh %s', escapeshellarg(SEED_URL)), $cwd);
   run('chmod +x seed.sh', $cwd);
 
+  step('Ensure a multi-platform capable buildx builder');
+  // The default 'docker' buildx driver cannot build multi-platform images
+  // unless the containerd image store is enabled, so seed via a dedicated
+  // 'docker-container' builder, created on first use.
+  run('docker buildx inspect vortex-seed >/dev/null 2>&1 || docker buildx create --name vortex-seed --driver docker-container');
+
   step(sprintf('Seed and push image to %s', $image));
-  run(sprintf('./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
+  // seed.sh defaults to building only the host platform. Build both platforms
+  // so amd64 CI runners and arm64 local machines can run the pushed image
+  // natively; seed.sh tests the host-native variant after the push.
+  run(sprintf('DESTINATION_PLATFORMS=linux/amd64,linux/arm64 BUILDX_BUILDER=vortex-seed ./seed.sh .data/%s %s', escapeshellarg($filename), escapeshellarg($image)), $cwd);
 }
 
 // =============================================================================

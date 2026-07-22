@@ -4,10 +4,10 @@ dependencies:
   module:
     - node
     - user
-id: ys_demo_articles
-label: Articles
+id: ys_demo_pages
+label: Pages
 module: views
-description: 'Lists published article nodes.'
+description: 'Lists published page nodes.'
 tag: ''
 base_table: node_field_data
 base_field: nid
@@ -18,7 +18,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: Articles
+      title: Pages
       fields:
         title:
           id: title
@@ -150,7 +150,7 @@ display:
           entity_field: type
           plugin_id: bundle
           value:
-            article: article
+            page: page
           group: 1
       style:
         type: default
@@ -191,7 +191,7 @@ display:
     position: 1
     display_options:
       display_extenders: {  }
-      path: articles
+      path: pages
     cache_metadata:
       max-age: -1
       contexts:

@@ -50,30 +50,30 @@ function ys_demo_deploy_place_counter_block(): string {
 }
 
 /**
- * Create "Articles" menu link in the main navigation.
+ * Create "Pages" menu link in the main navigation.
  *
  * Demonstrates using the drupal_helpers module to manage menu links
  * within deploy hooks.
  *
  * @codeCoverageIgnore
  */
-function ys_demo_deploy_create_articles_menu_link(): string {
-  $existing = Helper::menu()->findItem('main', ['title' => 'Articles']);
+function ys_demo_deploy_create_pages_menu_link(): string {
+  $existing = Helper::menu()->findItem('main', ['title' => 'Pages']);
   if ($existing instanceof MenuLinkContentInterface) {
-    return 'Articles menu link already exists.';
+    return 'Pages menu link already exists.';
   }
 
   Helper::menu()->createTree('main', [
-    'Articles' => '/articles',
+    'Pages' => '/pages',
   ]);
 
-  return 'Created "Articles" menu link in main navigation.';
+  return 'Created "Pages" menu link in main navigation.';
 }
 
 /**
- * Configure testmode to filter the articles view.
+ * Configure testmode to filter the pages view.
  *
- * Registers the 'ys_demo_articles' view with testmode so that only
+ * Registers the 'ys_demo_pages' view with testmode so that only
  * content matching the [TEST] prefix appears during test runs.
  *
  * @codeCoverageIgnore
@@ -82,10 +82,10 @@ function ys_demo_deploy_configure_testmode(): string {
   $testmode = Testmode::getInstance();
 
   $views = $testmode->getNodeViews();
-  if (!in_array('ys_demo_articles', $views)) {
-    $views[] = 'ys_demo_articles';
+  if (!in_array('ys_demo_pages', $views)) {
+    $views[] = 'ys_demo_pages';
     $testmode->setNodeViews($views);
   }
 
-  return 'Configured testmode to filter the articles view.';
+  return 'Configured testmode to filter the pages view.';
 }
