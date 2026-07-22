@@ -21,6 +21,7 @@ use DrevOps\VortexCli\Handler\DependencyUpdatesProvider;
 use DrevOps\VortexCli\Handler\DeployTypes;
 use DrevOps\VortexCli\Handler\Domain;
 use DrevOps\VortexCli\Handler\FrontendBuild;
+use DrevOps\VortexCli\Handler\Gitleaks;
 use DrevOps\VortexCli\Handler\HostingProjectName;
 use DrevOps\VortexCli\Handler\HostingProvider;
 use DrevOps\VortexCli\Handler\LabelMergeConflictsPr;
@@ -99,6 +100,7 @@ BANNER;
     'assign_author_pr' => 50,
     'code_coverage_provider' => 60,
     'dependency_updates_provider' => 70,
+    'gitleaks' => 75,
     'visual_regression' => 80,
     'ci_provider' => 90,
     'migration_image' => 100,
@@ -200,9 +202,10 @@ BANNER;
         TuiAdapter::field($p, new NotificationChannels($config));
       })
       ->panel('continuous_integration', 'Continuous Integration', function (PanelBuilder $p) use ($config): void {
-        $p->description('CI provider and visual regression testing.');
+        $p->description('CI provider, visual regression and secret scanning.');
         TuiAdapter::field($p, new CiProvider($config));
         TuiAdapter::field($p, new VisualRegression($config));
+        TuiAdapter::field($p, new Gitleaks($config));
       })
       ->panel('automations', 'Automations', function (PanelBuilder $p) use ($config): void {
         $p->description('Dependency updates, coverage and PR automation.');
