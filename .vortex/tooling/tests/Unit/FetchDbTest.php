@@ -56,6 +56,19 @@ class FetchDbTest extends UnitTestCase {
         },
         'expected' => 'Download will not proceed',
       ],
+      'existing dump names indexed force variable' => [
+        'before' => function (self $test): void {
+          $test->envSet('VORTEX_DB_INDEX', '2');
+          $db_dir = self::$tmp . '/data';
+          File::mkdir($db_dir);
+          File::dump($db_dir . '/db.sql', 'fake-dump');
+          $test->mockPassthru([
+            'cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' 2>/dev/null || true',
+            'result_code' => 0,
+          ]);
+        },
+        'expected' => 'set VORTEX_FETCH_DB2_FORCE value to 1 to force download',
+      ],
     ];
   }
 
