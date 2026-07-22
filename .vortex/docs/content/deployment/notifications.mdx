@@ -109,8 +109,10 @@ Deployment logs are included verbatim. Make sure producing scripts do not print
 secrets, and enable the feature only for the channels and environments where
 exposing the full logs is acceptable.
 
-Logs are also written to `VORTEX_NOTIFY_LOG_DIR` (default `/tmp/vortex-logs`) as
-owner-only files (`700` directory, `600` logs). If you point it at a custom
+Logs are written to `VORTEX_NOTIFY_LOG_DIR` (default `/tmp/vortex-logs`).
+`vortex-provision` creates its log directory and `provision.log` owner-only
+(`700`/`600`) on a best-effort basis; any other producing script controls the
+permissions of its own log file. If you point `VORTEX_NOTIFY_LOG_DIR` at a custom
 directory, make sure that location is not readable by other users.
 
 :::

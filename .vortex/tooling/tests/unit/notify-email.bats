@@ -263,9 +263,11 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  # The %project% token inside the log is inserted last, so it stays literal.
+  # The log body keeps the %project% token and the command substitution as literal
+  # text (inserted last, so neither is expanded)...
   assert_output_contains "%project% literal"
-  # The command substitution embedded in the log never executes.
+  assert_output_contains "\$(touch \"${BATS_TEST_TMPDIR}/pwned\")"
+  # ...and the command substitution never executes.
   assert_file_not_exists "${BATS_TEST_TMPDIR}/pwned"
 
   popd >/dev/null || exit 1
