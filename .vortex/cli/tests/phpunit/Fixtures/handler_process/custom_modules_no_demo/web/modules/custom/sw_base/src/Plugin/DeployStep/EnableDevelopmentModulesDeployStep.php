@@ -1,4 +1,4 @@
-@@ -89,7 +89,6 @@
+@@ -106,7 +106,6 @@
  
      $this->moduleInstaller->install(['sw_search']);
  

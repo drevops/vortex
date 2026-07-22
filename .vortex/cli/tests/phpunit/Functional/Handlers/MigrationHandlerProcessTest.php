@@ -25,7 +25,6 @@ final class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileContainsString(self::$sut . '/composer.json', 'drupal/migrate_tools');
 
           // Token-controlled content preserved in files.
-          $test->assertFileContainsString(self::$sut . '/.gitignore', 'settings.migration.php');
           $test->assertFileContainsString(self::$sut . '/docker-compose.yml', 'database2');
           $test->assertFileContainsString(self::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileContainsString(self::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
@@ -60,7 +59,6 @@ final class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileNotContainsString(self::$sut . '/composer.json', 'drupal/migrate_tools');
 
           // Token-controlled content removed from files.
-          $test->assertFileNotContainsString(self::$sut . '/.gitignore', 'settings.migration.php');
           $test->assertFileNotContainsString(self::$sut . '/docker-compose.yml', 'database2');
           $test->assertFileNotContainsString(self::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileNotContainsString(self::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');

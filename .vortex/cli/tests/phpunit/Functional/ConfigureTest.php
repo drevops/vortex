@@ -115,7 +115,7 @@ final class ConfigureTest extends TestCase {
     $this->assertIsArray($schema);
     $this->assertArrayHasKey('prompts', $schema);
     $this->assertIsArray($schema['prompts']);
-    $this->assertCount(38, $schema['prompts']);
+    $this->assertCount(39, $schema['prompts']);
   }
 
   public function testValidateRoundTrip(): void {

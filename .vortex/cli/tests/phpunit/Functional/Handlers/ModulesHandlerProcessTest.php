@@ -13,12 +13,6 @@ use PHPUnit\Framework\Attributes\Group;
 final class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
-    yield 'modules_no_admin_toolbar' => [
-      self::cw(function ($test): void {
-          $test->prompts['modules'] = self::getModulesExcept('admin_toolbar');
-      }),
-      self::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/admin_toolbar')),
-    ];
     yield 'modules_no_coffee' => [
       self::cw(function ($test): void {
           $test->prompts['modules'] = self::getModulesExcept('coffee');
@@ -60,6 +54,12 @@ final class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts['modules'] = self::getModulesExcept('generated_content');
       }),
       self::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/generated_content')),
+    ];
+    yield 'modules_no_navigation_extra_tools' => [
+      self::cw(function ($test): void {
+          $test->prompts['modules'] = self::getModulesExcept('navigation_extra_tools');
+      }),
+      self::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/navigation_extra_tools')),
     ];
     yield 'modules_no_pathauto' => [
       self::cw(function ($test): void {

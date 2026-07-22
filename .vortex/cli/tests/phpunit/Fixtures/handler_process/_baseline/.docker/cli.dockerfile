@@ -1,6 +1,11 @@
+# check=skip=SecretsUsedInArgOrEnv
 # CLI container.
 #
 # All CLI operations performed in this container.
+#
+# The `PACKAGE_TOKEN` argument below is flagged by name by the
+# `SecretsUsedInArgOrEnv` build check, but the token is passed as a build
+# secret and never written to an image layer, so that check is skipped.
 #
 # hadolint global ignore=DL3018,SC2174
 #
@@ -42,8 +47,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache
 
 # Allow custom PHP runtime configuration for Drush CLI commands.
-# The leading colon appends to the default scan directories.
+# The argument is declared so the reference resolves cleanly; when the base
+# image does not set it, the value stays empty and the leading colon appends
+# to the default scan directories.
 # @see https://github.com/drevops/vortex/issues/1913
+ARG PHP_INI_SCAN_DIR=""
 ENV PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR}:/app/drush/php-ini"
 
 # Starting from this line, Docker adds the result of each command as a

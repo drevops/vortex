@@ -1,4 +1,4 @@
-@@ -269,6 +269,12 @@
+@@ -265,6 +265,12 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -11,7 +11,7 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force
  
-@@ -309,6 +315,10 @@
+@@ -305,6 +311,10 @@
            if [ -f .data/db.sql ]; then
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql

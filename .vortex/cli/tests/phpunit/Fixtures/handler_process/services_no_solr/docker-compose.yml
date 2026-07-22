@@ -1,4 +1,4 @@
-@@ -154,17 +154,6 @@
+@@ -156,17 +156,6 @@
    cache:
      image: uselagoon/valkey-8:__VERSION__
  
@@ -16,7 +16,7 @@
    antivirus:
      build:
        context: .
-@@ -195,13 +184,10 @@
+@@ -197,13 +186,10 @@
        - antivirus
        - database
        - cache
@@ -30,7 +30,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -210,7 +196,6 @@
+@@ -212,7 +198,6 @@
  volumes:
    app: {}
    files: {}

@@ -1,4 +1,4 @@
-@@ -85,8 +85,6 @@
+@@ -102,8 +102,6 @@
  
      $this->moduleInstaller->install(['sdc_devel']);
  

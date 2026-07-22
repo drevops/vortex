@@ -21,14 +21,11 @@ aliases:
     environment:
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
     docker:
-      # Using the 'runner' container where each job will be executed.
-      # This container has all the necessary tools to run a dockerized environment.
-      # https://github.com/drevops/ci-runner
-      # https://hub.docker.com/repository/docker/drevops/ci-runner/tags
-      - image: drevops/ci-runner:__VERSION__
-        auth:
-          username: ${VORTEX_CONTAINER_REGISTRY_USER}
-          password: ${VORTEX_CONTAINER_REGISTRY_PASS}
+      # Run each job on CircleCI's public PHP convenience image. It ships PHP,
+      # Composer and the Docker CLI (with the Compose plugin), which drive the
+      # dockerized stack against the remote Docker engine (see setup_remote_docker).
+      # https://circleci.com/developer/images/image/cimg/php
+      - image: cimg/php:__VERSION__
         environment:
           # Set runner timezone via UI to ensure that executed operations use correct timestamps.
           # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -66,6 +63,19 @@ aliases:
       docker_layer_caching: false
       version: default
 
+  - &step_install_docker_tools
+    run:
+      name: Install pinned Docker Compose and Buildx CLI plugins
+      # The convenience image ships older Docker CLI plugins than the stack
+      # relies on; install the versions that resolve 'service:' build contexts.
+      command: |
+        mkdir -p "${HOME}/.docker/cli-plugins"
+        curl -fsSL -o "${HOME}/.docker/cli-plugins/docker-compose" https://github.com/docker/compose/releases/download/__VERSION__/docker-compose-linux-x86_64
+        curl -fsSL -o "${HOME}/.docker/cli-plugins/docker-buildx" https://github.com/docker/buildx/releases/download/__VERSION__/buildx-__VERSION__.linux-amd64
+        chmod +x "${HOME}/.docker/cli-plugins/docker-compose" "${HOME}/.docker/cli-plugins/docker-buildx"
+        docker compose version
+        docker buildx version
+
   - &step_process_codebase_for_ci
     run:
       name: Process codebase to run in CI
@@ -102,6 +112,7 @@ jobs:
           command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry
@@ -209,6 +220,7 @@ jobs:
             - __VERSION__-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry
@@ -265,7 +277,7 @@ jobs:
           # to save cache even if the fallback is not used when restoring it.
           key: __VERSION__-{{ checksum "/tmp/db_cache_branch" }}-{{ checksum "/tmp/db_cache_fallback_yes" }}-{{ checksum "/tmp/db_cache_timestamp" }}
           paths:
-            - /root/project/.data
+            - ~/project/.data
 
       - run:
           name: Restore stashed DB on non-primary runners for provisioning
@@ -334,7 +346,9 @@ jobs:
           command: |
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
             if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ] && ! echo "${CIRCLE_BRANCH}" | grep -q '^deps/'; then
-              codecov -Z -s /tmp/artifacts/coverage;
+              curl -fOs https://uploader.codecov.io/__VERSION__/linux/codecov
+              chmod +x codecov
+              ./codecov -Z -s /tmp/artifacts/coverage
             fi
 
       - run:
@@ -402,6 +416,7 @@ jobs:
           command: ./scripts/vortex-tooling.sh
 
       - *step_setup_remote_docker
+      - *step_install_docker_tools
 
       - run:
           name: Login to container registry

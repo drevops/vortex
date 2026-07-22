@@ -22,6 +22,8 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
             'phpcbf',
             'phpstan',
             'rector',
+            'twig-cs-fixer',
+            'vincentlanglet/twig-cs-fixer',
             'phpunit',
             'behat',
             'gherkinlint',
@@ -52,7 +54,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_phpcs' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpcs']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -66,7 +68,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_phpcs_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpcs']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -80,7 +82,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_phpstan' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpstan']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -92,7 +94,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_phpstan_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpstan']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -104,7 +106,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_rector' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['rector']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -115,7 +117,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_rector_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['rector']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -124,9 +126,31 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'rector/rector',
       ])),
     ];
+    yield 'tools_no_twig' => [
+      self::cw(function ($test): void {
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
+          $test->prompts['tools'] = array_values(array_diff($tools, ['twig_cs_fixer']));
+          $test->prompts['ci_provider'] = 'gha';
+      }),
+      self::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
+        'twig-cs-fixer',
+        'vincentlanglet/twig-cs-fixer',
+      ])),
+    ];
+    yield 'tools_no_twig_circleci' => [
+      self::cw(function ($test): void {
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
+          $test->prompts['tools'] = array_values(array_diff($tools, ['twig_cs_fixer']));
+          $test->prompts['ci_provider'] = 'circleci';
+      }),
+      self::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
+        'twig-cs-fixer',
+        'vincentlanglet/twig-cs-fixer',
+      ])),
+    ];
     yield 'tools_no_eslint' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -152,7 +176,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_eslint_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -178,7 +202,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_stylelint' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['stylelint']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -194,7 +218,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_stylelint_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['stylelint']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -210,7 +234,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_phpunit' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpunit']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -223,7 +247,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_phpunit_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpunit']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -236,7 +260,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_behat' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['behat']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -253,7 +277,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_behat_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['behat']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -269,7 +293,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_be_lint' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpcs', 'phpstan', 'rector']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -288,7 +312,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_be_lint_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpcs', 'phpstan', 'rector']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -307,7 +331,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_jest' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['jest']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -322,7 +346,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_jest_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['jest']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -337,7 +361,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_fe_lint' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint', 'stylelint', 'jest']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -354,7 +378,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_fe_lint_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint', 'stylelint', 'jest']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -371,7 +395,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_be_tests' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpunit', 'behat']));
           $test->prompts['ci_provider'] = 'gha';
       }),
@@ -392,7 +416,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_be_tests_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['phpunit', 'behat']));
           $test->prompts['ci_provider'] = 'circleci';
       }),
@@ -413,7 +437,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_fe_lint_no_theme' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint', 'stylelint', 'jest']));
           $test->prompts['ci_provider'] = 'gha';
           $test->prompts['theme'] = 'olivero';
@@ -437,7 +461,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_groups_no_fe_lint_no_theme_circleci' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint', 'stylelint', 'jest']));
           $test->prompts['ci_provider'] = 'circleci';
           $test->prompts['theme'] = 'olivero';
@@ -461,7 +485,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_stylelint_no_theme' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['stylelint']));
           $test->prompts['ci_provider'] = 'gha';
           $test->prompts['theme'] = 'olivero';
@@ -479,7 +503,7 @@ final class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
     ];
     yield 'tools_no_eslint_no_theme' => [
       self::cw(function ($test): void {
-          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat'];
+          $tools = ['phpcs', 'phpstan', 'rector', 'eslint', 'stylelint', 'jest', 'phpunit', 'behat', 'twig_cs_fixer'];
           $test->prompts['tools'] = array_values(array_diff($tools, ['eslint']));
           $test->prompts['ci_provider'] = 'gha';
           $test->prompts['theme'] = 'olivero';

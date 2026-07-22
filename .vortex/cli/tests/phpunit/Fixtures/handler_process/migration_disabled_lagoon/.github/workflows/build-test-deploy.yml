@@ -1,4 +1,4 @@
-@@ -260,6 +260,15 @@
+@@ -256,6 +256,15 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
@@ -14,7 +14,7 @@
        # On the first build of the day (cache miss), fetch a fresh DB dump.
        # On subsequent builds, the restored cache already contains the dump and
        # the fetch script skips itself, leaving no semaphore file behind.
-@@ -556,7 +565,6 @@
+@@ -558,7 +567,6 @@
            VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
            VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
            VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}

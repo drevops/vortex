@@ -1,8 +1,8 @@
-@@ -64,7 +64,6 @@
-       'admin_toolbar',
+@@ -80,7 +80,6 @@
+     $this->moduleInstaller->install([
        'coffee',
        'config_split',
 -      'config_update',
        'media',
        'environment_indicator',
-       'pathauto',
+       'navigation_extra_tools',
