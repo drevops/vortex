@@ -13,16 +13,17 @@ use Drupal\Core\Site\Settings;
  * Implements template_preprocess_html().
  */
 function your_site_theme_preprocess_html(array &$variables): void {
-  _your_site_theme_preprocess_admin_toolbar($variables);
+  _your_site_theme_preprocess_navigation($variables);
 }
 
 /**
- * Preprocess admin toolbar.
+ * Preprocess administration navigation.
  */
-function _your_site_theme_preprocess_admin_toolbar(array &$variables): void {
-  // Hide admin toolbar.
-  if (Settings::get('hide_admin_toolbar') && !empty($variables['attributes']['class'])) {
-    unset($variables['page_top']['toolbar']);
-    $variables['attributes']['class'] = array_filter($variables['attributes']['class'], static fn($value): bool => !str_starts_with((string) $value, 'toolbar-'));
+function _your_site_theme_preprocess_navigation(array &$variables): void {
+  // Hide the administration navigation. Useful for theming while logged in as
+  // an administrator.
+  if (Settings::get('hide_admin_navigation')) {
+    unset($variables['page_top']['navigation']);
+    unset($variables['page_top']['top_bar']);
   }
 }
