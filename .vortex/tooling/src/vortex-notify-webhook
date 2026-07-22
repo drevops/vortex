@@ -115,7 +115,7 @@ VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(REPLACEMENT="${VORTEX_NOTIFY_WEBHOOK_LOGIN_URL}"
 # JSON-escaped, so arbitrary log content is inserted safely as literal text.
 log_file=""
 [ "${VORTEX_NOTIFY_WEBHOOK_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_WEBHOOK_LOG_FILE}"
-VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(LOG_FILE="${log_file}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$file = getenv("LOG_FILE"); $log = ($file !== "" && is_file($file)) ? rtrim((string) file_get_contents($file), "\r\n") : ""; $escaped = json_encode($log); $escaped = substr($escaped, 1, -1); echo str_replace("%deployment_log%", $escaped, getenv("TEMPLATE"));')
+VORTEX_NOTIFY_WEBHOOK_PAYLOAD=$(LOG_FILE="${log_file}" TEMPLATE="${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" php -r '$file = getenv("LOG_FILE"); $log = ($file !== "" && is_file($file)) ? rtrim((string) file_get_contents($file), "\r\n") : ""; $escaped = json_encode($log, JSON_INVALID_UTF8_SUBSTITUTE); $escaped = substr($escaped, 1, -1); echo str_replace("%deployment_log%", $escaped, getenv("TEMPLATE"));')
 
 # Sanitize webhook URL (extract domain, hide path that may contain secrets).
 webhook_domain=$(echo "${VORTEX_NOTIFY_WEBHOOK_URL}" | sed -E 's|(https?://[^/]+).*|\1|')

@@ -24,10 +24,14 @@ VORTEX_NOTIFY_LOG_DIR="${VORTEX_NOTIFY_LOG_DIR:-/tmp/vortex-logs}"
 # into the shared log directory (truncated fresh each run) while still streaming to
 # the console. PIPESTATUS returns the provision (not tee) exit code and 'errexit' is
 # disabled around the pipeline, so a logging failure never masks a deployment failure.
+# Collected logs may contain secrets, so the directory and log file are owner-only.
 if [ "${VORTEX_PROVISION_LOG}" = "1" ] && [ -z "${VORTEX_PROVISION_LOG_ACTIVE:-}" ]; then
   export VORTEX_PROVISION_LOG_ACTIVE=1
   set +e
   mkdir -p "${VORTEX_NOTIFY_LOG_DIR}"
+  : >"${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  chmod 700 "${VORTEX_NOTIFY_LOG_DIR}" 2>/dev/null
+  chmod 600 "${VORTEX_NOTIFY_LOG_DIR}/provision.log" 2>/dev/null
   "${BASH_SOURCE[0]}" "$@" 2>&1 | tee "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
   exit "${PIPESTATUS[0]}"
 fi
