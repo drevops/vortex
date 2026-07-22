@@ -70,7 +70,7 @@ if ($source !== 'container_registry') {
     if ($force !== '1') {
       NOTE('Using existing database dump file(s).');
       NOTE('Download will not proceed.');
-      NOTE('Remove existing database file or set VORTEX_FETCH_DB_FORCE value to 1 to force download.');
+      NOTE('Remove existing database file or set VORTEX_FETCH_DB%s_FORCE value to 1 to force download.', $db_index);
       quit(0);
     }
 
