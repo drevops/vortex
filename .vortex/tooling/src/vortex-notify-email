@@ -48,7 +48,7 @@ VORTEX_NOTIFY_EMAIL_MESSAGE="${VORTEX_NOTIFY_EMAIL_MESSAGE:-}"
 # Include the deployment log in the message body (0/1). Defaults to VORTEX_NOTIFY_LOG.
 VORTEX_NOTIFY_EMAIL_LOG="${VORTEX_NOTIFY_EMAIL_LOG:-${VORTEX_NOTIFY_LOG:-0}}"
 
-# Deployment log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+# Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
 VORTEX_NOTIFY_EMAIL_LOG_FILE="${VORTEX_NOTIFY_EMAIL_LOG_FILE:-${VORTEX_NOTIFY_LOG_FILE:-}}"
 
 # Email notification event type. Can be 'pre_deployment' or 'post_deployment'.
@@ -145,10 +145,12 @@ note "Project        : ${VORTEX_NOTIFY_EMAIL_PROJECT}"
 note "Deployment     : ${VORTEX_NOTIFY_EMAIL_LABEL}"
 note "Environment URL: ${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}"
 note "Login URL      : ${VORTEX_NOTIFY_EMAIL_LOGIN_URL}"
-if [ "${VORTEX_NOTIFY_EMAIL_LOG}" = "1" ]; then
-  note "Deployment log : ${VORTEX_NOTIFY_EMAIL_LOG_FILE}"
+if [ "${VORTEX_NOTIFY_EMAIL_LOG}" != "1" ]; then
+  note "Log file       : <disabled>"
+elif [ -s "${VORTEX_NOTIFY_EMAIL_LOG_FILE}" ]; then
+  note "Log file       : ${VORTEX_NOTIFY_EMAIL_LOG_FILE}"
 else
-  note "Deployment log : <disabled>"
+  note "Log file       : <missing>"
 fi
 note "From           : ${VORTEX_NOTIFY_EMAIL_FROM}"
 note "Recipients     : ${VORTEX_NOTIFY_EMAIL_RECIPIENTS}"

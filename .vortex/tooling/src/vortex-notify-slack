@@ -55,7 +55,7 @@ VORTEX_NOTIFY_SLACK_BRANCHES="${VORTEX_NOTIFY_SLACK_BRANCHES:-}"
 # Include the deployment log in the message (0/1). Defaults to VORTEX_NOTIFY_LOG.
 VORTEX_NOTIFY_SLACK_LOG="${VORTEX_NOTIFY_SLACK_LOG:-${VORTEX_NOTIFY_LOG:-0}}"
 
-# Deployment log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+# Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
 VORTEX_NOTIFY_SLACK_LOG_FILE="${VORTEX_NOTIFY_SLACK_LOG_FILE:-${VORTEX_NOTIFY_LOG_FILE:-}}"
 
 # ------------------------------------------------------------------------------

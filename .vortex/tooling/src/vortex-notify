@@ -125,10 +125,12 @@ note "PR Number      : ${VORTEX_NOTIFY_PR_NUMBER:-<none>}"
 note "Label          : ${VORTEX_NOTIFY_LABEL}"
 note "Environment URL: ${VORTEX_NOTIFY_ENVIRONMENT_URL}"
 note "Login URL      : ${VORTEX_NOTIFY_LOGIN_URL}"
-if [ "${VORTEX_NOTIFY_LOG}" = "1" ]; then
-  note "Deployment log : ${VORTEX_NOTIFY_LOG_DIR}"
+if [ "${VORTEX_NOTIFY_LOG}" != "1" ]; then
+  note "Log file       : <disabled>"
+elif [ -s "${VORTEX_NOTIFY_LOG_FILE}" ]; then
+  note "Log file       : ${VORTEX_NOTIFY_LOG_FILE}"
 else
-  note "Deployment log : <disabled>"
+  note "Log file       : <missing>"
 fi
 note "Event          : ${VORTEX_NOTIFY_EVENT}"
 note "Channels       : ${VORTEX_NOTIFY_CHANNELS}"
