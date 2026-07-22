@@ -95,9 +95,9 @@ is_lagoon_env_limit_exceeded() {
 }
 # @formatter:on
 
-# Run a Lagoon deploy command, surface its output, and translate an
-# environment-limit error into a controlled outcome. The captured output is
-# printed so a failing deploy shows the reason instead of only "[FAIL]".
+# Run a Lagoon deploy command, surface its output in debug mode, and translate
+# an environment-limit error into a controlled outcome. The captured output is
+# printed only when VORTEX_DEBUG=1 so a debugged deploy shows the CLI reason.
 run_lagoon_deploy() {
   local deploy_output
 
@@ -109,7 +109,8 @@ run_lagoon_deploy() {
     exit_code=$?
   fi
 
-  [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
+  # Surface the raw CLI output only in debug mode.
+  [ "${VORTEX_DEBUG-}" = "1" ] && [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
 
   if is_lagoon_env_limit_exceeded "${deploy_output}"; then
     note "Lagoon environment limit exceeded."
