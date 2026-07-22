@@ -1,7 +1,7 @@
-@@ -67,7 +67,6 @@
-       'config_update',
+@@ -84,7 +84,6 @@
        'media',
        'environment_indicator',
+       'navigation_extra_tools',
 -      'pathauto',
        'redirect',
        'reroute_email',

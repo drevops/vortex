@@ -1,14 +1,14 @@
-@@ -60,22 +60,6 @@
-   public function run(): void {
-     $this->configFactory->getEditable('system.site')->set('name', 'star wars')->save();
+@@ -77,22 +77,6 @@
+       $this->moduleInstaller->uninstall(['toolbar']);
+     }
  
 -    $this->moduleInstaller->install([
--      'admin_toolbar',
 -      'coffee',
 -      'config_split',
 -      'config_update',
 -      'media',
 -      'environment_indicator',
+-      'navigation_extra_tools',
 -      'pathauto',
 -      'redirect',
 -      'reroute_email',
@@ -21,7 +21,7 @@
      $this->moduleInstaller->install(['redis']);
  
      $this->moduleInstaller->install(['clamav']);
-@@ -82,10 +66,6 @@
+@@ -99,10 +83,6 @@
      $this->configFactory->getEditable('clamav.settings')->set('mode_daemon_tcpip.hostname', 'clamav')->save();
  
      $this->moduleInstaller->install(['search_api', 'search_api_solr']);

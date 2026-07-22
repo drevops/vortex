@@ -8,7 +8,7 @@
      "type": "project",
      "require": {
 @@ -23,7 +23,6 @@
-         "drupal/generated_content": "__VERSION__",
+         "drupal/navigation_extra_tools": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
 -        "drupal/redis": "__VERSION__",

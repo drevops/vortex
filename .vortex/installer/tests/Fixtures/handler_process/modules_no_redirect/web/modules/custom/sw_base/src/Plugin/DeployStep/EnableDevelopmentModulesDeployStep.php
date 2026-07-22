@@ -1,6 +1,6 @@
-@@ -68,7 +68,6 @@
-       'media',
+@@ -85,7 +85,6 @@
        'environment_indicator',
+       'navigation_extra_tools',
        'pathauto',
 -      'redirect',
        'reroute_email',
