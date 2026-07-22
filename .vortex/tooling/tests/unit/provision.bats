@@ -2437,8 +2437,9 @@ assert_provision_info() {
   assert_output_contains "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
   assert_output_contains "Finished site provisioning."
 
-  # The full output is also written to <dir>/provision.log, preserving the exit code.
-  [ -f "${VORTEX_NOTIFY_LOG_DIR}/provision.log" ]
+  # The full output is also written to <dir>/provision.log as an owner-only file.
+  assert_file_exists "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  assert_file_mode "${VORTEX_NOTIFY_LOG_DIR}/provision.log" "600"
 
   run cat "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
   assert_output_contains "Started site provisioning."
@@ -2459,7 +2460,7 @@ assert_provision_info() {
   assert_success
 
   # Without VORTEX_PROVISION_LOG=1 the log file is never written.
-  [ ! -f "${BATS_TEST_TMPDIR}/logs/provision.log" ]
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/logs/provision.log"
 
   popd >/dev/null || exit 1
 }
@@ -2632,15 +2633,16 @@ assert_provision_info() {
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
-  cli_output="${output}"
+  console_output="${output}"
 
   # The re-dispatch streams the full run to the console (asserted here)...
   run_steps "assert" "${mocks[@]}"
 
-  # ...and captures the identical output to the log file.
-  [ -f "${VORTEX_NOTIFY_LOG_DIR}/provision.log" ]
+  # ...and captures the identical output to the owner-only log file.
+  assert_file_exists "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
+  assert_file_mode "${VORTEX_NOTIFY_LOG_DIR}/provision.log" "600"
   run cat "${VORTEX_NOTIFY_LOG_DIR}/provision.log"
-  [ "${output}" = "${cli_output}" ]
+  assert_equal "${console_output}" "${output}"
 
   popd >/dev/null || exit 1
 }

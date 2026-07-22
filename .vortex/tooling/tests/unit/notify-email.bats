@@ -266,7 +266,7 @@ load ../_helper.bash
   # The %project% token inside the log is inserted last, so it stays literal.
   assert_output_contains "%project% literal"
   # The command substitution embedded in the log never executes.
-  [ ! -f "${BATS_TEST_TMPDIR}/pwned" ]
+  assert_file_not_exists "${BATS_TEST_TMPDIR}/pwned"
 
   popd >/dev/null || exit 1
 }
