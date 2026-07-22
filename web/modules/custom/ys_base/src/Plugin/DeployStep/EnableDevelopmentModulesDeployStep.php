@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ys_base\Plugin\DeployStep;
 
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
@@ -38,11 +39,17 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
   protected ModuleInstallerInterface $moduleInstaller;
 
   /**
+   * The module handler.
+   */
+  protected ModuleHandlerInterface $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->moduleInstaller = $container->get('module_installer');
+    $instance->moduleHandler = $container->get('module_handler');
 
     return $instance;
   }
@@ -60,14 +67,24 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
   public function run(): void {
     $this->configFactory->getEditable('system.site')->set('name', 'YOURSITE')->save();
 
+    // Use the core Navigation module as the administration interface and remove
+    // the classic Toolbar so the two admin systems never run at once. Uninstall
+    // only when Toolbar is actually enabled - it is absent on a re-provision or
+    // a navigation-based database - while a genuine uninstall failure still
+    // aborts.
+    $this->moduleInstaller->install(['navigation']);
+    if ($this->moduleHandler->moduleExists('toolbar')) {
+      $this->moduleInstaller->uninstall(['toolbar']);
+    }
+
     // phpcs:ignore #;< MODULES
     $this->moduleInstaller->install([
-      'admin_toolbar',
       'coffee',
       'config_split',
       'config_update',
       'media',
       'environment_indicator',
+      'navigation_extra_tools',
       'pathauto',
       'redirect',
       'reroute_email',

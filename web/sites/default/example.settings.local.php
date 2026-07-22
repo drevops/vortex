@@ -112,6 +112,6 @@ $settings['rebuild_access'] = TRUE;
 $settings['skip_permissions_hardening'] = TRUE;
 
 /**
- * Hide admin toolbar. Useful for theming while logged in as admin.
+ * Hide administration navigation. Useful for theming while logged in as admin.
  */
-// $settings['hide_admin_toolbar'] = TRUE;
+// $settings['hide_admin_navigation'] = TRUE;
