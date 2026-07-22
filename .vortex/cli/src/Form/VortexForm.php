@@ -64,7 +64,7 @@ final class VortexForm {
   /**
    * The start banner shown before the interactive TUI.
    */
-  protected const BANNER = <<<'BANNER'
+  protected const string BANNER = <<<'BANNER'
 
   ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
   ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
@@ -81,7 +81,7 @@ BANNER;
   /**
    * The field-less processors that bookend field processing.
    */
-  public const PROCESSORS = [
+  public const array PROCESSORS = [
     ['id' => 'dotenv', 'weight' => -1000],
     ['id' => 'internal', 'weight' => 1000],
   ];
@@ -92,7 +92,7 @@ BANNER;
    * Processing order is the CLI's concern, not the form's: specific string
    * replacements must run before the generic ones they overlap with.
    */
-  public const WEIGHTS = [
+  public const array WEIGHTS = [
     'webroot' => 10,
     'ai_code_instructions' => 20,
     'preserve_docs_project' => 30,
@@ -181,7 +181,10 @@ BANNER;
       ->panel('hosting', 'Hosting', function (PanelBuilder $p) use ($config): void {
         $p->description('Target hosting provider and project name.');
         TuiAdapter::field($p, new HostingProvider($config));
-        TuiAdapter::field($p, new HostingProjectName($config), when: new Condition('hosting_provider', in: [HostingProvider::LAGOON, HostingProvider::ACQUIA]), derive: new Derive('{{machine_name}}'));
+        TuiAdapter::field($p, new HostingProjectName($config), when: new Condition('hosting_provider', in: [
+          HostingProvider::LAGOON,
+          HostingProvider::ACQUIA,
+        ]), derive: new Derive('{{machine_name}}'));
         TuiAdapter::field($p, new Webroot($config));
       })
       ->panel('deployment', 'Deployment', function (PanelBuilder $p) use ($config): void {

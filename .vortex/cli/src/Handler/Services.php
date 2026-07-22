@@ -7,6 +7,9 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Yaml;
 
+/**
+ * Handles the "services" question.
+ */
 class Services extends AbstractHandler {
 
   const CLAMAV = 'clamav';
@@ -65,7 +68,7 @@ class Services extends AbstractHandler {
     // Filter defaults to only include available options.
     $options = $this->options($responses);
     if (is_array($options)) {
-      $defaults = array_values(array_intersect($defaults, array_keys($options)));
+      return array_values(array_intersect($defaults, array_keys($options)));
     }
 
     return $defaults;

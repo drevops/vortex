@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
+/**
+ * Handles the "org_machine_name" question.
+ */
 class OrgMachineName extends AbstractHandler {
 
   /**
@@ -34,6 +37,7 @@ class OrgMachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }

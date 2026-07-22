@@ -7,6 +7,9 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "module_prefix" question.
+ */
 class ModulePrefix extends AbstractHandler {
 
   /**
@@ -33,6 +36,7 @@ class ModulePrefix extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }

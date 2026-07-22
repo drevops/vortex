@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Tui;
 
+/**
+ * Handles the "provision_type" question.
+ */
 class ProvisionType extends AbstractHandler {
 
   const DATABASE = 'database';

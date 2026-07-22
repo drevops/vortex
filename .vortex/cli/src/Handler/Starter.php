@@ -7,6 +7,9 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 use DrevOps\VortexCli\Utils\Tui;
 
+/**
+ * Handles the "starter" question.
+ */
 class Starter extends AbstractHandler {
 
   const INSTALL_PROFILE_CORE = 'install_profile_core';
@@ -96,6 +99,7 @@ DOC;
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return !$this->isInstalled();
   }

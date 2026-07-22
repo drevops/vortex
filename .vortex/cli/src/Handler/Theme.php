@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "theme" question.
+ */
 class Theme extends AbstractHandler {
 
   const OLIVERO = 'olivero';
@@ -35,6 +38,7 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }
@@ -217,6 +221,19 @@ class Theme extends AbstractHandler {
     File::replaceContentInFile($tmpDir . '/.ahoy.yml', 'cmd: ahoy lint-be-fix && ahoy lint-fe-fix', 'cmd: ahoy lint-be-fix');
   }
 
+  /**
+   * Find a theme info file under the known custom-theme locations.
+   *
+   * @param string $dir
+   *   The project directory to search in.
+   * @param string $webroot
+   *   The web root directory name.
+   * @param string|null $text
+   *   Text the info file must contain, or NULL for any.
+   *
+   * @return string|null
+   *   The path to the first matching info file, or NULL when none matches.
+   */
   protected static function findThemeFile(string $dir, string $webroot, ?string $text = NULL): ?string {
     $locations = [
       sprintf('%s/%s/themes/custom/*/*.info', $dir, $webroot),
@@ -232,6 +249,15 @@ class Theme extends AbstractHandler {
     return File::findMatchingPath($locations, $text);
   }
 
+  /**
+   * Whether a theme directory is scaffolded from the Vortex theme.
+   *
+   * @param string $dir
+   *   The theme directory.
+   *
+   * @return bool
+   *   TRUE when the directory carries the Vortex theme build setup.
+   */
   protected static function isVortexTheme(string $dir): bool {
     $c1 = file_exists($dir . '/scss/_variables.scss');
     $c2 = file_exists($dir . '/package.json');

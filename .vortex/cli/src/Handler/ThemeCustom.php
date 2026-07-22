@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\Converter;
 
+/**
+ * Handles the "theme_custom" question.
+ */
 class ThemeCustom extends AbstractHandler {
 
   /**
@@ -32,10 +35,14 @@ class ThemeCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function default(array $responses): null|string|bool|array {
     if (isset($responses[MachineName::id()]) && !empty($responses[MachineName::id()])) {
       return Converter::machine($responses[MachineName::id()]);
@@ -54,6 +61,7 @@ class ThemeCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM;
   }

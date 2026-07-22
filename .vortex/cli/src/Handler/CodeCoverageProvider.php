@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "code_coverage_provider" question.
+ */
 class CodeCoverageProvider extends AbstractHandler {
 
   const NONE = 'none';

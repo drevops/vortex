@@ -23,6 +23,7 @@ class File extends UpstreamFile {
    * @return array<int, string>
    *   Array of paths to ignore.
    */
+  #[\Override]
   public static function ignoredPaths(array $paths = []): array {
     return array_merge(parent::ignoredPaths($paths), static::internalPaths());
   }

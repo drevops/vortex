@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "assign_author_pr" question.
+ */
 class AssignAuthorPr extends AbstractHandler {
 
   /**

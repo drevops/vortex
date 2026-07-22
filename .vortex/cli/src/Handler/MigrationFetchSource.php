@@ -7,6 +7,9 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "migration_fetch_source" question.
+ */
 class MigrationFetchSource extends AbstractHandler {
 
   const URL = 'url';
@@ -71,6 +74,7 @@ class MigrationFetchSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return isset($responses[Migration::id()]) && $responses[Migration::id()] === TRUE;
   }

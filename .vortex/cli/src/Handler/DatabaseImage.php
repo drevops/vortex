@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\Validator;
 
+/**
+ * Handles the "database_image" question.
+ */
 class DatabaseImage extends AbstractHandler {
 
   /**
@@ -50,6 +53,7 @@ class DatabaseImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return $responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY;
   }

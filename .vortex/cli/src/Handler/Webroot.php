@@ -9,6 +9,9 @@ use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 use DrevOps\VortexCli\Utils\Validator;
 
+/**
+ * Handles the "webroot" question.
+ */
 class Webroot extends AbstractHandler {
 
   const WEB = 'web';
@@ -39,6 +42,7 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }

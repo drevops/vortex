@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\Env;
 
+/**
+ * Writes the collected answers to the ".env" file.
+ */
 class Dotenv extends AbstractHandler {
 
   /**
@@ -15,11 +18,17 @@ class Dotenv extends AbstractHandler {
     return '.env processing';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
 
     return NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     $t = $this->tmpDir;
 

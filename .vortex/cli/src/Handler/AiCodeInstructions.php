@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "ai_code_instructions" question.
+ */
 class AiCodeInstructions extends AbstractHandler {
 
   /**
@@ -36,8 +39,13 @@ class AiCodeInstructions extends AbstractHandler {
     if (!$this->isInstalled()) {
       return NULL;
     }
-
-    return File::exists($this->dstDir . '/AGENTS.md') || File::exists($this->dstDir . '/CLAUDE.md') || File::exists($this->dstDir . '/.claude/settings.json');
+    if (File::exists($this->dstDir . '/AGENTS.md')) {
+      return TRUE;
+    }
+    if (File::exists($this->dstDir . '/CLAUDE.md')) {
+      return TRUE;
+    }
+    return File::exists($this->dstDir . '/.claude/settings.json');
   }
 
   /**

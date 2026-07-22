@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
+/**
+ * Handles the "org" question.
+ */
 class Org extends AbstractHandler {
 
   /**
@@ -34,6 +37,7 @@ class Org extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }

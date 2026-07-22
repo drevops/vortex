@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\Validator;
 
+/**
+ * Handles the "migration_image" question.
+ */
 class MigrationImage extends AbstractHandler {
 
   /**
@@ -49,6 +52,7 @@ class MigrationImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return isset($responses[MigrationFetchSource::id()]) && $responses[MigrationFetchSource::id()] === MigrationFetchSource::CONTAINER_REGISTRY;
   }

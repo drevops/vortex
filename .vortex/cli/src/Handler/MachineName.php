@@ -9,6 +9,9 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
+/**
+ * Handles the "machine_name" question.
+ */
 class MachineName extends AbstractHandler {
 
   /**
@@ -35,6 +38,7 @@ class MachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }

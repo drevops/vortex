@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "label_merge_conflicts_pr" question.
+ */
 class LabelMergeConflictsPr extends AbstractHandler {
 
   /**

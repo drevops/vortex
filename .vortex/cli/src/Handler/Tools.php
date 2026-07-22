@@ -12,6 +12,9 @@ use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Yaml;
 use function iter\flatten;
 
+/**
+ * Handles the "tools" question.
+ */
 class Tools extends AbstractHandler {
 
   const PHPCS = 'phpcs';
@@ -129,6 +132,12 @@ class Tools extends AbstractHandler {
     }
   }
 
+  /**
+   * Remove a deselected tool's files, dependencies and references.
+   *
+   * @param string $name
+   *   The tool name.
+   */
   protected function processTool(string $name): void {
     $tool = static::getToolDefinitions('tools')[$name];
 
@@ -210,6 +219,12 @@ class Tools extends AbstractHandler {
     File::removeTokenAsync('TOOL_' . strtoupper($name));
   }
 
+  /**
+   * Remove a tool group's shared resources when all of its tools are removed.
+   *
+   * @param string $name
+   *   The group name.
+   */
   protected function processGroup(string $name): void {
     $config = static::getToolDefinitions('goups')[$name];
     $selected_tools = $this->getResponseAsArray();
@@ -237,6 +252,16 @@ class Tools extends AbstractHandler {
     }
   }
 
+  /**
+   * The tool and tool-group definitions.
+   *
+   * @param string $filter
+   *   The subset to return: "tools", "groups" or "all"; an unknown value
+   *   returns all.
+   *
+   * @return array
+   *   The definitions keyed by tool or group name.
+   */
   public static function getToolDefinitions(string $filter = 'all'): array {
     $filter = in_array($filter, ['all', 'tools', 'groups'], TRUE) ? $filter : 'all';
 

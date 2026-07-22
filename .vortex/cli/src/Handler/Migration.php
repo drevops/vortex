@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 use DrevOps\VortexCli\Utils\Yaml;
 
+/**
+ * Handles the "migration" question.
+ */
 class Migration extends AbstractHandler {
 
   /**

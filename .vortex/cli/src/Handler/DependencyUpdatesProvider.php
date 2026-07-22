@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "dependency_updates_provider" question.
+ */
 class DependencyUpdatesProvider extends AbstractHandler {
 
   const NONE = 'none';

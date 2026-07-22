@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
+/**
+ * Handles the "hosting_provider" question.
+ */
 class HostingProvider extends AbstractHandler {
 
   const NONE = 'none';
@@ -35,6 +38,7 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }
@@ -109,6 +113,9 @@ class HostingProvider extends AbstractHandler {
     }
   }
 
+  /**
+   * Remove the Acquia-specific files and tokens.
+   */
   protected function removeAcquia(): void {
     File::remove($this->tmpDir . '/hooks');
 
@@ -116,6 +123,9 @@ class HostingProvider extends AbstractHandler {
     File::removeTokenAsync('SETTINGS_PROVIDER_ACQUIA');
   }
 
+  /**
+   * Remove the Lagoon-specific files and tokens.
+   */
   protected function removeLagoon(): void {
     File::remove($this->tmpDir . '/drush/sites/lagoon.site.yml');
     File::remove($this->tmpDir . '/.lagoon.yml');

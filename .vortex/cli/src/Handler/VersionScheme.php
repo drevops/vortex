@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Tui;
 
+/**
+ * Handles the "version_scheme" question.
+ */
 class VersionScheme extends AbstractHandler {
 
   const CALVER = 'calver';

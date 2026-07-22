@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Prompts\PromptType;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Converter;
 
+/**
+ * Provides the question contract defaults and the response accessors.
+ */
 abstract class AbstractHandler implements HandlerInterface {
 
   /**

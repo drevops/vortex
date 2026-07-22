@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "deploy_types" question.
+ */
 class DeployTypes extends AbstractHandler {
 
   const ARTIFACT = 'artifact';

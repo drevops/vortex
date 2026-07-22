@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "ci_provider" question.
+ */
 class CiProvider extends AbstractHandler {
 
   const NONE = 'none';

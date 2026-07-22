@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "preserve_docs_project" question.
+ */
 class PreserveDocsProject extends AbstractHandler {
 
   /**

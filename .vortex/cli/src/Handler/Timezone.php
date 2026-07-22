@@ -7,6 +7,9 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "timezone" question.
+ */
 class Timezone extends AbstractHandler {
 
   const TIMEZONES = [
@@ -646,7 +649,7 @@ class Timezone extends AbstractHandler {
 
     $from_env = Env::getFromDotenv('TZ', $this->dstDir);
     if ($from_env) {
-      $value = $from_env;
+      return $from_env;
     }
 
     return $value;

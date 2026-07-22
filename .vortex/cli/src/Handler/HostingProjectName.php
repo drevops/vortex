@@ -8,6 +8,9 @@ use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "hosting_project_name" question.
+ */
 class HostingProjectName extends AbstractHandler {
 
   /**
@@ -34,6 +37,7 @@ class HostingProjectName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }
@@ -48,6 +52,7 @@ class HostingProjectName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return isset($responses[HostingProvider::id()]) &&
       (

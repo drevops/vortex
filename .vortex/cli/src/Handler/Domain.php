@@ -9,6 +9,9 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Validator;
 
+/**
+ * Handles the "domain" question.
+ */
 class Domain extends AbstractHandler {
 
   /**
@@ -35,6 +38,7 @@ class Domain extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }

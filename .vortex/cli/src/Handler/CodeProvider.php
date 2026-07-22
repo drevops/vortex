@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\File;
 
+/**
+ * Handles the "code_provider" question.
+ */
 class CodeProvider extends AbstractHandler {
 
   const GITHUB = 'github';

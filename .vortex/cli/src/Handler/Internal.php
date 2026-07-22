@@ -11,6 +11,9 @@ use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Yaml;
 
+/**
+ * Finalizes the template: internal clean-up, demo mode and queued file tasks.
+ */
 class Internal extends AbstractHandler {
 
   /**
@@ -20,11 +23,17 @@ class Internal extends AbstractHandler {
     return 'Internal processing';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function discover(): null|string|bool|array {
     // Noop.
     return NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function process(): void {
     $t = $this->tmpDir;
 
@@ -135,6 +144,14 @@ class Internal extends AbstractHandler {
     File::runDirectoryTasks($this->config->get(Config::TMP));
   }
 
+  /**
+   * Resolve whether demo mode is enabled and record it in the configuration.
+   *
+   * @param array $responses
+   *   The collected responses.
+   * @param string $dir
+   *   The template directory being processed.
+   */
   protected function processDemoMode(array $responses, string $dir): void {
     $is_demo = $this->config->get(Config::IS_DEMO);
 

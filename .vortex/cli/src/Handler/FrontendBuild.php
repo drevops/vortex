@@ -46,6 +46,7 @@ class FrontendBuild extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM;
   }

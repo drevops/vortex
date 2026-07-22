@@ -7,6 +7,9 @@ namespace DrevOps\VortexCli\Handler;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Tui;
 
+/**
+ * Handles the "custom_modules" question.
+ */
 class CustomModules extends AbstractHandler {
 
   const BASE = 'base';

@@ -52,6 +52,7 @@ abstract class AbstractHandlerProcessTestCase extends UnitTestCase {
    */
   public array $prompts = [];
 
+  #[\Override]
   protected function setUp(): void {
     $cwd = getcwd();
     if ($cwd === FALSE) {
@@ -82,6 +83,7 @@ abstract class AbstractHandlerProcessTestCase extends UnitTestCase {
     parent::tearDown();
   }
 
+  #[\Override]
   public static function locationsFixturesDir(): string {
     return '.vortex/cli/tests/phpunit/Fixtures';
   }

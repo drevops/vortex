@@ -6,6 +6,9 @@ namespace DrevOps\VortexCli\Handler;
 
 use DrevOps\VortexCli\Utils\Converter;
 
+/**
+ * Handles the "profile_custom" question.
+ */
 class ProfileCustom extends AbstractHandler {
 
   /**
@@ -32,6 +35,7 @@ class ProfileCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function isRequired(): bool {
     return TRUE;
   }
@@ -46,6 +50,7 @@ class ProfileCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function shouldRun(array $responses): bool {
     return isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM;
   }

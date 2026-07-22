@@ -148,10 +148,25 @@ final class ConfigureTest extends TestCase {
     $schema = json_decode($tester->getDisplay(), TRUE);
     $this->assertIsArray($schema);
     $this->assertSame('https://json-schema.org/draft/2020-12/schema', $schema['$schema']);
-    $this->assertSame('string', $schema['properties']['name']['type']);
-    $this->assertSame('VORTEX_NAME', $schema['properties']['name']['env']);
-    $this->assertContains('name', $schema['required']);
-    $this->assertContains('standard', $schema['properties']['profile']['enum']);
+
+    $properties = $schema['properties'];
+    $this->assertIsArray($properties);
+
+    $name = $properties['name'];
+    $this->assertIsArray($name);
+    $this->assertSame('string', $name['type']);
+    $this->assertSame('VORTEX_NAME', $name['env']);
+
+    $required = $schema['required'];
+    $this->assertIsArray($required);
+    $this->assertContains('name', $required);
+
+    $profile = $properties['profile'];
+    $this->assertIsArray($profile);
+    $enum = $profile['enum'];
+    $this->assertIsArray($enum);
+    $this->assertContains('standard', $enum);
+
     $this->assertSame(['provided', 'environment', 'discovered', 'derived', 'default'], $schema['x-precedence']);
   }
 

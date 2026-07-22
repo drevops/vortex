@@ -26,6 +26,7 @@ class Git extends GitRepository {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function run(...$args): RunnerResult {
     $command = array_shift($args);
     array_unshift($args, '--no-pager', $command);

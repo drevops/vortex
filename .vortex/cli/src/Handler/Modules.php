@@ -8,6 +8,9 @@ use AlexSkrypnyk\File\Replacer\Replacement;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\JsonManipulator;
 
+/**
+ * Handles the "modules" question.
+ */
 class Modules extends AbstractHandler {
 
   /**
