@@ -1,13 +1,12 @@
 # This action is used for Vortex maintenance. It will not be used in the scaffolded project.
 #
-# Tests the standalone 'drevops/tui' and 'drevops/vortex-cli' packages
-# that live under '.vortex/'. Two jobs share this one workflow: 'tui'
-# runs first, then 'cli' (which depends on the TUI) runs only if the
-# TUI passed.
+# Tests the 'drevops/vortex-cli' package that lives under '.vortex/cli'. The
+# 'drevops/tui' dependency it builds on lives in its own repository and is
+# installed from Packagist like any other package.
 #
-# Scoped to this development branch and to the two package paths so it stays
+# Scoped to this development branch and to the package path so it stays
 # cheap and does not run on unrelated changes. It intentionally does NOT exist
-# on 'main' yet - it lives only on the feature branch until the packages are
+# on 'main' yet - it lives only on the feature branch until the package is
 # ready to be promoted.
 name: Vortex - Test CLI
 
@@ -17,12 +16,10 @@ on:
       - feature/customizer-tui
     paths:
       - '.vortex/cli/**'
-      - '.vortex/tui/**'
       - '.github/workflows/vortex-test-cli.yml'
   pull_request:
     paths:
       - '.vortex/cli/**'
-      - '.vortex/tui/**'
       - '.github/workflows/vortex-test-cli.yml'
   workflow_dispatch:
 
@@ -31,42 +28,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tui:
-    name: Test tui
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
-
-    strategy:
-      matrix:
-        php-versions: ['8.3', '8.4']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: ${{ matrix.php-versions }}
-          coverage: none
-
-      - name: Install dependencies
-        run: composer install --no-interaction --no-progress
-        working-directory: .vortex/tui
-
-      - name: Check coding standards
-        run: composer lint
-        working-directory: .vortex/tui
-
-      - name: Run tests
-        run: composer test
-        working-directory: .vortex/tui
-
   cli:
     name: Test CLI
-    needs: tui
     runs-on: ubuntu-latest
 
     permissions:

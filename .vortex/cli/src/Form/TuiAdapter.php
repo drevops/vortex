@@ -31,8 +31,6 @@ class TuiAdapter {
    *   The panel builder.
    * @param \DrevOps\VortexCli\Handler\HandlerInterface $handler
    *   The handler declaring the question.
-   * @param int $weight
-   *   The processing weight; lower runs earlier.
    * @param \DrevOps\Tui\Condition\ConditionInterface|null $when
    *   The conditional-visibility rule, or NULL when always visible.
    * @param \DrevOps\Tui\Derive\Derive|null $derive
@@ -41,25 +39,23 @@ class TuiAdapter {
    * @return \DrevOps\Tui\Builder\FieldBuilder
    *   The declared field.
    */
-  public static function field(PanelBuilder $p, HandlerInterface $handler, int $weight = 0, ?ConditionInterface $when = NULL, ?Derive $derive = NULL): FieldBuilder {
+  public static function field(PanelBuilder $p, HandlerInterface $handler, ?ConditionInterface $when = NULL, ?Derive $derive = NULL): FieldBuilder {
     $id = $handler::id();
     $label = $handler->label();
 
     $field = match ($handler->type()) {
       PromptType::Select => $p->select($id, $label),
-      PromptType::MultiSelect => $p->multiselect($id, $label),
+      PromptType::MultiSelect => $p->select($id, $label)->multiple(),
       PromptType::Confirm => $p->confirm($id, $label),
       PromptType::Suggest => $p->suggest($id, $label),
       PromptType::Number => $p->number($id, $label),
       PromptType::Textarea => $p->textarea($id, $label),
       PromptType::Password => $p->password($id, $label),
       PromptType::Search => $p->search($id, $label),
-      PromptType::MultiSearch => $p->multisearch($id, $label),
+      PromptType::MultiSearch => $p->search($id, $label)->multiple(),
       PromptType::Pause => $p->pause($id, $label),
       default => $p->text($id, $label),
     };
-
-    $field->weight($weight);
 
     $description = $handler::description([]) ?? $handler->hint([]);
     if (is_string($description) && $description !== '') {

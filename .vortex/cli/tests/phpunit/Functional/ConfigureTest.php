@@ -144,10 +144,15 @@ final class ConfigureTest extends TestCase {
     $tester = $this->tester();
     $tester->execute(['--agent-help' => TRUE], ['interactive' => FALSE]);
 
-    $help = $tester->getDisplay();
-    $this->assertStringContainsString('--no-interaction', $help);
-    $this->assertStringContainsString('VORTEX_<ID>', $help);
-    $this->assertStringContainsString('name [text] (required)', $help);
+    // The agent help is a JSON Schema typing the answers object.
+    $schema = json_decode($tester->getDisplay(), TRUE);
+    $this->assertIsArray($schema);
+    $this->assertSame('https://json-schema.org/draft/2020-12/schema', $schema['$schema']);
+    $this->assertSame('string', $schema['properties']['name']['type']);
+    $this->assertSame('VORTEX_NAME', $schema['properties']['name']['env']);
+    $this->assertContains('name', $schema['required']);
+    $this->assertContains('standard', $schema['properties']['profile']['enum']);
+    $this->assertSame(['provided', 'environment', 'discovered', 'derived', 'default'], $schema['x-precedence']);
   }
 
   /**

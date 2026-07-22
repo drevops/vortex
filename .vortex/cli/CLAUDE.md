@@ -121,9 +121,10 @@ Tests should use PHPUnit 11 features:
 
 ## CI/CD
 
-The CLI and the TUI form package are tested together by the monorepo's
-`.github/workflows/vortex-test-cli.yml` workflow (the `tui` job runs
-first, then the `cli` job). The CLI PHAR is released from the monorepo root via
+The CLI is tested by the monorepo's `.github/workflows/vortex-test-cli.yml`
+workflow. The `drevops/tui` dependency lives in its own repository and is
+installed from Packagist; it tests and releases there. The CLI PHAR is
+released from the monorepo root via
 `.github/workflows/vortex-release-cli.yml`.
 
 ## Committing the lock file

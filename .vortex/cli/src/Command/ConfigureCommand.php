@@ -6,6 +6,7 @@ namespace DrevOps\VortexCli\Command;
 
 use DrevOps\Tui\Tui;
 use DrevOps\Tui\Engine\EngineException;
+use DrevOps\Tui\InterruptException;
 use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Utils\Config;
@@ -98,7 +99,7 @@ class ConfigureCommand extends Command {
       }
 
       if ($input->getOption('apply')) {
-        (new Processor())->apply($answers, $tui->registry(), $config, VortexForm::PROCESSORS);
+        (new Processor())->apply($answers, $tui->registry(), $config, VortexForm::PROCESSORS, VortexForm::WEIGHTS);
       }
 
       $output->writeln($answers->toJson());
@@ -107,7 +108,14 @@ class ConfigureCommand extends Command {
     }
 
     // @codeCoverageIgnoreStart
-    $answers = $tui->interact('', '', $this->version(), $dir);
+    try {
+      $answers = $tui->interact('', '', $this->version(), $dir);
+    }
+    catch (InterruptException) {
+      // A Ctrl-C abort or the Cancel button: partial answers are discarded.
+      return Command::FAILURE;
+    }
+
     $output->writeln($answers->toJson());
 
     return Command::SUCCESS;

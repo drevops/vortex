@@ -1,9 +1,8 @@
 # This action is used for Vortex maintenance. It will not be used in the scaffolded project.
 #
 # Builds and releases the 'drevops/vortex-cli' PHAR (via Box) from '.vortex/cli'.
-# The CLI is packaged and released from this monorepo, so its release workflow is
-# promoted to the repository root (unlike the TUI, which will move to its
-# own repository and keeps its workflows under '.vortex/tui/.github').
+# The CLI is packaged and released from this monorepo; the 'drevops/tui'
+# dependency lives in its own repository and releases from there.
 name: Vortex - Release CLI
 
 on:

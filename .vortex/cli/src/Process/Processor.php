@@ -12,10 +12,10 @@ use DrevOps\VortexCli\Utils\Config;
 /**
  * Applies collected answers by running field handlers in a fixed order.
  *
- * Answers process in ascending weight (each answer carries its question's
- * weight), ties broken by reverse form order - so specific replacements run
- * before generic ones. The field-less processors passed in (an ".env" carry
- * first, a final cleanup last) interleave by their own weight and always run.
+ * Answers process in ascending weight (from the caller-supplied map), ties
+ * broken by reverse form order - so specific replacements run before generic
+ * ones. The field-less processors passed in (an ".env" carry first, a final
+ * cleanup last) interleave by their own weight and always run.
  *
  * @package DrevOps\VortexCli\Process
  */
@@ -32,15 +32,17 @@ class Processor {
    *   The installer configuration the handlers operate on.
    * @param array<int,array{id:string,weight:int}> $processors
    *   The field-less processors that always run, each an id and a weight.
+   * @param array<string,int> $weights
+   *   The processing weight of each question id; missing ids weigh 0.
    */
-  public function apply(Answers $answers, HandlerRegistry $handlers, Config $config, array $processors): void {
+  public function apply(Answers $answers, HandlerRegistry $handlers, Config $config, array $processors, array $weights): void {
     $count = count($answers->items);
     $items = [];
 
     $position = 0;
     foreach ($answers->items as $answer) {
       // Equal-weight answers process in reverse form order.
-      $items[] = ['id' => $answer->id, 'weight' => $answer->weight, 'tie' => $count - $position];
+      $items[] = ['id' => $answer->id, 'weight' => $weights[$answer->id] ?? 0, 'tie' => $count - $position];
       $position++;
     }
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c8ec2d2061af3d44545f7f43c4d349d0",
+    "content-hash": "b94a2b0c5a7e4847f025e126e824b815",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -76,16 +76,16 @@
         },
         {
             "name": "alexskrypnyk/str2name",
-            "version": "1.4.1",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/Str2Name.git",
-                "reference": "91bbfe9d54e2d574ed727853a7db17380276e75a"
+                "reference": "9228ea33a98c7fedc25912b2a57d0c5c05f6cb78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/Str2Name/zipball/91bbfe9d54e2d574ed727853a7db17380276e75a",
-                "reference": "91bbfe9d54e2d574ed727853a7db17380276e75a",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/Str2Name/zipball/9228ea33a98c7fedc25912b2a57d0c5c05f6cb78",
+                "reference": "9228ea33a98c7fedc25912b2a57d0c5c05f6cb78",
                 "shasum": ""
             },
             "require": {
@@ -94,11 +94,15 @@
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1",
                 "drevops/phpcs-standard": "^0.",
-                "drupal/coder": "^8.3",
-                "ergebnis/composer-normalize": "^2.45",
+                "drupal/coder": "^9.0",
+                "ergebnis/composer-normalize": "^2.50.0",
+                "phpbench/phpbench": "^1.4",
                 "phpstan/phpstan": "^2",
                 "phpunit/phpunit": "^11",
                 "rector/rector": "^2"
+            },
+            "suggest": {
+                "ext-mbstring": "Full Unicode case folding. Without it, non-ASCII case conversion in the generic formatters and *Raw methods degrades to ASCII; strict/named formatters are unaffected."
             },
             "type": "library",
             "autoload": {
@@ -134,7 +138,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-11-25T06:07:06+00:00"
+            "time": "2026-07-21T06:20:53+00:00"
         },
         {
             "name": "composer/ca-bundle",
@@ -816,16 +820,21 @@
         },
         {
             "name": "drevops/tui",
-            "version": "1.0.0-alpha1",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/drevops/tui.git",
+                "reference": "89e430516a6c98e4df0c874ea5e4c769d418619e"
+            },
             "dist": {
-                "type": "path",
-                "url": "../tui",
-                "reference": "bad1894510905bf3498289d11ca87cdc80a00693"
+                "type": "zip",
+                "url": "https://api.github.com/repos/drevops/tui/zipball/89e430516a6c98e4df0c874ea5e4c769d418619e",
+                "reference": "89e430516a6c98e4df0c874ea5e4c769d418619e",
+                "shasum": ""
             },
             "require": {
-                "alexskrypnyk/str2name": "^1.4.1",
-                "php": ">=8.3",
-                "symfony/console": "^7.4.13"
+                "alexskrypnyk/str2name": "^1.6.0",
+                "php": ">=8.3"
             },
             "require-dev": {
                 "alexskrypnyk/phpunit-helpers": "^0.16.0",
@@ -835,9 +844,12 @@
                 "ergebnis/composer-normalize": "^2.52.0",
                 "mikey179/vfsstream": "^1.6.12",
                 "opis/closure": "^4.5.0",
-                "phpstan/phpstan": "^2.2.2",
+                "phpstan/phpstan": "^2.2.4",
                 "phpunit/phpunit": "^11.5.55",
-                "rector/rector": "^2.5.1"
+                "rector/rector": "^2.5.2"
+            },
+            "suggest": {
+                "ext-mbstring": "Provides full Unicode case folding and native multibyte string handling; PCRE-based fallbacks with ASCII-only case folding are used when it is absent."
             },
             "type": "library",
             "autoload": {
@@ -845,54 +857,25 @@
                     "DrevOps\\Tui\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "DrevOps\\Tui\\Tests\\": "tests/phpunit"
-                },
-                "classmap": [
-                    "tests/phpunit"
-                ]
-            },
-            "scripts": {
-                "lint": [
-                    "phpcs",
-                    "phpstan",
-                    "rector --dry-run"
-                ],
-                "lint-fix": [
-                    "rector",
-                    "phpcbf"
-                ],
-                "reset": [
-                    "rm -Rf vendor composer.lock"
-                ],
-                "test": [
-                    "phpunit --no-coverage"
-                ],
-                "test-coverage": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "authors": [
                 {
                     "name": "Alex Skrypnyk",
-                    "email": "tui@drevops.com",
+                    "email": "alex@drevops.com",
                     "homepage": "https://drevops.com",
                     "role": "Maintainer"
                 }
             ],
             "description": "Provides terminal UI form-building functionality.",
-            "homepage": "https://github.com/drevops/tui",
+            "homepage": "https://phptui.dev/",
             "support": {
                 "issues": "https://github.com/drevops/tui/issues",
                 "source": "https://github.com/drevops/tui"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-07-22T02:14:25+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -6612,9 +6595,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "drevops/tui": 15
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
