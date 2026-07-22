@@ -52,10 +52,19 @@ VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT
 VORTEX_DEPLOY_ARTIFACT_SSH_FILE="${VORTEX_DEPLOY_ARTIFACT_SSH_FILE:-${VORTEX_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}}"
 
 # Version of git-artifact to download.
-VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION:-1.4.0}"
+VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION:-1.7.0}"
 
 # SHA256 checksum of the git-artifact binary.
-VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256:-1fa99ff2a6f8dc6c1a42bcfc87ce75d04b2eab375216b0e3195a0e3b51a47646}"
+VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256:-bff9d061fb757051366d650c35e367d9b024b7146e22fbd831c734ff88f4af4d}"
+
+# Remote branches eligible for stale branch cleanup after a successful push:
+# comma-separated globs (e.g. "feature/*,bugfix/*") or a single regex literal.
+# A branch matching any pattern is pruned. Setting this enables cleanup; empty
+# disables it. The just-pushed branch and the remote default branch are kept.
+VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN:-}"
+
+# Age in days after which a matching remote branch is considered stale.
+VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE:-7}"
 
 # ------------------------------------------------------------------------------
 
@@ -116,13 +125,22 @@ task "Copying deployment .gitignore as it may not exist in deploy code source fi
 cp -a "${VORTEX_DEPLOY_ARTIFACT_ROOT}"/.gitignore.artifact "${VORTEX_DEPLOY_ARTIFACT_SRC}" || true
 
 task "Running artifact builder."
+artifact_args=(
+  "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}"
+  --root="${VORTEX_DEPLOY_ARTIFACT_ROOT}"
+  --src="${VORTEX_DEPLOY_ARTIFACT_SRC}"
+  --branch="${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}"
+  --gitignore="${VORTEX_DEPLOY_ARTIFACT_SRC}/.gitignore.artifact"
+  --log="${VORTEX_DEPLOY_ARTIFACT_LOG}"
+)
+
+# Prune stale remote branches only when a pattern is set: git-artifact requires
+# a pattern and errors without one.
+if [ -n "${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN}" ]; then
+  artifact_args+=(--cleanup-stale --cleanup-pattern="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN}" --cleanup-age="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE}")
+fi
+
 # Add --debug to debug any deployment issues.
-"${TMPDIR:-/tmp}"/git-artifact "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" \
-  --root="${VORTEX_DEPLOY_ARTIFACT_ROOT}" \
-  --src="${VORTEX_DEPLOY_ARTIFACT_SRC}" \
-  --branch="${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" \
-  --gitignore="${VORTEX_DEPLOY_ARTIFACT_SRC}"/.gitignore.artifact \
-  --log="${VORTEX_DEPLOY_ARTIFACT_LOG}" \
-  -vvv
+"${TMPDIR:-/tmp}"/git-artifact "${artifact_args[@]}" -vvv
 
 pass "Finished artifact deployment."

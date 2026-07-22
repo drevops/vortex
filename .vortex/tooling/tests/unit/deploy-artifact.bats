@@ -90,7 +90,7 @@ load ../_helper.bash
     "@git config --global user.email #"
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
     "@ssh-add -l # ${file}"
-    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
     "@sha256sum -c # 1"
     "SHA256 checksum verification failed for git-artifact binary."
     "- Finished artifact deployment."
@@ -120,6 +120,11 @@ load ../_helper.bash
   export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test_user@example.com"
   local file=${HOME}/.ssh/id_rsa
 
+  # Echo git-artifact's arguments so the absence of cleanup flags can be
+  # asserted when no cleanup pattern is set.
+  printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${TMPDIR:-/tmp}/git-artifact"
+  chmod +x "${TMPDIR:-/tmp}/git-artifact"
+
   mock_realpath=$(mock_command "realpath")
 
   declare -a STEPS=(
@@ -136,7 +141,7 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
-    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
     "@sha256sum -c"
     "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Copying git repo files meta file to the deploy code repo."
@@ -149,8 +154,60 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
 
+  assert_output_not_contains "--cleanup-stale"
+
   run_steps "assert" "${mocks[@]}"
   assert_equal "2" "$(mock_get_call_num "${mock_realpath}" 1)"
+
+  popd >/dev/null
+}
+
+@test "Artifact deployment passes stale branch cleanup flags when a cleanup pattern is set" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  fixture_robo
+
+  # Echo git-artifact's arguments so the cleanup flags can be asserted.
+  printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${TMPDIR:-/tmp}/git-artifact"
+  chmod +x "${TMPDIR:-/tmp}/git-artifact"
+
+  export VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE="git@github.com:yourorg/your-repo-destination.git"
+  export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="main"
+  export VORTEX_DEPLOY_ARTIFACT_SRC="dist"
+  export VORTEX_DEPLOY_ARTIFACT_ROOT="."
+  export VORTEX_DEPLOY_ARTIFACT_LOG="deploy-report.txt"
+  export VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="test_user"
+  export VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="test_user@example.com"
+  export VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN="feature/*,bugfix/*"
+  export VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE="3"
+  local file=${HOME}/.ssh/id_rsa
+
+  mock_realpath=$(mock_command "realpath")
+
+  declare -a STEPS=(
+    "@git config --global user.name #"
+    "@git config --global user.name ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME} # 0 #"
+    "@git config --global user.email #"
+    "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
+    "@ssh-add -l # ${file}"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@sha256sum -c"
+    "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
+    "Running artifact builder."
+    "Finished artifact deployment."
+  )
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-artifact
+  assert_success
+
+  assert_output_contains "--cleanup-stale"
+  assert_output_contains "--cleanup-pattern=feature/*,bugfix/*"
+  assert_output_contains "--cleanup-age=3"
+
+  run_steps "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
