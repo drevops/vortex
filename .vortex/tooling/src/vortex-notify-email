@@ -78,8 +78,18 @@ $email_subject = getenv_default('VORTEX_NOTIFY_EMAIL_SUBJECT', '%project% deploy
 // - %label% - Deployment label
 // - %timestamp% - Deployment timestamp
 // - %environment_url% - Environment URL
-// - %login_url% - Login URL.
-$email_message = getenv_default('VORTEX_NOTIFY_EMAIL_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%");
+// - %login_url% - Login URL
+// - %deployment_log% - Collected deployment logs, when enabled.
+$email_message = getenv_default('VORTEX_NOTIFY_EMAIL_MESSAGE', "## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%\n\n%deployment_log%");
+
+// Include the deployment log in the message body (0/1). Defaults to
+// VORTEX_NOTIFY_LOG.
+$notify_log = getenv_default('VORTEX_NOTIFY_EMAIL_LOG', 'VORTEX_NOTIFY_LOG', '0');
+
+// Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+$notify_log_file = getenv_default('VORTEX_NOTIFY_EMAIL_LOG_FILE', 'VORTEX_NOTIFY_LOG_FILE', '');
+
+$deployment_log = notify_read_log($notify_log === '1', $notify_log_file);
 
 // -----------------------------------------------------------------------------
 
@@ -134,11 +144,24 @@ $email_message = replace_tokens($email_message, [
   'login_url' => $notify_login_url,
 ]);
 
+// Replace the deployment log token last and as literal text, so log content
+// cannot break out or re-trigger the earlier token substitutions.
+$email_message = str_replace('%deployment_log%', $deployment_log, $email_message);
+
 NOTE('Email notification summary:');
 NOTE('Project        : %s', $notify_project);
 NOTE('Deployment     : %s', $notify_label);
 NOTE('Environment URL: %s', $notify_env_url);
 NOTE('Login URL      : %s', $notify_login_url);
+if ($notify_log !== '1') {
+  NOTE('Log file       : %s', '<disabled>');
+}
+elseif ($deployment_log !== '') {
+  NOTE('Log file       : %s', $notify_log_file);
+}
+else {
+  NOTE('Log file       : %s', '<missing>');
+}
 NOTE('From           : %s', $email_from);
 NOTE('Recipients     : %s', $email_recipients);
 if (!empty($email_cc)) {

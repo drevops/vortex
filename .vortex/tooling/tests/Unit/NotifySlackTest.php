@@ -287,6 +287,32 @@ class NotifySlackTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Slack notification', $output);
   }
 
+  public function testDeploymentLogIncludedInMessage(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "SLACK log line one\nSLACK log line two\n");
+
+    $this->envSet('VORTEX_NOTIFY_SLACK_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_SLACK_LOG_FILE', $log_file);
+
+    $this->mockRequestPost(
+      'https://hooks.slack.com/services/T00/B00/XXXX',
+      NULL,
+      ['Content-Type: application/json'],
+      10,
+      ['status' => 200, 'body' => 'ok']
+    );
+
+    $output = $this->runScript('src/vortex-notify-slack');
+
+    $this->assertStringContainsString('Finished Slack notification', $output);
+
+    // The whole log is placed in the attachment text.
+    /** @var array{attachments: list<array{text: string}>} $payload */
+    $payload = json_decode($this->getMockRequestBody(), TRUE);
+    $this->assertStringContainsString('SLACK log line one', $payload['attachments'][0]['text']);
+    $this->assertStringContainsString('SLACK log line two', $payload['attachments'][0]['text']);
+  }
+
   protected function getFieldValue(array $payload, string $title): ?string {
     foreach ($payload['attachments'][0]['fields'] as $field) {
       if ($field['title'] === $title) {

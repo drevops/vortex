@@ -64,6 +64,15 @@ $slack_username = getenv_default('VORTEX_NOTIFY_SLACK_USERNAME', 'Deployment Bot
 // Slack notification bot icon emoji (optional).
 $slack_icon = getenv_default('VORTEX_NOTIFY_SLACK_ICON_EMOJI', ':rocket:');
 
+// Include the deployment log in the message (0/1). Defaults to
+// VORTEX_NOTIFY_LOG.
+$notify_log = getenv_default('VORTEX_NOTIFY_SLACK_LOG', 'VORTEX_NOTIFY_LOG', '0');
+
+// Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+$notify_log_file = getenv_default('VORTEX_NOTIFY_SLACK_LOG_FILE', 'VORTEX_NOTIFY_LOG_FILE', '');
+
+$deployment_log = notify_read_log($notify_log === '1', $notify_log_file);
+
 // ------------------------------------------------------------------------------
 
 INFO('Started Slack notification.');
@@ -104,20 +113,26 @@ if ($notify_event !== 'pre_deployment') {
   $fields[] = ['title' => 'Login', 'value' => sprintf('<%s|Login Here>', $notify_login_url), 'short' => TRUE];
 }
 
+// Build the attachment, appending the deployment log as literal attachment text
+// when enabled. json_encode() escapes it, so arbitrary log content is safe.
+$attachment = [
+  'color' => $color,
+  'fallback' => $slack_fallback_message,
+  'title' => $title,
+  'fields' => $fields,
+  'footer' => 'Vortex Deployment',
+  'ts' => time(),
+];
+
+if ($deployment_log !== '') {
+  $attachment['text'] = $deployment_log;
+}
+
 // Build payload.
 $data = [
   'username' => $slack_username,
   'icon_emoji' => $slack_icon,
-  'attachments' => [
-    [
-      'color' => $color,
-      'fallback' => $slack_fallback_message,
-      'title' => $title,
-      'fields' => $fields,
-      'footer' => 'Vortex Deployment',
-      'ts' => time(),
-    ],
-  ],
+  'attachments' => [$attachment],
 ];
 
 if (!empty($slack_channel)) {

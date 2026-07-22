@@ -289,4 +289,101 @@ class NotifyRouterTest extends UnitTestCase {
     $this->assertStringContainsString('Finished dispatching notifications', $output);
   }
 
+  public function testDeploymentLogSummaryDisabledWhenFlagUnset(): void {
+    $this->envUnset('VORTEX_NOTIFY_LOG');
+    $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
+
+    $this->mockPassthru([
+      'cmd' => '"' . realpath(__DIR__ . '/../../src/vortex-notify-email') . '"',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify');
+
+    $this->assertStringContainsString('Log file       : <disabled>', $output);
+  }
+
+  public function testDeploymentLogSummaryMissingWhenDirAbsent(): void {
+    $this->envSet('VORTEX_NOTIFY_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', self::$tmp . '/nologs');
+    $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
+
+    $this->mockPassthru([
+      'cmd' => '"' . realpath(__DIR__ . '/../../src/vortex-notify-email') . '"',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify');
+
+    $this->assertStringContainsString('Log file       : <missing>', $output);
+  }
+
+  public function testDeploymentLogSummaryMissingWhenNoLogsPresent(): void {
+    mkdir(self::$tmp . '/logs');
+
+    $this->envSet('VORTEX_NOTIFY_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', self::$tmp . '/logs');
+    $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
+
+    $this->mockPassthru([
+      'cmd' => '"' . realpath(__DIR__ . '/../../src/vortex-notify-email') . '"',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify');
+
+    $this->assertStringContainsString('Log file       : <missing>', $output);
+  }
+
+  public function testDeploymentLogCollectsMultipleProducerLogs(): void {
+    $log_dir = self::$tmp . '/logs';
+    mkdir($log_dir);
+    file_put_contents($log_dir . '/provision.log', "provision output line\n");
+    file_put_contents($log_dir . '/deploy.log', "deploy output line\n");
+
+    $this->envSet('VORTEX_NOTIFY_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', $log_dir);
+    $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
+
+    $this->mockPassthru([
+      'cmd' => '"' . realpath(__DIR__ . '/../../src/vortex-notify-email') . '"',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-notify');
+
+    // The published combined file is reported in the summary.
+    $this->assertStringContainsString('Log file       : ' . $log_dir . '/combined', $output);
+
+    // Every '*.log' in the directory is collected, each as its own titled
+    // section.
+    $combined = (string) file_get_contents($log_dir . '/combined');
+    $this->assertStringContainsString('## deploy.log ##', $combined);
+    $this->assertStringContainsString('deploy output line', $combined);
+    $this->assertStringContainsString('## provision.log ##', $combined);
+    $this->assertStringContainsString('provision output line', $combined);
+  }
+
+  public function testDeploymentLogSkipsEmptyProducerLogs(): void {
+    $log_dir = self::$tmp . '/logs';
+    mkdir($log_dir);
+    touch($log_dir . '/empty.log');
+    file_put_contents($log_dir . '/provision.log', "provision output line\n");
+
+    $this->envSet('VORTEX_NOTIFY_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_LOG_DIR', $log_dir);
+    $this->envSet('VORTEX_NOTIFY_CHANNELS', 'email');
+
+    $this->mockPassthru([
+      'cmd' => '"' . realpath(__DIR__ . '/../../src/vortex-notify-email') . '"',
+      'result_code' => 0,
+    ]);
+
+    $this->runScript('src/vortex-notify');
+
+    $combined = (string) file_get_contents($log_dir . '/combined');
+    $this->assertStringNotContainsString('## empty.log ##', $combined);
+    $this->assertStringContainsString('## provision.log ##', $combined);
+  }
+
 }

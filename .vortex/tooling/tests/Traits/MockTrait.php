@@ -40,6 +40,13 @@ trait MockTrait {
    */
   protected array $mockChecked = [];
 
+  /**
+   * Request bodies captured by the request mock, in call order.
+   *
+   * @var array<int, mixed>
+   */
+  protected array $mockRequestBodies = [];
+
   protected function mockTearDown(): void {
     // Assert all mocks consumed using unified infrastructure.
     foreach (array_keys($this->mocks) as $function_name) {
@@ -56,6 +63,7 @@ trait MockTrait {
     $this->mockResponses = [];
     $this->mockIndices = [];
     $this->mockChecked = [];
+    $this->mockRequestBodies = [];
   }
 
   /**
@@ -457,6 +465,7 @@ trait MockTrait {
     $current_url = NULL;
     $current_method = NULL;
     $current_save_fh = NULL;
+    $current_body = NULL;
 
     // Initialize the mocks array for request.
     $this->mocks['request'] = [];
@@ -478,12 +487,15 @@ trait MockTrait {
     // Mock curl_setopt_array - extracts method from options.
     $this->mocks['request']['curl_setopt_array'] = $this->getFunctionMock($namespace, 'curl_setopt_array');
     $this->mocks['request']['curl_setopt_array']->expects($this->any())
-      ->willReturnCallback(function ($ch, $options) use (&$current_method, &$current_save_fh): bool {
+      ->willReturnCallback(function ($ch, $options) use (&$current_method, &$current_save_fh, &$current_body): bool {
         if (isset($options[CURLOPT_CUSTOMREQUEST])) {
           $current_method = $options[CURLOPT_CUSTOMREQUEST];
         }
         if (isset($options[CURLOPT_FILE])) {
           $current_save_fh = $options[CURLOPT_FILE];
+        }
+        if (isset($options[CURLOPT_POSTFIELDS])) {
+          $current_body = $options[CURLOPT_POSTFIELDS];
         }
         return TRUE;
       });
@@ -492,7 +504,7 @@ trait MockTrait {
     $this->mocks['request']['curl_exec'] = $this->getFunctionMock($namespace, 'curl_exec');
     $this->mocks['request']['curl_exec']->expects($this->any())
       // @phpstan-ignore-next-line
-      ->willReturnCallback(function () use (&$current_url, &$current_method, &$current_save_fh): string|false {
+      ->willReturnCallback(function () use (&$current_url, &$current_method, &$current_save_fh, &$current_body): string|false {
         $total_responses = count($this->mockResponses['request']);
 
         // Note: This check is unreachable in normal flow since curl_init()
@@ -511,6 +523,10 @@ trait MockTrait {
         $method_to_validate = $current_method;
         $save_fh_to_write = $current_save_fh;
 
+        // Record the request body in call order so tests can assert on what a
+        // script sent (e.g. a channel payload) without re-sending the request.
+        $this->mockRequestBodies[] = $current_body;
+
         // Increment index and reset state NOW, before validation.
         // This ensures the mock is marked as "consumed" even if validation
         // throws an exception.
@@ -518,6 +534,7 @@ trait MockTrait {
         $current_url = NULL;
         $current_method = NULL;
         $current_save_fh = NULL;
+        $current_body = NULL;
 
         // Validate response structure.
         if (!isset($mock['url'])) {
@@ -697,6 +714,21 @@ trait MockTrait {
    */
   protected function mockRequestAssertAllMocksConsumed(): void {
     $this->assertMockConsumed('request');
+  }
+
+  /**
+   * Get the request body captured by the request mock for a given call.
+   *
+   * @param int $index
+   *   Zero-based index of the request in call order.
+   *
+   * @return string
+   *   The captured request body, or an empty string when none was captured.
+   */
+  protected function getMockRequestBody(int $index = 0): string {
+    $body = $this->mockRequestBodies[$index] ?? '';
+
+    return is_string($body) ? $body : '';
   }
 
   /**

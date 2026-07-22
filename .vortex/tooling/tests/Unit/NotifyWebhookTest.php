@@ -242,4 +242,53 @@ class NotifyWebhookTest extends UnitTestCase {
     $this->assertStringContainsString('Finished webhook notification', $output);
   }
 
+  public function testDeploymentLogIncludedInPayload(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "WEBHOOK log line one\nWEBHOOK log line two\n");
+
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_LOG_FILE', $log_file);
+
+    $this->mockRequest(
+      'https://webhook.example.com/endpoint',
+      ['method' => 'POST'],
+      ['status' => 200]
+    );
+
+    $output = $this->runScript('src/vortex-notify-webhook');
+
+    $this->assertStringContainsString('Finished webhook notification', $output);
+
+    // The whole log is JSON-escaped into the default payload's message.
+    $body = $this->getMockRequestBody();
+    $this->assertStringContainsString('WEBHOOK log line one', $body);
+    $this->assertStringContainsString('WEBHOOK log line two', $body);
+  }
+
+  public function testDeploymentLogTokenInCustomPayload(): void {
+    $log_file = self::$tmp . '/provision.log';
+    file_put_contents($log_file, "CUSTOM webhook log line one\nCUSTOM webhook log line two\n");
+
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_PAYLOAD', '{"log": "%deployment_log%"}');
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_LOG', '1');
+    $this->envSet('VORTEX_NOTIFY_WEBHOOK_LOG_FILE', $log_file);
+
+    $this->mockRequest(
+      'https://webhook.example.com/endpoint',
+      ['method' => 'POST'],
+      ['status' => 200]
+    );
+
+    $output = $this->runScript('src/vortex-notify-webhook');
+
+    $this->assertStringContainsString('Finished webhook notification', $output);
+
+    // Both log lines are substituted into the custom payload and the token is
+    // fully replaced, not left literal.
+    $body = $this->getMockRequestBody();
+    $this->assertStringContainsString('CUSTOM webhook log line one', $body);
+    $this->assertStringContainsString('CUSTOM webhook log line two', $body);
+    $this->assertStringNotContainsString('%deployment_log%', $body);
+  }
+
 }

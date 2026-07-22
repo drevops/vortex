@@ -78,6 +78,13 @@ $jira_assignee_email = getenv('VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL');
 // JIRA notification API endpoint.
 $jira_endpoint = getenv_default('VORTEX_NOTIFY_JIRA_ENDPOINT', 'https://jira.atlassian.com');
 
+// Include the deployment log in the comment (0/1). Defaults to
+// VORTEX_NOTIFY_LOG.
+$notify_log = getenv_default('VORTEX_NOTIFY_JIRA_LOG', 'VORTEX_NOTIFY_LOG', '0');
+
+// Log file path. Defaults to VORTEX_NOTIFY_LOG_FILE.
+$notify_log_file = getenv_default('VORTEX_NOTIFY_JIRA_LOG_FILE', 'VORTEX_NOTIFY_LOG_FILE', '');
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -93,11 +100,13 @@ $jira_endpoint = getenv_default('VORTEX_NOTIFY_JIRA_ENDPOINT', 'https://jira.atl
  *   Environment URL.
  * @param string $login_url
  *   Login URL.
+ * @param string $log
+ *   Collected deployment log, appended as a code block when not empty.
  *
  * @return array
  *   ADF document body.
  */
-function build_adf_comment(string $project, string $label, string $timestamp, string $env_url, string $login_url): array {
+function build_adf_comment(string $project, string $label, string $timestamp, string $env_url, string $login_url, string $log = ''): array {
   $content = [[
     'type' => 'paragraph',
     'content' => [
@@ -116,6 +125,15 @@ function build_adf_comment(string $project, string $label, string $timestamp, st
     ],
   ],
   ];
+
+  // Add the deployment log as its own code block. The value is carried as ADF
+  // text, so log content is inserted literally rather than interpreted.
+  if ($log !== '') {
+    $content[] = [
+      'type' => 'codeBlock',
+      'content' => [['type' => 'text', 'text' => $log]],
+    ];
+  }
 
   return [
     'type' => 'doc',
@@ -166,7 +184,9 @@ TASK('Checking API access', fn(string $account_id): string => sprintf('Authentic
 
 $timestamp = date('d/m/Y H:i:s T');
 
-$comment_body = build_adf_comment($notify_project, $notify_label, $timestamp, $notify_env_url, $notify_login_url);
+$deployment_log = notify_read_log($notify_log === '1', $notify_log_file);
+
+$comment_body = build_adf_comment($notify_project, $notify_label, $timestamp, $notify_env_url, $notify_login_url, $deployment_log);
 
 NOTE('JIRA notification summary:');
 NOTE('Project        : %s', $notify_project);

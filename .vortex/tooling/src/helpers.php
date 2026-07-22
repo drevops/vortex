@@ -1312,6 +1312,31 @@ function notify_skip_pre_deployment(string $event, string $label): void {
 }
 
 /**
+ * Read the collected deployment log for inclusion in a notification.
+ *
+ * The log is returned as literal text so a channel can insert it verbatim: it
+ * is never interpolated into a shell command or a format string. Callers embed
+ * it last, after every other token has been replaced, so arbitrary log content
+ * cannot re-trigger earlier substitutions. Trailing newlines are trimmed so the
+ * log sits cleanly inside a message.
+ *
+ * @param bool $enabled
+ *   Whether the channel includes the deployment log.
+ * @param string $log_file
+ *   Path to the collected log file.
+ *
+ * @return string
+ *   The log contents, or an empty string when disabled, unset, or absent.
+ */
+function notify_read_log(bool $enabled, string $log_file): string {
+  if (!$enabled || $log_file === '' || !is_file($log_file)) {
+    return '';
+  }
+
+  return rtrim((string) file_get_contents($log_file), "\r\n");
+}
+
+/**
  * Convert a string map to an associative array.
  *
  * @param string $map

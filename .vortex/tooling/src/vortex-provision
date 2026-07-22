@@ -19,6 +19,23 @@ require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
 
+// Write the provision log for collection by deployment notifications (0/1).
+$provision_log = getenv_default('VORTEX_PROVISION_LOG', '0');
+
+// Directory where deployment logs are collected. Each producing script writes
+// its own '<name>.log' here and 'vortex-notify' collects them all.
+$notify_log_dir = getenv_default('VORTEX_NOTIFY_LOG_DIR', './.logs');
+
+// When enabled and not already re-entered, re-run this script once and tee its
+// combined output into the shared log directory while still streaming to the
+// console. The re-run's exit code is preserved and the re-entry guard is passed
+// through the child environment, so a logging failure never masks a deployment
+// failure and the capture cannot loop.
+if ($provision_log === '1' && getenv('VORTEX_PROVISION_LOG_ACTIVE') === FALSE) {
+  putenv('VORTEX_PROVISION_LOG_ACTIVE=1');
+  quit(provision_capture_log($notify_log_dir));
+}
+
 // Flag to skip site provisioning.
 $provision_skip = getenv_default('VORTEX_PROVISION_SKIP', '');
 
@@ -113,6 +130,73 @@ $sanitize_db_additional_file = getenv_default('VORTEX_PROVISION_SANITIZE_DB_ADDI
  */
 function yesno(string $value): string {
   return $value === '1' ? 'Yes' : 'No';
+}
+
+/**
+ * Capture this provision run's output into a shared log file.
+ *
+ * Re-runs the script once with the re-entry guard set and tees the child's
+ * combined stdout and stderr to both the console and '<dir>/provision.log',
+ * truncated fresh each run. The re-run's exit code is returned so a logging
+ * failure never masks a deployment failure. Collected logs may contain secrets,
+ * so the directory and log file are created owner-only.
+ *
+ * @param string $log_dir
+ *   Directory to write 'provision.log' into; created when missing.
+ *
+ * @return int
+ *   The exit code of the re-run.
+ */
+function provision_capture_log(string $log_dir): int {
+  @mkdir($log_dir, 0700, TRUE);
+
+  $log_file = $log_dir . '/provision.log';
+  $handle = @fopen($log_file, 'w');
+  if ($handle !== FALSE) {
+    @chmod($log_dir, 0700);
+    @chmod($log_file, 0600);
+  }
+
+  // Force the guard on in the child environment so the re-run provisions
+  // normally instead of capturing again.
+  $env = getenv();
+  $env['VORTEX_PROVISION_LOG_ACTIVE'] = '1';
+  $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__FILE__) . ' 2>&1';
+
+  $pipes = [];
+  $process = proc_open($command, [1 => ['pipe', 'w']], $pipes, NULL, $env);
+  if (!is_resource($process)) {
+    // @codeCoverageIgnoreStart
+    if ($handle !== FALSE) {
+      fclose($handle);
+    }
+
+    return 1;
+    // @codeCoverageIgnoreEnd
+  }
+
+  while (!feof($pipes[1])) {
+    $chunk = fread($pipes[1], 8192);
+    if ($chunk === FALSE) {
+      // @codeCoverageIgnoreStart
+      break;
+      // @codeCoverageIgnoreEnd
+    }
+
+    echo $chunk;
+    if ($handle !== FALSE) {
+      @fwrite($handle, $chunk);
+    }
+  }
+
+  fclose($pipes[1]);
+  $exit_code = proc_close($process);
+
+  if ($handle !== FALSE) {
+    fclose($handle);
+  }
+
+  return $exit_code;
 }
 
 /**
