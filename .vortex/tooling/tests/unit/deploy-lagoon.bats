@@ -73,8 +73,11 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    'No existing environment found for branch "test-branch".'
+    "Completed environment discovery."
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch"
     "Finished Lagoon deployment."
@@ -107,11 +110,14 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
     'Found already deployed environment for branch "test-branch".'
+    "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "Set a database overwrite flag to 0."
     "Redeploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
     "Finished Lagoon deployment."
@@ -145,19 +151,25 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
     'Found already deployed environment for branch "test-branch".'
+    "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "Set a database overwrite flag to 0."
     "Adding a database import override flag for the current deployment."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global"
+    "Added a database import override flag for the current deployment."
     "Redeploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
     "Waiting for deployment to be queued."
     "@sleep 10"
+    "Waited for deployment to be queued."
     "Removing a database import override flag for the current deployment."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "Removed a database import override flag for the current deployment."
     "Finished Lagoon deployment."
   )
 
@@ -190,8 +202,11 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    'No existing environment found for PR "123".'
+    "Completed environment discovery."
     "Deploying environment: project: test_project, PR: 123."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 123 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-123"
     "Finished Lagoon deployment."
@@ -229,11 +244,14 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
     'Found already deployed environment for PR "123".'
+    "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-123 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "Set a database overwrite flag to 0."
     "Redeploying environment: project: test_project, PR: 123."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 123 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-123"
     "Finished Lagoon deployment."
@@ -272,19 +290,25 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
     'Found already deployed environment for PR "456".'
+    "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "Set a database overwrite flag to 0."
     "Adding a database import override flag for the current deployment."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global"
+    "Added a database import override flag for the current deployment."
     "Redeploying environment: project: test_project, PR: 456."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 456 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-456"
     "Waiting for deployment to be queued."
     "@sleep 10"
+    "Waited for deployment to be queued."
     "Removing a database import override flag for the current deployment."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "Removed a database import override flag for the current deployment."
     "Finished Lagoon deployment."
   )
 
@@ -314,8 +338,10 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Destroying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project delete environment --environment test-branch"
+    "Destroyed environment: project: test_project, branch: test-branch."
     "Finished Lagoon deployment."
   )
 
@@ -349,10 +375,14 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    'No existing environment found for branch "test-branch".'
+    "Completed environment discovery."
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
+    "- would exceed the configured limit"
     "Lagoon environment limit exceeded."
     "Finished Lagoon deployment."
   )
@@ -385,10 +415,14 @@ load ../_helper.bash
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    'No existing environment found for branch "test-branch".'
+    "Completed environment discovery."
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
+    "- would exceed the configured limit"
     "Lagoon environment limit exceeded."
     "[FAIL] Lagoon deployment completed with errors."
   )
@@ -419,16 +453,19 @@ load ../_helper.bash
   # Mock lagoon command to return environment limit exceeded error
   local limit_error="Error: graphql: 'pr-133' would exceed the configured limit of 5 development environments for project website"
 
-  # shellcheck disable=SC2034
   declare -a STEPS=(
     "Started Lagoon deployment."
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "Configuring Lagoon instance."
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    'No existing environment found for PR "133".'
+    "Completed environment discovery."
     "Deploying environment: project: test_project, PR: 133."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 133 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-133 # 1 # ${limit_error}"
+    "- would exceed the configured limit"
     "Lagoon environment limit exceeded."
     "Finished Lagoon deployment."
   )
@@ -437,6 +474,68 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "Debug: deploy output is surfaced when VORTEX_DEBUG is enabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEBUG=1
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 0 # Deployment of branch test-branch triggered."
+    "Deployment of branch test-branch triggered."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "Debug: failed deploy surfaces its error when VORTEX_DEBUG is enabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEBUG=1
+
+  # Mock a deploy failure unrelated to environment limits.
+  local deploy_error="Error: deployment rejected by policy."
+
+  # shellcheck disable=SC2034
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${deploy_error}"
+    "Error: deployment rejected by policy."
+    "[FAIL] Lagoon deployment completed with errors."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_failure
   run_steps "assert" "${mocks[@]}"
 
   popd >/dev/null
