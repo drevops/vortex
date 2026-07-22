@@ -196,6 +196,31 @@ function lagoon_handle_environment_limit_exceeded(string $output, int $exit_code
   return $exit_code;
 }
 
+/**
+ * Run a Lagoon deploy subcommand and surface its output in debug mode.
+ *
+ * The captured CLI output is printed only when debug mode is enabled so a
+ * debugged deployment shows the reason reported by the CLI, while a normal run
+ * stays quiet. An environment-limit error is translated into a controlled exit
+ * code.
+ *
+ * @param string $subcommand
+ *   The Lagoon deploy subcommand to run.
+ *
+ * @return int
+ *   The resulting exit code.
+ */
+function lagoon_run_deploy(string $subcommand): int {
+  $exit_code = 0;
+  $output = lagoon_run_cli($subcommand, $exit_code);
+
+  if (is_debug() && $output !== '') {
+    print $output . PHP_EOL;
+  }
+
+  return lagoon_handle_environment_limit_exceeded($output, $exit_code);
+}
+
 if ($deploy_action === 'destroy') {
   TASK(sprintf('Destroying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Destroyed the environment.', function () use ($deploy_branch): void {
     lagoon_run_cli(sprintf('delete environment --environment %s', escapeshellarg($deploy_branch)));
@@ -226,8 +251,7 @@ else {
 
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
       TASK(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+        $exit_code = lagoon_run_deploy($deploy_cmd);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment redeployment.');
@@ -248,8 +272,7 @@ else {
     else {
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
       TASK(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+        $exit_code = lagoon_run_deploy($deploy_cmd);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment deployment.');
@@ -280,8 +303,7 @@ else {
 
       $deploy_cmd = sprintf('deploy latest --environment %s', escapeshellarg($deploy_branch));
       TASK(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+        $exit_code = lagoon_run_deploy($deploy_cmd);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment redeployment.');
@@ -302,8 +324,7 @@ else {
     else {
       $deploy_cmd = sprintf('deploy branch --branch %s', escapeshellarg($deploy_branch));
       TASK(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $deploy_output = lagoon_run_cli($deploy_cmd, $exit_code);
-        $exit_code = lagoon_handle_environment_limit_exceeded($deploy_output, $exit_code);
+        $exit_code = lagoon_run_deploy($deploy_cmd);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment deployment.');

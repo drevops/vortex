@@ -718,6 +718,57 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
+  public function testDeployDebugSurfacesOutput(): void {
+    $this->envSet('VORTEX_DEBUG', '1');
+    $this->createFakeLagoonBinary();
+
+    $this->mockQuit(0);
+
+    $this->expectException(QuitSuccessException::class);
+
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonConfigAddCommand(),
+      'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
+      'output' => '{"data":[]}',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("deploy branch --branch 'develop'"),
+      'output' => 'Deployment of branch develop triggered.',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-deploy-lagoon');
+
+    // In debug mode, the raw deploy CLI output is surfaced.
+    $this->assertStringContainsString('Deployment of branch develop triggered.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
+  }
+
   protected function getVersionCommand(): string {
     return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->lagoonConfigFile());
   }
