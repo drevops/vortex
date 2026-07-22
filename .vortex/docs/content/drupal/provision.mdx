@@ -295,8 +295,16 @@ import ExampleDeployStep from '!!raw-loader!./ExampleDeployStep.php';
 
 </details>
 
-**Vortex** ships two examples: the development and demo environment setup in
-`ys_base`, and the content migration in `ys_migrate`.
+**Vortex** ships three examples: the development and demo environment setup in
+`ys_base`, the content migration in `ys_migrate`, and the search index rebuild
+in `ys_search`.
+
+The `ys_search` `RebuildSearchIndex` step resets the Search API tracker and
+re-indexes the site content in the `local`, `ci`, `dev` and `stage`
+environments, whose imported database carries a tracker state that does not
+match their own empty search backend. Other environments keep their existing
+index. Set `DRUPAL_SEARCH_INDEX_SKIP=1` in the `.env` file or your hosting
+provider's environment to opt out.
 
 :::tip Related Documentation
 For information about different types of Drupal hooks used during deployment and updates.
