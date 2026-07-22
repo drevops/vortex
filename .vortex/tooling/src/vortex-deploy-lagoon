@@ -99,8 +99,15 @@ is_lagoon_env_limit_exceeded() {
 # environment-limit error into a controlled outcome. The captured output is
 # printed so a failing deploy shows the reason instead of only "[FAIL]".
 run_lagoon_deploy() {
-  deploy_output=$(lagoon "$@" 2>&1) || exit_code=$?
-  exit_code="${exit_code:-0}"
+  local deploy_output
+
+  # Assign ${exit_code} on both paths so it always reflects this deploy's
+  # status rather than only being touched when the command fails.
+  if deploy_output=$(lagoon "$@" 2>&1); then
+    exit_code=0
+  else
+    exit_code=$?
+  fi
 
   [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
 
@@ -191,8 +198,8 @@ else
       fi
     done
 
-    [ "${is_redeploy}" = "0" ] && note "No existing environment found for PR \"${VORTEX_DEPLOY_LAGOON_PR}\"."
-    pass "Discovered existing environments."
+    [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for PR \"${VORTEX_DEPLOY_LAGOON_PR}\"."
+    pass "Completed environment discovery."
 
     # Re-deployment of the existing environment.
     if [ "${is_redeploy:-}" = "1" ]; then
@@ -248,8 +255,8 @@ else
       fi
     done
 
-    [ "${is_redeploy}" = "0" ] && note "No existing environment found for branch \"${VORTEX_DEPLOY_LAGOON_BRANCH}\"."
-    pass "Discovered existing environments."
+    [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for branch \"${VORTEX_DEPLOY_LAGOON_BRANCH}\"."
+    pass "Completed environment discovery."
 
     # Re-deployment of the existing environment.
     if [ "${is_redeploy:-}" = "1" ]; then
