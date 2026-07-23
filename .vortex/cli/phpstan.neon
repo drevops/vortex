@@ -1,0 +1,34 @@
+##
+# Configuration file for PHPStan static code checking, see https://phpstan.org .
+#
+
+parameters:
+
+  level: 9
+
+  paths:
+    - src
+    - tests/phpunit
+
+  excludePaths:
+    - vendor/*
+    - node_modules/*
+    # Relocated fixtures are template files, not standalone analysable PHP.
+    - tests/phpunit/Fixtures/*
+    # Utilities, prompt handlers and the prompt-type enum relocated verbatim
+    # from the installer (validated at level 7 there and exercised by the
+    # process/fixture tests); their call sites are still type-checked via
+    # their signatures.
+    - src/Utils/*
+    - src/Downloader/*
+    - src/Handler/*
+    - src/Prompts/*
+
+  ignoreErrors:
+    -
+      # Since tests and data providers do not have to have parameter docblocks,
+      # it is not possible to specify the type of the parameter, so we ignore
+      # this error.
+      message: '#.*no value type specified in iterable type array.#'
+      path: tests/phpunit/*
+      reportUnmatched: false

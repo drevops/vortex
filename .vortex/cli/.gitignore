@@ -1,0 +1,11 @@
+# To ignore OS temporary files use global .gitignore
+# https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files#configuring-ignored-files-for-all-repositories-on-your-computer
+
+/.build
+/.logs
+/.phpunit.cache
+/vendor
+/vendor-bin
+
+# Claude Code fetches the project update skill on demand; do not commit it.
+/.claude/skills/update-consumer-scaffold/

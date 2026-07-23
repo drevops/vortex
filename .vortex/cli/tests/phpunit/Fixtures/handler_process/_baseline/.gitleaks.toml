@@ -1,0 +1,25 @@
+# Gitleaks configuration for projects based on Vortex.
+#
+# Extends the default Gitleaks ruleset and allowlists the placeholder and
+# example values that Vortex ships, plus third-party and generated paths, so a
+# clean install reports zero findings while still catching real secrets.
+#
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Third-party, generated, and local-only paths that must not be scanned."
+paths = [
+  '''(^|/)\.artifacts/''',
+  '''(^|/)\.data/''',
+  '''(^|/)\.git/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)vendor/''',
+  '''(^|/)web/core/''',
+  '''(^|/)web/libraries/''',
+  '''(^|/)web/modules/contrib/''',
+  '''(^|/)web/sites/default/files/''',
+  '''(^|/)web/themes/contrib/''',
+]

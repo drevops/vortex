@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ruleset name="custom">
+    <description>Custom PHPCS standard.</description>
+
+    <!-- Using Drupal coding standard as a base. -->
+    <rule ref="Drupal"/>
+    <rule ref="DrevOps"/>
+    <!-- Checks that the strict_types has been declared. -->
+    <rule ref="Generic.PHP.RequireStrictTypes"/>
+
+    <!-- Show sniff codes in all reports -->
+    <arg value="s"/>
+    <!-- Show progress of the run. -->
+    <arg value="p"/>
+    <arg name="colors"/>
+
+    <file>src</file>
+    <file>tests/phpunit</file>
+
+    <!-- Relocated fixtures are template files, not standalone PHP. -->
+    <exclude-pattern>tests/phpunit/Fixtures/*</exclude-pattern>
+
+    <!-- Relocated snapshot tests carry scenario data, not documentation. -->
+    <rule ref="Drupal.Commenting.ClassComment.Missing">
+        <exclude-pattern>tests/phpunit/Functional/Handlers/*</exclude-pattern>
+    </rule>
+
+    <!-- Allow long array lines in tests. -->
+    <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
+        <exclude-pattern>*.Test\.php</exclude-pattern>
+        <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+    </rule>
+
+    <!-- Allow missing function names in tests. -->
+    <rule ref="Drupal.Commenting.FunctionComment.Missing">
+        <exclude-pattern>*.Test\.php</exclude-pattern>
+        <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+    </rule>
+
+    <!-- Code relocated verbatim from the installer keeps its relaxations. -->
+    <rule ref="Drupal.Commenting.ClassComment">
+        <exclude-pattern>src/Utils/*</exclude-pattern>
+        <exclude-pattern>src/Downloader/*</exclude-pattern>
+    </rule>
+    <rule ref="Drupal.Commenting.FunctionComment.Missing">
+        <exclude-pattern>src/Utils/*</exclude-pattern>
+        <exclude-pattern>src/Downloader/*</exclude-pattern>
+    </rule>
+    <rule ref="Drupal.Commenting.VariableComment.Missing">
+        <exclude-pattern>src/Utils/*</exclude-pattern>
+        <exclude-pattern>src/Downloader/*</exclude-pattern>
+    </rule>
+</ruleset>

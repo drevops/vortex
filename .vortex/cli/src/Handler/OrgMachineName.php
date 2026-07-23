@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexCli\Handler;
+
+use DrevOps\VortexCli\Utils\Converter;
+use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\JsonManipulator;
+
+/**
+ * Handles the "org_machine_name" question.
+ */
+class OrgMachineName extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return 'Organization machine name';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hint(array $responses): ?string {
+    return 'We will use this name in the code.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function placeholder(array $responses): ?string {
+    return 'E.g. my_org';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  #[\Override]
+  public function isRequired(): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function default(array $responses): null|string|bool|array {
+    if (isset($responses[Org::id()]) && !empty($responses[Org::id()])) {
+      return Converter::machineExtended($responses[Org::id()]);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function discover(): null|string|bool|array {
+    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+
+    if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[1])) {
+      return $matches[1];
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(): ?callable {
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function transform(): ?callable {
+    return trim(...);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(): void {
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    File::replaceContentAsync('your_org', $v);
+    File::renameInDir($t, 'your_org', $v);
+  }
+
+}

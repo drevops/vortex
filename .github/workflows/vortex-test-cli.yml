@@ -1,0 +1,65 @@
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+#
+# Tests the 'drevops/vortex-cli' package that lives under '.vortex/cli'. The
+# 'drevops/tui' dependency it builds on lives in its own repository and is
+# installed from Packagist like any other package.
+#
+# Scoped to this development branch and to the package path so it stays
+# cheap and does not run on unrelated changes. It intentionally does NOT exist
+# on 'main' yet - it lives only on the feature branch until the package is
+# ready to be promoted.
+name: Vortex - Test CLI
+
+on:
+  push:
+    branches:
+      - feature/customizer-tui
+    paths:
+      - '.vortex/cli/**'
+      - '.github/workflows/vortex-test-cli.yml'
+  pull_request:
+    paths:
+      - '.vortex/cli/**'
+      - '.github/workflows/vortex-test-cli.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cli:
+    name: Test CLI
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
+
+    strategy:
+      matrix:
+        php-versions: ['8.3', '8.4']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: none
+
+      - name: Set default branch name
+        run: git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+        working-directory: .vortex/cli
+
+      - name: Check coding standards
+        run: composer lint
+        working-directory: .vortex/cli
+
+      - name: Run tests
+        run: composer test
+        working-directory: .vortex/cli
