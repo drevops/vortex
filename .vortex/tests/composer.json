@@ -29,9 +29,9 @@
         "drevops/phpcs-standard": "^0.6.2",
         "drupal/coder": "^9.0.1@alpha",
         "ergebnis/composer-normalize": "^2.52.0",
-        "phpstan/phpstan": "^2.2.2",
-        "phpunit/phpunit": "^12.5.30",
-        "rector/rector": "^2.5.2",
+        "phpstan/phpstan": "^2.2.5",
+        "phpunit/phpunit": "^12.5.31",
+        "rector/rector": "^2.5.7",
         "squizlabs/php_codesniffer": "^4.0.1"
     },
     "minimum-stability": "alpha",
