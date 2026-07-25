@@ -199,8 +199,6 @@ interface HandlerInterface {
    *
    * @param array $responses
    *   The responses.
-   *
-   * @return $this
    */
   public function setResponses(array $responses): static;
 
@@ -209,8 +207,6 @@ interface HandlerInterface {
    *
    * @param string $webroot
    *   The webroot directory name.
-   *
-   * @return $this
    */
   public function setWebroot(string $webroot): static;
 
