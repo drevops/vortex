@@ -43,7 +43,7 @@ with a SHA256 checksum before execution.
 
 The version and checksum are controlled by:
 
-- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download (default: `1.4.0`).
+- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download (default: `1.7.0`).
 - `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256`: Expected SHA256 checksum of the binary.
 
 It is required to set the following environment variables in the continuous
@@ -53,3 +53,23 @@ integration environment:
   committing to a remote repository.
 - `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`: Name of the user who will be
   committing to a remote repository.
+
+## Stale branch cleanup
+
+Each source branch is deployed to a same-named branch in the destination
+repository, so over time the destination accumulates branches for source
+branches that no longer exist. **Vortex** can prune these stale branches after
+each successful push.
+
+Cleanup is opt-in and controlled by:
+
+- `VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN`: branches eligible for pruning.
+  Setting a non-empty value enables cleanup; leaving it empty (the default)
+  disables it. The value is a comma-separated list of globs
+  (e.g. `feature/*,bugfix/*`) or a single regex literal (e.g. `/^feature\/.+$/`).
+  A branch matching any pattern is eligible.
+- `VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE`: age in days after which a matching branch
+  is considered stale (default: `7`).
+
+The branch that was just pushed and the destination repository's default branch
+are never deleted, and cleanup never fails a deployment that already succeeded.
