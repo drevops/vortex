@@ -78,6 +78,34 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: newrelic, missing user key" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+
+  export VORTEX_NOTIFY_CHANNELS="newrelic"
+  export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
+  export VORTEX_NOTIFY_EVENT="post_deployment"
+  export VORTEX_NOTIFY_PROJECT="testproject"
+  unset VORTEX_NOTIFY_NEWRELIC_USER_KEY
+  export VORTEX_NOTIFY_BRANCH="main"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="main"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_failure
+
+  assert_output_contains "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER_KEY"
+
+  # Assert the guard stops the run before the application lookup. Without this,
+  # a key reaching the script from any source turns the test into a live,
+  # authenticated request to New Relic instead of a failed assertion.
+  assert_equal "0" "$(mock_get_call_num "${mock_curl}")"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: newrelic, pre_deployment skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

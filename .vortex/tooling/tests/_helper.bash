@@ -121,6 +121,20 @@ setup() {
   unset VORTEX_FETCH_DB_FORCE
   unset VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED
 
+  # Isolate ambient credentials from the scripts under test. Scripts fall back
+  # to these unprefixed values whenever their own variable is unset or empty,
+  # and their `.env` loader restores the saved environment last - so a value
+  # exported by the developer's shell wins over `.env` and reaches the script.
+  # Left in place, a script would authenticate against a real service instead
+  # of stopping at the guard a test asserts. Tests that need a credential
+  # export an explicit literal of their own.
+  unset GITHUB_TOKEN
+  unset VORTEX_NOTIFY_GITHUB_TOKEN
+  unset NEWRELIC_USER_KEY
+  unset S3_ACCESS_KEY
+  unset S3_SECRET_KEY
+  unset DOCKER_CONFIG
+
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
   # Disable waiting when interactive prompts are disabled durin tests.
