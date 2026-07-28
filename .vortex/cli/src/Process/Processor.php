@@ -62,4 +62,39 @@ class Processor {
     }
   }
 
+  /**
+   * Collect the guidance handlers offer once a site build has been attempted.
+   *
+   * @param \DrevOps\Tui\Answers\Answers $answers
+   *   The self-describing answer set.
+   * @param \DrevOps\Tui\Handler\HandlerRegistry $handlers
+   *   The handler registry resolving a field id to its handler class.
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The CLI configuration the handlers operate on.
+   * @param string $result
+   *   How the build ended.
+   *
+   * @return string
+   *   The concatenated messages; empty when no handler has anything to say.
+   */
+  public function postBuild(Answers $answers, HandlerRegistry $handlers, Config $config, string $result): string {
+    $messages = '';
+
+    foreach ($answers->items as $answer) {
+      $class = $handlers->resolve($answer->id);
+      if ($class === NULL) {
+        continue;
+      }
+      if (!is_a($class, HandlerInterface::class, TRUE)) {
+        continue;
+      }
+
+      $handler = new $class($config);
+      $handler->setResponses($answers->values);
+      $messages .= (string) $handler->postBuild($result);
+    }
+
+    return $messages;
+  }
+
 }

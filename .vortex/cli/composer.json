@@ -28,6 +28,7 @@
         "nikic/iter": "^2.4.1",
         "symfony/console": "^7.4.13",
         "symfony/filesystem": "^7.4.11",
+        "symfony/process": "^7.4.11",
         "symfony/yaml": "^7.4.13"
     },
     "require-dev": {
