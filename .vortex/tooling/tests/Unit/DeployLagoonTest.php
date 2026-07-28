@@ -769,6 +769,60 @@ class DeployLagoonTest extends UnitTestCase {
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
+  public function testDeployFailureSurfacesCliErrorWithoutDebug(): void {
+    $this->createFakeLagoonBinary();
+
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonConfigAddCommand(),
+      'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
+      'output' => '{"data":[]}',
+      'result_code' => 0,
+    ]);
+
+    // The deploy fails for a reason unrelated to the environment limit.
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("deploy branch --branch 'develop'"),
+      'output' => 'Error: project test-project has no branch develop',
+      'result_code' => 1,
+    ]);
+
+    $this->mockQuit(1);
+
+    try {
+      $this->runScript('src/vortex-deploy-lagoon');
+      $this->fail('Expected the script to quit with an error.');
+    }
+    catch (QuitErrorException $e) {
+      $output = $e->getOutput();
+    }
+
+    $this->assertStringContainsString('Lagoon deployment completed with errors.', $output);
+    $this->assertStringContainsString('Error: project test-project has no branch develop', $output);
+  }
+
   protected function getVersionCommand(): string {
     return sprintf("'lagoon' --config-file '%s' --version 2>&1", $this->lagoonConfigFile());
   }
