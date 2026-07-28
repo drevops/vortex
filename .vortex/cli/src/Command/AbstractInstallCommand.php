@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Command;
 
 use DrevOps\Tui\Engine\EngineException;
+use DrevOps\Tui\InterruptException;
 use DrevOps\Tui\Tui;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
@@ -110,11 +111,28 @@ abstract class AbstractInstallCommand extends Command {
 
     $tui = new Tui(VortexForm::create($config), [static::HANDLER_NAMESPACE]);
 
+    try {
+      $this->assertMajorCompatibility($config, $dst);
+    }
+    catch (\RuntimeException $runtime_exception) {
+      $output->writeln('<error>' . $runtime_exception->getMessage() . '</error>');
+
+      return Command::FAILURE;
+    }
+
     $prompts = $input->getOption('prompts');
     $prompts = is_string($prompts) ? $prompts : '';
 
+    // Answers are gathered through the panel TUI on a terminal and headlessly
+    // otherwise, so a scripted run and a piped one behave the same.
+    $interactive = $input->isInteractive() && $prompts === '';
+
     try {
-      $answers = $tui->collect($prompts, $dst, $update, $version);
+      $answers = $tui->run($prompts, $version, $dst, $interactive, $update);
+    }
+    catch (InterruptException) {
+      // A Ctrl-C abort or the Cancel button: nothing has been written yet.
+      return Command::FAILURE;
     }
     catch (EngineException $engine_exception) {
       $output->writeln('<error>' . $engine_exception->getMessage() . '</error>');
@@ -129,7 +147,111 @@ abstract class AbstractInstallCommand extends Command {
     $file_manager->copyFiles();
     $file_manager->prepareDemo($this->getFileDownloader());
 
+    // Guidance is for the person who just answered the questions; a scripted
+    // run has no one to read it and its stdout belongs to the caller.
+    if ($interactive) {
+      $this->footer($tui, $update);
+    }
+
     return Command::SUCCESS;
+  }
+
+  /**
+   * Show what to do next once the files are in place.
+   *
+   * @param \DrevOps\Tui\Tui $tui
+   *   The TUI facade providing the themed output.
+   * @param bool $update
+   *   Whether an existing project was updated rather than created.
+   */
+  protected function footer(Tui $tui, bool $update): void {
+    if ($update) {
+      $tui->output()->box('Please review the changes and commit the required files.', 'Finished updating Vortex');
+
+      return;
+    }
+
+    $lines = [];
+
+    $missing = $this->missingTools();
+    if ($missing !== []) {
+      $lines[] = 'Install required tools:';
+      foreach ($missing as $tool => $instructions) {
+        $lines[] = sprintf('  %s: %s', $tool, $instructions);
+      }
+      $lines[] = '';
+    }
+
+    $lines[] = 'Add and commit all files:';
+    $lines[] = '  git add -A';
+    $lines[] = '  git commit -m "Initial commit."';
+    $lines[] = '';
+    $lines[] = 'Build the site:';
+    $lines[] = '  ahoy build';
+
+    $tui->output()->box($lines, 'Finished installing Vortex');
+  }
+
+  /**
+   * The tools the project needs locally that are not installed.
+   *
+   * @return array<string,string>
+   *   Installation instructions, keyed by tool name.
+   */
+  protected function missingTools(): array {
+    $tools = [
+      'Docker' => ['docker', 'https://www.docker.com/get-started'],
+      'Pygmy' => ['pygmy', 'https://github.com/pygmystack/pygmy'],
+      'Ahoy' => ['ahoy', 'https://github.com/ahoy-cli/ahoy'],
+    ];
+
+    $finder = new ExecutableFinder();
+    $missing = [];
+
+    foreach ($tools as $name => [$binary, $instructions]) {
+      if ($finder->find($binary) === NULL) {
+        $missing[$name] = $instructions;
+      }
+    }
+
+    return $missing;
+  }
+
+  /**
+   * Refuse to operate across major versions.
+   *
+   * Each build serves a single major line, so updating a project of a different
+   * major would cross a breaking boundary. Fresh installs and projects whose
+   * major cannot be determined are treated as compatible.
+   *
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The resolved configuration.
+   * @param string $destination
+   *   The destination directory.
+   *
+   * @throws \RuntimeException
+   *   When the destination project's major differs from this build's major.
+   */
+  protected function assertMajorCompatibility(Config $config, string $destination): void {
+    if (!$config->isVortexProject()) {
+      return;
+    }
+
+    $current = Version::major($this->version());
+    if ($current === NULL) {
+      return;
+    }
+
+    $project = Version::detectProjectMajor($destination);
+    if ($project === NULL || $project === $current) {
+      return;
+    }
+
+    throw new \RuntimeException(sprintf(
+      'This build targets Vortex %1$d.x, but the destination is a Vortex %2$d.x project. Update it with the %2$d.x release instead: https://www.vortextemplate.com/v%2$d/install',
+      $current,
+      $project,
+    ));
   }
 
   /**
