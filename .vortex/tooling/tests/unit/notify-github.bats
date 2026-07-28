@@ -272,6 +272,33 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: github, missing token" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+
+  export VORTEX_NOTIFY_CHANNELS="github"
+  export VORTEX_NOTIFY_EVENT="pre_deployment"
+  unset VORTEX_NOTIFY_GITHUB_TOKEN
+  export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="existingbranch"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_failure
+
+  assert_output_contains "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN"
+
+  # Assert the guard stops the run before the deployment call. Without this, a
+  # token reaching the script from any source turns the test into a live,
+  # authenticated request to GitHub instead of a failed assertion.
+  assert_equal "0" "$(mock_get_call_num "${mock_curl}")"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: github, post_deployment, failure to set status" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

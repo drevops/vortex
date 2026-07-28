@@ -100,19 +100,26 @@ load ../_helper.bash
 @test "Notify: diffy, missing token" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  mock_curl=$(mock_command "curl")
+
   export VORTEX_NOTIFY_CHANNELS="diffy"
   export VORTEX_NOTIFY_EVENT="post_deployment"
   export VORTEX_NOTIFY_BRANCH="feature/my-pr-branch"
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://pr-123.example.com"
-  export VORTEX_NOTIFY_DIFFY_TOKEN=""
+  unset VORTEX_NOTIFY_DIFFY_TOKEN
   export VORTEX_NOTIFY_DIFFY_REPOSITORY="myorg/myrepo"
 
   run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
   assert_output_contains "Missing required value for VORTEX_NOTIFY_DIFFY_TOKEN"
+
+  # Assert the guard stops the run before the dispatch. Without this, a token
+  # reaching the script from any source turns the test into a live, authenticated
+  # request to GitHub instead of a failed assertion.
+  assert_equal "0" "$(mock_get_call_num "${mock_curl}")"
 
   popd >/dev/null || exit 1
 }
