@@ -39,8 +39,8 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitInitRepo(static::$sut);
     $this->gitCommitAll(static::$sut, 'First commit');
 
-    $this->logSubstep('Run Vortex installer to populate SUT with Vortex files');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to populate SUT with Vortex files');
+    $this->runInstall();
     $this->assertCommonFilesPresent();
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
@@ -67,12 +67,12 @@ class InstallerTest extends FunctionalTestCase {
 
     static::$sutInstallerEnv = [
       // Unset the environment variable that forces using the remote repository
-      // in runInstaller().
+      // in runInstall().
       'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
       // Do not suppress the installer output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
+    $this->runInstall([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
     $this->assertProcessOutputContains(static::$repo);
     $this->assertProcessOutputNotContains($latest_installer_commit1);
     $this->assertProcessOutputNotContains($latest_installer_commit2);
@@ -99,8 +99,8 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitInitRepo(static::$sut);
     $this->gitCommitAll(static::$sut, 'First commit');
 
-    $this->logSubstep('Run Vortex installer to populate SUT with Vortex files');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to populate SUT with Vortex files');
+    $this->runInstall();
     $this->assertCommonFilesPresent();
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
@@ -127,12 +127,12 @@ class InstallerTest extends FunctionalTestCase {
 
     static::$sutInstallerEnv = [
       // Unset the environment variable that forces using the remote repository
-      // in runInstaller().
+      // in runInstall().
       'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
       // Do not suppress the installer output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $latest_installer_commit1)]);
+    $this->runInstall([sprintf('--uri=%s#%s', static::$repo, $latest_installer_commit1)]);
     $this->assertProcessOutputContains(static::$repo);
     $this->assertProcessOutputContains($latest_installer_commit1);
     $this->gitAssertIsRepository(static::$sut);

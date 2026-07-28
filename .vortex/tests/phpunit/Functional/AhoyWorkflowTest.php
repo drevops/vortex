@@ -344,8 +344,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->gitInitRepo(static::$sut);
     $this->gitCommitAll(static::$sut, 'First commit');
 
-    $this->logSubstep('Run Vortex installer to populate SUT with Vortex files');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to populate SUT with Vortex files');
+    $this->runInstall();
     $this->assertCommonFilesPresent();
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
@@ -379,18 +379,18 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $latest_installer_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
     $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_installer_commit2));
 
-    $this->logSubstep('Build installer to be used for update');
-    // This is required as the update script will remove the installer after
+    $this->logSubstep('Build the Vortex CLI to be used for update');
+    // This is required as the update script removes the downloaded CLI after
     // the update.
-    $installer_bin = $this->buildInstaller();
+    $cli_bin = $this->buildCli();
 
     $this->logSubstep('Update Vortex from the template repository');
     $this->cmd('ahoy update-vortex', env: [
       // Use environment variable for this test instead of the argument.
-      'VORTEX_INSTALLER_TEMPLATE_REPO' => static::$repo,
-      // Override installer path to be called from SUT's update script.
-      'VORTEX_INSTALLER_URL' => 'file://' . $installer_bin,
-      // Do not suppress the installer output so it could be used in assertions.
+      'VORTEX_CLI_TEMPLATE_REPO' => static::$repo,
+      // Override the CLI path to be called from SUT's update script.
+      'VORTEX_CLI_URL' => 'file://' . $cli_bin,
+      // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ]);
     $this->assertProcessOutputContains(static::$repo);
@@ -412,8 +412,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
 
-    $this->logSubstep('Assert that installer script was removed');
-    $this->assertFileDoesNotExist('installer.php', 'Installer script should be removed after update');
+    $this->logSubstep('Assert that the downloaded CLI was removed');
+    $this->assertFileDoesNotExist('vortex.phar', 'Downloaded Vortex CLI should be removed after update');
   }
 
   #[Group('p3')]
@@ -433,8 +433,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->gitInitRepo(static::$sut);
     $this->gitCommitAll(static::$sut, 'First commit');
 
-    $this->logSubstep('Run Vortex installer to populate SUT with Vortex files');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to populate SUT with Vortex files');
+    $this->runInstall();
     $this->assertCommonFilesPresent();
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
@@ -459,17 +459,17 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $latest_installer_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
     $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_installer_commit2));
 
-    $this->logSubstep('Build installer to be used for update');
-    // This is required as the update script will remove the installer after
+    $this->logSubstep('Build the Vortex CLI to be used for update');
+    // This is required as the update script removes the downloaded CLI after
     // the update.
-    $installer_bin = $this->buildInstaller();
+    $cli_bin = $this->buildCli();
 
     $this->logSubstep('Update Vortex from the template repository');
-    // Use the argument instead of `VORTEX_INSTALLER_TEMPLATE_REPO` variable.
+    // Use the argument instead of `VORTEX_CLI_TEMPLATE_REPO` variable.
     $this->cmd('ahoy update-vortex ' . static::$repo . '#' . $latest_installer_commit1, txt: 'Update Vortex to a specific version', env: [
-      // Override installer path to be called from SUT's update script.
-      'VORTEX_INSTALLER_URL' => 'file://' . $installer_bin,
-      // Do not suppress the installer output so it could be used in assertions.
+      // Override the CLI path to be called from SUT's update script.
+      'VORTEX_CLI_URL' => 'file://' . $cli_bin,
+      // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ]);
     $this->assertProcessOutputContains(static::$repo);
@@ -487,8 +487,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
 
-    $this->logSubstep('Assert that installer script was removed');
-    $this->assertFileDoesNotExist('installer.php', 'Installer script should be removed after update');
+    $this->logSubstep('Assert that the downloaded CLI was removed');
+    $this->assertFileDoesNotExist('vortex.phar', 'Downloaded Vortex CLI should be removed after update');
   }
 
   #[Group('p2')]
