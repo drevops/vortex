@@ -340,8 +340,8 @@ export default function Home() {
                     >
                       <path d="m9 18 6-6-6-6" />
                     </svg>{' '}
-                    The CLI scaffolds your whole project - structure,
-                    tooling, CI, and hosting - in one run.
+                    The CLI scaffolds your whole project - structure, tooling,
+                    CI, and hosting - in one run.
                   </p>
                 </div>
               </div>

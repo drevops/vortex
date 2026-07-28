@@ -45,6 +45,17 @@ const COMPOSE_PROJECT = 'vortex_videos';
  *              type-and-run.php.
  */
 const VIDEOS = [
+  // The poster aims at the panel overview, which is on screen for three
+  // seconds once the banner is dismissed. Its own driver types the command,
+  // so the shared typer stays off.
+  'install' => [
+    'command' => 'php vortex.phar',
+    'speed' => 1.0,
+    'cols' => 100,
+    'rows' => 36,
+    'poster_ms' => 7000,
+    'typer' => FALSE,
+  ],
   'build' => [
     'command' => 'ahoy build',
     'speed' => 1.0,
@@ -118,6 +129,23 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
   $recorder->renderPng($cast, $docs_static_dir . "/$name.png", $cfg['poster_ms'] === NULL ? NULL : (int) $cfg['poster_ms']);
 }
 
+function record_install_video(VideoRecorder $recorder, string $workspace, string $uri, string $driver, string $docs_static_dir): void {
+  $cfg = VIDEOS['install'];
+
+  $recorder->info("===== Recording 'install' =====");
+
+  $recorder->recordSession(
+    cwd: $workspace,
+    cast_path: $docs_static_dir . '/install.json',
+    command: sprintf('expect %s vortex.phar %s star_wars %d %d', escapeshellarg($driver), escapeshellarg($uri), $cfg['cols'], $cfg['rows']),
+    title: 'Vortex install Demo',
+    cols: (int) $cfg['cols'],
+    rows: (int) $cfg['rows'],
+  );
+
+  render_video($recorder, 'install', $workspace, $docs_static_dir);
+}
+
 function record_command_video(VideoRecorder $recorder, string $name, string $project_dir, string $workspace, string $type_and_run, string $docs_static_dir): void {
   $cfg = VIDEOS[$name];
 
@@ -152,6 +180,7 @@ function main(array $argv): int {
   $docs_static_dir = realpath(__DIR__ . '/../static/img');
   $renderer = __DIR__ . '/svg-term-render.js';
   $type_and_run = __DIR__ . '/type-and-run.php';
+  $install_driver = __DIR__ . '/install-demo.exp';
 
   if ($project_root === FALSE || $docs_static_dir === FALSE) {
     fwrite(STDERR, "Failed to resolve project paths\n");
@@ -214,6 +243,11 @@ function main(array $argv): int {
       $recorder->note('Rerun without --keep to bootstrap fresh.');
       return 1;
     }
+    if (in_array('install', $requested, TRUE)) {
+      $recorder->fail("Cannot record 'install' with --keep (it would wipe the kept project)");
+      $recorder->note("Run without --keep to re-record 'install'.");
+      return 1;
+    }
     $recorder->info("Reusing workspace: $workspace");
   }
   else {
@@ -228,7 +262,13 @@ function main(array $argv): int {
 
     $recorder->buildCliPhar("$workspace/vortex.phar");
 
-    $recorder->runInstall($workspace, $project_root);
+    // The recorded run is a real install, so it doubles as the bootstrap.
+    if (in_array('install', $requested, TRUE)) {
+      record_install_video($recorder, $workspace, $project_root, $install_driver, $docs_static_dir);
+    }
+    else {
+      $recorder->runInstall($workspace, $project_root);
+    }
 
     if (!is_dir($project_dir)) {
       $recorder->fail("Installation did not create project at $project_dir");

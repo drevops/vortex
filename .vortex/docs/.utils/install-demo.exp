@@ -1,0 +1,95 @@
+#!/usr/bin/env expect -f
+
+# Drive an interactive Vortex CLI install for the documentation demo video.
+#
+# Usage:
+#   install-demo.exp <cli> <uri> <destination> <cols> <rows>
+#
+# The script types the command a reader would type, then answers the panel TUI
+# with paced keystrokes so the recording reads like someone using it.
+#
+# A background reader drains the child's output for the whole session: without
+# it the pty buffer fills, the child blocks mid-write and never returns to its
+# input loop.
+
+set timeout 180
+
+set cli [lindex $argv 0]
+set uri [lindex $argv 1]
+set dst [lindex $argv 2]
+set cols [lindex $argv 3]
+set rows [lindex $argv 4]
+
+set env(TERM) xterm-256color
+set env(COLUMNS) $cols
+set env(LINES) $rows
+
+set send_slow {1 .06}
+
+proc press {seq {secs 1}} {
+  send -- $seq
+  sleep $secs
+}
+
+proc repeat {seq times {secs 1}} {
+  for {set i 0} {$i < $times} {incr i} {
+    press $seq $secs
+  }
+}
+
+set ENTER "\r"
+set ESC "\033"
+set UP "\033\[A"
+set DOWN "\033\[B"
+set BACKSPACE "\177"
+
+# The typed line is what a reader would run; the spawned command adds the
+# destination and template source the recording harness needs.
+send_user "$ "
+sleep 1
+foreach char [split "php vortex.phar" ""] {
+  send_user -- $char
+  sleep 0.06
+}
+sleep 0.5
+send_user "\n"
+
+spawn -noecho php $cli install --destination=$dst --uri=$uri
+
+expect "Press any key"
+expect_background -re ".+"
+sleep 2.5
+
+# Dismiss the banner and let the panel overview settle.
+press $ENTER 3
+
+# General information: replace the detected site name and watch the machine
+# name, organization and domain re-derive from it.
+press $ENTER 2
+press $ENTER 1
+repeat $BACKSPACE 9 0.06
+sleep 0.4
+send -s -- "Star Wars"
+sleep 0.8
+press $ENTER 2.5
+press $ESC 1.5
+
+# Hosting: switching the provider reveals the fields that only it needs.
+repeat $DOWN 4 0.4
+press $ENTER 1.5
+press $ENTER 1.5
+press $UP 0.7
+press $UP 0.7
+press $ENTER 2.5
+press $ESC 1.5
+
+# Leaving a panel returns to the top of the overview, so the walk to the
+# closing actions always starts from the first entry.
+repeat $DOWN 12 0.3
+press $ENTER 2
+
+# The child may already have finished writing the closing box by now, so both
+# the handler removal and the wait are best-effort.
+catch { expect_background }
+catch { expect eof }
+sleep 2
