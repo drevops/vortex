@@ -83,6 +83,9 @@ if ($deploy_mode === 'tag') {
 // Track exit status to return at the end.
 $exit_code = 0;
 
+// Raw CLI output of a failed deploy, printed with the final status.
+$deploy_error = '';
+
 // Check required values.
 if (empty($deploy_branch) && empty($deploy_pr)) {
   FAIL('Missing required value for VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_PR');
@@ -197,28 +200,37 @@ function lagoon_handle_environment_limit_exceeded(string $output, int $exit_code
 }
 
 /**
- * Run a Lagoon deploy subcommand and surface its output in debug mode.
+ * Run a Lagoon deploy subcommand and surface its output.
  *
- * The captured CLI output is printed only when debug mode is enabled so a
- * debugged deployment shows the reason reported by the CLI, while a normal run
- * stays quiet. An environment-limit error is translated into a controlled exit
- * code.
+ * An environment-limit error is translated into a controlled exit code.
  *
  * @param string $subcommand
  *   The Lagoon deploy subcommand to run.
+ * @param string|null $deploy_error
+ *   (optional) Variable to capture the CLI output of a failed deploy, so the
+ *   reason can be shown with the final status.
  *
  * @return int
  *   The resulting exit code.
  */
-function lagoon_run_deploy(string $subcommand): int {
+function lagoon_run_deploy(string $subcommand, ?string &$deploy_error = NULL): int {
   $exit_code = 0;
   $output = lagoon_run_cli($subcommand, $exit_code);
 
-  if (is_debug() && $output !== '') {
+  $exit_code = lagoon_handle_environment_limit_exceeded($output, $exit_code);
+
+  // The CLI output is the only record of why a deploy failed, so retain it
+  // rather than making the failure reproducible only with debug enabled.
+  if ($exit_code !== 0) {
+    $deploy_error = $output;
+  }
+  // A deploy that did not fail has nothing to explain, so its output remains
+  // verbose-only.
+  elseif (is_debug() && $output !== '') {
     print $output . PHP_EOL;
   }
 
-  return lagoon_handle_environment_limit_exceeded($output, $exit_code);
+  return $exit_code;
 }
 
 if ($deploy_action === 'destroy') {
@@ -250,8 +262,8 @@ else {
       }
 
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      TASK(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $exit_code = lagoon_run_deploy($deploy_cmd);
+      TASK(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code, &$deploy_error): void {
+        $exit_code = lagoon_run_deploy($deploy_cmd, $deploy_error);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment redeployment.');
@@ -271,8 +283,8 @@ else {
     // Fresh deployment.
     else {
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
-      TASK(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $exit_code = lagoon_run_deploy($deploy_cmd);
+      TASK(sprintf('Deploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code, &$deploy_error): void {
+        $exit_code = lagoon_run_deploy($deploy_cmd, $deploy_error);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment deployment.');
@@ -302,8 +314,8 @@ else {
       }
 
       $deploy_cmd = sprintf('deploy latest --environment %s', escapeshellarg($deploy_branch));
-      TASK(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $exit_code = lagoon_run_deploy($deploy_cmd);
+      TASK(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code, &$deploy_error): void {
+        $exit_code = lagoon_run_deploy($deploy_cmd, $deploy_error);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment redeployment.');
@@ -323,8 +335,8 @@ else {
     // Fresh deployment.
     else {
       $deploy_cmd = sprintf('deploy branch --branch %s', escapeshellarg($deploy_branch));
-      TASK(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code): void {
-        $exit_code = lagoon_run_deploy($deploy_cmd);
+      TASK(sprintf('Deploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment deployment.', function () use ($deploy_cmd, &$exit_code, &$deploy_error): void {
+        $exit_code = lagoon_run_deploy($deploy_cmd, $deploy_error);
 
         if ($exit_code !== 0) {
           throw new \RuntimeException('Failed to request the environment deployment.');
@@ -338,7 +350,11 @@ if ($exit_code === 0) {
   PASS('Finished Lagoon deployment.');
 }
 else {
-  FAIL('Lagoon deployment completed with errors.');
+  fail_no_exit('Lagoon deployment completed with errors.');
+
+  if ($deploy_error !== '') {
+    print $deploy_error . PHP_EOL;
+  }
 }
 
 quit($exit_code);
