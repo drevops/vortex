@@ -7,4 +7,4 @@
 +          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
  
        - name: Build stack
-         run: docker compose up --detach && docker builder prune --all --force
+         run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
