@@ -9,16 +9,17 @@
 +          VORTEX_ACQUIA_SECRET: ${{ secrets.VORTEX_ACQUIA_SECRET }}
 +
        - name: Build stack
-         run: docker compose up --detach && docker builder prune --all --force
+         run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
  
-@@ -305,6 +311,10 @@
-           if [ -f .data/db.sql ]; then
+@@ -308,6 +314,11 @@
              docker compose exec cli mkdir -p .data
              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+             rm -f .data/db.sql
 +          fi
 +          if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
 +            docker compose exec -T cli mkdir -p .data
 +            docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
++            rm -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

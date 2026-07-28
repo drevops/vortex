@@ -22,7 +22,7 @@
    test:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -373,18 +363,6 @@
+@@ -376,18 +366,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}

@@ -45,7 +45,7 @@
  
        - name: Provision site
          run: |
-@@ -309,71 +283,6 @@
+@@ -312,71 +286,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -117,7 +117,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -386,20 +295,6 @@
+@@ -389,20 +298,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -138,7 +138,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -416,16 +311,6 @@
+@@ -419,16 +314,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

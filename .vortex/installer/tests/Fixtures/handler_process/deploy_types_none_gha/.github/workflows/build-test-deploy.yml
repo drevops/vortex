@@ -1,4 +1,4 @@
-@@ -433,136 +433,3 @@
+@@ -436,136 +436,3 @@
          timeout-minutes: 120 # Cancel the action after 120 minutes, regardless of whether a connection has been established.
          with:
            detached: true
@@ -51,7 +51,7 @@
 -        run: ./vendor/bin/vortex-login-container-registry
 -
 -      - name: Build stack
--        run: docker compose up --detach && docker builder prune --all --force
+-        run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
 -
 -  deploy:
 -    runs-on: ubuntu-latest
