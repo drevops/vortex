@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b94a2b0c5a7e4847f025e126e824b815",
+    "content-hash": "a13fed6d866d6f10591f20ba326d207d",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -820,16 +820,16 @@
         },
         {
             "name": "drevops/tui",
-            "version": "0.1.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drevops/tui.git",
-                "reference": "89e430516a6c98e4df0c874ea5e4c769d418619e"
+                "reference": "372ea7ef5ef746520f2b6f799ac349e01309c1fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drevops/tui/zipball/89e430516a6c98e4df0c874ea5e4c769d418619e",
-                "reference": "89e430516a6c98e4df0c874ea5e4c769d418619e",
+                "url": "https://api.github.com/repos/drevops/tui/zipball/372ea7ef5ef746520f2b6f799ac349e01309c1fc",
+                "reference": "372ea7ef5ef746520f2b6f799ac349e01309c1fc",
                 "shasum": ""
             },
             "require": {
@@ -839,18 +839,19 @@
             "require-dev": {
                 "alexskrypnyk/phpunit-helpers": "^0.16.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
-                "drevops/phpcs-standard": "^0.7",
+                "drevops/phpcs-standard": "^1.0.0",
                 "drupal/coder": "^9.0.1",
                 "ergebnis/composer-normalize": "^2.52.0",
                 "mikey179/vfsstream": "^1.6.12",
                 "opis/closure": "^4.5.0",
-                "phpstan/phpstan": "^2.2.4",
-                "phpunit/phpunit": "^11.5.55",
-                "rector/rector": "^2.5.2"
+                "phpstan/phpstan": ">=2.2.4 <2.2.6",
+                "phpunit/phpunit": "^12.5.32",
+                "rector/rector": "^2.5.7"
             },
             "suggest": {
                 "ext-mbstring": "Provides full Unicode case folding and native multibyte string handling; PCRE-based fallbacks with ASCII-only case folding are used when it is absent."
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -875,7 +876,7 @@
                 "issues": "https://github.com/drevops/tui/issues",
                 "source": "https://github.com/drevops/tui"
             },
-            "time": "2026-07-22T02:14:25+00:00"
+            "time": "2026-07-28T11:11:20+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -6595,7 +6596,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "drevops/tui": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

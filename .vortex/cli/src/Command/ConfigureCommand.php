@@ -109,7 +109,7 @@ class ConfigureCommand extends Command {
 
     // @codeCoverageIgnoreStart
     try {
-      $answers = $tui->interact('', '', $this->version(), $dir);
+      $answers = $tui->interact('', '', $this->version(), $dir, $update);
     }
     catch (InterruptException) {
       // A Ctrl-C abort or the Cancel button: partial answers are discarded.
