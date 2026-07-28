@@ -93,6 +93,7 @@
         ],
         "reset": "rm -Rf vendor vendor-bin composer.lock",
         "test": "phpunit --no-coverage",
-        "test-coverage": "phpunit"
+        "test-coverage": "phpunit",
+        "update-snapshots": "update-snapshots --test-dir= testHandlerProcess tests/phpunit/Fixtures/handler_process $@"
     }
 }

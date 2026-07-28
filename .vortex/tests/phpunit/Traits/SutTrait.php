@@ -299,7 +299,7 @@ trait SutTrait {
 
   protected function buildCli(): string {
     $cli_dir = static::$root . '/.vortex/cli';
-    $cli_phar = $cli_dir . '/build/vortex.phar';
+    $cli_phar = $cli_dir . '/.build/vortex.phar';
 
     $this->installCliDependencies();
 

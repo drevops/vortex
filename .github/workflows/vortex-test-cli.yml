@@ -3,24 +3,23 @@
 # Tests the 'drevops/vortex-cli' package that lives under '.vortex/cli'. The
 # 'drevops/tui' dependency it builds on lives in its own repository and is
 # installed from Packagist like any other package.
-#
-# Scoped to this development branch and to the package path so it stays
-# cheap and does not run on unrelated changes. It intentionally does NOT exist
-# on 'main' yet - it lives only on the feature branch until the package is
-# ready to be promoted.
 name: Vortex - Test CLI
 
 on:
   push:
     branches:
-      - feature/customizer-tui
-    paths:
-      - '.vortex/cli/**'
-      - '.github/workflows/vortex-test-cli.yml'
+      - main
+      - release/**
+      - project/**
+      - '*.x'
   pull_request:
-    paths:
-      - '.vortex/cli/**'
-      - '.github/workflows/vortex-test-cli.yml'
+    branches:
+      - main
+      - feature/**
+      - bugfix/**
+      - release/**
+      - project/**
+      - '*.x'
   workflow_dispatch:
 
 concurrency:
@@ -28,12 +27,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cli:
-    name: Test CLI
+  vortex-test-cli:
     runs-on: ubuntu-latest
 
     permissions:
       contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.TEST_GITHUB_TOKEN }}"}}'
 
     strategy:
       matrix:
@@ -42,18 +44,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ matrix.php-versions }}
-          coverage: none
+          coverage: pcov
+          ini-values: pcov.directory=.
 
       - name: Set default branch name
         run: git config --global init.defaultBranch >/dev/null || git config --global init.defaultBranch "main"
 
       - name: Install dependencies
-        run: composer install --no-interaction --no-progress
+        run: composer install
+        working-directory: .vortex/cli
+
+      - name: Validate Composer configuration is normalized
+        run: composer normalize --dry-run
         working-directory: .vortex/cli
 
       - name: Check coding standards
@@ -61,5 +70,23 @@ jobs:
         working-directory: .vortex/cli
 
       - name: Run tests
-        run: composer test
+        run: composer test-coverage
         working-directory: .vortex/cli
+        env:
+          GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+
+      - name: Upload coverage reports as an artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ${{github.job}}-code-coverage-report-${{ matrix.php-versions }}
+          path: .vortex/cli/.logs
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        continue-on-error: true
+        with:
+          files: .vortex/cli/.logs/cobertura.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
