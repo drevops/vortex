@@ -441,20 +441,6 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
           #;> TOOL_JEST
 
-      # Provisioning is the most disk-intensive step: a runner that runs out of
-      # space is killed without a step error and its logs become unretrievable,
-      # so the report is written to the job summary, which is stored separately
-      # from the logs and survives.
-      - name: Show disk usage
-        run: |
-          {
-            echo '### Disk usage before provisioning'
-            echo '```'
-            df -h
-            docker system df
-            echo '```'
-          } | tee -a "$GITHUB_STEP_SUMMARY"
-
       - name: Provision site
         run: |
           # Database dumps are removed from the runner once they are inside the

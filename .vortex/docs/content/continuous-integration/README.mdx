@@ -194,18 +194,14 @@ When it runs out, the runner is terminated from the outside: the step that was
 running never reports an error and the log archive may be lost entirely, so the
 failure looks like a hang rather than a disk problem.
 
-**Vortex** keeps the build within that budget and makes the limit visible:
+**Vortex** keeps the build within that budget:
 
 - The Docker build cache and dangling images are pruned once the stack is up.
 - The database dump is removed from the runner as soon as it has been copied
   into the container, so only one copy is held during provisioning.
-- The `Show disk usage` step prints `df -h` and `docker system df` immediately
-  before provisioning. On GitHub Actions the report is also written to the job
-  summary, which is stored separately from the logs and stays readable when the
-  logs are not.
 
-If a build dies during provisioning, read that report first. The most reliable
-fix is to reduce what has to fit: a sanitized dump or a
+If a build dies during provisioning without reporting an error, suspect the
+disk. The most reliable fix is to reduce what has to fit: a sanitized dump or a
 [database container image](#caching-strategy) instead of a full dump. On GitHub
 Actions, a [larger runner](/docs/continuous-integration/github-actions#change-runner-size)
 also comes with more disk. On CircleCI, disk space is not tied to the

@@ -255,15 +255,6 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
             #;> TOOL_JEST
 
-      # Provisioning is the most disk-intensive step: a runner that runs out of
-      # space is killed without a step error, so the available space is reported
-      # while there is still a log to write it to.
-      - run:
-          name: Show disk usage
-          command: |
-            df -h
-            docker system df
-
       - run:
           name: Provision site
           command: |
