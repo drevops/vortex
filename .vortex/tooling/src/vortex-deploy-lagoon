@@ -95,9 +95,9 @@ is_lagoon_env_limit_exceeded() {
 }
 # @formatter:on
 
-# Run a Lagoon deploy command, surface its output in debug mode, and translate
-# an environment-limit error into a controlled outcome. The captured output is
-# printed only when VORTEX_DEBUG=1 so a debugged deploy shows the CLI reason.
+# Run a Lagoon deploy command, surface its output, and translate an
+# environment-limit error into a controlled outcome. The reason for a failed
+# deploy is carried in ${deploy_error} to be shown with the final status.
 run_lagoon_deploy() {
   local deploy_output
 
@@ -109,22 +109,30 @@ run_lagoon_deploy() {
     exit_code=$?
   fi
 
-  # Surface the raw CLI output only in debug mode.
-  [ "${VORTEX_DEBUG-}" = "1" ] && [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
-
   if is_lagoon_env_limit_exceeded "${deploy_output}"; then
     note "Lagoon environment limit exceeded."
     [ "${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED}" = "0" ] && exit_code=0
   fi
 
+  # The CLI output is the only record of why a deploy failed, so retain it
+  # rather than making the failure reproducible only with debug enabled.
+  [ "${exit_code}" != "0" ] && deploy_error="${deploy_output}"
+
+  # A deploy that did not fail has nothing to explain, so its output remains
+  # verbose-only.
+  [ "${exit_code}" = "0" ] && [ "${VORTEX_DEBUG-}" = "1" ] && [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
+
   # Always succeed: the outcome is carried in ${exit_code}. Leaking the status
-  # of the check above would trip 'set -e' at the call site and skip the final
+  # of the checks above would trip 'set -e' at the call site and skip the final
   # deployment status line.
   return 0
 }
 
 # Track exit status to return at the end.
 exit_code=0
+
+# Raw CLI output of a failed deploy, printed with the final status.
+deploy_error=""
 
 info "Started Lagoon deployment."
 
@@ -302,6 +310,10 @@ if [ "${exit_code}" = "0" ]; then
   pass "Finished Lagoon deployment."
 else
   fail "Lagoon deployment completed with errors."
+
+  if [ -n "${deploy_error}" ]; then
+    printf '%s\n' "${deploy_error}"
+  fi
 fi
 
 exit "${exit_code}"
