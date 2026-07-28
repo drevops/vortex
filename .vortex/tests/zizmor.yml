@@ -14,7 +14,7 @@ rules:
     #   needs a write token on fork PRs and never checks out PR code.
     # - label-merge-conflict: labels PRs with merge-conflict status via
     #   'eps1lon/actions-label-merge-conflict'; never checks out PR code.
-    # - vortex-test-docs: chained run after 'Vortex - Test installer'; the
+    # - vortex-test-docs: chained run after 'Vortex - Test CLI'; the
     #   'head_sha' interpolation has been moved into 'env:' to remove the
     #   injection surface.
     ignore:
@@ -30,7 +30,7 @@ rules:
     ignore:
       - vortex-release.yml
       - vortex-test-common.yml
-      - vortex-test-installer.yml
+      - vortex-test-cli.yml
   ref-version-mismatch:
     # Actions are pinned by commit SHA, which is the security control. The
     # trailing version comment is informational and managed by Renovate, which

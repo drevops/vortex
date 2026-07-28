@@ -9,17 +9,17 @@ use DrevOps\Vortex\Tests\Traits\Subtests\SubtestAhoyTrait;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests Installer.
+ * Tests the Vortex CLI.
  */
-class InstallerTest extends FunctionalTestCase {
+class CliTest extends FunctionalTestCase {
 
   use SubtestAhoyTrait;
 
   protected function setUp(): void {
     parent::setUp();
 
-    static::$sutInstallerEnv = [];
-    static::$sutInstallerPrompts = [];
+    static::$sutEnv = [];
+    static::$sutPrompts = [];
 
     // For test performance, we only export the current codebase without git
     // history in the parent::setUp(). For these test, though, we need git
@@ -39,8 +39,8 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitInitRepo(static::$sut);
     $this->gitCommitAll(static::$sut, 'First commit');
 
-    $this->logSubstep('Run Vortex installer to populate SUT with Vortex files');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to populate SUT with Vortex files');
+    $this->runInstall();
     $this->assertCommonFilesPresent();
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
@@ -57,25 +57,25 @@ class InstallerTest extends FunctionalTestCase {
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 1 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 1 to Vortex in .eslintrc.json");
-    $latest_installer_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
-    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_installer_commit1));
+    $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
+    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 2 to Vortex in .eslintrc.json");
-    $latest_installer_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
-    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_installer_commit2));
+    $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
+    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
 
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       // Unset the environment variable that forces using the remote repository
-      // in runInstaller().
-      'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
-      // Do not suppress the installer output so it could be used in assertions.
+      // in runInstall().
+      'VORTEX_CLI_INSTALL_TEMPLATE_REPO' => FALSE,
+      // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
+    $this->runInstall([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
     $this->assertProcessOutputContains(static::$repo);
-    $this->assertProcessOutputNotContains($latest_installer_commit1);
-    $this->assertProcessOutputNotContains($latest_installer_commit2);
+    $this->assertProcessOutputNotContains($latest_commit1);
+    $this->assertProcessOutputNotContains($latest_commit2);
     $this->assertProcessOutputContains('stable');
     $this->gitAssertIsRepository(static::$sut);
     $this->assertCommonFilesPresent(vortex_version: 'develop');
@@ -99,8 +99,8 @@ class InstallerTest extends FunctionalTestCase {
     $this->gitInitRepo(static::$sut);
     $this->gitCommitAll(static::$sut, 'First commit');
 
-    $this->logSubstep('Run Vortex installer to populate SUT with Vortex files');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to populate SUT with Vortex files');
+    $this->runInstall();
     $this->assertCommonFilesPresent();
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
@@ -117,26 +117,26 @@ class InstallerTest extends FunctionalTestCase {
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 1 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 1 to Vortex in .eslintrc.json");
-    $latest_installer_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
-    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_installer_commit1));
+    $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
+    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 2 to Vortex in .eslintrc.json");
-    $latest_installer_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
-    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_installer_commit2));
+    $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
+    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
 
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       // Unset the environment variable that forces using the remote repository
-      // in runInstaller().
-      'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
-      // Do not suppress the installer output so it could be used in assertions.
+      // in runInstall().
+      'VORTEX_CLI_INSTALL_TEMPLATE_REPO' => FALSE,
+      // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $latest_installer_commit1)]);
+    $this->runInstall([sprintf('--uri=%s#%s', static::$repo, $latest_commit1)]);
     $this->assertProcessOutputContains(static::$repo);
-    $this->assertProcessOutputContains($latest_installer_commit1);
+    $this->assertProcessOutputContains($latest_commit1);
     $this->gitAssertIsRepository(static::$sut);
-    $this->assertCommonFilesPresent(vortex_version: $latest_installer_commit1);
+    $this->assertCommonFilesPresent(vortex_version: $latest_commit1);
 
     $this->logSubstep('Assert that committed files were updated');
     $this->assertFileContainsString('docker-compose.yml', '# Update 1 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 1 changes');
