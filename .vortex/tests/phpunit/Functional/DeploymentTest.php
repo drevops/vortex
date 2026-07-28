@@ -20,8 +20,8 @@ class DeploymentTest extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    static::$sutInstallerEnv = [];
-    static::$sutInstallerPrompts = [];
+    static::$sutEnv = [];
+    static::$sutPrompts = [];
 
     $this->dockerCleanup();
   }
@@ -30,7 +30,7 @@ class DeploymentTest extends FunctionalTestCase {
   public function testDeployment(): void {
     $this->logStepStart();
 
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
     ];
 
@@ -57,7 +57,7 @@ class DeploymentTest extends FunctionalTestCase {
   public function testDeploymentSkipFlags(): void {
     $this->logStepStart();
 
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
     ];
 
@@ -204,10 +204,10 @@ class DeploymentTest extends FunctionalTestCase {
   public function testDeploymentArtifact(): void {
     $this->logStepStart();
 
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
     ];
-    static::$sutInstallerPrompts = [
+    static::$sutPrompts = [
       'deploy_types' => ['artifact'],
     ];
 

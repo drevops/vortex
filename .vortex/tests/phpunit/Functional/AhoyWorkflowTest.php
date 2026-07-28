@@ -18,15 +18,15 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    static::$sutInstallerEnv = [];
-    static::$sutInstallerPrompts = [];
+    static::$sutEnv = [];
+    static::$sutPrompts = [];
 
     $this->dockerCleanup();
   }
 
   #[Group('p4')]
   public function testAhoyWorkflowStateless(): void {
-    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    static::$sutEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 
@@ -75,7 +75,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p0')]
   public function testAhoyWorkflowStateful(): void {
-    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    static::$sutEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 
@@ -120,7 +120,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p3')]
   public function testAhoyBuildIdempotence(): void {
-    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    static::$sutEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 
@@ -141,7 +141,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p4')]
   public function testAhoyWorkflowDatabaseFromImageStorageInImage(): void {
-    static::$sutInstallerPrompts = [
+    static::$sutPrompts = [
       'database_fetch_source' => 'container_registry',
       'database_image' => self::VORTEX_DB_IMAGE_TEST,
     ];
@@ -170,7 +170,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     // Assert that the database was not fetched
     // because VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP was set.
-    $this->assertFileDoesNotExist('.data/db.sql', 'Demo database file should not exist after installer');
+    $this->assertFileDoesNotExist('.data/db.sql', 'Demo database file should not exist after install');
 
     $this->logSubstep('Test database reload functionality');
     $this->assertWebpageContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should show test content from database image');
@@ -215,7 +215,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p1')]
   public function testAhoyWorkflowProfileStandard(): void {
-    static::$sutInstallerPrompts = [
+    static::$sutPrompts = [
       'starter' => 'install_profile_core',
       'provision_type' => 'profile',
     ];
@@ -241,7 +241,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p2')]
   public function testAhoyWorkflowProfileDrupalCms(): void {
-    static::$sutInstallerPrompts = [
+    static::$sutPrompts = [
       'starter' => 'install_profile_drupalcms',
       'provision_type' => 'profile',
     ];
@@ -271,17 +271,17 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p5')]
   public function testAhoyWorkflowMigration(): void {
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
     ];
-    static::$sutInstallerPrompts = [
+    static::$sutPrompts = [
       'migration' => TRUE,
       'migration_fetch_source' => 'url',
     ];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 
-    // Verify installer produced the migration infrastructure.
+    // Verify the CLI produced the migration infrastructure.
     $this->subtestAhoyMigrationFilesPresent();
 
     // Fetch migration database before build so it is available when
@@ -299,10 +299,10 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p5')]
   public function testAhoyWorkflowMigrationDatabaseFromImage(): void {
-    static::$sutInstallerEnv = [
+    static::$sutEnv = [
       'VORTEX_INSTALLER_IS_DEMO' => '1',
     ];
-    static::$sutInstallerPrompts = [
+    static::$sutPrompts = [
       'migration' => TRUE,
       'migration_fetch_source' => 'container_registry',
       'migration_image' => self::VORTEX_DB_IMAGE_TEST,
@@ -310,7 +310,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 
-    // Verify installer produced the migration infrastructure.
+    // Verify the CLI produced the migration infrastructure.
     $this->subtestAhoyMigrationFilesPresent();
 
     $this->logSubstep('Verify migration database image configuration');
@@ -359,7 +359,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     // Simulate an upgrade from an older Vortex version that shipped scripts
     // at 'scripts/vortex/' before they were extracted into the
-    // 'drevops/vortex-tooling' Composer package. The installer should remove
+    // 'drevops/vortex-tooling' Composer package. The CLI should remove
     // this legacy directory on update.
     File::dump('scripts/vortex/deploy.sh', '#!/usr/bin/env bash');
     File::dump('scripts/vortex/notify.sh', '#!/usr/bin/env bash');
@@ -371,13 +371,13 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 1 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 1 to Vortex in .eslintrc.json");
-    $latest_installer_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
-    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_installer_commit1));
+    $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
+    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 2 to Vortex in .eslintrc.json");
-    $latest_installer_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
-    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_installer_commit2));
+    $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
+    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
 
     $this->logSubstep('Build the Vortex CLI to be used for update');
     // This is required as the update script removes the downloaded CLI after
@@ -394,8 +394,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
       'SHELL_VERBOSITY' => FALSE,
     ]);
     $this->assertProcessOutputContains(static::$repo);
-    $this->assertProcessOutputNotContains($latest_installer_commit1);
-    $this->assertProcessOutputNotContains($latest_installer_commit2);
+    $this->assertProcessOutputNotContains($latest_commit1);
+    $this->assertProcessOutputNotContains($latest_commit2);
     $this->assertProcessOutputContains('HEAD');
     $this->gitAssertIsRepository(static::$sut);
     $this->assertCommonFilesPresent(vortex_version: 'develop');
@@ -407,7 +407,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 2 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 2 changes');
 
     $this->logSubstep('Assert that legacy scripts/vortex/ was removed');
-    $this->assertDirectoryDoesNotExist('scripts/vortex', 'Legacy scripts/vortex/ directory was removed by the installer.');
+    $this->assertDirectoryDoesNotExist('scripts/vortex', 'Legacy scripts/vortex/ directory was removed by the CLI.');
 
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
@@ -451,13 +451,13 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 1 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 1 to Vortex in .eslintrc.json");
-    $latest_installer_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
-    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_installer_commit1));
+    $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
+    $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
     File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 2 to Vortex in .eslintrc.json");
-    $latest_installer_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
-    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_installer_commit2));
+    $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
+    $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
 
     $this->logSubstep('Build the Vortex CLI to be used for update');
     // This is required as the update script removes the downloaded CLI after
@@ -466,17 +466,17 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Update Vortex from the template repository');
     // Use the argument instead of `VORTEX_CLI_TEMPLATE_REPO` variable.
-    $this->cmd('ahoy update-vortex ' . static::$repo . '#' . $latest_installer_commit1, txt: 'Update Vortex to a specific version', env: [
+    $this->cmd('ahoy update-vortex ' . static::$repo . '#' . $latest_commit1, txt: 'Update Vortex to a specific version', env: [
       // Override the CLI path to be called from SUT's update script.
       'VORTEX_CLI_URL' => 'file://' . $cli_bin,
       // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ]);
     $this->assertProcessOutputContains(static::$repo);
-    $this->assertProcessOutputContains($latest_installer_commit1);
-    $this->assertProcessOutputNotContains($latest_installer_commit2);
+    $this->assertProcessOutputContains($latest_commit1);
+    $this->assertProcessOutputNotContains($latest_commit2);
     $this->gitAssertIsRepository(static::$sut);
-    $this->assertCommonFilesPresent(vortex_version: $latest_installer_commit1);
+    $this->assertCommonFilesPresent(vortex_version: $latest_commit1);
 
     $this->logSubstep('Assert that committed files were updated');
     $this->assertFileContainsString('docker-compose.yml', '# Update 1 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 1 changes');
@@ -493,7 +493,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
   #[Group('p2')]
   public function testAhoyWorkflowProvisionFallbackToProfile(): void {
-    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    static::$sutEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 

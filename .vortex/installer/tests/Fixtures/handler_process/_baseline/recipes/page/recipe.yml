@@ -1,9 +1,0 @@
-name: 'Basic page'
-description: 'Creates the Basic page content type with a body field and default form and view displays.'
-type: 'Content type'
-install:
-  - node
-  - text
-  - path
-config:
-  strict: false

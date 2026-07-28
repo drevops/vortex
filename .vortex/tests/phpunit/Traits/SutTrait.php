@@ -29,12 +29,12 @@ trait SutTrait {
    * Tests use demo database and 'ahoy fetch-db' command, so we need
    * to set the CURL DB to test DB.
    */
-  const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/1.40.0/db.test.sql';
+  const DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/1.40.0/db.test.sql';
 
   /**
    * URL for the migration source demo database used in tests.
    */
-  const VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11.demo_source.sql';
+  const DEMO_DB2_SOURCE_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11.demo_source.sql';
 
   /**
    * Image name for the test database.
@@ -42,11 +42,11 @@ trait SutTrait {
   const VORTEX_DB_IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.40.0';
 
   /**
-   * Environment variables to set when running the installer.
+   * Environment variables to set when running the Vortex CLI.
    *
    * @var array <string, string|int|float|bool>
    */
-  protected static $sutInstallerEnv = [];
+  protected static $sutEnv = [];
 
   /**
    * Prompt values to pass via --prompts option.
@@ -55,7 +55,7 @@ trait SutTrait {
    *
    * @var array<string, mixed>
    */
-  protected static array $sutInstallerPrompts = [];
+  protected static array $sutPrompts = [];
 
   protected function prepareSut(string $webroot = 'web'): void {
     $this->logStepStart();
@@ -230,15 +230,15 @@ trait SutTrait {
     // ProcessTrait::processParseCommand() is fixed.
     $cmd = sprintf('php %s install --no-interaction --destination=%s', static::CLI_BIN, escapeshellarg(static::locationsSut()));
 
-    if (!empty(static::$sutInstallerPrompts)) {
-      $cmd .= ' --prompts=' . escapeshellarg((string) json_encode(static::$sutInstallerPrompts));
+    if (!empty(static::$sutPrompts)) {
+      $cmd .= ' --prompts=' . escapeshellarg((string) json_encode(static::$sutPrompts));
     }
 
     $this->logNote('Run the Vortex CLI to install the project');
     $this->cmd(
       $cmd,
       arg: $arguments,
-      env: static::$sutInstallerEnv + [
+      env: static::$sutEnv + [
         // Use a unique temporary directory for each run. This is where the
         // Vortex codebase is downloaded for processing.
         'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
@@ -255,7 +255,7 @@ trait SutTrait {
         //
         // The CLI will load this environment variable, and it will
         // take precedence over the value in the .env file.
-        'VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
+        'VORTEX_FETCH_DB_URL' => static::DEMO_DB_TEST,
       ],
       txt: 'Run the Vortex CLI'
     );
@@ -320,8 +320,8 @@ trait SutTrait {
 
     $this->cmd(
       './vendor/bin/vortex-fetch-db',
-      env: ['VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
-      txt: 'Demo database fetched from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
+      env: ['VORTEX_FETCH_DB_URL' => static::DEMO_DB_TEST],
+      txt: 'Demo database fetched from ' . static::DEMO_DB_TEST,
     );
 
     $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after fetching the database.');
@@ -544,7 +544,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.github/workflows/vortex-release.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-docs.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-common.yml');
-    $this->assertFileDoesNotExist('.github/workflows/vortex-test-installer.yml');
+    $this->assertFileDoesNotExist('.github/workflows/vortex-test-cli.yml');
 
     if (file_exists('.circleci/config.yml')) {
       $this->assertFileNotContainsString('.circleci/config.yml', 'vortex-dev', 'CircleCI config should not contain development Vortex references');

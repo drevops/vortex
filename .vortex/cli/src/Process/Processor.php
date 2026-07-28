@@ -29,7 +29,7 @@ class Processor {
    * @param \DrevOps\Tui\Handler\HandlerRegistry $handlers
    *   The handler registry resolving a field id to its handler class.
    * @param \DrevOps\VortexCli\Utils\Config $config
-   *   The installer configuration the handlers operate on.
+   *   The CLI configuration the handlers operate on.
    * @param array<int,array{id:string,weight:int}> $processors
    *   The field-less processors that always run, each an id and a weight.
    * @param array<string,int> $weights

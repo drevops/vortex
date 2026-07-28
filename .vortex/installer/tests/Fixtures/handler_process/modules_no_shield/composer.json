@@ -1,8 +1,0 @@
-@@ -30,7 +30,6 @@
-         "drupal/search_api": "__VERSION__",
-         "drupal/search_api_solr": "__VERSION__",
-         "drupal/seckit": "__VERSION__",
--        "drupal/shield": "__VERSION__",
-         "drupal/stage_file_proxy": "__VERSION__",
-         "drupal/testmode": "__VERSION__",
-         "drupal/xmlsitemap": "__VERSION__",

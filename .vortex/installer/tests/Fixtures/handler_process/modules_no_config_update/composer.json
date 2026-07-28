@@ -1,8 +1,0 @@
-@@ -12,7 +12,6 @@
-         "drupal/clamav": "__VERSION__",
-         "drupal/coffee": "__VERSION__",
-         "drupal/config_split": "__VERSION__",
--        "drupal/config_update": "__VERSION__",
-         "drupal/core-composer-scaffold": "__VERSION__",
-         "drupal/core-recommended": "__VERSION__",
-         "drupal/deploy_steps": "__VERSION__",

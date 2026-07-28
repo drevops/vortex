@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Utils;
 
 /**
- * Installer configuration.
+ * The CLI's own run configuration: paths, flags and the resolved template.
  *
- * Installer config is a config of this installer script.
+ * Every value is backed by a "VORTEX_INSTALLER_"-prefixed environment variable
+ * of the same name, which always takes precedence over what the caller sets.
  *
  * @package DrevOps\VortexCli
  */

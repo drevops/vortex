@@ -9,7 +9,7 @@ use DrevOps\VortexCli\Utils\Env;
 /**
  * Toggle building of front-end (theme) assets inside the container image.
  *
- * Only relevant for a custom theme. When disabled, the installer sets
+ * Only relevant for a custom theme. When disabled, this sets
  * VORTEX_FRONTEND_BUILD_SKIP=1 in .env so the container image build skips the
  * theme build and assets are built on the host or as part of deployment.
  */

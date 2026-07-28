@@ -41,7 +41,7 @@ class Starter extends AbstractHandler {
     $label31 = Tui::underscore('loading an existing demo database');
 
     return <<<DOC
-Choose how your site will be created the first time after this installer finishes:
+Choose how your site will be created the first time after this CLI finishes:
 
     ○ {$label1}
       Creates a new site by {$label11}
@@ -53,7 +53,7 @@ Choose how your site will be created the first time after this installer finishe
 
     ○ {$label3}
       Creates a site by {$label31}
-      provided with the installer.
+      provided with the CLI.
 DOC;
   }
 
@@ -61,7 +61,7 @@ DOC;
    * {@inheritdoc}
    */
   public function hint(array $responses): ?string {
-    return 'Use ⬆ and ⬇. Applies only on the first run of the installer.';
+    return 'Use ⬆ and ⬇. Applies only on the first run of the CLI.';
   }
 
   /**

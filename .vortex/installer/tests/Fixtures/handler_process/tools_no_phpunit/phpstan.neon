@@ -1,6 +1,0 @@
-@@ -49,5 +49,4 @@
-       paths:
-         - web/modules/custom/*/tests/*
-         - web/themes/custom/*/tests/*
--        - tests/phpunit/*
-       reportUnmatched: false

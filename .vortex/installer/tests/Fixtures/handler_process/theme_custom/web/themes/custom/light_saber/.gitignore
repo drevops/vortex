@@ -1,5 +1,0 @@
-# Assets cache.
-.sass-cache
-
-# Note that compiled assets are ignored in the root .gitignore so that
-# the deployment artifact could include them.

@@ -1,9 +1,0 @@
-@@ -15,7 +15,7 @@
-     "prHourlyLimit": 0,
-     "commitBodyTable": true,
-     "rangeStrategy": "bump",
--    "timezone": "UTC",
-+    "timezone": "America/New_York",
-     "configMigration": true,
-     "enabledManagers": [
-         "composer",

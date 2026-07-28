@@ -1,9 +1,0 @@
-@@ -1,6 +1,6 @@
- {
--    "name": "star_wars_org/star_wars",
--    "description": "Drupal 11 implementation of star wars for star wars Org",
-+    "name": "the_jedi_order/the_new_hope",
-+    "description": "Drupal 11 implementation of New hope for Jedi Order",
-     "license": "proprietary",
-     "type": "project",
-     "require": {

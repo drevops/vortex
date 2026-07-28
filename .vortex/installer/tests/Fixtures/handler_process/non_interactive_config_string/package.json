@@ -1,8 +1,0 @@
-@@ -1,6 +1,6 @@
- {
-   "name": "star_wars",
--  "description": "Drupal 11 implementation of star wars for star wars Org",
-+  "description": "Drupal 11 implementation of star wars for My other custom org",
-   "license": "proprietary",
-   "private": true,
-   "engines": {

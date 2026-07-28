@@ -1,8 +1,0 @@
-@@ -17,7 +17,6 @@
-         "drupal/core-recommended": "__VERSION__",
-         "drupal/deploy_steps": "__VERSION__",
-         "drupal/devel": "__VERSION__",
--        "drupal/drupal_helpers": "__VERSION__",
-         "drupal/environment_indicator": "__VERSION__",
-         "drupal/generated_content": "__VERSION__",
-         "drupal/navigation_extra_tools": "__VERSION__",

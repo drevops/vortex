@@ -114,10 +114,10 @@ Work through each checklist item from the release process doc:
      otherwise it runs silently so the remaining commands have a built
      project to work against.
    - To re-record a subset, pass the names:
-     `ahoy update-videos installer build lint`. Allowed names: `installer`,
+     `ahoy update-videos install build lint`. Allowed names: `install`,
      `build`, `provision`, `lint`, `test`, `test-bdd`. Default is all six.
    - Heavy step: ~15-20 minutes wall-clock when running all six; requires
-     Docker. `ahoy update-videos installer` is fast (no Docker).
+     Docker. `ahoy update-videos install` is fast (no Docker).
    - The command does NOT auto-commit; review the artifact diff under
      `.vortex/docs/static/img/` and stage manually.
 
@@ -193,7 +193,7 @@ Summary paragraph (1-3 sentences).
 
 ---
 
-### 🎛 Installer
+### 🎛 CLI
 
 (same sub-sections)
 
@@ -269,17 +269,17 @@ The `## 🔍 Highlights` section is the part most readers will actually read. It
 7. **Runtime / platform bumps** when they are breaking (PHP major.minor, container major bumps).
 
 DO NOT highlight:
-- Installer-only conveniences (e.g. installer flags) unless they unblock a category of users.
+- CLI-only conveniences (e.g. CLI flags) unless they unblock a category of users.
 - Internal CI tweaks that have no consumer-facing effect.
 - Pure refactors.
 - Single-vendor integrations that most users won't reach for (e.g. an optional Codecov prompt).
 
-If you are tempted to put an installer flag or an optional integration in highlights, ask: "Does the average Vortex consumer project benefit from this on day 1?". If no, move it down to its respective category section.
+If you are tempted to put a CLI flag or an optional integration in highlights, ask: "Does the average Vortex consumer project benefit from this on day 1?". If no, move it down to its respective category section.
 
 ### Categorisation
 
 - **Template**: Changes to the project template files (scripts, configs, CI, modules, theme)
-- **Installer**: Changes to `.vortex/installer/src/` code and installer-specific tests
+- **CLI**: Changes to `.vortex/cli/src/` code and CLI-specific tests
 - **Documentation**: Changes to `.vortex/docs/` content
 
 Within each category:
@@ -290,11 +290,11 @@ Within each category:
 
 ### Important
 
-- Many commits touch installer **fixtures** because template changes cascade into them.
-  Only list changes in the Installer section if they modify actual installer **source code**
-  (`.vortex/installer/src/`) or installer-specific test logic.
-- Check for commits that touch both template and installer source - list the template
-  change under Template and the installer-specific change under Installer.
+- Many commits touch CLI **fixtures** because template changes cascade into them.
+  Only list changes in the CLI section if they modify actual CLI **source code**
+  (`.vortex/cli/src/`) or CLI-specific test logic.
+- Check for commits that touch both template and CLI source - list the template
+  change under Template and the CLI-specific change under CLI.
 
 ## Command rules - CRITICAL
 

@@ -1,9 +1,0 @@
-@@ -50,8 +50,6 @@
- .artifacts
- .data
- .logs
--.phpunit.cache
--.twig-cs-fixer.cache
- 
- # Local override files.
- /docker-compose.override.yml

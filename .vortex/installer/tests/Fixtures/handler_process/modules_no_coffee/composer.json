@@ -1,8 +1,0 @@
-@@ -10,7 +10,6 @@
-         "drevops/environment-detector": "__VERSION__",
-         "drevops/vortex-tooling": "__VERSION__",
-         "drupal/clamav": "__VERSION__",
--        "drupal/coffee": "__VERSION__",
-         "drupal/config_split": "__VERSION__",
-         "drupal/config_update": "__VERSION__",
-         "drupal/core-composer-scaffold": "__VERSION__",

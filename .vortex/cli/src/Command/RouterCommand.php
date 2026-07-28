@@ -14,8 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * The default command: routes a bare `vortex` invocation by project state.
  *
  * With no explicit sub-command, a directory that already holds a Vortex project
- * - detected from its README badge, the same signal the installer uses to spot
- * an existing project - is reconfigured; anything else is a fresh install.
+ * - detected from its README badge - is reconfigured; anything else is a fresh
+ * install.
  *
  * @package DrevOps\VortexCli\Command
  */

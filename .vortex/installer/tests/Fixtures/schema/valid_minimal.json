@@ -1,9 +1,0 @@
-{
-  "name": "Minimal Site",
-  "machine_name": "minimal_site",
-  "org": "Minimal Org",
-  "org_machine_name": "minimal_org",
-  "domain": "minimal.com",
-  "module_prefix": "minimal_site",
-  "webroot": "web"
-}

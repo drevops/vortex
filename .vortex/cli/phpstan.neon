@@ -13,12 +13,11 @@ parameters:
   excludePaths:
     - vendor/*
     - node_modules/*
-    # Relocated fixtures are template files, not standalone analysable PHP.
+    # Fixtures are template files, not standalone analysable PHP.
     - tests/phpunit/Fixtures/*
-    # Utilities, prompt handlers and the prompt-type enum relocated verbatim
-    # from the installer (validated at level 7 there and exercised by the
-    # process/fixture tests); their call sites are still type-checked via
-    # their signatures.
+    # Utilities, question handlers and the prompt-type enum are exercised
+    # end-to-end by the process/fixture tests; their call sites are still
+    # type-checked via their signatures.
     - src/Utils/*
     - src/Downloader/*
     - src/Handler/*

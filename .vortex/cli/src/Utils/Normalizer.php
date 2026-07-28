@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Utils;
 
 /**
- * Installer configuration.
- *
- * Installer config is a config of this installer script.
+ * Shapes handler-supplied option lists into the form the widgets expect.
  *
  * @package DrevOps\VortexCli
  */

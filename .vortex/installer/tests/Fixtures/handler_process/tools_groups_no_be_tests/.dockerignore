@@ -1,8 +1,0 @@
-@@ -39,7 +39,6 @@
- **/.artifacts
- **/.data
- **/.logs
--**/.phpunit.cache
- **/.twig-cs-fixer.cache
- 
- # Database cache key files written into the workspace by the CI workflow.

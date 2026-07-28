@@ -138,7 +138,7 @@ BANNER;
    * Build the Vortex form definition.
    *
    * @param \DrevOps\VortexCli\Utils\Config $config
-   *   The installer configuration the handlers operate on.
+   *   The CLI configuration the handlers operate on.
    *
    * @return \DrevOps\Tui\Model\FormDefinition
    *   The form definition.

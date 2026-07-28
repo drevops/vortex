@@ -1,8 +1,0 @@
-@@ -33,7 +33,6 @@
-         "drupal/shield": "__VERSION__",
-         "drupal/stage_file_proxy": "__VERSION__",
-         "drupal/testmode": "__VERSION__",
--        "drupal/xmlsitemap": "__VERSION__",
-         "drush/drush": "__VERSION__",
-         "webflo/drupal-finder": "__VERSION__"
-     },

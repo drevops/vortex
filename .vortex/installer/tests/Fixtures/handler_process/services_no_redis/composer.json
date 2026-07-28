@@ -1,8 +1,0 @@
-@@ -23,7 +23,6 @@
-         "drupal/navigation_extra_tools": "__VERSION__",
-         "drupal/pathauto": "__VERSION__",
-         "drupal/redirect": "__VERSION__",
--        "drupal/redis": "__VERSION__",
-         "drupal/reroute_email": "__VERSION__",
-         "drupal/robotstxt": "__VERSION__",
-         "drupal/sdc_devel": "__VERSION__",

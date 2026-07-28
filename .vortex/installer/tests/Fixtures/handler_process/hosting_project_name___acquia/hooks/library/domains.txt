@@ -1,1 +1,0 @@
-$TARGET_ENV_REMAP.star-wars.com

@@ -1,8 +1,0 @@
-@@ -16,7 +16,6 @@
-         "drupal/core-composer-scaffold": "__VERSION__",
-         "drupal/core-recommended": "__VERSION__",
-         "drupal/deploy_steps": "__VERSION__",
--        "drupal/devel": "__VERSION__",
-         "drupal/drupal_helpers": "__VERSION__",
-         "drupal/environment_indicator": "__VERSION__",
-         "drupal/generated_content": "__VERSION__",
