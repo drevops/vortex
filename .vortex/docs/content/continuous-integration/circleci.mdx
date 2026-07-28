@@ -67,8 +67,9 @@ the `runner_config` section. Note that this may affect your CircleCI billing:
 resource_class: large  # Options: small, medium, large, xlarge
 ```
 
-Larger resource classes also come with more disk, which matters for projects
-whose provisioning is disk-heavy. See [Runner disk space](/docs/continuous-integration#runner-disk-space).
+Resource classes scale CPU and memory only. Disk space is not tied to the
+resource class, so upgrading it will not help a job that runs out of space -
+see [Runner disk space](/docs/continuous-integration#runner-disk-space).
 
 ### Change test parallelism
 
