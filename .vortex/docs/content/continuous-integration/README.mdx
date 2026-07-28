@@ -187,8 +187,8 @@ by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
 
 Continuous integration jobs run on hosted runners with a fixed amount of disk
 space - around 14 GB free on the GitHub Actions `ubuntu-latest` runner, and a
-per-resource-class allocation on CircleCI. Pulled container images, database
-dumps, and every file created while provisioning share that space.
+fixed allocation on CircleCI. Pulled container images, database dumps, and every
+file created while provisioning share that space.
 
 When it runs out, the runner is terminated from the outside: the step that was
 running never reports an error and the log archive may be lost entirely, so the
