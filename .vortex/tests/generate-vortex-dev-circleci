@@ -265,7 +265,7 @@ function build_database_builder_job(string $name, array $env): string {
 
       - run:
           name: Build stack
-          command: docker compose up --detach && docker builder prune --all --force
+          command: docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
       # Import the fetched dump and export it as a database container image,
       # then push it for the matching build job to pull. Configuration changes
