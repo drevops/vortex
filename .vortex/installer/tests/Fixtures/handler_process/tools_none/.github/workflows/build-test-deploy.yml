@@ -43,9 +43,9 @@
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 -          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
  
-       # Provisioning is the most disk-intensive step: a runner that runs out of
-       # space is killed without a step error and its logs become unretrievable,
-@@ -416,71 +390,6 @@
+       - name: Provision site
+         run: |
+@@ -402,71 +376,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -117,7 +117,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -493,20 +402,6 @@
+@@ -479,20 +388,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -138,7 +138,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -523,16 +418,6 @@
+@@ -509,16 +404,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

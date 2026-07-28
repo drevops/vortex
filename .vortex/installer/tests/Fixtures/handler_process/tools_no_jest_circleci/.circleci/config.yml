@@ -352,15 +352,6 @@ jobs:
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
-      # Provisioning is the most disk-intensive step: a runner that runs out of
-      # space is killed without a step error, so the available space is reported
-      # while there is still a log to write it to.
-      - run:
-          name: Show disk usage
-          command: |
-            df -h
-            docker system df
-
       - run:
           name: Provision site
           command: |
