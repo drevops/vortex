@@ -522,7 +522,6 @@ load ../_helper.bash
   # Mock a deploy failure unrelated to environment limits.
   local deploy_error="Error: deployment rejected by policy."
 
-  # shellcheck disable=SC2034
   declare -a STEPS=(
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
@@ -614,6 +613,33 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "Failure: deploy that fails without any output still reports the failure" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1"
+    "[FAIL] Lagoon deployment completed with errors."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_failure
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
 @test "Successful deploy does not surface its output without debug mode" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -624,6 +650,7 @@ load ../_helper.bash
   export VORTEX_DEPLOY_BRANCH="test-branch"
   export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
 
+  # shellcheck disable=SC2034
   declare -a STEPS=(
     "@ssh-add -l # ${HOME}/.ssh/id_rsa"
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
