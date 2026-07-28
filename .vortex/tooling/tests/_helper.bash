@@ -133,7 +133,12 @@ setup() {
   unset NEWRELIC_USER_KEY
   unset S3_ACCESS_KEY
   unset S3_SECRET_KEY
-  unset DOCKER_CONFIG
+
+  # Point the container registry credential store at the per-test build
+  # directory. Unsetting is not enough here: the consuming default resolves to
+  # "${HOME}/.docker", so an unset value reads the real credential store of the
+  # developer running the suite instead of an empty one.
+  export DOCKER_CONFIG="${BUILD_DIR}/.docker"
 
   # Disable interactive prompts during tests.
   export AHOY_CONFIRM_RESPONSE=y
