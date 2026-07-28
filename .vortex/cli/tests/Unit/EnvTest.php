@@ -63,6 +63,47 @@ class EnvTest extends UnitTestCase {
     yield ['VAR', '', 'VAL2', 'VAL2'];
   }
 
+  public function testGetFallsBackToSupersededName(): void {
+    Env::resetLegacyUsed();
+    static::envSet('VORTEX_INSTALLER_TMP_DIR', 'LEGACY');
+
+    $this->assertSame('LEGACY', Env::get('VORTEX_CLI_INSTALL_TMP_DIR'));
+    $this->assertSame(['VORTEX_CLI_INSTALL_TMP_DIR' => 'VORTEX_INSTALLER_TMP_DIR'], Env::legacyUsed());
+  }
+
+  public function testGetPrefersCurrentNameOverSuperseded(): void {
+    Env::resetLegacyUsed();
+    static::envSet('VORTEX_CLI_INSTALL_TMP_DIR', 'CURRENT');
+    static::envSet('VORTEX_INSTALLER_TMP_DIR', 'LEGACY');
+
+    $this->assertSame('CURRENT', Env::get('VORTEX_CLI_INSTALL_TMP_DIR'));
+    $this->assertSame([], Env::legacyUsed());
+  }
+
+  public function testGetReturnsDefaultWhenNeitherNameIsSet(): void {
+    Env::resetLegacyUsed();
+    static::envUnset('VORTEX_CLI_INSTALL_TMP_DIR');
+    static::envUnset('VORTEX_INSTALLER_TMP_DIR');
+
+    $this->assertSame('DEF', Env::get('VORTEX_CLI_INSTALL_TMP_DIR', 'DEF'));
+    $this->assertSame([], Env::legacyUsed());
+  }
+
+  #[DataProvider('dataProviderLegacyName')]
+  public function testLegacyName(string $name, ?string $expected): void {
+    $this->assertSame($expected, Env::legacyName($name));
+  }
+
+  public static function dataProviderLegacyName(): \Iterator {
+    // The longer prefix is matched first, so the install-scoped name does not
+    // collapse into the CLI-level one.
+    yield 'install scoped' => ['VORTEX_CLI_INSTALL_TMP_DIR', 'VORTEX_INSTALLER_TMP_DIR'];
+    yield 'install scoped prompt' => ['VORTEX_CLI_INSTALL_PROMPT_NAME', 'VORTEX_INSTALLER_PROMPT_NAME'];
+    yield 'cli level' => ['VORTEX_CLI_VERSION', 'VORTEX_INSTALLER_VERSION'];
+    yield 'unrelated vortex var' => ['VORTEX_PROJECT', NULL];
+    yield 'unrelated var' => ['PATH', NULL];
+  }
+
   #[DataProvider('dataProviderGetFromDotenv')]
   public function testGetFromDotenv(string $name, ?string $value, ?string $value_dotenv, ?string $expected): void {
     if ($expected !== NULL) {

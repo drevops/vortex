@@ -34,7 +34,7 @@ interface HandlerInterface {
    * Get the environment variable name for this handler.
    *
    * @return string
-   *   The environment variable name in the format VORTEX_INSTALLER_PROMPT_*.
+   *   The environment variable name in the format VORTEX_CLI_INSTALL_PROMPT_*.
    */
   public static function envName(): string;
 

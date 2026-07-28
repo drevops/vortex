@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Tests\Unit;
 
 use DrevOps\VortexCli\Utils\Config;
+use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,7 +20,12 @@ class ConfigTest extends UnitTestCase {
     parent::setUp();
 
     // Clear any existing environment variables that could interfere with tests.
+    // Both prefixes are cleared because the superseded one still resolves
+    // through the fallback in Env::get().
+    static::envUnsetPrefix('VORTEX_CLI');
     static::envUnsetPrefix('VORTEX_INSTALLER');
+
+    Env::resetLegacyUsed();
   }
 
   public function testConstructorDefaults(): void {
@@ -293,20 +299,39 @@ class ConfigTest extends UnitTestCase {
 
   public function testConstants(): void {
     // Test that all constants are defined and have expected values.
-    $this->assertEquals('VORTEX_INSTALLER_ROOT_DIR', Config::ROOT);
-    $this->assertEquals('VORTEX_INSTALLER_DST_DIR', Config::DST);
-    $this->assertEquals('VORTEX_INSTALLER_TMP_DIR', Config::TMP);
-    $this->assertEquals('VORTEX_INSTALLER_TEMPLATE_REPO', Config::REPO);
-    $this->assertEquals('VORTEX_INSTALLER_TEMPLATE_REF', Config::REF);
-    $this->assertEquals('VORTEX_INSTALLER_PROCEED', Config::PROCEED);
-    $this->assertEquals('VORTEX_INSTALLER_IS_DEMO', Config::IS_DEMO);
-    $this->assertEquals('VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP', Config::IS_DEMO_DB_FETCH_SKIP);
-    $this->assertEquals('VORTEX_INSTALLER_IS_VORTEX_PROJECT', Config::IS_VORTEX_PROJECT);
-    $this->assertEquals('VORTEX_INSTALLER_VERSION', Config::VERSION);
-    $this->assertEquals('VORTEX_INSTALLER_NO_INTERACTION', Config::NO_INTERACTION);
-    $this->assertEquals('VORTEX_INSTALLER_QUIET', Config::QUIET);
-    $this->assertEquals('VORTEX_INSTALLER_NO_CLEANUP', Config::NO_CLEANUP);
-    $this->assertEquals('VORTEX_INSTALLER_BUILD_NOW', Config::BUILD_NOW);
+    $this->assertEquals('VORTEX_CLI_INSTALL_ROOT_DIR', Config::ROOT);
+    $this->assertEquals('VORTEX_CLI_INSTALL_DST_DIR', Config::DST);
+    $this->assertEquals('VORTEX_CLI_INSTALL_TMP_DIR', Config::TMP);
+    $this->assertEquals('VORTEX_CLI_INSTALL_TEMPLATE_REPO', Config::REPO);
+    $this->assertEquals('VORTEX_CLI_INSTALL_TEMPLATE_REF', Config::REF);
+    $this->assertEquals('VORTEX_CLI_INSTALL_PROCEED', Config::PROCEED);
+    $this->assertEquals('VORTEX_CLI_INSTALL_IS_DEMO', Config::IS_DEMO);
+    $this->assertEquals('VORTEX_CLI_INSTALL_IS_DEMO_DB_FETCH_SKIP', Config::IS_DEMO_DB_FETCH_SKIP);
+    $this->assertEquals('VORTEX_CLI_INSTALL_IS_VORTEX_PROJECT', Config::IS_VORTEX_PROJECT);
+    $this->assertEquals('VORTEX_CLI_VERSION', Config::VERSION);
+    $this->assertEquals('VORTEX_CLI_INSTALL_NO_INTERACTION', Config::NO_INTERACTION);
+    $this->assertEquals('VORTEX_CLI_INSTALL_QUIET', Config::QUIET);
+    $this->assertEquals('VORTEX_CLI_INSTALL_NO_CLEANUP', Config::NO_CLEANUP);
+    $this->assertEquals('VORTEX_CLI_INSTALL_BUILD_NOW', Config::BUILD_NOW);
+  }
+
+  public function testSupersededEnvironmentVariableStillResolves(): void {
+    static::envSet('VORTEX_INSTALLER_TMP_DIR', '/legacy/tmp');
+
+    $config = new Config();
+
+    $this->assertEquals('/legacy/tmp', $config->get(Config::TMP));
+    $this->assertSame([Config::TMP => 'VORTEX_INSTALLER_TMP_DIR'], Env::legacyUsed());
+  }
+
+  public function testCurrentEnvironmentVariableWinsOverSuperseded(): void {
+    static::envSet('VORTEX_CLI_INSTALL_TMP_DIR', '/current/tmp');
+    static::envSet('VORTEX_INSTALLER_TMP_DIR', '/legacy/tmp');
+
+    $config = new Config();
+
+    $this->assertEquals('/current/tmp', $config->get(Config::TMP));
+    $this->assertSame([], Env::legacyUsed());
   }
 
   public function testEnvironmentVariablePrecedenceInConstructor(): void {

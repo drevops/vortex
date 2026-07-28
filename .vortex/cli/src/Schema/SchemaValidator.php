@@ -122,7 +122,7 @@ class SchemaValidator {
   /**
    * Normalize config keys to handler IDs.
    *
-   * Supports both env var names (VORTEX_INSTALLER_PROMPT_*) and handler IDs.
+   * Supports both env var names (VORTEX_CLI_INSTALL_PROMPT_*) and handler IDs.
    *
    * @param array<string, mixed> $config
    *   The raw config array.

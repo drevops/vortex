@@ -13,12 +13,77 @@ class Env {
   const NULL = 'null';
 
   /**
+   * Superseded prefixes, mapped to the prefix that replaced them.
+   *
+   * Ordered longest-first so the more specific prefix is matched before the
+   * shorter one it starts with.
+   *
+   * @var array<string,string>
+   */
+  const LEGACY_PREFIXES = [
+    'VORTEX_CLI_INSTALL_' => 'VORTEX_INSTALLER_',
+    'VORTEX_CLI_' => 'VORTEX_INSTALLER_',
+  ];
+
+  /**
+   * Legacy names that were read, keyed by the name that supersedes them.
+   *
+   * @var array<string,string>
+   */
+  protected static array $legacyUsed = [];
+
+  /**
    * Reliable wrapper to work with environment values.
    */
   public static function get(string $name, mixed $default = NULL): mixed {
     $vars = getenv();
 
-    return $vars[$name] ?? $default;
+    if (array_key_exists($name, $vars)) {
+      return $vars[$name];
+    }
+
+    $legacy = static::legacyName($name);
+
+    if (!is_null($legacy) && array_key_exists($legacy, $vars)) {
+      static::$legacyUsed[$name] = $legacy;
+
+      return $vars[$legacy];
+    }
+
+    return $default;
+  }
+
+  /**
+   * Resolve the superseded name for a current variable name.
+   *
+   * @return string|null
+   *   The legacy name, or NULL when the name carries no superseded prefix.
+   */
+  public static function legacyName(string $name): ?string {
+    foreach (static::LEGACY_PREFIXES as $current => $legacy) {
+      if (str_starts_with($name, $current)) {
+        return $legacy . substr($name, strlen($current));
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Get the legacy names read so far, keyed by the name that supersedes them.
+   *
+   * @return array<string,string>
+   *   Current name => legacy name that provided the value.
+   */
+  public static function legacyUsed(): array {
+    return static::$legacyUsed;
+  }
+
+  /**
+   * Forget the recorded legacy reads.
+   */
+  public static function resetLegacyUsed(): void {
+    static::$legacyUsed = [];
   }
 
   public static function put(string $name, string $value): void {

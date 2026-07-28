@@ -19,6 +19,7 @@ class FileManagerTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    static::envUnsetPrefix('VORTEX_CLI');
     static::envUnsetPrefix('VORTEX_INSTALLER');
     static::envUnsetPrefix('VORTEX_FETCH');
     static::envUnsetPrefix('VORTEX_DB');

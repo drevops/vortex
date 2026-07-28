@@ -47,7 +47,18 @@ class InstallCommandTest extends FunctionalTestCase {
     bool $expect_failure,
     array $output_assertions,
     bool $download_should_fail = FALSE,
+    array $env = [],
   ): void {
+    // Scenarios share a process, so both prefixes are cleared up front to stop
+    // one scenario's variables resolving in the next.
+    static::envUnsetPrefix('VORTEX_CLI');
+    static::envUnsetPrefix('VORTEX_INSTALLER');
+    Env::resetLegacyUsed();
+
+    foreach ($env as $name => $value) {
+      static::envSet($name, $value);
+    }
+
     // 1. Mock ExecutableFinder for InstallCommand (requirements checking).
     $executable_finder = $this->createMock(ExecutableFinder::class);
     $executable_finder->method('find')
@@ -135,7 +146,7 @@ class InstallCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testInstallCommand.
    *
-   * @return \Iterator<string, array{command_inputs: array<string, mixed>, install_executable_finder_find_callback: \Closure, build_runner_exit_callback: \Closure, check_requirements_runner_exit_callback: \Closure, expect_failure: bool, output_assertions: array<string>, download_should_fail?: bool}>
+   * @return \Iterator<string, array{command_inputs: array<string, mixed>, install_executable_finder_find_callback: \Closure, build_runner_exit_callback: \Closure, check_requirements_runner_exit_callback: \Closure, expect_failure: bool, output_assertions: array<string>, download_should_fail?: bool, env?: array<string, string>}>
    */
   public static function dataProviderInstallCommand(): \Iterator {
     yield 'Install without build flag, skips build' => [
@@ -167,6 +178,37 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::FOOTER_SITE_READY,
         ]),
       ],
+    ];
+    yield 'Install reading a superseded variable warns about it' => [
+      'command_inputs' => self::tuiOptions([
+        InstallCommand::OPTION_NO_INTERACTION => TRUE,
+      ]),
+      'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
+      'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'expect_failure' => FALSE,
+      'output_assertions' => [
+        '* VORTEX_INSTALLER_NO_CLEANUP is deprecated',
+        '* Use VORTEX_CLI_INSTALL_NO_CLEANUP instead',
+      ],
+      'download_should_fail' => FALSE,
+      // Read during option resolution, and inert here because cleanup only
+      // removes a running PHAR and these tests run in-process.
+      'env' => ['VORTEX_INSTALLER_NO_CLEANUP' => '1'],
+    ];
+    yield 'Install reading only current variables warns about nothing' => [
+      'command_inputs' => self::tuiOptions([
+        InstallCommand::OPTION_NO_INTERACTION => TRUE,
+      ]),
+      'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
+      'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'expect_failure' => FALSE,
+      'output_assertions' => [
+        '! is deprecated and will be removed',
+      ],
+      'download_should_fail' => FALSE,
+      'env' => ['VORTEX_CLI_INSTALL_NO_CLEANUP' => '1'],
     ];
     yield 'Install with config JSON string succeeds' => [
       'command_inputs' => self::tuiOptions([

@@ -5,43 +5,43 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Utils;
 
 /**
- * Installer configuration.
+ * Install configuration.
  *
- * Installer config is a config of this installer script.
+ * Install config is a config of the install command.
  *
  * @package DrevOps\VortexCli
  */
 final class Config {
 
-  const ROOT = 'VORTEX_INSTALLER_ROOT_DIR';
+  const ROOT = 'VORTEX_CLI_INSTALL_ROOT_DIR';
 
-  const DST = 'VORTEX_INSTALLER_DST_DIR';
+  const DST = 'VORTEX_CLI_INSTALL_DST_DIR';
 
-  const TMP = 'VORTEX_INSTALLER_TMP_DIR';
+  const TMP = 'VORTEX_CLI_INSTALL_TMP_DIR';
 
-  const REPO = 'VORTEX_INSTALLER_TEMPLATE_REPO';
+  const REPO = 'VORTEX_CLI_INSTALL_TEMPLATE_REPO';
 
-  const REF = 'VORTEX_INSTALLER_TEMPLATE_REF';
+  const REF = 'VORTEX_CLI_INSTALL_TEMPLATE_REF';
 
-  const PROCEED = 'VORTEX_INSTALLER_PROCEED';
+  const PROCEED = 'VORTEX_CLI_INSTALL_PROCEED';
 
-  const IS_DEMO = 'VORTEX_INSTALLER_IS_DEMO';
+  const IS_DEMO = 'VORTEX_CLI_INSTALL_IS_DEMO';
 
-  const IS_DEMO_DB_FETCH_SKIP = 'VORTEX_INSTALLER_IS_DEMO_DB_FETCH_SKIP';
+  const IS_DEMO_DB_FETCH_SKIP = 'VORTEX_CLI_INSTALL_IS_DEMO_DB_FETCH_SKIP';
 
-  const IS_VORTEX_PROJECT = 'VORTEX_INSTALLER_IS_VORTEX_PROJECT';
+  const IS_VORTEX_PROJECT = 'VORTEX_CLI_INSTALL_IS_VORTEX_PROJECT';
 
-  const VERSION = 'VORTEX_INSTALLER_VERSION';
+  const VERSION = 'VORTEX_CLI_VERSION';
 
-  const NO_INTERACTION = 'VORTEX_INSTALLER_NO_INTERACTION';
+  const NO_INTERACTION = 'VORTEX_CLI_INSTALL_NO_INTERACTION';
 
-  const QUIET = 'VORTEX_INSTALLER_QUIET';
+  const QUIET = 'VORTEX_CLI_INSTALL_QUIET';
 
-  const NO_CLEANUP = 'VORTEX_INSTALLER_NO_CLEANUP';
+  const NO_CLEANUP = 'VORTEX_CLI_INSTALL_NO_CLEANUP';
 
-  const BUILD_NOW = 'VORTEX_INSTALLER_BUILD_NOW';
+  const BUILD_NOW = 'VORTEX_CLI_INSTALL_BUILD_NOW';
 
-  const PROMPTS = 'VORTEX_INSTALLER_PROMPTS';
+  const PROMPTS = 'VORTEX_CLI_INSTALL_PROMPTS';
 
   /**
    * Store of configuration values.

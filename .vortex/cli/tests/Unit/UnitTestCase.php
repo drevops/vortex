@@ -53,7 +53,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    * {@inheritdoc}
    */
   public static function locationsFixturesDir(): string {
-    return '.vortex/installer/tests/Fixtures';
+    return '.vortex/cli/tests/Fixtures';
   }
 
   protected function assertYamlFileIsValid(string $filename): void {

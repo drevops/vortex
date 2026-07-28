@@ -66,7 +66,7 @@ abstract class AbstractHandler implements HandlerInterface {
    * {@inheritdoc}
    */
   public static function envName(): string {
-    return Converter::constant('VORTEX_INSTALLER_PROMPT_' . static::id());
+    return Converter::constant('VORTEX_CLI_INSTALL_PROMPT_' . static::id());
   }
 
   /**

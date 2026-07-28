@@ -208,6 +208,11 @@ EOF
 
       $this->promptManager->runPrompts();
 
+      // Flushed here rather than at resolve time because prompt answers are
+      // read from the environment during the run above, so earlier reporting
+      // would miss every deprecated prompt variable.
+      $this->noticeDeprecatedEnvVars();
+
       Tui::list($this->promptManager->getResponsesSummary(), 'Installation summary');
 
       if (!$this->promptManager->shouldProceed()) {
@@ -275,7 +280,7 @@ EOF
     elseif (!$requested_build) {
       $should_build = Tui::confirm(
         label: 'Run the site build now?',
-        default: (bool) Env::get('VORTEX_INSTALLER_PROMPT_BUILD_NOW', TRUE),
+        default: (bool) Env::get('VORTEX_CLI_INSTALL_PROMPT_BUILD_NOW', TRUE),
         hint: 'Takes ~5-10 min; output will be streamed. You can skip and run later with: ahoy build',
       );
     }
@@ -423,6 +428,15 @@ EOF
       $installer_major,
       $project_major,
     ));
+  }
+
+  /**
+   * Report every superseded environment variable that supplied a value.
+   */
+  protected function noticeDeprecatedEnvVars(): void {
+    foreach (Env::legacyUsed() as $current => $legacy) {
+      Tui::note(sprintf('%s is deprecated and will be removed in a future release. Use %s instead.', $legacy, $current));
+    }
   }
 
   /**
