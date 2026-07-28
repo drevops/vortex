@@ -12,6 +12,11 @@ In CI, Hadolint is installed automatically as part of the pipeline.
 
 :::
 
+Hadolint is selected by default during installation. Deselecting it in the
+`Development tools` question removes the continuous integration step from every
+supported provider. The `hadolint ignore=` directives in the Dockerfiles are
+kept, so the tool still works when run by hand.
+
 ## Usage
 
 ```shell

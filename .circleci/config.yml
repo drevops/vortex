@@ -131,16 +131,20 @@ jobs:
           name: Login to container registry
           command: ./vendor/bin/vortex-login-container-registry
 
+      #;< TOOL_HADOLINT
       - run:
           name: Lint Dockerfiles with Hadolint
           command: |
             for file in $(find .docker \( -name 'Dockerfile' -o -name '*.dockerfile' \)); do
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
+      #;> TOOL_HADOLINT
 
+      #;< TOOL_DCLINT
       - run:
           name: Lint Docker Compose files with DCLint
           command: docker run --rm -v "${PWD}":/app zavoloklom/dclint:3.1.0 . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> TOOL_DCLINT
 
       #;< CI_GITLEAKS
       - run:

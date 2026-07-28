@@ -32,6 +32,10 @@ class Tools extends AbstractHandler {
 
   const TWIG_CS_FIXER = 'twig_cs_fixer';
 
+  const DCLINT = 'dclint';
+
+  const HADOLINT = 'hadolint';
+
   /**
    * {@inheritdoc}
    */
@@ -63,7 +67,9 @@ class Tools extends AbstractHandler {
   public function default(array $responses): null|string|bool|array {
     return [
       self::BEHAT,
+      self::DCLINT,
       self::ESLINT,
+      self::HADOLINT,
       self::JEST,
       self::PHPCS,
       self::PHPSTAN,
@@ -211,7 +217,7 @@ class Tools extends AbstractHandler {
   }
 
   protected function processGroup(string $name): void {
-    $config = static::getToolDefinitions('goups')[$name];
+    $config = static::getToolDefinitions('groups')[$name];
     $selected_tools = $this->getResponseAsArray();
 
     if (!isset($config['tools']) || array_intersect($config['tools'], $selected_tools)) {
@@ -461,6 +467,25 @@ class Tools extends AbstractHandler {
           'ahoy cli vendor/bin/twig-cs-fixer lint --fix',
           'ahoy cli vendor/bin/twig-cs-fixer lint',
         ],
+      ],
+
+      self::DCLINT => [
+        'title' => 'DCLint',
+        'present' => fn(): mixed => File::exists($this->dstDir . '/.dclintrc') ||
+          File::contains($this->dstDir . '/.github/workflows/build-test-deploy.yml', 'dclint') ||
+          File::contains($this->dstDir . '/.circleci/config.yml', 'dclint'),
+        'files' => ['.dclintrc'],
+        'strings' => ['/^.*dclint.*\n?/mi'],
+      ],
+
+      // Hadolint ships no configuration file, so the CI step is the only signal
+      // that a project uses it. The 'hadolint ignore=' directives in Dockerfiles
+      // are deliberately not a signal: they survive deselection, so treating
+      // them as one would make the choice impossible to reverse.
+      self::HADOLINT => [
+        'title' => 'Hadolint',
+        'present' => fn(): mixed => File::contains($this->dstDir . '/.github/workflows/build-test-deploy.yml', 'hadolint') ||
+          File::contains($this->dstDir . '/.circleci/config.yml', 'hadolint'),
       ],
 
       // Tool groups with shared resources.
