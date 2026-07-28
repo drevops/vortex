@@ -422,7 +422,7 @@ jobs:
         run: ./vendor/bin/vortex-login-container-registry
 
       - name: Build stack
-        run: docker compose up --detach && docker builder prune --all --force
+        run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
       - name: Export built codebase
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
@@ -443,14 +443,18 @@ jobs:
 
       - name: Provision site
         run: |
+          # Database dumps are removed from the runner once they are inside the
+          # container to avoid holding two copies for the rest of the job.
           if [ -f .data/db.sql ]; then
             docker compose exec cli mkdir -p .data
             docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            rm -f .data/db.sql
           fi
           #;< MIGRATION
           if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
             docker compose exec -T cli mkdir -p .data
             docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
+            rm -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
           fi
           #;> MIGRATION
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision

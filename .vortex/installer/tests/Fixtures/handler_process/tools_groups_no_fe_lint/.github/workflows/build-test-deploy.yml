@@ -25,7 +25,7 @@
  
        - name: Provision site
          run: |
-@@ -398,11 +392,6 @@
+@@ -401,11 +395,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

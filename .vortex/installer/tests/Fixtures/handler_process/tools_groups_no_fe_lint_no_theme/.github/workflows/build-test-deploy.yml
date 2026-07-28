@@ -30,7 +30,7 @@
  
        - name: Provision site
          run: |
-@@ -399,11 +388,6 @@
+@@ -402,11 +391,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -42,7 +42,7 @@
        - name: Test with PHPUnit
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli vendor/bin/phpunit
-@@ -463,18 +447,6 @@
+@@ -466,18 +450,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
