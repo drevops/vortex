@@ -4,9 +4,9 @@
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 -          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
  
-       - name: Provision site
-         run: |
-@@ -398,11 +397,6 @@
+       # Provisioning is the most disk-intensive step: a runner that runs out of
+       # space is killed without a step error and its logs become unretrievable,
+@@ -415,11 +414,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

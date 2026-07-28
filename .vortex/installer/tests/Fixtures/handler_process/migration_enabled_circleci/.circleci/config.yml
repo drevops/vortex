@@ -340,7 +340,7 @@ jobs:
 
       - run:
           name: Build stack
-          command: docker compose up --detach && docker builder prune --all --force
+          command: docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
       - run:
           name: Export built codebase
@@ -358,16 +358,29 @@ jobs:
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
+      # Provisioning is the most disk-intensive step: a runner that runs out of
+      # space is killed without a step error, so the available space is reported
+      # while there is still a log to write it to.
+      - run:
+          name: Show disk usage
+          command: |
+            df -h
+            docker system df
+
       - run:
           name: Provision site
           command: |
+            # Database dumps are removed from the runner once they are inside the
+            # container to avoid holding two copies for the rest of the job.
             if [ -f .data/db.sql ]; then
               docker compose exec cli mkdir -p .data
               docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+              rm -f .data/db.sql
             fi
             if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
               docker compose exec -T cli mkdir -p .data
               docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
+              rm -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
           no_output_timeout: 30m

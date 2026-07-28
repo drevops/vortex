@@ -373,7 +373,7 @@ jobs:
         run: ./vendor/bin/vortex-login-container-registry
 
       - name: Build stack
-        run: docker compose up --detach && docker builder prune --all --force
+        run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
       - name: Export built codebase
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
@@ -390,11 +390,28 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
 
+      # Provisioning is the most disk-intensive step: a runner that runs out of
+      # space is killed without a step error and its logs become unretrievable,
+      # so the report is written to the job summary, which is stored separately
+      # from the logs and survives.
+      - name: Show disk usage
+        run: |
+          {
+            echo '### Disk usage before provisioning'
+            echo '```'
+            df -h
+            docker system df
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Provision site
         run: |
+          # Database dumps are removed from the runner once they are inside the
+          # container to avoid holding two copies for the rest of the job.
           if [ -f .data/db.sql ]; then
             docker compose exec cli mkdir -p .data
             docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            rm -f .data/db.sql
           fi
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
         timeout-minutes: 30
